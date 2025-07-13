@@ -318,23 +318,36 @@ async function handleAgentCoordinate(ctx: CommandContext): Promise<void> {
     // Store coordination event
     await memoryManager.store({
       id: `coordination-${sessionId}-${Date.now()}`,
-      type: 'coordination',
-      content: {
+      type: 'decision',
+      content: JSON.stringify({
         sessionId,
         strategy,
-        participatingAgents: agents.map(a => (a.content as any).name),
+        participatingAgents: agents.map(a => {
+          try {
+            return JSON.parse(a.content).name;
+          } catch {
+            return a.id;
+          }
+        }),
         coordinationStarted: Date.now()
-      },
+      }),
       metadata: {
         intrinsicCoordination: true,
         agentCount: agents.length
       },
+      tags: ['coordination', 'session', sessionId],
       timestamp: Date.now()
     });
     
     success(`✅ Coordination initiated for ${agents.length} agents`);
     console.log(`   Strategy: ${strategy}`);
-    console.log(`   Participants: ${agents.map(a => (a.content as any).name).join(', ')}`);
+    console.log(`   Participants: ${agents.map(a => {
+      try {
+        return JSON.parse(a.content).name;
+      } catch {
+        return a.id;
+      }
+    }).join(', ')}`);
     
   } catch (err) {
     error(`Failed to coordinate agents: ${getErrorMessage(err)}`);
@@ -406,18 +419,19 @@ async function initializeIntrinsicCoordination(config: IntrinsicCoordinationConf
   // Initialize coordination session
   await memoryManager.store({
     id: `intrinsic-session-${sessionId}`,
-    type: 'session',
-    content: {
+    type: 'insight',
+    content: JSON.stringify({
       sessionId,
       topology,
       agentCount,
       memoryHooks,
       initialized: Date.now()
-    },
+    }),
     metadata: {
       intrinsic: true,
       coordinationType: 'intrinsic'
     },
+    tags: ['session', 'intrinsic', sessionId],
     timestamp: Date.now()
   });
   
@@ -461,8 +475,8 @@ async function spawnIntrinsicAgent(config: IntrinsicAgentConfig): Promise<void> 
   // Store agent with intrinsic coordination data
   await memoryManager.store({
     id: `agent-${name}`,
-    type: 'agent',
-    content: {
+    type: 'observation',
+    content: JSON.stringify({
       name,
       type,
       sessionId,
@@ -476,12 +490,13 @@ async function spawnIntrinsicAgent(config: IntrinsicAgentConfig): Promise<void> 
         notification: true,
         memorySync: true
       }
-    },
+    }),
     metadata: {
       intrinsic: true,
       agentType: type,
       sessionCoordination: true
     },
+    tags: ['agent', 'intrinsic', type, sessionId],
     timestamp: Date.now()
   });
 }
@@ -492,17 +507,18 @@ async function setupCoordinationTopology(sessionId: string, topology: string, ag
   // Store topology configuration
   await memoryManager.store({
     id: `topology-${sessionId}`,
-    type: 'topology',
-    content: {
+    type: 'decision',
+    content: JSON.stringify({
       sessionId,
       topology,
       agentCount,
       coordinationRules: getTopologyRules(topology),
       setupAt: Date.now()
-    },
+    }),
     metadata: {
       intrinsicTopology: true
     },
+    tags: ['topology', topology, sessionId],
     timestamp: Date.now()
   });
 }
