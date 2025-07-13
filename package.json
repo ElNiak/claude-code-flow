@@ -1,7 +1,7 @@
 {
   "name": "claude-flow",
   "version": "2.0.0-alpha.50",
-  "description": "Enterprise-grade AI agent orchestration with unified coordination system and intrinsic agents (Alpha Release)",
+  "description": "Advanced AI agent coordination platform with intelligent task distribution and persistent memory (Alpha Release)",
   "main": "cli.mjs",
   "bin": {
     "claude-flow": "./bin/claude-flow"
@@ -73,7 +73,7 @@
     "enterprise",
     "coordination",
     "multi-agent",
-    "neural-networks", 
+    "task-management", 
     "cli",
     "tools",
     "alpha",
