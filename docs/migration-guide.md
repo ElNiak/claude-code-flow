@@ -16,7 +16,7 @@
 
 Claude Flow v2.0.0 represents a complete migration from Deno to pure NPM TypeScript, providing:
 - **✅ Better ecosystem compatibility** - Full NPM package support
-- **✅ Improved performance** - 60% faster builds, 2.8-4.4x execution speed
+- **✅ Improved performance** - Faster builds and enhanced execution speed
 - **✅ Enhanced tooling** - Standard TypeScript toolchain
 - **✅ Enterprise features** - Production-ready infrastructure
 - **✅ Cross-platform support** - Windows, macOS, Linux

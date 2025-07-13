@@ -176,10 +176,10 @@ export class EnhancedUIViews {
     
     // System metrics overview
     console.log(colors.cyan('📈 System Metrics'));
-    console.log(`  Token Usage: ${colors.yellow('1.2M')} (${colors.green('-32.3%')} reduction)`);
-    console.log(`  Success Rate: ${colors.green('84.8%')} (SWE-Bench)`);
-    console.log(`  Speed Improvement: ${colors.green('2.8-4.4x')} faster`);
-    console.log(`  Memory Efficiency: ${colors.green('78%')}`);
+    console.log(`  Token Usage: ${colors.yellow('Optimized')} coordination`);
+    console.log(`  Success Rate: ${colors.green('Enhanced')} coordination`);
+    console.log(`  Speed Improvement: ${colors.green('Improved')} performance`);
+    console.log(`  Memory Efficiency: ${colors.green('Optimized')}`);
     console.log();
     
     // Analysis tools grid

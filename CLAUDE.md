@@ -354,10 +354,10 @@ The swarm provides persistent memory that helps Claude Code:
 ## Performance Benefits
 
 When using ruv-swarm coordination with Claude Code:
-- **84.8% SWE-Bench solve rate** - Better problem-solving through coordination
-- **32.3% token reduction** - Efficient task breakdown reduces redundancy
-- **2.8-4.4x speed improvement** - Parallel coordination strategies
-- **27+ neural models** - Diverse cognitive approaches
+- **Enhanced problem-solving** - Better coordination through systematic approaches
+- **Token usage optimization** - Efficient task breakdown reduces redundancy
+- **Performance improvements** - Parallel coordination strategies
+- **Multiple neural models** - Diverse cognitive approaches
 
 ## Claude Code Hooks Integration
 

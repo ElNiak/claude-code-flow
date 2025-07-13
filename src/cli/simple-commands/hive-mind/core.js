@@ -4,6 +4,7 @@
  */
 
 import EventEmitter from 'events';
+import chalk from 'chalk';
 import { MCPToolWrapper } from './mcp-wrapper.js';
 import { PerformanceOptimizer } from './performance-optimizer.js';
 
@@ -13,6 +14,10 @@ import { PerformanceOptimizer } from './performance-optimizer.js';
 export class HiveMindCore extends EventEmitter {
   constructor(config = {}) {
     super();
+    
+    // DEBUG: Log incoming configuration
+    console.log(chalk.gray(`🔍 [DEBUG] HiveMindCore constructor called with config:`));
+    console.log(chalk.gray(JSON.stringify(config, null, 2)));
     
     this.config = {
       objective: '',
@@ -26,6 +31,12 @@ export class HiveMindCore extends EventEmitter {
       taskTimeout: 60, // minutes
       ...config
     };
+    
+    // DEBUG: Log final configuration
+    console.log(chalk.green(`✅ [DEBUG] HiveMindCore final configuration:`));
+    console.log(chalk.green(`  - queenType: ${this.config.queenType}`));
+    console.log(chalk.green(`  - maxWorkers: ${this.config.maxWorkers}`));
+    console.log(chalk.green(`  - consensusAlgorithm: ${this.config.consensusAlgorithm}`));
     
     this.state = {
       status: 'initializing',
@@ -228,6 +239,8 @@ export class HiveMindCore extends EventEmitter {
   async spawnQueen(queenData) {
     const [spawnResult] = await this.mcpWrapper.spawnAgents(['coordinator'], this.state.swarmId);
     
+    console.log(chalk.blue(`👑 [DEBUG] Creating queen with type: ${this.config.queenType}`));
+    
     this.state.queen = {
       id: queenData.id,
       agentId: spawnResult.agentId,
@@ -236,6 +249,8 @@ export class HiveMindCore extends EventEmitter {
       decisions: 0,
       tasks: 0
     };
+    
+    console.log(chalk.green(`✅ [DEBUG] Queen created successfully with type: ${this.state.queen.type}`));
     
     // Store queen info in memory
     await this.mcpWrapper.storeMemory(
@@ -389,6 +404,37 @@ export class HiveMindCore extends EventEmitter {
     
     this.emit('task:created', task);
     
+    // 🤝 CONSENSUS TRIGGER: Check if task requires consensus decision
+    if (this._shouldTriggerConsensus(task)) {
+      console.log(chalk.blue(`🤝 [CONSENSUS] High-priority task requires consensus: "${task.description}"`));
+      
+      try {
+        const options = this._generateTaskOptions(task);
+        const consensus = await this.buildConsensus(
+          `Implementation approach: ${task.description}`,
+          options
+        );
+        
+        // Store consensus decision in task metadata
+        task.consensusDecision = consensus.result;
+        task.consensusConfidence = consensus.confidence;
+        task.metadata.approachDecision = consensus.result;
+        
+        console.log(chalk.green(`✅ [CONSENSUS] Team decided on: "${consensus.result}" (confidence: ${Math.round(consensus.confidence * 100)}%)`));
+        
+        // Update task in storage with consensus results
+        await this.mcpWrapper.storeMemory(
+          this.state.swarmId,
+          `task-${task.id}`,
+          task,
+          'task'
+        );
+        
+      } catch (error) {
+        console.warn(chalk.yellow(`⚠️ [CONSENSUS] Failed to build consensus, proceeding normally: ${error.message}`));
+      }
+    }
+    
     // Assign task if worker available
     if (bestWorker) {
       // Use non-blocking assignment
@@ -396,6 +442,88 @@ export class HiveMindCore extends EventEmitter {
     }
     
     return task;
+  }
+  
+  /**
+   * Check if task should trigger consensus
+   */
+  _shouldTriggerConsensus(task) {
+    // High priority tasks (8+) always require consensus
+    if (task.priority >= 8) {
+      return true;
+    }
+    
+    // Tasks explicitly marked for consensus
+    if (task.metadata.requiresConsensus === true) {
+      return true;
+    }
+    
+    // Complex architectural decisions
+    const architecturalKeywords = [
+      'architecture', 'design', 'strategy', 'approach', 'pattern',
+      'framework', 'structure', 'system', 'infrastructure'
+    ];
+    
+    const description = task.description.toLowerCase();
+    if (architecturalKeywords.some(keyword => description.includes(keyword))) {
+      return true;
+    }
+    
+    // Resource-intensive decisions
+    const resourceKeywords = [
+      'optimize', 'performance', 'scale', 'refactor', 'migration',
+      'deployment', 'security', 'integration'
+    ];
+    
+    if (resourceKeywords.some(keyword => description.includes(keyword)) && task.priority >= 6) {
+      return true;
+    }
+    
+    return false;
+  }
+  
+  /**
+   * Generate possible options for task implementation
+   */
+  _generateTaskOptions(task) {
+    const description = task.description.toLowerCase();
+    const complexity = task.metadata.complexity || 'medium';
+    
+    // Generate options based on task type and complexity
+    if (description.includes('api') || description.includes('backend')) {
+      return complexity === 'high' 
+        ? ['scalable microservices', 'maintainable monolith', 'hybrid approach']
+        : ['simple REST API', 'efficient implementation', 'quick solution'];
+    }
+    
+    if (description.includes('frontend') || description.includes('ui')) {
+      return complexity === 'high'
+        ? ['component-based architecture', 'maintainable structure', 'extensible framework']
+        : ['simple implementation', 'quick UI solution', 'efficient interface'];
+    }
+    
+    if (description.includes('database') || description.includes('data')) {
+      return complexity === 'high'
+        ? ['optimized schema design', 'scalable data structure', 'efficient storage']
+        : ['simple database', 'quick data solution', 'straightforward storage'];
+    }
+    
+    if (description.includes('test') || description.includes('quality')) {
+      return ['comprehensive testing', 'efficient validation', 'quick quality checks'];
+    }
+    
+    if (description.includes('optimize') || description.includes('performance')) {
+      return ['thorough optimization', 'targeted improvements', 'quick performance fix'];
+    }
+    
+    // Default options based on complexity
+    if (complexity === 'high') {
+      return ['comprehensive solution', 'maintainable approach', 'extensible implementation'];
+    } else if (complexity === 'low') {
+      return ['simple solution', 'quick implementation', 'efficient approach'];
+    } else {
+      return ['balanced approach', 'efficient solution', 'maintainable implementation'];
+    }
   }
   
   /**
@@ -716,6 +844,10 @@ export class HiveMindCore extends EventEmitter {
    * Build consensus for decision
    */
   async buildConsensus(topic, options) {
+    console.log(chalk.blue(`🤝 [CONSENSUS] Creating decision with algorithm: ${this.config.consensusAlgorithm}`));
+    console.log(chalk.gray(`   Topic: "${topic}"`));
+    console.log(chalk.gray(`   Options: [${options.join(', ')}]`));
+    
     const decision = {
       id: `decision-${Date.now()}`,
       swarmId: this.state.swarmId,
@@ -729,21 +861,25 @@ export class HiveMindCore extends EventEmitter {
     
     this.state.decisions.set(decision.id, decision);
     
-    // Simulate voting process
+    // ✅ INTELLIGENT VOTING PROCESS (No more random!)
     const workers = Array.from(this.state.workers.values());
     const votes = {};
     
-    // Each worker votes
+    console.log(chalk.blue(`🗳️  [CONSENSUS] Collecting intelligent votes from ${workers.length} workers...`));
+    
+    // Each worker votes based on their expertise
     workers.forEach(worker => {
-      const vote = options[Math.floor(Math.random() * options.length)];
+      const vote = this._getIntelligentWorkerVote(worker, topic, options);
       votes[worker.id] = vote;
       decision.votes.set(worker.id, vote);
+      console.log(chalk.gray(`   ${worker.type} worker voted: "${vote}"`));
     });
     
-    // Queen gets weighted vote
-    const queenVote = options[Math.floor(Math.random() * options.length)];
+    // Queen votes using strategic decision-making
+    const queenVote = await this._getQueenVote(topic, options, votes);
     votes['queen'] = queenVote;
     decision.votes.set('queen', queenVote);
+    console.log(chalk.yellow(`👑 [CONSENSUS] Queen voted: "${queenVote}"`));
     
     // Calculate consensus
     const result = this._calculateConsensus(decision);
@@ -827,6 +963,97 @@ export class HiveMindCore extends EventEmitter {
           confidence: 0
         };
     }
+  }
+  
+  /**
+   * Get intelligent worker vote based on expertise
+   */
+  _getIntelligentWorkerVote(worker, topic, options) {
+    const workerKeywords = this._getWorkerExpertiseKeywords(worker.type);
+    const scores = {};
+    
+    // Score each option based on keyword matches
+    options.forEach(option => {
+      const optionWords = option.toLowerCase().split(/\s+/);
+      const topicWords = topic.toLowerCase().split(/\s+/);
+      const allWords = [...optionWords, ...topicWords];
+      
+      let score = 0;
+      workerKeywords.forEach(keyword => {
+        if (allWords.some(word => word.includes(keyword) || keyword.includes(word))) {
+          score += 1;
+        }
+      });
+      
+      scores[option] = score;
+    });
+    
+    // Find option with highest score
+    const sortedByScore = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+    
+    // If there's a clear expertise match, use it
+    if (sortedByScore[0][1] > 0) {
+      return sortedByScore[0][0];
+    }
+    
+    // Otherwise, default to first option (better than random)
+    return options[0];
+  }
+  
+  /**
+   * Get worker expertise keywords
+   */
+  _getWorkerExpertiseKeywords(workerType) {
+    const expertiseMap = {
+      researcher: ['research', 'investigate', 'analyze', 'study', 'explore', 'evaluate', 'compare'],
+      coder: ['implement', 'build', 'develop', 'code', 'program', 'create', 'fix', 'write'],
+      architect: ['design', 'structure', 'plan', 'system', 'architecture', 'pattern', 'framework'],
+      optimizer: ['performance', 'efficiency', 'speed', 'optimize', 'enhance', 'improve', 'fast'],
+      tester: ['test', 'verify', 'validate', 'quality', 'debug', 'check', 'qa', 'reliable'],
+      analyst: ['analyze', 'assess', 'review', 'examine', 'metrics', 'data', 'measure'],
+      documenter: ['document', 'explain', 'write', 'describe', 'guide', 'manual', 'documentation'],
+      reviewer: ['review', 'feedback', 'improve', 'refactor', 'audit', 'critique', 'evaluate']
+    };
+    
+    return expertiseMap[workerType] || [];
+  }
+  
+  /**
+   * Get queen's strategic vote
+   */
+  async _getQueenVote(topic, options, workerVotes) {
+    // If queen is available, use its strategic decision-making
+    if (this.state.queen) {
+      try {
+        const decision = await this.state.queen.makeDecision(topic, options, workerVotes);
+        return decision.result || decision.queenVote || options[0];
+      } catch (error) {
+        console.warn(chalk.yellow(`⚠️  [CONSENSUS] Queen decision failed, using fallback: ${error.message}`));
+      }
+    }
+    
+    // Fallback: analyze worker consensus
+    const voteCounts = {};
+    Object.values(workerVotes).forEach(vote => {
+      voteCounts[vote] = (voteCounts[vote] || 0) + 1;
+    });
+    
+    // Follow majority if strong consensus exists
+    const sorted = Object.entries(voteCounts).sort((a, b) => b[1] - a[1]);
+    if (sorted.length > 0 && sorted[0][1] > Object.keys(workerVotes).length * 0.6) {
+      return sorted[0][0];
+    }
+    
+    // Otherwise, prefer strategically sound options
+    const strategicKeywords = ['scalable', 'maintainable', 'extensible', 'future', 'robust'];
+    for (const option of options) {
+      const optionLower = option.toLowerCase();
+      if (strategicKeywords.some(keyword => optionLower.includes(keyword))) {
+        return option;
+      }
+    }
+    
+    return options[0]; // Fallback to first option
   }
   
   /**

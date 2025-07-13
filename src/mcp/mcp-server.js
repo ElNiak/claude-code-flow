@@ -1095,11 +1095,11 @@ class ClaudeFlowMCPServer {
 
       case 'claude-flow://performance':
         return {
-          uptime: '99.9%',
-          token_reduction: '32.3%',
-          swe_bench_rate: '84.8%',
-          speed_improvement: '2.8-4.4x',
-          memory_efficiency: '78%'
+          uptime: 'Available when monitoring enabled',
+          token_reduction: 'Optimization features available',
+          swe_bench_rate: 'Benchmarking not yet implemented',
+          speed_improvement: 'Performance improvements vary by use case',
+          memory_efficiency: 'Memory optimization features available'
         };
 
       default:

@@ -34,12 +34,25 @@ ${chalk.bold('USAGE:')}
 
 ${chalk.bold('SUBCOMMANDS:')}
   ${chalk.green('init')}         Initialize hive mind system
-  ${chalk.green('spawn')}        Spawn hive mind swarm for a task
+  ${chalk.green('spawn')}        Spawn hive mind swarm with intelligent agent auto-selection
   ${chalk.green('status')}       Show hive mind status
-  ${chalk.green('consensus')}    View consensus decisions
+  ${chalk.green('consensus')}    View consensus decisions or trigger manual consensus
   ${chalk.green('memory')}       Manage collective memory
   ${chalk.green('metrics')}      View performance metrics
   ${chalk.green('wizard')}       Interactive hive mind wizard
+
+${chalk.bold('CONSENSUS COMMANDS:')}
+  ${chalk.cyan('# View recent consensus decisions')}
+  claude-flow hive-mind consensus
+  
+  ${chalk.cyan('# Manual consensus decision')}
+  claude-flow hive-mind consensus --decide "Should we use REST or GraphQL?" --options "REST,GraphQL,Both"
+  
+  ${chalk.cyan('# Quick team vote')}
+  claude-flow hive-mind consensus --topic "Deploy now?" --options "yes,no,wait" --quick
+  
+  ${chalk.cyan('# Strategic consensus with specific queen type')}
+  claude-flow hive-mind consensus --decide "Architecture approach" --options "microservices,monolith,hybrid" --queen-type strategic --agents 8
 
 ${chalk.bold('EXAMPLES:')}
   ${chalk.gray('# Initialize hive mind')}
@@ -48,8 +61,11 @@ ${chalk.bold('EXAMPLES:')}
   ${chalk.gray('# Spawn swarm with interactive wizard')}
   claude-flow hive-mind spawn
 
-  ${chalk.gray('# Quick spawn with objective')}
+  ${chalk.gray('# Intelligent auto-selection based on objective')}
   claude-flow hive-mind spawn "Build microservices architecture"
+  
+  ${chalk.gray('# Manual worker type specification')}
+  claude-flow hive-mind spawn "Build API" --worker-types "researcher,coder,architect,tester"
 
   ${chalk.gray('# View current status')}
   claude-flow hive-mind status
@@ -280,13 +296,34 @@ const hiveMindWizard = safeInteractive(
     console.log(chalk.gray('  --objective "Your task"    Set swarm objective'));
     console.log(chalk.gray('  --queen-type strategic     Set queen type'));
     console.log(chalk.gray('  --max-workers 8            Set worker count'));
+    console.log(chalk.gray('  --agents 8                 Set worker count (alias)'));
+    console.log(chalk.gray('  --consensus majority       Set consensus algorithm'));
     console.log();
     
     const objective = flags.objective || 'General task coordination';
+    
+    // Validate and parse maxWorkers with all supported aliases
+    function validateMaxWorkers(flags) {
+      const value = flags.maxWorkers || flags['max-workers'] || flags.agents;
+      console.log(chalk.gray(`🔍 [DEBUG] Parameter parsing: maxWorkers=${flags.maxWorkers}, max-workers=${flags['max-workers']}, agents=${flags.agents}`));
+      console.log(chalk.gray(`🔍 [DEBUG] Resolved value: ${value}`));
+      
+      if (value !== undefined && value !== null && value !== '') {
+        const parsed = parseInt(value, 10);
+        if (isNaN(parsed) || parsed < 1 || parsed > 100) {
+          throw new Error(`Invalid agent count: ${value}. Must be between 1 and 100.`);
+        }
+        console.log(chalk.green(`✅ [DEBUG] maxWorkers validated and set to: ${parsed}`));
+        return parsed;
+      }
+      console.log(chalk.yellow(`⚠️ [DEBUG] No maxWorkers parameter provided, using default: 8`));
+      return 8; // Default when no value provided
+    }
+    
     const config = {
       name: flags.name || `swarm-${Date.now()}`,
       queenType: flags.queenType || flags['queen-type'] || 'strategic',
-      maxWorkers: parseInt(flags.maxWorkers || flags['max-workers'] || '8'),
+      maxWorkers: validateMaxWorkers(flags),
       consensusAlgorithm: flags.consensus || 'majority',
       autoScale: flags.autoScale || flags['auto-scale'] || false,
       encryption: flags.encryption || false
@@ -411,12 +448,49 @@ async function spawnSwarm(args, flags) {
     let hiveMind;
     try {
       spinner.text = 'Initializing Hive Mind Core...';
+      // Validate and parse parameters with all supported aliases
+      function validateHiveMindParams(flags) {
+        console.log(chalk.gray(`🔍 [DEBUG] HiveMindCore parameter parsing:`));
+        console.log(chalk.gray(`  - maxWorkers: ${flags.maxWorkers}`));
+        console.log(chalk.gray(`  - max-workers: ${flags['max-workers']}`));
+        console.log(chalk.gray(`  - agents: ${flags.agents}`));
+        console.log(chalk.gray(`  - queenType: ${flags.queenType}`));
+        console.log(chalk.gray(`  - queen-type: ${flags['queen-type']}`));
+        console.log(chalk.gray(`  - consensus: ${flags.consensus}`));
+        console.log(chalk.gray(`  - consensusAlgorithm: ${flags.consensusAlgorithm}`));
+        
+        const maxWorkers = flags.maxWorkers || flags['max-workers'] || flags.agents;
+        let parsedMaxWorkers = 8; // default
+        
+        if (maxWorkers !== undefined && maxWorkers !== null && maxWorkers !== '') {
+          parsedMaxWorkers = parseInt(maxWorkers, 10);
+          if (isNaN(parsedMaxWorkers) || parsedMaxWorkers < 1 || parsedMaxWorkers > 100) {
+            throw new Error(`Invalid agent count: ${maxWorkers}. Must be between 1 and 100.`);
+          }
+        }
+        
+        const result = {
+          queenType: flags.queenType || flags['queen-type'] || 'strategic',
+          maxWorkers: parsedMaxWorkers,
+          consensusAlgorithm: flags.consensus || flags.consensusAlgorithm || 'majority'
+        };
+        
+        console.log(chalk.green(`✅ [DEBUG] HiveMindCore parameters resolved:`));
+        console.log(chalk.green(`  - queenType: ${result.queenType}`));
+        console.log(chalk.green(`  - maxWorkers: ${result.maxWorkers}`));
+        console.log(chalk.green(`  - consensusAlgorithm: ${result.consensusAlgorithm}`));
+        
+        return result;
+      }
+      
+      const params = validateHiveMindParams(flags);
+      
       hiveMind = new HiveMindCore({
         objective,
         name: flags.name || `hive-${Date.now()}`,
-        queenType: flags.queenType || 'strategic',
-        maxWorkers: flags.maxWorkers || 8,
-        consensusAlgorithm: flags.consensus || 'majority',
+        queenType: params.queenType,
+        maxWorkers: params.maxWorkers,
+        consensusAlgorithm: params.consensusAlgorithm,
         autoScale: flags.autoScale !== false,
         encryption: flags.encryption || false
       });
@@ -575,15 +649,19 @@ async function spawnSwarm(args, flags) {
     
     spinner.text = 'Spawning worker agents...';
     
-    // Determine worker types
-    const workerTypes = flags.workerTypes 
-      ? flags.workerTypes.split(',') 
-      : ['researcher', 'coder', 'analyst', 'tester'];
+    // 🧠 INTELLIGENT AGENT AUTO-SELECTION
+    const workerTypes = await determineOptimalWorkerTypes(flags, objective, queen);
     
     // Spawn worker agents
+    console.log(chalk.gray(`🔍 [DEBUG] Worker spawning configuration:`));
+    console.log(chalk.gray(`  - hiveMind.config.maxWorkers: ${hiveMind.config.maxWorkers}`));
+    console.log(chalk.gray(`  - Available workerTypes: [${workerTypes.join(', ')}]`));
+    console.log(chalk.gray(`  - Will spawn ${hiveMind.config.maxWorkers} workers total`));
+    
     const workers = [];
-    for (let i = 0; i < Math.min(workerTypes.length, hiveMind.config.maxWorkers); i++) {
+    for (let i = 0; i < hiveMind.config.maxWorkers; i++) {
       const workerType = workerTypes[i % workerTypes.length];
+      console.log(chalk.gray(`🔍 [DEBUG] Spawning worker ${i + 1}/${hiveMind.config.maxWorkers}: type="${workerType}"`));
       const workerId = `worker-${swarmId}-${i}`;
       
       const worker = {
@@ -596,7 +674,14 @@ async function spawnSwarm(args, flags) {
         capabilities: JSON.stringify(getAgentCapabilities(workerType))
       };
       
+      console.log(chalk.cyan(`📋 [DEEP DEBUG] Worker ${i + 1} created in memory:`));
+      console.log(chalk.gray(`  - ID: ${worker.id}`));
+      console.log(chalk.gray(`  - Name: ${worker.name}`));
+      console.log(chalk.gray(`  - Type: ${worker.type}`));
+      console.log(chalk.gray(`  - Status: ${worker.status}`));
+      
       workers.push(worker);
+      console.log(chalk.green(`✅ [DEEP DEBUG] Worker ${i + 1} added to workers array. Array length: ${workers.length}`));
       
       db.prepare(`
         INSERT INTO agents (id, swarm_id, name, type, role, status, capabilities)
@@ -613,9 +698,16 @@ async function spawnSwarm(args, flags) {
     });
     
     // Store initial context
+    console.log(chalk.blue(`💾 [DEEP DEBUG] Storing context in collective memory:`));
+    console.log(chalk.gray(`  - objective: ${objective}`));
+    console.log(chalk.gray(`  - queen_type: ${hiveMind.config.queenType}`));
+    console.log(chalk.gray(`  - worker_count: ${workers.length}`));
+    
     memory.store('objective', objective, 'context');
     memory.store('queen_type', hiveMind.config.queenType, 'config');
     memory.store('worker_count', workers.length, 'metrics');
+    
+    console.log(chalk.green(`✅ [DEEP DEBUG] Context stored successfully`));
     
     spinner.text = 'Establishing communication channels...';
     
@@ -677,6 +769,193 @@ async function spawnSwarm(args, flags) {
     }
     
     exit(1);
+  }
+}
+
+/**
+ * 🧠 Intelligent Agent Auto-Selection
+ * Determines optimal worker types based on objective and queen analysis
+ */
+async function determineOptimalWorkerTypes(flags, objective, queen) {
+  // If user explicitly specified worker types, respect their choice
+  if (flags.workerTypes) {
+    const userTypes = flags.workerTypes.split(',').map(t => t.trim());
+    console.log(chalk.blue('🎯 Using user-specified worker types:'), chalk.bold(userTypes.join(', ')));
+    return userTypes;
+  }
+  
+  // Use Queen intelligence to analyze objective and recommend worker types
+  console.log(chalk.blue('🧠 Analyzing objective for optimal agent selection...'));
+  
+  try {
+    // Get Queen's analysis of the objective
+    const analysis = await queen.analyzeObjective(objective);
+    const requiredCapabilities = analysis.requiredCapabilities;
+    const complexity = analysis.complexity;
+    
+    console.log(chalk.cyan('📊 Queen Analysis Results:'));
+    console.log(chalk.gray(`  - Complexity: ${complexity}`));
+    console.log(chalk.gray(`  - Components: ${analysis.requiredCapabilities.join(', ')}`));
+    console.log(chalk.gray(`  - Strategy: ${analysis.recommendedStrategy}`));
+    
+    // Start with queen-recommended capabilities
+    const recommendedTypes = new Set(requiredCapabilities);
+    
+    // Add strategic worker types based on complexity and objective content
+    const objectiveLower = objective.toLowerCase();
+    
+    // High complexity projects need architects and optimizers
+    if (complexity === 'high' || complexity === 'very_high') {
+      recommendedTypes.add('architect');
+      recommendedTypes.add('optimizer');
+    }
+    
+    // Documentation keywords suggest documenter
+    if (objectiveLower.includes('document') || objectiveLower.includes('guide') || 
+        objectiveLower.includes('readme') || objectiveLower.includes('docs')) {
+      recommendedTypes.add('documenter');
+    }
+    
+    // Quality/review keywords suggest reviewer
+    if (objectiveLower.includes('review') || objectiveLower.includes('audit') || 
+        objectiveLower.includes('refactor') || complexity !== 'low') {
+      recommendedTypes.add('reviewer');
+    }
+    
+    // Enterprise/production keywords suggest additional specialists
+    if (objectiveLower.includes('enterprise') || objectiveLower.includes('production') ||
+        objectiveLower.includes('scale') || objectiveLower.includes('security')) {
+      recommendedTypes.add('architect');
+      recommendedTypes.add('optimizer');
+      recommendedTypes.add('tester');
+    }
+    
+    // API/backend keywords suggest coders and testers
+    if (objectiveLower.includes('api') || objectiveLower.includes('backend') ||
+        objectiveLower.includes('service') || objectiveLower.includes('endpoint')) {
+      recommendedTypes.add('coder');
+      recommendedTypes.add('tester');
+    }
+    
+    // Frontend/UI keywords suggest coders and reviewers
+    if (objectiveLower.includes('frontend') || objectiveLower.includes('ui') ||
+        objectiveLower.includes('interface') || objectiveLower.includes('web')) {
+      recommendedTypes.add('coder');
+      recommendedTypes.add('reviewer');
+    }
+    
+    // Database/data keywords suggest analysts and architects
+    if (objectiveLower.includes('database') || objectiveLower.includes('data') ||
+        objectiveLower.includes('storage') || objectiveLower.includes('analytics')) {
+      recommendedTypes.add('analyst');
+      recommendedTypes.add('architect');
+    }
+    
+    // Always include researcher for initial analysis unless explicitly removed
+    recommendedTypes.add('researcher');
+    
+    // Convert to array and ensure we have valid types
+    const allWorkerTypes = ['researcher', 'coder', 'architect', 'analyst', 'tester', 'optimizer', 'documenter', 'reviewer'];
+    const finalTypes = Array.from(recommendedTypes).filter(type => allWorkerTypes.includes(type));
+    
+    // Ensure we have at least 3 and at most 8 worker types
+    const minTypes = 3;
+    const maxTypes = 8;
+    
+    if (finalTypes.length < minTypes) {
+      // Add essential types if we're under minimum
+      const essentialTypes = ['researcher', 'coder', 'tester'];
+      essentialTypes.forEach(type => {
+        if (!finalTypes.includes(type)) {
+          finalTypes.push(type);
+        }
+      });
+    }
+    
+    if (finalTypes.length > maxTypes) {
+      // Prioritize types based on objective analysis
+      const priorityOrder = [
+        ...requiredCapabilities, // Queen's recommendations come first
+        'researcher', 'coder', 'architect', 'tester', 'analyst', 'optimizer', 'reviewer', 'documenter'
+      ];
+      
+      const prioritizedTypes = [];
+      priorityOrder.forEach(type => {
+        if (finalTypes.includes(type) && prioritizedTypes.length < maxTypes) {
+          prioritizedTypes.push(type);
+        }
+      });
+      
+      finalTypes.splice(0, finalTypes.length, ...prioritizedTypes);
+    }
+    
+    // Display intelligent selection results
+    console.log(chalk.green('✨ Intelligent Agent Selection:'));
+    console.log(chalk.cyan('🎯 Selected Types:'), chalk.bold(finalTypes.join(', ')));
+    
+    // Show reasoning
+    const reasoning = [];
+    if (requiredCapabilities.length > 0) {
+      reasoning.push(`Components analysis: ${requiredCapabilities.join(', ')}`);
+    }
+    if (complexity === 'high' || complexity === 'very_high') {
+      reasoning.push('High complexity: added architect, optimizer');
+    }
+    if (objectiveLower.includes('document')) {
+      reasoning.push('Documentation needs: added documenter');
+    }
+    if (objectiveLower.includes('api') || objectiveLower.includes('backend')) {
+      reasoning.push('Backend/API project: added coder, tester');
+    }
+    
+    if (reasoning.length > 0) {
+      console.log(chalk.gray('📝 Selection Reasoning:'));
+      reasoning.forEach(reason => {
+        console.log(chalk.gray(`  - ${reason}`));
+      });
+    }
+    
+    return finalTypes;
+    
+  } catch (error) {
+    console.warn(chalk.yellow('⚠️ Queen analysis failed, using enhanced defaults:'), error.message);
+    
+    // Fallback: Enhanced default selection based on objective keywords
+    const objectiveLower = objective.toLowerCase();
+    const enhancedDefaults = new Set(['researcher', 'coder']);
+    
+    // Add types based on objective keywords
+    if (objectiveLower.includes('api') || objectiveLower.includes('backend') || 
+        objectiveLower.includes('microservice') || objectiveLower.includes('system')) {
+      enhancedDefaults.add('architect');
+      enhancedDefaults.add('tester');
+    }
+    
+    if (objectiveLower.includes('frontend') || objectiveLower.includes('ui') || objectiveLower.includes('web')) {
+      enhancedDefaults.add('reviewer');
+      enhancedDefaults.add('tester');
+    }
+    
+    if (objectiveLower.includes('data') || objectiveLower.includes('analytics') || objectiveLower.includes('database')) {
+      enhancedDefaults.add('analyst');
+      enhancedDefaults.add('architect');
+    }
+    
+    if (objectiveLower.includes('performance') || objectiveLower.includes('optimize') || objectiveLower.includes('scale')) {
+      enhancedDefaults.add('optimizer');
+    }
+    
+    if (objectiveLower.includes('document') || objectiveLower.includes('guide')) {
+      enhancedDefaults.add('documenter');
+    }
+    
+    // Always include tester for quality
+    enhancedDefaults.add('tester');
+    
+    const fallbackTypes = Array.from(enhancedDefaults);
+    console.log(chalk.blue('🔄 Using enhanced keyword-based selection:'), chalk.bold(fallbackTypes.join(', ')));
+    
+    return fallbackTypes;
   }
 }
 
@@ -811,6 +1090,11 @@ async function showStatus(flags) {
  */
 async function showConsensus(flags) {
   try {
+    // 🤝 NEW: Manual consensus commands
+    if (flags.decide || flags.topic) {
+      return await manualConsensus(flags);
+    }
+    
     const dbPath = path.join(cwd(), '.hive-mind', 'hive.db');
     const db = new Database(dbPath);
     
@@ -824,6 +1108,13 @@ async function showConsensus(flags) {
     
     if (decisions.length === 0) {
       console.log(chalk.gray('No consensus decisions found'));
+      
+      // Show manual consensus help
+      console.log(chalk.cyan('\n💡 Manual Consensus Commands:'));
+      console.log(chalk.gray('  claude-flow hive-mind consensus --decide "Should we use REST or GraphQL?" --options "REST,GraphQL,Both"'));
+      console.log(chalk.gray('  claude-flow hive-mind consensus --topic "Architecture decision" --options "microservices,monolith,hybrid"'));
+      console.log(chalk.gray('  claude-flow hive-mind consensus --quick --topic "Deploy now?" --options "yes,no,wait"'));
+      
       db.close();
       return;
     }
@@ -884,10 +1175,122 @@ async function showConsensus(flags) {
     
     console.log(chalk.yellow('─'.repeat(50)) + '\n');
     
+    // Show manual consensus help
+    console.log(chalk.cyan('💡 Manual Consensus Commands:'));
+    console.log(chalk.gray('  claude-flow hive-mind consensus --decide "Should we use REST or GraphQL?" --options "REST,GraphQL,Both"'));
+    console.log(chalk.gray('  claude-flow hive-mind consensus --topic "Architecture decision" --options "microservices,monolith,hybrid"'));
+    console.log(chalk.gray('  claude-flow hive-mind consensus --quick --topic "Deploy now?" --options "yes,no,wait"'));
+    
     db.close();
     
   } catch (error) {
     console.error(chalk.red('Error:'), error.message);
+    exit(1);
+  }
+}
+
+/**
+ * 🤝 Manual consensus decision-making
+ */
+async function manualConsensus(flags) {
+  try {
+    console.log(chalk.blue('\n🤝 Manual Consensus Decision\n'));
+    
+    // Parse topic and options
+    const topic = flags.decide || flags.topic;
+    let options = [];
+    
+    if (flags.options) {
+      options = flags.options.split(',').map(opt => opt.trim());
+    }
+    
+    if (!topic) {
+      console.error(chalk.red('Error: Topic is required. Use --topic or --decide'));
+      console.log(chalk.gray('Example: claude-flow hive-mind consensus --decide "Use TypeScript?" --options "yes,no,later"'));
+      return;
+    }
+    
+    if (options.length === 0) {
+      console.error(chalk.red('Error: Options are required. Use --options'));
+      console.log(chalk.gray('Example: --options "option1,option2,option3"'));
+      return;
+    }
+    
+    console.log(chalk.cyan('Topic:'), topic);
+    console.log(chalk.cyan('Options:'), options.join(', '));
+    
+    // Get or create hive mind core
+    const mcpWrapper = await getMcpWrapper();
+    const hiveMindCore = new HiveMindCore({
+      objective: `Manual consensus: ${topic}`,
+      queenType: flags['queen-type'] || 'strategic',
+      maxWorkers: parseInt(flags.agents) || 5,
+      consensusAlgorithm: flags.algorithm || 'majority'
+    });
+    
+    // Initialize with temporary swarm
+    await hiveMindCore.initialize();
+    
+    // Spawn workers for consensus
+    const workerTypes = ['researcher', 'coder', 'architect', 'analyst', 'tester'];
+    const workerCount = Math.min(parseInt(flags.agents) || 5, workerTypes.length);
+    const selectedWorkers = workerTypes.slice(0, workerCount);
+    
+    console.log(chalk.blue(`\n🐝 Spawning ${workerCount} workers for consensus...`));
+    await hiveMindCore.spawnWorkers(selectedWorkers);
+    
+    // Build consensus
+    const spinner = ora('Building consensus...').start();
+    
+    try {
+      const consensus = await hiveMindCore.buildConsensus(topic, options);
+      
+      spinner.succeed('Consensus reached!');
+      
+      console.log(chalk.green('\n✅ Consensus Result:'));
+      console.log(chalk.cyan('Decision:'), chalk.bold(consensus.result));
+      console.log(chalk.cyan('Confidence:'), `${Math.round(consensus.confidence * 100)}%`);
+      console.log(chalk.cyan('Algorithm:'), consensus.algorithm);
+      
+      // Show vote breakdown
+      if (consensus.votes && consensus.votes.size > 0) {
+        console.log(chalk.cyan('\n📊 Vote Breakdown:'));
+        for (const [voterId, vote] of consensus.votes.entries()) {
+          const voterType = voterId === 'queen' ? '👑 Queen' : `🤖 ${voterId}`;
+          console.log(`  ${voterType}: ${vote}`);
+        }
+      }
+      
+      // Store decision if we have a valid swarm
+      if (hiveMindCore.state.swarmId) {
+        await mcpWrapper.storeMemory(
+          hiveMindCore.state.swarmId,
+          `manual-consensus-${Date.now()}`,
+          {
+            topic,
+            options,
+            result: consensus.result,
+            confidence: consensus.confidence,
+            algorithm: consensus.algorithm,
+            timestamp: new Date().toISOString(),
+            manual: true
+          },
+          'consensus'
+        );
+        
+        console.log(chalk.gray('\n💾 Consensus stored in memory'));
+      }
+      
+    } catch (consensusError) {
+      spinner.fail('Consensus failed');
+      console.error(chalk.red('Consensus error:'), consensusError.message);
+    }
+    
+    // Cleanup
+    await hiveMindCore.shutdown();
+    
+  } catch (error) {
+    console.error(chalk.red('Manual consensus error:'), error.message);
     exit(1);
   }
 }

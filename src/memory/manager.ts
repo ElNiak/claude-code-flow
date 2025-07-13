@@ -1,6 +1,7 @@
 import { getErrorMessage } from '../utils/error-handler.js';
 /**
  * Memory manager interface and implementation
+ * Enhanced with intrinsic agent coordination and unified system integration
  */
 
 import type { MemoryEntry, MemoryQuery, MemoryConfig } from '../utils/types.js';
@@ -25,6 +26,13 @@ export interface IMemoryManager {
   delete(id: string): Promise<void>;
   getHealthStatus(): Promise<{ healthy: boolean; error?: string; metrics?: Record<string, number> }>;
   performMaintenance(): Promise<void>;
+  
+  // Intrinsic agent coordination methods
+  storeAgentCoordination(sessionId: string, agentId: string, coordinationData: any): Promise<void>;
+  retrieveAgentCoordination(sessionId: string, agentId?: string): Promise<MemoryEntry[]>;
+  syncAgentMemory(sessionId: string, agentIds: string[]): Promise<void>;
+  createCoordinationHook(hookType: string, sessionId: string, data: any): Promise<void>;
+  getCoordinationStatus(sessionId: string): Promise<{ agents: number; lastSync: Date; entries: number }>;
 }
 
 /**
@@ -475,6 +483,166 @@ export class MemoryManager implements IMemoryManager {
     );
 
     await Promise.all(promises);
+  }
+
+  // Intrinsic agent coordination implementation
+  async storeAgentCoordination(sessionId: string, agentId: string, coordinationData: any): Promise<void> {
+    if (!this.initialized) {
+      throw new MemoryError('Memory manager not initialized');
+    }
+
+    const entry: MemoryEntry = {
+      id: `agent-coord-${sessionId}-${agentId}-${Date.now()}`,
+      type: 'agent-coordination',
+      content: coordinationData,
+      metadata: {
+        sessionId,
+        agentId,
+        intrinsicCoordination: true,
+        coordinationType: 'agent-data'
+      },
+      tags: ['coordination', 'agent', sessionId, agentId],
+      timestamp: Date.now()
+    };
+
+    await this.store(entry);
+    this.logger.debug('Stored agent coordination data', { sessionId, agentId });
+  }
+
+  async retrieveAgentCoordination(sessionId: string, agentId?: string): Promise<MemoryEntry[]> {
+    if (!this.initialized) {
+      throw new MemoryError('Memory manager not initialized');
+    }
+
+    const query: MemoryQuery = {
+      type: 'agent-coordination',
+      sessionId,
+      limit: 100
+    };
+
+    if (agentId) {
+      query.agentId = agentId;
+    }
+
+    const results = await this.query(query);
+    this.logger.debug('Retrieved agent coordination data', { 
+      sessionId, 
+      agentId, 
+      count: results.length 
+    });
+
+    return results;
+  }
+
+  async syncAgentMemory(sessionId: string, agentIds: string[]): Promise<void> {
+    if (!this.initialized) {
+      throw new MemoryError('Memory manager not initialized');
+    }
+
+    this.logger.info('Syncing agent memory', { sessionId, agentCount: agentIds.length });
+
+    // Create sync event
+    const syncEntry: MemoryEntry = {
+      id: `memory-sync-${sessionId}-${Date.now()}`,
+      type: 'memory-sync',
+      content: {
+        sessionId,
+        agentIds,
+        syncTime: Date.now(),
+        syncType: 'intrinsic-coordination'
+      },
+      metadata: {
+        sessionId,
+        intrinsicSync: true,
+        agentCount: agentIds.length
+      },
+      tags: ['sync', 'coordination', sessionId, ...agentIds],
+      timestamp: Date.now()
+    };
+
+    await this.store(syncEntry);
+
+    // Store individual agent sync records
+    for (const agentId of agentIds) {
+      await this.storeAgentCoordination(sessionId, agentId, {
+        action: 'memory-sync',
+        syncTime: Date.now(),
+        participants: agentIds.filter(id => id !== agentId)
+      });
+    }
+
+    this.logger.debug('Agent memory sync completed', { sessionId, agentIds });
+  }
+
+  async createCoordinationHook(hookType: string, sessionId: string, data: any): Promise<void> {
+    if (!this.initialized) {
+      throw new MemoryError('Memory manager not initialized');
+    }
+
+    const hookEntry: MemoryEntry = {
+      id: `hook-${hookType}-${sessionId}-${Date.now()}`,
+      type: 'coordination-hook',
+      content: {
+        hookType,
+        sessionId,
+        data,
+        executedAt: Date.now()
+      },
+      metadata: {
+        sessionId,
+        hookType,
+        intrinsicHook: true
+      },
+      tags: ['hook', 'coordination', hookType, sessionId],
+      timestamp: Date.now()
+    };
+
+    await this.store(hookEntry);
+    this.logger.debug('Created coordination hook', { hookType, sessionId });
+  }
+
+  async getCoordinationStatus(sessionId: string): Promise<{ agents: number; lastSync: Date; entries: number }> {
+    if (!this.initialized) {
+      throw new MemoryError('Memory manager not initialized');
+    }
+
+    // Get all coordination entries for session
+    const coordinationEntries = await this.query({
+      type: 'agent-coordination',
+      sessionId,
+      limit: 1000
+    });
+
+    // Get sync entries
+    const syncEntries = await this.query({
+      type: 'memory-sync', 
+      sessionId,
+      limit: 10
+    });
+
+    // Count unique agents
+    const uniqueAgents = new Set();
+    coordinationEntries.forEach(entry => {
+      if (entry.metadata?.agentId) {
+        uniqueAgents.add(entry.metadata.agentId);
+      }
+    });
+
+    // Find last sync
+    let lastSync = new Date(0);
+    if (syncEntries.length > 0) {
+      const lastSyncEntry = syncEntries[0]; // Should be sorted by timestamp desc
+      lastSync = new Date(lastSyncEntry.timestamp);
+    }
+
+    const status = {
+      agents: uniqueAgents.size,
+      lastSync,
+      entries: coordinationEntries.length
+    };
+
+    this.logger.debug('Retrieved coordination status', { sessionId, status });
+    return status;
   }
 }
 

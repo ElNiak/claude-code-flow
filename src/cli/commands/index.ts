@@ -22,6 +22,13 @@ import { statusCommand } from "./status.js";
 import { monitorCommand } from "./monitor.js";
 import { sessionCommand } from "./session.js";
 
+// Import unified coordination system
+import { workCommand } from "./work.js";
+import { unifiedAgentCommands } from "./unified-agents.js";
+
+// Import backward compatibility
+import { backwardCompatibilityCommands, showMigrationGuide } from "./compatibility.js";
+
 let orchestrator: Orchestrator | null = null;
 let configManager: ConfigManager | null = null;
 let persistence: JsonPersistenceManager | null = null;
@@ -53,6 +60,30 @@ async function getConfigManager(): Promise<ConfigManager> {
 }
 
 export function setupCommands(cli: CLI): void {
+  // 🚀 UNIFIED COORDINATION SYSTEM - Primary entry point
+  cli.command(workCommand);
+  
+  // 🤖 UNIFIED AGENT COMMANDS - Intrinsic coordination
+  for (const command of unifiedAgentCommands) {
+    cli.command(command);
+  }
+  
+  // 🔄 BACKWARD COMPATIBILITY COMMANDS
+  for (const command of backwardCompatibilityCommands) {
+    cli.command(command);
+  }
+  
+  // Migration guide command
+  cli.command({
+    name: "migrate-guide",
+    description: "📖 Show migration guide from legacy to unified system",
+    aliases: ["migration", "upgrade-guide"],
+    action: async () => {
+      showMigrationGuide();
+    }
+  });
+  
+  // 📢 EXISTING COMMANDS - Maintained for backward compatibility
   // Init command
   cli.command({
     name: "init",

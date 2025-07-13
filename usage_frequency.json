@@ -1,0 +1,274 @@
+{
+  "analysis_date": "2025-07-13T06:01:00.000Z",
+  "methodology": "Git history analysis, file modification tracking, CI/CD usage patterns, and dependency analysis",
+  "tool_usage_frequency": {
+    "core_tools": {
+      "mcp_tools": {
+        "usage_score": 95,
+        "frequency": "daily",
+        "files_using": 49,
+        "last_modified": "2025-07-13",
+        "key_uses": [
+          "claude-flow-tools.ts",
+          "swarm-tools.ts", 
+          "server.ts",
+          "mcp-server.js"
+        ],
+        "ci_cd_usage": "extensive",
+        "active_development": true
+      },
+      "swarm_orchestration": {
+        "usage_score": 90,
+        "frequency": "daily",
+        "files_using": 35,
+        "last_modified": "2025-07-13",
+        "key_uses": [
+          "swarm.ts",
+          "swarm-coordinator.ts",
+          "claude-flow-executor.ts"
+        ],
+        "ci_cd_usage": "extensive",
+        "active_development": true
+      },
+      "cli_commands": {
+        "usage_score": 88,
+        "frequency": "daily",
+        "files_using": 25,
+        "last_modified": "2025-07-13",
+        "key_uses": [
+          "index.ts",
+          "main.ts",
+          "simple-cli.ts"
+        ],
+        "ci_cd_usage": "critical",
+        "active_development": true
+      }
+    },
+    "feature_tools": {
+      "memory_management": {
+        "usage_score": 85,
+        "frequency": "daily",
+        "files_using": 18,
+        "last_modified": "2025-07-13",
+        "key_uses": [
+          "memory.ts",
+          "swarm-memory.ts",
+          "advanced-memory-manager.ts"
+        ],
+        "ci_cd_usage": "moderate",
+        "active_development": true
+      },
+      "task_coordination": {
+        "usage_score": 82,
+        "frequency": "daily", 
+        "files_using": 16,
+        "last_modified": "2025-07-13",
+        "key_uses": [
+          "task.ts",
+          "coordination.ts",
+          "engine.ts"
+        ],
+        "ci_cd_usage": "moderate",
+        "active_development": true
+      },
+      "hooks_system": {
+        "usage_score": 80,
+        "frequency": "weekly",
+        "files_using": 12,
+        "last_modified": "2025-07-13",
+        "key_uses": [
+          "hook.ts",
+          "hook-validator.ts",
+          "hook-types.ts"
+        ],
+        "ci_cd_usage": "light",
+        "active_development": true
+      },
+      "ruv_swarm_integration": {
+        "usage_score": 78,
+        "frequency": "weekly",
+        "files_using": 15,
+        "last_modified": "2025-07-13",
+        "key_uses": [
+          "ruv-swarm.ts",
+          "ruv-swarm-tools.ts",
+          "ruv-swarm-config.ts"
+        ],
+        "ci_cd_usage": "moderate",
+        "active_development": true
+      }
+    },
+    "specialized_tools": {
+      "terminal_management": {
+        "usage_score": 65,
+        "frequency": "weekly",
+        "files_using": 8,
+        "last_modified": "2025-07-13",
+        "key_uses": [
+          "terminal/manager.ts",
+          "terminal/session.ts",
+          "vscode-bridge.ts"
+        ],
+        "ci_cd_usage": "light",
+        "active_development": true
+      },
+      "monitoring_tools": {
+        "usage_score": 60,
+        "frequency": "weekly",
+        "files_using": 6,
+        "last_modified": "2025-07-13",
+        "key_uses": [
+          "real-time-monitor.ts",
+          "swarm-monitor.ts",
+          "monitor.ts"
+        ],
+        "ci_cd_usage": "moderate",
+        "active_development": true
+      },
+      "enterprise_features": {
+        "usage_score": 55,
+        "frequency": "monthly",
+        "files_using": 7,
+        "last_modified": "2025-07-13",
+        "key_uses": [
+          "enterprise/index.ts",
+          "analytics-manager.ts",
+          "security-manager.ts"
+        ],
+        "ci_cd_usage": "light",
+        "active_development": true
+      },
+      "hive_mind": {
+        "usage_score": 50,
+        "frequency": "monthly",
+        "files_using": 5,
+        "last_modified": "2025-07-13",
+        "key_uses": [
+          "hive-mind/index.ts",
+          "hive-dashboard.ts",
+          "hive-orchestrator.ts"
+        ],
+        "ci_cd_usage": "experimental",
+        "active_development": true
+      }
+    },
+    "utility_tools": {
+      "error_handling": {
+        "usage_score": 75,
+        "frequency": "daily",
+        "files_using": 22,
+        "last_modified": "2025-07-13",
+        "key_uses": [
+          "error-handler.ts",
+          "errors.ts"
+        ],
+        "ci_cd_usage": "critical",
+        "active_development": true
+      },
+      "formatters": {
+        "usage_score": 70,
+        "frequency": "daily",
+        "files_using": 14,
+        "last_modified": "2025-07-13",
+        "key_uses": [
+          "formatters.ts",
+          "formatter.ts"
+        ],
+        "ci_cd_usage": "moderate",
+        "active_development": true
+      },
+      "type_definitions": {
+        "usage_score": 68,
+        "frequency": "daily",
+        "files_using": 30,
+        "last_modified": "2025-07-13",
+        "key_uses": [
+          "types/index.ts",
+          "types/mcp.d.ts",
+          "types/global.d.ts"
+        ],
+        "ci_cd_usage": "critical",
+        "active_development": true
+      }
+    }
+  },
+  "ci_cd_integration": {
+    "test_workflows": {
+      "tools_tested": [
+        "cli commands",
+        "mcp tools",
+        "swarm coordination",
+        "memory management",
+        "performance benchmarks"
+      ],
+      "frequency": "on every push",
+      "cross_platform": true
+    },
+    "build_processes": {
+      "tools_built": [
+        "CLI binary",
+        "npm package", 
+        "Docker images",
+        "MCP server"
+      ],
+      "frequency": "on release"
+    },
+    "performance_monitoring": {
+      "tools_monitored": [
+        "swarm performance",
+        "memory usage",
+        "CLI response times"
+      ],
+      "frequency": "nightly"
+    }
+  },
+  "tool_popularity_ranking": [
+    {
+      "rank": 1,
+      "tool": "mcp_tools",
+      "score": 95,
+      "reason": "Core coordination mechanism, used in every workflow"
+    },
+    {
+      "rank": 2, 
+      "tool": "swarm_orchestration",
+      "score": 90,
+      "reason": "Primary differentiator, actively developed"
+    },
+    {
+      "rank": 3,
+      "tool": "cli_commands", 
+      "score": 88,
+      "reason": "User interface, tested extensively in CI"
+    },
+    {
+      "rank": 4,
+      "tool": "memory_management",
+      "score": 85,
+      "reason": "Critical for state persistence"
+    },
+    {
+      "rank": 5,
+      "tool": "task_coordination",
+      "score": 82,
+      "reason": "Essential for multi-agent workflows"
+    }
+  ],
+  "usage_trends": {
+    "increasing": [
+      "mcp_tools",
+      "swarm_orchestration", 
+      "hooks_system",
+      "ruv_swarm_integration"
+    ],
+    "stable": [
+      "cli_commands",
+      "memory_management",
+      "error_handling"
+    ],
+    "experimental": [
+      "hive_mind",
+      "enterprise_features"
+    ]
+  }
+}

@@ -1,0 +1,510 @@
+{
+  "parameter_harmonization": {
+    "harmonization_metadata": {
+      "analyst": "Swarm-SPARC-Hive Merger Analysis Specialist",
+      "date": "2025-07-13",
+      "scope": "Complete parameter mapping and harmonization strategy",
+      "target": "Unified orchestrate command parameter structure"
+    },
+    
+    "current_parameter_inventory": {
+      "swarm_parameters": {
+        "objective": "positional - task description",
+        "strategy": "--strategy (auto|research|development|analysis)",
+        "maxAgents": "--max-agents <number> (default: 5)",
+        "maxDepth": "--max-depth <number> (default: 3)",
+        "research": "--research (boolean)",
+        "parallel": "--parallel (boolean)",
+        "memoryNamespace": "--memory-namespace <string> (default: swarm)",
+        "timeout": "--timeout <minutes> (default: 60)",
+        "review": "--review (boolean)",
+        "coordinator": "--coordinator (boolean)",
+        "config": "--config <path>",
+        "verbose": "--verbose (boolean)",
+        "dryRun": "--dry-run (boolean)",
+        "monitor": "--monitor (boolean)",
+        "ui": "--ui (boolean)",
+        "background": "--background (boolean)",
+        "persistence": "--persistence (boolean, default: true)",
+        "distributed": "--distributed (boolean)"
+      },
+      
+      "sparc_parameters": {
+        "subcommand": "positional - modes|info|run|tdd|workflow",
+        "mode_or_task": "positional - mode slug or task description",
+        "namespace": "--namespace <string>",
+        "noPermissions": "--no-permissions (boolean)",
+        "config": "--config <file>",
+        "verbose": "--verbose (boolean)",
+        "dryRun": "--dry-run (boolean)",
+        "sequential": "--sequential (boolean, default: true)",
+        "tddPhase": "internal - Red/Green/Refactor",
+        "workflowStep": "internal - step number",
+        "totalSteps": "internal - total workflow steps"
+      },
+      
+      "hive_parameters": {
+        "objective": "positional - task description",
+        "topology": "--topology (mesh|hierarchical|ring|star, default: hierarchical)",
+        "consensus": "--consensus (quorum|unanimous|weighted|leader, default: quorum)",
+        "maxAgents": "--max-agents <number> (default: 8)",
+        "timeout": "--timeout <minutes> (default: 60)",
+        "monitor": "--monitor (boolean)",
+        "background": "--background (boolean)",
+        "memoryNamespace": "--memory-namespace <string> (default: hive)",
+        "qualityThreshold": "--quality-threshold <number> (default: 0.8)",
+        "sparc": "--sparc (boolean, default: true)"
+      },
+      
+      "hive_mind_parameters": {
+        "subcommands": ["init", "spawn", "status", "task", "wizard"],
+        "spawn_type": "agent type to spawn",
+        "name": "--name <string>",
+        "capabilities": "--capabilities <items>",
+        "swarmId": "--swarm-id <id>",
+        "interactive": "--interactive (boolean)",
+        "batch": "--batch <number>",
+        "autoAssign": "--auto-assign (boolean)"
+      }
+    },
+    
+    "harmonization_mapping": {
+      "core_unified_parameters": {
+        "objective": {
+          "unified_name": "objective",
+          "position": "positional_argument_1",
+          "type": "string",
+          "required": true,
+          "description": "The main objective or task to accomplish",
+          "source_mapping": {
+            "swarm": "objective (args.join(' '))",
+            "sparc": "task_description (args.slice(2).join(' '))",
+            "hive": "objective (args.join(' '))",
+            "hive_mind": "implicit in subcommands"
+          }
+        },
+        
+        "method": {
+          "unified_name": "method",
+          "flag": "--method",
+          "type": "enum",
+          "values": ["swarm", "sparc", "hive", "hybrid", "auto"],
+          "default": "auto",
+          "description": "Coordination method to use",
+          "source_mapping": {
+            "new_parameter": "determines execution path",
+            "auto_detection": "based on other parameters"
+          }
+        }
+      },
+      
+      "execution_control_parameters": {
+        "max_agents": {
+          "unified_name": "max_agents",
+          "flag": "--max-agents",
+          "type": "number",
+          "description": "Maximum number of agents to spawn",
+          "source_mapping": {
+            "swarm": "maxAgents/max-agents (default: 5)",
+            "sparc": "implicit from mode (varies)",
+            "hive": "maxAgents/max-agents (default: 8)",
+            "hive_mind": "batch parameter"
+          },
+          "unified_default": "auto (6 for unified, method-specific otherwise)"
+        },
+        
+        "timeout": {
+          "unified_name": "timeout",
+          "flag": "--timeout",
+          "type": "number",
+          "default": 60,
+          "description": "Timeout in minutes",
+          "source_mapping": {
+            "swarm": "timeout (default: 60)",
+            "sparc": "no direct timeout",
+            "hive": "timeout (default: 60)",
+            "hive_mind": "not specified"
+          },
+          "harmonization": "common parameter across systems"
+        },
+        
+        "parallel": {
+          "unified_name": "parallel",
+          "flag": "--parallel",
+          "type": "boolean",
+          "description": "Enable parallel execution",
+          "source_mapping": {
+            "swarm": "parallel (default: false)",
+            "sparc": "sequential: false equivalent",
+            "hive": "always parallel by design",
+            "hive_mind": "batch spawning"
+          },
+          "unified_default": "method_dependent"
+        },
+        
+        "background": {
+          "unified_name": "background",
+          "flag": "--background",
+          "type": "boolean",
+          "default": false,
+          "description": "Run in background mode",
+          "source_mapping": {
+            "swarm": "background",
+            "sparc": "not supported",
+            "hive": "background",
+            "hive_mind": "not specified"
+          },
+          "availability": "swarm, hive, hybrid methods only"
+        }
+      },
+      
+      "coordination_parameters": {
+        "strategy": {
+          "unified_name": "strategy",
+          "flag": "--strategy",
+          "type": "enum",
+          "values": ["auto", "research", "development", "analysis"],
+          "description": "Coordination strategy (swarm method)",
+          "source_mapping": {
+            "swarm": "strategy (core parameter)",
+            "sparc": "mapped to mode selection",
+            "hive": "not applicable",
+            "hive_mind": "task assignment logic"
+          },
+          "method_availability": ["swarm", "hybrid"]
+        },
+        
+        "topology": {
+          "unified_name": "topology", 
+          "flag": "--topology",
+          "type": "enum",
+          "values": ["mesh", "hierarchical", "ring", "star"],
+          "description": "Agent coordination topology (hive method)",
+          "source_mapping": {
+            "swarm": "not applicable (uses strategy)",
+            "sparc": "not applicable (sequential)",
+            "hive": "topology (core parameter)",
+            "hive_mind": "implicit in agent spawning"
+          },
+          "method_availability": ["hive", "hybrid"]
+        },
+        
+        "consensus": {
+          "unified_name": "consensus",
+          "flag": "--consensus", 
+          "type": "enum",
+          "values": ["quorum", "unanimous", "weighted", "leader"],
+          "description": "Consensus mechanism (hive method)",
+          "source_mapping": {
+            "swarm": "not applicable",
+            "sparc": "not applicable",
+            "hive": "consensus (core parameter)",
+            "hive_mind": "implicit in coordination"
+          },
+          "method_availability": ["hive", "hybrid"]
+        }
+      },
+      
+      "sparc_specific_parameters": {
+        "mode": {
+          "unified_name": "mode",
+          "flag": "--mode",
+          "type": "string",
+          "description": "SPARC mode to execute",
+          "source_mapping": {
+            "swarm": "not applicable",
+            "sparc": "mode slug (core parameter)",
+            "hive": "not applicable",
+            "hive_mind": "not applicable"
+          },
+          "method_availability": ["sparc", "hybrid"],
+          "special_handling": "loads from .roomodes configuration"
+        },
+        
+        "workflow": {
+          "unified_name": "workflow",
+          "flag": "--workflow",
+          "type": "string",
+          "description": "Custom workflow file path",
+          "source_mapping": {
+            "swarm": "not applicable",
+            "sparc": "workflow file parameter",
+            "hive": "not applicable", 
+            "hive_mind": "not applicable"
+          },
+          "method_availability": ["sparc"],
+          "file_type": "JSON workflow definition"
+        },
+        
+        "tdd": {
+          "unified_name": "tdd",
+          "flag": "--tdd",
+          "type": "boolean",
+          "description": "Use TDD workflow methodology",
+          "source_mapping": {
+            "swarm": "not applicable",
+            "sparc": "tdd subcommand",
+            "hive": "not applicable",
+            "hive_mind": "not applicable"
+          },
+          "method_availability": ["sparc", "hybrid"]
+        },
+        
+        "sequential": {
+          "unified_name": "sequential",
+          "flag": "--sequential",
+          "type": "boolean",
+          "default": true,
+          "description": "Wait between workflow steps",
+          "source_mapping": {
+            "swarm": "opposite of parallel",
+            "sparc": "sequential (core parameter)",
+            "hive": "not applicable (consensus-driven)",
+            "hive_mind": "not applicable"
+          },
+          "method_availability": ["sparc"],
+          "relationship": "inverse of parallel for sparc method"
+        }
+      },
+      
+      "quality_and_monitoring_parameters": {
+        "quality_threshold": {
+          "unified_name": "quality_threshold",
+          "flag": "--quality-threshold",
+          "type": "number",
+          "range": "0.0 to 1.0",
+          "default": 0.8,
+          "description": "Minimum quality threshold for results",
+          "source_mapping": {
+            "swarm": "not applicable",
+            "sparc": "not applicable",
+            "hive": "qualityThreshold (core parameter)",
+            "hive_mind": "not applicable"
+          },
+          "method_availability": ["hive", "hybrid"]
+        },
+        
+        "monitor": {
+          "unified_name": "monitor",
+          "flag": "--monitor",
+          "type": "boolean",
+          "default": false,
+          "description": "Enable real-time monitoring",
+          "source_mapping": {
+            "swarm": "monitor",
+            "sparc": "not applicable",
+            "hive": "monitor",
+            "hive_mind": "agent monitoring"
+          },
+          "method_availability": ["swarm", "hive", "hybrid"]
+        }
+      },
+      
+      "memory_and_persistence_parameters": {
+        "memory_namespace": {
+          "unified_name": "memory_namespace",
+          "flag": "--memory-namespace",
+          "type": "string",
+          "description": "Memory namespace for coordination data",
+          "source_mapping": {
+            "swarm": "memoryNamespace/memory-namespace (default: swarm)",
+            "sparc": "namespace (default: mode slug)",
+            "hive": "memoryNamespace/memory-namespace (default: hive)",
+            "hive_mind": "not specified"
+          },
+          "unified_default": "method_based (orchestrate-{method})"
+        },
+        
+        "persistence": {
+          "unified_name": "persistence",
+          "flag": "--persistence",
+          "type": "boolean",
+          "default": true,
+          "description": "Enable result persistence",
+          "source_mapping": {
+            "swarm": "persistence (default: true)",
+            "sparc": "memory store commands",
+            "hive": "implicit (always persistent)",
+            "hive_mind": "memory optimization"
+          },
+          "method_availability": ["all methods"]
+        }
+      },
+      
+      "system_parameters": {
+        "config": {
+          "unified_name": "config",
+          "flag": "--config",
+          "type": "string",
+          "description": "Configuration file path",
+          "source_mapping": {
+            "swarm": "config",
+            "sparc": "config (MCP configuration)",
+            "hive": "not specified",
+            "hive_mind": "not specified"
+          },
+          "method_availability": ["all methods"]
+        },
+        
+        "verbose": {
+          "unified_name": "verbose",
+          "flag": "--verbose",
+          "type": "boolean",
+          "default": false,
+          "description": "Enable verbose output",
+          "source_mapping": {
+            "swarm": "verbose",
+            "sparc": "verbose",
+            "hive": "not specified",
+            "hive_mind": "not specified"
+          },
+          "method_availability": ["all methods"]
+        },
+        
+        "dry_run": {
+          "unified_name": "dry_run",
+          "flag": "--dry-run",
+          "type": "boolean",
+          "default": false,
+          "description": "Show configuration without executing",
+          "source_mapping": {
+            "swarm": "dryRun/dry-run",
+            "sparc": "dryRun/dry-run", 
+            "hive": "not specified",
+            "hive_mind": "not specified"
+          },
+          "method_availability": ["all methods"]
+        }
+      }
+    },
+    
+    "parameter_conflict_resolution": {
+      "semantic_conflicts": {
+        "max_agents_defaults": {
+          "conflict": "swarm defaults to 5, hive defaults to 8, sparc varies by mode",
+          "resolution": "Method-specific defaults with unified override",
+          "unified_approach": "auto-detect optimal count based on method and objective"
+        },
+        
+        "parallel_vs_sequential": {
+          "conflict": "swarm has --parallel flag, sparc has --sequential flag (inverse)",
+          "resolution": "Unified --parallel flag with method-appropriate defaults",
+          "unified_approach": "method determines default, explicit flag overrides"
+        },
+        
+        "strategy_vs_topology_vs_mode": {
+          "conflict": "Three different coordination approaches",
+          "resolution": "Method-specific parameter sets with auto-mapping",
+          "unified_approach": "method parameter determines which coordination approach applies"
+        }
+      },
+      
+      "naming_harmonization": {
+        "kebab_case_standardization": {
+          "description": "Standardize all multi-word parameters to kebab-case",
+          "examples": {
+            "maxAgents": "--max-agents",
+            "memoryNamespace": "--memory-namespace", 
+            "qualityThreshold": "--quality-threshold",
+            "dryRun": "--dry-run",
+            "noPermissions": "--no-permissions"
+          }
+        },
+        
+        "consistent_boolean_handling": {
+          "description": "Consistent boolean parameter behavior",
+          "approach": "All boolean flags default to false unless specified otherwise",
+          "exceptions": ["--persistence (default: true)", "--sequential (default: true for sparc)"]
+        }
+      },
+      
+      "validation_rules": {
+        "method_parameter_compatibility": {
+          "description": "Validate parameters are compatible with selected method",
+          "rules": [
+            "--topology only valid with hive or hybrid methods",
+            "--mode only valid with sparc or hybrid methods",
+            "--strategy only valid with swarm or hybrid methods",
+            "--consensus only valid with hive or hybrid methods"
+          ]
+        },
+        
+        "parameter_dependencies": {
+          "description": "Handle parameter dependencies and conflicts",
+          "rules": [
+            "If --tdd specified, method must support SPARC methodology",
+            "If --workflow specified, method must be sparc",
+            "If --consensus unanimous specified, --quality-threshold should be high"
+          ]
+        }
+      }
+    },
+    
+    "migration_strategy": {
+      "backward_compatibility_approach": {
+        "phase_1_dual_support": {
+          "timeline": "Immediate",
+          "description": "Support both old and new parameter names",
+          "implementation": "Parameter alias mapping with deprecation warnings"
+        },
+        
+        "phase_2_default_migration": {
+          "timeline": "3 months",
+          "description": "Migrate default values to unified standards",
+          "implementation": "Method-specific defaults with clear documentation"
+        },
+        
+        "phase_3_parameter_consolidation": {
+          "timeline": "6 months", 
+          "description": "Remove deprecated parameter names",
+          "implementation": "Clear migration guide and error messages"
+        }
+      },
+      
+      "user_experience_preservation": {
+        "muscle_memory_preservation": {
+          "description": "Preserve common command patterns",
+          "approach": "Legacy aliases maintain exact same parameter handling"
+        },
+        
+        "progressive_disclosure": {
+          "description": "Don't overwhelm users with unified complexity",
+          "approach": "Method-specific help that only shows relevant parameters"
+        }
+      }
+    },
+    
+    "implementation_considerations": {
+      "parameter_parsing_strategy": {
+        "two_phase_parsing": {
+          "phase_1": "Parse method and core parameters",
+          "phase_2": "Parse method-specific parameters with validation"
+        },
+        
+        "method_detection_logic": [
+          "Explicit --method parameter takes precedence",
+          "Legacy command names (swarm/sparc/hive) set method",
+          "Method-specific parameters trigger auto-detection",
+          "Default to auto-detection based on objective keywords"
+        ]
+      },
+      
+      "help_system_design": {
+        "context_sensitive_help": {
+          "description": "Show different help based on detected or specified method",
+          "examples": [
+            "claude-flow orchestrate --help → shows unified overview",
+            "claude-flow orchestrate --method swarm --help → shows swarm-specific options",
+            "claude-flow swarm --help → shows legacy swarm help"
+          ]
+        }
+      },
+      
+      "error_handling_strategy": {
+        "parameter_validation": "Clear error messages for incompatible parameter combinations",
+        "migration_guidance": "Helpful suggestions for deprecated parameter usage",
+        "method_detection_failure": "Graceful fallback with method suggestion"
+      }
+    }
+  }
+}

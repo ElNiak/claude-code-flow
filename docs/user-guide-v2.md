@@ -1,8 +1,8 @@
 # Claude Flow v2.0.0 User Guide
 
-Welcome to the comprehensive user guide for Claude Flow v2.0.0! This guide covers all the revolutionary new features and capabilities that make v2.0.0 the most advanced AI agent orchestration platform available.
+Welcome to the comprehensive user guide for Claude Flow v2.0.0! This guide covers all the new features and capabilities available in v2.0.0's AI agent orchestration platform.
 
-## 🌟 What Makes v2.0.0 Revolutionary
+## 🌟 What's New in v2.0.0
 
 Claude Flow v2.0.0 isn't just an update—it's a complete reimagining of AI agent coordination:
 
@@ -161,7 +161,7 @@ Claude Flow v2.0.0 uses intelligent configuration management:
 
 ### Understanding the Hive Mind
 
-The Hive Mind system represents a breakthrough in AI coordination:
+The Hive Mind system provides advanced AI coordination:
 
 #### Queen Agent
 The Queen is the central coordinator that:

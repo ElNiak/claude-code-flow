@@ -92,7 +92,7 @@ OPTIONS:
   --mode <type>        Coordination mode: centralized, distributed, 
                        hierarchical, mesh, hybrid
   --max-agents <n>     Maximum number of agents (default: 5)
-  --parallel           Enable parallel execution (2.8-4.4x speed improvement)
+  --parallel           Enable parallel execution (improved performance)
   --monitor            Real-time swarm monitoring
   --ui                 Interactive user interface
   --background         Run in background with progress tracking

@@ -541,10 +541,10 @@ Options:
     ],
     details: `
 Advanced swarm coordination features:
-  • 84.8% SWE-Bench solve rate
-  • 32.3% token reduction through coordination
-  • 2.8-4.4x speed improvement via parallel execution
-  • 27+ neural models for cognitive approaches
+  • Enhanced problem-solving capabilities
+  • Token usage optimization through coordination
+  • Performance improvements via parallel execution
+  • Multiple neural models for cognitive approaches
   • Persistent memory across sessions
   • Automatic topology optimization
   

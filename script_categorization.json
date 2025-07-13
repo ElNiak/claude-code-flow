@@ -1,0 +1,370 @@
+{
+  "script_categorization_report": {
+    "generated_date": "2025-07-13T06:15:00.000Z",
+    "analysis_scope": "All shell scripts, Python scripts, and executable scripts in claude-flow",
+    "total_scripts": 99,
+    "coordinator": "Executable Inventory Specialist Team"
+  },
+  "shell_scripts": {
+    "total_count": 47,
+    "categories": {
+      "automation_and_workflow": {
+        "count": 8,
+        "scripts": [
+          {
+            "name": "claude-sparc.sh",
+            "path": "/scripts/claude-sparc.sh",
+            "size_lines": 562,
+            "complexity": "high",
+            "purpose": "Complete SPARC automated development system",
+            "parameters": [
+              "--project-name", "--readme-path", "--mcp-config", 
+              "--verbose", "--dry-run", "--skip-research", "--skip-tests"
+            ],
+            "features": [
+              "Parallel execution support",
+              "Commit frequency control",
+              "Multiple development modes",
+              "Test coverage targeting",
+              "Output format options"
+            ],
+            "usage_pattern": "complex_automation"
+          },
+          {
+            "name": "run_complete_benchmark_suite.sh",
+            "path": "/benchmark/hive-mind-benchmarks/scripts/run_complete_benchmark_suite.sh",
+            "complexity": "high",
+            "purpose": "Comprehensive benchmark automation",
+            "features": ["Parallel workers", "Timeout management", "Report generation"]
+          }
+        ]
+      },
+      "build_and_compilation": {
+        "count": 12,
+        "scripts": [
+          {
+            "name": "build-migration.sh",
+            "path": "/scripts/build-migration.sh", 
+            "size_lines": 104,
+            "purpose": "TypeScript migration and build automation",
+            "complexity": "medium"
+          },
+          {
+            "name": "build-with-filter.sh",
+            "path": "/scripts/build-with-filter.sh",
+            "size_lines": 83,
+            "purpose": "Filtered component build process",
+            "complexity": "medium"
+          },
+          {
+            "name": "safe-build.sh",
+            "path": "/scripts/safe-build.sh",
+            "size_lines": 62,
+            "purpose": "Error-resistant build with fallbacks",
+            "complexity": "low",
+            "features": ["Error handling", "Fallback mechanisms"]
+          },
+          {
+            "name": "build-prompt-copier.sh",
+            "path": "/scripts/build-prompt-copier.sh",
+            "purpose": "Prompt copier component build",
+            "complexity": "low"
+          }
+        ]
+      },
+      "testing_and_validation": {
+        "count": 15,
+        "scripts": [
+          {
+            "name": "test-swarm-integration.sh",
+            "path": "/scripts/test-swarm-integration.sh",
+            "size_lines": 91,
+            "purpose": "Swarm coordination integration testing",
+            "complexity": "medium"
+          },
+          {
+            "name": "sparc-swarm-test.sh",
+            "path": "/examples/04-testing/sparc-swarm-test.sh",
+            "purpose": "SPARC methodology with swarm testing",
+            "complexity": "medium"
+          },
+          {
+            "name": "test-claude-spawn-options.sh",
+            "path": "/scripts/test-claude-spawn-options.sh",
+            "size_lines": 62,
+            "purpose": "Claude process spawning option validation",
+            "complexity": "low"
+          }
+        ]
+      },
+      "deployment_and_containers": {
+        "count": 5,
+        "scripts": [
+          {
+            "name": "run-tests.sh",
+            "path": "/docker/run-tests.sh",
+            "purpose": "Docker container test execution",
+            "complexity": "low"
+          }
+        ]
+      },
+      "utility_and_maintenance": {
+        "count": 7,
+        "scripts": [
+          {
+            "name": "cleanup-root.sh",
+            "path": "/scripts/cleanup-root.sh",
+            "size_lines": 68,
+            "purpose": "Repository cleanup and maintenance",
+            "complexity": "low",
+            "features": ["Safe file removal", "Dependency cleanup"]
+          },
+          {
+            "name": "claude-wrapper.sh",
+            "path": "/scripts/claude-wrapper.sh",
+            "purpose": "Enhanced Claude CLI wrapper",
+            "complexity": "low"
+          }
+        ]
+      }
+    }
+  },
+  "python_scripts": {
+    "total_count": 52,
+    "categories": {
+      "performance_and_benchmarking": {
+        "count": 18,
+        "scripts": [
+          {
+            "name": "compare_optimizations.py",
+            "path": "/benchmark/compare_optimizations.py",
+            "shebang": "#!/usr/bin/env python3",
+            "purpose": "Performance optimization comparison analysis",
+            "complexity": "high",
+            "key_modules": ["asyncio", "json", "datetime", "pathlib"],
+            "features": [
+              "Async benchmark execution",
+              "Optimization comparison",
+              "Performance metrics collection"
+            ]
+          },
+          {
+            "name": "swarm_performance_suite.py",
+            "path": "/benchmark/swarm_performance_suite.py",
+            "shebang": "#!/usr/bin/env python3",
+            "purpose": "Comprehensive swarm performance testing",
+            "complexity": "high",
+            "features": ["Multi-strategy testing", "Coordination mode analysis"]
+          },
+          {
+            "name": "hive-mind-load-test.py",
+            "path": "/benchmark/hive-mind-load-test.py",
+            "purpose": "Load testing for hive mind coordination",
+            "complexity": "medium"
+          }
+        ]
+      },
+      "analysis_and_monitoring": {
+        "count": 8,
+        "scripts": [
+          {
+            "name": "claude-monitor.py",
+            "path": "/scripts/claude-monitor.py",
+            "purpose": "Claude process monitoring and metrics",
+            "complexity": "medium"
+          },
+          {
+            "name": "fix-ts-comprehensive.py",
+            "path": "/scripts/fix-ts-comprehensive.py",
+            "purpose": "TypeScript error analysis and auto-fixing",
+            "complexity": "high"
+          }
+        ]
+      },
+      "testing_frameworks": {
+        "count": 12,
+        "scripts": [
+          {
+            "name": "test_sparc_modes.py",
+            "path": "/benchmark/tests/integration/test_sparc_modes.py",
+            "purpose": "SPARC coordination mode testing",
+            "complexity": "medium",
+            "test_type": "integration"
+          },
+          {
+            "name": "test_swarm_strategies.py",
+            "path": "/benchmark/tests/integration/test_swarm_strategies.py",
+            "purpose": "Swarm strategy validation",
+            "complexity": "medium",
+            "test_type": "integration"
+          }
+        ]
+      },
+      "benchmark_engines": {
+        "count": 14,
+        "scripts": [
+          {
+            "name": "benchmark_engine.py",
+            "path": "/benchmark/src/swarm_benchmark/core/benchmark_engine.py",
+            "purpose": "Core benchmark execution engine",
+            "complexity": "high",
+            "type": "module"
+          },
+          {
+            "name": "real_benchmark_engine.py", 
+            "path": "/benchmark/src/swarm_benchmark/core/real_benchmark_engine.py",
+            "purpose": "Real-world benchmark scenarios",
+            "complexity": "high",
+            "type": "module"
+          }
+        ]
+      }
+    }
+  },
+  "javascript_typescript_executables": {
+    "total_count": 45,
+    "categories": {
+      "cli_interfaces": {
+        "count": 8,
+        "scripts": [
+          {
+            "name": "simple-cli.ts",
+            "path": "/src/cli/simple-cli.ts",
+            "purpose": "Main TypeScript CLI implementation",
+            "complexity": "high",
+            "runtime": "tsx/ts-node",
+            "key_dependencies": ["cliffy", "blessed"]
+          },
+          {
+            "name": "main.ts",
+            "path": "/src/cli/main.ts",
+            "purpose": "Core CLI orchestrator",
+            "complexity": "high",
+            "type": "entry_point"
+          }
+        ]
+      },
+      "web_interfaces": {
+        "count": 6,
+        "scripts": [
+          {
+            "name": "EnhancedProcessUI.js",
+            "path": "/src/ui/web-ui/EnhancedProcessUI.js",
+            "shebang": "#!/usr/bin/env node",
+            "purpose": "Enhanced process UI for web interface",
+            "complexity": "medium"
+          }
+        ]
+      },
+      "swarm_coordination": {
+        "count": 12,
+        "scripts": [
+          {
+            "name": "prompt-cli.ts",
+            "path": "/src/swarm/prompt-cli.ts",
+            "purpose": "Swarm prompt management CLI",
+            "complexity": "medium"
+          },
+          {
+            "name": "swarm-coordinator.ts",
+            "path": "/src/coordination/swarm-coordinator.ts",
+            "purpose": "Main swarm coordination logic",
+            "complexity": "high"
+          }
+        ]
+      },
+      "mcp_integration": {
+        "count": 8,
+        "scripts": [
+          {
+            "name": "mcp-server.js",
+            "path": "/src/mcp/mcp-server.js",
+            "purpose": "MCP protocol server implementation",
+            "complexity": "high",
+            "type": "server"
+          }
+        ]
+      }
+    }
+  },
+  "execution_patterns": {
+    "automated_execution": {
+      "description": "Scripts designed for unattended automation",
+      "scripts": [
+        "claude-sparc.sh",
+        "run_complete_benchmark_suite.sh",
+        "automated_test_runner.py"
+      ],
+      "characteristics": ["Parameter validation", "Error handling", "Progress reporting"]
+    },
+    "manual_execution": {
+      "description": "Scripts requiring user interaction",
+      "scripts": [
+        "claude-wrapper.sh",
+        "demo-swarm-app.sh"
+      ],
+      "characteristics": ["Interactive prompts", "User feedback", "Help messages"]
+    },
+    "development_execution": {
+      "description": "Scripts for development workflows",
+      "scripts": [
+        "build-*.sh",
+        "test-*.sh",
+        "fix-*.py"
+      ],
+      "characteristics": ["Development dependencies", "Debug output", "Incremental execution"]
+    }
+  },
+  "integration_touchpoints": {
+    "mcp_protocol": [
+      "mcp-server.js",
+      "claude-flow-tools.ts"
+    ],
+    "docker_integration": [
+      "run-tests.sh",
+      "Dockerfile containers"
+    ],
+    "npm_ecosystem": [
+      "Scripts using npx, npm commands"
+    ],
+    "github_actions": [
+      "CI/CD related scripts"
+    ]
+  },
+  "complexity_analysis": {
+    "high_complexity": {
+      "count": 12,
+      "examples": [
+        "claude-sparc.sh (562 lines)",
+        "compare_optimizations.py",
+        "simple-cli.ts"
+      ],
+      "characteristics": ["500+ lines", "Multiple integrations", "Complex logic"]
+    },
+    "medium_complexity": {
+      "count": 28,
+      "characteristics": ["100-500 lines", "Multiple functions", "Moderate error handling"]
+    },
+    "low_complexity": {
+      "count": 59,
+      "characteristics": ["<100 lines", "Single purpose", "Simple execution"]
+    }
+  },
+  "recommendations": {
+    "standardization": [
+      "Consistent error handling patterns across all scripts",
+      "Standardized parameter parsing",
+      "Common logging format"
+    ],
+    "maintenance": [
+      "Regular review of high-complexity scripts",
+      "Modularization of large scripts",
+      "Documentation of script interdependencies"
+    ],
+    "security": [
+      "Input validation for all user parameters",
+      "Safe file operation practices",
+      "Privilege escalation prevention"
+    ]
+  }
+}

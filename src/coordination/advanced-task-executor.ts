@@ -513,13 +513,13 @@ export class AdvancedTaskExecutor extends EventEmitter {
     if (!pid) {
       throw new Error('Process ID is undefined');
     }
-    // In a real implementation, this would use system APIs
-    // For now, return mock data
+    // Real system monitoring not yet implemented
+    // Return placeholder values indicating unavailable data
     return {
-      memory: Math.random() * this.config.resourceLimits.memory,
-      cpu: Math.random() * 100,
-      disk: Math.random() * this.config.resourceLimits.disk,
-      network: Math.random() * 1024 * 1024,
+      memory: 0, // Monitoring not available
+      cpu: 0, // Monitoring not available
+      disk: 0, // Monitoring not available
+      network: 0, // Monitoring not available
       lastUpdated: new Date()
     };
   }

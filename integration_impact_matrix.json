@@ -1,0 +1,468 @@
+{
+  "integrationImpactMatrix": {
+    "metadata": {
+      "analysis_date": "2025-07-13T19:24:15.000Z",
+      "analyst": "Architecture Impact Assessment Specialist",
+      "scope": "External System Integration Impact Analysis",
+      "total_integrations": 15
+    },
+    "externalSystemsImpact": {
+      "claudeCode": {
+        "system": "Claude Code (Primary Integration)",
+        "integration_type": "MCP Protocol",
+        "current_version": "MCP v2024.11.5",
+        "impact_level": "Critical",
+        "risk_level": "High",
+        "affected_components": [
+          "Tool invocation interface",
+          "Parameter passing mechanism", 
+          "Response format structure",
+          "Error handling protocols",
+          "Session management"
+        ],
+        "changes_required": [
+          {
+            "component": "MCP Tool Interface",
+            "change": "Unified command structure adaptation",
+            "effort": "High",
+            "breaking": true,
+            "migration_path": "Protocol versioning with backwards compatibility"
+          },
+          {
+            "component": "Parameter Validation",
+            "change": "Harmonized parameter schemas",
+            "effort": "Medium", 
+            "breaking": true,
+            "migration_path": "Schema migration with validation wrapper"
+          },
+          {
+            "component": "Auto-Selection Integration",
+            "change": "New tool for agent auto-selection",
+            "effort": "Medium",
+            "breaking": false,
+            "migration_path": "Add new optional tool"
+          }
+        ],
+        "dependencies": [
+          "@modelcontextprotocol/sdk",
+          "Tool registry system",
+          "Session management"
+        ],
+        "estimated_effort": "6-8 weeks",
+        "rollback_complexity": "Medium",
+        "testing_requirements": "Comprehensive MCP protocol testing"
+      },
+      "ruvSwarm": {
+        "system": "ruv-swarm (Swarm Orchestration)",
+        "integration_type": "CLI and MCP Tools",
+        "current_version": "v1.0.14",
+        "impact_level": "High",
+        "risk_level": "Medium",
+        "affected_components": [
+          "Command line interface",
+          "MCP tool wrappers",
+          "Configuration integration",
+          "State synchronization"
+        ],
+        "changes_required": [
+          {
+            "component": "CLI Command Mapping",
+            "change": "Update to unified command structure",
+            "effort": "Medium",
+            "breaking": true,
+            "migration_path": "Command mapping layer with compatibility"
+          },
+          {
+            "component": "Auto-Selection Integration",
+            "change": "Integrate with new agent selection system",
+            "effort": "High",
+            "breaking": false,
+            "migration_path": "Optional integration with fallback"
+          },
+          {
+            "component": "Configuration Sync",
+            "change": "Unified configuration schema",
+            "effort": "Low",
+            "breaking": false,
+            "migration_path": "Configuration migration utility"
+          }
+        ],
+        "dependencies": [
+          "ruv-swarm CLI",
+          "Configuration manager",
+          "Agent registry"
+        ],
+        "estimated_effort": "4-5 weeks",
+        "rollback_complexity": "Low",
+        "testing_requirements": "Swarm coordination functionality testing"
+      },
+      "github": {
+        "system": "GitHub Integration",
+        "integration_type": "REST API and Webhooks",
+        "current_version": "GitHub API v4",
+        "impact_level": "Medium",
+        "risk_level": "Low",
+        "affected_components": [
+          "PR management commands",
+          "Issue tracking integration",
+          "Workflow automation",
+          "Repository synchronization"
+        ],
+        "changes_required": [
+          {
+            "component": "Command Unification",
+            "change": "Consolidate 13 GitHub commands into unified interface",
+            "effort": "Medium",
+            "breaking": true,
+            "migration_path": "Command alias system with deprecation warnings"
+          },
+          {
+            "component": "Webhook Processing",
+            "change": "Update webhook handlers for unified events",
+            "effort": "Low",
+            "breaking": false,
+            "migration_path": "Backwards compatible event processing"
+          }
+        ],
+        "dependencies": [
+          "GitHub API",
+          "Webhook infrastructure",
+          "Authentication system"
+        ],
+        "estimated_effort": "2-3 weeks",
+        "rollback_complexity": "Low",
+        "testing_requirements": "GitHub API integration testing"
+      },
+      "docker": {
+        "system": "Docker Container Orchestration",
+        "integration_type": "Container Runtime",
+        "current_version": "Docker Engine v24+",
+        "impact_level": "Low",
+        "risk_level": "Low",
+        "affected_components": [
+          "Container configuration",
+          "Environment variables",
+          "Volume mounting",
+          "Network configuration"
+        ],
+        "changes_required": [
+          {
+            "component": "Environment Variables",
+            "change": "Update environment variable names for unified commands",
+            "effort": "Low",
+            "breaking": false,
+            "migration_path": "Support both old and new variable names"
+          },
+          {
+            "component": "Configuration Files",
+            "change": "Update docker-compose configurations",
+            "effort": "Low",
+            "breaking": false,
+            "migration_path": "Configuration templates with migration guide"
+          }
+        ],
+        "dependencies": [
+          "Docker runtime",
+          "Configuration system"
+        ],
+        "estimated_effort": "1 week",
+        "rollback_complexity": "Very Low",
+        "testing_requirements": "Container deployment testing"
+      },
+      "vscode": {
+        "system": "VS Code Extension Integration",
+        "integration_type": "Extension API",
+        "current_version": "VS Code Extension API v1.74+",
+        "impact_level": "Medium",
+        "risk_level": "Low",
+        "affected_components": [
+          "Terminal integration",
+          "Command palette",
+          "Extension commands",
+          "Settings synchronization"
+        ],
+        "changes_required": [
+          {
+            "component": "Command Palette Updates",
+            "change": "Update command palette entries for unified commands",
+            "effort": "Low",
+            "breaking": false,
+            "migration_path": "Maintain old commands as aliases"
+          },
+          {
+            "component": "Terminal Session Management",
+            "change": "Adapt to new agent auto-selection",
+            "effort": "Medium",
+            "breaking": false,
+            "migration_path": "Optional auto-selection with manual override"
+          }
+        ],
+        "dependencies": [
+          "VS Code Extension API",
+          "Terminal manager"
+        ],
+        "estimated_effort": "2 weeks",
+        "rollback_complexity": "Low",
+        "testing_requirements": "VS Code extension testing"
+      },
+      "webui": {
+        "system": "Web UI Interface",
+        "integration_type": "HTTP API and WebSockets",
+        "current_version": "Internal Web UI v2.0",
+        "impact_level": "Medium",
+        "risk_level": "Medium",
+        "affected_components": [
+          "Command interface",
+          "Real-time monitoring",
+          "Configuration management",
+          "Agent visualization"
+        ],
+        "changes_required": [
+          {
+            "component": "Command Interface",
+            "change": "Update UI for unified command structure",
+            "effort": "High",
+            "breaking": true,
+            "migration_path": "UI redesign with progressive enhancement"
+          },
+          {
+            "component": "Agent Selection UI",
+            "change": "Add auto-selection controls and visualization",
+            "effort": "Medium",
+            "breaking": false,
+            "migration_path": "New optional UI components"
+          }
+        ],
+        "dependencies": [
+          "Web UI framework",
+          "WebSocket connections",
+          "REST API"
+        ],
+        "estimated_effort": "3-4 weeks",
+        "rollback_complexity": "Medium",
+        "testing_requirements": "Cross-browser UI testing"
+      }
+    },
+    "internalSystemsImpact": {
+      "eventBus": {
+        "system": "Event Bus System",
+        "impact_level": "Medium",
+        "changes": [
+          "Event taxonomy restructuring",
+          "Unified event emission patterns",
+          "Performance optimization for auto-selection events"
+        ],
+        "effort": "2 weeks"
+      },
+      "logging": {
+        "system": "Logging Infrastructure", 
+        "impact_level": "Low",
+        "changes": [
+          "Log message format updates",
+          "New log categories for auto-selection",
+          "Performance metrics logging"
+        ],
+        "effort": "1 week"
+      },
+      "persistence": {
+        "system": "Data Persistence Layer",
+        "impact_level": "Low",
+        "changes": [
+          "Schema updates for new features",
+          "Migration utilities",
+          "Performance optimization"
+        ],
+        "effort": "1-2 weeks"
+      }
+    },
+    "dataFlowImpact": {
+      "currentDataFlow": {
+        "pattern": "Direct command-to-handler routing",
+        "characteristics": [
+          "Point-to-point message passing",
+          "Command-specific parameter handling",
+          "Direct response formatting"
+        ]
+      },
+      "proposedDataFlow": {
+        "pattern": "Unified command routing with auto-selection",
+        "characteristics": [
+          "Domain-based message routing",
+          "Centralized parameter validation",
+          "Auto-selection preprocessing",
+          "Unified response formatting"
+        ]
+      },
+      "changes": [
+        {
+          "component": "Message Router",
+          "change": "Implement domain-based routing logic",
+          "impact": "Medium",
+          "effort": "2-3 weeks"
+        },
+        {
+          "component": "Parameter Processor",
+          "change": "Centralized parameter validation and transformation",
+          "impact": "High",
+          "effort": "3-4 weeks"
+        },
+        {
+          "component": "Response Formatter",
+          "change": "Unified response format across all domains",
+          "impact": "Medium",
+          "effort": "1-2 weeks"
+        }
+      ]
+    },
+    "protocolCompatibility": {
+      "mcp_protocol": {
+        "current_version": "2024.11.5",
+        "proposed_changes": [
+          "New tool registration patterns",
+          "Enhanced capability negotiation",
+          "Unified parameter schemas"
+        ],
+        "backwards_compatibility": "Required for 12 months",
+        "version_strategy": "Protocol versioning with gradual migration"
+      },
+      "rest_api": {
+        "current_version": "v2.0",
+        "proposed_changes": [
+          "Unified endpoint structure",
+          "Enhanced response formats",
+          "Auto-selection endpoints"
+        ],
+        "backwards_compatibility": "Required for 6 months",
+        "version_strategy": "API versioning with deprecation timeline"
+      }
+    },
+    "dependencyImpact": {
+      "external_dependencies": [
+        {
+          "package": "@modelcontextprotocol/sdk",
+          "current_version": "^1.0.4",
+          "impact": "Medium",
+          "update_required": false,
+          "notes": "Compatible with current version"
+        },
+        {
+          "package": "ruv-swarm",
+          "current_version": "^1.0.14",
+          "impact": "Low",
+          "update_required": true,
+          "notes": "May need minor version update for integration"
+        },
+        {
+          "package": "commander",
+          "current_version": "^11.1.0",
+          "impact": "High",
+          "update_required": false,
+          "notes": "Core CLI parsing - extensive testing required"
+        }
+      ],
+      "internal_dependencies": [
+        {
+          "component": "CLI Core",
+          "impact": "Critical",
+          "changes": "Complete restructuring of command parsing"
+        },
+        {
+          "component": "Agent Registry",
+          "impact": "High", 
+          "changes": "Enhanced capability tracking and selection algorithms"
+        },
+        {
+          "component": "Configuration Manager",
+          "impact": "Medium",
+          "changes": "Schema updates and migration support"
+        }
+      ]
+    },
+    "migrationStrategies": {
+      "protocol_versioning": {
+        "strategy": "Maintain multiple protocol versions simultaneously",
+        "duration": "12 months",
+        "implementation": [
+          "Version detection in protocol handshake",
+          "Backwards compatible wrappers",
+          "Gradual deprecation warnings",
+          "Automatic migration suggestions"
+        ]
+      },
+      "feature_flags": {
+        "strategy": "Gradual rollout with feature toggles",
+        "flags": [
+          "unified_commands_enabled",
+          "auto_selection_enabled", 
+          "legacy_compatibility_mode",
+          "enhanced_error_reporting"
+        ],
+        "rollout_plan": "5% → 25% → 75% → 100% over 4 weeks"
+      },
+      "compatibility_layer": {
+        "strategy": "Temporary backwards compatibility for breaking changes",
+        "coverage": "100% of existing command interfaces",
+        "performance_overhead": "< 10%",
+        "maintenance_period": "6 months"
+      }
+    },
+    "testingStrategy": {
+      "integration_testing": {
+        "external_systems": [
+          "Claude Code MCP integration",
+          "ruv-swarm command execution",
+          "GitHub API integration",
+          "Docker container deployment",
+          "VS Code extension functionality"
+        ],
+        "test_environments": [
+          "Development",
+          "Staging with external system mocks",
+          "Beta testing with real integrations",
+          "Production monitoring"
+        ]
+      },
+      "compatibility_testing": {
+        "backwards_compatibility": "Automated testing of old command syntax",
+        "protocol_compatibility": "MCP protocol version compatibility matrix",
+        "data_migration": "End-to-end migration testing"
+      }
+    },
+    "rollbackStrategies": {
+      "immediate_rollback": {
+        "trigger_conditions": [
+          "Critical integration failures",
+          "Performance degradation > 25%",
+          "User adoption < 50% after 4 weeks"
+        ],
+        "rollback_time": "< 15 minutes",
+        "data_safety": "Full data rollback support"
+      },
+      "partial_rollback": {
+        "granularity": "Feature-level rollback with feature flags",
+        "user_impact": "Minimal - users can continue with old commands",
+        "system_stability": "High - core system remains stable"
+      }
+    },
+    "monitoringAndObservability": {
+      "integration_health": [
+        "External system response times",
+        "Integration error rates",
+        "Protocol compatibility metrics",
+        "Migration success rates"
+      ],
+      "performance_metrics": [
+        "Command execution times",
+        "Auto-selection algorithm performance",
+        "Memory usage patterns",
+        "System throughput"
+      ],
+      "user_adoption": [
+        "Command usage patterns",
+        "Migration tool usage",
+        "Error report frequency",
+        "User feedback scores"
+      ]
+    }
+  }
+}

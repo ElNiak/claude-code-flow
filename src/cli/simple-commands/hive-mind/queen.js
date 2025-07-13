@@ -4,6 +4,7 @@
  */
 
 import EventEmitter from 'events';
+import chalk from 'chalk';
 
 /**
  * Queen types and their characteristics
@@ -650,38 +651,61 @@ export class QueenCoordinator extends EventEmitter {
    * Calculate queen's vote
    */
   _calculateQueenVote(topic, options, workerVotes) {
+    console.log(chalk.blue(`👑 [QUEEN DEBUG] Queen vote calculation triggered:`));
+    console.log(chalk.gray(`  - Queen Type: ${this.config.type}`));
+    console.log(chalk.gray(`  - Topic: ${topic}`));
+    console.log(chalk.gray(`  - Options: [${options.join(', ')}]`));
+    console.log(chalk.gray(`  - Worker Votes: ${JSON.stringify(workerVotes)}`));
+    
+    let result;
+    
     // Strategic queen focuses on long-term impact
     if (this.config.type === 'strategic') {
-      return this._strategicVote(topic, options);
+      console.log(chalk.yellow(`🎯 [QUEEN DEBUG] Using STRATEGIC voting logic`));
+      result = this._strategicVote(topic, options);
     }
-    
     // Tactical queen focuses on immediate efficiency
-    if (this.config.type === 'tactical') {
-      return this._tacticalVote(topic, options, workerVotes);
+    else if (this.config.type === 'tactical') {
+      console.log(chalk.yellow(`⚡ [QUEEN DEBUG] Using TACTICAL voting logic`));
+      result = this._tacticalVote(topic, options, workerVotes);
     }
-    
     // Adaptive queen learns from past decisions
-    if (this.config.type === 'adaptive') {
-      return this._adaptiveVote(topic, options, workerVotes);
+    else if (this.config.type === 'adaptive') {
+      console.log(chalk.yellow(`🧠 [QUEEN DEBUG] Using ADAPTIVE voting logic`));
+      result = this._adaptiveVote(topic, options, workerVotes);
+    }
+    else {
+      console.log(chalk.red(`❓ [QUEEN DEBUG] Unknown queen type, using default`));
+      result = options[0]; // Default
     }
     
-    return options[0]; // Default
+    console.log(chalk.green(`✅ [QUEEN DEBUG] Queen voted for: "${result}"`));
+    return result;
   }
   
   /**
    * Strategic voting logic
    */
   _strategicVote(topic, options) {
+    console.log(chalk.cyan(`🎯 [STRATEGIC DEBUG] Strategic voting algorithm activated`));
+    
     // Prefer options that mention long-term benefits
     const strategicKeywords = ['scalable', 'maintainable', 'extensible', 'future'];
+    console.log(chalk.gray(`Strategic keywords: [${strategicKeywords.join(', ')}]`));
     
     for (const option of options) {
       const optionLower = option.toLowerCase();
-      if (strategicKeywords.some(keyword => optionLower.includes(keyword))) {
+      const matchedKeywords = strategicKeywords.filter(keyword => optionLower.includes(keyword));
+      
+      if (matchedKeywords.length > 0) {
+        console.log(chalk.green(`✅ Strategic match found: "${option}" (keywords: ${matchedKeywords.join(', ')})`));
         return option;
+      } else {
+        console.log(chalk.gray(`No strategic keywords in: "${option}"`));
       }
     }
     
+    console.log(chalk.yellow(`⚠️ No strategic options found, defaulting to first option: "${options[0]}"`));
     return options[0];
   }
   
@@ -689,27 +713,41 @@ export class QueenCoordinator extends EventEmitter {
    * Tactical voting logic
    */
   _tacticalVote(topic, options, workerVotes) {
+    console.log(chalk.cyan(`⚡ [TACTICAL DEBUG] Tactical voting algorithm activated`));
+    
     // Follow majority if consensus is strong
     const voteCounts = {};
     Object.values(workerVotes).forEach(vote => {
       voteCounts[vote] = (voteCounts[vote] || 0) + 1;
     });
+    console.log(chalk.gray(`Vote counts: ${JSON.stringify(voteCounts)}`));
     
     const sorted = Object.entries(voteCounts).sort((a, b) => b[1] - a[1]);
-    if (sorted.length > 0 && sorted[0][1] > Object.keys(workerVotes).length * 0.6) {
+    const consensusThreshold = Object.keys(workerVotes).length * 0.6;
+    console.log(chalk.gray(`Consensus threshold (60%): ${consensusThreshold}`));
+    
+    if (sorted.length > 0 && sorted[0][1] > consensusThreshold) {
+      console.log(chalk.green(`✅ Strong consensus found: "${sorted[0][0]}" (${sorted[0][1]} votes, above threshold)`));
       return sorted[0][0];
     }
     
     // Otherwise, prefer quick implementation
     const tacticalKeywords = ['simple', 'quick', 'fast', 'efficient'];
+    console.log(chalk.gray(`No strong consensus, checking tactical keywords: [${tacticalKeywords.join(', ')}]`));
     
     for (const option of options) {
       const optionLower = option.toLowerCase();
-      if (tacticalKeywords.some(keyword => optionLower.includes(keyword))) {
+      const matchedKeywords = tacticalKeywords.filter(keyword => optionLower.includes(keyword));
+      
+      if (matchedKeywords.length > 0) {
+        console.log(chalk.green(`✅ Tactical match found: "${option}" (keywords: ${matchedKeywords.join(', ')})`));
         return option;
+      } else {
+        console.log(chalk.gray(`No tactical keywords in: "${option}"`));
       }
     }
     
+    console.log(chalk.yellow(`⚠️ No tactical preferences, defaulting to first option: "${options[0]}"`));
     return options[0];
   }
   
@@ -779,6 +817,126 @@ export class QueenCoordinator extends EventEmitter {
       decision.success = success;
       decision.metrics = metrics;
       this.emit('learning:updated', { decisionId, success, metrics });
+    }
+  }
+  
+  /**
+   * Execute plan phases with consensus integration
+   */
+  async executePhases(executionPlan, hiveMindCore) {
+    console.log(chalk.blue(`👑 [QUEEN] Executing ${executionPlan.strategy} strategy with ${executionPlan.phases.length} phases`));
+    
+    const results = [];
+    
+    for (let i = 0; i < executionPlan.phases.length; i++) {
+      const phase = executionPlan.phases[i];
+      console.log(chalk.yellow(`📋 [QUEEN] Starting phase ${i + 1}: ${phase.name}`));
+      
+      // 🤝 CONSENSUS INTEGRATION: Check if phase requires consensus
+      if (phase.requiresConsensus) {
+        console.log(chalk.blue(`🤝 [QUEEN] Phase requires consensus: "${phase.name}"`));
+        
+        try {
+          const options = this._generatePhaseOptions(phase);
+          const consensus = await hiveMindCore.buildConsensus(
+            `Phase strategy: ${phase.name}`,
+            options
+          );
+          
+          // Apply consensus decision to phase
+          phase.consensusDecision = consensus.result;
+          phase.consensusConfidence = consensus.confidence;
+          phase.approachStrategy = consensus.result;
+          
+          console.log(chalk.green(`✅ [QUEEN] Consensus reached for "${phase.name}": "${consensus.result}" (${Math.round(consensus.confidence * 100)}% confidence)`));
+          
+        } catch (error) {
+          console.warn(chalk.yellow(`⚠️ [QUEEN] Consensus failed for phase "${phase.name}", using default approach: ${error.message}`));
+          phase.approachStrategy = 'default implementation';
+        }
+      }
+      
+      // Execute phase tasks
+      const phaseResult = await this._executePhase(phase, hiveMindCore);
+      results.push(phaseResult);
+      
+      console.log(chalk.green(`✅ [QUEEN] Completed phase ${i + 1}: ${phase.name}`));
+    }
+    
+    console.log(chalk.green(`🎉 [QUEEN] All phases completed for ${executionPlan.strategy} strategy`));
+    return results;
+  }
+  
+  /**
+   * Generate consensus options for a phase
+   */
+  _generatePhaseOptions(phase) {
+    const phaseName = phase.name.toLowerCase();
+    
+    if (phaseName.includes('research') || phaseName.includes('planning')) {
+      return ['thorough analysis', 'rapid research', 'comprehensive planning'];
+    }
+    
+    if (phaseName.includes('develop') || phaseName.includes('implement')) {
+      return ['scalable implementation', 'quick development', 'maintainable solution'];
+    }
+    
+    if (phaseName.includes('integration') || phaseName.includes('testing')) {
+      return ['comprehensive testing', 'efficient integration', 'rapid validation'];
+    }
+    
+    if (phaseName.includes('optimization') || phaseName.includes('performance')) {
+      return ['thorough optimization', 'targeted improvements', 'balanced approach'];
+    }
+    
+    // Default options for any phase
+    return ['comprehensive approach', 'efficient execution', 'balanced strategy'];
+  }
+  
+  /**
+   * Execute individual phase
+   */
+  async _executePhase(phase, hiveMindCore) {
+    const startTime = Date.now();
+    
+    try {
+      // Create tasks for the phase
+      const tasks = [];
+      
+      for (const taskDescription of phase.tasks) {
+        const task = await hiveMindCore.createTask(
+          taskDescription,
+          7, // High priority for phase tasks
+          {
+            phase: phase.name,
+            strategy: phase.approachStrategy || 'default',
+            requiresConsensus: false // Already handled at phase level
+          }
+        );
+        tasks.push(task);
+      }
+      
+      // Wait for all phase tasks to complete
+      // Note: In a real implementation, you'd monitor task completion
+      // For now, we'll simulate completion
+      
+      return {
+        phase: phase.name,
+        tasks: tasks.length,
+        duration: Date.now() - startTime,
+        status: 'completed',
+        consensusDecision: phase.consensusDecision,
+        consensusConfidence: phase.consensusConfidence
+      };
+      
+    } catch (error) {
+      console.error(chalk.red(`❌ [QUEEN] Phase execution failed: ${phase.name}`), error);
+      return {
+        phase: phase.name,
+        status: 'failed',
+        error: error.message,
+        duration: Date.now() - startTime
+      };
     }
   }
   

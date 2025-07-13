@@ -31,6 +31,7 @@ import { LoadBalancer, ILoadBalancer, RequestQueue } from './load-balancer.js';
 import { createClaudeFlowTools, ClaudeFlowToolContext } from './claude-flow-tools.js';
 import { createSwarmTools, SwarmToolContext } from './swarm-tools.js';
 import { createRuvSwarmTools, RuvSwarmToolContext, isRuvSwarmAvailable, initializeRuvSwarmIntegration } from './ruv-swarm-tools.js';
+import { createUnifiedTools, UnifiedToolContext } from './unified-tools.js';
 import { platform, arch } from 'node:os';
 import { performance } from 'node:perf_hooks';
 
@@ -554,6 +555,9 @@ export class MCPServer implements IMCPServer {
 
     // Register ruv-swarm MCP tools if available
     this.registerRuvSwarmTools();
+    
+    // Register unified coordination tools
+    this.registerUnifiedTools();
   }
 
   /**
@@ -605,6 +609,48 @@ export class MCPServer implements IMCPServer {
       
     } catch (error) {
       this.logger.error('Error registering ruv-swarm MCP tools', error);
+    }
+  }
+
+  /**
+   * Register unified coordination tools
+   */
+  private async registerUnifiedTools(): Promise<void> {
+    try {
+      this.logger.info('Registering unified coordination tools...');
+      
+      // Create unified tools
+      const unifiedTools = createUnifiedTools(this.logger);
+      
+      for (const tool of unifiedTools) {
+        // Wrap the handler to inject unified context
+        const originalHandler = tool.handler;
+        tool.handler = async (input: unknown, context?: MCPContext) => {
+          const unifiedContext: UnifiedToolContext = {
+            ...context,
+            orchestrator: this.orchestrator,
+            swarmCoordinator: this.swarmCoordinator,
+            agentManager: this.agentManager,
+            resourceManager: this.resourceManager,
+            messageBus: this.messagebus,
+            monitor: this.monitor,
+            workingDirectory: process.cwd(),
+            sessionId: `unified-session-${Date.now()}`
+          };
+          
+          return await originalHandler(input, unifiedContext);
+        };
+        
+        this.registerTool(tool);
+      }
+      
+      this.logger.info('Registered unified coordination tools', { 
+        count: unifiedTools.length,
+        toolNames: unifiedTools.map(t => t.name)
+      });
+      
+    } catch (error) {
+      this.logger.error('Error registering unified coordination tools', error);
     }
   }
 

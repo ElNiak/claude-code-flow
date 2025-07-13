@@ -1,0 +1,146 @@
+{
+  "name": "development",
+  "description": "Optimized configuration for software development workflows",
+  "version": "2.0.0",
+  "orchestrator": {
+    "maxConcurrentAgents": 8,
+    "taskQueueSize": 50,
+    "healthCheckInterval": 15000,
+    "shutdownTimeout": 20000
+  },
+  "terminal": {
+    "type": "auto",
+    "poolSize": 6,
+    "recycleAfter": 8,
+    "healthCheckInterval": 30000,
+    "commandTimeout": 600000
+  },
+  "memory": {
+    "backend": "hybrid",
+    "cacheSizeMB": 200,
+    "syncInterval": 3000,
+    "conflictResolution": "crdt",
+    "retentionDays": 14
+  },
+  "coordination": {
+    "maxRetries": 5,
+    "retryDelay": 800,
+    "deadlockDetection": true,
+    "resourceTimeout": 120000,
+    "messageTimeout": 15000
+  },
+  "mcp": {
+    "transport": "stdio",
+    "port": 3001,
+    "tlsEnabled": false
+  },
+  "logging": {
+    "level": "debug",
+    "format": "text",
+    "destination": "console"
+  },
+  "ruvSwarm": {
+    "enabled": true,
+    "defaultTopology": "hierarchical",
+    "maxAgents": 8,
+    "defaultStrategy": "specialized",
+    "autoInit": true,
+    "enableHooks": true,
+    "enablePersistence": true,
+    "enableNeuralTraining": true,
+    "configPath": ".claude/ruv-swarm-config.json"
+  },
+  "agents": {
+    "preferredTypes": [
+      "architect",
+      "coder",
+      "tester",
+      "reviewer",
+      "coordinator"
+    ],
+    "autoSpawn": {
+      "enabled": true,
+      "triggers": {
+        "fileTypes": {
+          "*.ts": ["coder", "reviewer"],
+          "*.js": ["coder", "reviewer"],
+          "*.test.*": ["tester"],
+          "*.spec.*": ["tester"],
+          "package.json": ["architect", "coordinator"],
+          "README.md": ["documenter"]
+        },
+        "projectStructure": {
+          "hasTests": ["tester"],
+          "hasCI": ["coordinator"],
+          "multiPackage": ["architect"]
+        }
+      }
+    }
+  },
+  "workflows": {
+    "apiDevelopment": {
+      "enabled": true,
+      "agents": ["architect", "coder", "tester", "documenter"],
+      "topology": "hierarchical",
+      "strategy": "specialized",
+      "parallel": true
+    },
+    "frontendDevelopment": {
+      "enabled": true,
+      "agents": ["designer", "coder", "tester", "reviewer"],
+      "topology": "mesh",
+      "strategy": "adaptive",
+      "parallel": true
+    },
+    "backendDevelopment": {
+      "enabled": true,
+      "agents": ["architect", "coder", "tester", "security"],
+      "topology": "hierarchical",
+      "strategy": "specialized",
+      "parallel": true
+    },
+    "codeReview": {
+      "enabled": true,
+      "agents": ["reviewer", "security", "performance"],
+      "topology": "ring",
+      "strategy": "balanced",
+      "parallel": false
+    }
+  },
+  "smartDefaults": {
+    "autoDetectProjectType": true,
+    "adaptToProjectSize": true,
+    "learnFromHistory": true,
+    "optimizeForSpeed": true
+  },
+  "hooks": {
+    "preFileEdit": {
+      "loadContext": true,
+      "validateSyntax": true,
+      "checkDependencies": true
+    },
+    "postFileEdit": {
+      "runLinter": true,
+      "runTests": false,
+      "updateDocs": false,
+      "formatCode": true
+    },
+    "preTaskExecution": {
+      "validateEnvironment": true,
+      "prepareResources": true,
+      "notifyAgents": true
+    },
+    "postTaskExecution": {
+      "storeResults": true,
+      "updateMetrics": true,
+      "trainNeuralPatterns": true
+    }
+  },
+  "performance": {
+    "enableCaching": true,
+    "parallelExecution": true,
+    "resourceOptimization": true,
+    "tokenReduction": true,
+    "intelligentBatching": true
+  }
+}

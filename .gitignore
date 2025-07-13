@@ -92,3 +92,7 @@ test-reports/
 # SQLite Database Files
 .swarm/memory.db*
 .hive-mind/hive.db*
+
+
+#Ignore vscode AI rules
+.github/copilot-instructions.md

@@ -1,0 +1,243 @@
+{
+  "agent_integration_dependencies_analysis": {
+    "timestamp": "2025-07-13T19:23:00Z",
+    "scope": "Dependencies between agent system and other components",
+    
+    "current_integration_architecture": {
+      "agent_command_dependencies": {
+        "direct_imports": [
+          "AgentManager from '../agents/agent-manager.js'",
+          "DistributedMemorySystem from '../memory/distributed-memory.js'",
+          "EventBus from '../core/event-bus.js'",
+          "Logger from '../core/logger.js'",
+          "AgentProfile, AgentType from '../utils/types.js'"
+        ],
+        "indirect_dependencies": [
+          "AgentRegistry via AgentManager",
+          "ResourceManager via coordination",
+          "SwarmCoordinator via orchestration",
+          "HealthCheck systems",
+          "Process spawning and management"
+        ]
+      },
+      
+      "swarm_system_integration": {
+        "swarm_coordinator": {
+          "role": "Primary orchestrator that uses agent selection",
+          "dependencies_on_agents": [
+            "Agent registry for agent discovery",
+            "Agent manager for lifecycle operations", 
+            "Agent selection strategies",
+            "Agent health and status monitoring"
+          ],
+          "selection_delegation": "Delegates to strategy.selectAgentForTask()"
+        },
+        
+        "strategy_system": {
+          "base_strategy": "Abstract selectAgentForTask() method",
+          "concrete_strategies": [
+            "AutoStrategy - ML-inspired selection",
+            "ResearchStrategy - Research-focused selection",
+            "DevelopmentStrategy - Development-focused",
+            "AnalysisStrategy - Analysis-focused"
+          ],
+          "agent_interaction": "Strategies evaluate and score available agents"
+        }
+      },
+      
+      "hive_mind_integration": {
+        "hive_command": {
+          "agent_spawning": "spawnHiveAgents() creates topology-specific agents",
+          "coordination": "Uses SwarmCoordinator for agent management",
+          "consensus": "Agents participate in voting and decision making"
+        },
+        "topology_influence": {
+          "hierarchical": "Creates architect, worker, scout, guardian roles",
+          "mesh": "Creates generalist and specialist workers",
+          "ring": "Creates sequential processor roles",
+          "star": "Creates centralized executor roles"
+        }
+      },
+      
+      "memory_system_integration": {
+        "agent_registry_storage": {
+          "persistent_agent_data": "Agents stored in DistributedMemorySystem",
+          "coordination_data": "storeCoordinationData() and getCoordinationData()",
+          "performance_history": "Agent performance tracking for selection"
+        },
+        "swarm_memory": {
+          "shared_context": "Agents share memory namespace",
+          "task_coordination": "Memory used for task assignment coordination",
+          "result_aggregation": "Results stored and retrieved from memory"
+        }
+      },
+      
+      "coordination_system_integration": {
+        "coordination_manager": {
+          "task_assignment": "assignTask(task, agentId) integrates with agents",
+          "resource_management": "Agent resource allocation and monitoring",
+          "message_routing": "Inter-agent communication"
+        },
+        "advanced_scheduler": {
+          "agent_selection": "Multiple scheduling strategies for agent selection",
+          "load_balancing": "Distributes tasks across available agents",
+          "conflict_resolution": "Resolves agent assignment conflicts"
+        }
+      }
+    },
+    
+    "proposed_architecture_changes": {
+      "agent_command_refocus": {
+        "new_responsibilities": [
+          "Agent template creation and management",
+          "Agent capability definition",
+          "Resource allocation configuration",
+          "Agent behavior customization",
+          "Agent pool and scaling configuration"
+        ],
+        "removed_responsibilities": [
+          "Manual agent spawning for tasks",
+          "Direct agent-to-task assignment",
+          "Task-specific agent selection"
+        ],
+        "retained_integrations": [
+          "AgentManager for template and lifecycle management",
+          "AgentRegistry for capability storage",
+          "Memory system for configuration persistence"
+        ]
+      },
+      
+      "enhanced_hive_intelligence": {
+        "new_responsibilities": [
+          "Automatic task analysis for capability requirements",
+          "Dynamic agent selection based on current workload",
+          "Performance-based agent optimization",
+          "Intelligent agent spawning decisions"
+        ],
+        "enhanced_integrations": [
+          "Deeper integration with task analysis",
+          "More sophisticated agent capability matching",
+          "Real-time performance monitoring",
+          "Dynamic resource allocation"
+        ]
+      }
+    },
+    
+    "dependency_impact_analysis": {
+      "systems_requiring_updates": {
+        "swarm_coordinator": {
+          "current_behavior": "Calls manual agent selection when no agent specified",
+          "proposed_behavior": "Always uses hive intelligence for selection",
+          "required_changes": [
+            "Remove manual agent selection fallbacks",
+            "Integrate with enhanced hive selection API",
+            "Update task assignment flow"
+          ]
+        },
+        
+        "hive_command": {
+          "current_behavior": "Creates agents based on topology templates",
+          "proposed_behavior": "Manages agent selection and spawning dynamically",
+          "required_changes": [
+            "Enhance agent selection intelligence",
+            "Add task capability analysis",
+            "Implement performance-based optimization"
+          ]
+        },
+        
+        "coordination_manager": {
+          "current_behavior": "Assigns tasks to manually selected agents",
+          "proposed_behavior": "Requests optimal agent from hive intelligence",
+          "required_changes": [
+            "Update task assignment API",
+            "Integrate with hive selection service",
+            "Modify agent availability checking"
+          ]
+        }
+      },
+      
+      "systems_remaining_unchanged": {
+        "agent_manager": {
+          "reason": "Core agent lifecycle management remains the same",
+          "role": "Still handles agent creation, monitoring, and cleanup"
+        },
+        "agent_registry": {
+          "reason": "Agent storage and querying capabilities still needed", 
+          "role": "Enhanced role in providing agent data to hive intelligence"
+        },
+        "memory_system": {
+          "reason": "Persistence and coordination data still required",
+          "role": "May need enhanced indexing for selection optimization"
+        }
+      }
+    },
+    
+    "api_compatibility_analysis": {
+      "breaking_changes": {
+        "agent_command_cli": [
+          "agent spawn <template> - would be modified or removed",
+          "Interactive agent creation - workflow changes",
+          "Direct agent assignment - no longer supported"
+        ],
+        "programmatic_apis": [
+          "SwarmCoordinator.assignTask() - agent parameter might be removed",
+          "Agent selection strategy interfaces - might be consolidated",
+          "Manual agent spawning methods - deprecated"
+        ]
+      },
+      
+      "backwards_compatibility_options": {
+        "transition_period": [
+          "Maintain legacy agent spawn with deprecation warnings",
+          "Support both manual and automatic modes",
+          "Provide migration helpers for existing workflows"
+        ],
+        "configuration_flags": [
+          "--legacy-mode for backward compatibility",
+          "--auto-select to enable new behavior",
+          "Environment variables for default behavior"
+        ]
+      }
+    },
+    
+    "migration_strategy": {
+      "phase_1_preparation": [
+        "Enhance hive intelligence capabilities",
+        "Add task analysis and capability matching",
+        "Create agent customization interfaces",
+        "Implement selection transparency features"
+      ],
+      
+      "phase_2_transition": [
+        "Introduce new agent command focused on customization",
+        "Add automatic selection as opt-in feature",
+        "Maintain backward compatibility with warnings",
+        "Update documentation with new workflows"
+      ],
+      
+      "phase_3_consolidation": [
+        "Make automatic selection the default",
+        "Deprecate manual selection methods",
+        "Optimize hive intelligence based on usage patterns",
+        "Remove legacy compatibility code"
+      ]
+    },
+    
+    "risk_assessment": {
+      "high_risk_areas": [
+        "User workflow disruption during transition",
+        "Performance regression if hive selection is suboptimal",
+        "Compatibility issues with existing automation scripts",
+        "Loss of fine-grained control for advanced users"
+      ],
+      
+      "mitigation_strategies": [
+        "Comprehensive testing of automatic selection algorithms",
+        "Gradual rollout with feature flags",
+        "Detailed migration documentation and examples",
+        "Emergency fallback to manual selection",
+        "Performance monitoring and optimization"
+      ]
+    }
+  }
+}

@@ -1,7 +1,7 @@
 {
   "name": "claude-flow",
-  "version": "2.0.0-alpha.49",
-  "description": "Enterprise-grade AI agent orchestration with ruv-swarm integration (Alpha Release)",
+  "version": "2.0.0-alpha.50",
+  "description": "Enterprise-grade AI agent orchestration with unified coordination system and intrinsic agents (Alpha Release)",
   "main": "cli.mjs",
   "bin": {
     "claude-flow": "./bin/claude-flow"
@@ -41,6 +41,9 @@
     "test:health": "NODE_OPTIONS='--experimental-vm-modules' jest src/__tests__/integration/system-integration.test.ts --testNamePattern='Health'",
     "test:swarm": "NODE_OPTIONS='--experimental-vm-modules' jest src/__tests__/e2e/swarm-coordination.test.ts",
     "test:benchmark": "NODE_OPTIONS='--experimental-vm-modules' jest src/__tests__/performance/benchmark.test.ts",
+    "test:unified": "NODE_OPTIONS='--experimental-vm-modules' jest src/__tests__/e2e/unified-coordination.test.ts",
+    "test:intrinsic": "NODE_OPTIONS='--experimental-vm-modules' jest src/__tests__/unit/intrinsic-agents.test.ts",
+    "test:compatibility": "NODE_OPTIONS='--experimental-vm-modules' jest src/__tests__/integration/backward-compatibility.test.ts",
     "lint": "eslint src --ext .ts,.js",
     "format": "prettier --write src",
     "diagnostics": "node -e \"import('./dist/monitoring/diagnostics.js').then(m => m.DiagnosticManager.quickDiagnostic().then(console.log))\"",
@@ -70,10 +73,14 @@
     "enterprise",
     "coordination",
     "multi-agent",
-    "neural-networks",
+    "neural-networks", 
     "cli",
     "tools",
-    "alpha"
+    "alpha",
+    "unified-coordination",
+    "intrinsic-agents",
+    "coordination-hooks",
+    "memory-coordination"
   ],
   "author": "rUv",
   "license": "MIT",

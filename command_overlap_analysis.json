@@ -1,0 +1,190 @@
+{
+  "command_overlap_analysis": {
+    "analysis_metadata": {
+      "date": "2025-07-13",
+      "analyst": "Swarm-SPARC-Hive Merger Analysis Specialist",
+      "scope": "Complete overlap analysis of swarm, sparc, and hive commands",
+      "systems_analyzed": ["swarm.ts", "sparc.ts", "hive.ts", "hive-mind/*"]
+    },
+    
+    "functional_overlaps": {
+      "agent_coordination": {
+        "swarm": {
+          "mechanism": "SwarmCoordinator with task assignment",
+          "agent_types": ["researcher", "coder", "analyst", "coordinator", "reviewer"],
+          "coordination_style": "strategy-based decomposition"
+        },
+        "sparc": {
+          "mechanism": "Mode-based execution with memory persistence",
+          "agent_types": ["implied through modes - spec, architect, code, tdd, debug, etc."],
+          "coordination_style": "methodology-driven workflow"
+        },
+        "hive": {
+          "mechanism": "Consensus-based coordination with voting",
+          "agent_types": ["queen", "worker", "scout", "guardian", "architect"],
+          "coordination_style": "consensus-driven decision making"
+        },
+        "overlap_score": 0.85,
+        "conflict_areas": [
+          "Different agent type taxonomies",
+          "Incompatible coordination mechanisms",
+          "Varying memory management approaches"
+        ]
+      },
+      
+      "execution_patterns": {
+        "swarm": {
+          "execution": "parallel/sequential task decomposition",
+          "background_support": true,
+          "monitoring": "SwarmMonitor integration",
+          "timeout_handling": "configurable timeouts"
+        },
+        "sparc": {
+          "execution": "sequential methodology phases",
+          "background_support": false,
+          "monitoring": "basic execution tracking",
+          "timeout_handling": "claude CLI timeouts"
+        },
+        "hive": {
+          "execution": "consensus-driven parallel execution",
+          "background_support": true,
+          "monitoring": "quality-based monitoring",
+          "timeout_handling": "configurable with quality thresholds"
+        },
+        "overlap_score": 0.70,
+        "unification_opportunities": [
+          "Unified timeout management",
+          "Common monitoring interface", 
+          "Standardized background execution"
+        ]
+      },
+      
+      "memory_management": {
+        "swarm": {
+          "system": "SwarmMemoryManager",
+          "namespace_support": true,
+          "persistence": "file-based with custom paths",
+          "distribution": "optional distributed memory"
+        },
+        "sparc": {
+          "system": "claude-flow memory commands",
+          "namespace_support": true,
+          "persistence": "memory store/query commands",
+          "distribution": "not specified"
+        },
+        "hive": {
+          "system": "SwarmMemoryManager with consensus storage",
+          "namespace_support": true,
+          "persistence": "consensus and execution results",
+          "distribution": "distributed by design"
+        },
+        "overlap_score": 0.75,
+        "standardization_needs": [
+          "Unified memory interface",
+          "Common namespace conventions",
+          "Standardized persistence formats"
+        ]
+      },
+      
+      "configuration_parameters": {
+        "common_parameters": {
+          "timeout": "All systems support timeout configuration",
+          "memory_namespace": "All systems support namespace isolation",
+          "monitor": "swarm and hive have monitoring",
+          "background": "swarm and hive support background mode",
+          "verbose": "swarm and sparc have verbose output",
+          "dry_run": "swarm and sparc support dry-run"
+        },
+        "conflicting_parameters": {
+          "strategy_vs_mode_vs_topology": {
+            "swarm": "strategy (auto, research, development, analysis)",
+            "sparc": "mode (17 different SPARC modes)",
+            "hive": "topology (mesh, hierarchical, ring, star)"
+          },
+          "agent_count": {
+            "swarm": "maxAgents (default: 5)",
+            "sparc": "implicit based on mode",
+            "hive": "maxAgents (default: 8)"
+          },
+          "consensus_mechanisms": {
+            "swarm": "not applicable",
+            "sparc": "sequential methodology",
+            "hive": "quorum, unanimous, weighted, leader"
+          }
+        },
+        "overlap_score": 0.60,
+        "harmonization_challenges": [
+          "Parameter semantic conflicts",
+          "Different default values",
+          "Incompatible option combinations"
+        ]
+      }
+    },
+    
+    "architectural_differences": {
+      "core_philosophies": {
+        "swarm": "Self-organizing agent networks with strategy-based task decomposition",
+        "sparc": "Structured methodology execution with phase-based workflows",
+        "hive": "Consensus-driven collective intelligence with quality gates"
+      },
+      
+      "integration_points": {
+        "swarm_coordinator": "Central coordination system used by swarm and hive",
+        "memory_systems": "SwarmMemoryManager vs claude-flow memory commands",
+        "claude_integration": "Direct CLI vs MCP vs enhanced prompts",
+        "monitoring_systems": "SwarmMonitor vs quality scoring vs none"
+      },
+      
+      "incompatibilities": {
+        "execution_models": "Sequential SPARC vs Parallel Swarm vs Consensus Hive",
+        "decision_making": "Strategy-based vs Methodology-driven vs Consensus-based",
+        "agent_hierarchies": "Flat swarm vs Mode-based vs Queen-led hierarchy",
+        "quality_control": "None vs TDD methodology vs Quality thresholds"
+      }
+    },
+    
+    "user_experience_analysis": {
+      "command_complexity": {
+        "swarm": "Medium - 13 main parameters with intuitive names",
+        "sparc": "High - Multiple subcommands with methodology concepts",
+        "hive": "High - Complex topology and consensus concepts"
+      },
+      
+      "learning_curve": {
+        "swarm": "Low to Medium - familiar agent concepts",
+        "sparc": "High - requires SPARC methodology knowledge",
+        "hive": "High - requires distributed systems concepts"
+      },
+      
+      "use_case_overlap": {
+        "development_tasks": "All three systems can handle software development",
+        "research_tasks": "Swarm and hive both support research workflows",
+        "analysis_tasks": "All three support different types of analysis",
+        "testing_tasks": "SPARC TDD vs swarm testing agents vs hive quality gates"
+      }
+    },
+    
+    "merger_feasibility": {
+      "technical_feasibility": 0.70,
+      "user_experience_impact": 0.60,
+      "maintenance_complexity": 0.80,
+      "feature_preservation": 0.65,
+      
+      "major_challenges": [
+        "Reconciling three different coordination philosophies",
+        "Unifying incompatible parameter sets",
+        "Maintaining backward compatibility",
+        "Preserving unique system advantages",
+        "Managing increased command complexity"
+      ],
+      
+      "success_factors": [
+        "Unified memory and coordination infrastructure",
+        "Mode-based execution selection",
+        "Progressive disclosure of complexity",
+        "Strong default configurations",
+        "Clear migration path"
+      ]
+    }
+  }
+}

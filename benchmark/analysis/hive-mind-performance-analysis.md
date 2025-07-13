@@ -467,7 +467,7 @@ Annual Resource Savings (projected):
 │                                                 │
 │ Total Annual Savings: $66,535                   │
 │ Implementation Cost: $8,400                     │
-│ Net Benefit: $58,135 (692% ROI)                │
+│ Net Benefit: Operational improvements available │
 └─────────────────────────────────────────────────┘
 ```
 

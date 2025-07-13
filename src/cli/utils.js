@@ -1,5 +1,6 @@
 // utils.js - Shared CLI utility functions
 
+import chalk from 'chalk';
 import { Deno, existsSync } from './node-compat.js';
 
 // Color formatting functions
@@ -88,32 +89,46 @@ export function formatBytes(bytes) {
 
 // Command execution helpers
 export function parseFlags(args) {
+  console.log(chalk.blue(`🔍 [DEEP DEBUG] parseFlags called with args: [${args.join(', ')}]`));
+  
   const flags = {};
   const filteredArgs = [];
   
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
+    console.log(chalk.gray(`  Processing arg[${i}]: "${arg}"`));
     
     if (arg.startsWith('--')) {
       const flagName = arg.substring(2);
       const nextArg = args[i + 1];
       
+      console.log(chalk.gray(`    Flag detected: "${flagName}", next arg: "${nextArg}"`));
+      
       if (nextArg && !nextArg.startsWith('--')) {
         flags[flagName] = nextArg;
+        console.log(chalk.green(`    ✅ Set flag "${flagName}" = "${nextArg}"`));
         i++; // Skip next arg since we consumed it
       } else {
         flags[flagName] = true;
+        console.log(chalk.green(`    ✅ Set boolean flag "${flagName}" = true`));
       }
     } else if (arg.startsWith('-') && arg.length > 1) {
       // Short flags
       const shortFlags = arg.substring(1);
+      console.log(chalk.gray(`    Short flags detected: "${shortFlags}"`));
       for (const flag of shortFlags) {
         flags[flag] = true;
+        console.log(chalk.green(`    ✅ Set short flag "${flag}" = true`));
       }
     } else {
       filteredArgs.push(arg);
+      console.log(chalk.gray(`    ✅ Added to args: "${arg}"`));
     }
   }
+  
+  console.log(chalk.green(`🎯 [DEEP DEBUG] parseFlags result:`));
+  console.log(chalk.green(`  flags: ${JSON.stringify(flags, null, 2)}`));
+  console.log(chalk.green(`  args: [${filteredArgs.join(', ')}]`));
   
   return { flags, args: filteredArgs };
 }

@@ -211,6 +211,89 @@ export class ShutdownError extends SystemError {
 }
 
 /**
+ * Integration-related errors
+ */
+export class IntegrationError extends ClaudeFlowError {
+  constructor(message: string, details?: unknown) {
+    super(message, 'INTEGRATION_ERROR', details);
+    this.name = 'IntegrationError';
+  }
+}
+
+export class HookError extends ClaudeFlowError {
+  constructor(message: string, details?: unknown) {
+    super(message, 'HOOK_ERROR', details);
+    this.name = 'HookError';
+  }
+}
+
+export class GitHubError extends ClaudeFlowError {
+  constructor(message: string, details?: unknown) {
+    super(message, 'GITHUB_ERROR', details);
+    this.name = 'GitHubError';
+  }
+}
+
+export class OrchestratorError extends ClaudeFlowError {
+  constructor(message: string, details?: unknown) {
+    super(message, 'ORCHESTRATOR_ERROR', details);
+    this.name = 'OrchestratorError';
+  }
+}
+
+export class AgentError extends ClaudeFlowError {
+  constructor(message: string, details?: unknown) {
+    super(message, 'AGENT_ERROR', details);
+    this.name = 'AgentError';
+  }
+}
+
+export class NetworkError extends ClaudeFlowError {
+  constructor(message: string, details?: unknown) {
+    super(message, 'NETWORK_ERROR', details);
+    this.name = 'NetworkError';
+  }
+}
+
+export class TimeoutError extends ClaudeFlowError {
+  constructor(message: string, details?: unknown) {
+    super(message, 'TIMEOUT_ERROR', details);
+    this.name = 'TimeoutError';
+  }
+}
+
+export class AuthError extends ClaudeFlowError {
+  constructor(message: string, details?: unknown) {
+    super(message, 'AUTH_ERROR', details);
+    this.name = 'AuthError';
+  }
+}
+
+export class ResourceError extends ClaudeFlowError {
+  constructor(message: string, details?: unknown) {
+    super(message, 'RESOURCE_ERROR', details);
+    this.name = 'ResourceError';
+  }
+}
+
+/**
+ * Error aggregation for multiple errors
+ */
+export class AggregateError extends ClaudeFlowError {
+  public readonly errors: Error[];
+
+  constructor(errors: Error[], message = 'Multiple errors occurred') {
+    const errorMessages = errors.map(err => err.message).join('; ');
+    super(`${message}: ${errorMessages}`, 'AGGREGATE_ERROR', {
+      errorCount: errors.length,
+      errorCodes: errors.map(err => getErrorCode(err)),
+    });
+    this.name = 'AggregateError';
+    this.errors = errors;
+  }
+}
+
+/**
  * Error utilities
  */
 export function isClaudeFlowError(error: unknown): error is ClaudeFlowError {
@@ -229,4 +312,122 @@ export function getErrorDetails(error: unknown): unknown {
     return error.details;
   }
   return undefined;
+}
+
+export function getErrorCode(error: unknown): string {
+  if (isClaudeFlowError(error)) {
+    return error.code;
+  }
+  if (error instanceof Error) {
+    return error.constructor.name;
+  }
+  return 'UNKNOWN_ERROR';
+}
+
+export function getErrorContext(error: unknown): Record<string, unknown> | undefined {
+  if (isClaudeFlowError(error)) {
+    return error.details as Record<string, unknown>;
+  }
+  return undefined;
+}
+
+/**
+ * Error retry utilities
+ */
+export function isRetryableError(error: unknown): boolean {
+  if (isClaudeFlowError(error)) {
+    return [
+      'NETWORK_ERROR',
+      'TIMEOUT_ERROR',
+      'RESOURCE_ERROR',
+      'MCP_TRANSPORT_ERROR',
+    ].includes(error.code);
+  }
+  return false;
+}
+
+export function getRetryDelay(attempt: number, baseDelay = 1000): number {
+  // Exponential backoff with jitter
+  const delay = baseDelay * Math.pow(2, attempt - 1);
+  const jitter = Math.random() * 0.1 * delay;
+  return Math.min(delay + jitter, 30000); // Max 30 seconds
+}
+
+/**
+ * Error logging helper
+ */
+export function formatErrorForLogging(error: unknown): Record<string, unknown> {
+  if (isClaudeFlowError(error)) {
+    return {
+      name: error.name,
+      message: error.message,
+      code: error.code,
+      details: error.details,
+      stack: error.stack,
+    };
+  }
+  
+  if (error instanceof Error) {
+    return {
+      name: error.name,
+      message: error.message,
+      stack: error.stack,
+    };
+  }
+  
+  return {
+    error: String(error),
+    type: typeof error,
+  };
+}
+
+/**
+ * Error recovery utilities
+ */
+export interface ErrorRecoveryStrategy {
+  canRecover(error: unknown): boolean;
+  recover(error: unknown): Promise<void>;
+}
+
+export class DefaultErrorRecoveryStrategy implements ErrorRecoveryStrategy {
+  canRecover(error: unknown): boolean {
+    return isRetryableError(error);
+  }
+
+  async recover(error: unknown): Promise<void> {
+    // Default recovery: wait and retry
+    const delay = getRetryDelay(1);
+    await new Promise(resolve => setTimeout(resolve, delay));
+  }
+}
+
+/**
+ * Error boundary for async operations
+ */
+export async function withErrorBoundary<T>(
+  operation: () => Promise<T>,
+  recovery?: ErrorRecoveryStrategy,
+  maxRetries = 3,
+): Promise<T> {
+  let lastError: unknown;
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      return await operation();
+    } catch (error) {
+      lastError = error;
+      
+      if (attempt === maxRetries || !recovery?.canRecover(error)) {
+        throw error;
+      }
+      
+      try {
+        await recovery.recover(error);
+      } catch (recoveryError) {
+        throw new AggregateError([error as Error, recoveryError as Error]);
+      }
+    }
+  }
+  
+  throw lastError;
 }

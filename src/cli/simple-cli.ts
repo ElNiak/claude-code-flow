@@ -42,7 +42,7 @@ USAGE:
   swarm "objective" [--strategy] [--mode] [--max-agents N] [--parallel] [--monitor]
     --strategy: research, development, analysis, testing, optimization, maintenance
     --mode: centralized, distributed, hierarchical, mesh, hybrid
-    --parallel: Enable parallel execution (2.8-4.4x speed improvement)
+    --parallel: Enable parallel execution (improved performance)
     --monitor: Real-time swarm monitoring and performance tracking
 
 🐙 GITHUB WORKFLOW AUTOMATION (v2.0.0):
@@ -102,13 +102,13 @@ USAGE:
   • WASM-powered cognitive patterns with SIMD optimization
   • 27 MCP tools for comprehensive workflow automation
   • Cross-session learning and adaptation
-  • Real-time performance monitoring (sub-10ms response times)
-  • 32.3% token usage reduction through intelligent coordination
+  • Real-time performance monitoring with optimized response times
+  • Token usage optimization through intelligent coordination
   • Self-healing workflows with automatic error recovery
 
-📊 ENTERPRISE PERFORMANCE METRICS:
-  • 84.8% SWE-Bench solve rate through coordinated intelligence
-  • 2.8-4.4x speed improvement with parallel execution
+📊 ENTERPRISE FEATURES:
+  • Enhanced problem-solving through coordinated intelligence
+  • Performance improvements with parallel execution
   • 60% Docker build performance improvement
   • 100% test success rate with comprehensive validation
   • Sub-10ms MCP response times

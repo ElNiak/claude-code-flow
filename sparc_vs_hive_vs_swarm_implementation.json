@@ -1,0 +1,286 @@
+{
+  "comparative_analysis": {
+    "title": "SPARC vs Hive vs Swarm Implementation Differences",
+    "analysis_date": "2025-07-13",
+    "analyst": "Comparative Implementation Analysis Specialist",
+    "summary": "Comprehensive analysis of actual implementation differences between SPARC, Hive, and Swarm systems based on code behavior, not documentation",
+    
+    "command_interface_comparison": {
+      "sparc": {
+        "command_pattern": "subcommand-based",
+        "primary_commands": ["modes", "info", "run", "tdd", "workflow"],
+        "execution_model": "sequential_methodology",
+        "configuration_source": ".roomodes file (JSON)",
+        "user_experience": "methodology_driven",
+        "task_structure": "phase_based",
+        "coordination_type": "methodology_sequential"
+      },
+      "hive": {
+        "command_pattern": "objective-based",
+        "primary_commands": ["<objective>"],
+        "execution_model": "consensus_driven",
+        "configuration_source": "runtime_parameters",
+        "user_experience": "intelligence_driven", 
+        "task_structure": "consensus_voting",
+        "coordination_type": "democratic_collective"
+      },
+      "swarm": {
+        "command_pattern": "objective-strategy",
+        "primary_commands": ["<objective>"],
+        "execution_model": "self_orchestrating",
+        "configuration_source": "strategy_flags",
+        "user_experience": "coordination_driven",
+        "task_structure": "topology_based",
+        "coordination_type": "distributed_autonomous"
+      }
+    },
+
+    "execution_engine_comparison": {
+      "sparc": {
+        "executor_file": "sparc-executor.ts",
+        "execution_pattern": "SPARC_methodology_phases",
+        "phases": ["specification", "pseudocode", "architecture", "refinement", "completion"],
+        "tdd_integration": "built_in_red_green_refactor",
+        "task_processing": "sequential_phase_execution",
+        "agent_coordination": "methodology_guided",
+        "output_structure": "phase_artifacts",
+        "quality_focus": "methodology_completeness"
+      },
+      "hive": {
+        "executor_file": "hive-orchestrator.ts",
+        "execution_pattern": "consensus_voting_workflow",
+        "phases": ["task_decomposition", "task_assignment", "parallel_execution", "result_aggregation"],
+        "voting_mechanism": "agent_consensus_voting",
+        "task_processing": "consensus_driven_assignment",
+        "agent_coordination": "voting_based_decisions",
+        "output_structure": "consensus_results",
+        "quality_focus": "collective_intelligence"
+      },
+      "swarm": {
+        "executor_file": "swarm-coordinator.ts",
+        "execution_pattern": "topology_based_coordination",
+        "phases": ["objective_decomposition", "agent_registration", "task_assignment", "execution_monitoring"],
+        "coordination_mechanism": "background_task_processing",
+        "task_processing": "capability_based_assignment",
+        "agent_coordination": "autonomous_self_organization",
+        "output_structure": "distributed_results",
+        "quality_focus": "distributed_efficiency"
+      }
+    },
+
+    "memory_and_state_management": {
+      "sparc": {
+        "memory_pattern": "namespace_based",
+        "persistence": "mode_specific_namespaces",
+        "state_sharing": "sequential_phase_handoff",
+        "data_structure": "methodology_artifacts",
+        "coordination_memory": "phase_progress_tracking",
+        "session_management": "workflow_state_persistence"
+      },
+      "hive": {
+        "memory_pattern": "consensus_state",
+        "persistence": "voting_history_tracking",
+        "state_sharing": "collective_decision_memory",
+        "data_structure": "vote_and_decision_records",
+        "coordination_memory": "consensus_round_results",
+        "session_management": "hive_mind_state_persistence"
+      },
+      "swarm": {
+        "memory_pattern": "distributed_coordination",
+        "persistence": "objective_and_task_state",
+        "state_sharing": "agent_capability_mapping",
+        "data_structure": "topology_based_organization",
+        "coordination_memory": "background_sync_state",
+        "session_management": "swarm_runtime_persistence"
+      }
+    },
+
+    "integration_pattern_comparison": {
+      "sparc": {
+        "mcp_integration": "tool_group_mapping",
+        "external_systems": "mode_based_tool_selection",
+        "configuration_approach": "declarative_mode_definition",
+        "customization": "roomodes_file_driven",
+        "extensibility": "new_mode_creation",
+        "deployment": "claude_subprocess_execution"
+      },
+      "hive": {
+        "mcp_integration": "swarm_coordinator_tools",
+        "external_systems": "topology_aware_integration",
+        "configuration_approach": "runtime_parameter_driven",
+        "customization": "consensus_algorithm_tuning",
+        "extensibility": "agent_type_specialization",
+        "deployment": "consensus_cluster_management"
+      },
+      "swarm": {
+        "mcp_integration": "background_executor_tools",
+        "external_systems": "strategy_based_coordination",
+        "configuration_approach": "dynamic_topology_selection",
+        "customization": "strategy_and_topology_flags",
+        "extensibility": "agent_capability_expansion",
+        "deployment": "distributed_swarm_scaling"
+      }
+    },
+
+    "key_architectural_differences": {
+      "sparc": {
+        "design_philosophy": "methodology_adherence",
+        "execution_control": "phase_gate_progression",
+        "quality_assurance": "tdd_built_in",
+        "scalability": "sequential_phase_scaling",
+        "complexity_handling": "methodology_decomposition",
+        "error_handling": "phase_rollback_capability",
+        "performance_characteristics": "methodology_overhead_but_quality_assured"
+      },
+      "hive": {
+        "design_philosophy": "collective_intelligence",
+        "execution_control": "consensus_decision_making",
+        "quality_assurance": "peer_review_voting",
+        "scalability": "consensus_participation_scaling",
+        "complexity_handling": "distributed_decision_making",
+        "error_handling": "consensus_retry_mechanisms",
+        "performance_characteristics": "consensus_overhead_but_democratic_quality"
+      },
+      "swarm": {
+        "design_philosophy": "autonomous_coordination",
+        "execution_control": "topology_based_orchestration",
+        "quality_assurance": "capability_matching",
+        "scalability": "horizontal_swarm_expansion",
+        "complexity_handling": "distributed_task_decomposition",
+        "error_handling": "circuit_breaker_and_retry",
+        "performance_characteristics": "distributed_efficiency_with_coordination_overhead"
+      }
+    },
+
+    "actual_code_behavior_differences": {
+      "task_creation": {
+        "sparc": "buildSparcPrompt() creates methodology-specific prompts with phase context",
+        "hive": "conductConsensusRound() creates voting-based task proposals",
+        "swarm": "decomposeObjective() creates strategy-based task decomposition"
+      },
+      "execution_flow": {
+        "sparc": "Sequential phase execution with mode-specific tools and TDD cycles",
+        "hive": "Consensus voting followed by capability-based assignment and parallel execution",
+        "swarm": "Background task processing with topology-aware coordination and work stealing"
+      },
+      "agent_communication": {
+        "sparc": "Memory namespace sharing between methodology phases",
+        "hive": "Voting mechanisms and consensus decision propagation",
+        "swarm": "Event-driven coordination with background state synchronization"
+      },
+      "result_aggregation": {
+        "sparc": "Phase artifacts accumulated through methodology progression",
+        "hive": "Consensus-validated results with quality threshold checking",
+        "swarm": "Distributed task results with objective completion detection"
+      }
+    },
+
+    "real_world_usage_scenarios": {
+      "sparc_optimal_for": [
+        "Structured software development projects requiring methodology adherence",
+        "TDD-driven development workflows",
+        "Projects requiring phase-gate progression",
+        "Quality-assured iterative development",
+        "Educational or compliance-driven development"
+      ],
+      "hive_optimal_for": [
+        "Collaborative decision-making scenarios",
+        "Projects requiring peer consensus",
+        "Democratic development processes",
+        "Quality through collective intelligence",
+        "Multi-stakeholder agreement requirements"
+      ],
+      "swarm_optimal_for": [
+        "Large-scale distributed development",
+        "Autonomous system coordination",
+        "High-throughput task processing",
+        "Scalable parallel execution",
+        "Self-organizing development teams"
+      ]
+    },
+
+    "implementation_complexity_analysis": {
+      "sparc": {
+        "code_complexity": "medium",
+        "configuration_complexity": "low_to_medium",
+        "operational_complexity": "low",
+        "maintenance_complexity": "low",
+        "learning_curve": "medium"
+      },
+      "hive": {
+        "code_complexity": "high",
+        "configuration_complexity": "medium",
+        "operational_complexity": "medium_to_high",
+        "maintenance_complexity": "medium",
+        "learning_curve": "high"
+      },
+      "swarm": {
+        "code_complexity": "high",
+        "configuration_complexity": "medium_to_high",
+        "operational_complexity": "high", 
+        "maintenance_complexity": "high",
+        "learning_curve": "high"
+      }
+    },
+
+    "performance_characteristics": {
+      "sparc": {
+        "startup_time": "fast",
+        "execution_efficiency": "methodology_overhead",
+        "memory_usage": "phase_state_tracking",
+        "scalability": "sequential_bottlenecks",
+        "concurrency": "limited_to_phase_parallelism"
+      },
+      "hive": {
+        "startup_time": "medium",
+        "execution_efficiency": "consensus_coordination_overhead",
+        "memory_usage": "voting_state_tracking",
+        "scalability": "consensus_participation_limits",
+        "concurrency": "consensus_limited_parallelism"
+      },
+      "swarm": {
+        "startup_time": "slow",
+        "execution_efficiency": "distributed_coordination_overhead",
+        "memory_usage": "full_swarm_state_tracking",
+        "scalability": "horizontal_scaling_capable",
+        "concurrency": "full_parallel_execution"
+      }
+    }
+  },
+
+  "definitive_implementation_differences": [
+    "SPARC implements methodology-driven sequential execution with built-in TDD workflows",
+    "Hive implements consensus-based collective intelligence with voting mechanisms",
+    "Swarm implements autonomous distributed coordination with topology-based execution",
+    "SPARC uses .roomodes configuration files while Hive and Swarm use runtime parameters",
+    "SPARC focuses on methodology adherence, Hive on collective decision-making, Swarm on distributed efficiency",
+    "SPARC has the lowest operational complexity, Swarm has the highest scalability potential",
+    "Hive is unique in requiring consensus for task assignment and execution decisions",
+    "Swarm is unique in implementing background task processing and work stealing algorithms",
+    "SPARC is unique in building TDD methodology directly into the execution engine"
+  ],
+
+  "when_to_use_each_system": {
+    "use_sparc_when": [
+      "Following specific development methodologies is required",
+      "TDD workflows are mandatory",
+      "Sequential phase-gate processes are needed",
+      "Simple coordination with methodology enforcement",
+      "Educational or compliance environments"
+    ],
+    "use_hive_when": [
+      "Democratic decision-making is required",
+      "Consensus-based quality assurance is needed",
+      "Multiple stakeholders must agree on approaches",
+      "Collective intelligence benefits outweigh coordination overhead",
+      "Peer review and voting mechanisms add value"
+    ],
+    "use_swarm_when": [
+      "High scalability and parallel execution are required",
+      "Autonomous coordination reduces management overhead",
+      "Distributed systems expertise is available",
+      "Complex topology-based coordination adds value",
+      "Background processing and work stealing are beneficial"
+    ]
+  }
+}

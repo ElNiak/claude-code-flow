@@ -1,0 +1,171 @@
+{
+  "sparc_execution_flow_analysis": {
+    "overview": "Detailed analysis of SPARC execution patterns and decision trees based on actual code implementation",
+    "execution_entry_points": {
+      "typescript_command": {
+        "file": "src/cli/commands/sparc.ts",
+        "function": "sparcAction(ctx: CommandContext)",
+        "processing": "Handles modes|info|run|tdd|workflow subcommands",
+        "integration": "Full TypeScript integration with error handling"
+      },
+      "javascript_command": {
+        "file": "src/cli/simple-commands/sparc.js", 
+        "function": "sparcCommand(subArgs, flags)",
+        "processing": "Flag merging and smart command detection",
+        "fallback": "Treats unknown args as orchestrator tasks"
+      }
+    },
+    "command_flow_decision_tree": {
+      "1_command_parsing": {
+        "input_analysis": "Parse subcommand and flags",
+        "help_detection": "Show help if --help, -h, or no args",
+        "subcommand_validation": "Check against known commands: modes|info|run|tdd",
+        "fallback_behavior": "Unknown commands treated as 'run sparc <task>'"
+      },
+      "2_configuration_loading": {
+        "config_path": "Working directory + '/.roomodes'",
+        "error_handling": "Graceful fallback if .roomodes missing",
+        "config_parsing": "JSON.parse of customModes array",
+        "mode_validation": "Verify requested mode exists in config"
+      },
+      "3_prompt_generation": {
+        "orchestration_loading": "getModeOrchestration(modeSlug, task, namespace)",
+        "template_assembly": "createSparcPrompt() combines mode + orchestration",
+        "environment_injection": "Current working directory and safety instructions",
+        "memory_integration": "Memory commands embedded in prompt"
+      },
+      "4_tool_configuration": {
+        "group_mapping": "buildToolsFromGroups() maps mode groups to tools",
+        "permission_handling": "--dangerously-skip-permissions by default",
+        "tool_validation": "Ensure required tools available",
+        "mcp_integration": "MCP tools when permissions enabled"
+      },
+      "5_execution_dispatch": {
+        "dry_run_check": "Preview mode shows configuration without execution",
+        "process_spawning": "Deno.Command or child_process.spawn for 'claude'",
+        "environment_setup": "CLAUDE_SPARC_MODE, instance ID, memory namespace",
+        "stdio_inheritance": "inherit for interactive mode"
+      }
+    },
+    "actual_execution_patterns": {
+      "sequential_execution": {
+        "default_behavior": "One mode executed at a time",
+        "blocking": "Wait for Claude CLI process completion",
+        "memory_persistence": "State stored between sequential executions",
+        "error_propagation": "Exit codes passed through from Claude CLI"
+      },
+      "parallel_execution": {
+        "batchtool_integration": "Background swarm processing via BatchTool",
+        "non_interactive_mode": "--non-interactive for automated execution",
+        "concurrent_modes": "Multiple SPARC modes running simultaneously",
+        "result_aggregation": "Results collected from multiple streams"
+      },
+      "boomerang_pattern": {
+        "cyclical_orchestration": "Results from one phase feed into next",
+        "feedback_loops": "Continuous refinement based on previous outputs",
+        "phase_coordination": "research → design → implement → test → optimize",
+        "memory_coordination": "Cross-phase state management"
+      }
+    },
+    "sparc_executor_workflow": {
+      "task_analysis": {
+        "agent_type_mapping": "Map agent types to SPARC phases",
+        "phase_determination": "Determine which SPARC phase to execute",
+        "objective_parsing": "Analyze task description for requirements"
+      },
+      "phase_execution": {
+        "specification": "executeSpecificationPhase() - requirements generation",
+        "pseudocode": "executePseudocodePhase() - algorithm design",
+        "architecture": "executeArchitecturePhase() - system design",
+        "refinement": "executeTDDPhase() - test-driven implementation",
+        "completion": "Documentation and integration phases"
+      },
+      "file_management": {
+        "directory_structure": "Creates proper project hierarchy",
+        "file_generation": "Language-specific file creation",
+        "content_formatting": "Proper formatting for different file types",
+        "size_constraints": "Maintains <500 line limits per file"
+      }
+    },
+    "data_flow_patterns": {
+      "input_processing": {
+        "command_line_args": "Parse and validate user input",
+        "configuration_loading": "Load mode definitions from .roomodes",
+        "context_assembly": "Combine user task with mode configuration",
+        "prompt_enhancement": "Add SPARC methodology guidance"
+      },
+      "execution_coordination": {
+        "process_management": "Spawn and manage Claude CLI processes",
+        "environment_isolation": "Separate environments per execution",
+        "memory_coordination": "Shared memory across mode executions",
+        "result_tracking": "Monitor execution progress and outcomes"
+      },
+      "output_handling": {
+        "stdio_management": "Handle Claude CLI stdout/stderr",
+        "result_aggregation": "Collect results from multiple executions",
+        "error_reporting": "Comprehensive error handling and reporting",
+        "success_validation": "Verify execution completion"
+      }
+    },
+    "integration_workflows": {
+      "memory_integration": {
+        "namespace_management": "Separate namespaces per mode/task",
+        "state_persistence": "Cross-execution state management",
+        "context_sharing": "Share findings between modes",
+        "progress_tracking": "Monitor overall workflow progress"
+      },
+      "mcp_integration": {
+        "tool_availability": "MCP tools when permissions enabled",
+        "service_integration": "External service connectivity",
+        "protocol_handling": "MCP protocol management",
+        "error_handling": "MCP-specific error handling"
+      },
+      "swarm_coordination": {
+        "background_processing": "Swarm execution for complex tasks",
+        "parallel_coordination": "Multiple agents working simultaneously",
+        "result_synthesis": "Aggregate results from swarm executions",
+        "monitoring": "Real-time progress monitoring"
+      }
+    },
+    "error_handling_patterns": {
+      "validation_errors": {
+        "mode_validation": "Verify mode exists in configuration",
+        "parameter_validation": "Validate required parameters present",
+        "tool_validation": "Ensure required tools available",
+        "environment_validation": "Check execution environment"
+      },
+      "execution_errors": {
+        "process_spawn_errors": "Handle Claude CLI spawn failures",
+        "permission_errors": "Manage permission-related failures", 
+        "timeout_errors": "Handle execution timeouts",
+        "resource_errors": "Manage resource exhaustion"
+      },
+      "recovery_mechanisms": {
+        "graceful_degradation": "Fallback to simpler execution modes",
+        "retry_logic": "Automatic retry for transient failures",
+        "cleanup_procedures": "Clean up partial execution state",
+        "error_reporting": "Detailed error reporting with context"
+      }
+    },
+    "performance_characteristics": {
+      "execution_time": {
+        "orchestration_overhead": "Minimal - template generation and config loading",
+        "claude_cli_execution": "Dominant factor - depends on task complexity",
+        "memory_operations": "Fast SQLite-based storage",
+        "file_operations": "Standard filesystem I/O"
+      },
+      "resource_usage": {
+        "memory_footprint": "Low - mainly configuration and templates in memory",
+        "cpu_usage": "Low for SPARC itself, depends on Claude CLI execution",
+        "disk_usage": "Generated files and SQLite memory database",
+        "network_usage": "Only if MCP tools or WebSearch used"
+      },
+      "scalability": {
+        "concurrent_executions": "Limited by system resources and Claude CLI limits",
+        "parallel_modes": "BatchTool enables multiple concurrent executions",
+        "memory_scaling": "SQLite handles large numbers of memory entries",
+        "file_scaling": "Limited by filesystem and disk space"
+      }
+    }
+  }
+}

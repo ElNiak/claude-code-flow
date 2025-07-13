@@ -252,9 +252,9 @@ async function listMcpTools(subArgs, flags) {
     console.log('    performance_report: Real-time metrics with 24h/7d/30d timeframes');
     
     console.log('\n  ⚡ PERFORMANCE FEATURES:');
-    console.log('    • 2.8-4.4x speed improvement with parallel execution');
-    console.log('    • 32.3% token reduction through optimization');
-    console.log('    • 84.8% SWE-Bench solve rate with swarm coordination');
+    console.log('    • Enhanced performance with parallel execution');
+    console.log('    • Token usage optimization available');
+    console.log('    • Improved coordination through swarm intelligence');
     console.log('    • WASM neural processing with SIMD optimization');
     console.log('    • Cross-session memory persistence');
     
@@ -266,7 +266,7 @@ async function listMcpTools(subArgs, flags) {
     console.log('    • MCP protocol compatibility');
   }
   
-  console.log('\n📡 Status: 87 tools & resources available when server is running');
+  console.log('\n📡 Status: MCP coordination tools available when server is running');
   console.log('🎯 Categories: swarm, neural, memory, analysis, workflow, github, daa, system');
   console.log('🔗 Compatibility: ruv-swarm + DAA + Claude-Flow unified platform');
   console.log('\n💡 Usage: claude-flow mcp tools --category=<category> --verbose');

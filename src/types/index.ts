@@ -6,6 +6,9 @@
 export * from '../swarm/types.js';
 // export * from '../workflows/types.js'; // File not found
 
+// Export unified coordination types
+export * from '../unified/core/index.js';
+
 // Memory-specific types that may be referenced
 export interface MemoryEntry {
   id: string;

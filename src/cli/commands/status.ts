@@ -263,8 +263,8 @@ function showComponentStatus(status: any, componentName: string): void {
 }
 
 async function getSystemStatus(): Promise<any> {
-  // In a real implementation, this would connect to the orchestrator
-  // For now, return mock data
+  // Real system status monitoring not yet implemented
+  // Basic status information only
   return {
     overall: 'healthy',
     version: '1.0.0',

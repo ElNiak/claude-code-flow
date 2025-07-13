@@ -1,0 +1,145 @@
+{
+  "name": "research",
+  "description": "Optimized configuration for research and analysis workflows",
+  "version": "2.0.0",
+  "orchestrator": {
+    "maxConcurrentAgents": 10,
+    "taskQueueSize": 100,
+    "healthCheckInterval": 20000,
+    "shutdownTimeout": 45000
+  },
+  "terminal": {
+    "type": "auto",
+    "poolSize": 4,
+    "recycleAfter": 15,
+    "healthCheckInterval": 60000,
+    "commandTimeout": 900000
+  },
+  "memory": {
+    "backend": "hybrid",
+    "cacheSizeMB": 500,
+    "syncInterval": 10000,
+    "conflictResolution": "timestamp",
+    "retentionDays": 90
+  },
+  "coordination": {
+    "maxRetries": 3,
+    "retryDelay": 2000,
+    "deadlockDetection": true,
+    "resourceTimeout": 300000,
+    "messageTimeout": 60000
+  },
+  "mcp": {
+    "transport": "stdio",
+    "port": 3002,
+    "tlsEnabled": false
+  },
+  "logging": {
+    "level": "info",
+    "format": "json",
+    "destination": "file"
+  },
+  "ruvSwarm": {
+    "enabled": true,
+    "defaultTopology": "mesh",
+    "maxAgents": 10,
+    "defaultStrategy": "adaptive",
+    "autoInit": true,
+    "enableHooks": true,
+    "enablePersistence": true,
+    "enableNeuralTraining": true,
+    "configPath": ".claude/ruv-swarm-config.json"
+  },
+  "agents": {
+    "preferredTypes": [
+      "researcher",
+      "analyst",
+      "synthesizer",
+      "documenter",
+      "coordinator"
+    ],
+    "autoSpawn": {
+      "enabled": true,
+      "triggers": {
+        "fileTypes": {
+          "*.md": ["documenter", "analyst"],
+          "*.pdf": ["researcher", "analyst"],
+          "*.csv": ["analyst", "synthesizer"],
+          "*.json": ["analyst"],
+          "*.txt": ["researcher"]
+        },
+        "taskTypes": {
+          "analysis": ["analyst", "synthesizer"],
+          "research": ["researcher", "coordinator"],
+          "documentation": ["documenter", "reviewer"],
+          "synthesis": ["synthesizer", "analyst"]
+        }
+      }
+    }
+  },
+  "workflows": {
+    "literatureReview": {
+      "enabled": true,
+      "agents": ["researcher", "analyst", "synthesizer", "documenter"],
+      "topology": "mesh",
+      "strategy": "adaptive",
+      "parallel": true
+    },
+    "dataAnalysis": {
+      "enabled": true,
+      "agents": ["analyst", "synthesizer", "visualizer"],
+      "topology": "hierarchical",
+      "strategy": "specialized",
+      "parallel": true
+    },
+    "reportGeneration": {
+      "enabled": true,
+      "agents": ["synthesizer", "documenter", "reviewer"],
+      "topology": "ring",
+      "strategy": "balanced",
+      "parallel": false
+    },
+    "knowledgeExtraction": {
+      "enabled": true,
+      "agents": ["researcher", "analyst", "synthesizer"],
+      "topology": "mesh",
+      "strategy": "adaptive",
+      "parallel": true
+    }
+  },
+  "smartDefaults": {
+    "autoDetectResearchDomain": true,
+    "adaptToDataSize": true,
+    "learnFromSources": true,
+    "optimizeForAccuracy": true
+  },
+  "hooks": {
+    "preResearch": {
+      "validateSources": true,
+      "checkAvailability": true,
+      "prepareContext": true
+    },
+    "postResearch": {
+      "storeFindings": true,
+      "updateKnowledgeBase": true,
+      "createSummary": true
+    },
+    "preAnalysis": {
+      "validateData": true,
+      "checkQuality": true,
+      "prepareTools": true
+    },
+    "postAnalysis": {
+      "storeResults": true,
+      "generateInsights": true,
+      "updateModels": true
+    }
+  },
+  "performance": {
+    "enableCaching": true,
+    "parallelExecution": true,
+    "resourceOptimization": true,
+    "memoryIntensive": true,
+    "deepAnalysis": true
+  }
+}

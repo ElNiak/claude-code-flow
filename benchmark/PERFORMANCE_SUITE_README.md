@@ -49,7 +49,7 @@ This performance benchmarking suite provides automated testing, monitoring, and 
 ### Core Performance Tools
 
 #### 1. `swarm_performance_suite.py`
-**Comprehensive benchmark runner with 84.8% SWE-Bench accuracy**
+**Comprehensive benchmark runner for performance testing**
 
 ```bash
 # Run full performance suite

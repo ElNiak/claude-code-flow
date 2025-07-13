@@ -448,8 +448,8 @@ class Dashboard {
   }
   
   private async getRealSystemData(): Promise<MonitorData | null> {
-    // This would connect to the actual orchestrator for real data
-    // For now, return null to use mock data
+    // Real system monitoring not yet implemented
+    // Would connect to actual orchestrator when available
     return null;
   }
   

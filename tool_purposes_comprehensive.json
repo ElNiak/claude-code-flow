@@ -1,0 +1,272 @@
+{
+  "claude_flow_ecosystem": {
+    "overview": "Enterprise-grade AI agent orchestration system with ruv-swarm integration",
+    "version": "2.0.0-alpha.49",
+    "architecture_layers": {
+      "1_user_interface": "CLI commands and wrapper scripts",
+      "2_orchestration": "MCP tools and swarm coordination",
+      "3_execution": "Agent spawning and task management",
+      "4_intelligence": "Hive mind and neural patterns"
+    }
+  },
+  "tool_categories": {
+    "cli_commands": {
+      "purpose": "User-facing interface for all system operations",
+      "business_value": "Simplifies complex AI orchestration into simple commands",
+      "target_users": ["developers", "devops", "technical_managers"],
+      "tools": {
+        "claude-flow": {
+          "purpose": "Main CLI entry point with smart runtime detection",
+          "file": "/bin/claude-flow",
+          "value": "Single command interface for entire ecosystem",
+          "integration": "Dispatches to appropriate runtime (Node.js/TypeScript)",
+          "workflow": "User entry → Runtime detection → Command execution"
+        },
+        "init": {
+          "purpose": "Initialize claude-flow project with templates and hooks",
+          "value": "Zero-config setup for AI orchestration",
+          "integration": "Creates .claude/ directory, installs hooks, sets up MCP",
+          "workflow": "Project setup → Template selection → Hook installation → Ready to use"
+        },
+        "swarm": {
+          "purpose": "Multi-agent swarm orchestration and management",
+          "value": "Parallel AI agent coordination for complex tasks",
+          "integration": "Coordinates with MCP tools and hive-mind system",
+          "workflow": "Task definition → Agent spawning → Parallel execution → Result aggregation"
+        },
+        "hive-mind": {
+          "purpose": "Advanced neural network coordination with persistent memory",
+          "value": "Intelligent task distribution with learning capabilities",
+          "integration": "Uses SQLite for persistence, coordinates swarm operations",
+          "workflow": "Neural analysis → Intelligent spawning → Memory persistence → Performance optimization"
+        },
+        "memory": {
+          "purpose": "Persistent memory management for agents and sessions",
+          "value": "Context preservation across sessions and agents",
+          "integration": "SQLite backend with cross-agent sharing",
+          "workflow": "Store context → Query patterns → Share across agents → Learn from history"
+        },
+        "config": {
+          "purpose": "System configuration management",
+          "value": "Centralized configuration for all components",
+          "integration": "Provides settings for orchestrator, terminals, memory, coordination",
+          "workflow": "Load defaults → User customization → Validation → Component configuration"
+        },
+        "status": {
+          "purpose": "System health and status monitoring",
+          "value": "Real-time visibility into system state",
+          "integration": "Aggregates data from all components",
+          "workflow": "Component polling → Health aggregation → Status reporting → Issue identification"
+        },
+        "monitor": {
+          "purpose": "Real-time system monitoring and diagnostics",
+          "value": "Performance optimization and troubleshooting",
+          "integration": "Collects metrics from all system components",
+          "workflow": "Metric collection → Analysis → Alerting → Performance optimization"
+        }
+      }
+    },
+    "mcp_tools": {
+      "purpose": "Model Context Protocol integration for Claude Code coordination",
+      "business_value": "Enables Claude Code to orchestrate complex multi-agent workflows",
+      "target_users": ["claude_code_instances", "mcp_clients"],
+      "namespace": "mcp__claude-flow__*",
+      "tools": {
+        "swarm_init": {
+          "purpose": "Initialize swarm coordination topology",
+          "value": "Sets up multi-agent coordination framework",
+          "integration": "Creates coordination structure for Claude Code operations",
+          "workflow": "Topology selection → Agent preparation → Coordination setup → Ready for spawning",
+          "parameters": {
+            "topology": ["mesh", "hierarchical", "ring", "star"],
+            "maxAgents": "1-50",
+            "strategy": ["balanced", "specialized", "parallel"]
+          }
+        },
+        "agent_spawn": {
+          "purpose": "Create specialized cognitive patterns to guide Claude Code",
+          "value": "Provides different thinking approaches for complex problems",
+          "integration": "Coordinates with Claude Code's Task tool for actual execution",
+          "workflow": "Pattern definition → Coordination setup → Claude Code integration → Execution guidance",
+          "agent_types": ["coordinator", "researcher", "coder", "analyst", "architect", "tester", "reviewer", "optimizer", "documenter", "monitor", "specialist"]
+        },
+        "task_orchestrate": {
+          "purpose": "Break down and coordinate complex tasks",
+          "value": "Systematic approach to complex problem solving",
+          "integration": "Provides task breakdown for Claude Code execution",
+          "workflow": "Task analysis → Breakdown → Coordination planning → Execution orchestration"
+        },
+        "memory_usage": {
+          "purpose": "Persistent memory across Claude Code sessions",
+          "value": "Context preservation and learning across interactions",
+          "integration": "SQLite persistence with cross-session sharing",
+          "workflow": "Store context → Cross-session retrieval → Pattern learning → Intelligence enhancement"
+        },
+        "swarm_status": {
+          "purpose": "Monitor coordination effectiveness",
+          "value": "Real-time visibility into multi-agent coordination",
+          "integration": "Aggregates data from all coordinated agents",
+          "workflow": "Status collection → Coordination analysis → Performance reporting → Optimization recommendations"
+        },
+        "neural_patterns": {
+          "purpose": "Analyze and improve thinking approaches",
+          "value": "Continuous learning and optimization of coordination patterns",
+          "integration": "Learns from Claude Code execution patterns",
+          "workflow": "Pattern analysis → Learning → Optimization → Pattern improvement"
+        }
+      }
+    },
+    "swarm_coordination": {
+      "purpose": "Multi-agent coordination and execution system",
+      "business_value": "Parallel processing and specialized agent coordination",
+      "target_users": ["system_orchestrator", "agent_coordinators"],
+      "components": {
+        "coordinator": {
+          "purpose": "Central coordination and task distribution",
+          "value": "Manages agent lifecycle and task assignment",
+          "integration": "Orchestrates all swarm operations",
+          "workflow": "Task analysis → Agent assignment → Execution monitoring → Result aggregation"
+        },
+        "executor": {
+          "purpose": "Agent execution and task processing",
+          "value": "Handles actual task execution by agents",
+          "integration": "Executes tasks assigned by coordinator",
+          "workflow": "Task receipt → Resource allocation → Execution → Result reporting"
+        },
+        "memory": {
+          "purpose": "Shared memory system for agent coordination",
+          "value": "Enables information sharing between agents",
+          "integration": "SQLite backend with cross-agent access",
+          "workflow": "Memory storage → Cross-agent access → Context sharing → Collective intelligence"
+        },
+        "strategies": {
+          "purpose": "Different coordination strategies for various use cases",
+          "value": "Optimized coordination patterns for different scenarios",
+          "types": {
+            "auto": "Automatic strategy selection based on task analysis",
+            "research": "Research-optimized coordination patterns",
+            "development": "Development-focused coordination",
+            "testing": "Testing and QA coordination patterns"
+          }
+        }
+      }
+    },
+    "integration_utilities": {
+      "purpose": "System integration and utility functions",
+      "business_value": "Seamless integration between system components",
+      "tools": {
+        "hooks": {
+          "purpose": "Automated coordination and state management",
+          "value": "Reduces manual coordination overhead",
+          "types": {
+            "pre_task": "Context loading and preparation",
+            "post_edit": "Progress tracking and memory storage",
+            "session_end": "State persistence and cleanup",
+            "agent_spawned": "Agent registration and tracking"
+          }
+        },
+        "prompt_copier": {
+          "purpose": "Intelligent prompt copying and context sharing",
+          "value": "Efficient context transfer between agents",
+          "integration": "Works with terminal management and agent coordination"
+        },
+        "terminal_manager": {
+          "purpose": "Terminal session management and command execution",
+          "value": "Isolated execution environments for agents",
+          "integration": "Provides execution context for agent operations"
+        }
+      }
+    },
+    "persistence_and_state": {
+      "purpose": "Data persistence and state management across system",
+      "business_value": "Maintains system state and learning across sessions",
+      "components": {
+        "sqlite_backend": {
+          "purpose": "Primary persistence layer",
+          "file": ".swarm/memory.db",
+          "value": "Reliable, local data persistence",
+          "integration": "Used by memory management, coordination tracking, learning systems"
+        },
+        "json_persistence": {
+          "purpose": "Configuration and lightweight data storage",
+          "value": "Human-readable configuration management",
+          "integration": "Configuration files, workflow definitions, agent profiles"
+        },
+        "memory_manager": {
+          "purpose": "Intelligent memory management and retrieval",
+          "value": "Context-aware information storage and retrieval",
+          "integration": "Serves all system components with persistent context"
+        }
+      }
+    }
+  },
+  "user_workflow_mapping": {
+    "developer_workflow": {
+      "scenario": "Building a complex application with multiple components",
+      "tools_used": ["init", "hive-mind spawn", "swarm", "memory query", "status"],
+      "value": "Reduces development time through intelligent agent coordination"
+    },
+    "research_workflow": {
+      "scenario": "Researching and analyzing complex technical topics",
+      "tools_used": ["init", "swarm research", "memory store", "neural patterns"],
+      "value": "Systematic research with persistent knowledge accumulation"
+    },
+    "maintenance_workflow": {
+      "scenario": "System maintenance and optimization",
+      "tools_used": ["status", "monitor", "config", "memory export"],
+      "value": "Automated system health management and optimization"
+    }
+  },
+  "external_dependencies": {
+    "runtime_dependencies": {
+      "node_js": {
+        "purpose": "Primary runtime environment",
+        "minimum_version": "20.0.0",
+        "integration": "Core execution environment for all components"
+      },
+      "npm": {
+        "purpose": "Package management and distribution",
+        "minimum_version": "9.0.0",
+        "integration": "Installation and dependency management"
+      },
+      "tsx": {
+        "purpose": "TypeScript execution in development",
+        "integration": "Development-time TypeScript execution"
+      }
+    },
+    "core_libraries": {
+      "ruv_swarm": {
+        "purpose": "Core swarm coordination library",
+        "version": "^1.0.14",
+        "integration": "Provides base swarm functionality"
+      },
+      "better_sqlite3": {
+        "purpose": "SQLite database operations",
+        "version": "^12.2.0",
+        "integration": "Primary persistence backend"
+      },
+      "modelcontextprotocol_sdk": {
+        "purpose": "MCP protocol implementation",
+        "version": "^1.0.4",
+        "integration": "Enables Claude Code integration"
+      }
+    }
+  },
+  "value_propositions": {
+    "for_developers": {
+      "time_savings": "Reduces complex task time through parallel coordination",
+      "quality_improvement": "Enhanced problem-solving through systematic approaches",
+      "learning_acceleration": "Persistent memory enables continuous learning and improvement"
+    },
+    "for_organizations": {
+      "scalability": "Handles complex multi-component projects through intelligent coordination",
+      "consistency": "Standardized approaches across teams and projects",
+      "knowledge_retention": "Organizational learning through persistent memory systems"
+    },
+    "for_ai_systems": {
+      "coordination": "Seamless multi-agent coordination through MCP integration",
+      "intelligence": "Neural pattern learning and optimization",
+      "efficiency": "Token usage optimization through intelligent task breakdown"
+    }
+  }
+}
