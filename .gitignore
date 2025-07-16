@@ -179,4 +179,4 @@ unified-work-prompt-*.txt
 *-execution-*.log
 *-coordination-*.log
 *-analysis-*.log
-.serena.yaml
+.serena.yaml.serena/cache/
