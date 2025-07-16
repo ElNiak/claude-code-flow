@@ -1,19 +1,19 @@
-#!/usr/bin/env node
-import { getErrorMessage } from '../../utils/error-handler.js';
+#!/usr/bin/env node,
+import { getErrorMessage as _getErrorMessage } from '../../utils/error-handler.js';
 /**
  * Unified Agent Commands - Intrinsic agent coordination with automatic hooks integration
  */
 
 import chalk from 'chalk';
 import type { Command, CommandContext } from "../cli-core.js";
-import { success, error, warning, info } from "../cli-core.js";
+import { success, _error, warning, info } from "../cli-core.js";
 import { ConfigManager } from "../../core/config.js";
 import { EventBus } from "../../core/event-bus.js";
 import { Logger } from "../../core/logger.js";
 import type { IMemoryManager } from "../../memory/manager.js";
-import { MemoryManager } from "../../memory/manager.js";
+import { MemoryManager as _MemoryManager } from "../../memory/manager.js";
 
-// Unified agent command that integrates with both ruv-swarm and intrinsic coordination
+// Unified agent command that integrates with both ruv-swarm and intrinsic coordination,
 const agentUnifiedCommand: Command = {
   name: "agent",
   description: "🤖 Unified agent management with intrinsic coordination",
@@ -43,7 +43,7 @@ const agentUnifiedCommand: Command = {
   }
 };
 
-// Intrinsic coordination command for advanced agent cooperation
+// Intrinsic coordination command for advanced agent cooperation,
 const intrinsicCommand: Command = {
   name: "intrinsic",
   description: "🧠 Intrinsic agent coordination with automatic memory hooks",
@@ -98,12 +98,12 @@ const intrinsicCommand: Command = {
       success("🎉 Intrinsic coordination initialized successfully!");
       
     } catch (err) {
-      error(`Failed to initialize intrinsic coordination: ${getErrorMessage(err)}`);
+      _error(`Failed to initialize intrinsic coordination: ${_getErrorMessage(err)}`);
     }
   }
 };
 
-// Memory coordination command for persistent agent memory
+// Memory coordination command for persistent agent memory,
 const memoryCoordCommand: Command = {
   name: "memory-coord",
   description: "💾 Memory-based agent coordination with persistent state",
@@ -130,14 +130,14 @@ const memoryCoordCommand: Command = {
       const action = ctx.flags.action as string || "sync";
       
       if (!sessionId) {
-        error("Session ID is required. Use --session-id or -s");
+        _error("Session ID is required. Use --session-id or -s");
         return;
       }
       
       await handleMemoryCoordination(sessionId, action);
       
     } catch (err) {
-      error(`Memory coordination failed: ${getErrorMessage(err)}`);
+      _error(`Memory coordination failed: ${_getErrorMessage(err)}`);
     }
   }
 };
@@ -157,7 +157,7 @@ async function handleAgentSpawn(ctx: CommandContext): Promise<void> {
   info(`🤖 Spawning ${agentType} agent: ${agentName}`);
   
   try {
-    // Check if ruv-swarm is available for hybrid coordination
+    // Check if ruv-swarm is available for hybrid coordination,
     let ruvSwarmAvailable = false;
     try {
       const { execSync } = await import('child_process');
@@ -168,13 +168,13 @@ async function handleAgentSpawn(ctx: CommandContext): Promise<void> {
     }
     
     if (ruvSwarmAvailable && !intrinsic) {
-      // Use ruv-swarm for agent spawning
+      // Use ruv-swarm for agent spawning,
       const { execSync } = await import('child_process');
       const spawnCommand = `npx ruv-swarm agent spawn ${agentType} --name ${agentName} --session-id ${sessionId}`;
       execSync(spawnCommand, { stdio: 'inherit' });
       success(`✅ Agent spawned via ruv-swarm: ${agentName}`);
     } else {
-      // Use intrinsic coordination
+      // Use intrinsic coordination,
       await spawnIntrinsicAgent({
         type: agentType,
         name: agentName,
@@ -185,11 +185,13 @@ async function handleAgentSpawn(ctx: CommandContext): Promise<void> {
       success(`✅ Intrinsic agent spawned: ${agentName}`);
     }
     
-    // Store agent information in memory for coordination
+    // Store agent information in memory for coordination,
     const memoryManager = await getMemoryManager();
     await memoryManager.store({
       id: `agent-${agentName}`,
-      type: 'observation', // Use valid MemoryEntry type
+      agentId: agentName,
+      sessionId,
+      type: 'observation', // Use valid MemoryEntry type,
       content: JSON.stringify({
         name: agentName,
         type: agentType,
@@ -198,17 +200,19 @@ async function handleAgentSpawn(ctx: CommandContext): Promise<void> {
         intrinsic,
         ruvSwarmAvailable
       }),
+      context: {},
       metadata: {
         unified: true,
         coordinationHooks: intrinsic,
         agentType: 'spawn'
       },
       tags: ['agent', 'spawn', agentType, sessionId],
-      timestamp: Date.now()
+      timestamp: new Date(),
+      version: 1
     });
     
   } catch (err) {
-    error(`Failed to spawn agent: ${getErrorMessage(err)}`);
+    _error(`Failed to spawn agent: ${_getErrorMessage(err)}`);
   }
 }
 
@@ -217,7 +221,7 @@ async function handleAgentList(ctx: CommandContext): Promise<void> {
     const sessionId = ctx.flags['session-id'] as string;
     const memoryManager = await getMemoryManager();
     
-    // Query agents from memory
+    // Query agents from memory,
     const agents = await memoryManager.query({
       type: 'observation',
       sessionId: sessionId || undefined,
@@ -253,7 +257,7 @@ async function handleAgentList(ctx: CommandContext): Promise<void> {
     }
     
   } catch (err) {
-    error(`Failed to list agents: ${getErrorMessage(err)}`);
+    _error(`Failed to list agents: ${_getErrorMessage(err)}`);
   }
 }
 
@@ -262,7 +266,7 @@ async function handleAgentStatus(ctx: CommandContext): Promise<void> {
     const sessionId = ctx.flags['session-id'] as string;
     const memoryManager = await getMemoryManager();
     
-    // Get coordination status
+    // Get coordination status,
     const coordinationEntries = await memoryManager.query({
       type: 'insight',
       sessionId: sessionId || undefined,
@@ -291,7 +295,7 @@ ${generateCoordinationActivity(coordinationEntries)}
     `));
     
   } catch (err) {
-    error(`Failed to get agent status: ${getErrorMessage(err)}`);
+    _error(`Failed to get agent status: ${_getErrorMessage(err)}`);
   }
 }
 
@@ -304,7 +308,7 @@ async function handleAgentCoordinate(ctx: CommandContext): Promise<void> {
     
     const memoryManager = await getMemoryManager();
     
-    // Get all agents in session
+    // Get all agents in session,
     const agents = await memoryManager.query({
       type: 'observation',
       sessionId
@@ -315,9 +319,11 @@ async function handleAgentCoordinate(ctx: CommandContext): Promise<void> {
       return;
     }
     
-    // Store coordination event
+    // Store coordination event,
     await memoryManager.store({
       id: `coordination-${sessionId}-${Date.now()}`,
+      agentId: 'coordinator',
+      sessionId,
       type: 'decision',
       content: JSON.stringify({
         sessionId,
@@ -331,12 +337,14 @@ async function handleAgentCoordinate(ctx: CommandContext): Promise<void> {
         }),
         coordinationStarted: Date.now()
       }),
+      context: {},
       metadata: {
         intrinsicCoordination: true,
         agentCount: agents.length
       },
       tags: ['coordination', 'session', sessionId],
-      timestamp: Date.now()
+      timestamp: new Date(),
+      version: 1
     });
     
     success(`✅ Coordination initiated for ${agents.length} agents`);
@@ -350,7 +358,7 @@ async function handleAgentCoordinate(ctx: CommandContext): Promise<void> {
     }).join(', ')}`);
     
   } catch (err) {
-    error(`Failed to coordinate agents: ${getErrorMessage(err)}`);
+    _error(`Failed to coordinate agents: ${_getErrorMessage(err)}`);
   }
 }
 
@@ -371,7 +379,7 @@ async function handleIntrinsicCoordination(ctx: CommandContext): Promise<void> {
     success("✅ Intrinsic coordination setup complete");
     
   } catch (err) {
-    error(`Failed to setup intrinsic coordination: ${getErrorMessage(err)}`);
+    _error(`Failed to setup intrinsic coordination: ${_getErrorMessage(err)}`);
   }
 }
 
@@ -380,26 +388,26 @@ function showAgentHelp(): void {
 🤖 UNIFIED AGENT COMMANDS
 =========================
 
-Usage: claude-flow agent [SUBCOMMAND] [OPTIONS]
+Usage: claude-flow agent [SUBCOMMAND] [OPTIONS],
 
 Subcommands:
-  spawn [TYPE]     Spawn an agent with intrinsic coordination
-  list             List all active agents
-  status           Show agent coordination status  
-  coordinate       Initiate agent coordination
-  intrinsic        Setup intrinsic coordination
+  spawn [TYPE]     Spawn an agent with intrinsic coordination,
+  list             List all active agents,
+  status           Show agent coordination status,  
+  coordinate       Initiate agent coordination,
+  intrinsic        Setup intrinsic coordination,
 
 Options:
   --name           Agent name
   --session-id     Session ID for coordination
   --intrinsic      Enable intrinsic coordination (default: true)
   --memory-hooks   Enable memory coordination hooks (default: true)
-  --verbose        Show detailed information
+  --verbose        Show detailed information,
 
 Examples:
   claude-flow agent spawn researcher --name "DataBot"
   claude-flow agent list --session-id "my-session"
-  claude-flow agent coordinate --strategy collaborative
+  claude-flow agent coordinate --strategy collaborative,
   claude-flow intrinsic --agents 5 --topology hierarchical
   `));
 }
@@ -416,9 +424,11 @@ async function initializeIntrinsicCoordination(config: IntrinsicCoordinationConf
   
   const memoryManager = await getMemoryManager();
   
-  // Initialize coordination session
+  // Initialize coordination session,
   await memoryManager.store({
     id: `intrinsic-session-${sessionId}`,
+    agentId: 'coordinator',
+    sessionId,
     type: 'insight',
     content: JSON.stringify({
       sessionId,
@@ -427,15 +437,17 @@ async function initializeIntrinsicCoordination(config: IntrinsicCoordinationConf
       memoryHooks,
       initialized: Date.now()
     }),
+    context: {},
     metadata: {
       intrinsic: true,
       coordinationType: 'intrinsic'
     },
     tags: ['session', 'intrinsic', sessionId],
-    timestamp: Date.now()
+    timestamp: new Date(),
+    version: 1
   });
   
-  // Spawn intrinsic agents
+  // Spawn intrinsic agents,
   const agentTypes = ['coordinator', 'analyst', 'coder', 'tester', 'researcher'];
   
   for (let i = 0; i < agentCount; i++) {
@@ -453,7 +465,7 @@ async function initializeIntrinsicCoordination(config: IntrinsicCoordinationConf
     console.log(`   🤖 ${agentName} (${agentType})`);
   }
   
-  // Set up coordination topology
+  // Set up coordination topology,
   await setupCoordinationTopology(sessionId, topology, agentCount);
   
   info(`🔗 Coordination topology (${topology}) established`);
@@ -472,9 +484,11 @@ async function spawnIntrinsicAgent(config: IntrinsicAgentConfig): Promise<void> 
   
   const memoryManager = await getMemoryManager();
   
-  // Store agent with intrinsic coordination data
+  // Store agent with intrinsic coordination data,
   await memoryManager.store({
     id: `agent-${name}`,
+    agentId: name,
+    sessionId,
     type: 'observation',
     content: JSON.stringify({
       name,
@@ -491,22 +505,26 @@ async function spawnIntrinsicAgent(config: IntrinsicAgentConfig): Promise<void> 
         memorySync: true
       }
     }),
+    context: {},
     metadata: {
       intrinsic: true,
       agentType: type,
       sessionCoordination: true
     },
     tags: ['agent', 'intrinsic', type, sessionId],
-    timestamp: Date.now()
+    timestamp: new Date(),
+    version: 1
   });
 }
 
 async function setupCoordinationTopology(sessionId: string, topology: string, agentCount: number): Promise<void> {
   const memoryManager = await getMemoryManager();
   
-  // Store topology configuration
+  // Store topology configuration,
   await memoryManager.store({
     id: `topology-${sessionId}`,
+    agentId: 'system',
+    sessionId,
     type: 'decision',
     content: JSON.stringify({
       sessionId,
@@ -515,11 +533,16 @@ async function setupCoordinationTopology(sessionId: string, topology: string, ag
       coordinationRules: getTopologyRules(topology),
       setupAt: Date.now()
     }),
+    context: {
+      topology,
+      agentCount
+    },
+    version: 1,
     metadata: {
       intrinsicTopology: true
     },
     tags: ['topology', topology, sessionId],
-    timestamp: Date.now()
+    timestamp: new Date()
   });
 }
 
@@ -531,16 +554,21 @@ async function handleMemoryCoordination(sessionId: string, action: string): Prom
       info(`💾 Storing coordination state for session: ${sessionId}`);
       await memoryManager.store({
         id: `memory-coord-${sessionId}-${Date.now()}`,
-        type: 'memory-coordination',
-        content: {
+        agentId: 'coordinator',
+        sessionId,
+        type: 'insight',
+        content: JSON.stringify({
           sessionId,
           action: 'store',
           timestamp: Date.now()
-        },
+        }),
+        context: {},
         metadata: {
           memoryCoordination: true
         },
-        timestamp: Date.now()
+        tags: ['memory', 'coordination'],
+        timestamp: new Date(),
+        version: 1
       });
       success("✅ Coordination state stored");
       break;
@@ -548,7 +576,7 @@ async function handleMemoryCoordination(sessionId: string, action: string): Prom
     case "retrieve":
       info(`📥 Retrieving coordination state for session: ${sessionId}`);
       const entries = await memoryManager.query({
-        type: 'memory-coordination',
+        type: 'insight',
         sessionId
       });
       console.log(`Found ${entries.length} coordination entries`);
@@ -556,23 +584,23 @@ async function handleMemoryCoordination(sessionId: string, action: string): Prom
       
     case "sync":
       info(`🔄 Syncing coordination for session: ${sessionId}`);
-      // Implement synchronization logic
+      // Implement synchronization logic,
       success("✅ Coordination synchronized");
       break;
       
     case "clear":
       warning(`🗑️ Clearing coordination state for session: ${sessionId}`);
-      // Implement clearing logic
+      // Implement clearing logic,
       success("✅ Coordination state cleared");
       break;
       
     default:
-      error(`Unknown action: ${action}. Use: store, retrieve, sync, clear`);
+      _error(`Unknown action: ${action}. Use: store, retrieve, sync, clear`);
   }
 }
 
 function getAgentCapabilities(agentType: string): string[] {
-  const capabilities = {
+  const capabilities: Record<string, string[]> = {
     coordinator: ['orchestration', 'task-management', 'agent-coordination'],
     analyst: ['data-analysis', 'requirement-analysis', 'problem-solving'],
     coder: ['programming', 'implementation', 'code-review'],
@@ -586,7 +614,7 @@ function getAgentCapabilities(agentType: string): string[] {
 }
 
 function getTopologyRules(topology: string): string[] {
-  const rules = {
+  const rules: Record<string, string[]> = {
     mesh: ['all-to-all-communication', 'distributed-coordination', 'peer-to-peer'],
     hierarchical: ['tree-structure', 'parent-child-communication', 'centralized-coordination'],
     ring: ['circular-communication', 'sequential-coordination', 'neighbor-to-neighbor'],
@@ -597,7 +625,7 @@ function getTopologyRules(topology: string): string[] {
 }
 
 function generateAgentDistribution(agents: any[]): string {
-  const distribution = {};
+  const distribution: Record<string, number> = {};
   agents.forEach(agent => {
     const type = (agent.content as any).type || 'unknown';
     distribution[type] = (distribution[type] || 0) + 1;
@@ -627,8 +655,15 @@ async function getMemoryManager(): Promise<IMemoryManager> {
   const eventBus = EventBus.getInstance();
   const logger = new Logger({ level: "info", format: "text", destination: "console" });
   
-  const memoryManager = new MemoryManager(
-    { backend: 'sqlite', databases: { sqlite: { path: './memory/claude-flow-memory.db' } } },
+  const memoryManager = new _MemoryManager(
+    { 
+      backend: 'sqlite', 
+      cacheSizeMB: 64,
+      syncInterval: 5000,
+      conflictResolution: 'last-write',
+      retentionDays: 30,
+      sqlitePath: './memory/claude-flow-memory.db' 
+    },
     eventBus,
     logger
   );

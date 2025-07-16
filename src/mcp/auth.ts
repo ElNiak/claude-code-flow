@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * Authentication and authorization for MCP
  */
@@ -7,6 +7,41 @@ import type { MCPAuthConfig, MCPSession } from '../utils/types.js';
 import type { ILogger } from '../core/logger.js';
 import type { MCPError } from '../utils/errors.js';
 import { createHash, timingSafeEqual } from 'node:crypto';
+
+export interface AuthContext {
+  user: string;
+  permissions: string[];
+  sessionId: string;
+  createdAt: Date;
+  expiresAt: Date;
+}
+
+export interface TokenInfo {
+  token: string;
+  user: string;
+  permissions: string[];
+  createdAt: Date;
+  expiresAt: Date;
+  active: boolean;
+}
+
+export interface TokenGenerationOptions {
+  user: string;
+  permissions: string[];
+  expiresIn?: number; // seconds
+  metadata?: Record<string, any>;
+}
+
+export interface AuthSession {
+  id: string;
+  user: string;
+  permissions: string[];
+  token: string;
+  context: AuthContext;
+  active: boolean;
+  createdAt: Date;
+  lastActivity: Date;
+}
 
 export interface IAuthManager {
   authenticate(credentials: unknown): Promise<AuthResult>;
@@ -48,7 +83,7 @@ export class AuthManager implements IAuthManager {
     private config: MCPAuthConfig,
     private logger: ILogger,
   ) {
-    // Start token cleanup timer
+    // Start token cleanup timer,
     if (config.enabled) {
       setInterval(() => {
         this.cleanupExpiredTokens();
@@ -100,12 +135,12 @@ export class AuthManager implements IAuthManager {
 
     const permissions = session.authData?.permissions || [];
     
-    // Check for wildcard permission
+    // Check for wildcard permission,
     if (permissions.includes('*')) {
       return true;
     }
 
-    // Check for exact permission match
+    // Check for exact permission match,
     if (permissions.includes(permission)) {
       return true;
     }
@@ -206,7 +241,7 @@ export class AuthManager implements IAuthManager {
       };
     }
 
-    // Check against configured static tokens
+    // Check against configured static tokens,
     if (this.config.tokens && this.config.tokens.length > 0) {
       const isValid = this.config.tokens.some((validToken) => {
         return this.timingSafeEqual(token, validToken);
@@ -216,7 +251,7 @@ export class AuthManager implements IAuthManager {
         return {
           success: true,
           user: 'token-user',
-          permissions: ['*'], // Static tokens get all permissions
+          permissions: ['*'], // Static tokens get all permissions,
           token,
         };
       }
@@ -252,7 +287,7 @@ export class AuthManager implements IAuthManager {
       };
     }
 
-    // Verify password
+    // Verify password,
     const isValidPassword = this.verifyPassword(password, user.password);
     if (!isValidPassword) {
       return {
@@ -261,7 +296,7 @@ export class AuthManager implements IAuthManager {
       };
     }
 
-    // Generate a session token
+    // Generate a session token,
     const token = await this.generateToken(username, user.permissions);
 
     return {
@@ -277,7 +312,7 @@ export class AuthManager implements IAuthManager {
     // This would typically involve:
     // 1. Validating JWT tokens
     // 2. Checking token expiration
-    // 3. Extracting user info and permissions from token claims
+    // 3. Extracting user info and permissions from token claims,
     
     this.logger.warn('OAuth authentication not yet implemented');
     return {
@@ -342,7 +377,7 @@ export class AuthManager implements IAuthManager {
 
   private verifyPassword(providedPassword: string, storedPassword: string): boolean {
     // For now, using simple hash comparison
-    // In production, use proper password hashing like bcrypt
+    // In production, use proper password hashing like bcrypt,
     const hashedProvided = this.hashPassword(providedPassword);
     const hashedStored = this.hashPassword(storedPassword);
     
@@ -366,7 +401,7 @@ export class AuthManager implements IAuthManager {
   }
 
   private createSecureToken(): string {
-    // Generate a secure random token
+    // Generate a secure random token,
     const timestamp = Date.now().toString(36);
     const random1 = Math.random().toString(36).substring(2, 15);
     const random2 = Math.random().toString(36).substring(2, 15);
@@ -399,40 +434,40 @@ export class AuthManager implements IAuthManager {
  * Permission constants for common operations
  */
 export const Permissions = {
-  // System operations
+  // System operations,
   SYSTEM_INFO: 'system.info',
   SYSTEM_HEALTH: 'system.health',
   SYSTEM_METRICS: 'system.metrics',
 
-  // Tool operations
+  // Tool operations,
   TOOLS_LIST: 'tools.list',
   TOOLS_INVOKE: 'tools.invoke',
   TOOLS_DESCRIBE: 'tools.describe',
 
-  // Agent operations
+  // Agent operations,
   AGENTS_LIST: 'agents.list',
   AGENTS_SPAWN: 'agents.spawn',
   AGENTS_TERMINATE: 'agents.terminate',
   AGENTS_INFO: 'agents.info',
 
-  // Task operations
+  // Task operations,
   TASKS_LIST: 'tasks.list',
   TASKS_CREATE: 'tasks.create',
   TASKS_CANCEL: 'tasks.cancel',
   TASKS_STATUS: 'tasks.status',
 
-  // Memory operations
+  // Memory operations,
   MEMORY_READ: 'memory.read',
   MEMORY_WRITE: 'memory.write',
   MEMORY_QUERY: 'memory.query',
   MEMORY_DELETE: 'memory.delete',
 
-  // Administrative operations
+  // Administrative operations,
   ADMIN_CONFIG: 'admin.config',
   ADMIN_LOGS: 'admin.logs',
   ADMIN_SESSIONS: 'admin.sessions',
 
-  // Wildcard permission
+  // Wildcard permission,
   ALL: '*',
 } as const;
 

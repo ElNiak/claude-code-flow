@@ -1,10 +1,10 @@
-import { getErrorMessage } from '../../utils/error-handler.js';
-// init/directory-structure.ts - Directory structure creation
+import { getErrorMessage as _getErrorMessage } from '../../utils/error-handler.js';
+// init/directory-structure.ts - Directory structure creation,
 export async function createDirectoryStructure(): Promise<void> {
   const fs = await import('fs/promises');
-  const path = await import('path');
+  const _path = await import('path');
   
-  // Define directory structure
+  // Define directory structure,
   const directories = [
     '.claude',
     '.claude/commands',
@@ -23,7 +23,7 @@ export async function createDirectoryStructure(): Promise<void> {
     'reports'
   ];
   
-  // Create directories
+  // Create directories,
   for (const dir of directories) {
     try {
       await fs.mkdir(dir, { recursive: true });
@@ -35,7 +35,7 @@ export async function createDirectoryStructure(): Promise<void> {
     }
   }
   
-  // Create README files for key directories
+  // Create README files for key directories,
   const readmeFiles = {
     'memory/agents/README.md': createAgentsReadme(),
     'memory/sessions/README.md': createSessionsReadme(),
@@ -48,7 +48,7 @@ export async function createDirectoryStructure(): Promise<void> {
     console.log(`  ✅ Created ${filePath}`);
   }
   
-  // Create initial persistence database
+  // Create initial persistence database,
   const initialData = {
     agents: [],
     tasks: [],
@@ -62,7 +62,7 @@ export async function createDirectoryStructure(): Promise<void> {
 }
 
 function createAgentsReadme(): string {
-  return `# Agents Directory
+  return `# Agents Directory,
 
 This directory stores persistent information about AI agents created and managed by Claude-Flow.
 
@@ -71,7 +71,7 @@ This directory stores persistent information about AI agents created and managed
 - Agent files contain configuration, state, and memory
 - Shared agent data is stored in agent-registry.json
 
-## Usage
+## Usage,
 Agents are automatically managed by the Claude-Flow orchestration system. You can:
 - View agent status with \`claude-flow agent list\`
 - Create new agents with \`claude-flow agent spawn <type>\`
@@ -85,7 +85,7 @@ Agents are automatically managed by the Claude-Flow orchestration system. You ca
 }
 
 function createSessionsReadme(): string {
-  return `# Sessions Directory
+  return `# Sessions Directory,
 
 This directory stores information about Claude-Flow orchestration sessions.
 
@@ -94,7 +94,7 @@ This directory stores information about Claude-Flow orchestration sessions.
 - Session data includes tasks, coordination state, and results
 - Session logs are automatically rotated
 
-## Usage
+## Usage,
 Sessions are managed automatically during orchestration:
 - Start sessions with \`claude-flow start\`
 - Monitor sessions with \`claude-flow status\`
@@ -108,7 +108,7 @@ Sessions are managed automatically during orchestration:
 }
 
 function createCoordinationReadme(): string {
-  return `# Coordination Directory
+  return `# Coordination Directory,
 
 This directory manages task coordination and orchestration data.
 
@@ -117,19 +117,19 @@ This directory manages task coordination and orchestration data.
 - \`subtasks/\`: Task breakdown and assignment data
 - \`orchestration/\`: High-level orchestration patterns
 
-## Usage
+## Usage,
 Coordination data is used for:
 - Multi-agent task distribution
 - Progress tracking and monitoring
 - Resource allocation and balancing
-- Error recovery and failover
+- Error recovery and failover,
 
 Access coordination data through the Claude-Flow API or CLI commands.
 `;
 }
 
 function createReportsReadme(): string {
-  return `# Reports Directory
+  return `# Reports Directory,
 
 This directory stores output reports from swarm operations and orchestration tasks.
 
@@ -138,7 +138,7 @@ This directory stores output reports from swarm operations and orchestration tas
 - Reports include execution logs, results, and metrics
 - Multiple output formats supported (JSON, SQLite, CSV, HTML)
 
-## Usage
+## Usage,
 Reports are generated automatically by swarm operations:
 - View recent reports with \`claude-flow swarm list\`
 - Check specific reports with \`claude-flow swarm status <id>\`

@@ -59,7 +59,7 @@ declare module "@cliffy/prompt" {
     max?: number;
   }): Promise<number>;
   
-  // Legacy capitalized exports for backward compatibility
+  // Legacy capitalized exports for backward compatibility,
   export const Select: typeof select;
   export const Input: typeof input;
   export const Confirm: typeof confirm;

@@ -24,7 +24,7 @@ const logger = new Logger({
   destination: 'console'
 }, { prefix: 'Hook' });
 
-// Helper function to build command arguments
+// Helper function to build command arguments,
 function buildArgs(hookType: string, options: Record<string, any>): string[] {
   const args = [hookType];
   
@@ -47,7 +47,7 @@ function buildArgs(hookType: string, options: Record<string, any>): string[] {
   return args;
 }
 
-// Hook subcommand handlers
+// Hook subcommand handlers,
 const hookHandlers: Record<string, (args: string[]) => Promise<void>> = {
   'pre-task': async (args: string[]) => {
     const options = parseArgs<PreTaskOptions>(args);
@@ -147,7 +147,7 @@ const hookHandlers: Record<string, (args: string[]) => Promise<void>> = {
   }
 };
 
-// Parse command line arguments
+// Parse command line arguments,
 function parseArgs<T extends Record<string, any>>(args: string[]): T {
   const options: Record<string, any> = {};
   
@@ -159,10 +159,10 @@ function parseArgs<T extends Record<string, any>>(args: string[]): T {
       const nextArg = args[i + 1];
       
       if (!nextArg || nextArg.startsWith('--')) {
-        // Boolean flag
+        // Boolean flag,
         options[key] = !arg.startsWith('--no-');
       } else {
-        // Value flag
+        // Value flag,
         options[key] = nextArg;
         i++; // Skip next arg
       }
@@ -172,7 +172,7 @@ function parseArgs<T extends Record<string, any>>(args: string[]): T {
   return options as T;
 }
 
-// Execute hook with ruv-swarm
+// Execute hook with ruv-swarm,
 async function executeHook(hookType: string, options: Record<string, any>): Promise<void> {
   const args = buildArgs(hookType, options);
   
@@ -199,7 +199,7 @@ async function executeHook(hookType: string, options: Record<string, any>): Prom
   });
 }
 
-// Main hook command handler
+// Main hook command handler,
 export const hookCommand = {
   name: 'hook',
   description: 'Execute ruv-swarm hooks for agent coordination',
@@ -228,7 +228,7 @@ export const hookCommand = {
   }
 };
 
-// Show help for hook commands
+// Show help for hook commands,
 function showHookHelp(): void {
   console.log(`
 Claude Flow Hook Commands
@@ -242,92 +242,92 @@ Available hooks:
     --complexity <level>      Task complexity: low|medium|high
     --estimated-minutes <n>   Estimated duration
     --requires-research       Task requires research
-    --requires-testing        Task requires testing
+    --requires-testing        Task requires testing,
 
   post-task     - Run after completing a task
     --task-id <id>           Task ID (required)
     --analyze-performance    Analyze performance metrics
-    --generate-report        Generate completion report
+    --generate-report        Generate completion report,
 
   pre-edit      - Run before editing a file
     --file <path>            File path (required)
     --operation <op>         Operation type: read|write|edit|delete
-    --validate               Validate file before edit
+    --validate               Validate file before edit,
 
   post-edit     - Run after editing a file
     --file <path>            File path (required)
     --memory-key <key>       Store in memory with key
     --format                 Auto-format code
-    --analyze                Analyze changes
+    --analyze                Analyze changes,
 
   pre-command   - Run before executing a command
     --command <cmd>          Command to execute (required)
     --validate               Validate command safety
-    --sandbox                Run in sandbox mode
+    --sandbox                Run in sandbox mode,
 
   post-command  - Run after executing a command
     --command <cmd>          Command executed (required)
     --exit-code <code>       Command exit code
-    --duration <ms>          Execution duration
+    --duration <ms>          Execution duration,
 
   session-start - Run at session start
     --session-id <id>        Session identifier
     --load-previous          Load previous session data
-    --auto-restore           Auto-restore context
+    --auto-restore           Auto-restore context,
 
   session-end   - Run at session end
     --session-id <id>        Session identifier
     --export-metrics         Export performance metrics
     --generate-summary       Generate session summary
-    --save-to <path>         Save session data to path
+    --save-to <path>         Save session data to path,
 
   session-restore - Restore a previous session
     --session-id <id>        Session ID to restore (required)
     --load-memory            Load memory state
     --load-agents            Load agent configuration
-    --load-tasks             Load task list
+    --load-tasks             Load task list,
 
   pre-search    - Run before searching
     --query <text>           Search query (required)
     --cache-results          Cache search results
-    --max-results <n>        Maximum results to return
+    --max-results <n>        Maximum results to return,
 
   notification  - Send a notification
     --message <text>         Notification message (required)
     --level <level>          Message level: info|warning|error
     --telemetry              Include in telemetry
-    --persist                Persist notification
+    --persist                Persist notification,
 
   performance   - Track performance metrics
     --operation <name>       Operation name
     --duration <ms>          Operation duration
-    --metrics <json>         Performance metrics as JSON
+    --metrics <json>         Performance metrics as JSON,
 
   memory-sync   - Synchronize memory state
     --namespace <name>       Memory namespace
     --direction <dir>        Sync direction: push|pull|sync
-    --target <location>      Target location for sync
+    --target <location>      Target location for sync,
 
   telemetry     - Send telemetry data
     --event <name>           Event name (required)
     --data <json>            Event data as JSON
-    --tags <list>            Comma-separated tags
+    --tags <list>            Comma-separated tags,
 
 Common options:
   --verbose                  Show detailed output
-  --metadata <json>          Additional metadata as JSON
+  --metadata <json>          Additional metadata as JSON,
 
 Examples:
-  claude hook pre-task --description "Build REST API" --complexity high
+  claude hook pre-task --description "Build REST API" --complexity high,
   claude hook post-edit --file src/index.js --memory-key "api/implementation"
-  claude hook session-end --export-metrics --generate-summary
-  claude hook performance --operation "api-build" --duration 1234
-  claude hook memory-sync --namespace "project" --direction push
+  claude hook session-end --export-metrics --generate-summary,
+  claude hook performance --operation "api-build" --duration 1234,
+  claude hook memory-sync --namespace "project" --direction push,
   claude hook telemetry --event "task-completed" --data '{"taskId":"123"}'
 `);
 }
 
-// Export hook subcommands for better CLI integration
+// Export hook subcommands for better CLI integration,
 export const hookSubcommands = [
   'pre-task',
   'post-task',

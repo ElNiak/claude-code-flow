@@ -42,18 +42,18 @@ export const spawnCommand = new Command('spawn')
   .option('-i, --interactive', 'Interactive spawn mode', false)
   .option('-b, --batch <number>', 'Spawn multiple agents of same type', '1')
   .option('--auto-assign', 'Automatically assign to available tasks', false)
-  .action(async (type, options) => {
+  .action(async (type, _options) => {
     const spinner = ora('Spawning agent...').start();
     
     try {
-      // Get or prompt for swarm ID
-      const swarmId = options.swarmId || await getActiveSwarmId();
+      // Get or prompt for swarm ID,
+      const swarmId = _options.swarmId || await getActiveSwarmId();
       if (!swarmId) {
         throw new Error('No active swarm found. Initialize a Hive Mind first.');
       }
       
-      // Interactive mode
-      if (options.interactive || !type) {
+      // Interactive mode,
+      if (_options.interactive || !type) {
         const answers = await inquirer.prompt([
           {
             type: 'list',
@@ -76,43 +76,43 @@ export const spawnCommand = new Command('spawn')
             type: 'input',
             name: 'customName',
             message: 'Enter custom agent name (optional):',
-            when: !options.name
+            when: !_options.name
           }
         ]);
         
         type = type || answers.type;
-        options.name = options.name || answers.customName;
+        _options.name = _options.name || answers.customName;
         if (answers.additionalCapabilities) {
-          options.capabilities = answers.additionalCapabilities.join(',');
+          _options.capabilities = answers.additionalCapabilities.join(',');
         }
       }
       
-      // Validate agent type
+      // Validate agent type,
       if (!AGENT_TYPES.includes(type as AgentType)) {
         throw new Error(`Invalid agent type: ${type}`);
       }
       
-      // Load Hive Mind
+      // Load Hive Mind,
       const hiveMind = await HiveMind.load(swarmId);
       
-      // Determine capabilities
+      // Determine capabilities,
       const baseCapabilities = CAPABILITY_MAP[type as AgentType] || [];
-      const additionalCapabilities = options.capabilities 
-        ? options.capabilities.split(',').map((c: string) => c.trim())
+      const additionalCapabilities = _options.capabilities 
+        ? _options.capabilities.split(',').map((c: string) => c.trim())
         : [];
       const capabilities = [...baseCapabilities, ...additionalCapabilities];
       
-      // Spawn agents
-      const batchSize = parseInt(options.batch, 10);
+      // Spawn agents,
+      const batchSize = parseInt(_options.batch, 10);
       const spawnedAgents = [];
       
       for (let i = 0; i < batchSize; i++) {
-        const agentName = options.name || `${type}-${Date.now()}-${i}`;
+        const agentName = _options.name || `${type}-${Date.now()}-${i}`;
         const agent = await hiveMind.spawnAgent({
           type: type as AgentType,
           name: agentName,
           capabilities,
-          autoAssign: options.autoAssign
+          autoAssign: _options.autoAssign
         });
         
         spawnedAgents.push(agent);
@@ -124,7 +124,7 @@ export const spawnCommand = new Command('spawn')
       
       spinner.succeed(formatSuccess(`Successfully spawned ${batchSize} ${type} agent(s)!`));
       
-      // Display spawned agents
+      // Display spawned agents,
       console.log('\n' + chalk.bold('🤖 Spawned Agents:'));
       spawnedAgents.forEach((agent) => {
         console.log(formatInfo(`${agent.name} (${agent.id})`));
@@ -134,14 +134,14 @@ export const spawnCommand = new Command('spawn')
         }
       });
       
-      // Show swarm stats
+      // Show swarm stats,
       const stats = await hiveMind.getStats();
       console.log('\n' + chalk.bold('📊 Swarm Statistics:'));
       console.log(formatInfo(`Total Agents: ${stats.totalAgents}`));
       console.log(formatInfo(`Active Agents: ${stats.activeAgents}`));
       console.log(formatInfo(`Available Capacity: ${stats.availableCapacity}%`));
       
-      if (options.autoAssign && stats.pendingTasks > 0) {
+      if (_options.autoAssign && stats.pendingTasks > 0) {
         console.log(formatWarning(`Auto-assigned to ${stats.pendingTasks} pending task(s)`));
       }
       

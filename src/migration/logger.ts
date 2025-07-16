@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 import * as process from 'node:process';
 /**
  * Migration Logger - Structured logging for migration operations
@@ -80,7 +80,7 @@ export class MigrationLogger {
       const logLine = JSON.stringify(entry) + '\n';
       await fs.appendFile(this.logFile, logLine);
     } catch (error) {
-      // Prevent recursive logging
+      // Prevent recursive logging,
       console.error('Failed to write to log file:', (error instanceof Error ? error.message : String(error)));
     }
   }
@@ -126,10 +126,10 @@ export class MigrationLogger {
   }
 }
 
-// Global logger instance
+// Global logger instance,
 export const logger = new MigrationLogger();
 
-// Set log file if in production
+// Set log file if in production,
 if (process.env.NODE_ENV === 'production') {
   const logFile = path.join(process.cwd(), 'logs', 'migration.log');
   logger['logFile'] = logFile;

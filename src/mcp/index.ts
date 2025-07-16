@@ -1,13 +1,24 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * MCP (Model Context Protocol) Module
  * Export all MCP components for easy integration
  */
 
-// Core MCP Server
+// Import types and classes needed for the factory class
+import type { 
+  MCPOrchestrationConfig, 
+  OrchestrationComponents 
+} from './orchestration-integration.js';
+import { MCPOrchestrationIntegration } from './orchestration-integration.js';
+import { MCPServer } from './server.js';
+import { MCPLifecycleManager } from './lifecycle-manager.js';
+import { MCPPerformanceMonitor } from './performance-monitor.js';
+import { MCPProtocolManager } from './protocol-manager.js';
+
+// Core MCP Server,
 export { MCPServer, type IMCPServer } from './server.js';
 
-// Lifecycle Management
+// Lifecycle Management,
 export { 
   MCPLifecycleManager, 
   LifecycleState,
@@ -16,7 +27,7 @@ export {
   type LifecycleManagerConfig 
 } from './lifecycle-manager.js';
 
-// Tool Registry and Management
+// Tool Registry and Management,
 export { 
   ToolRegistry,
   type ToolCapability,
@@ -24,7 +35,7 @@ export {
   type ToolDiscoveryQuery 
 } from './tools.js';
 
-// Protocol Management
+// Protocol Management,
 export { 
   MCPProtocolManager,
   type ProtocolVersionInfo,
@@ -32,7 +43,7 @@ export {
   type NegotiationResult 
 } from './protocol-manager.js';
 
-// Authentication and Authorization
+// Authentication and Authorization,
 export { 
   AuthManager,
   type IAuthManager,
@@ -44,7 +55,7 @@ export {
   Permissions 
 } from './auth.js';
 
-// Performance Monitoring
+// Performance Monitoring,
 export { 
   MCPPerformanceMonitor,
   type PerformanceMetrics,
@@ -54,7 +65,7 @@ export {
   type OptimizationSuggestion 
 } from './performance-monitor.js';
 
-// Orchestration Integration
+// Orchestration Integration,
 export { 
   MCPOrchestrationIntegration,
   type OrchestrationComponents,
@@ -62,21 +73,21 @@ export {
   type IntegrationStatus 
 } from './orchestration-integration.js';
 
-// Transport Implementations
+// Transport Implementations,
 export { type ITransport } from './transports/base.js';
 export { StdioTransport } from './transports/stdio.js';
 export { HttpTransport } from './transports/http.js';
 
-// Request Routing
+// Request Routing,
 export { RequestRouter } from './router.js';
 
-// Session Management
+// Session Management,
 export { SessionManager, type ISessionManager } from './session-manager.js';
 
-// Load Balancing
+// Load Balancing,
 export { LoadBalancer, type ILoadBalancer, RequestQueue } from './load-balancer.js';
 
-// Tool Implementations
+// Tool Implementations,
 export { createClaudeFlowTools, type ClaudeFlowToolContext } from './claude-flow-tools.js';
 export { createSwarmTools, type SwarmToolContext } from './swarm-tools.js';
 
@@ -238,7 +249,7 @@ export const DefaultMCPConfigs = {
       maxRequestsPerSecond: 100,
       maxConcurrentRequests: 50,
     },
-    sessionTimeout: 3600000, // 1 hour
+    sessionTimeout: 3600000, // 1 hour,
     maxSessions: 1000,
   },
 

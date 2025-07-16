@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../../utils/error-handler.js';
 /**
  * Reconnection Manager for MCP
  * Handles automatic reconnection with exponential backoff
@@ -60,7 +60,7 @@ export class ReconnectionManager extends EventEmitter {
    * Attempt to reconnect
    */
   async attemptReconnection(): Promise<boolean> {
-    // Prevent concurrent reconnection attempts
+    // Prevent concurrent reconnection attempts,
     if (this.reconnectPromise) {
       this.logger.debug('Reconnection already in progress');
       return this.reconnectPromise;
@@ -158,12 +158,12 @@ export class ReconnectionManager extends EventEmitter {
     });
 
     try {
-      // Disconnect first if needed
+      // Disconnect first if needed,
       if (this.client.isConnected()) {
         await this.client.disconnect();
       }
 
-      // Attempt to reconnect
+      // Attempt to reconnect,
       await this.client.connect();
 
       // Success!
@@ -176,7 +176,7 @@ export class ReconnectionManager extends EventEmitter {
         duration: Date.now() - this.state.lastAttempt.getTime(),
       });
 
-      // Reset state if configured
+      // Reset state if configured,
       if (this.config.resetAfterSuccess) {
         this.reset();
       }
@@ -195,10 +195,10 @@ export class ReconnectionManager extends EventEmitter {
         error: error as Error,
       });
 
-      // Calculate next delay with exponential backoff
+      // Calculate next delay with exponential backoff,
       this.calculateNextDelay();
 
-      // Schedule next attempt if within retry limit
+      // Schedule next attempt if within retry limit,
       if (this.state.attempts < this.config.maxRetries && this.state.isReconnecting) {
         this.scheduleReconnect();
       } else if (this.state.attempts >= this.config.maxRetries) {
@@ -236,7 +236,7 @@ export class ReconnectionManager extends EventEmitter {
   }
 
   private calculateNextDelay(): void {
-    // Exponential backoff calculation
+    // Exponential backoff calculation,
     const nextDelay = Math.min(
       this.state.nextDelay * this.config.backoffMultiplier,
       this.config.maxDelay
@@ -252,7 +252,7 @@ export class ReconnectionManager extends EventEmitter {
   }
 
   private addJitter(delay: number): number {
-    // Add random jitter to prevent thundering herd
+    // Add random jitter to prevent thundering herd,
     const jitter = delay * this.config.jitterFactor;
     const randomJitter = (Math.random() - 0.5) * 2 * jitter;
     
@@ -265,19 +265,19 @@ export class ReconnectionManager extends EventEmitter {
   async forceReconnect(): Promise<boolean> {
     this.logger.info('Forcing immediate reconnection');
     
-    // Cancel any scheduled reconnect
+    // Cancel any scheduled reconnect,
     if (this.reconnectTimer) {
       clearTimeout(this.reconnectTimer);
       this.reconnectTimer = undefined;
     }
 
-    // Reset delay for immediate attempt
+    // Reset delay for immediate attempt,
     const originalDelay = this.state.nextDelay;
     this.state.nextDelay = 0;
 
     const result = await this.attemptReconnection();
     
-    // Restore delay if failed
+    // Restore delay if failed,
     if (!result) {
       this.state.nextDelay = originalDelay;
     }
@@ -293,7 +293,7 @@ export class ReconnectionManager extends EventEmitter {
       return null;
     }
 
-    // This is an approximation since we don't track the exact timer start
+    // This is an approximation since we don't track the exact timer start,
     return this.state.nextDelay;
   }
 }

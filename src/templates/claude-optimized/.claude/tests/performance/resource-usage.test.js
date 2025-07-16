@@ -510,7 +510,7 @@ describe('Resource Usage Tests', () => {
       // Verify linear scaling
       const r2 = measurements.reduce((sum, m) => {
         const predicted = slope * m.inputSize + intercept;
-        const error = m.duration - predicted;
+        const _error = m.duration - predicted;
         return sum + error * error;
       }, 0);
       

@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import * as os from 'os';
@@ -12,24 +12,24 @@ describe('Prompt Copying Integration Tests', () => {
   beforeEach(async () => {
     tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'integration-test-'));
     
-    // Create test structure
+    // Create test structure,
     const sourceDir = path.join(tempDir, 'source');
     const destDir = path.join(tempDir, 'dest');
     
     await fs.mkdir(sourceDir, { recursive: true });
     await fs.mkdir(destDir, { recursive: true });
     
-    // Create test files
+    // Create test files,
     await createTestPromptStructure(sourceDir);
     
-    // Initialize manager
+    // Initialize manager,
     testManager = new PromptManager({
       basePath: tempDir,
       configPath: '.test-config.json',
       autoDiscovery: false
     });
     
-    // Configure manager
+    // Configure manager,
     await testManager.updateConfig({
       sourceDirectories: ['source'],
       destinationDirectory: 'dest'
@@ -75,7 +75,7 @@ describe('Prompt Copying Integration Tests', () => {
   test('should copy prompts using different profiles', async () => {
     await testManager.initialize();
     
-    // Test with safe profile
+    // Test with safe profile,
     const safeResult = await testManager.copyPrompts({
       conflictResolution: 'skip',
       parallel: false
@@ -84,7 +84,7 @@ describe('Prompt Copying Integration Tests', () => {
     expect(safeResult.success).toBe(true);
     expect(safeResult.copiedFiles).toBeGreaterThan(0);
     
-    // Verify files exist
+    // Verify files exist,
     const destFiles = await fs.readdir(path.join(tempDir, 'dest'), { recursive: true });
     expect(destFiles.length).toBeGreaterThan(0);
   });
@@ -92,17 +92,17 @@ describe('Prompt Copying Integration Tests', () => {
   test('should validate prompts and generate reports', async () => {
     await testManager.initialize();
     
-    // Copy files first
+    // Copy files first,
     await testManager.copyPrompts();
     
-    // Validate prompts
+    // Validate prompts,
     const validation = await testManager.validatePrompts();
     
     expect(validation.totalFiles).toBeGreaterThan(0);
     expect(validation.validFiles).toBeGreaterThan(0);
     expect(validation.invalidFiles).toBeGreaterThan(0); // Should find the empty file
     
-    // Check that empty file is flagged as invalid
+    // Check that empty file is flagged as invalid,
     const emptyFileIssue = validation.issues.find(issue => 
       issue.file.includes('invalid.md')
     );
@@ -111,25 +111,25 @@ describe('Prompt Copying Integration Tests', () => {
   });
 
   test('should handle multiple sources', async () => {
-    // Create second source
+    // Create second source,
     const source2Dir = path.join(tempDir, 'source2');
     await fs.mkdir(source2Dir, { recursive: true });
     await fs.writeFile(path.join(source2Dir, 'extra.md'), '# Extra\nExtra prompt.');
     
-    // Update config
+    // Update config,
     await testManager.updateConfig({
       sourceDirectories: ['source', 'source2']
     });
     
     await testManager.initialize();
     
-    // Copy from multiple sources
+    // Copy from multiple sources,
     const results = await testManager.copyFromMultipleSources();
     
     expect(results.length).toBe(2);
     expect(results.every(r => r.success)).toBe(true);
     
-    // Verify files from both sources
+    // Verify files from both sources,
     const destFiles = await fs.readdir(path.join(tempDir, 'dest'), { recursive: true });
     expect(destFiles).toContain('extra.md');
   });
@@ -144,7 +144,7 @@ describe('Prompt Copying Integration Tests', () => {
     expect(report.sources).toBeDefined();
     expect(report.sources.length).toBeGreaterThan(0);
     
-    // Check source analysis
+    // Check source analysis,
     const sourceInfo = report.sources[0];
     expect(sourceInfo.exists).toBe(true);
     expect(sourceInfo.fileCount).toBeGreaterThan(0);
@@ -156,7 +156,7 @@ describe('Prompt Copying Integration Tests', () => {
       path.join(tempDir, '.test-config.json')
     );
     
-    // Save custom config
+    // Save custom config,
     await configManager.saveConfig({
       destinationDirectory: './custom-dest',
       defaultOptions: {
@@ -165,7 +165,7 @@ describe('Prompt Copying Integration Tests', () => {
       }
     });
     
-    // Load config in new instance
+    // Load config in new instance,
     const newConfigManager = new PromptConfigManager(
       path.join(tempDir, '.test-config.json')
     );
@@ -178,32 +178,32 @@ describe('Prompt Copying Integration Tests', () => {
   });
 
   test('should handle errors gracefully', async () => {
-    // Test with invalid source directory
+    // Test with invalid source directory,
     await testManager.updateConfig({
       sourceDirectories: ['nonexistent']
     });
     
     await testManager.initialize();
     
-    // Should not throw but return failed result
+    // Should not throw but return failed result,
     const result = await testManager.copyPrompts();
     
-    // The result should indicate failure or no files copied
+    // The result should indicate failure or no files copied,
     expect(result.copiedFiles).toBe(0);
   });
 
   test('should support incremental sync', async () => {
     await testManager.initialize();
     
-    // Initial copy
+    // Initial copy,
     const firstResult = await testManager.copyPrompts();
     expect(firstResult.success).toBe(true);
     
-    // Modify source file
+    // Modify source file,
     const sourceFile = path.join(tempDir, 'source', 'sparc', 'architect.md');
     await fs.writeFile(sourceFile, '# Modified Architect\nUpdated content.');
     
-    // Sync should detect changes
+    // Sync should detect changes,
     const syncResult = await testManager.syncPrompts({
       incrementalOnly: true,
       compareHashes: true
@@ -215,7 +215,7 @@ describe('Prompt Copying Integration Tests', () => {
   test('should respect include/exclude patterns', async () => {
     await testManager.initialize();
     
-    // Copy only .md files from sparc directory
+    // Copy only .md files from sparc directory,
     const result = await testManager.copyPrompts({
       includePatterns: ['**/sparc/*.md'],
       excludePatterns: ['**/tdd.md']
@@ -223,7 +223,7 @@ describe('Prompt Copying Integration Tests', () => {
     
     expect(result.success).toBe(true);
     
-    // Check that only architect.md and code.md were copied
+    // Check that only architect.md and code.md were copied,
     const sparcDir = path.join(tempDir, 'dest', 'sparc');
     const sparcFiles = await fs.readdir(sparcDir).catch(() => []);
     
@@ -235,7 +235,7 @@ describe('Prompt Copying Integration Tests', () => {
   test('should handle concurrent operations', async () => {
     await testManager.initialize();
     
-    // Start multiple copy operations
+    // Start multiple copy operations,
     const operations = [
       testManager.copyPrompts({ destination: path.join(tempDir, 'dest1') }),
       testManager.copyPrompts({ destination: path.join(tempDir, 'dest2') }),
@@ -244,10 +244,10 @@ describe('Prompt Copying Integration Tests', () => {
     
     const results = await Promise.all(operations);
     
-    // All operations should succeed
+    // All operations should succeed,
     expect(results.every(r => r.success)).toBe(true);
     
-    // Verify all destinations have files
+    // Verify all destinations have files,
     for (let i = 1; i <= 3; i++) {
       const destDir = path.join(tempDir, `dest${i}`);
       const files = await fs.readdir(destDir, { recursive: true });

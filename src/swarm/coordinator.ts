@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 import { EventEmitter } from 'events';
 import { promises as fs } from 'node:fs';
 import { Logger } from '../core/logger.js';
@@ -19,18 +19,18 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
   private config: SwarmConfig;
   private swarmId: SwarmId;
   
-  // Core state management
+  // Core state management,
   private agents: Map<string, AgentState> = new Map();
   private tasks: Map<string, TaskDefinition> = new Map();
   private objectives: Map<string, SwarmObjective> = new Map();
   
-  // Execution state
+  // Execution state,
   private _isRunning: boolean = false;
   private status: SwarmStatus = 'planning';
   private startTime?: Date;
   private endTime?: Date;
   
-  // Performance tracking
+  // Performance tracking,
   private metrics: SwarmMetrics;
   private events: SwarmEvent[] = [];
   private lastHeartbeat: Date = new Date();
@@ -38,19 +38,19 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
   // JSON output aggregation (optional)
   private jsonOutputAggregator?: SwarmJsonOutputAggregator;
   
-  // Background processes
+  // Background processes,
   private heartbeatTimer?: NodeJS.Timeout;
   private monitoringTimer?: NodeJS.Timeout;
   private cleanupTimer?: NodeJS.Timeout;
   private executionIntervals?: Map<string, NodeJS.Timeout>;
   
-  // Strategy instances
+  // Strategy instances,
   private autoStrategy: AutoStrategy;
   
   constructor(config: Partial<SwarmConfig> = {}) {
     super();
     
-    // Configure logger based on config or default to quiet mode
+    // Configure logger based on config or default to quiet mode,
     const logLevel = (config as any).logging?.level || 'error';
     const logFormat = (config as any).logging?.format || 'text';
     const logDestination = (config as any).logging?.destination || 'console';
@@ -61,16 +61,16 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
     );
     this.swarmId = this.generateSwarmId();
     
-    // Initialize configuration with defaults
+    // Initialize configuration with defaults,
     this.config = this.mergeWithDefaults(config);
     
-    // Initialize metrics
+    // Initialize metrics,
     this.metrics = this.initializeMetrics();
     
-    // Initialize strategy instances
+    // Initialize strategy instances,
     this.autoStrategy = new AutoStrategy(config);
     
-    // Setup event handlers
+    // Setup event handlers,
     this.setupEventHandlers();
     
     this.logger.info('SwarmCoordinator initialized', { 
@@ -91,16 +91,16 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
     this.status = 'initializing';
     
     try {
-      // Validate configuration
+      // Validate configuration,
       const validation = await this.validateConfiguration();
       if (!validation.valid) {
         throw new Error(`Configuration validation failed: ${validation.errors.map(e => e.message).join(', ')}`);
       }
 
-      // Initialize subsystems
+      // Initialize subsystems,
       await this.initializeSubsystems();
       
-      // Start background processes
+      // Start background processes,
       this.startBackgroundProcesses();
       
       this._isRunning = true;
@@ -135,16 +135,16 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
     this.status = 'paused';
     
     try {
-      // Stop background processes
+      // Stop background processes,
       this.stopBackgroundProcesses();
       
-      // Gracefully stop all agents
+      // Gracefully stop all agents,
       await this.stopAllAgents();
       
-      // Complete any running tasks
+      // Complete any running tasks,
       await this.completeRunningTasks();
       
-      // Save final state
+      // Save final state,
       await this.saveState();
       
       this._isRunning = false;
@@ -156,7 +156,7 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
         timestamp: new Date(),
         type: 'swarm.completed',
         source: this.swarmId.id,
-        data: { 
+        data: {
           swarmId: this.swarmId,
           metrics: this.metrics,
           duration: this.endTime.getTime() - (this.startTime?.getTime() || 0)
@@ -181,10 +181,10 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
     this.logger.info('Pausing swarm coordinator...');
     this.status = 'paused';
     
-    // Pause all agents
+    // Pause all agents,
     for (const agent of this.agents.values()) {
       if (agent.status === 'busy') {
-        await this.pauseAgent(agent.id);
+        await this.pauseAgent(agent.id.id);
       }
     }
     
@@ -207,10 +207,10 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
     this.logger.info('Resuming swarm coordinator...');
     this.status = 'executing';
     
-    // Resume all paused agents
+    // Resume all paused agents,
     for (const agent of this.agents.values()) {
       if (agent.status === 'paused') {
-        await this.resumeAgent(agent.id);
+        await this.resumeAgent(agent.id.id);
       }
     }
     
@@ -245,8 +245,8 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
         minAgents: 1,
         maxAgents: this.config.maxAgents,
         agentTypes: this.determineRequiredAgentTypes(strategy),
-        estimatedDuration: 60 * 60 * 1000, // 1 hour default
-        maxDuration: 4 * 60 * 60 * 1000,   // 4 hours default
+        estimatedDuration: 60 * 60 * 1000, // 1 hour default,
+        maxDuration: 4 * 60 * 60 * 1000,   // 4 hours default,
         qualityThreshold: this.config.qualityThreshold,
         reviewCoverage: 0.8,
         testCoverage: 0.7,
@@ -257,8 +257,9 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
         minQuality: this.config.qualityThreshold,
         requiredApprovals: [],
         allowedFailures: Math.floor(this.config.maxAgents * 0.1),
-        recoveryTime: 5 * 60 * 1000, // 5 minutes
-        milestones: []
+        recoveryTime: 5 * 60 * 1000, // 5 minutes,
+        milestones: [],
+        resourceLimits: this.config.resourceLimits
       },
       tasks: [],
       dependencies: [],
@@ -268,7 +269,7 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
       metrics: this.initializeMetrics()
     };
 
-    // Decompose objective into tasks using optimized AUTO strategy
+    // Decompose objective into tasks using optimized AUTO strategy,
     if (objective.strategy === 'auto') {
       const decompositionResult = await this.autoStrategy.decomposeObjective(objective);
       objective.tasks = decompositionResult.tasks;
@@ -305,13 +306,13 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
     objective.startedAt = new Date();
 
     try {
-      // Ensure we have required agents
+      // Ensure we have required agents,
       await this.ensureRequiredAgents(objective);
       
-      // Schedule initial tasks
+      // Schedule initial tasks,
       await this.scheduleInitialTasks(objective);
       
-      // Start task execution loop
+      // Start task execution loop,
       this.startTaskExecutionLoop(objective);
       
     } catch (error) {
@@ -341,7 +342,7 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
       type,
       status: 'initializing',
       capabilities: {
-        // Default capabilities
+        // Default capabilities,
         codeGeneration: false,
         codeReview: false,
         testing: false,
@@ -418,13 +419,13 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
 
     this.agents.set(agentId.id, agentState);
     
-    // Track agent in JSON output if enabled
+    // Track agent in JSON output if enabled,
     this.trackAgentInJsonOutput(agentState);
     
-    // Initialize agent capabilities based on type
+    // Initialize agent capabilities based on type,
     await this.initializeAgentCapabilities(agentState);
     
-    // Start agent
+    // Start agent,
     await this.startAgent(agentId.id);
     
     this.logger.info('Registered agent', { 
@@ -455,15 +456,15 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
 
     this.logger.info('Unregistering agent', { agentId, name: agent.name });
     
-    // Stop agent gracefully
+    // Stop agent gracefully,
     await this.stopAgent(agentId);
     
-    // Reassign any active tasks
+    // Reassign any active tasks,
     if (agent.currentTask) {
       await this.reassignTask(agent.currentTask.id);
     }
     
-    // Remove from agents map
+    // Remove from agents map,
     this.agents.delete(agentId);
     
     this.emitSwarmEvent({
@@ -490,10 +491,10 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
     this.logger.info('Starting agent', { agentId, name: agent.name });
     
     try {
-      // Initialize agent environment
+      // Initialize agent environment,
       await this.initializeAgentEnvironment(agent);
       
-      // Start agent heartbeat
+      // Start agent heartbeat,
       this.startAgentHeartbeat(agent);
       
       agent.status = 'idle';
@@ -515,7 +516,7 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
         timestamp: new Date(),
         type: 'startup_error',
         message: (error instanceof Error ? error.message : String(error)),
-        stack: error.stack,
+        stack: error instanceof Error ? error.stack : undefined,
         context: { agentId },
         severity: 'high',
         resolved: false
@@ -541,15 +542,15 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
     agent.status = 'terminating';
     
     try {
-      // Cancel current task if any
+      // Cancel current task if any,
       if (agent.currentTask) {
         await this.cancelTask(agent.currentTask.id, 'Agent stopping');
       }
       
-      // Stop heartbeat
+      // Stop heartbeat,
       this.stopAgentHeartbeat(agent);
       
-      // Cleanup agent environment
+      // Cleanup agent environment,
       await this.cleanupAgentEnvironment(agent);
       
       agent.status = 'terminated';
@@ -636,7 +637,7 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
 
     this.tasks.set(taskId.id, task);
     
-    // Track task in JSON output if enabled
+    // Track task in JSON output if enabled,
     this.trackTaskInJsonOutput(task);
     
     this.logger.info('Created task', { 
@@ -669,12 +670,13 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
       throw new Error(`Task cannot be assigned, current status: ${task.status}`);
     }
 
-    // Select agent if not specified
+    // Select agent if not specified,
     if (!agentId) {
-      agentId = await this.selectAgentForTask(task);
-      if (!agentId) {
+      const selectedAgent = await this.selectAgentForTask(task);
+      if (!selectedAgent) {
         throw new Error('No suitable agent available for task');
       }
+      agentId = selectedAgent;
     }
 
     const agent = this.agents.get(agentId);
@@ -686,7 +688,7 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
       throw new Error(`Agent not available: ${agent.status}`);
     }
 
-    // Assign task
+    // Assign task,
     task.assignedTo = agent.id;
     task.assignedAt = new Date();
     task.status = 'assigned';
@@ -694,7 +696,7 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
     agent.currentTask = task.id;
     agent.status = 'busy';
     
-    // Update status history
+    // Update status history,
     task.statusHistory.push({
       timestamp: new Date(),
       from: task.statusHistory[task.statusHistory.length - 1].to,
@@ -719,7 +721,7 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
       processed: false
     });
 
-    // Start task execution
+    // Start task execution,
     await this.startTaskExecution(task);
   }
 
@@ -741,7 +743,7 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
     task.status = 'running';
     task.startedAt = new Date();
     
-    // Create attempt record
+    // Create attempt record,
     const attempt = {
       attemptNumber: task.attempts.length + 1,
       agent: agent.id,
@@ -751,7 +753,7 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
     };
     task.attempts.push(attempt);
     
-    // Update status history
+    // Update status history,
     task.statusHistory.push({
       timestamp: new Date(),
       from: 'assigned',
@@ -807,7 +809,7 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
       validated: false
     };
 
-    // Update attempt
+    // Update attempt,
     const currentAttempt = task.attempts[task.attempts.length - 1];
     if (currentAttempt) {
       currentAttempt.completedAt = new Date();
@@ -815,17 +817,17 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
       currentAttempt.result = task.result;
     }
 
-    // Update agent state
+    // Update agent state,
     agent.status = 'idle';
     agent.currentTask = undefined;
     agent.metrics.tasksCompleted++;
     agent.metrics.lastActivity = new Date();
     agent.taskHistory.push(task.id);
     
-    // Update agent metrics
+    // Update agent metrics,
     this.updateAgentMetrics(agent, task);
 
-    // Update status history
+    // Update status history,
     task.statusHistory.push({
       timestamp: new Date(),
       from: 'running',
@@ -844,7 +846,7 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
       processed: false
     });
 
-    // Check for dependent tasks
+    // Check for dependent tasks,
     await this.processDependentTasks(task);
   }
 
@@ -864,14 +866,14 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
     task.error = {
       type: error.constructor.name,
       message: (error instanceof Error ? error.message : String(error)),
-      code: error.code,
-      stack: error.stack,
+      code: (error as any).code || 'UNKNOWN_ERROR',
+      stack: error instanceof Error ? error.stack : undefined,
       context: { taskId, agentId: agent.id.id },
       recoverable: this.isRecoverableError(error),
       retryable: this.isRetryableError(error)
     };
 
-    // Update attempt
+    // Update attempt,
     const currentAttempt = task.attempts[task.attempts.length - 1];
     if (currentAttempt) {
       currentAttempt.completedAt = new Date();
@@ -879,13 +881,13 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
       currentAttempt.error = task.error;
     }
 
-    // Update agent state
+    // Update agent state,
     agent.status = 'idle';
     agent.currentTask = undefined;
     agent.metrics.tasksFailed++;
     agent.metrics.lastActivity = new Date();
     
-    // Add to error history
+    // Add to error history,
     agent.errorHistory.push({
       timestamp: new Date(),
       type: 'task_failure',
@@ -896,7 +898,7 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
       resolved: false
     });
 
-    // Determine if we should retry
+    // Determine if we should retry,
     const shouldRetry = task.error.retryable && 
                        task.attempts.length < (task.constraints.maxRetries || SWARM_CONSTANTS.MAX_RETRIES);
 
@@ -904,7 +906,7 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
       task.status = 'retrying';
       task.assignedTo = undefined;
       
-      // Update status history
+      // Update status history,
       task.statusHistory.push({
         timestamp: new Date(),
         from: 'running',
@@ -923,7 +925,7 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
         processed: false
       });
 
-      // Schedule retry with exponential backoff
+      // Schedule retry with exponential backoff,
       const retryDelay = Math.pow(2, task.attempts.length) * 1000;
       setTimeout(() => {
         this.assignTask(taskId).catch(retryError => {
@@ -935,7 +937,7 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
       task.status = 'failed';
       task.completedAt = new Date();
       
-      // Update status history
+      // Update status history,
       task.statusHistory.push({
         timestamp: new Date(),
         from: 'running',
@@ -954,7 +956,7 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
         processed: false
       });
 
-      // Handle failure cascade
+      // Handle failure cascade,
       await this.handleTaskFailureCascade(task);
     }
   }
@@ -977,7 +979,7 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
       agent.currentTask = undefined;
     }
 
-    // Update status history
+    // Update status history,
     task.statusHistory.push({
       timestamp: new Date(),
       from: task.statusHistory[task.statusHistory.length - 1].to,
@@ -1010,7 +1012,7 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
       return null;
     }
 
-    // Score agents based on multiple criteria
+    // Score agents based on multiple criteria,
     const scoredAgents = availableAgents.map(agent => ({
       agent,
       score: this.calculateAgentScore(agent, task)
@@ -1046,7 +1048,7 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
   private calculateCapabilityMatch(agent: AgentState, task: TaskDefinition): number {
     const requiredCapabilities = task.requirements.capabilities;
     let matches = 0;
-    let total = requiredCapabilities.length;
+    const total = requiredCapabilities.length;
 
     for (const capability of requiredCapabilities) {
       if (this.agentHasCapability(agent, capability)) {
@@ -1071,7 +1073,7 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
       case 'api-integration': return caps.apiIntegration;
       case 'file-system': return caps.fileSystem;
       case 'terminal-access': return caps.terminalAccess;
-      case 'validation': return caps.testing; // Validation is part of testing capability
+      case 'validation': return caps.testing; // Validation is part of testing capability,
       default: 
         return caps.domains.includes(capability) ||
                caps.languages.includes(capability) ||
@@ -1081,25 +1083,25 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
   }
 
   private agentCanHandleTask(agent: AgentState, task: TaskDefinition): boolean {
-    // Check if agent type is suitable
+    // Check if agent type is suitable,
     if (task.requirements.agentType && agent.type !== task.requirements.agentType) {
       return false;
     }
 
-    // Check if agent has required capabilities
+    // Check if agent has required capabilities,
     for (const capability of task.requirements.capabilities) {
       if (!this.agentHasCapability(agent, capability)) {
         return false;
       }
     }
 
-    // Check reliability requirement
+    // Check reliability requirement,
     if (task.requirements.minReliability && 
         agent.capabilities.reliability < task.requirements.minReliability) {
       return false;
     }
 
-    // Check if agent has capacity
+    // Check if agent has capacity,
     if (agent.workload >= 1.0) {
       return false;
     }
@@ -1135,7 +1137,7 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
       },
       maxAgents: 10,
       maxTasks: 100,
-      maxDuration: 4 * 60 * 60 * 1000, // 4 hours
+      maxDuration: 4 * 60 * 60 * 1000, // 4 hours,
       resourceLimits: {
         memory: SWARM_CONSTANTS.DEFAULT_MEMORY_LIMIT,
         cpu: SWARM_CONSTANTS.DEFAULT_CPU_LIMIT,
@@ -1151,8 +1153,8 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
         metricsInterval: 10000,
         heartbeatInterval: SWARM_CONSTANTS.DEFAULT_HEARTBEAT_INTERVAL,
         healthCheckInterval: 30000,
-        retentionPeriod: 24 * 60 * 60 * 1000, // 24 hours
-        maxLogSize: 100 * 1024 * 1024, // 100MB
+        retentionPeriod: 24 * 60 * 60 * 1000, // 24 hours,
+        maxLogSize: 100 * 1024 * 1024, // 100MB,
         maxMetricPoints: 10000,
         alertingEnabled: true,
         alertThresholds: {
@@ -1197,7 +1199,7 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
         defaultTimeout: SWARM_CONSTANTS.DEFAULT_TASK_TIMEOUT,
         cacheEnabled: true,
         cacheSize: 100,
-        cacheTtl: 3600000, // 1 hour
+        cacheTtl: 3600000, // 1 hour,
         optimizationEnabled: true,
         adaptiveScheduling: true,
         predictiveLoading: false,
@@ -1251,7 +1253,7 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
   // ===== EVENT HANDLING =====
 
   private setupEventHandlers(): void {
-    // Handle agent heartbeats
+    // Handle agent heartbeats,
     this.on('agent.heartbeat', (data: any) => {
       const agent = this.agents.get(data.agentId);
       if (agent) {
@@ -1261,19 +1263,19 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
       }
     });
 
-    // Handle task completion events
+    // Handle task completion events,
     this.on('task.completed', (data: any) => {
       this.updateSwarmMetrics();
       this.checkObjectiveCompletion();
     });
 
-    // Handle task failure events
+    // Handle task failure events,
     this.on('task.failed', (data: any) => {
       this.updateSwarmMetrics();
       this.checkObjectiveFailure(data.task);
     });
 
-    // Handle agent errors
+    // Handle agent errors,
     this.on('agent.error', (data: any) => {
       this.handleAgentError(data.agentId, data.error);
     });
@@ -1284,7 +1286,7 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
   emitSwarmEvent(event: SwarmEvent): boolean {
     this.events.push(event);
     
-    // Limit event history
+    // Limit event history,
     if (this.events.length > 1000) {
       this.events = this.events.slice(-500);
     }
@@ -1392,7 +1394,7 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
   // ===== STUB METHODS (TO BE IMPLEMENTED) =====
 
   private async validateConfiguration(): Promise<ValidationResult> {
-    // Implementation needed
+    // Implementation needed,
     return { valid: true, errors: [], warnings: [], validatedAt: new Date(), validator: 'SwarmCoordinator', context: {} };
   }
 
@@ -1401,17 +1403,17 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
   }
 
   private startBackgroundProcesses(): void {
-    // Start heartbeat monitoring
+    // Start heartbeat monitoring,
     this.heartbeatTimer = setInterval(() => {
       this.processHeartbeats();
     }, this.config.monitoring.heartbeatInterval);
 
-    // Start performance monitoring
+    // Start performance monitoring,
     this.monitoringTimer = setInterval(() => {
       this.updateSwarmMetrics();
     }, this.config.monitoring.metricsInterval);
 
-    // Start cleanup process
+    // Start cleanup process,
     this.cleanupTimer = setInterval(() => {
       this.performCleanup();
     }, 60000); // Every minute
@@ -1430,7 +1432,7 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
       clearInterval(this.cleanupTimer);
       this.cleanupTimer = undefined;
     }
-    // Stop all execution intervals
+    // Stop all execution intervals,
     if (this.executionIntervals) {
       for (const [objectiveId, interval] of this.executionIntervals) {
         clearInterval(interval);
@@ -1450,15 +1452,15 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
     const runningTasks = Array.from(this.tasks.values())
       .filter(task => task.status === 'running');
     
-    // Wait for tasks to complete or timeout
-    const timeout = 30000; // 30 seconds
+    // Wait for tasks to complete or timeout,
+    const timeout = 30000; // 30 seconds,
     const deadline = Date.now() + timeout;
     
     while (runningTasks.some(task => task.status === 'running') && Date.now() < deadline) {
       await new Promise(resolve => setTimeout(resolve, 1000));
     }
     
-    // Cancel any remaining running tasks
+    // Cancel any remaining running tasks,
     for (const task of runningTasks) {
       if (task.status === 'running') {
         await this.cancelTask(task.id.id, 'Swarm shutdown');
@@ -1525,7 +1527,7 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
   }
 
   private async decomposeObjective(objective: SwarmObjective): Promise<TaskDefinition[]> {
-    // Decompose objective into tasks with clear instructions for Claude
+    // Decompose objective into tasks with clear instructions for Claude,
     this.logger.info('Decomposing objective', { 
       objectiveId: objective.id, 
       description: objective.description 
@@ -1533,18 +1535,18 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
     
     const tasks: TaskDefinition[] = [];
     
-    // Extract target directory from objective
+    // Extract target directory from objective,
     const targetDirMatch = objective.description.match(/(?:in|to|at)\s+([^\s]+\/[^\s]+)|([^\s]+\/[^\s]+)$/);
     const targetDir = targetDirMatch ? targetDirMatch[1] || targetDirMatch[2] : null;
     const targetPath = targetDir ? (targetDir.startsWith('/') ? targetDir : `${getClaudeFlowRoot()}/${targetDir}`) : null;
     
-    // Check if objective requests "each agent" or "each agent type" for parallel execution
+    // Check if objective requests "each agent" or "each agent type" for parallel execution,
     const eachAgentPattern = /\beach\s+agent(?:\s+type)?\b/i;
     const requestsParallelAgents = eachAgentPattern.test(objective.description);
     
-    // Create tasks with specific prompts for Claude
-    if (requestsParallelAgents && this.config.mode === 'parallel') {
-      // Create parallel tasks for each agent type
+    // Create tasks with specific prompts for Claude,
+    if (requestsParallelAgents && (this.config.mode === 'distributed' || this.config.mode === 'mesh')) {
+      // Create parallel tasks for each agent type,
       const agentTypes = this.determineRequiredAgentTypes(objective.strategy);
       this.logger.info('Creating parallel tasks for each agent type', { 
         agentTypes,
@@ -1572,22 +1574,22 @@ Work independently but be aware that other agents are working on this same objec
         tasks.push(taskId);
       }
     } else if (objective.strategy === 'development') {
-      // Task 1: Analyze and Plan
+      // Task 1: Analyze and Plan,
       const task1 = this.createTaskForObjective('analyze-requirements', 'analysis', {
         title: 'Analyze Requirements and Plan Implementation',
         description: `Analyze the requirements and create a plan for: ${objective.description}`,
-        instructions: `Please analyze the following request and create a detailed implementation plan:
+        instructions: `Please analyze the following request and create a detailed implementation plan:,
 
 Request: ${objective.description}
 
 Target Directory: ${targetPath || 'Not specified - determine appropriate location'}
 
 Your analysis should include:
-1. Understanding of what needs to be built
-2. Technology choices and rationale
-3. Project structure and file organization
-4. Key components and their responsibilities
-5. Any external dependencies needed
+1. Understanding of what needs to be built,
+2. Technology choices and rationale,
+3. Project structure and file organization,
+4. Key components and their responsibilities,
+5. Any external dependencies needed,
 
 Please provide a clear, structured plan that the next tasks can follow.`,
         priority: 'high' as TaskPriority,
@@ -1596,21 +1598,21 @@ Please provide a clear, structured plan that the next tasks can follow.`,
       });
       tasks.push(task1);
       
-      // Task 2: Implementation
+      // Task 2: Implementation,
       const task2 = this.createTaskForObjective('create-implementation', 'coding', {
         title: 'Implement the Solution',
         description: `Create the implementation for: ${objective.description}`,
-        instructions: `Please implement the following request:
+        instructions: `Please implement the following request:,
 
 Request: ${objective.description}
 
 Target Directory: ${targetPath || 'Create in an appropriate location'}
 
 Based on the analysis from the previous task, please:
-1. Create all necessary files and directories
-2. Implement the core functionality as requested
-3. Ensure the code is well-structured and follows best practices
-4. Include appropriate error handling
+1. Create all necessary files and directories,
+2. Implement the core functionality as requested,
+3. Ensure the code is well-structured and follows best practices,
+4. Include appropriate error handling,
 5. Add any necessary configuration files (package.json, requirements.txt, etc.)
 
 Focus on creating a working implementation that matches the user's request exactly.`,
@@ -1621,7 +1623,7 @@ Focus on creating a working implementation that matches the user's request exact
       });
       tasks.push(task2);
       
-      // Task 3: Testing
+      // Task 3: Testing,
       const task3 = this.createTaskForObjective('write-tests', 'testing', {
         title: 'Create Tests',
         description: `Write tests for the implementation`,
@@ -1630,10 +1632,10 @@ Focus on creating a working implementation that matches the user's request exact
 Target Directory: ${targetPath || 'Use the same directory as the implementation'}
 
 Create appropriate test files that:
-1. Test the main functionality
-2. Cover edge cases
-3. Ensure the implementation works as expected
-4. Use appropriate testing frameworks for the technology stack
+1. Test the main functionality,
+2. Cover edge cases,
+3. Ensure the implementation works as expected,
+4. Use appropriate testing frameworks for the technology stack,
 5. Include both unit tests and integration tests where applicable`,
         priority: 'medium' as TaskPriority,
         estimatedDuration: 5 * 60 * 1000,
@@ -1642,7 +1644,7 @@ Create appropriate test files that:
       });
       tasks.push(task3);
       
-      // Task 4: Documentation
+      // Task 4: Documentation,
       const task4 = this.createTaskForObjective('create-documentation', 'documentation', {
         title: 'Create Documentation',
         description: `Document the implementation`,
@@ -1651,12 +1653,12 @@ Create appropriate test files that:
 Target Directory: ${targetPath || 'Use the same directory as the implementation'}
 
 Create documentation that includes:
-1. README.md with project overview, setup instructions, and usage examples
+1. README.md with project overview, setup instructions, and usage examples,
 2. API documentation (if applicable)
-3. Configuration options
-4. Architecture overview
+3. Configuration options,
+4. Architecture overview,
 5. Deployment instructions (if applicable)
-6. Any other relevant documentation
+6. Any other relevant documentation,
 
 Make sure the documentation is clear, complete, and helps users understand and use the implementation.`,
         priority: 'medium' as TaskPriority,
@@ -1666,8 +1668,8 @@ Make sure the documentation is clear, complete, and helps users understand and u
       });
       tasks.push(task4);
     } else {
-      // For other strategies, create a comprehensive single task
-      tasks.push(this.createTaskForObjective('execute-objective', 'generic', {
+      // For other strategies, create a comprehensive single task,
+      tasks.push(this.createTaskForObjective('execute-objective', 'custom', {
         title: 'Execute Objective',
         description: objective.description,
         instructions: `Please complete the following request:
@@ -1681,7 +1683,7 @@ Please analyze what is being requested and implement it appropriately. This may 
 - Writing code
 - Setting up configurations
 - Creating documentation
-- Any other tasks necessary to fulfill the request
+- Any other tasks necessary to fulfill the request,
 
 Ensure your implementation is complete, well-structured, and follows best practices.`,
         priority: 'high' as TaskPriority,
@@ -1749,12 +1751,12 @@ Ensure your implementation is complete, well-structured, and follows best practi
   }
 
   private analyzeDependencies(tasks: TaskDefinition[]): any[] {
-    // Implementation needed - analyze task dependencies
+    // Implementation needed - analyze task dependencies,
     return [];
   }
   
   private convertDependenciesToTaskDependencies(dependencies: Map<string, string[]>): any[] {
-    // Convert decomposition dependencies to task dependencies format
+    // Convert decomposition dependencies to task dependencies format,
     const result: any[] = [];
     dependencies.forEach((deps, taskId) => {
       deps.forEach(dependsOn => {
@@ -1778,7 +1780,7 @@ Ensure your implementation is complete, well-structured, and follows best practi
       taskCount: objective.tasks.length 
     });
     
-    // Extract target directory from objective description
+    // Extract target directory from objective description,
     const targetDirPatterns = [
       /in\s+([^\s]+\/?)$/i,
       /(?:in|to|at)\s+([^\s]+\/[^\s]+)/i,
@@ -1795,20 +1797,20 @@ Ensure your implementation is complete, well-structured, and follows best practi
       }
     }
     
-    // Add all tasks to the tasks map
+    // Add all tasks to the tasks map,
     for (const task of objective.tasks) {
       task.context.objectiveId = objective.id;
-      // Propagate target directory to all tasks
+      // Propagate target directory to all tasks,
       if (objectiveTargetDir && !task.context.targetDir) {
         task.context.targetDir = objectiveTargetDir;
       }
       this.tasks.set(task.id.id, task);
       
-      // Track task in JSON output if enabled
+      // Track task in JSON output if enabled,
       this.trackTaskInJsonOutput(task);
     }
     
-    // Find tasks with no dependencies and queue them
+    // Find tasks with no dependencies and queue them,
     const initialTasks = objective.tasks.filter(task => 
       !task.constraints.dependencies || task.constraints.dependencies.length === 0
     );
@@ -1818,12 +1820,12 @@ Ensure your implementation is complete, well-structured, and follows best practi
       tasks: initialTasks.map(t => ({ id: t.id.id, name: t.name }))
     });
     
-    // Queue initial tasks for execution
+    // Queue initial tasks for execution,
     for (const task of initialTasks) {
       task.status = 'queued';
       task.updatedAt = new Date();
       
-      // Update status history
+      // Update status history,
       task.statusHistory.push({
         timestamp: new Date(),
         from: 'created' as TaskStatus,
@@ -1832,7 +1834,7 @@ Ensure your implementation is complete, well-structured, and follows best practi
         triggeredBy: 'system'
       });
       
-      // Emit task queued event
+      // Emit task queued event,
       this.emitSwarmEvent({
         id: generateId('event'),
         timestamp: new Date(),
@@ -1844,7 +1846,7 @@ Ensure your implementation is complete, well-structured, and follows best practi
       });
     }
     
-    // Update objective progress
+    // Update objective progress,
     objective.progress.totalTasks = objective.tasks.length;
     objective.progress.runningTasks = 0;
     objective.progress.completedTasks = 0;
@@ -1856,23 +1858,23 @@ Ensure your implementation is complete, well-structured, and follows best practi
       objectiveId: objective.id 
     });
     
-    // Create an interval to process queued tasks
+    // Create an interval to process queued tasks,
     const executionInterval = setInterval(async () => {
       try {
-        // Check if objective is still executing
+        // Check if objective is still executing,
         if (objective.status !== 'executing') {
           clearInterval(executionInterval);
           return;
         }
         
-        // Find queued tasks
+        // Find queued tasks,
         const queuedTasks = Array.from(this.tasks.values())
           .filter(task => 
             task.context?.objectiveId === objective.id && 
             task.status === 'queued'
           );
         
-        // Find idle agents
+        // Find idle agents,
         const idleAgents = Array.from(this.agents.values())
           .filter(agent => agent.status === 'idle');
         
@@ -1883,20 +1885,20 @@ Ensure your implementation is complete, well-structured, and follows best practi
           });
         }
         
-        // Assign tasks to idle agents
+        // Assign tasks to idle agents,
         for (const task of queuedTasks) {
           if (idleAgents.length === 0) break;
           
-          // Find suitable agent
+          // Find suitable agent,
           const suitableAgents = idleAgents.filter(agent => 
             this.agentCanHandleTask(agent, task)
           );
           
           if (suitableAgents.length > 0) {
-            // Assign to first suitable agent
+            // Assign to first suitable agent,
             await this.assignTask(task.id.id, suitableAgents[0].id.id);
             
-            // Remove agent from idle list
+            // Remove agent from idle list,
             const agentIndex = idleAgents.findIndex(a => a.id.id === suitableAgents[0].id.id);
             if (agentIndex >= 0) {
               idleAgents.splice(agentIndex, 1);
@@ -1904,7 +1906,7 @@ Ensure your implementation is complete, well-structured, and follows best practi
           }
         }
         
-        // Check for completed tasks and process dependencies
+        // Check for completed tasks and process dependencies,
         const completedTasks = Array.from(this.tasks.values())
           .filter(task => 
             task.context?.objectiveId === objective.id && 
@@ -1919,7 +1921,7 @@ Ensure your implementation is complete, well-structured, and follows best practi
             this.taskDependenciesMet(task, completedTasks)
           );
         
-        // Queue tasks with met dependencies
+        // Queue tasks with met dependencies,
         for (const task of pendingTasks) {
           task.status = 'queued';
           task.updatedAt = new Date();
@@ -1943,7 +1945,7 @@ Ensure your implementation is complete, well-structured, and follows best practi
           });
         }
         
-        // Check for stuck/timed out tasks
+        // Check for stuck/timed out tasks,
         const runningTasks = Array.from(this.tasks.values())
           .filter(task => 
             task.context?.objectiveId === objective.id && 
@@ -1963,7 +1965,7 @@ Ensure your implementation is complete, well-structured, and follows best practi
                 timeout: Math.round(timeout / 1000)
               });
               
-              // Mark task as failed due to timeout
+              // Mark task as failed due to timeout,
               task.status = 'failed';
               task.completedAt = new Date();
               task.error = {
@@ -1975,7 +1977,7 @@ Ensure your implementation is complete, well-structured, and follows best practi
                 retryable: true
               };
               
-              // Update agent state if assigned
+              // Update agent state if assigned,
               if (task.assignedTo) {
                 const agent = this.agents.get(task.assignedTo.id);
                 if (agent) {
@@ -1985,7 +1987,7 @@ Ensure your implementation is complete, well-structured, and follows best practi
                 }
               }
               
-              // Emit timeout event
+              // Emit timeout event,
               this.emitSwarmEvent({
                 id: generateId('event'),
                 timestamp: new Date(),
@@ -1999,7 +2001,7 @@ Ensure your implementation is complete, well-structured, and follows best practi
           }
         }
         
-        // Update objective progress
+        // Update objective progress,
         const allTasks = Array.from(this.tasks.values())
           .filter(task => task.context?.objectiveId === objective.id);
         
@@ -2011,7 +2013,7 @@ Ensure your implementation is complete, well-structured, and follows best practi
           ? (objective.progress.completedTasks / objective.progress.totalTasks) * 100 
           : 0;
         
-        // Check if objective is complete
+        // Check if objective is complete,
         if (objective.progress.completedTasks + objective.progress.failedTasks === objective.progress.totalTasks) {
           objective.status = objective.progress.failedTasks === 0 ? 'completed' : 'failed';
           objective.completedAt = new Date();
@@ -2040,7 +2042,7 @@ Ensure your implementation is complete, well-structured, and follows best practi
       }
     }, 2000); // Check every 2 seconds
     
-    // Store interval reference for cleanup
+    // Store interval reference for cleanup,
     if (!this.executionIntervals) {
       this.executionIntervals = new Map();
     }
@@ -2054,7 +2056,7 @@ Ensure your implementation is complete, well-structured, and follows best practi
     
     const completedTaskIds = completedTasks.map(t => t.id.id);
     return task.constraints.dependencies.every(dep => {
-      // Handle both string and TaskId object dependencies
+      // Handle both string and TaskId object dependencies,
       const depId = typeof dep === 'string' ? dep : dep.id;
       return completedTaskIds.includes(depId);
     });
@@ -2077,7 +2079,7 @@ Ensure your implementation is complete, well-structured, and follows best practi
   }
 
   private async initializeAgentCapabilities(agent: AgentState): Promise<void> {
-    // Set capabilities based on agent type
+    // Set capabilities based on agent type,
     switch (agent.type) {
       case 'coordinator':
         agent.capabilities.codeGeneration = false;
@@ -2171,12 +2173,12 @@ Ensure your implementation is complete, well-structured, and follows best practi
       agentName: agent.name
     });
     
-    // Extract target directory from task
+    // Extract target directory from task,
     const targetDir = this.extractTargetDirectory(task);
     
     try {
-      // Use Claude Flow executor for full SPARC system in non-interactive mode
-      const { ClaudeFlowExecutor } = await import('./claude-flow-executor.ts');
+      // Use Claude Flow executor for full SPARC system in non-interactive mode,
+      const { ClaudeFlowExecutor } = await import('./claude-flow-executor.js');
       const executor = new ClaudeFlowExecutor({ 
         logger: this.logger,
         claudeFlowPath: getClaudeFlowBin(),
@@ -2185,7 +2187,7 @@ Ensure your implementation is complete, well-structured, and follows best practi
         timeoutMinutes: this.config.taskTimeoutMinutes
       });
       
-      const result = await executor.executeTask(task, agent, targetDir);
+      const result = await executor.executeTask(task, agent, targetDir || undefined);
       
       this.logger.info('Task execution completed', { 
         taskId: task.id.id,
@@ -2205,12 +2207,12 @@ Ensure your implementation is complete, well-structured, and follows best practi
   }
   
   private createExecutionPrompt(task: TaskDefinition): string {
-    // Create a prompt that Claude will understand
+    // Create a prompt that Claude will understand,
     let prompt = `# Swarm Task Execution\n\n`;
     prompt += `## Task: ${task.name}\n\n`;
     prompt += `${task.instructions || task.description}\n\n`;
     
-    // Add working directory information if available
+    // Add working directory information if available,
     const targetDir = this.extractTargetDirectory(task);
     if (targetDir) {
       prompt += `## Working Directory\n`;
@@ -2227,7 +2229,7 @@ Ensure your implementation is complete, well-structured, and follows best practi
       prompt += `${JSON.stringify(task.context, null, 2)}\n\n`;
     }
     
-    // Add execution guidelines
+    // Add execution guidelines,
     prompt += `## Guidelines\n`;
     prompt += `- Focus on completing this specific task\n`;
     prompt += `- Create all necessary files and directories\n`;
@@ -2238,7 +2240,7 @@ Ensure your implementation is complete, well-structured, and follows best practi
   }
   
   private extractTargetDirectory(task: TaskDefinition): string | null {
-    // Try multiple patterns to find the target directory
+    // Try multiple patterns to find the target directory,
     const patterns = [
       /in\s+([^\s]+\/?)$/i,              // "in examples/dir" at end
       /(?:in|to|at)\s+([^\s]+\/[^\s]+)/i, // "in examples/gradio" anywhere
@@ -2248,7 +2250,7 @@ Ensure your implementation is complete, well-structured, and follows best practi
     
     let targetDir = null;
     
-    // First check task description and input
+    // First check task description and input,
     for (const pattern of patterns) {
       const descMatch = task.description.match(pattern);
       const inputMatch = task.input?.objective?.match(pattern);
@@ -2258,12 +2260,12 @@ Ensure your implementation is complete, well-structured, and follows best practi
       }
     }
     
-    // If not found and task has context with targetDir, use that
+    // If not found and task has context with targetDir, use that,
     if (!targetDir && task.context?.targetDir) {
       targetDir = task.context.targetDir;
     }
     
-    // If still not found, check objective description from context
+    // If still not found, check objective description from context,
     if (!targetDir && task.context?.objectiveId) {
       const objective = this.objectives.get(task.context.objectiveId);
       if (objective) {
@@ -2278,9 +2280,9 @@ Ensure your implementation is complete, well-structured, and follows best practi
     }
     
     if (targetDir) {
-      // Clean up the target directory
+      // Clean up the target directory,
       targetDir = targetDir.replace(/\s+.*$/, '');
-      // Resolve relative to current directory
+      // Resolve relative to current directory,
       if (!targetDir.startsWith('/')) {
         targetDir = `${getClaudeFlowRoot()}/${targetDir}`;
       }
@@ -2295,32 +2297,32 @@ Ensure your implementation is complete, well-structured, and follows best practi
     prompt: string,
     targetDir: string | null
   ): Promise<any> {
-    // Create unique instance ID for this execution
+    // Create unique instance ID for this execution,
     const instanceId = `swarm-${this.swarmId.id}-${task.id.id}-${Date.now()}`;
     
-    // Build Claude arguments for non-interactive execution
+    // Build Claude arguments for non-interactive execution,
     const claudeArgs = [prompt];
     
-    // Always skip permissions for swarm automation
+    // Always skip permissions for swarm automation,
     claudeArgs.push("--dangerously-skip-permissions");
     
-    // Add non-interactive flags for automation
-    claudeArgs.push("-p"); // Print mode
+    // Add non-interactive flags for automation,
+    claudeArgs.push("-p"); // Print mode,
     claudeArgs.push("--output-format", "stream-json");
     claudeArgs.push("--verbose"); // Required when using stream-json with -p
     
-    // Set working directory if specified
+    // Set working directory if specified,
     if (targetDir) {
-      // Ensure directory exists
+      // Ensure directory exists,
       await Deno.mkdir(targetDir, { recursive: true });
       
-      // Add directory context to prompt
+      // Add directory context to prompt,
       const enhancedPrompt = `${prompt}\n\n## Important: Working Directory\nPlease ensure all files are created in: ${targetDir}`;
       claudeArgs[0] = enhancedPrompt;
     }
     
     try {
-      // Check if claude command exists
+      // Check if claude command exists,
       const checkCommand = new Deno.Command('which', {
         args: ['claude'],
         stdout: 'piped',
@@ -2331,7 +2333,7 @@ Ensure your implementation is complete, well-structured, and follows best practi
         throw new Error('Claude CLI not found. Please ensure claude is installed and in PATH.');
       }
       
-      // Execute Claude with the prompt
+      // Execute Claude with the prompt,
       const command = new Deno.Command("claude", {
         args: claudeArgs,
         cwd: targetDir || process.cwd(),
@@ -2395,12 +2397,12 @@ Ensure your implementation is complete, well-structured, and follows best practi
   private determineToolsForTask(task: TaskDefinition, agent: AgentState): string[] {
     const tools = new Set<string>();
     
-    // Basic tools for all tasks
+    // Basic tools for all tasks,
     tools.add("View");
     tools.add("Edit");
     tools.add("Bash");
     
-    // Add tools based on task type
+    // Add tools based on task type,
     switch (task.type) {
       case 'coding':
         tools.add("Create");
@@ -2426,7 +2428,7 @@ Ensure your implementation is complete, well-structured, and follows best practi
         break;
     }
     
-    // Add tools based on agent capabilities
+    // Add tools based on agent capabilities,
     if (agent.capabilities.fileSystem) {
       tools.add("FileSystem");
     }
@@ -2449,11 +2451,11 @@ Ensure your implementation is complete, well-structured, and follows best practi
     prompt: string
   ): Promise<any> {
     // Simulate different task types with actual file operations
-    // Check if task has a target directory in the description or context
+    // Check if task has a target directory in the description or context,
     let workDir = `/tmp/swarm/${this.swarmId.id}/work`;
     
     // Extract target directory from task description or input
-    // Try multiple patterns to find the target directory
+    // Try multiple patterns to find the target directory,
     const patterns = [
       /in\s+([^\s]+\/?)$/i,              // "in examples/dir" at end
       /(?:in|to|at)\s+([^\s]+\/[^\s]+)/i, // "in examples/gradio" anywhere
@@ -2474,7 +2476,7 @@ Ensure your implementation is complete, well-structured, and follows best practi
     if (targetDir) {
       // Clean up the target directory (remove trailing words if needed)
       targetDir = targetDir.replace(/\s+.*$/, '');
-      // Use absolute path or resolve relative to current directory
+      // Use absolute path or resolve relative to current directory,
       workDir = targetDir.startsWith('/') ? targetDir : `${getClaudeFlowRoot()}/${targetDir}`;
       
       this.logger.debug('Extracted target directory', { 
@@ -2485,7 +2487,7 @@ Ensure your implementation is complete, well-structured, and follows best practi
     }
     
     try {
-      // Ensure work directory exists
+      // Ensure work directory exists,
       await Deno.mkdir(workDir, { recursive: true });
       
       switch (task.type) {
@@ -2512,7 +2514,7 @@ Ensure your implementation is complete, well-structured, and follows best practi
   private async executeCodeGenerationTask(task: TaskDefinition, workDir: string, agent: AgentState): Promise<any> {
     this.logger.info('Executing code generation task', { taskId: task.id.id });
     
-    // Detect technology from description
+    // Detect technology from description,
     const description = task.description.toLowerCase();
     const isGradio = description.includes('gradio');
     const isPython = isGradio || description.includes('python') || description.includes('fastapi') || description.includes('django');
@@ -2520,27 +2522,27 @@ Ensure your implementation is complete, well-structured, and follows best practi
     const isRestAPI = description.includes('rest api') || description.includes('api');
     
     if (isGradio) {
-      // Create a Gradio application
+      // Create a Gradio application,
       return await this.createGradioApp(task, workDir);
     } else if (isPython && isRestAPI) {
       // Create a Python REST API (FastAPI)
       return await this.createPythonRestAPI(task, workDir);
     } else if (isRestAPI) {
-      // Create a REST API application
+      // Create a REST API application,
       const projectName = 'rest-api';
       const projectDir = `${workDir}/${projectName}`;
       await Deno.mkdir(projectDir, { recursive: true });
       
-      // Create main API file
+      // Create main API file,
       const apiCode = `const express = require('express');
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Middleware
+// Middleware,
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Health check endpoint
+// Health check endpoint,
 app.get('/health', (req, res) => {
   res.json({ 
     status: 'healthy',
@@ -2550,7 +2552,7 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Sample endpoints
+// Sample endpoints,
 app.get('/api/v1/items', (req, res) => {
   res.json({
     items: [
@@ -2594,13 +2596,13 @@ app.delete('/api/v1/items/:id', (req, res) => {
   res.json({ message: \`Item \${id} deleted successfully\` });
 });
 
-// Error handling middleware
+// Error handling middleware,
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ error: 'Internal server error' });
 });
 
-// Start server
+// Start server,
 app.listen(port, () => {
   console.log(\`REST API server running on port \${port}\`);
   console.log('Created by Claude Flow Swarm');
@@ -2611,7 +2613,7 @@ module.exports = app;
       
       await fs.writeFile(`${projectDir}/server.js`, apiCode);
       
-      // Create package.json
+      // Create package.json,
       const packageJson = {
         name: projectName,
         version: "1.0.0",
@@ -2646,8 +2648,8 @@ module.exports = app;
         JSON.stringify(packageJson, null, 2)
       );
       
-      // Create README
-      const readme = `# REST API
+      // Create README,
+      const readme = `# REST API,
 
 This REST API was created by the Claude Flow Swarm system.
 
@@ -2659,19 +2661,19 @@ This REST API was created by the Claude Flow Swarm system.
 
 ## Installation
 
-\`\`\`bash
+\`\`\`bash,
 npm install
 \`\`\`
 
-## Usage
+## Usage,
 
 Start the server:
-\`\`\`bash
+\`\`\`bash,
 npm start
 \`\`\`
 
 Development mode with auto-reload:
-\`\`\`bash
+\`\`\`bash,
 npm run dev
 \`\`\`
 
@@ -2693,11 +2695,11 @@ Created by Claude Flow Swarm
       
       await fs.writeFile(`${projectDir}/README.md`, readme);
       
-      // Create .gitignore
+      // Create .gitignore,
       const gitignore = `node_modules/
 .env
 *.log
-.DS_Store
+.DS_Store,
 coverage/
 `;
       
@@ -2717,15 +2719,15 @@ coverage/
         }
       };
     } else if (isHelloWorld) {
-      // Create a simple hello world application
+      // Create a simple hello world application,
       const projectDir = `${workDir}/hello-world`;
       await Deno.mkdir(projectDir, { recursive: true });
       
-      // Create main application file
+      // Create main application file,
       const mainCode = `#!/usr/bin/env node
 
 // Hello World Application
-// Generated by Claude Flow Swarm
+// Generated by Claude Flow Swarm,
 
 console.log('Hello, World!');
 console.log('This application was created by the Claude Flow Swarm system.');
@@ -2733,7 +2735,7 @@ console.log('Swarm ID: ${this.swarmId.id}');
 console.log('Task: ${task.name}');
 console.log('Generated at: ${new Date().toISOString()}');
 
-// Export for testing
+// Export for testing,
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = { message: 'Hello, World!' };
 }
@@ -2741,7 +2743,7 @@ if (typeof module !== 'undefined' && module.exports) {
       
       await fs.writeFile(`${projectDir}/index.js`, mainCode);
       
-      // Create package.json
+      // Create package.json,
       const packageJson = {
         name: "hello-world",
         version: "1.0.0",
@@ -2761,8 +2763,8 @@ if (typeof module !== 'undefined' && module.exports) {
         JSON.stringify(packageJson, null, 2)
       );
       
-      // Create README
-      const readme = `# Hello World
+      // Create README,
+      const readme = `# Hello World,
 
 This application was created by the Claude Flow Swarm system.
 
@@ -2773,7 +2775,7 @@ This application was created by the Claude Flow Swarm system.
 
 ## Usage
 
-\`\`\`bash
+\`\`\`bash,
 npm start
 \`\`\`
 
@@ -2798,11 +2800,11 @@ ${task.description}
       };
     }
     
-    // For other code generation tasks, create a basic structure
+    // For other code generation tasks, create a basic structure,
     const projectDir = `${workDir}/generated-code`;
     await Deno.mkdir(projectDir, { recursive: true });
     
-    const code = `// Generated code for: ${task.name}
+    const _code = `// Generated code for: ${task.name}
 // ${task.description}
 
 function main() {
@@ -2813,7 +2815,7 @@ function main() {
 main();
 `;
     
-    await fs.writeFile(`${projectDir}/main.js`, code);
+    await fs.writeFile(`${projectDir}/main.js`, _code);
     
     return {
       success: true,
@@ -2871,7 +2873,7 @@ main();
 
 ${task.description}
 
-## Overview
+## Overview,
 This documentation was generated by the Claude Flow Swarm system.
 
 ## Details
@@ -2919,7 +2921,7 @@ describe('${task.name}', () => {
   });
   
   it('should validate implementation', () => {
-    // Test implementation would go here
+    // Test implementation would go here,
     assert.ok(true, 'Implementation validated');
   });
 });
@@ -2974,12 +2976,12 @@ console.log('Tests completed for: ${task.name}');
   }
 
   private assessTaskQuality(task: TaskDefinition, result: any): number {
-    // Implementation needed - assess task quality
+    // Implementation needed - assess task quality,
     return 0.8;
   }
 
   private updateAgentMetrics(agent: AgentState, task: TaskDefinition): void {
-    // Update agent performance metrics
+    // Update agent performance metrics,
     const executionTime = task.completedAt!.getTime() - (task.startedAt?.getTime() || 0);
     
     agent.metrics.averageExecutionTime = 
@@ -2995,12 +2997,12 @@ console.log('Tests completed for: ${task.name}');
   }
 
   private isRecoverableError(error: any): boolean {
-    // Implementation needed - determine if error is recoverable
+    // Implementation needed - determine if error is recoverable,
     return true;
   }
 
   private isRetryableError(error: any): boolean {
-    // Implementation needed - determine if error is retryable
+    // Implementation needed - determine if error is retryable,
     return true;
   }
 
@@ -3014,7 +3016,7 @@ console.log('Tests completed for: ${task.name}');
 
   private processHeartbeats(): void {
     const now = new Date();
-    const timeout = this.config.monitoring.heartbeatInterval * 10; // Increased multiplier for long-running Claude tasks
+    const timeout = this.config.monitoring.heartbeatInterval * 10; // Increased multiplier for long-running Claude tasks,
     
     for (const agent of this.agents.values()) {
       if (agent.status === 'offline' || agent.status === 'terminated') {
@@ -3056,7 +3058,7 @@ console.log('Tests completed for: ${task.name}');
       agent.health = 0;
       this.logger.error('Agent error', { agentId, error });
       
-      // Track error in JSON output if enabled
+      // Track error in JSON output if enabled,
       if (this.jsonOutputAggregator) {
         this.jsonOutputAggregator.addAgentError(
           agentId, 
@@ -3148,5 +3150,21 @@ console.log('Tests completed for: ${task.name}');
     if (this.jsonOutputAggregator) {
       this.jsonOutputAggregator.addArtifact(key, artifact);
     }
+  }
+
+  /**
+   * Create Gradio application (placeholder implementation)
+   */
+  async createGradioApp(task: any, workDir: string): Promise<any> {
+    // Placeholder implementation - this would integrate with Gradio for web UI
+    throw new Error('createGradioApp not yet implemented - requires Gradio integration');
+  }
+
+  /**
+   * Create Python REST API (placeholder implementation)
+   */
+  async createPythonRestAPI(task: any, workDir: string): Promise<any> {
+    // Placeholder implementation - this would create a Python REST API
+    throw new Error('createPythonRestAPI not yet implemented - requires Python API framework integration');
   }
 }

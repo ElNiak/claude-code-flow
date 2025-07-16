@@ -1,36 +1,36 @@
-import { getErrorMessage } from '../../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../../utils/error-handler.js';
 /**
  * Comprehensive Agent management commands with advanced features
  */
 
-// Converted from @cliffy to commander.js for Node.js compatibility
+// Converted from @cliffy to commander.js for Node.js compatibility,
 import { Command } from 'commander';
 import Table from 'cli-table3';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
-const { colors } = { colors: chalk }; // Compatibility shim
-import type { AgentProfile } from '../../utils/types.js';
+const { colors: _colors } = { colors: chalk }; // Compatibility shim,
+import type { AgentProfile as _AgentProfile } from '../../utils/types.js';
 import { generateId } from '../../utils/helpers.js';
 import { AgentManager } from '../../agents/agent-manager.js';
-import type { MemoryManager } from '../../memory/manager.js';
+import type { MemoryManager as _MemoryManager } from '../../memory/manager.js';
 import { EventBus } from '../../core/event-bus.js';
 import { Logger } from '../../core/logger.js';
 import { DistributedMemorySystem } from '../../memory/distributed-memory.js';
-import { formatDuration, formatBytes, formatPercentage } from '../../utils/formatters.js';
+import { formatDuration as _formatDuration, formatBytes, formatPercentage } from '../../utils/formatters.js';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 
-// Global agent manager instance
+// Global agent manager instance,
 let agentManager: AgentManager | null = null;
 
-// Initialize agent manager
+// Initialize agent manager,
 async function initializeAgentManager(): Promise<AgentManager> {
   if (agentManager) return agentManager;
   
   const logger = new Logger({ level: 'info', format: 'text', destination: 'console' });
   const eventBus = EventBus.getInstance();
   const memorySystem = new DistributedMemorySystem(
-    {}, // Use default config
+    {}, // Use default config,
     logger,
     eventBus
   );
@@ -45,7 +45,7 @@ async function initializeAgentManager(): Promise<AgentManager> {
       healthCheckInterval: 30000,
       autoRestart: true,
       resourceLimits: {
-        memory: 1024 * 1024 * 1024, // 1GB
+        memory: 1024 * 1024 * 1024, // 1GB,
         cpu: 2.0,
         disk: 2 * 1024 * 1024 * 1024 // 2GB
       }
@@ -76,7 +76,7 @@ export function createAgentCommand(): Command {
       console.log('');
       console.log('Use --help with any command for detailed options.');
     });
-  // List command
+  // List command,
   agentCommand
     .command('list')
     .description('Display all agents with comprehensive status and metrics')
@@ -91,7 +91,7 @@ export function createAgentCommand(): Command {
         const manager = await initializeAgentManager();
         let agents = manager.getAllAgents();
         
-        // Apply filters
+        // Apply filters,
         if (options.type) {
           agents = agents.filter(agent => agent.type === options.type);
         }
@@ -104,7 +104,7 @@ export function createAgentCommand(): Command {
           agents = agents.filter(agent => agent.health < 0.7);
         }
         
-        // Sort agents
+        // Sort agents,
         agents.sort((a, b) => {
           switch (options.sort) {
             case 'type': return a.type.localeCompare(b.type);
@@ -134,7 +134,7 @@ export function createAgentCommand(): Command {
           displayCompactAgentList(agents);
         }
         
-        // Display system stats
+        // Display system stats,
         const stats = manager.getSystemStats();
         console.log('\n' + chalk.cyan('System Overview:'));
         console.log(`Total Agents: ${stats.totalAgents} | Active: ${stats.activeAgents} | Healthy: ${stats.healthyAgents}`);
@@ -146,7 +146,7 @@ export function createAgentCommand(): Command {
       }
     });
 
-  // Spawn command
+  // Spawn command,
   agentCommand
     .command('spawn [template]')
     .description('Create and start new agents with advanced configuration options')
@@ -167,18 +167,18 @@ export function createAgentCommand(): Command {
         
         let agentConfig: any = {};
         
-        // Load from config file if provided
+        // Load from config file if provided,
         if (options.config) {
           const configPath = path.resolve(options.config);
           const configData = await fs.readFile(configPath, 'utf-8');
           agentConfig = JSON.parse(configData);
         }
         
-        // Interactive mode
+        // Interactive mode,
         if (options.interactive) {
           agentConfig = await interactiveAgentConfiguration(manager);
         } else {
-          // Use template or command line options
+          // Use template or command line options,
           const templateName = template || options.template;
           if (!templateName) {
             console.error(chalk.red('Error: Template name is required. Use --interactive for guided setup.'));
@@ -211,7 +211,7 @@ export function createAgentCommand(): Command {
         
         console.log(chalk.cyan('\n🚀 Creating new agent...'));
         
-        // Create the agent
+        // Create the agent,
         const agentId = await manager.createAgent(
           agentConfig.template || 'researcher',
           {
@@ -224,7 +224,7 @@ export function createAgentCommand(): Command {
         console.log(chalk.green(`✅ Agent created successfully!`));
         console.log(`Agent ID: ${chalk.bold(agentId)}`);
         
-        // Add to pool if specified
+        // Add to pool if specified,
         if (options.pool) {
           const pools = manager.getAllPools();
           const targetPool = pools.find(p => p.name === options.pool || p.id === options.pool);
@@ -236,7 +236,7 @@ export function createAgentCommand(): Command {
           }
         }
         
-        // Start agent if requested
+        // Start agent if requested,
         if (options.start) {
           console.log(chalk.cyan('Starting agent...'));
           await manager.startAgent(agentId);
@@ -245,7 +245,7 @@ export function createAgentCommand(): Command {
           console.log(chalk.yellow(`Use 'claude-flow agent start ${agentId}' to start the agent`));
         }
         
-        // Display agent info
+        // Display agent info,
         const agent = manager.getAgent(agentId);
         if (agent) {
           displayAgentSummary(agent);
@@ -258,11 +258,11 @@ export function createAgentCommand(): Command {
     });
 
   // TODO: Convert remaining commands to commander.js syntax
-  // For now, return the basic command structure
+  // For now, return the basic command structure,
   return agentCommand;
 }
 
-// Legacy export for backward compatibility
+// Legacy export for backward compatibility,
 export const agentCommand = createAgentCommand();
 
 // TODO: Complete conversion of remaining commands (terminate, info, start, restart, pool, health)

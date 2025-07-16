@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 import { EventEmitter } from 'events';
 import { writeFile, readFile, mkdir, readdir } from 'fs/promises';
 import { join } from 'path';
@@ -80,8 +80,8 @@ export interface SecurityFinding {
   description: string;
   severity: SecuritySeverity;
   category: 'vulnerability' | 'secret' | 'misconfiguration' | 'compliance' | 'code-quality' | 'license';
-  cwe?: string; // Common Weakness Enumeration
-  cve?: string; // Common Vulnerabilities and Exposures
+  cwe?: string; // Common Weakness Enumeration,
+  cve?: string; // Common Vulnerabilities and Exposures,
   cvss?: {
     score: number;
     vector: string;
@@ -186,7 +186,7 @@ export interface SecurityRule {
   id: string;
   name: string;
   description: string;
-  condition: string; // Query or condition syntax
+  condition: string; // Query or condition syntax,
   action: 'allow' | 'deny' | 'alert' | 'audit';
   severity: SecuritySeverity;
   parameters: Record<string, any>;
@@ -491,7 +491,7 @@ export class SecurityManager extends EventEmitter {
     try {
       const startTime = Date.now();
       
-      // Execute the appropriate scanner
+      // Execute the appropriate scanner,
       const findings = await this.executeScanEngine(scan);
       
       const endTime = Date.now();
@@ -499,16 +499,16 @@ export class SecurityManager extends EventEmitter {
       scan.results = findings;
       scan.status = 'completed';
 
-      // Calculate metrics
+      // Calculate metrics,
       this.calculateScanMetrics(scan);
 
-      // Run compliance checks
+      // Run compliance checks,
       await this.runComplianceChecks(scan);
 
-      // Generate remediation recommendations
+      // Generate remediation recommendations,
       await this.generateRemediationRecommendations(scan);
 
-      // Check notification thresholds
+      // Check notification thresholds,
       await this.checkNotificationThresholds(scan);
 
       scan.updatedAt = new Date();
@@ -611,10 +611,10 @@ export class SecurityManager extends EventEmitter {
     this.incidents.set(incident.id, incident);
     await this.saveIncident(incident);
 
-    // Auto-assign based on severity and type
+    // Auto-assign based on severity and type,
     await this.autoAssignIncident(incident);
 
-    // Send immediate notifications for high/critical incidents
+    // Send immediate notifications for high/critical incidents,
     if (incident.severity === 'critical' || incident.severity === 'high') {
       await this.sendIncidentNotification(incident);
     }
@@ -639,7 +639,7 @@ export class SecurityManager extends EventEmitter {
     Object.assign(incident, updates);
     incident.updatedAt = new Date();
 
-    // Update timeline based on status changes
+    // Update timeline based on status changes,
     if (updates.status && updates.status !== oldStatus) {
       this.updateIncidentTimeline(incident, updates.status);
     }
@@ -713,7 +713,7 @@ export class SecurityManager extends EventEmitter {
       },
       schedule: {
         reviewFrequency: 'annually',
-        nextReview: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year
+        nextReview: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year,
         reviewer: 'security-team'
       },
       metrics: {
@@ -746,7 +746,7 @@ export class SecurityManager extends EventEmitter {
     let scans = Array.from(this.scans.values());
     let incidents = Array.from(this.incidents.values());
 
-    // Apply filters
+    // Apply filters,
     if (filters) {
       if (filters.timeRange) {
         scans = scans.filter(s => 
@@ -763,7 +763,7 @@ export class SecurityManager extends EventEmitter {
       }
     }
 
-    // Calculate scan metrics
+    // Calculate scan metrics,
     const scanMetrics = {
       total: scans.length,
       completed: scans.filter(s => s.status === 'completed').length,
@@ -774,7 +774,7 @@ export class SecurityManager extends EventEmitter {
         scans.reduce((sum, s) => sum + s.metrics.scanDuration, 0) / scans.length : 0
     };
 
-    // Calculate finding metrics
+    // Calculate finding metrics,
     const allFindings = scans.flatMap(s => s.results);
     const findingMetrics = {
       total: allFindings.length,
@@ -786,7 +786,7 @@ export class SecurityManager extends EventEmitter {
       meanTimeToResolution: this.calculateMTTR(allFindings)
     };
 
-    // Calculate compliance metrics
+    // Calculate compliance metrics,
     const allComplianceChecks = scans.flatMap(s => s.compliance.requirements);
     const complianceFrameworks: Record<string, any> = {};
     
@@ -808,7 +808,7 @@ export class SecurityManager extends EventEmitter {
       }
     }
 
-    // Calculate scores
+    // Calculate scores,
     for (const framework in complianceFrameworks) {
       const fw = complianceFrameworks[framework];
       fw.score = fw.total > 0 ? (fw.passed / fw.total) * 100 : 0;
@@ -818,7 +818,7 @@ export class SecurityManager extends EventEmitter {
       Object.values(complianceFrameworks).reduce((sum: number, fw: any) => sum + fw.score, 0) / 
       Object.values(complianceFrameworks).length : 0;
 
-    // Calculate incident metrics
+    // Calculate incident metrics,
     const incidentMetrics = {
       total: incidents.length,
       open: incidents.filter(i => i.status === 'open' || i.status === 'investigating').length,
@@ -829,7 +829,7 @@ export class SecurityManager extends EventEmitter {
       meanTimeToResolution: this.calculateIncidentMTTR(incidents)
     };
 
-    // Policy metrics
+    // Policy metrics,
     const policies = Array.from(this.policies.values());
     const policyMetrics = {
       total: policies.length,
@@ -850,17 +850,17 @@ export class SecurityManager extends EventEmitter {
       incidents: incidentMetrics,
       policies: policyMetrics,
       trends: {
-        findingsTrend: [], // Would be calculated from historical data
-        complianceTrend: [], // Would be calculated from historical data
+        findingsTrend: [], // Would be calculated from historical data,
+        complianceTrend: [], // Would be calculated from historical data,
         incidentsTrend: [] // Would be calculated from historical data
       }
     };
   }
 
-  // Private helper methods
+  // Private helper methods,
   private async loadConfigurations(): Promise<void> {
     try {
-      // Load scans
+      // Load scans,
       const scanFiles = await readdir(join(this.securityPath, 'scans'));
       for (const file of scanFiles.filter(f => f.endsWith('.json'))) {
         const content = await readFile(join(this.securityPath, 'scans', file), 'utf-8');
@@ -868,7 +868,7 @@ export class SecurityManager extends EventEmitter {
         this.scans.set(scan.id, scan);
       }
 
-      // Load policies
+      // Load policies,
       const policyFiles = await readdir(join(this.securityPath, 'policies'));
       for (const file of policyFiles.filter(f => f.endsWith('.json'))) {
         const content = await readFile(join(this.securityPath, 'policies', file), 'utf-8');
@@ -876,7 +876,7 @@ export class SecurityManager extends EventEmitter {
         this.policies.set(policy.id, policy);
       }
 
-      // Load incidents
+      // Load incidents,
       const incidentFiles = await readdir(join(this.securityPath, 'incidents'));
       for (const file of incidentFiles.filter(f => f.endsWith('.json'))) {
         const content = await readFile(join(this.securityPath, 'incidents', file), 'utf-8');
@@ -1002,7 +1002,7 @@ export class SecurityManager extends EventEmitter {
     return new Promise((resolve, reject) => {
       const findings: SecurityFinding[] = [];
       
-      // Mock Trivy execution
+      // Mock Trivy execution,
       const mockFindings = [
         {
           id: `finding-${Date.now()}-1`,
@@ -1044,7 +1044,7 @@ export class SecurityManager extends EventEmitter {
         }
       ];
 
-      // Simulate scan delay
+      // Simulate scan delay,
       setTimeout(() => {
         resolve(mockFindings);
       }, 2000);
@@ -1089,7 +1089,7 @@ export class SecurityManager extends EventEmitter {
   }
 
   private async executeGitleaksScan(scan: SecurityScan): Promise<SecurityFinding[]> {
-    // Mock Gitleaks scan for secrets detection
+    // Mock Gitleaks scan for secrets detection,
     return [
       {
         id: `finding-${Date.now()}-2`,
@@ -1130,12 +1130,12 @@ export class SecurityManager extends EventEmitter {
   }
 
   private async executeCheckovScan(scan: SecurityScan): Promise<SecurityFinding[]> {
-    // Mock Checkov scan for infrastructure as code
+    // Mock Checkov scan for infrastructure as code,
     return [];
   }
 
   private async executeGenericScan(scan: SecurityScan): Promise<SecurityFinding[]> {
-    // Generic scan implementation
+    // Generic scan implementation,
     return [];
   }
 
@@ -1196,7 +1196,7 @@ export class SecurityManager extends EventEmitter {
   }
 
   private async runComplianceChecks(scan: SecurityScan): Promise<void> {
-    // Mock compliance checks
+    // Mock compliance checks,
     const frameworks = ['SOC2', 'GDPR', 'PCI-DSS'];
     
     for (const framework of frameworks) {
@@ -1212,7 +1212,7 @@ export class SecurityManager extends EventEmitter {
   }
 
   private async runFrameworkChecks(framework: string, scope?: any): Promise<ComplianceCheck[]> {
-    // Mock compliance checks for different frameworks
+    // Mock compliance checks for different frameworks,
     const mockChecks: ComplianceCheck[] = [
       {
         id: `check-${Date.now()}-1`,
@@ -1246,7 +1246,7 @@ export class SecurityManager extends EventEmitter {
     scan.remediation.autoFixAvailable = autoFixable;
     scan.remediation.manualReview = manualReview;
     
-    // Generate general recommendations
+    // Generate general recommendations,
     scan.remediation.recommendations = [
       {
         id: `rec-${Date.now()}-1`,
@@ -1300,7 +1300,7 @@ export class SecurityManager extends EventEmitter {
   }
 
   private async autoAssignIncident(incident: SecurityIncident): Promise<void> {
-    // Auto-assign based on severity and type
+    // Auto-assign based on severity and type,
     const assignmentRules: Record<string, string[]> = {
       'critical': ['security-lead', 'ciso'],
       'high': ['security-team'],

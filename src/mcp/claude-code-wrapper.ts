@@ -1,5 +1,5 @@
-#!/usr/bin/env node
-import { getErrorMessage } from '../utils/error-handler.js';
+#!/usr/bin/env node,
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import {
@@ -15,7 +15,7 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 import { SparcMode, loadSparcModes } from './sparc-modes.js';
-// Simple ID generation
+// Simple ID generation,
 function generateId(): string {
   return `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 }
@@ -53,7 +53,7 @@ export class ClaudeCodeMCPWrapper {
   private server: Server;
   private sparcModes: Map<string, SparcMode> = new Map();
   private swarmExecutions: Map<string, SwarmExecution> = new Map();
-  private claudeCodeMCP: any; // Reference to Claude Code MCP client
+  private claudeCodeMCP: any; // Reference to Claude Code MCP client,
 
   constructor() {
     this.server = new Server({
@@ -93,7 +93,7 @@ export class ClaudeCodeMCPWrapper {
   private async getTools(): Promise<Tool[]> {
     const tools: Tool[] = [];
 
-    // Add SPARC mode tools
+    // Add SPARC mode tools,
     for (const [name, mode] of this.sparcModes) {
       tools.push({
         name: `sparc_${name}`,
@@ -125,7 +125,7 @@ export class ClaudeCodeMCPWrapper {
       });
     }
 
-    // Add meta tools
+    // Add meta tools,
     tools.push(
       {
         name: 'sparc_list',
@@ -193,7 +193,7 @@ export class ClaudeCodeMCPWrapper {
         return await this.handleSparcTool(toolName, args);
       }
       
-      // Pass through to Claude Code MCP
+      // Pass through to Claude Code MCP,
       return this.forwardToClaudeCode(toolName, args);
     } catch (error) {
       return {
@@ -209,7 +209,7 @@ export class ClaudeCodeMCPWrapper {
   private async handleSparcTool(toolName: string, args: any): Promise<CallToolResult> {
     const mode = toolName.replace('sparc_', '');
 
-    // Handle special tools
+    // Handle special tools,
     if (mode === 'list') {
       return this.listModes(args.verbose);
     }
@@ -220,19 +220,23 @@ export class ClaudeCodeMCPWrapper {
       return this.getSwarmStatus(args.swarmId);
     }
 
-    // Standard SPARC mode execution
+    // Standard SPARC mode execution,
     const sparcMode = this.sparcModes.get(mode);
     if (!sparcMode) {
       throw new Error(`Unknown SPARC mode: ${mode}`);
     }
 
-    // Execute the SPARC mode directly
+    // Execute the SPARC mode directly,
     try {
       // Import the execution function dynamically to avoid circular dependencies
       // const { executeSparcMode } = await import('../cli/mcp-stdio-server.js');
-      // TODO: Implement proper SPARC mode execution or fix import path
+      // TODO: Implement proper SPARC mode execution or fix import path,
       const executeSparcMode = (mode: string, task: string, tools: any[], context: any) => {
-        throw new Error('SPARC mode execution not yet implemented in wrapper');
+        return {
+          output: `SPARC ${mode} mode execution not yet implemented in wrapper. Task: ${task}`,
+          success: false,
+          metadata: { mode, tools, context }
+        };
       };
       
       const result = await executeSparcMode(
@@ -262,11 +266,11 @@ export class ClaudeCodeMCPWrapper {
   private buildEnhancedPrompt(mode: SparcMode, task: string, context?: SparcContext): string {
     const parts: string[] = [];
 
-    // Add SPARC mode header
+    // Add SPARC mode header,
     parts.push(`SPARC: ${mode.name}\n`);
     parts.push(`## Mode Description\n${mode.description}\n`);
 
-    // Add available tools
+    // Add available tools,
     if (mode.tools && mode.tools.length > 0) {
       parts.push(`## Available Tools`);
       mode.tools.forEach(tool => {
@@ -275,12 +279,12 @@ export class ClaudeCodeMCPWrapper {
       parts.push('');
     }
 
-    // Add usage pattern
+    // Add usage pattern,
     if (mode.usagePattern) {
       parts.push(`## Usage Pattern\n\`\`\`javascript\n${mode.usagePattern}\n\`\`\`\n`);
     }
 
-    // Add best practices
+    // Add best practices,
     if (mode.bestPractices) {
       parts.push(`## Best Practices`);
       mode.bestPractices.forEach(practice => {
@@ -289,7 +293,7 @@ export class ClaudeCodeMCPWrapper {
       parts.push('');
     }
 
-    // Add integration capabilities
+    // Add integration capabilities,
     if (mode.integrationCapabilities) {
       parts.push(`## Integration Capabilities\nThis mode integrates with:`);
       mode.integrationCapabilities.forEach(capability => {
@@ -298,18 +302,18 @@ export class ClaudeCodeMCPWrapper {
       parts.push('');
     }
 
-    // Add instructions
+    // Add instructions,
     if (mode.instructions) {
       parts.push(`## Instructions\n${mode.instructions}\n`);
     }
 
-    // Add the actual task
+    // Add the actual task,
     parts.push(`## TASK: ${task}\n`);
 
-    // Add SPARC methodology
+    // Add SPARC methodology,
     parts.push(this.getSparcMethodology(mode.name, task, context));
 
-    // Add context if provided
+    // Add context if provided,
     if (context) {
       if (context.memoryKey) {
         parts.push(`**Memory Key:** \`${context.memoryKey}\``);
@@ -346,7 +350,7 @@ export class ClaudeCodeMCPWrapper {
 
   private getSparcMethodology(mode: string, task: string, context?: SparcContext): string {
     return `
-# 🎯 SPARC METHODOLOGY EXECUTION FRAMEWORK
+# 🎯 SPARC METHODOLOGY EXECUTION FRAMEWORK,
 
 You are operating in **SPARC ${mode} mode**. Follow the SPARC Workflow precisely:
 
@@ -362,7 +366,7 @@ You are operating in **SPARC ${mode} mode**. Follow the SPARC Workflow precisely
 - Never hard-code environment variables
 
 **Use TodoWrite to capture specifications:**
-\`\`\`javascript
+\`\`\`javascript,
 TodoWrite([
   {
     id: "specification",
@@ -430,13 +434,13 @@ TodoWrite([
 
 **START NOW with SPARC Step 1 - SPECIFICATION:**
 
-1. Create comprehensive TodoWrite task breakdown following SPARC workflow
+1. Create comprehensive TodoWrite task breakdown following SPARC workflow,
 2. Set "specification" task to "in_progress"
-3. Analyze requirements and define acceptance criteria
+3. Analyze requirements and define acceptance criteria,
 4. Store initial analysis in Memory: \`sparc_${mode}_${Date.now()}\`
 
 **Remember:** You're in **${mode}** mode. Follow the SPARC workflow systematically:
-Specification → Pseudocode → Architecture → Refinement → Completion
+Specification → Pseudocode → Architecture → Refinement → Completion,
 
 Use the appropriate tools for each phase and maintain progress in TodoWrite.`;
   }
@@ -501,10 +505,10 @@ Use the appropriate tools for each phase and maintain progress in TodoWrite.`;
     const { objective, strategy, mode = 'distributed', maxAgents = 5 } = args;
     const swarmId = generateId();
     
-    // Plan swarm agents
+    // Plan swarm agents,
     const agents = this.planSwarmAgents(objective, strategy, maxAgents);
     
-    // Create swarm execution record
+    // Create swarm execution record,
     const execution: SwarmExecution = {
       id: swarmId,
       objective,
@@ -517,12 +521,12 @@ Use the appropriate tools for each phase and maintain progress in TodoWrite.`;
     
     this.swarmExecutions.set(swarmId, execution);
     
-    // Launch agents based on coordination mode
+    // Launch agents based on coordination mode,
     if (mode === 'distributed' || mode === 'mesh') {
-      // Parallel execution
+      // Parallel execution,
       await Promise.all(agents.map(agent => this.launchSwarmAgent(agent, execution)));
     } else {
-      // Sequential execution
+      // Sequential execution,
       for (const agent of agents) {
         await this.launchSwarmAgent(agent, execution);
       }
@@ -550,7 +554,7 @@ Use the appropriate tools for each phase and maintain progress in TodoWrite.`;
   private planSwarmAgents(objective: string, strategy: string, maxAgents: number): SwarmAgent[] {
     const agents: SwarmAgent[] = [];
     
-    // Strategy-based agent planning
+    // Strategy-based agent planning,
     switch (strategy) {
       case 'research':
         agents.push(
@@ -599,7 +603,7 @@ Use the appropriate tools for each phase and maintain progress in TodoWrite.`;
         break;
     }
     
-    // Limit to maxAgents
+    // Limit to maxAgents,
     return agents.slice(0, maxAgents);
   }
 
@@ -607,7 +611,7 @@ Use the appropriate tools for each phase and maintain progress in TodoWrite.`;
     agent.status = 'active';
     
     try {
-      // Use the SPARC mode handler
+      // Use the SPARC mode handler,
       const result = await this.handleSparcTool(`sparc_${agent.mode}`, {
         task: agent.task,
         context: {
@@ -644,7 +648,7 @@ Use the appropriate tools for each phase and maintain progress in TodoWrite.`;
       };
     }
     
-    // Return all swarms
+    // Return all swarms,
     const swarms = Array.from(this.swarmExecutions.values()).map(e => ({
       id: e.id,
       objective: e.objective,
@@ -664,24 +668,24 @@ Use the appropriate tools for each phase and maintain progress in TodoWrite.`;
 
   private async forwardToClaudeCode(toolName: string, args: any): Promise<CallToolResult> {
     // For SPARC tools that were already handled, this shouldn't be called
-    // For other tools, we execute them using the existing logic
+    // For other tools, we execute them using the existing logic,
     
     if (toolName === 'Task') {
       // This is a SPARC task that's been enhanced with prompts
-      // Extract the mode from the description if possible
+      // Extract the mode from the description if possible,
       const modeMatch = args.description?.match(/SPARC (\w+)/);
       if (modeMatch) {
         const modeName = modeMatch[1];
         const mode = this.sparcModes.get(modeName);
         if (mode) {
-          // Execute using the existing SPARC execution logic
+          // Execute using the existing SPARC execution logic,
           try {
-            const result = await executeSparcMode(
-              modeName,
-              args.prompt || '',
-              mode.tools || [],
-              {}
-            );
+            // TODO: Implement proper SPARC mode execution
+            const result = {
+              output: `SPARC ${modeName} mode execution not yet implemented. Prompt: ${args.prompt || ''}`,
+              success: false,
+              metadata: { mode: modeName, tools: mode.tools }
+            };
             
             return {
               content: [{
@@ -702,7 +706,7 @@ Use the appropriate tools for each phase and maintain progress in TodoWrite.`;
       }
     }
     
-    // For non-SPARC tools, return a message
+    // For non-SPARC tools, return a message,
     return {
       content: [{
         type: 'text',
@@ -715,7 +719,7 @@ Use the appropriate tools for each phase and maintain progress in TodoWrite.`;
   async run() {
     const transport = new StdioServerTransport();
     
-    // Log startup message
+    // Log startup message,
     console.error('🚀 Claude-Flow MCP Server (Wrapper Mode)');
     console.error('📦 Using Claude Code MCP pass-through with SPARC prompt injection');
     console.error('🔧 All SPARC tools available with enhanced AI capabilities');
@@ -726,7 +730,7 @@ Use the appropriate tools for each phase and maintain progress in TodoWrite.`;
   }
 }
 
-// Run the server if this is the main module
+// Run the server if this is the main module,
 if (import.meta.url === `file://${process.argv[1]}`) {
   const wrapper = new ClaudeCodeMCPWrapper();
   wrapper.run().catch(console.error);

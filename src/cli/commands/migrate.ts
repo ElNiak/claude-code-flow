@@ -1,19 +1,19 @@
-import { getErrorMessage } from '../../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../../utils/error-handler.js';
 /**
  * Migration CLI Command Integration - Enhanced for unified coordination system
  */
 
 import { Command } from 'commander';
-import { MigrationRunner } from '../../migration/migration-runner.js';
-import { MigrationAnalyzer } from '../../migration/migration-analyzer.js';
-import { RollbackManager } from '../../migration/rollback-manager.js';
+import { MigrationRunner as _MigrationRunner } from '../../migration/migration-runner.js';
+import { MigrationAnalyzer as _MigrationAnalyzer } from '../../migration/migration-analyzer.js';
+import { RollbackManager as _RollbackManager } from '../../migration/rollback-manager.js';
 import type { MigrationStrategy } from '../../migration/types.js';
 import { logger } from '../../migration/logger.js';
 import { UnifiedMigrationManager } from '../../migration/unified-migration.js';
 import * as path from 'path';
 import chalk from "chalk";
-import type { Command as CLICommand, CommandContext } from "../cli-core.js";
-import { success, error, warning, info } from "../cli-core.js";
+import type { Command as _CLICommand, CommandContext as _CommandContext } from "../cli-core.js";
+import { success as _success, _error, warning as _warning, info as _info } from "../cli-core.js";
 
 export function createMigrateCommand(): Command {
   const command = new Command('migrate');
@@ -45,7 +45,7 @@ export function createMigrateCommand(): Command {
       }
     });
 
-  // Sub-commands
+  // Sub-commands,
   command
     .command('analyze [path]')
     .description('Analyze project for migration readiness')
@@ -97,7 +97,7 @@ export function createMigrateCommand(): Command {
       await showMigrationStatus(path.resolve(projectPath));
     });
 
-  // Add unified coordination system migration command
+  // Add unified coordination system migration command,
   command
     .command('to-unified [path]')
     .description('🚀 Migrate to unified coordination system with intrinsic agents')
@@ -149,7 +149,7 @@ async function showMigrationStatus(projectPath: string): Promise<void> {
   console.log(chalk.bold('\n📊 Migration Status'));
   console.log(chalk.gray('─'.repeat(50)));
   
-  // Project analysis
+  // Project analysis,
   const { MigrationAnalyzer } = await import('../../migration/migration-analyzer.js');
   const analyzer = new MigrationAnalyzer();
   const analysis = await analyzer.analyze(projectPath);
@@ -159,7 +159,7 @@ async function showMigrationStatus(projectPath: string): Promise<void> {
   console.log(`${chalk.bold('Custom Commands:')} ${analysis.customCommands.length}`);
   console.log(`${chalk.bold('Conflicts:')} ${analysis.conflictingFiles.length}`);
   
-  // Backup status
+  // Backup status,
   const { RollbackManager } = await import('../../migration/rollback-manager.js');
   const rollbackManager = new RollbackManager(projectPath);
   const backups = await rollbackManager.listBackups();
@@ -171,7 +171,7 @@ async function showMigrationStatus(projectPath: string): Promise<void> {
     console.log(`${chalk.bold('Latest Backup:')} ${latestBackup.timestamp.toLocaleString()}`);
   }
   
-  // Recommendations
+  // Recommendations,
   if (!analysis.hasOptimizedPrompts) {
     console.log(chalk.bold('\n💡 Recommendations:'));
     console.log('  • Run migration analysis: claude-flow migrate analyze');
@@ -188,7 +188,7 @@ async function runUnifiedMigration(projectPath: string, options: any): Promise<v
     
     const migrationManager = new UnifiedMigrationManager(projectPath);
     
-    // Check current migration status
+    // Check current migration status,
     const status = await UnifiedMigrationManager.checkMigrationStatus(projectPath);
     
     if (status.migrated && !options.force) {
@@ -197,19 +197,19 @@ async function runUnifiedMigration(projectPath: string, options: any): Promise<v
 📊 MIGRATION STATUS
 ==================
 
-Version: ${status.version}
+Version: ${status.version},
 Features: ${status.features?.join(', ')}
 
 Your project is using the unified coordination system with:
   🧠 Intrinsic agent coordination
   💾 Memory-based coordination
   🚀 Enhanced performance
-  🔄 Backward compatibility
+  🔄 Backward compatibility,
 
 To use the unified system:
-  Primary: claude-flow work --task "[description]"
-  Agents:  claude-flow agent spawn [type] --intrinsic
-  Status:  claude-flow agent status --detailed
+  Primary: claude-flow work --task "[description]",
+  Agents:  claude-flow agent spawn [type] --intrinsic,
+  Status:  claude-flow agent status --detailed,
 
 For help: claude-flow migrate-guide
       `));
@@ -218,7 +218,7 @@ For help: claude-flow migrate-guide
     
     console.log(chalk.blue('🔄 Creating migration plan...'));
     
-    // Create migration plan
+    // Create migration plan,
     const plan = await migrationManager.createMigrationPlan();
     
     console.log(chalk.cyan(`
@@ -227,7 +227,7 @@ For help: claude-flow migrate-guide
 
 Target Version: ${plan.version}
 Risk Level: ${plan.riskLevel}
-Estimated Time: ${plan.estimatedTime} seconds
+Estimated Time: ${plan.estimatedTime} seconds,
 Steps: ${plan.commands.length}
 
 Migration Steps:
@@ -244,13 +244,13 @@ ${options.backup ? '💾 Backup will be created before migration' : '⚠️ No b
     
     if (!options.force) {
       console.log(chalk.yellow('\n⚠️ This will modify your project files. Continue? (y/N)'));
-      // In a real implementation, you'd use inquirer for user input
+      // In a real implementation, you'd use inquirer for user input,
       console.log(chalk.gray('Use --force to skip confirmation in automated environments'));
     }
     
     console.log(chalk.blue('🚀 Executing migration plan...'));
     
-    // Execute migration
+    // Execute migration,
     const result = await migrationManager.executeMigrationPlan(plan);
     
     if (result.success) {
@@ -267,20 +267,20 @@ NEW FEATURES AVAILABLE:
   💾 Memory-Based Coordination  
   🚀 Enhanced Performance (2.8-4.4x faster)
   🔄 Backward Compatibility
-  🐝 Ruv-Swarm Integration
+  🐝 Ruv-Swarm Integration,
 
 NEXT STEPS:
   1. Test unified system:
      claude-flow work --task "test coordination"
      
   2. Explore new commands:
-     claude-flow help
+     claude-flow help,
      
   3. Try intrinsic agents:
-     claude-flow agent spawn researcher --intrinsic
+     claude-flow agent spawn researcher --intrinsic,
      
   4. Check system health:
-     claude-flow agent status --detailed
+     claude-flow agent status --detailed,
 
 For migration guide: claude-flow migrate-guide
       `));
@@ -293,13 +293,13 @@ For migration guide: claude-flow migrate-guide
       console.log(chalk.red('❌ Migration failed!'));
       console.log(chalk.red(`
 Migration Errors:
-${result.errors.map(err => `  • ${err}`).join('\n')}
+${result.errors.map(err => `  • ${err}`).join('\n')},
 
 Troubleshooting:
-  1. Check file permissions
-  2. Ensure no processes are using Claude Flow files
-  3. Try with --force flag
-  4. Check migration logs in .claude/migration-summary.json
+  1. Check file permissions,
+  2. Ensure no processes are using Claude Flow files,
+  3. Try with --force flag,
+  4. Check migration logs in .claude/migration-summary.json,
 
 For help: https://github.com/ruvnet/claude-code-flow/issues
       `));
@@ -308,12 +308,12 @@ For help: https://github.com/ruvnet/claude-code-flow/issues
     }
     
   } catch (err) {
-    console.log(chalk.red(`Migration failed: ${getErrorMessage(err)}`));
+    console.log(chalk.red(`Migration failed: ${_getErrorMessage(err)}`));
     console.log(chalk.red(`
 Unexpected migration error. Please check:
-  1. File system permissions
-  2. Available disk space
-  3. No conflicting processes
+  1. File system permissions,
+  2. Available disk space,
+  3. No conflicting processes,
 
 For support: https://github.com/ruvnet/claude-code-flow/issues
     `));

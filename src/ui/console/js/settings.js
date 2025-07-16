@@ -300,7 +300,7 @@ export class SettingsManager {
       const stored = localStorage.getItem('claude_console_settings');
       return stored ? JSON.parse(stored) : {};
     } catch (error) {
-      console.error('Failed to load settings:', error);
+      console.error('Failed to load settings:', _error);
       return {};
     }
   }
@@ -312,7 +312,7 @@ export class SettingsManager {
     try {
       localStorage.setItem('claude_console_settings', JSON.stringify(this.settings));
     } catch (error) {
-      console.error('Failed to save settings:', error);
+      console.error('Failed to save settings:', _error);
     }
   }
   
@@ -406,7 +406,7 @@ export class SettingsManager {
         throw new Error('Invalid settings file format');
       }
     } catch (error) {
-      console.error('Failed to import settings:', error);
+      console.error('Failed to import settings:', _error);
       return false;
     }
   }
@@ -539,7 +539,7 @@ export class SettingsManager {
       try {
         callback(data);
       } catch (error) {
-        console.error('Error in settings event listener:', error);
+        console.error('Error in settings event listener:', _error);
       }
     });
   }

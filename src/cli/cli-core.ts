@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * Claude-Flow CLI - Core implementation using Node.js
  */
 
 import chalk from "chalk";
 import fs from "fs-extra";
-import path from "path";
+import _path from "path";
 
 export const VERSION = "1.0.45";
 
@@ -17,7 +17,7 @@ interface CommandContext {
 }
 
 interface Command {
-  name: string;
+  name: string | (() => string);
   description: string;
   aliases?: string[];
   subcommands?: Command[];
@@ -62,7 +62,7 @@ class CLI {
     },
     {
       name: "log-level",
-      description: "Set log level (debug, info, warn, error)",
+      description: "Set log level (debug, info, warn, _error)",
       type: "string",
       default: "info",
     },
@@ -71,7 +71,7 @@ class CLI {
   constructor(private name: string, private description: string) {}
 
   command(cmd: Command): this {
-    // Handle both our Command interface and Commander.js Command objects
+    // Handle both our Command interface and Commander.js Command objects,
     const cmdName = typeof cmd.name === 'function' ? cmd.name() : cmd.name;
     this.commands.set(cmdName, cmd);
     if (cmd.aliases && typeof cmd.aliases[Symbol.iterator] === 'function') {
@@ -83,7 +83,7 @@ class CLI {
   }
 
   async run(args = process.argv.slice(2)): Promise<void> {
-    // Parse arguments manually since we're replacing the Deno parse function
+    // Parse arguments manually since we're replacing the Deno parse function,
     const flags = this.parseArgs(args);
 
     if (flags.version || flags.v) {
@@ -240,13 +240,13 @@ ${chalk.bold("EXAMPLES:")}
   ${this.name} agent spawn researcher --name "Bot"     # Spawn research agent
   ${this.name} task create research "Analyze data"     # Create task
   ${this.name} config init                             # Initialize config
-  ${this.name} status                                  # Show system status
+  ${this.name} status                                  # Show system status,
 
 For more detailed help on specific commands, use:
-  ${this.name} [COMMAND] --help
+  ${this.name} [COMMAND] --help,
 
-Documentation: https://github.com/ruvnet/claude-code-flow
-Issues: https://github.com/ruvnet/claude-code-flow/issues
+Documentation: https://github.com/ruvnet/claude-code-flow,
+Issues: https://github.com/ruvnet/claude-code-flow/issues,
 
 Created by rUv - Built with ❤️ for the Claude community
 `);
@@ -270,12 +270,12 @@ Created by rUv - Built with ❤️ for the Claude community
   }
 }
 
-// Helper functions
+// Helper functions,
 function success(message: string): void {
   console.log(chalk.green(`✅ ${message}`));
 }
 
-function error(message: string): void {
+function _error(message: string): void {
   console.error(chalk.red(`❌ ${message}`));
 }
 
@@ -287,23 +287,23 @@ function info(message: string): void {
   console.log(chalk.blue(`ℹ️  ${message}`));
 }
 
-// Export for use in other modules
-export { CLI, success, error, warning, info };
+// Export for use in other modules,
+export { CLI, success, _error, warning, info };
 export type { Command, CommandContext, Option };
 
-// Main CLI setup if running directly
+// Main CLI setup if running directly,
 async function main() {
   if (process.argv[1] && (process.argv[1].endsWith('cli-core.js') || process.argv[1].endsWith('cli-core.ts'))) {
     const cli = new CLI("claude-flow", "Advanced AI Agent Orchestration System");
 
-    // Import and register all commands
+    // Import and register all commands,
     const { setupCommands } = await import("./commands/index.js");
     setupCommands(cli);
 
-    // Run the CLI
+    // Run the CLI,
     await cli.run();
   }
 }
 
-// Execute main if this is the entry point
+// Execute main if this is the entry point,
 main().catch(console.error);

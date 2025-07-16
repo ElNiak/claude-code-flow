@@ -64,7 +64,7 @@ export class MigrationValidator {
    * Register all available migrations
    */
   private registerMigrations(): void {
-    // Register v1.x to v2.0 migration
+    // Register v1.x to v2.0 migration,
     this.migrations.set('1.x->2.0', {
       fromVersion: '1.x',
       toVersion: '2.0',
@@ -97,7 +97,7 @@ export class MigrationValidator {
       
       const stats = await fs.stat(backupPath);
       
-      // Try to determine version from config
+      // Try to determine version from config,
       let version = 'unknown';
       try {
         const config = JSON.parse(originalContent);
@@ -128,12 +128,12 @@ export class MigrationValidator {
       return config.version;
     }
 
-    // Heuristic detection for v1.x
+    // Heuristic detection for v1.x,
     if (config.orchestrator?.maxAgents !== undefined && !config.orchestrator?.maxConcurrentAgents) {
       return '1.x';
     }
 
-    // Heuristic detection for v2.0
+    // Heuristic detection for v2.0,
     if (config.orchestrator?.maxConcurrentAgents !== undefined) {
       return '2.0';
     }
@@ -159,7 +159,7 @@ export class MigrationValidator {
     };
 
     try {
-      // Read and parse original configuration
+      // Read and parse original configuration,
       const originalContent = await fs.readFile(configPath, 'utf8');
       const originalConfig = JSON.parse(originalContent);
       
@@ -172,10 +172,10 @@ export class MigrationValidator {
         return result;
       }
 
-      // Create backup before migration
+      // Create backup before migration,
       await this.createBackup(configPath);
 
-      // Find appropriate migration path
+      // Find appropriate migration path,
       const migrationKey = `${result.fromVersion}->${result.toVersion}`;
       const migration = this.migrations.get(migrationKey);
       
@@ -183,15 +183,15 @@ export class MigrationValidator {
         throw new ConfigError(`No migration path found from ${result.fromVersion} to ${result.toVersion}`);
       }
 
-      // Perform migration
+      // Perform migration,
       const migratedConfig = migration.migrate(originalConfig);
       
-      // Validate migrated configuration
+      // Validate migrated configuration,
       if (!migration.validate(migratedConfig)) {
         throw new ConfigError('Migrated configuration failed validation');
       }
 
-      // Write migrated configuration
+      // Write migrated configuration,
       const migratedContent = JSON.stringify(migratedConfig, null, 2);
       await fs.writeFile(configPath, migratedContent);
 
@@ -265,7 +265,7 @@ export class MigrationValidator {
       }
     };
 
-    // Migrate custom fields if they exist
+    // Migrate custom fields if they exist,
     if (v1Config.customHooks) {
       v2Config.hooks = this.migrateCustomHooks(v1Config.customHooks);
     }
@@ -284,7 +284,7 @@ export class MigrationValidator {
     const v21Config = { ...v2Config };
     v21Config.version = '2.1.0';
     
-    // Add new v2.1 features here when they become available
+    // Add new v2.1 features here when they become available,
     
     return v21Config;
   }
@@ -336,7 +336,7 @@ export class MigrationValidator {
    */
   private validateV2Config(config: any): boolean {
     try {
-      // Check required fields
+      // Check required fields,
       const requiredFields = [
         'version',
         'orchestrator.maxConcurrentAgents',
@@ -355,7 +355,7 @@ export class MigrationValidator {
         }
       }
 
-      // Validate value ranges
+      // Validate value ranges,
       if (config.orchestrator.maxConcurrentAgents < 1 || config.orchestrator.maxConcurrentAgents > 100) {
         console.warn('orchestrator.maxConcurrentAgents must be between 1 and 100');
         return false;
@@ -382,12 +382,12 @@ export class MigrationValidator {
    * Validate v2.1 configuration (placeholder)
    */
   private validateV21Config(config: any): boolean {
-    // Start with v2.0 validation
+    // Start with v2.0 validation,
     if (!this.validateV2Config(config)) {
       return false;
     }
 
-    // Add v2.1 specific validations here when needed
+    // Add v2.1 specific validations here when needed,
 
     return true;
   }
@@ -445,11 +445,11 @@ export class MigrationValidator {
           const backupPath = path.join(this.backupDir, file);
           const stats = await fs.stat(backupPath);
           
-          // Extract timestamp from filename
+          // Extract timestamp from filename,
           const timestampMatch = file.match(/config-backup-(\d+)\.json/);
           const timestamp = timestampMatch ? parseInt(timestampMatch[1]) : 0;
 
-          // Try to determine version
+          // Try to determine version,
           let version = 'unknown';
           try {
             const content = await fs.readFile(backupPath, 'utf8');
@@ -482,7 +482,7 @@ export class MigrationValidator {
       const newConfig = JSON.parse(await fs.readFile(newConfigPath, 'utf8'));
       const oldConfig = JSON.parse(await fs.readFile(oldConfigPath, 'utf8'));
 
-      // Check if essential functionality is preserved
+      // Check if essential functionality is preserved,
       const compatibilityChecks = [
         this.checkAgentCompatibility(newConfig, oldConfig),
         this.checkWorkflowCompatibility(newConfig, oldConfig),
@@ -500,7 +500,7 @@ export class MigrationValidator {
    * Check agent configuration compatibility
    */
   private checkAgentCompatibility(newConfig: any, oldConfig: any): boolean {
-    // Ensure agent count is not significantly reduced
+    // Ensure agent count is not significantly reduced,
     const oldMaxAgents = oldConfig.orchestrator?.maxAgents || oldConfig.orchestrator?.maxConcurrentAgents || 10;
     const newMaxAgents = newConfig.orchestrator?.maxConcurrentAgents || 10;
 
@@ -516,7 +516,7 @@ export class MigrationValidator {
    * Check workflow compatibility
    */
   private checkWorkflowCompatibility(newConfig: any, oldConfig: any): boolean {
-    // Check if basic workflow capabilities are maintained
+    // Check if basic workflow capabilities are maintained,
     const oldHasWorkflows = oldConfig.workflows || oldConfig.agents;
     const newHasWorkflows = newConfig.workflows || newConfig.agents;
 
@@ -532,7 +532,7 @@ export class MigrationValidator {
    * Check performance compatibility
    */
   private checkPerformanceCompatibility(newConfig: any, oldConfig: any): boolean {
-    // Check if performance settings are not significantly degraded
+    // Check if performance settings are not significantly degraded,
     const oldCacheSize = oldConfig.memory?.cacheSizeMB || 100;
     const newCacheSize = newConfig.memory?.cacheSizeMB || 100;
 
@@ -545,5 +545,5 @@ export class MigrationValidator {
   }
 }
 
-// Export singleton instance
+// Export singleton instance,
 export const migrationValidator = MigrationValidator.getInstance();

@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 import { EventEmitter } from 'events';
 import { writeFile, readFile, mkdir, readdir, stat } from 'fs/promises';
 import { join } from 'path';
@@ -12,7 +12,7 @@ export interface ProjectPhase {
   status: 'planned' | 'in-progress' | 'completed' | 'blocked' | 'cancelled';
   startDate?: Date;
   endDate?: Date;
-  estimatedDuration: number; // in hours
+  estimatedDuration: number; // in hours,
   actualDuration?: number;
   dependencies: string[];
   assignedTeam: string[];
@@ -62,7 +62,7 @@ export interface ProjectResource {
   id: string;
   name: string;
   type: 'human' | 'infrastructure' | 'software' | 'hardware';
-  availability: number; // percentage
+  availability: number; // percentage,
   cost: {
     amount: number;
     currency: string;
@@ -244,7 +244,7 @@ export class ProjectManager extends EventEmitter {
       },
       timeline: {
         plannedStart: projectData.timeline?.plannedStart || new Date(),
-        plannedEnd: projectData.timeline?.plannedEnd || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+        plannedEnd: projectData.timeline?.plannedEnd || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days,
         actualStart: projectData.timeline?.actualStart,
         actualEnd: projectData.timeline?.actualEnd
       },
@@ -262,7 +262,7 @@ export class ProjectManager extends EventEmitter {
       complianceRequirements: []
     };
 
-    // Add initial audit entry
+    // Add initial audit entry,
     this.addAuditEntry(project, 'system', 'project_created', 'project', {
       projectId: project.id,
       projectName: project.name
@@ -285,7 +285,7 @@ export class ProjectManager extends EventEmitter {
 
     const updatedProject = { ...project, ...updates, updatedAt: new Date() };
 
-    // Add audit entry
+    // Add audit entry,
     this.addAuditEntry(updatedProject, 'system', 'project_updated', 'project', {
       projectId,
       changes: Object.keys(updates)
@@ -306,7 +306,7 @@ export class ProjectManager extends EventEmitter {
       throw new Error(`Project not found: ${projectId}`);
     }
 
-    // Add audit entry before deletion
+    // Add audit entry before deletion,
     this.addAuditEntry(project, userId, 'project_deleted', 'project', {
       projectId,
       projectName: project.name
@@ -314,7 +314,7 @@ export class ProjectManager extends EventEmitter {
 
     this.projects.delete(projectId);
     
-    // Archive project instead of deleting
+    // Archive project instead of deleting,
     const archivePath = join(this.projectsPath, 'archived');
     await mkdir(archivePath, { recursive: true });
     await writeFile(
@@ -514,8 +514,8 @@ export class ProjectManager extends EventEmitter {
       budgetVariance,
       resourceUtilization,
       qualityScore,
-      riskScore: 0, // Calculate based on risk assessment
-      teamProductivity: 0, // Calculate based on velocity metrics
+      riskScore: 0, // Calculate based on risk assessment,
+      teamProductivity: 0, // Calculate based on velocity metrics,
       customerSatisfaction: 0 // Calculate based on feedback
     };
   }

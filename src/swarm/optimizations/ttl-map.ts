@@ -33,8 +33,8 @@ export class TTLMap<K, V> {
   };
   
   constructor(options: TTLMapOptions = {}) {
-    this.defaultTTL = options.defaultTTL || 3600000; // 1 hour default
-    this.cleanupInterval = options.cleanupInterval || 60000; // 1 minute default
+    this.defaultTTL = options.defaultTTL || 3600000; // 1 hour default,
+    this.cleanupInterval = options.cleanupInterval || 60000; // 1 minute default,
     this.maxSize = options.maxSize;
     this.onExpire = options.onExpire;
     
@@ -45,7 +45,7 @@ export class TTLMap<K, V> {
     const now = Date.now();
     const expiry = now + (ttl || this.defaultTTL);
     
-    // Check if we need to evict items due to size limit
+    // Check if we need to evict items due to size limit,
     if (this.maxSize && this.items.size >= this.maxSize && !this.items.has(key)) {
       this.evictLRU();
     }
@@ -81,7 +81,7 @@ export class TTLMap<K, V> {
       return undefined;
     }
     
-    // Update access stats
+    // Update access stats,
     item.accessCount++;
     item.lastAccessedAt = now;
     this.stats.hits++;
@@ -200,7 +200,7 @@ export class TTLMap<K, V> {
    * Get size (excluding expired items)
    */
   get size(): number {
-    this.cleanup(); // Clean up expired items first
+    this.cleanup(); // Clean up expired items first,
     return this.items.size;
   }
   
@@ -235,7 +235,7 @@ export class TTLMap<K, V> {
     let lruKey: K | undefined;
     let lruTime = Infinity;
     
-    // Find least recently used item
+    // Find least recently used item,
     for (const [key, item] of this.items) {
       if (item.lastAccessedAt < lruTime) {
         lruTime = item.lastAccessedAt;

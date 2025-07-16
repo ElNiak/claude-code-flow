@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * Metrics and monitoring for coordination performance
  */
@@ -10,7 +10,7 @@ import { SystemEvents } from '../utils/types.js';
 export interface CoordinationMetrics {
   timestamp: Date;
   
-  // Task metrics
+  // Task metrics,
   taskMetrics: {
     totalTasks: number;
     activeTasks: number;
@@ -18,50 +18,50 @@ export interface CoordinationMetrics {
     failedTasks: number;
     cancelledTasks: number;
     avgTaskDuration: number;
-    taskThroughput: number; // tasks/minute
+    taskThroughput: number; // tasks/minute,
     tasksByPriority: Record<string, number>;
     tasksByType: Record<string, number>;
   };
   
-  // Agent metrics
+  // Agent metrics,
   agentMetrics: {
     totalAgents: number;
     activeAgents: number;
     idleAgents: number;
     busyAgents: number;
-    agentUtilization: number; // percentage
+    agentUtilization: number; // percentage,
     avgTasksPerAgent: number;
     agentsByType: Record<string, number>;
   };
   
-  // Resource metrics
+  // Resource metrics,
   resourceMetrics: {
     totalResources: number;
     lockedResources: number;
     freeResources: number;
-    resourceUtilization: number; // percentage
+    resourceUtilization: number; // percentage,
     avgLockDuration: number;
-    lockContention: number; // waiting requests
+    lockContention: number; // waiting requests,
     deadlockCount: number;
   };
   
-  // Coordination metrics
+  // Coordination metrics,
   coordinationMetrics: {
     messagesSent: number;
     messagesReceived: number;
-    messageLatency: number; // avg ms
+    messageLatency: number; // avg ms,
     conflictsDetected: number;
     conflictsResolved: number;
     workStealingEvents: number;
     circuitBreakerTrips: number;
   };
   
-  // Performance metrics
+  // Performance metrics,
   performanceMetrics: {
-    coordinationLatency: number; // avg ms
-    schedulingLatency: number; // avg ms
-    memoryUsage: number; // MB
-    cpuUsage: number; // percentage
+    coordinationLatency: number; // avg ms,
+    schedulingLatency: number; // avg ms,
+    memoryUsage: number; // MB,
+    cpuUsage: number; // percentage,
     errorRate: number; // errors/minute
   };
 }
@@ -83,7 +83,7 @@ export class CoordinationMetricsCollector {
   private lockStartTimes = new Map<string, Date>();
   private collectionInterval?: number;
   
-  // Counters
+  // Counters,
   private counters = {
     totalTasks: 0,
     completedTasks: 0,
@@ -99,7 +99,7 @@ export class CoordinationMetricsCollector {
     errors: 0,
   };
   
-  // Gauges
+  // Gauges,
   private gauges = {
     activeTasks: 0,
     activeAgents: 0,
@@ -135,7 +135,7 @@ export class CoordinationMetricsCollector {
     
     this.collectionInterval = setInterval(() => {
       this.collectMetrics();
-    }, this.collectionIntervalMs);
+    }, this.collectionIntervalMs) as any;
   }
 
   /**
@@ -166,7 +166,7 @@ export class CoordinationMetricsCollector {
     
     this.samples.push(sample);
     
-    // Keep only last 10000 samples to prevent memory bloat
+    // Keep only last 10000 samples to prevent memory bloat,
     if (this.samples.length > 10000) {
       this.samples = this.samples.slice(-5000);
     }
@@ -243,7 +243,7 @@ export class CoordinationMetricsCollector {
    * Get metric history for a specific metric
    */
   getMetricHistory(metric: string, since?: Date): MetricsSample[] {
-    const cutoff = since || new Date(Date.now() - 3600000); // 1 hour ago
+    const cutoff = since || new Date(Date.now() - 3600000); // 1 hour ago,
     
     return this.samples.filter(s => 
       s.metric === metric && s.timestamp >= cutoff
@@ -280,7 +280,7 @@ export class CoordinationMetricsCollector {
    * Set up event handlers to collect metrics
    */
   private setupEventHandlers(): void {
-    // Task events
+    // Task events,
     this.eventBus.on(SystemEvents.TASK_CREATED, () => {
       this.counters.totalTasks++;
       this.recordMetric('task.created', 1);
@@ -320,7 +320,7 @@ export class CoordinationMetricsCollector {
       this.recordMetric('task.cancelled', 1);
     });
 
-    // Agent events
+    // Agent events,
     this.eventBus.on(SystemEvents.AGENT_SPAWNED, () => {
       this.gauges.activeAgents++;
       this.recordMetric('agent.spawned', 1);
@@ -343,7 +343,7 @@ export class CoordinationMetricsCollector {
       this.recordMetric('agent.active', 1);
     });
 
-    // Resource events
+    // Resource events,
     this.eventBus.on(SystemEvents.RESOURCE_ACQUIRED, (data: any) => {
       this.lockStartTimes.set(data.resourceId, new Date());
       this.gauges.lockedResources++;
@@ -365,13 +365,13 @@ export class CoordinationMetricsCollector {
       this.recordMetric('resource.released', 1);
     });
 
-    // Deadlock events
+    // Deadlock events,
     this.eventBus.on(SystemEvents.DEADLOCK_DETECTED, () => {
       this.counters.deadlockCount++;
       this.recordMetric('deadlock.detected', 1);
     });
 
-    // Message events
+    // Message events,
     this.eventBus.on(SystemEvents.MESSAGE_SENT, (data: any) => {
       this.counters.messagesSent++;
       this.messageStartTimes.set(data.message.id, new Date());
@@ -391,7 +391,7 @@ export class CoordinationMetricsCollector {
       this.recordMetric('message.received', 1);
     });
 
-    // Conflict events
+    // Conflict events,
     this.eventBus.on('conflict:resource', () => {
       this.counters.conflictsDetected++;
       this.recordMetric('conflict.detected', 1);
@@ -402,13 +402,13 @@ export class CoordinationMetricsCollector {
       this.recordMetric('conflict.resolved', 1);
     });
 
-    // Work stealing events
+    // Work stealing events,
     this.eventBus.on('workstealing:request', () => {
       this.counters.workStealingEvents++;
       this.recordMetric('workstealing.event', 1);
     });
 
-    // Circuit breaker events
+    // Circuit breaker events,
     this.eventBus.on('circuitbreaker:state-change', (data: any) => {
       if (data.to === 'open') {
         this.counters.circuitBreakerTrips++;
@@ -416,7 +416,7 @@ export class CoordinationMetricsCollector {
       }
     });
 
-    // Error events
+    // Error events,
     this.eventBus.on(SystemEvents.SYSTEM_ERROR, () => {
       this.counters.errors++;
       this.recordMetric('error', 1);
@@ -429,10 +429,10 @@ export class CoordinationMetricsCollector {
   private collectMetrics(): void {
     const metrics = this.getCurrentMetrics();
     
-    // Emit metrics event
+    // Emit metrics event,
     this.eventBus.emit('metrics:coordination', metrics);
     
-    // Log summary
+    // Log summary,
     this.logger.debug('Coordination metrics collected', {
       activeTasks: metrics.taskMetrics.activeTasks,
       activeAgents: metrics.agentMetrics.activeAgents,
@@ -566,17 +566,17 @@ export class CoordinationMetricsCollector {
     this.messageStartTimes.clear();
     this.lockStartTimes.clear();
     
-    // Reset counters
+    // Reset counters,
     for (const key in this.counters) {
       (this.counters as any)[key] = 0;
     }
     
-    // Reset gauges
+    // Reset gauges,
     for (const key in this.gauges) {
       (this.gauges as any)[key] = 0;
     }
     
-    // Clear histograms
+    // Clear histograms,
     for (const key in this.histograms) {
       (this.histograms as any)[key] = [];
     }

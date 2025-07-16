@@ -15,14 +15,19 @@ export { TTLMap } from './ttl-map.js';
 export type { TTLMapOptions } from './ttl-map.js';
 
 export { OptimizedExecutor } from './optimized-executor.js';
-export type { ExecutorConfig, ExecutionMetrics } from './optimized-executor.js';
+export type { ExecutorConfig, OptimizedExecutionMetrics } from './optimized-executor.js';
 
-// Re-export commonly used together
+// Re-export commonly used together,
 export const createOptimizedSwarmStack = (config?: {
   connectionPool?: any;
   executor?: any;
   fileManager?: any;
 }) => {
+  // Import classes at runtime to avoid circular dependency issues
+  const { ClaudeConnectionPool } = require('./connection-pool.js');
+  const { AsyncFileManager } = require('./async-file-manager.js');
+  const { OptimizedExecutor } = require('./optimized-executor.js');
+  
   const connectionPool = new ClaudeConnectionPool(config?.connectionPool);
   const fileManager = new AsyncFileManager(config?.fileManager);
   const executor = new OptimizedExecutor({

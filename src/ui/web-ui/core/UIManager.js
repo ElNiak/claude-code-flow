@@ -108,7 +108,7 @@ export class UIManager {
       console.log('🎨 UI Manager initialized successfully');
       
     } catch (error) {
-      console.error('❌ Failed to initialize UI Manager:', error);
+      console.error('❌ Failed to initialize UI Manager:', _error);
       throw error;
     }
   }
@@ -241,7 +241,7 @@ export class UIManager {
     this.currentView = viewId;
     
     // Load view with parameters
-    await this.viewManager.loadView(viewId, params);
+    await this.viewManager.loadView(viewId, _params);
     
     // Update browser history if available
     if (typeof window !== 'undefined' && window.history) {
@@ -249,7 +249,7 @@ export class UIManager {
     }
     
     // Update state
-    await this.stateManager.setViewState(viewId, params);
+    await this.stateManager.setViewState(viewId, _params);
     
     // Emit navigation event
     this.eventBus.emit('ui:navigation', { viewId, params });
@@ -274,10 +274,10 @@ export class UIManager {
       this.eventBus.emit('ui:loading', { tool: toolName, params });
       
       // Execute tool through MCP integration layer
-      const result = await this.mcpIntegration.executeTool(toolName, params);
+      const result = await this.mcpIntegration.executeTool(toolName, _params);
       
       // Handle result based on tool type
-      await this.handleToolResult(toolName, result, params);
+      await this.handleToolResult(toolName, result, _params);
       
       // Hide loading indicator
       this.eventBus.emit('ui:loading:complete', { tool: toolName, result });
@@ -285,7 +285,7 @@ export class UIManager {
       return result;
       
     } catch (error) {
-      this.eventBus.emit('ui:error', { tool: toolName, error, params });
+      this.eventBus.emit('ui:error', { tool: toolName, _error, params });
       throw error;
     }
   }
@@ -445,7 +445,7 @@ export class UIManager {
     
     // Handle errors
     this.eventBus.on('ui:error', (error) => {
-      console.error('UI Error:', error);
+      console.error('UI Error:', _error);
       // Could show error toast/notification here
     });
   }

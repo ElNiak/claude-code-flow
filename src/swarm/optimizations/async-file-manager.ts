@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../../utils/error-handler.js';
 /**
  * Async File Manager
  * Handles non-blocking file operations with queuing
@@ -40,7 +40,7 @@ export class AsyncFileManager {
     this.writeQueue = new PQueue({ concurrency: this.concurrency.write });
     this.readQueue = new PQueue({ concurrency: this.concurrency.read });
     
-    // Use test-safe logger configuration
+    // Use test-safe logger configuration,
     const loggerConfig = process.env.CLAUDE_FLOW_ENV === 'test' 
       ? { level: 'error' as const, format: 'json' as const, destination: 'console' as const }
       : { level: 'info' as const, format: 'json' as const, destination: 'console' as const };
@@ -54,13 +54,13 @@ export class AsyncFileManager {
   async writeFile(path: string, data: string | Buffer): Promise<FileOperationResult> {
     const start = Date.now();
     
-    return await this.writeQueue.add(async () => {
+    return (await this.writeQueue.add(async (): Promise<FileOperationResult> => {
       try {
-        // Ensure directory exists
+        // Ensure directory exists,
         await this.ensureDirectory(dirname(path));
         
-        // Use streaming for large files
-        if (data.length > 1024 * 1024) { // > 1MB
+        // Use streaming for large files,
+        if (data.length > 1024 * 1024) { // > 1MB,
           await this.streamWrite(path, data);
         } else {
           await fs.writeFile(path, data, 'utf8');
@@ -90,13 +90,13 @@ export class AsyncFileManager {
           error: error as Error
         };
       }
-    });
+    })) as FileOperationResult;
   }
   
   async readFile(path: string): Promise<FileOperationResult & { data?: string }> {
     const start = Date.now();
     
-    return await this.readQueue.add(async () => {
+    return (await this.readQueue.add(async (): Promise<FileOperationResult & { data?: string }> => {
       try {
         const data = await fs.readFile(path, 'utf8');
         const duration = Date.now() - start;
@@ -124,7 +124,7 @@ export class AsyncFileManager {
           error: error as Error
         };
       }
-    });
+    })) as FileOperationResult & { data?: string };
   }
   
   async writeJSON(path: string, data: any, pretty = true): Promise<FileOperationResult> {
@@ -157,7 +157,7 @@ export class AsyncFileManager {
   async deleteFile(path: string): Promise<FileOperationResult> {
     const start = Date.now();
     
-    return this.writeQueue.add(async () => {
+    return (await this.writeQueue.add(async (): Promise<FileOperationResult> => {
       try {
         await fs.unlink(path);
         
@@ -165,7 +165,7 @@ export class AsyncFileManager {
         
         return {
           path,
-          operation: 'delete',
+          operation: 'delete' as const,
           success: true,
           duration: Date.now() - start
         };
@@ -175,13 +175,13 @@ export class AsyncFileManager {
         
         return {
           path,
-          operation: 'delete',
+          operation: 'delete' as const,
           success: false,
           duration: Date.now() - start,
           error: error as Error
         };
       }
-    });
+    })) as FileOperationResult;
   }
   
   async ensureDirectory(path: string): Promise<FileOperationResult> {
@@ -194,7 +194,7 @@ export class AsyncFileManager {
       
       return {
         path,
-        operation: 'mkdir',
+        operation: 'mkdir' as const,
         success: true,
         duration: Date.now() - start
       };
@@ -204,7 +204,7 @@ export class AsyncFileManager {
       
       return {
         path,
-        operation: 'mkdir',
+        operation: 'mkdir' as const,
         success: false,
         duration: Date.now() - start,
         error: error as Error
@@ -231,7 +231,7 @@ export class AsyncFileManager {
   async copyFile(source: string, destination: string): Promise<FileOperationResult> {
     const start = Date.now();
     
-    return this.writeQueue.add(async () => {
+    return (await this.writeQueue.add(async (): Promise<FileOperationResult> => {
       try {
         await this.ensureDirectory(dirname(destination));
         await fs.copyFile(source, destination);
@@ -241,7 +241,7 @@ export class AsyncFileManager {
         
         return {
           path: destination,
-          operation: 'write',
+          operation: 'write' as const,
           success: true,
           duration: Date.now() - start,
           size: stats.size
@@ -252,13 +252,13 @@ export class AsyncFileManager {
         
         return {
           path: destination,
-          operation: 'write',
+          operation: 'write' as const,
           success: false,
           duration: Date.now() - start,
           error: error as Error
         };
       }
-    });
+    })) as FileOperationResult;
   }
   
   async moveFile(source: string, destination: string): Promise<FileOperationResult> {

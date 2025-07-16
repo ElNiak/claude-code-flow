@@ -21,7 +21,7 @@ export const GitHubViewMCPIntegration = {
     
     github_pr_manage: {
       handler: async (params) => {
-        console.log('🔄 Managing PR:', params);
+        console.log('🔄 Managing PR:', _params);
         return {
           success: true,
           action: params.action,
@@ -32,7 +32,7 @@ export const GitHubViewMCPIntegration = {
     
     github_issue_track: {
       handler: async (params) => {
-        console.log('📋 Tracking issues:', params);
+        console.log('📋 Tracking issues:', _params);
         return {
           open: 15,
           in_progress: 8,
@@ -43,7 +43,7 @@ export const GitHubViewMCPIntegration = {
     
     github_release_coord: {
       handler: async (params) => {
-        console.log('🚀 Coordinating release:', params);
+        console.log('🚀 Coordinating release:', _params);
         return {
           version: params.version,
           status: 'planned',
@@ -54,7 +54,7 @@ export const GitHubViewMCPIntegration = {
     
     github_workflow_auto: {
       handler: async (params) => {
-        console.log('🤖 Automating workflow:', params);
+        console.log('🤖 Automating workflow:', _params);
         return {
           workflow: params.workflow_name,
           status: 'created',
@@ -65,7 +65,7 @@ export const GitHubViewMCPIntegration = {
     
     github_code_review: {
       handler: async (params) => {
-        console.log('🔍 Running code review:', params);
+        console.log('🔍 Running code review:', _params);
         return {
           score: '8.5/10',
           issues: 3,
@@ -81,7 +81,7 @@ export const GitHubViewMCPIntegration = {
     
     github_sync_coord: {
       handler: async (params) => {
-        console.log('🔄 Syncing repositories:', params);
+        console.log('🔄 Syncing repositories:', _params);
         return {
           synced: params.repos.length,
           status: 'complete'
@@ -91,7 +91,7 @@ export const GitHubViewMCPIntegration = {
     
     github_metrics: {
       handler: async (params) => {
-        console.log('📊 Fetching metrics:', params);
+        console.log('📊 Fetching metrics:', _params);
         return {
           commits: { total: 1542, week: 87 },
           pull_requests: { merged: 234, avg_time: '2.3 days' },

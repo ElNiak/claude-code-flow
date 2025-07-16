@@ -63,7 +63,7 @@ describe('${component.name}', () => {
   ${testCases.join('\n')}
 });`;
         
-        const path = `test/${component.type}s/${component.name}.test.ts`;
+        const _path = `test/${component.type}s/${component.name}.test.ts`;
         await harness.mockWriteFile(path, testContent);
         
         return {
@@ -160,7 +160,7 @@ describe('${component.name}', () => {
   ${testCases.join('\n')}
 });`;
         
-        const path = `test/parameterized/${scenario.function}.test.ts`;
+        const _path = `test/parameterized/${scenario.function}.test.ts`;
         await harness.mockWriteFile(path, content);
         
         return {

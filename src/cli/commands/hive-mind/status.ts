@@ -10,7 +10,7 @@ import { Command } from 'commander';
 import chalk from 'chalk';
 import Table from 'cli-table3';
 import { HiveMind } from '../../../hive-mind/core/HiveMind.js';
-import { formatSuccess, formatError, formatInfo, formatWarning } from '../../formatter.js';
+import { formatSuccess as _formatSuccess, formatError, formatInfo, formatWarning } from '../../formatter.js';
 import { DatabaseManager } from '../../../hive-mind/core/DatabaseManager.js';
 
 export const statusCommand = new Command('status')
@@ -24,13 +24,13 @@ export const statusCommand = new Command('status')
   .option('-j, --json', 'Output as JSON', false)
   .action(async (options) => {
     try {
-      // Get swarm ID
+      // Get swarm ID,
       const swarmId = options.swarmId || await getActiveSwarmId();
       if (!swarmId) {
         throw new Error('No active swarm found. Initialize a Hive Mind first.');
       }
       
-      // Load Hive Mind
+      // Load Hive Mind,
       const hiveMind = await HiveMind.load(swarmId);
       const status = await hiveMind.getFullStatus();
       
@@ -39,11 +39,11 @@ export const statusCommand = new Command('status')
         return;
       }
       
-      // Display swarm header
+      // Display swarm header,
       console.log('\n' + chalk.bold.yellow('🐝 Hive Mind Status'));
       console.log(chalk.gray('━'.repeat(60)));
       
-      // Basic info
+      // Basic info,
       console.log(formatInfo(`Swarm ID: ${status.swarmId}`));
       console.log(formatInfo(`Name: ${status.name}`));
       console.log(formatInfo(`Topology: ${status.topology}`));
@@ -51,7 +51,7 @@ export const statusCommand = new Command('status')
       console.log(formatInfo(`Status: ${getStatusEmoji(status.health)} ${status.health}`));
       console.log(formatInfo(`Uptime: ${formatUptime(status.uptime)}`));
       
-      // Agent summary
+      // Agent summary,
       console.log('\n' + chalk.bold('👥 Agent Summary'));
       const agentTable = new Table({
         head: ['Type', 'Total', 'Active', 'Idle', 'Busy'],
@@ -68,7 +68,7 @@ export const statusCommand = new Command('status')
       
       console.log(agentTable.toString());
       
-      // Detailed agent info
+      // Detailed agent info,
       if (options.detailed) {
         console.log('\n' + chalk.bold('🤖 Agent Details'));
         const detailTable = new Table({
@@ -90,7 +90,7 @@ export const statusCommand = new Command('status')
         console.log(detailTable.toString());
       }
       
-      // Task queue
+      // Task queue,
       if (options.tasks || status.tasks.length > 0) {
         console.log('\n' + chalk.bold('📋 Task Queue'));
         const taskTable = new Table({
@@ -113,7 +113,7 @@ export const statusCommand = new Command('status')
         console.log(formatInfo(`Completed: ${status.taskStats.completed} | In Progress: ${status.taskStats.inProgress} | Pending: ${status.taskStats.pending}`));
       }
       
-      // Memory statistics
+      // Memory statistics,
       if (options.memory) {
         console.log('\n' + chalk.bold('💾 Memory Statistics'));
         const memTable = new Table({
@@ -135,7 +135,7 @@ export const statusCommand = new Command('status')
         console.log(formatInfo(`Total Entries: ${status.memoryStats.totalEntries}`));
       }
       
-      // Performance metrics
+      // Performance metrics,
       if (options.performance) {
         console.log('\n' + chalk.bold('📊 Performance Metrics'));
         console.log(formatInfo(`Avg Task Completion: ${status.performance.avgTaskCompletion}ms`));
@@ -145,13 +145,13 @@ export const statusCommand = new Command('status')
         console.log(formatInfo(`Agent Utilization: ${status.performance.agentUtilization}%`));
       }
       
-      // Communications
+      // Communications,
       console.log('\n' + chalk.bold('📡 Recent Communications'));
       console.log(formatInfo(`Total Messages: ${status.communicationStats.totalMessages}`));
       console.log(formatInfo(`Avg Latency: ${status.communicationStats.avgLatency}ms`));
       console.log(formatInfo(`Active Channels: ${status.communicationStats.activeChannels}`));
       
-      // Health warnings
+      // Health warnings,
       if (status.warnings.length > 0) {
         console.log('\n' + chalk.bold.yellow('⚠️  Warnings'));
         status.warnings.forEach(warning => {
@@ -159,7 +159,7 @@ export const statusCommand = new Command('status')
         });
       }
       
-      // Watch mode
+      // Watch mode,
       if (options.watch) {
         console.log('\n' + chalk.gray('Refreshing every 2 seconds... (Ctrl+C to exit)'));
         setInterval(async () => {

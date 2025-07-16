@@ -48,7 +48,7 @@ export class MCPIntegrationLayer {
       console.log('🔌 MCP Integration Layer initialized');
       
     } catch (error) {
-      console.error('❌ Failed to initialize MCP Integration Layer:', error);
+      console.error('❌ Failed to initialize MCP Integration Layer:', _error);
       this.mcpServerStatus = 'error';
       throw error;
     }
@@ -73,7 +73,7 @@ export class MCPIntegrationLayer {
       return 'mock'; // Use mock mode for development
       
     } catch (error) {
-      console.warn('MCP Server connection check failed:', error);
+      console.warn('MCP Server connection check failed:', _error);
       return 'offline';
     }
   }
@@ -221,7 +221,7 @@ export class MCPIntegrationLayer {
     }
 
     // Check cache first
-    const cacheKey = this.getCacheKey(toolName, params);
+    const cacheKey = this.getCacheKey(toolName, _params);
     const cached = this.cache.get(cacheKey);
     if (cached && !this.isCacheExpired(cached)) {
       return cached.result;
@@ -237,9 +237,9 @@ export class MCPIntegrationLayer {
       // Execute based on MCP server status
       let result;
       if (this.mcpServerStatus === 'connected') {
-        result = await this.executeRealTool(toolName, params);
+        result = await this.executeRealTool(toolName, _params);
       } else {
-        result = await this.executeMockTool(toolName, params);
+        result = await this.executeMockTool(toolName, _params);
       }
 
       // Update tool usage stats
@@ -282,20 +282,20 @@ export class MCPIntegrationLayer {
   /**
    * Execute real MCP tool (when server is connected)
    */
-  async executeRealTool(toolName, params) {
+  async executeRealTool(toolName, _params) {
     // This would call the actual MCP tool
     // For now, we'll simulate the call
     const mcpToolName = `mcp__claude-flow__${toolName}`;
     
     if (typeof window !== 'undefined' && window.claudeFlowMCP) {
-      return await window.claudeFlowMCP.execute(mcpToolName, params);
+      return await window.claudeFlowMCP.execute(mcpToolName, _params);
     }
     
     // Node.js environment
     if (typeof process !== 'undefined') {
       // This would import and execute the actual MCP tool
       // For now, return mock data
-      return this.executeMockTool(toolName, params);
+      return this.executeMockTool(toolName, _params);
     }
     
     throw new Error('MCP server not available');
@@ -304,7 +304,7 @@ export class MCPIntegrationLayer {
   /**
    * Execute mock tool (for development/testing)
    */
-  async executeMockTool(toolName, params) {
+  async executeMockTool(toolName, _params) {
     // Simulate execution delay
     await new Promise(resolve => setTimeout(resolve, 100 + Math.random() * 500));
 
@@ -373,7 +373,7 @@ export class MCPIntegrationLayer {
   /**
    * Get cache key for tool and params
    */
-  getCacheKey(toolName, params) {
+  getCacheKey(toolName, _params) {
     return `${toolName}_${JSON.stringify(params)}`;
   }
 

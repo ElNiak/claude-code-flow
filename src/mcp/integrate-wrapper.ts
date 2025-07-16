@@ -1,5 +1,5 @@
-#!/usr/bin/env node
-import { getErrorMessage } from '../utils/error-handler.js';
+#!/usr/bin/env node,
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 import { spawn } from 'child_process';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
@@ -19,7 +19,7 @@ export class MCPIntegration {
 
   async connectToClaudeCode(): Promise<void> {
     try {
-      // Start Claude Code MCP server process
+      // Start Claude Code MCP server process,
       const claudeCodeProcess = spawn('npx', [
         '-y',
         '@anthropic/claude-code',
@@ -53,20 +53,23 @@ export class MCPIntegration {
   }
 
   async start(): Promise<void> {
-    // Connect to Claude Code MCP
+    // Connect to Claude Code MCP,
     await this.connectToClaudeCode();
 
-    // Start the wrapper server
+    // Start the wrapper server,
     await this.wrapper.run();
   }
 }
 
-// Update the wrapper to use the real Claude Code MCP client
+// Update the wrapper to use the real Claude Code MCP client,
 export function injectClaudeCodeClient(wrapper: ClaudeCodeMCPWrapper, client: Client): void {
   // Override the forwardToClaudeCode method
   (wrapper as any).forwardToClaudeCode = async function(toolName: string, args: any) {
     try {
-      const result = await client.callTool(toolName, args);
+      const result = await client.callTool({
+        name: toolName,
+        arguments: args
+      });
       return result;
     } catch (error) {
       return {
@@ -80,7 +83,7 @@ export function injectClaudeCodeClient(wrapper: ClaudeCodeMCPWrapper, client: Cl
   };
 }
 
-// Main execution
+// Main execution,
 if (import.meta.url === `file://${process.argv[1]}`) {
   const integration = new MCPIntegration();
   integration.start().catch(console.error);

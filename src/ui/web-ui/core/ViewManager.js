@@ -37,7 +37,7 @@ export class ViewManager {
       console.log('🖼️ View Manager initialized');
 
     } catch (error) {
-      console.error('❌ Failed to initialize View Manager:', error);
+      console.error('❌ Failed to initialize View Manager:', _error);
       throw error;
     }
   }
@@ -233,7 +233,7 @@ export class ViewManager {
       }
 
       // Show new view
-      await this.showView(viewId, params);
+      await this.showView(viewId, _params);
 
       // Update state
       this.currentView = viewId;
@@ -278,7 +278,7 @@ export class ViewManager {
       });
 
     } catch (error) {
-      console.error(`❌ Failed to load view component ${viewId}:`, error);
+      console.error(`❌ Failed to load view component ${viewId}:`, _error);
       throw error;
     }
   }
@@ -383,7 +383,7 @@ export class ViewManager {
               <p>${viewConfig.description}</p>
               <p>This view is under development.</p>
               ${viewConfig.toolCount ? `<p>Will support ${viewConfig.toolCount} tools.</p>` : ''}
-              <pre>${JSON.stringify(params, null, 2)}</pre>
+              <pre>${JSON.stringify(_params, null, 2)}</pre>
             </div>
           </div>
         `;
@@ -405,7 +405,7 @@ export class ViewManager {
         if (viewConfig.toolCount) {
           console.log(`   Tools: ${viewConfig.toolCount}`);
         }
-        console.log(`   Params:`, params);
+        console.log(`   Params:`, _params);
         console.log(`   [This view is under development]\n`);
       },
       destroy: () => {}
@@ -415,7 +415,7 @@ export class ViewManager {
   /**
    * Show view with transition
    */
-  async showView(viewId, params) {
+  async showView(viewId, _params) {
     const loadedView = this.loadedViews.get(viewId);
     if (!loadedView) {
       throw new Error(`View not loaded: ${viewId}`);

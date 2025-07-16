@@ -16,7 +16,7 @@ export class AppError extends Error {
   }
 }
 
-// Re-export from type-guards for backward compatibility
+// Re-export from type-guards for backward compatibility,
 export const isError = isErr;
 export const getErrorMessage = getErrorMsg;
 export const getErrorStack = getErrorStk;

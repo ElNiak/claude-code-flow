@@ -30,35 +30,35 @@ export const taskCommand = new Command('task')
   .option('-l, --list', 'List all tasks', false)
   .option('--cancel <id>', 'Cancel a specific task')
   .option('--retry <id>', 'Retry a failed task')
-  .action(async (description, options) => {
+  .action(async (description, _options) => {
     try {
-      // Get swarm ID
-      const swarmId = options.swarmId || await getActiveSwarmId();
+      // Get swarm ID,
+      const swarmId = _options.swarmId || await getActiveSwarmId();
       if (!swarmId) {
         throw new Error('No active swarm found. Initialize a Hive Mind first.');
       }
       
-      // Load Hive Mind
+      // Load Hive Mind,
       const hiveMind = await HiveMind.load(swarmId);
       
-      // Handle special operations
-      if (options.list) {
+      // Handle special operations,
+      if (_options.list) {
         await listTasks(hiveMind);
         return;
       }
       
-      if (options.cancel) {
-        await cancelTask(hiveMind, options.cancel);
+      if (_options.cancel) {
+        await cancelTask(hiveMind, _options.cancel);
         return;
       }
       
-      if (options.retry) {
-        await retryTask(hiveMind, options.retry);
+      if (_options.retry) {
+        await retryTask(hiveMind, _options.retry);
         return;
       }
       
-      // Interactive mode
-      if (options.interactive || !description) {
+      // Interactive mode,
+      if (_options.interactive || !description) {
         const answers = await inquirer.prompt([
           {
             type: 'input',
@@ -72,7 +72,7 @@ export const taskCommand = new Command('task')
             name: 'priority',
             message: 'Select task priority:',
             choices: ['low', 'medium', 'high', 'critical'],
-            default: options.priority
+            default: _options.priority
           },
           {
             type: 'list',
@@ -84,20 +84,20 @@ export const taskCommand = new Command('task')
               { name: 'Sequential (Step-by-step)', value: 'sequential' },
               { name: 'Consensus (Requires agreement)', value: 'consensus' }
             ],
-            default: options.strategy
+            default: _options.strategy
           },
           {
             type: 'confirm',
             name: 'requireConsensus',
             message: 'Require consensus for critical decisions?',
-            default: options.requireConsensus,
+            default: _options.requireConsensus,
             when: (answers) => answers.strategy !== 'consensus'
           },
           {
             type: 'number',
             name: 'maxAgents',
             message: 'Maximum agents to assign:',
-            default: parseInt(options.maxAgents, 10),
+            default: parseInt(_options.maxAgents, 10),
             validate: (input) => input > 0 && input <= 10 || 'Must be between 1 and 10'
           },
           {
@@ -112,30 +112,30 @@ export const taskCommand = new Command('task')
         ]);
         
         description = description || answers.description;
-        options.priority = answers.priority || options.priority;
-        options.strategy = answers.strategy || options.strategy;
-        options.requireConsensus = answers.requireConsensus || options.requireConsensus;
-        options.maxAgents = answers.maxAgents || options.maxAgents;
-        options.requiredCapabilities = answers.capabilities;
+        _options.priority = answers.priority || _options.priority;
+        _options.strategy = answers.strategy || _options.strategy;
+        _options.requireConsensus = answers.requireConsensus || _options.requireConsensus;
+        _options.maxAgents = answers.maxAgents || _options.maxAgents;
+        _options.requiredCapabilities = answers.capabilities;
       }
       
       const spinner = ora('Submitting task to Hive Mind...').start();
       
-      // Parse dependencies
-      const dependencies = options.dependencies 
-        ? options.dependencies.split(',').map((id: string) => id.trim())
+      // Parse dependencies,
+      const dependencies = _options.dependencies 
+        ? _options.dependencies.split(',').map((id: string) => id.trim())
         : [];
       
-      // Submit task
+      // Submit task,
       const task = await hiveMind.submitTask({
         description,
-        priority: options.priority as TaskPriority,
-        strategy: options.strategy as TaskStrategy,
+        priority: _options.priority as TaskPriority,
+        strategy: _options.strategy as TaskStrategy,
         dependencies,
-        assignTo: options.assignTo,
-        requireConsensus: options.requireConsensus,
-        maxAgents: parseInt(options.maxAgents, 10),
-        requiredCapabilities: options.requiredCapabilities || [],
+        assignTo: _options.assignTo,
+        requireConsensus: _options.requireConsensus,
+        maxAgents: parseInt(_options.maxAgents, 10),
+        requiredCapabilities: _options.requiredCapabilities || [],
         metadata: {
           submittedBy: 'cli',
           submittedAt: new Date()
@@ -144,7 +144,7 @@ export const taskCommand = new Command('task')
       
       spinner.succeed(formatSuccess('Task submitted successfully!'));
       
-      // Display task details
+      // Display task details,
       console.log('\n' + chalk.bold('📋 Task Details:'));
       console.log(formatInfo(`Task ID: ${task.id}`));
       console.log(formatInfo(`Description: ${task.description}`));
@@ -156,8 +156,8 @@ export const taskCommand = new Command('task')
         console.log(formatInfo(`Assigned to: ${task.assignedAgents.join(', ')}`));
       }
       
-      // Watch mode
-      if (options.watch) {
+      // Watch mode,
+      if (_options.watch) {
         console.log('\n' + chalk.bold('👀 Watching task progress...'));
         await watchTaskProgress(hiveMind, task.id);
       } else {
@@ -185,7 +185,7 @@ async function listTasks(hiveMind: HiveMind) {
   }
   
   console.log('\n' + chalk.bold('📋 Task List:'));
-  const Table = require('cli-table3');
+  const { default: Table } = await import('cli-table3');
   const table = new Table({
     head: ['ID', 'Description', 'Priority', 'Status', 'Progress', 'Agents'],
     style: { head: ['cyan'] }
@@ -234,7 +234,7 @@ async function watchTaskProgress(hiveMind: HiveMind, taskId: string) {
   let lastProgress = -1;
   let completed = false;
   
-  const progressBar = require('cli-progress');
+  const { default: progressBar } = await import('cli-progress');
   const bar = new progressBar.SingleBar({
     format: 'Progress |' + chalk.cyan('{bar}') + '| {percentage}% | {status}',
     barCompleteChar: '\u2588',
@@ -278,7 +278,7 @@ async function watchTaskProgress(hiveMind: HiveMind, taskId: string) {
     }
   }, 1000);
   
-  // Handle Ctrl+C
+  // Handle Ctrl+C,
   process.on('SIGINT', () => {
     if (!completed) {
       clearInterval(interval);

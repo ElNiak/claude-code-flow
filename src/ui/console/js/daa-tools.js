@@ -143,22 +143,22 @@ class DAATools {
         
         switch (action) {
             case 'start':
-                result = this.startAgent(agent, params);
+                result = this.startAgent(agent, _params);
                 break;
             case 'pause':
-                result = this.pauseAgent(agent, params);
+                result = this.pauseAgent(agent, _params);
                 break;
             case 'resume':
-                result = this.resumeAgent(agent, params);
+                result = this.resumeAgent(agent, _params);
                 break;
             case 'stop':
-                result = this.stopAgent(agent, params);
+                result = this.stopAgent(agent, _params);
                 break;
             case 'restart':
-                result = this.restartAgent(agent, params);
+                result = this.restartAgent(agent, _params);
                 break;
             case 'destroy':
-                result = this.destroyAgent(agent, params);
+                result = this.destroyAgent(agent, _params);
                 break;
             default:
                 return { success: false, error: 'Unknown action' };
@@ -545,36 +545,36 @@ class DAATools {
         agent.lastActivity = Date.now();
     }
     
-    startAgent(agent, params) {
+    startAgent(agent, _params) {
         agent.status = 'active';
         agent.lastActivity = Date.now();
         return { success: true, status: 'active' };
     }
     
-    pauseAgent(agent, params) {
+    pauseAgent(agent, _params) {
         agent.status = 'paused';
         return { success: true, status: 'paused' };
     }
     
-    resumeAgent(agent, params) {
+    resumeAgent(agent, _params) {
         agent.status = 'active';
         agent.lastActivity = Date.now();
         return { success: true, status: 'active' };
     }
     
-    stopAgent(agent, params) {
+    stopAgent(agent, _params) {
         agent.status = 'stopped';
         this.metrics.activeAgents--;
         return { success: true, status: 'stopped' };
     }
     
-    restartAgent(agent, params) {
+    restartAgent(agent, _params) {
         agent.status = 'active';
         agent.lastActivity = Date.now();
         return { success: true, status: 'active' };
     }
     
-    destroyAgent(agent, params) {
+    destroyAgent(agent, _params) {
         this.agents.delete(agent.id);
         this.metrics.totalAgents--;
         this.metrics.activeAgents--;
@@ -625,7 +625,7 @@ class DAATools {
         this.updateConsensusInterface();
     }
     
-    createRecoveryPlan(fault, options) {
+    createRecoveryPlan(fault, _options) {
         return {
             steps: [
                 'Isolate affected agents',

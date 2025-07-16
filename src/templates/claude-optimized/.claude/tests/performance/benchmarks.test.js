@@ -147,7 +147,7 @@ describe('Performance Benchmarks', () => {
                 const result = await this.database.query('SELECT * FROM table${i}');
                 return this.transform${i}(result);
               } catch (error) {
-                this.logger.error('Process failed', error);
+                this.logger.error('Process failed', _error);
                 throw error;
               }
             }

@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
@@ -25,7 +25,7 @@ export async function loadSparcModes(): Promise<SparcMode[]> {
     const modesData = JSON.parse(content);
     const modes: SparcMode[] = [];
     
-    // Convert JSON format to SparcMode format
+    // Convert JSON format to SparcMode format,
     for (const [name, config] of Object.entries(modesData)) {
       const mode: SparcMode = {
         name: name,
@@ -34,13 +34,13 @@ export async function loadSparcModes(): Promise<SparcMode[]> {
         systemPrompt: (config as any).prompt || '',
       };
       
-      // Add default best practices based on mode
+      // Add default best practices based on mode,
       mode.bestPractices = getModeBestPractices(name);
       
       modes.push(mode);
     }
     
-    // Successfully loaded modes
+    // Successfully loaded modes,
     return modes;
   } catch (error) {
     console.error('Error loading SPARC modes:', error);

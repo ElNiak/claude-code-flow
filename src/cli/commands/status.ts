@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../../utils/error-handler.js';
 import { promises as fs } from 'node:fs';
 /**
  * Status command for Claude-Flow
@@ -26,7 +26,7 @@ export const statusCommand = new Command()
 
 async function showStatus(options: any): Promise<void> {
   try {
-    // In a real implementation, this would connect to the running orchestrator
+    // In a real implementation, this would connect to the running orchestrator,
     const status = await getSystemStatus();
     
     if (options.json) {
@@ -56,9 +56,9 @@ async function watchStatus(options: any): Promise<void> {
   console.log(chalk.gray(`Update interval: ${options.interval}s`));
   console.log(chalk.gray('Press Ctrl+C to stop\n'));
 
-  // eslint-disable-next-line no-constant-condition
+  // eslint-disable-next-line no-constant-condition,
   while (true) {
-    // Clear screen and show status
+    // Clear screen and show status,
     console.clear();
     console.log(chalk.cyan.bold('Claude-Flow Status Monitor'));
     console.log(chalk.gray(`Last updated: ${new Date().toLocaleTimeString()}\n`));
@@ -74,7 +74,7 @@ async function watchStatus(options: any): Promise<void> {
 }
 
 function showFullStatus(status: any): void {
-  // System overview
+  // System overview,
   console.log(chalk.cyan.bold('System Overview'));
   console.log('─'.repeat(50));
   
@@ -85,7 +85,7 @@ function showFullStatus(status: any): void {
   console.log(`${chalk.white('Started:')} ${new Date(status.startTime).toLocaleString()}`);
   console.log();
 
-  // Components status
+  // Components status,
   console.log(chalk.cyan.bold('Components'));
   console.log('─'.repeat(50));
   
@@ -111,7 +111,7 @@ function showFullStatus(status: any): void {
   console.log(componentTable.toString());
   console.log();
 
-  // Resource usage
+  // Resource usage,
   if (status.resources) {
     console.log(chalk.cyan.bold('Resource Usage'));
     console.log('─'.repeat(50));
@@ -139,7 +139,7 @@ function showFullStatus(status: any): void {
     console.log();
   }
 
-  // Active agents
+  // Active agents,
   if (status.agents) {
     console.log(chalk.cyan.bold(`Active Agents (${status.agents.length})`));
     console.log('─'.repeat(50));
@@ -171,7 +171,7 @@ function showFullStatus(status: any): void {
     console.log();
   }
 
-  // Recent tasks
+  // Recent tasks,
   if (status.recentTasks) {
     console.log(chalk.cyan.bold('Recent Tasks'));
     console.log('─'.repeat(50));
@@ -264,7 +264,7 @@ function showComponentStatus(status: any, componentName: string): void {
 
 async function getSystemStatus(): Promise<any> {
   // Real system status monitoring not yet implemented
-  // Basic status information only
+  // Basic status information only,
   return {
     overall: 'healthy',
     version: '1.0.0',

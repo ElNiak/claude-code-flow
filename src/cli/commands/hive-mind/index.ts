@@ -20,7 +20,7 @@ export const hiveMindCommand = new Command('hive-mind')
   .addCommand(taskCommand)
   .addCommand(wizardCommand);
 
-// Export individual commands for testing
+// Export individual commands for testing,
 export {
   initCommand,
   spawnCommand,

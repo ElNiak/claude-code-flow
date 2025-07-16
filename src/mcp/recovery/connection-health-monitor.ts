@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../../utils/error-handler.js';
 /**
  * Connection Health Monitor for MCP
  * Monitors connection health and triggers recovery when needed
@@ -76,10 +76,10 @@ export class ConnectionHealthMonitor extends EventEmitter {
     this.missedHeartbeats = 0;
     this.lastHeartbeat = new Date();
     
-    // Start heartbeat cycle
+    // Start heartbeat cycle,
     this.scheduleHeartbeat();
     
-    // Update initial status
+    // Update initial status,
     this.updateHealthStatus('connected');
     this.emit('started');
   }
@@ -123,10 +123,10 @@ export class ConnectionHealthMonitor extends EventEmitter {
     try {
       const startTime = Date.now();
       
-      // Send heartbeat ping
+      // Send heartbeat ping,
       await this.sendHeartbeat();
       
-      // Calculate latency
+      // Calculate latency,
       this.currentLatency = Date.now() - startTime;
       this.lastHeartbeat = new Date();
       this.missedHeartbeats = 0;
@@ -147,7 +147,7 @@ export class ConnectionHealthMonitor extends EventEmitter {
   async forceCheck(): Promise<void> {
     this.logger.debug('Forcing health check');
     
-    // Cancel current timers
+    // Cancel current timers,
     if (this.heartbeatTimer) {
       clearTimeout(this.heartbeatTimer);
     }
@@ -155,7 +155,7 @@ export class ConnectionHealthMonitor extends EventEmitter {
       clearTimeout(this.timeoutTimer);
     }
     
-    // Perform immediate check
+    // Perform immediate check,
     await this.performHeartbeat();
   }
 
@@ -179,16 +179,16 @@ export class ConnectionHealthMonitor extends EventEmitter {
     this.logger.debug('Performing heartbeat');
     
     try {
-      // Set timeout for heartbeat response
+      // Set timeout for heartbeat response,
       this.setHeartbeatTimeout();
       
       const startTime = Date.now();
       await this.sendHeartbeat();
       
-      // Clear timeout on success
+      // Clear timeout on success,
       this.clearHeartbeatTimeout();
       
-      // Update metrics
+      // Update metrics,
       this.currentLatency = Date.now() - startTime;
       this.lastHeartbeat = new Date();
       this.missedHeartbeats = 0;
@@ -199,7 +199,7 @@ export class ConnectionHealthMonitor extends EventEmitter {
       
       this.updateHealthStatus('connected', true);
       
-      // Schedule next heartbeat
+      // Schedule next heartbeat,
       this.scheduleHeartbeat();
     } catch (error) {
       this.handleHeartbeatFailure(error as Error);
@@ -207,7 +207,7 @@ export class ConnectionHealthMonitor extends EventEmitter {
   }
 
   private async sendHeartbeat(): Promise<void> {
-    // Send heartbeat notification via MCP
+    // Send heartbeat notification via MCP,
     await this.client.notify('heartbeat', {
       timestamp: Date.now(),
       sessionId: this.generateSessionId(),
@@ -250,7 +250,7 @@ export class ConnectionHealthMonitor extends EventEmitter {
         this.emit('connectionLost', { error });
       }
     } else {
-      // Schedule next heartbeat with backoff
+      // Schedule next heartbeat with backoff,
       const backoffDelay = this.config.heartbeatInterval * (this.missedHeartbeats + 1);
       this.logger.debug('Scheduling heartbeat with backoff', { delay: backoffDelay });
       
@@ -278,7 +278,7 @@ export class ConnectionHealthMonitor extends EventEmitter {
       error,
     };
     
-    // Emit event if health changed
+    // Emit event if health changed,
     if (previousStatus.healthy !== this.healthStatus.healthy ||
         previousStatus.connectionState !== this.healthStatus.connectionState) {
       this.logger.info('Health status changed', {

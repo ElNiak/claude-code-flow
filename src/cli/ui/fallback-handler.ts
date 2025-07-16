@@ -1,4 +1,3 @@
-import { getErrorMessage } from '../../utils/type-guards.js';
 /**
  * Fallback UI Handler - Handles raw mode errors gracefully
  * Provides alternative UI when Ink/raw mode isn't supported
@@ -6,6 +5,7 @@ import { getErrorMessage } from '../../utils/type-guards.js';
 
 import chalk from 'chalk';
 import { createCompatibleUI } from './compatible-ui.js';
+import { getErrorMessage } from '../../utils/type-guards.js';
 
 export interface FallbackOptions {
   enableUI?: boolean;
@@ -92,7 +92,7 @@ async function showBasicInterface(options: FallbackOptions): Promise<void> {
 
   console.log(chalk.gray('Press Ctrl+C to exit'));
   
-  // Wait for user to exit
+  // Wait for user to exit,
   await new Promise(() => {
     process.on('SIGINT', () => {
       console.log(chalk.green('\n👋 Goodbye!'));
@@ -129,7 +129,7 @@ export function checkUISupport(): {
   reason?: string;
   recommendation?: string;
 } {
-  // Check if we're in a TTY
+  // Check if we're in a TTY,
   if (!process.stdin.isTTY) {
     return {
       supported: false,
@@ -138,7 +138,7 @@ export function checkUISupport(): {
     };
   }
 
-  // Check if raw mode is available
+  // Check if raw mode is available,
   if (typeof process.stdin.setRawMode !== 'function') {
     return {
       supported: false,
@@ -147,7 +147,7 @@ export function checkUISupport(): {
     };
   }
 
-  // Check for VS Code terminal
+  // Check for VS Code terminal,
   if (process.env.TERM_PROGRAM === 'vscode') {
     return {
       supported: false,
@@ -156,7 +156,7 @@ export function checkUISupport(): {
     };
   }
 
-  // Check for other problematic environments
+  // Check for other problematic environments,
   if (process.env.CI || process.env.GITHUB_ACTIONS) {
     return {
       supported: false,

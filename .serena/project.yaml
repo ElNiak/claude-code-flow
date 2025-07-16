@@ -1,0 +1,42 @@
+name: claude-code-flow
+language: typescript
+root_dir: /Users/elniak/Documents/Project/claude-code-flow
+
+# TypeScript/JavaScript configuration
+files:
+  include:
+    - "src/**/*.ts"
+    - "src/**/*.js"
+    - "*.ts"
+    - "*.js"
+    - "*.json"
+  exclude:
+    - "node_modules/**"
+    - "dist/**"
+    - "dist-cjs/**"
+    - "coverage/**"
+    - "bin/**"
+    - ".git/**"
+
+# Language-specific settings
+language_settings:
+  typescript:
+    tsconfig_path: "tsconfig.json"
+    include_js: true
+    strict_mode: true
+  node:
+    version: ">=20.0.0"
+    package_manager: "npm"
+
+# IDE assistant context
+context:
+  type: "ide-assistant"
+  description: "Advanced AI agent coordination platform with intelligent task distribution"
+  main_entry: "src/cli/main.ts"
+  
+# Project metadata
+metadata:
+  version: "2.0.0-alpha.50"
+  author: "rUv"
+  license: "MIT"
+  repository: "https://github.com/ruvnet/claude-code-flow.git"

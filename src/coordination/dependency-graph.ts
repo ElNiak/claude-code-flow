@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * Dependency graph management for task scheduling
  */
@@ -45,17 +45,17 @@ export class DependencyGraph {
       status: 'pending',
     };
 
-    // Validate dependencies exist
+    // Validate dependencies exist,
     for (const depId of task.dependencies) {
       if (!this.nodes.has(depId) && !this.completedTasks.has(depId)) {
         throw new TaskDependencyError(task.id, [depId]);
       }
     }
 
-    // Add node
+    // Add node,
     this.nodes.set(task.id, node);
 
-    // Update dependents for dependencies
+    // Update dependents for dependencies,
     for (const depId of task.dependencies) {
       const depNode = this.nodes.get(depId);
       if (depNode) {
@@ -63,7 +63,7 @@ export class DependencyGraph {
       }
     }
 
-    // Check if task is ready
+    // Check if task is ready,
     if (this.isTaskReady(task.id)) {
       node.status = 'ready';
     }
@@ -78,7 +78,7 @@ export class DependencyGraph {
       return;
     }
 
-    // Remove from dependents of dependencies
+    // Remove from dependents of dependencies,
     for (const depId of node.dependencies) {
       const depNode = this.nodes.get(depId);
       if (depNode) {
@@ -86,12 +86,12 @@ export class DependencyGraph {
       }
     }
 
-    // Remove from dependencies of dependents
+    // Remove from dependencies of dependents,
     for (const depId of node.dependents) {
       const depNode = this.nodes.get(depId);
       if (depNode) {
         depNode.dependencies.delete(taskId);
-        // Check if dependent is now ready
+        // Check if dependent is now ready,
         if (this.isTaskReady(depId)) {
           depNode.status = 'ready';
         }
@@ -114,7 +114,7 @@ export class DependencyGraph {
     node.status = 'completed';
     this.completedTasks.add(taskId);
     
-    // Find newly ready tasks
+    // Find newly ready tasks,
     const readyTasks: string[] = [];
     
     for (const dependentId of node.dependents) {
@@ -125,7 +125,7 @@ export class DependencyGraph {
       }
     }
 
-    // Remove from active graph
+    // Remove from active graph,
     this.removeTask(taskId);
 
     return readyTasks;
@@ -142,10 +142,10 @@ export class DependencyGraph {
 
     node.status = 'failed';
     
-    // Get all dependent tasks that need to be cancelled
+    // Get all dependent tasks that need to be cancelled,
     const toCancelIds = this.getAllDependents(taskId);
     
-    // Mark all dependents as failed
+    // Mark all dependents as failed,
     for (const depId of toCancelIds) {
       const depNode = this.nodes.get(depId);
       if (depNode) {
@@ -165,7 +165,7 @@ export class DependencyGraph {
       return false;
     }
 
-    // All dependencies must be completed
+    // All dependencies must be completed,
     for (const depId of node.dependencies) {
       if (!this.completedTasks.has(depId)) {
         return false;
@@ -248,10 +248,10 @@ export class DependencyGraph {
             return true;
           }
         } else if (recursionStack.has(depId)) {
-          // Found cycle
+          // Found cycle,
           const cycleStart = currentPath.indexOf(depId);
           const cycle = currentPath.slice(cycleStart);
-          cycle.push(depId); // Complete the cycle
+          cycle.push(depId); // Complete the cycle,
           cycles.push(cycle);
           return true;
         }
@@ -262,7 +262,7 @@ export class DependencyGraph {
       return false;
     };
 
-    // Check all nodes
+    // Check all nodes,
     for (const taskId of this.nodes.keys()) {
       if (!visited.has(taskId)) {
         hasCycle(taskId);
@@ -276,7 +276,7 @@ export class DependencyGraph {
    * Get topological sort of tasks
    */
   topologicalSort(): string[] | null {
-    // Check for cycles first
+    // Check for cycles first,
     const cycles = this.detectCycles();
     if (cycles.length > 0) {
       this.logger.error('Cannot perform topological sort due to cycles', { cycles });
@@ -297,7 +297,7 @@ export class DependencyGraph {
         return;
       }
 
-      // Visit dependencies first
+      // Visit dependencies first,
       for (const depId of node.dependencies) {
         if (!visited.has(depId)) {
           visit(depId);
@@ -307,7 +307,7 @@ export class DependencyGraph {
       sorted.push(taskId);
     };
 
-    // Visit all nodes
+    // Visit all nodes,
     for (const taskId of this.nodes.keys()) {
       if (!visited.has(taskId)) {
         visit(taskId);
@@ -323,7 +323,7 @@ export class DependencyGraph {
   findCriticalPath(): DependencyPath | null {
     const paths: DependencyPath[] = [];
     
-    // Find all paths from tasks with no dependencies to tasks with no dependents
+    // Find all paths from tasks with no dependencies to tasks with no dependents,
     const sources = Array.from(this.nodes.entries())
       .filter(([_, node]) => node.dependencies.size === 0)
       .map(([id]) => id);
@@ -341,7 +341,7 @@ export class DependencyGraph {
       }
     }
 
-    // Return longest path
+    // Return longest path,
     if (paths.length === 0) {
       return null;
     }
@@ -441,7 +441,7 @@ export class DependencyGraph {
     dot += '  rankdir=LR;\n';
     dot += '  node [shape=box];\n\n';
 
-    // Add nodes with status colors
+    // Add nodes with status colors,
     for (const [taskId, node] of this.nodes) {
       let color = 'white';
       switch (node.status) {
@@ -463,7 +463,7 @@ export class DependencyGraph {
 
     dot += '\n';
 
-    // Add edges
+    // Add edges,
     for (const [taskId, node] of this.nodes) {
       for (const depId of node.dependencies) {
         dot += `  "${depId}" -> "${taskId}";\n`;

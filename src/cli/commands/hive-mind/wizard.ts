@@ -31,12 +31,12 @@ export const wizardCommand = new Command('wizard')
   .option('--skip-intro', 'Skip the intro animation', false)
   .action(async (options) => {
     try {
-      // Show intro
+      // Show intro,
       if (!options.skipIntro) {
         await showIntro();
       }
       
-      // Main wizard loop
+      // Main wizard loop,
       let exit = false;
       while (!exit) {
         const action = await selectAction();
@@ -189,7 +189,7 @@ async function createSwarmWizard() {
     }
   ]);
   
-  // Advanced options
+  // Advanced options,
   const { showAdvanced } = await inquirer.prompt([{
     type: 'confirm',
     name: 'showAdvanced',
@@ -222,8 +222,9 @@ async function createSwarmWizard() {
     Object.assign(answers, advanced);
   }
   
-  // Create swarm
-  const spinner = require('ora')('Creating Hive Mind swarm...').start();
+  // Create swarm,
+  const { default: ora } = await import('ora');
+  const spinner = ora('Creating Hive Mind swarm...').start();
   
   try {
     const hiveMind = new HiveMind({
@@ -330,7 +331,8 @@ async function spawnAgentInteractive(hiveMind: HiveMind) {
     }
   ]);
   
-  const spinner = require('ora')(`Spawning ${answers.count} ${answers.type} agent(s)...`).start();
+  const { default: ora } = await import('ora');
+  const spinner = ora(`Spawning ${answers.count} ${answers.type} agent(s)...`).start();
   
   try {
     const agents = [];
@@ -374,7 +376,7 @@ async function submitTaskWizard() {
   }]);
   
   let taskDescription = '';
-  let taskConfig: any = {};
+  const _taskConfig: any = {};
   
   if (template === 'custom') {
     const answers = await inquirer.prompt([
@@ -386,7 +388,7 @@ async function submitTaskWizard() {
     ]);
     taskDescription = answers.description;
   } else {
-    // Use predefined templates
+    // Use predefined templates,
     const templates = {
       research: {
         prompt: 'What would you like to research?',
@@ -420,7 +422,7 @@ async function submitTaskWizard() {
     taskDescription = tmpl.prefix + detail;
   }
   
-  // Task configuration
+  // Task configuration,
   const config = await inquirer.prompt([
     {
       type: 'list',
@@ -454,7 +456,8 @@ async function submitTaskWizard() {
     }
   ]);
   
-  const spinner = require('ora')('Submitting task...').start();
+  const { default: ora } = await import('ora');
+  const spinner = ora('Submitting task...').start();
   
   try {
     const task = await hiveMind.submitTask({
@@ -492,8 +495,8 @@ async function viewStatusWizard() {
     ]
   }]);
   
-  // Execute the status command with appropriate flags
-  const statusCmd = require('./status').statusCommand;
+  // Execute the status command with appropriate flags,
+  const { statusCommand } = await import('./status.js');
   const args = ['status'];
   
   switch (view) {
@@ -511,10 +514,10 @@ async function viewStatusWizard() {
       break;
   }
   
-  await statusCmd.parseAsync(args);
+  await statusCommand.parseAsync(args);
 }
 
-// Helper functions for other wizard actions
+// Helper functions for other wizard actions,
 async function listAgentsInteractive(hiveMind: HiveMind) {
   const agents = await hiveMind.getAgents();
   
@@ -525,18 +528,19 @@ async function listAgentsInteractive(hiveMind: HiveMind) {
   });
 }
 
-async function modifyAgentInteractive(hiveMind: HiveMind) {
-  // Implementation for modifying agents
+async function modifyAgentInteractive(_hiveMind: HiveMind) {
+  // Implementation for modifying agents,
   console.log(formatInfo('Agent modification coming soon...'));
 }
 
-async function removeAgentInteractive(hiveMind: HiveMind) {
-  // Implementation for removing agents
+async function removeAgentInteractive(_hiveMind: HiveMind) {
+  // Implementation for removing agents,
   console.log(formatInfo('Agent removal coming soon...'));
 }
 
 async function rebalanceAgentsInteractive(hiveMind: HiveMind) {
-  const spinner = require('ora')('Rebalancing agents...').start();
+  const { default: ora } = await import('ora');
+  const spinner = ora('Rebalancing agents...').start();
   
   try {
     await hiveMind.rebalanceAgents();

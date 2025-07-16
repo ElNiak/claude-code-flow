@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../../utils/error-handler.js';
 /**
  * Monitor command for Claude-Flow - Live dashboard mode
  */
@@ -10,7 +10,7 @@ import chalk from 'chalk';
 import Table from 'cli-table3';
 import { formatProgressBar, formatDuration, formatStatusIndicator } from '../formatter.js';
 
-// Type definitions
+// Type definitions,
 interface ComponentStatus {
   status: 'healthy' | 'degraded' | 'error';
   load: number;
@@ -54,7 +54,7 @@ interface MonitorData {
 
 class Dashboard {
   private data: MonitorData[] = [];
-  private maxDataPoints = 60; // 2 minutes at 2-second intervals
+  private maxDataPoints = 60; // 2 minutes at 2-second intervals,
   private running = true;
   private alerts: AlertData[] = [];
   private startTime = Date.now();
@@ -65,14 +65,14 @@ class Dashboard {
   }
 
   async start(): Promise<void> {
-    // Hide cursor and clear screen
+    // Hide cursor and clear screen,
     process.stdout.write('\x1b[?25l');
     console.clear();
 
-    // Setup signal handlers
+    // Setup signal handlers,
     const cleanup = () => {
       this.running = false;
-      process.stdout.write('\x1b[?25h'); // Show cursor
+      process.stdout.write('\x1b[?25h'); // Show cursor,
       console.log('\n' + chalk.gray('Monitor stopped'));
       process.exit(0);
     };
@@ -80,7 +80,7 @@ class Dashboard {
     process.on('SIGINT', cleanup);
     process.on('SIGTERM', cleanup);
 
-    // Start monitoring loop
+    // Start monitoring loop,
     await this.monitoringLoop();
   }
 
@@ -90,7 +90,7 @@ class Dashboard {
         const data = await this.collectData();
         this.data.push(data);
         
-        // Keep only recent data points
+        // Keep only recent data points,
         if (this.data.length > this.maxDataPoints) {
           this.data = this.data.slice(-this.maxDataPoints);
         }
@@ -105,10 +105,10 @@ class Dashboard {
   }
 
   private async collectData(): Promise<MonitorData> {
-    // Mock data collection - in production, this would connect to the orchestrator
+    // Mock data collection - in production, this would connect to the orchestrator,
     const timestamp = new Date();
     const cpuUsage = 10 + Math.random() * 20; // 10-30%
-    const memoryUsage = 200 + Math.random() * 100; // 200-300MB
+    const memoryUsage = 200 + Math.random() * 100; // 200-300MB,
     
     return {
       timestamp,
@@ -137,33 +137,33 @@ class Dashboard {
     const latest = this.data[this.data.length - 1];
     if (!latest) return;
 
-    // Header
+    // Header,
     this.renderHeader(latest);
     
     if (this.options.focus) {
       this.renderFocusedComponent(latest, this.options.focus);
     } else {
-      // System overview
+      // System overview,
       this.renderSystemOverview(latest);
       
-      // Components status
+      // Components status,
       this.renderComponentsStatus(latest);
       
       if (!this.options.compact) {
-        // Agents and tasks
+        // Agents and tasks,
         this.renderAgentsAndTasks(latest);
         
-        // Recent events
+        // Recent events,
         this.renderRecentEvents(latest);
         
-        // Performance graphs
+        // Performance graphs,
         if (!this.options.noGraphs) {
           this.renderPerformanceGraphs();
         }
       }
     }
 
-    // Footer
+    // Footer,
     this.renderFooter();
   }
 
@@ -209,7 +209,7 @@ class Dashboard {
   }
 
   private renderAgentsAndTasks(data: MonitorData): void {
-    // Agents table
+    // Agents table,
     console.log(chalk.white.bold('Active Agents'));
     console.log('─'.repeat(40));
     
@@ -236,7 +236,7 @@ class Dashboard {
     }
     console.log();
 
-    // Recent tasks
+    // Recent tasks,
     console.log(chalk.white.bold('Recent Tasks'));
     console.log('─'.repeat(40));
     
@@ -285,11 +285,11 @@ class Dashboard {
     console.log('─'.repeat(40));
     
     if (this.data.length >= 2) {
-      // CPU graph
+      // CPU graph,
       console.log(chalk.cyan('CPU Usage:'));
       console.log(this.createSparkline(this.data.map(d => d.system.cpu), 30));
       
-      // Memory graph
+      // Memory graph,
       console.log(chalk.cyan('Memory Usage:'));
       console.log(this.createSparkline(this.data.map(d => d.system.memory), 30));
     } else {
@@ -312,7 +312,7 @@ class Dashboard {
     console.log(`${statusIcon} Status: ${component.status}`);
     console.log(`Load: ${formatProgressBar(component.load, 100, 30)} ${component.load.toFixed(1)}%`);
     
-    // Add component-specific metrics here
+    // Add component-specific metrics here,
     console.log();
   }
 
@@ -409,7 +409,7 @@ class Dashboard {
   }
 
   private generateMockEvents(): any[] {
-    const events = [
+    const _events = [
       { type: 'task_completed', message: 'Research task completed successfully' },
       { type: 'agent_spawned', message: 'New implementer agent spawned' },
       { type: 'task_assigned', message: 'Task assigned to coordinator agent' },
@@ -433,7 +433,7 @@ class Dashboard {
       const event = eventTypes[Math.floor(Math.random() * eventTypes.length)];
       return {
         ...event,
-        timestamp: Date.now() - (i * Math.random() * 300000), // Random intervals up to 5 minutes
+        timestamp: Date.now() - (i * Math.random() * 300000), // Random intervals up to 5 minutes,
         component: Math.random() > 0.3 ? components[Math.floor(Math.random() * components.length)] : undefined
       };
     }).sort((a, b) => b.timestamp - a.timestamp);
@@ -449,7 +449,7 @@ class Dashboard {
   
   private async getRealSystemData(): Promise<MonitorData | null> {
     // Real system monitoring not yet implemented
-    // Would connect to actual orchestrator when available
+    // Would connect to actual orchestrator when available,
     return null;
   }
   
@@ -466,7 +466,7 @@ class Dashboard {
       result[component] = {
         status: status as 'error' | 'healthy' | 'degraded',
         load: Math.random() * 100,
-        uptime: Math.random() * 3600000, // Up to 1 hour
+        uptime: Math.random() * 3600000, // Up to 1 hour,
         errors: hasErrors ? Math.floor(Math.random() * 5) : 0,
         lastError: hasErrors ? 'Connection timeout' : undefined
       };
@@ -478,7 +478,7 @@ class Dashboard {
   private checkAlerts(data: MonitorData): void {
     const newAlerts: AlertData[] = [];
     
-    // Check system thresholds
+    // Check system thresholds,
     if (data.system.cpu > this.options.threshold) {
       newAlerts.push({
         id: 'cpu-high',
@@ -501,7 +501,7 @@ class Dashboard {
       });
     }
     
-    // Check component status
+    // Check component status,
     for (const [name, component] of Object.entries(data.components)) {
       if (component.status === 'error') {
         newAlerts.push({
@@ -554,7 +554,7 @@ class Dashboard {
 }
 
 async function startMonitorDashboard(options: any): Promise<void> {
-  // Validate options
+  // Validate options,
   if (options.interval < 1) {
     console.error(chalk.red('Update interval must be at least 1 second'));
     return;
@@ -566,7 +566,7 @@ async function startMonitorDashboard(options: any): Promise<void> {
   }
   
   if (options.export) {
-    // Check if export path is writable
+    // Check if export path is writable,
     try {
       await fs.writeFile(options.export, '');
       await Deno.remove(options.export);

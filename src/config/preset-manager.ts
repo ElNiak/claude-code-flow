@@ -134,7 +134,7 @@ export class PresetManager {
       const content = await fs.readFile(presetPath, 'utf8');
       const preset = JSON.parse(content) as PresetConfig;
       
-      // Validate preset structure
+      // Validate preset structure,
       this.validatePreset(preset);
       
       return preset;
@@ -152,7 +152,7 @@ export class PresetManager {
     // Extract base configuration (remove preset-specific fields)
     const { name, description, version, agents, workflows, smartDefaults, hooks, performance, security, monitoring, ...baseConfig } = preset;
     
-    // Apply base configuration
+    // Apply base configuration,
     await this.configManager.load(JSON.stringify(baseConfig));
     
     console.log(`✅ Applied preset: ${name} (${version})`);
@@ -166,7 +166,7 @@ export class PresetManager {
       throw new ConfigError('Agent capabilities not loaded');
     }
 
-    // Start with appropriate base preset
+    // Start with appropriate base preset,
     let basePreset: PresetConfig;
     
     if (projectAnalysis.type === 'web_application' || projectAnalysis.type === 'api_service') {
@@ -179,7 +179,7 @@ export class PresetManager {
       basePreset = await this.loadPreset('development'); // Default
     }
 
-    // Adapt configuration based on project characteristics
+    // Adapt configuration based on project characteristics,
     const adaptedConfig = this.adaptConfigurationForProject(basePreset, projectAnalysis);
     
     return adaptedConfig;
@@ -191,7 +191,7 @@ export class PresetManager {
   private adaptConfigurationForProject(baseConfig: PresetConfig, analysis: ProjectAnalysis): PresetConfig {
     const adaptedConfig = JSON.parse(JSON.stringify(baseConfig)) as PresetConfig;
 
-    // Adapt agent count based on project size
+    // Adapt agent count based on project size,
     const sizeRules = this.agentCapabilities?.adaptiveRules.projectSize;
     if (sizeRules) {
       const sizeRule = sizeRules[analysis.size];
@@ -202,7 +202,7 @@ export class PresetManager {
       }
     }
 
-    // Adapt agents based on file types
+    // Adapt agents based on file types,
     if (analysis.fileTypes && this.agentCapabilities) {
       const recommendedAgents = new Set<string>();
       
@@ -218,7 +218,7 @@ export class PresetManager {
       }
     }
 
-    // Adapt complexity-based settings
+    // Adapt complexity-based settings,
     const complexityRules = this.agentCapabilities?.adaptiveRules.complexity;
     if (complexityRules) {
       const complexityRule = complexityRules[analysis.complexity];
@@ -227,7 +227,7 @@ export class PresetManager {
       }
     }
 
-    // Adapt time constraints
+    // Adapt time constraints,
     const timeRules = this.agentCapabilities?.adaptiveRules.timeConstraints;
     if (timeRules) {
       const timeRule = timeRules[analysis.timeConstraint];
@@ -237,19 +237,19 @@ export class PresetManager {
       }
     }
 
-    // Adapt memory settings based on project characteristics
+    // Adapt memory settings based on project characteristics,
     if (analysis.isDataIntensive) {
       adaptedConfig.memory.cacheSizeMB = Math.max(adaptedConfig.memory.cacheSizeMB, 500);
       adaptedConfig.memory.backend = 'hybrid';
     }
 
-    // Adapt coordination settings based on team size
+    // Adapt coordination settings based on team size,
     if (analysis.teamSize > 5) {
       adaptedConfig.ruvSwarm.defaultTopology = 'hierarchical';
       adaptedConfig.coordination.maxRetries = Math.max(adaptedConfig.coordination.maxRetries, 5);
     }
 
-    // Set adaptive metadata
+    // Set adaptive metadata,
     adaptedConfig.name = `adaptive-${analysis.type}`;
     adaptedConfig.description = `Adaptive configuration for ${analysis.type} project`;
     adaptedConfig.version = '2.0.0-adaptive';
@@ -272,7 +272,7 @@ export class PresetManager {
     };
 
     try {
-      // Analyze package.json if it exists
+      // Analyze package.json if it exists,
       const packageJsonPath = path.join(projectPath, 'package.json');
       try {
         const packageContent = await fs.readFile(packageJsonPath, 'utf8');
@@ -282,18 +282,18 @@ export class PresetManager {
         // No package.json or invalid JSON
       }
 
-      // Analyze file structure
+      // Analyze file structure,
       const files = await this.getProjectFiles(projectPath);
       analysis.fileTypes = this.getUniqueFileTypes(files);
       analysis.size = this.inferProjectSize(files);
       analysis.complexity = this.inferProjectComplexity(files, analysis.fileTypes);
       analysis.isDataIntensive = this.isDataIntensiveProject(analysis.fileTypes);
 
-      // Check for team indicators
+      // Check for team indicators,
       const gitConfigPath = path.join(projectPath, '.git', 'config');
       try {
         await fs.access(gitConfigPath);
-        // Could analyze git history for team size, but simplified for now
+        // Could analyze git history for team size, but simplified for now,
         analysis.teamSize = 3; // Default assumption for git projects
       } catch {
         analysis.teamSize = 1; // Single developer
@@ -480,5 +480,5 @@ export interface ProjectAnalysis {
   teamSize: number;
 }
 
-// Export singleton instance
+// Export singleton instance,
 export const presetManager = PresetManager.getInstance();

@@ -33,7 +33,7 @@ export class EnhancedWebUI {
         this.isInitialized = true;
         
       } catch (error) {
-        console.warn('⚠️ Full UI initialization failed, using fallback mode:', error);
+        console.warn('⚠️ Full UI initialization failed, using fallback mode:', _error);
         this.fallbackMode = true;
         await this.initializeFallbackMode();
       }
@@ -46,7 +46,7 @@ export class EnhancedWebUI {
       return this.isInitialized || this.fallbackMode;
       
     } catch (error) {
-      console.error('❌ Failed to initialize Enhanced Web UI:', error);
+      console.error('❌ Failed to initialize Enhanced Web UI:', _error);
       throw error;
     }
   }
@@ -217,14 +217,14 @@ export class EnhancedWebUI {
    */
   async navigateToView(viewId, params = {}) {
     if (this.uiManager && !this.fallbackMode) {
-      return await this.uiManager.navigateToView(viewId, params);
+      return await this.uiManager.navigateToView(viewId, _params);
     } else {
       // Fallback navigation
       if (this.originalProcessUI) {
         this.originalProcessUI.currentView = viewId;
         this.originalProcessUI.selectedIndex = 0;
       } else {
-        console.log(`📄 Navigating to view: ${viewId}`, params);
+        console.log(`📄 Navigating to view: ${viewId}`, _params);
       }
     }
   }
@@ -234,10 +234,10 @@ export class EnhancedWebUI {
    */
   async executeTool(toolName, params = {}) {
     if (this.uiManager && !this.fallbackMode) {
-      return await this.uiManager.executeMCPTool(toolName, params);
+      return await this.uiManager.executeMCPTool(toolName, _params);
     } else {
       // Fallback tool execution
-      console.log(`🔧 Executing tool: ${toolName}`, params);
+      console.log(`🔧 Executing tool: ${toolName}`, _params);
       
       // Simulate tool execution
       await new Promise(resolve => setTimeout(resolve, 500));

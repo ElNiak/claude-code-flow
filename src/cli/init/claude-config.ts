@@ -1,16 +1,16 @@
-import { getErrorMessage } from '../../utils/error-handler.js';
-// init/claude-config.ts - Claude configuration creation
+import { getErrorMessage as _getErrorMessage } from '../../utils/error-handler.js';
+// init/claude-config.ts - Claude configuration creation,
 import type { InitOptions } from './index.js';
 
 export async function createClaudeConfig(options: InitOptions): Promise<void> {
   const fs = await import('fs/promises');
-  const path = await import('path');
+  const _path = await import('path');
   
-  // Create base configuration
+  // Create base configuration,
   const claudeConfig = {
     version: "1.0.71",
     project: {
-      name: path.basename(process.cwd()),
+      name: _path.basename(process.cwd()),
       type: "claude-flow",
       created: new Date().toISOString()
     },
@@ -52,7 +52,7 @@ export async function createClaudeConfig(options: InitOptions): Promise<void> {
   await fs.writeFile('.claude/config.json', JSON.stringify(claudeConfig, null, 2));
   console.log('  ✅ Created .claude/config.json with batch tools configuration');
   
-  // Create additional configuration files
+  // Create additional configuration files,
   await createBatchToolsConfig();
   await createSwarmConfig();
   await createCoordinationConfig();

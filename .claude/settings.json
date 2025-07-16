@@ -40,7 +40,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "npx claude-flow hooks pre-command --command \"${command}\" --validate-safety true --prepare-resources true"
+            "command": "npx claude-flow hooks pre-bash --command \"${command}\" --validate-safety true --prepare-resources true"
           }
         ]
       },
@@ -49,7 +49,16 @@
         "hooks": [
           {
             "type": "command",
-            "command": "npx claude-flow hooks pre-edit --file \"${file}\" --auto-assign-agents true --load-context true"
+            "command": "npx claude-flow hooks pre-edit --file \"${file_path}\" --auto-assign-agents true --load-context true --serena-verify true --block-on-fail false"
+          }
+        ]
+      },
+      {
+        "matcher": "Read|Glob|Grep",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx claude-flow hooks pre-read --file \"${file_path}\" --symbols-overview true"
           }
         ]
       }
@@ -60,7 +69,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "npx claude-flow hooks post-command --command \"${command}\" --track-metrics true --store-results true"
+            "command": "npx claude-flow hooks post-bash --command \"${command}\" --track-metrics true --store-results true"
           }
         ]
       },
@@ -69,7 +78,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "npx claude-flow hooks post-edit --file \"${file}\" --format true --update-memory true --train-neural true"
+            "command": "npx claude-flow hooks post-edit --file \"${file_path}\" --format true --update-memory true --train-neural true --validate-changes true --store-verified-structure true"
           }
         ]
       }
@@ -88,17 +97,34 @@
   },
   "mcpServers": {
     "claude-flow": {
-      "command": "npx",
+      "command": "node",
       "args": [
-        "claude-flow",
+        "/Users/elniak/Documents/Project/claude-code-flow/dist/cli/simple-cli.js",
         "mcp",
         "start"
       ],
       "env": {
+        "NODE_ENV": "production",
+        "CLAUDE_FLOW_MCP_MODE": "stdio",
         "CLAUDE_FLOW_HOOKS_ENABLED": "true",
         "CLAUDE_FLOW_TELEMETRY_ENABLED": "true",
-        "CLAUDE_FLOW_REMOTE_READY": "true",
-        "CLAUDE_FLOW_GITHUB_INTEGRATION": "true"
+        "CLAUDE_FLOW_DEBUG": "false"
+      }
+    },
+    "serena": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/oraios/serena",
+        "serena-mcp-server",
+        "--context",
+        "ide-assistant",
+        "--project",
+        "${PWD}"
+      ],
+      "env": {
+        "SERENA_LOG_LEVEL": "INFO",
+        "SERENA_TOOL_TIMEOUT": "30"
       }
     }
   },

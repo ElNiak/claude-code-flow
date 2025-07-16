@@ -62,7 +62,7 @@ export class HiveOrchestrator extends EventEmitter {
   async decomposeObjective(objective: string): Promise<HiveTask[]> {
     const tasks: HiveTask[] = [];
     
-    // Analyze objective to determine task types
+    // Analyze objective to determine task types,
     const needsResearch = objective.toLowerCase().includes('research') || 
                          objective.toLowerCase().includes('analyze');
     const needsDesign = objective.toLowerCase().includes('build') || 
@@ -71,7 +71,7 @@ export class HiveOrchestrator extends EventEmitter {
     const needsImplementation = needsDesign || 
                                objective.toLowerCase().includes('implement');
     
-    // Create task graph based on objective
+    // Create task graph based on objective,
     if (needsResearch) {
       tasks.push(this.createTask('research', `Research background and requirements for: ${objective}`, 'high'));
     }
@@ -92,13 +92,13 @@ export class HiveOrchestrator extends EventEmitter {
       }
     }
     
-    // Always include documentation
+    // Always include documentation,
     const docTask = this.createTask('documentation', 'Document solution and decisions', 'medium', 
       tasks.filter(t => t.type !== 'documentation').map(t => t.id)
     );
     tasks.push(docTask);
     
-    // Apply topology-specific ordering
+    // Apply topology-specific ordering,
     return this.applyTopologyOrdering(tasks);
   }
 
@@ -137,14 +137,14 @@ export class HiveOrchestrator extends EventEmitter {
   private applyTopologyOrdering(tasks: HiveTask[]): HiveTask[] {
     switch (this.topology) {
       case 'hierarchical':
-        // Priority-based ordering with dependency respect
+        // Priority-based ordering with dependency respect,
         return tasks.sort((a, b) => {
           const priorityOrder = { critical: 0, high: 1, medium: 2, low: 3 };
           return priorityOrder[a.priority] - priorityOrder[b.priority];
         });
         
       case 'ring':
-        // Sequential ordering - each task depends on previous
+        // Sequential ordering - each task depends on previous,
         for (let i = 1; i < tasks.length; i++) {
           if (tasks[i].dependencies.length === 0) {
             tasks[i].dependencies.push(tasks[i-1].id);
@@ -153,11 +153,11 @@ export class HiveOrchestrator extends EventEmitter {
         return tasks;
         
       case 'mesh':
-        // Parallel-friendly ordering - minimize dependencies
+        // Parallel-friendly ordering - minimize dependencies,
         return tasks.sort((a, b) => a.dependencies.length - b.dependencies.length);
         
       case 'star':
-        // Central coordination - all tasks report to analysis
+        // Central coordination - all tasks report to analysis,
         const analysisTask = tasks.find(t => t.type === 'analysis');
         if (analysisTask) {
           tasks.forEach(t => {
@@ -206,11 +206,11 @@ export class HiveOrchestrator extends EventEmitter {
     
     decision.votes.set(agentId, vote);
     
-    // Check if we have enough votes
+    // Check if we have enough votes,
     const totalAgents = this.agentCapabilities.size;
     const votesReceived = decision.votes.size;
     
-    if (votesReceived >= totalAgents * 0.8) { // 80% participation required
+    if (votesReceived >= totalAgents * 0.8) { // 80% participation required,
       this.evaluateDecision(decision);
     }
   }
@@ -265,7 +265,7 @@ export class HiveOrchestrator extends EventEmitter {
   private calculateAgentTaskScore(task: HiveTask, capabilities: Set<string>): number {
     let score = 0;
     
-    // Type-specific scoring
+    // Type-specific scoring,
     switch (task.type) {
       case 'research':
         if (capabilities.has('research')) score += 5;
@@ -293,7 +293,7 @@ export class HiveOrchestrator extends EventEmitter {
         break;
     }
     
-    // General capabilities bonus
+    // General capabilities bonus,
     if (capabilities.has('analysis')) score += 1;
     if (capabilities.has('optimization')) score += 1;
     
@@ -315,7 +315,7 @@ export class HiveOrchestrator extends EventEmitter {
     
     this.emit('task:updated', task);
     
-    // Check if we can start dependent tasks
+    // Check if we can start dependent tasks,
     if (status === 'completed') {
       this.checkDependentTasks(taskId);
     }
@@ -327,7 +327,7 @@ export class HiveOrchestrator extends EventEmitter {
   private checkDependentTasks(completedTaskId: string) {
     for (const task of this.tasks.values()) {
       if (task.status === 'pending' && task.dependencies.includes(completedTaskId)) {
-        // Check if all dependencies are completed
+        // Check if all dependencies are completed,
         const allDepsCompleted = task.dependencies.every(depId => {
           const depTask = this.tasks.get(depId);
           return depTask && depTask.status === 'completed';

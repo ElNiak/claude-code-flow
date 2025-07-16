@@ -46,7 +46,7 @@ export async function spawnSwarmAgent(swarmId: string, agentType: string, task: 
   };
   swarm.agents.set(agentId, agent);
   
-  // In a real implementation, this would spawn actual Claude instances
+  // In a real implementation, this would spawn actual Claude instances,
   console.log(`[SWARM] Spawned ${agentType} agent: ${agentId}`);
   console.log(`[SWARM] Task: ${task}`);
   
@@ -59,7 +59,7 @@ export async function monitorSwarm(swarmId: string): Promise<void> {
     throw new Error(`Swarm ${swarmId} not found`);
   }
   
-  // Simple monitoring loop
+  // Simple monitoring loop,
   let running = true;
   const interval = setInterval(() => {
     if (!running) {
@@ -72,7 +72,7 @@ export async function monitorSwarm(swarmId: string): Promise<void> {
     console.log(`[MONITOR] Active: ${activeAgents}`);
   }, 5000);
   
-  // Stop monitoring after timeout
+  // Stop monitoring after timeout,
   setTimeout(() => {
     running = false;
   }, 60 * 60 * 1000); // 1 hour

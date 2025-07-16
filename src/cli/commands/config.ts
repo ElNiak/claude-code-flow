@@ -1,8 +1,8 @@
-#!/usr/bin/env node
+#!/usr/bin/env node,
 
 import { Command } from 'commander';
 import chalk from 'chalk';
-import { readFileSync, writeFileSync } from 'fs';
+import { readFileSync as _readFileSync, writeFileSync as _writeFileSync } from 'fs';
 import { ConfigManager } from '../../core/config.js';
 
 const configManager = ConfigManager.getInstance();
@@ -10,7 +10,7 @@ const configManager = ConfigManager.getInstance();
 export const configCommand = new Command('config')
   .description('Configuration management commands');
 
-// Get command
+// Get command,
 configCommand
   .command('get')
   .arguments('<key>')
@@ -25,7 +25,7 @@ configCommand
     }
   });
 
-// Set command  
+// Set command,  
 configCommand
   .command('set')
   .arguments('<key> <value>')
@@ -47,7 +47,7 @@ configCommand
     }
   });
 
-// List command
+// List command,
 configCommand
   .command('list')
   .description('List all configuration values')
@@ -71,7 +71,7 @@ configCommand
     }
   });
 
-// Reset command
+// Reset command,
 configCommand
   .command('reset')
   .description('Reset configuration to defaults')

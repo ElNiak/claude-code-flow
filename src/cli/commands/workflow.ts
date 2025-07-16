@@ -131,7 +131,7 @@ interface TaskExecution {
 
 async function runWorkflow(workflowFile: string, options: any): Promise<void> {
   try {
-    // Load and validate workflow
+    // Load and validate workflow,
     const workflow = await loadWorkflow(workflowFile);
     
     if (options.dryRun) {
@@ -140,7 +140,7 @@ async function runWorkflow(workflowFile: string, options: any): Promise<void> {
       return;
     }
 
-    // Override variables if provided
+    // Override variables if provided,
     if (options.variables) {
       try {
         const vars = JSON.parse(options.variables);
@@ -150,7 +150,7 @@ async function runWorkflow(workflowFile: string, options: any): Promise<void> {
       }
     }
 
-    // Create execution plan
+    // Create execution plan,
     const execution = await createExecution(workflow);
     
     console.log(chalk.cyan.bold('Starting workflow execution'));
@@ -159,7 +159,7 @@ async function runWorkflow(workflowFile: string, options: any): Promise<void> {
     console.log(`${chalk.white('Tasks:')} ${execution.tasks.length}`);
     console.log();
 
-    // Execute workflow
+    // Execute workflow,
     if (options.watch) {
       await executeWorkflowWithWatch(execution, workflow, options);
     } else {
@@ -193,7 +193,7 @@ async function validateWorkflow(workflowFile: string, options: any): Promise<voi
 
 async function listWorkflows(options: any): Promise<void> {
   try {
-    // Mock workflow list - in production, this would query the orchestrator
+    // Mock workflow list - in production, this would query the orchestrator,
     const workflows = await getRunningWorkflows(options.all);
     
     if (options.format === 'json') {
@@ -279,7 +279,7 @@ async function stopWorkflow(workflowId: string, options: any): Promise<void> {
 
     console.log(chalk.yellow('Stopping workflow...'));
     
-    // Mock stopping - in production, this would call the orchestrator
+    // Mock stopping - in production, this would call the orchestrator,
     if (options.force) {
       console.log(chalk.red('• Force stopping all tasks'));
     } else {
@@ -407,7 +407,7 @@ async function generateTemplate(templateType: string, options: any): Promise<voi
   
   let content: string;
   if (options.format === 'yaml') {
-    // In production, use a proper YAML library
+    // In production, use a proper YAML library,
     console.log(chalk.yellow('YAML format not implemented, using JSON'));
     content = JSON.stringify(template, null, 2);
   } else {
@@ -428,7 +428,7 @@ async function loadWorkflow(workflowFile: string): Promise<WorkflowDefinition> {
     const content = await fs.readFile(workflowFile, 'utf-8');
     
     if (workflowFile.endsWith('.yaml') || workflowFile.endsWith('.yml')) {
-      // In production, use a proper YAML parser
+      // In production, use a proper YAML parser,
       throw new Error('YAML workflows not yet supported');
     }
     
@@ -441,11 +441,11 @@ async function loadWorkflow(workflowFile: string): Promise<WorkflowDefinition> {
 async function validateWorkflowDefinition(workflow: WorkflowDefinition, strict = false): Promise<void> {
   const errors: string[] = [];
 
-  // Basic validation
+  // Basic validation,
   if (!workflow.name) errors.push('Workflow name is required');
   if (!workflow.tasks || workflow.tasks.length === 0) errors.push('At least one task is required');
 
-  // Task validation
+  // Task validation,
   const taskIds = new Set<string>();
   for (const task of workflow.tasks || []) {
     if (!task.id) errors.push('Task ID is required');
@@ -455,11 +455,11 @@ async function validateWorkflowDefinition(workflow: WorkflowDefinition, strict =
     if (!task.type) errors.push(`Task ${task.id}: type is required`);
     if (!task.description) errors.push(`Task ${task.id}: description is required`);
     
-    // Validate dependencies
+    // Validate dependencies,
     if (task.depends) {
       for (const dep of task.depends) {
         if (!taskIds.has(dep)) {
-          // Check if dependency exists in previous tasks
+          // Check if dependency exists in previous tasks,
           const taskIndex = workflow.tasks.indexOf(task);
           const depExists = workflow.tasks.slice(0, taskIndex).some(t => t.id === dep);
           if (!depExists) {
@@ -470,7 +470,7 @@ async function validateWorkflowDefinition(workflow: WorkflowDefinition, strict =
     }
   }
 
-  // Agent validation
+  // Agent validation,
   if (workflow.agents) {
     const agentIds = new Set<string>();
     for (const agent of workflow.agents) {
@@ -481,7 +481,7 @@ async function validateWorkflowDefinition(workflow: WorkflowDefinition, strict =
       if (!agent.type) errors.push(`Agent ${agent.id}: type is required`);
     }
 
-    // Validate task assignments
+    // Validate task assignments,
     for (const task of workflow.tasks) {
       if (task.assignTo && !agentIds.has(task.assignTo)) {
         errors.push(`Task ${task.id}: assigned to unknown agent ${task.assignTo}`);
@@ -489,9 +489,9 @@ async function validateWorkflowDefinition(workflow: WorkflowDefinition, strict =
     }
   }
 
-  // Strict validation
+  // Strict validation,
   if (strict) {
-    // Check for circular dependencies
+    // Check for circular dependencies,
     const graph = new Map<string, string[]>();
     for (const task of workflow.tasks) {
       graph.set(task.id, task.depends || []);
@@ -534,7 +534,7 @@ async function executeWorkflow(execution: WorkflowExecution, workflow: WorkflowD
   console.log(chalk.blue('Executing workflow...'));
   console.log();
 
-  // Mock execution - in production, this would use the orchestrator
+  // Mock execution - in production, this would use the orchestrator,
   for (let i = 0; i < execution.tasks.length; i++) {
     const taskExec = execution.tasks[i];
     const taskDef = workflow.tasks.find(t => t.id === taskExec.taskId)!;
@@ -544,11 +544,11 @@ async function executeWorkflow(execution: WorkflowExecution, workflow: WorkflowD
     taskExec.status = 'running';
     taskExec.startedAt = new Date();
     
-    // Simulate task execution
+    // Simulate task execution,
     await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
     
-    // Random success/failure for demo
-    const success = Math.random() > 0.1; // 90% success rate
+    // Random success/failure for demo,
+    const success = Math.random() > 0.1; // 90% success rate,
     
     if (success) {
       taskExec.status = 'completed';
@@ -595,10 +595,10 @@ async function executeWorkflowWithWatch(execution: WorkflowExecution, workflow: 
   console.log(chalk.yellow('Starting workflow execution in watch mode...'));
   console.log(chalk.gray('Press Ctrl+C to stop\n'));
 
-  // Start execution in background and watch progress
+  // Start execution in background and watch progress,
   const executionPromise = executeWorkflow(execution, workflow, options);
   
-  // Watch loop
+  // Watch loop,
   const watchInterval = setInterval(() => {
     displayWorkflowProgress(execution);
   }, 1000);
@@ -615,7 +615,7 @@ async function watchWorkflowStatus(workflowId: string): Promise<void> {
   console.log(chalk.cyan('Watching workflow status...'));
   console.log(chalk.gray('Press Ctrl+C to stop\n'));
 
-  // eslint-disable-next-line no-constant-condition
+  // eslint-disable-next-line no-constant-condition,
   while (true) {
     try {
       console.clear();
@@ -663,7 +663,7 @@ function displayWorkflowStatus(execution: WorkflowExecution): void {
   }
   console.log();
 
-  // Task details
+  // Task details,
   console.log(chalk.cyan.bold('Tasks'));
   console.log('─'.repeat(50));
   
@@ -702,13 +702,13 @@ function displayWorkflowProgress(execution: WorkflowExecution): void {
 }
 
 async function getRunningWorkflows(includeAll = false): Promise<WorkflowExecution[]> {
-  // Mock workflow list - in production, this would query the orchestrator
+  // Mock workflow list - in production, this would query the orchestrator,
   return [
     {
       id: 'workflow-001',
       workflowName: 'Research Workflow',
       status: 'running' as const,
-      startedAt: new Date(Date.now() - 120000), // 2 minutes ago
+      startedAt: new Date(Date.now() - 120000), // 2 minutes ago,
       progress: { total: 5, completed: 3, failed: 0 },
       tasks: []
     },
@@ -716,8 +716,8 @@ async function getRunningWorkflows(includeAll = false): Promise<WorkflowExecutio
       id: 'workflow-002',
       workflowName: 'Implementation Workflow',
       status: 'completed' as const,
-      startedAt: new Date(Date.now() - 300000), // 5 minutes ago
-      completedAt: new Date(Date.now() - 60000), // 1 minute ago
+      startedAt: new Date(Date.now() - 300000), // 5 minutes ago,
+      completedAt: new Date(Date.now() - 60000), // 1 minute ago,
       progress: { total: 3, completed: 3, failed: 0 },
       tasks: []
     }

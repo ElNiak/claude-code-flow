@@ -5,11 +5,83 @@
  * intrinsic SPARC + Swarm + Hive capabilities built-in simultaneously.
  */
 
-// Core coordination engine
+// Import types and classes from missing type files
+import type {
+  UnifiedCoordinationConfig,
+  CoordinationMatrixConfig,
+  UnifiedAgentConfig,
+  UnifiedAgentCapabilities,
+  UnifiedAgentState,
+  UnifiedCoordinationState,
+  ExecutionContext,
+  SPARCState,
+  SwarmState,
+  HiveState,
+  CoordinationPattern,
+  Decision,
+  Refinement,
+  Pattern,
+  AdaptationRule,
+  ConsensusState,
+  HolisticView,
+  CoordinationSnapshot,
+  UnifiedMetrics,
+  Trigger,
+  Action,
+  CollaborationState,
+  AdaptationState,
+  Improvement,
+  HolisticInsight
+} from './missing-unified-types.js';
+
+// Import the proper UnifiedAgentState that extends AgentState
+// Note: commenting out to avoid conflict with missing-unified-types
+// import type { UnifiedAgentState } from './unified-agent.js';
+
+import {
+  IntrinsicCoordinator,
+  UnifiedAgent,
+  UnifiedAgentEvents
+} from './missing-unified-types.js';
+
+import type { 
+  AgentType, 
+  AgentId, 
+  AgentState, 
+  AgentStatus, 
+  AgentCapabilities, 
+  AgentMetrics, 
+  AgentConfig, 
+  AgentEnvironment, 
+  TaskDefinition 
+} from '../../swarm/types.js';
+import type { UnifiedExecutionResult } from './missing-execution-types.js';
+
+import {
+  CoordinationEvents,
+  CoordinationDimension,
+  CoordinationNode,
+  CoordinationPosition,
+  NodeState,
+  NodeMetrics,
+  CoordinationEvent,
+  CoordinationConnection,
+  ConnectionType,
+  CoordinationEventType,
+  MatrixState,
+  MatrixMetrics,
+  CoordinationRecommendation
+} from './missing-execution-types.js';
+
+import {
+  CoordinationMatrix,
+  ExecutionEngine
+} from './missing-execution-types.js';
+
+// Core coordination engine exports
 export { 
   IntrinsicCoordinator,
   CoordinationEvents,
-  type IntrinsicCapabilities,
   type UnifiedCoordinationState,
   type ExecutionContext,
   type SPARCState,
@@ -27,7 +99,7 @@ export {
   type UnifiedCoordinationConfig,
   type Trigger,
   type Action
-} from './intrinsic-coordinator.js';
+};
 
 // Unified agent implementation
 export {
@@ -40,9 +112,9 @@ export {
   type AdaptationState,
   type Improvement,
   type HolisticInsight
-} from './unified-agent.js';
+};
 
-// Coordination matrix for multi-dimensional coordination
+// Coordination matrix for multi-dimensional coordination,
 export {
   CoordinationMatrix,
   CoordinationDimension,
@@ -61,7 +133,7 @@ export {
   type CoordinationRecommendation
 } from './coordination-matrix.js';
 
-// Execution engine for unified task execution
+// Execution engine for unified task execution,
 export {
   ExecutionEngine,
   ExecutionStatus,
@@ -103,19 +175,19 @@ export type {
  * with all components properly initialized and connected.
  */
 export interface UnifiedCoordinationSystemConfig {
-  // Coordinator configuration
+  // Coordinator configuration,
   coordinator: Partial<UnifiedCoordinationConfig>;
   
-  // Matrix configuration
+  // Matrix configuration,
   matrix?: Partial<CoordinationMatrixConfig>;
   
-  // Agent configuration defaults
+  // Agent configuration defaults,
   agentDefaults?: Partial<UnifiedAgentConfig>;
   
-  // Execution strategy preferences
+  // Execution strategy preferences,
   executionStrategies?: string[];
   
-  // System-wide settings
+  // System-wide settings,
   system: {
     maxAgents: number;
     maxTasks: number;
@@ -142,7 +214,7 @@ export class UnifiedCoordinationSystem {
     private logger: import('../../core/logger.js').ILogger,
     private eventBus: import('../../core/event-bus.js').IEventBus
   ) {
-    // Create coordinator with unified configuration
+    // Create coordinator with unified configuration,
     const coordinatorConfig: UnifiedCoordinationConfig = {
       enableStructuredThinking: true,
       phaseTimeouts: {
@@ -173,9 +245,9 @@ export class UnifiedCoordinationSystem {
     this.matrix = new CoordinationMatrix(logger, config.matrix);
     this.agents = new Map();
     
-    // Note: ExecutionEngine will be initialized when coordinator state is available
+    // Note: ExecutionEngine will be initialized when coordinator state is available,
     this.executionEngine = new ExecutionEngine(
-      {} as UnifiedCoordinationState, // Will be set during initialization
+      {} as UnifiedCoordinationState, // Will be set during initialization,
       logger,
       eventBus
     );
@@ -192,16 +264,16 @@ export class UnifiedCoordinationSystem {
     this.logger.info('Initializing Unified Coordination System...');
 
     try {
-      // Initialize core components in order
+      // Initialize core components in order,
       await this.coordinator.initialize();
       await this.matrix.initialize();
       
-      // Update execution engine with coordinator state
+      // Update execution engine with coordinator state,
       const coordinatorState = this.coordinator.getPublicState() as UnifiedCoordinationState;
       this.executionEngine = new ExecutionEngine(coordinatorState, this.logger, this.eventBus);
       await this.executionEngine.initialize();
 
-      // Set up cross-component connections
+      // Set up cross-component connections,
       this.setupComponentConnections();
 
       this.initialized = true;
@@ -233,9 +305,9 @@ export class UnifiedCoordinationSystem {
       instance: this.agents.size
     };
 
-    // Create default capabilities
+    // Create default capabilities,
     const defaultCapabilities: UnifiedAgentCapabilities = {
-      // Base capabilities
+      // Base capabilities,
       codeGeneration: true,
       codeReview: true,
       testing: true,
@@ -257,7 +329,7 @@ export class UnifiedCoordinationSystem {
       speed: 0.8,
       quality: 0.85,
 
-      // SPARC capabilities
+      // SPARC capabilities,
       sparc: {
         specification: true,
         pseudocode: true,
@@ -267,7 +339,7 @@ export class UnifiedCoordinationSystem {
         qualityThreshold: 0.8
       },
 
-      // Swarm capabilities
+      // Swarm capabilities,
       swarm: {
         collaboration: true,
         taskSharing: true,
@@ -277,7 +349,7 @@ export class UnifiedCoordinationSystem {
         communicationRange: 5
       },
 
-      // Hive capabilities
+      // Hive capabilities,
       hive: {
         collectiveIntelligence: true,
         emergentBehavior: true,
@@ -290,9 +362,9 @@ export class UnifiedCoordinationSystem {
       ...capabilities
     };
 
-    // Create default configuration
+    // Create default configuration,
     const defaultConfig: UnifiedAgentConfig = {
-      // Base config
+      // Base config,
       autonomyLevel: 0.8,
       learningEnabled: true,
       adaptationEnabled: true,
@@ -306,7 +378,7 @@ export class UnifiedCoordinationSystem {
       expertise: {},
       preferences: {},
 
-      // SPARC config
+      // SPARC config,
       sparc: {
         thinkingDepth: 3,
         qualityThreshold: 0.8,
@@ -320,7 +392,7 @@ export class UnifiedCoordinationSystem {
         }
       },
 
-      // Swarm config
+      // Swarm config,
       swarm: {
         collaborationEnabled: true,
         maxConnections: 5,
@@ -328,7 +400,7 @@ export class UnifiedCoordinationSystem {
         coordinationFrequency: 10000
       },
 
-      // Hive config
+      // Hive config,
       hive: {
         collectiveEnabled: true,
         learningRate: 0.1,
@@ -336,7 +408,7 @@ export class UnifiedCoordinationSystem {
         emergenceEnabled: true
       },
 
-      // Unified config
+      // Unified config,
       unified: {
         coordinationMode: 'adaptive',
         synergyEnabled: true,
@@ -347,7 +419,7 @@ export class UnifiedCoordinationSystem {
       ...config
     };
 
-    // Create the unified agent
+    // Create the unified agent,
     const agent = new UnifiedAgent(
       fullAgentId,
       type,
@@ -359,12 +431,14 @@ export class UnifiedCoordinationSystem {
 
     await agent.initialize();
 
-    // Add to system
+    // Add to system,
     this.agents.set(agentId, agent);
 
-    // Add to coordination matrix
-    const agentState: AgentState = agent.getState();
-    this.matrix.addAgent(fullAgentId, agentState);
+    // Add to coordination matrix,
+    const agentState = agent.getState();
+    // Convert UnifiedAgentState to AgentState for matrix compatibility
+    const matrixAgentState: AgentState = this.convertToBaseAgentState(agentState);
+    this.matrix.addAgent(fullAgentId, matrixAgentState);
 
     this.logger.info('Created unified agent', { 
       agentId, 
@@ -387,7 +461,7 @@ export class UnifiedCoordinationSystem {
       throw new Error('System not initialized');
     }
 
-    // Find or assign agent
+    // Find or assign agent,
     let assignedAgent: UnifiedAgent;
     if (agentId) {
       const agent = this.agents.get(agentId);
@@ -396,14 +470,16 @@ export class UnifiedCoordinationSystem {
       }
       assignedAgent = agent;
     } else {
-      // Auto-assign based on task requirements
+      // Auto-assign based on task requirements,
       assignedAgent = this.selectBestAgent(task);
     }
 
-    // Add task to coordination matrix
-    this.matrix.addTask(task.id, task, assignedAgent.getState().id.id);
+    // Add task to coordination matrix,
+    // Convert TaskId to string for matrix compatibility
+    const taskIdString = typeof task.id === 'string' ? task.id : task.id.id;
+    this.matrix.addTask(taskIdString, task, assignedAgent.getState().id.id);
 
-    // Execute using coordination system
+    // Execute using coordination system,
     const objectiveId = await this.coordinator.coordinateObjective({
       name: `Task: ${task.name}`,
       description: task.description,
@@ -432,7 +508,7 @@ export class UnifiedCoordinationSystem {
       dependencies: []
     });
 
-    // Execute task with unified engine
+    // Execute task with unified engine,
     const result = await this.executionEngine.executeTask(
       task,
       assignedAgent.getState().id,
@@ -457,10 +533,10 @@ export class UnifiedCoordinationSystem {
       throw new Error('No agents available');
     }
 
-    // Simple selection - in practice, this would use sophisticated matching
+    // Simple selection - in practice, this would use sophisticated matching,
     const agents = Array.from(this.agents.values());
     
-    // Find agent with matching capabilities
+    // Find agent with matching capabilities,
     for (const agent of agents) {
       const capabilities = agent.getCapabilities();
       const hasRequiredCapabilities = task.requirements.capabilities.every(cap =>
@@ -474,7 +550,7 @@ export class UnifiedCoordinationSystem {
       }
     }
 
-    // Fallback to first available agent
+    // Fallback to first available agent,
     return agents.find(agent => agent.getState().status === 'idle') || agents[0];
   }
 
@@ -482,7 +558,7 @@ export class UnifiedCoordinationSystem {
    * Set up connections between components
    */
   private setupComponentConnections(): void {
-    // Connect coordinator events to matrix updates
+    // Connect coordinator events to matrix updates,
     this.coordinator.on(CoordinationEvents.AGENT_SPAWNED, (data: any) => {
       this.matrix.updateAgentCoordination(
         data.agentId,
@@ -501,7 +577,7 @@ export class UnifiedCoordinationSystem {
       );
     });
 
-    // Connect agent events to matrix updates
+    // Connect agent events to matrix updates,
     this.eventBus.on('agent.collaboration.initiated', (data: any) => {
       this.matrix.updateAgentCoordination(
         data.agentId,
@@ -520,7 +596,7 @@ export class UnifiedCoordinationSystem {
       );
     });
 
-    // Connect execution engine events
+    // Connect execution engine events,
     this.executionEngine.on('phase.completed', (data: any) => {
       this.eventBus.emit('execution.phase.completed', data);
     });
@@ -549,13 +625,120 @@ export class UnifiedCoordinationSystem {
   getCoordinationRecommendations(): CoordinationRecommendation[] {
     const recommendations: CoordinationRecommendation[] = [];
     
-    // Get recommendations for each agent
+    // Get recommendations for each agent,
     this.agents.forEach((agent, agentId) => {
       const agentRecommendations = this.matrix.getCoordinationRecommendations(agentId);
       recommendations.push(...agentRecommendations);
     });
 
     return recommendations;
+  }
+
+  /**
+   * Convert UnifiedAgentState to base AgentState for matrix compatibility
+   */
+  private convertToBaseAgentState(unifiedState: UnifiedAgentState): AgentState {
+    // The UnifiedAgentState from missing-unified-types.ts has a different structure
+    // We need to map it to the base AgentState interface
+    
+    // Create proper AgentMetrics from unified metrics
+    const baseMetrics: AgentMetrics = {
+      tasksCompleted: unifiedState.metrics.tasksCompleted ?? 0,
+      tasksFailed: 0, // Default since not in unified metrics
+      averageExecutionTime: 0, // Default
+      successRate: unifiedState.metrics.successRate ?? 0,
+      cpuUsage: 0, // Default
+      memoryUsage: 0, // Default
+      diskUsage: 0, // Default
+      networkUsage: 0, // Default
+      codeQuality: unifiedState.metrics.averageQuality ?? 0,
+      testCoverage: 0, // Default
+      bugRate: 0, // Default
+      userSatisfaction: 0, // Default
+      totalUptime: 0, // Default
+      lastActivity: new Date(), // Default
+      responseTime: 0 // Default
+    };
+
+    // Create proper AgentCapabilities from unified capabilities
+    const baseCapabilities: AgentCapabilities = {
+      codeGeneration: unifiedState.capabilities.sparc?.specification ?? false,
+      codeReview: unifiedState.capabilities.sparc?.refinement ?? false,
+      testing: unifiedState.capabilities.sparc?.completion ?? false,
+      documentation: unifiedState.capabilities.sparc?.architecture ?? false,
+      research: unifiedState.capabilities.swarm?.collaboration ?? false,
+      analysis: unifiedState.capabilities.hive?.patternRecognition ?? false,
+      webSearch: unifiedState.capabilities.swarm?.taskSharing ?? false,
+      apiIntegration: unifiedState.capabilities.swarm?.coordination ?? false,
+      fileSystem: true,
+      terminalAccess: true,
+      languages: [],
+      frameworks: [],
+      domains: [],
+      tools: [],
+      maxConcurrentTasks: unifiedState.capabilities.swarm?.communicationRange ?? 5,
+      maxMemoryUsage: 1024,
+      maxExecutionTime: 300000,
+      reliability: unifiedState.capabilities.sparc?.qualityThreshold ?? 0.8,
+      speed: 1.0,
+      quality: unifiedState.capabilities.sparc?.qualityThreshold ?? 0.8
+    };
+
+    // Create proper AgentConfig
+    const baseConfig: AgentConfig = {
+      autonomyLevel: 0.8,
+      learningEnabled: unifiedState.capabilities.hive?.adaptiveLearning ?? true,
+      adaptationEnabled: unifiedState.capabilities.hive?.adaptiveLearning ?? true,
+      maxTasksPerHour: 10,
+      maxConcurrentTasks: unifiedState.capabilities.swarm?.communicationRange ?? 5,
+      timeoutThreshold: 300000,
+      reportingInterval: 60000,
+      heartbeatInterval: 30000,
+      permissions: [],
+      trustedAgents: [],
+      expertise: {},
+      preferences: {}
+    };
+
+    // Create proper AgentEnvironment
+    const baseEnvironment: AgentEnvironment = {
+      runtime: 'node' as const,
+      version: '1.0.0',
+      workingDirectory: '',
+      tempDirectory: '',
+      logDirectory: '',
+      apiEndpoints: {},
+      credentials: {},
+      availableTools: [],
+      toolConfigs: {}
+    };
+
+    // Convert status string to AgentStatus
+    const agentStatus: AgentStatus = (unifiedState.status as AgentStatus) || 'idle';
+
+    // Create the base AgentState
+    const baseState: AgentState = {
+      id: unifiedState.id,
+      name: unifiedState.name,
+      type: unifiedState.type,
+      status: agentStatus,
+      capabilities: baseCapabilities,
+      metrics: baseMetrics,
+      currentTask: undefined, // Not available in unified state
+      workload: 0, // Default
+      health: 1.0, // Default
+      config: baseConfig,
+      environment: baseEnvironment,
+      endpoints: [], // Default
+      lastHeartbeat: new Date(), // Default
+      taskHistory: [], // Default
+      errorHistory: [], // Default
+      parentAgent: undefined, // Default
+      childAgents: [], // Default
+      collaborators: unifiedState.collaborators ?? []
+    };
+
+    return baseState;
   }
 
   /**
@@ -569,11 +752,11 @@ export class UnifiedCoordinationSystem {
     this.logger.info('Shutting down Unified Coordination System...');
 
     try {
-      // Shutdown agents
+      // Shutdown agents,
       const shutdownPromises = Array.from(this.agents.values()).map(agent => agent.shutdown());
       await Promise.all(shutdownPromises);
 
-      // Shutdown core components
+      // Shutdown core components,
       await this.executionEngine.shutdown();
       await this.matrix.shutdown();
       await this.coordinator.shutdown();

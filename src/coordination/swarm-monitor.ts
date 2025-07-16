@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 import { EventEmitter } from 'node:events';
 import * as os from 'node:os';
 import * as fs from 'node:fs/promises';
@@ -51,13 +51,13 @@ interface Alert {
 }
 
 interface MonitoringConfig {
-  updateInterval: number; // milliseconds
-  metricsRetention: number; // hours
-  cpuThreshold: number; // percentage
-  memoryThreshold: number; // percentage
-  stallTimeout: number; // milliseconds
-  errorRateThreshold: number; // percentage
-  throughputThreshold: number; // tasks per minute
+  updateInterval: number; // milliseconds,
+  metricsRetention: number; // hours,
+  cpuThreshold: number; // percentage,
+  memoryThreshold: number; // percentage,
+  stallTimeout: number; // milliseconds,
+  errorRateThreshold: number; // percentage,
+  throughputThreshold: number; // tasks per minute,
   enableAlerts: boolean;
   enableHistory: boolean;
   historyPath?: string;
@@ -78,15 +78,22 @@ export class SwarmMonitor extends EventEmitter {
 
   constructor(config?: Partial<MonitoringConfig>) {
     super();
-    this.logger = new Logger('SwarmMonitor');
+    this.logger = new Logger(
+      {
+        level: 'info',
+        format: 'json',
+        destination: 'console'
+      },
+      { context: 'SwarmMonitor' }
+    );
     this.config = {
-      updateInterval: 1000, // 1 second
-      metricsRetention: 24, // 24 hours
+      updateInterval: 1000, // 1 second,
+      metricsRetention: 24, // 24 hours,
       cpuThreshold: 80, // 80%
       memoryThreshold: 85, // 85%
-      stallTimeout: 300000, // 5 minutes
+      stallTimeout: 300000, // 5 minutes,
       errorRateThreshold: 10, // 10%
-      throughputThreshold: 1, // 1 task per minute minimum
+      throughputThreshold: 1, // 1 task per minute minimum,
       enableAlerts: true,
       enableHistory: true,
       historyPath: './monitoring/history',
@@ -99,17 +106,17 @@ export class SwarmMonitor extends EventEmitter {
   async start(): Promise<void> {
     this.logger.info('Starting swarm monitoring...');
 
-    // Create history directory if needed
+    // Create history directory if needed,
     if (this.config.enableHistory && this.config.historyPath) {
       await fs.mkdir(this.config.historyPath, { recursive: true });
     }
 
-    // Start periodic monitoring
+    // Start periodic monitoring,
     this.monitoringInterval = setInterval(() => {
       this.collectMetrics();
     }, this.config.updateInterval);
 
-    // Start initial collection
+    // Start initial collection,
     await this.collectMetrics();
   }
 
@@ -121,7 +128,7 @@ export class SwarmMonitor extends EventEmitter {
     }
   }
 
-  // Agent registration and tracking
+  // Agent registration and tracking,
   registerAgent(agentId: string, name: string): void {
     this.agentMetrics.set(agentId, {
       id: agentId,
@@ -145,7 +152,7 @@ export class SwarmMonitor extends EventEmitter {
     }
   }
 
-  // Task tracking
+  // Task tracking,
   taskStarted(agentId: string, taskId: string, taskDescription?: string): void {
     const metrics = this.agentMetrics.get(agentId);
     if (metrics) {
@@ -172,14 +179,14 @@ export class SwarmMonitor extends EventEmitter {
       metrics.successCount++;
       metrics.outputSize = outputSize;
       
-      // Update average duration
+      // Update average duration,
       const totalDuration = metrics.averageTaskDuration * (metrics.successCount - 1) + duration;
       metrics.averageTaskDuration = totalDuration / metrics.successCount;
       
-      // Update error rate
+      // Update error rate,
       metrics.errorRate = (metrics.failureCount / metrics.taskCount) * 100;
       
-      // Track for throughput calculation
+      // Track for throughput calculation,
       this.taskCompletionTimes.push(Date.now());
       this.tasksInLastMinute++;
       
@@ -200,13 +207,13 @@ export class SwarmMonitor extends EventEmitter {
       metrics.lastActivity = Date.now();
       metrics.failureCount++;
       
-      // Update error rate
+      // Update error rate,
       metrics.errorRate = (metrics.failureCount / metrics.taskCount) * 100;
       
       this.taskStartTimes.delete(taskId);
       this.emit('task:failed', { agentId, taskId, error, duration });
       
-      // Check error rate threshold
+      // Check error rate threshold,
       if (metrics.errorRate > this.config.errorRateThreshold) {
         this.createAlert('error_rate', 'critical', 
           `Agent ${metrics.name} has high error rate: ${metrics.errorRate.toFixed(1)}%`);
@@ -214,21 +221,21 @@ export class SwarmMonitor extends EventEmitter {
     }
   }
 
-  // Metrics collection
+  // Metrics collection,
   private async collectMetrics(): Promise<void> {
     try {
-      // Collect system metrics
+      // Collect system metrics,
       const cpuUsage = this.getCPUUsage();
       const memInfo = this.getMemoryInfo();
       const loadAvg = os.loadavg();
       
-      // Calculate throughput
+      // Calculate throughput,
       const now = Date.now();
       const minuteAgo = now - 60000;
       this.taskCompletionTimes = this.taskCompletionTimes.filter(time => time > minuteAgo);
       const throughput = this.taskCompletionTimes.length;
       
-      // Calculate task statistics
+      // Calculate task statistics,
       let totalTasks = 0;
       let completedTasks = 0;
       let failedTasks = 0;
@@ -236,12 +243,12 @@ export class SwarmMonitor extends EventEmitter {
       let totalDuration = 0;
       let durationCount = 0;
       
-      // Check for stalled agents
+      // Check for stalled agents,
       for (const [agentId, metrics] of this.agentMetrics) {
         if (metrics.status === 'running') {
           activeAgents++;
           
-          // Check for stalled agent
+          // Check for stalled agent,
           const stallTime = now - metrics.lastActivity;
           if (stallTime > this.config.stallTimeout) {
             metrics.status = 'stalled';
@@ -263,7 +270,7 @@ export class SwarmMonitor extends EventEmitter {
       const avgDuration = durationCount > 0 ? totalDuration / durationCount : 0;
       const pendingTasks = totalTasks - completedTasks - failedTasks;
       
-      // Create system metrics
+      // Create system metrics,
       const systemMetrics: SystemMetrics = {
         timestamp: now,
         cpuUsage,
@@ -282,20 +289,20 @@ export class SwarmMonitor extends EventEmitter {
       
       this.systemMetrics.push(systemMetrics);
       
-      // Check system thresholds
+      // Check system thresholds,
       if (this.config.enableAlerts) {
         this.checkThresholds(systemMetrics);
       }
       
-      // Clean old metrics
+      // Clean old metrics,
       this.cleanOldMetrics();
       
-      // Save history if enabled
+      // Save history if enabled,
       if (this.config.enableHistory) {
         await this.saveHistory(systemMetrics);
       }
       
-      // Emit metrics update
+      // Emit metrics update,
       this.emit('metrics:updated', {
         system: systemMetrics,
         agents: Array.from(this.agentMetrics.values())
@@ -331,19 +338,19 @@ export class SwarmMonitor extends EventEmitter {
   }
 
   private checkThresholds(metrics: SystemMetrics): void {
-    // CPU threshold
+    // CPU threshold,
     if (metrics.cpuUsage > this.config.cpuThreshold) {
       this.createAlert('high_cpu', 'warning', 
         `High CPU usage detected: ${metrics.cpuUsage}%`);
     }
     
-    // Memory threshold
+    // Memory threshold,
     if (metrics.memoryUsage > this.config.memoryThreshold) {
       this.createAlert('high_memory', 'warning', 
         `High memory usage detected: ${metrics.memoryUsage.toFixed(1)}%`);
     }
     
-    // Throughput threshold
+    // Throughput threshold,
     if (metrics.activeAgents > 0 && metrics.throughput < this.config.throughputThreshold) {
       this.createAlert('low_throughput', 'warning', 
         `Low throughput detected: ${metrics.throughput} tasks/min`);
@@ -362,7 +369,22 @@ export class SwarmMonitor extends EventEmitter {
     
     this.alerts.push(alert);
     this.emit('alert', alert);
-    this.logger[level](message);
+    
+    // Use appropriate logger method based on level
+    switch (level) {
+      case 'info':
+        this.logger.info(message);
+        break;
+      case 'warning':
+        this.logger.warn(message);
+        break;
+      case 'error':
+      case 'critical':
+        this.logger.error(message);
+        break;
+      default:
+        this.logger.info(message);
+    }
   }
 
   private cleanOldMetrics(): void {
@@ -392,7 +414,7 @@ export class SwarmMonitor extends EventEmitter {
     }
   }
 
-  // Getters for current state
+  // Getters for current state,
   getSystemMetrics(): SystemMetrics | undefined {
     return this.systemMetrics[this.systemMetrics.length - 1];
   }
@@ -416,7 +438,7 @@ export class SwarmMonitor extends EventEmitter {
     return this.systemMetrics.filter(m => m.timestamp > since);
   }
 
-  // Summary statistics
+  // Summary statistics,
   getSummary(): {
     uptime: number;
     totalAgents: number;
@@ -439,7 +461,7 @@ export class SwarmMonitor extends EventEmitter {
     const successRate = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
     const averageDuration = current?.averageTaskDuration || 0;
     const currentThroughput = current?.throughput || 0;
-    const alerts = this.alerts.filter(a => a.timestamp > Date.now() - 3600000).length; // Last hour
+    const alerts = this.alerts.filter(a => a.timestamp > Date.now() - 3600000).length; // Last hour,
     
     return {
       uptime,
@@ -455,7 +477,7 @@ export class SwarmMonitor extends EventEmitter {
     };
   }
 
-  // Export monitoring data
+  // Export monitoring data,
   async exportMetrics(filepath: string): Promise<void> {
     const data = {
       summary: this.getSummary(),
@@ -470,5 +492,5 @@ export class SwarmMonitor extends EventEmitter {
   }
 }
 
-// Export types for external use
+// Export types for external use,
 export type { AgentMetrics, SystemMetrics, Alert, MonitoringConfig };

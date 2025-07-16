@@ -1,7 +1,7 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 // Global type definitions and environment compatibility
 
-// Node.js global augmentations
+// Node.js global augmentations,
 declare global {
   namespace NodeJS {
     interface ProcessEnv {
@@ -16,22 +16,23 @@ declare global {
 // Deno compatibility shims (when running in Node)
 declare global {
   var Deno: any | undefined;
+  
+  interface GlobalThis {
+    Deno?: any;
+  }
 }
 
-// Commander.js types extension
+// Commander.js types extension,
 import type { Command as CommanderCommand } from 'commander';
 
 declare module 'commander' {
   interface Command {
     showHelp(): void;
+    globalOption(flags: string, description?: string, defaultValue?: any): Command;
+    main(argv?: string[]): Promise<void>;
   }
 }
 
-// Table types
-declare module 'cli-table3' {
-  interface Table {
-    push(...rows: any[]): void;
-  }
-}
+
 
 export {};

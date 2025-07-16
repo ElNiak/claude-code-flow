@@ -160,7 +160,7 @@ describe('Architect Mode Batch Integration Tests', () => {
       
       const docGeneration = await harness.executeBatch(documentTypes, async (doc) => {
         const content = `# ${doc.title}\n\n## Overview\nThis document describes the ${doc.type} architecture.\n\n## Details\n...`;
-        const path = `docs/architecture/${doc.type}.md`;
+        const _path = `docs/architecture/${doc.type}.md`;
         
         await harness.mockWriteFile(path, content);
         return { path, size: content.length, generated: true };

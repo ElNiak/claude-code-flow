@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * VSCode Extension Bridge for Terminal Integration
  * 
@@ -42,32 +42,32 @@ export function initializeTerminalBridge(context: vscode.ExtensionContext): void
     terminalOutputProcessors.set(terminalId, processor);
   };
 
-  // Override terminal creation to capture output
+  // Override terminal creation to capture output,
   const originalCreateTerminal = vscode.window.createTerminal;
   (vscode.window as any).createTerminal = function(options: vscode.TerminalOptions) {
-    const terminal = originalCreateTerminal.call(vscode.window, options) as vscode.Terminal;
+    const terminal = originalCreateTerminal.call(vscode.window, _options) as vscode.Terminal;
     
-    // Create write emulator for this terminal
+    // Create write emulator for this terminal,
     const writeEmulator = new vscode.EventEmitter<string>();
     terminalWriteEmulators.set(terminal, writeEmulator);
 
-    // Find terminal ID from name
+    // Find terminal ID from name,
     const match = options.name?.match(/Claude-Flow Terminal ([\w-]+)/);
     if (match) {
       const terminalId = match[1];
       activeTerminals.set(terminalId, terminal);
       
-      // Set up output capture
+      // Set up output capture,
       captureTerminalOutput(terminal, terminalId);
     }
 
     return terminal;
   };
 
-  // Clean up on terminal close
+  // Clean up on terminal close,
   context.subscriptions.push(
     vscode.window.onDidCloseTerminal((terminal: vscode.Terminal) => {
-      // Find and remove from registries
+      // Find and remove from registries,
       for (const [id, term] of activeTerminals.entries()) {
         if (term === terminal) {
           activeTerminals.delete(id);
@@ -76,7 +76,7 @@ export function initializeTerminalBridge(context: vscode.ExtensionContext): void
         }
       }
       
-      // Clean up write emulator
+      // Clean up write emulator,
       const emulator = terminalWriteEmulators.get(terminal);
       if (emulator) {
         emulator.dispose();
@@ -90,21 +90,21 @@ export function initializeTerminalBridge(context: vscode.ExtensionContext): void
  * Capture terminal output using various methods
  */
 function captureTerminalOutput(terminal: vscode.Terminal, terminalId: string): void {
-  // Method 1: Use terminal.sendText override to capture commands
+  // Method 1: Use terminal.sendText override to capture commands,
   const originalSendText = terminal.sendText;
   (terminal as any).sendText = function(text: string, addNewLine?: boolean) {
-    // Call original method
+    // Call original method,
     originalSendText.call(terminal, text, addNewLine);
     
-    // Process command
+    // Process command,
     const processor = terminalOutputProcessors.get(terminalId);
     if (processor && text) {
-      // Simulate command echo
+      // Simulate command echo,
       processor(text + (addNewLine !== false ? '\n' : ''));
     }
   };
 
-  // Method 2: Use proposed API if available
+  // Method 2: Use proposed API if available,
   if ('onDidWriteData' in terminal) {
     const writeDataEvent = (terminal as any).onDidWriteData;
     if (writeDataEvent) {
@@ -117,7 +117,7 @@ function captureTerminalOutput(terminal: vscode.Terminal, terminalId: string): v
     }
   }
 
-  // Method 3: Use terminal renderer if available
+  // Method 3: Use terminal renderer if available,
   setupTerminalRenderer(terminal, terminalId);
 }
 
@@ -125,18 +125,18 @@ function captureTerminalOutput(terminal: vscode.Terminal, terminalId: string): v
  * Set up terminal renderer for output capture
  */
 function setupTerminalRenderer(terminal: vscode.Terminal, terminalId: string): void {
-  // Check if terminal renderer API is available
+  // Check if terminal renderer API is available,
   if (vscode.window.registerTerminalProfileProvider) {
     // This is a more advanced method that requires additional setup
     // It would involve creating a custom terminal profile that captures output
     
-    // For now, we'll use a simpler approach with periodic output checking
+    // For now, we'll use a simpler approach with periodic output checking,
     let lastOutput = '';
     const checkOutput = setInterval(() => {
       // This is a placeholder - actual implementation would depend on
       // available VSCode APIs for reading terminal content
       
-      // Check if terminal is still active
+      // Check if terminal is still active,
       if (!activeTerminals.has(terminalId)) {
         clearInterval(checkOutput);
       }
@@ -189,28 +189,28 @@ export async function executeTerminalCommand(
     let output = '';
     const marker = `__COMMAND_COMPLETE_${Date.now()}__`;
     
-    // Set up output listener
+    // Set up output listener,
     const disposable = writeEmulator.event((data: string) => {
       output += data;
       
       if (output.includes(marker)) {
-        // Command completed
+        // Command completed,
         disposable.dispose();
         const result = output.substring(0, output.indexOf(marker));
         resolve(result);
       }
     });
 
-    // Set timeout
+    // Set timeout,
     const timer = setTimeout(() => {
       disposable.dispose();
       reject(new Error('Command timeout'));
     }, timeout);
 
-    // Execute command with marker
+    // Execute command with marker,
     terminal.sendText(`${command} && echo "${marker}"`);
     
-    // Clear timeout on success
+    // Clear timeout on success,
     writeEmulator.event(() => {
       if (output.includes(marker)) {
         clearTimeout(timer);
@@ -230,16 +230,16 @@ export function getTerminalById(terminalId: string): vscode.Terminal | undefined
  * Dispose all terminal resources
  */
 export function disposeTerminalBridge(): void {
-  // Clean up all terminals
+  // Clean up all terminals,
   for (const terminal of activeTerminals.values()) {
     terminal.dispose();
   }
   activeTerminals.clear();
   
-  // Clean up processors
+  // Clean up processors,
   terminalOutputProcessors.clear();
   
-  // Clean up write emulators
+  // Clean up write emulators,
   for (const emulator of terminalWriteEmulators.values()) {
     emulator.dispose();
   }

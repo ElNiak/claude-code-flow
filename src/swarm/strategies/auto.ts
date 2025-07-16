@@ -16,7 +16,7 @@ export type ExtendedTaskType =
   | 'performance-testing' | 'security-testing' | 'api-testing'
   | 'test-automation' | 'test-analysis';
 
-import { getErrorMessage } from '../../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../../utils/error-handler.js';
 /**
  * Optimized AUTO Strategy Implementation
  * Uses machine learning-inspired heuristics and intelligent task decomposition
@@ -70,27 +70,27 @@ export class AutoStrategy extends BaseStrategy {
     const startTime = Date.now();
     const cacheKey = this.getCacheKey(objective);
 
-    // Check cache first
+    // Check cache first,
     if (this.decompositionCache.has(cacheKey)) {
       this.metrics.cacheHitRate = (this.metrics.cacheHitRate + 1) / 2;
       return this.decompositionCache.get(cacheKey)!;
     }
 
-    // Parallel pattern detection and task type analysis
+    // Parallel pattern detection and task type analysis,
     const [detectedPatterns, taskTypes, complexity] = await Promise.all([
       this.detectPatternsAsync(objective.description),
       this.analyzeTaskTypesAsync(objective.description),
       this.estimateComplexityAsync(objective.description)
     ]);
 
-    // Generate tasks based on detected patterns and strategy
+    // Generate tasks based on detected patterns and strategy,
     const tasks = await this.generateTasksWithBatching(objective, detectedPatterns, taskTypes, complexity);
 
-    // Analyze dependencies and create batches
+    // Analyze dependencies and create batches,
     const dependencies = this.analyzeDependencies(tasks);
     const batchGroups = this.createTaskBatches(tasks, dependencies);
 
-    // Estimate total duration with parallel processing consideration
+    // Estimate total duration with parallel processing consideration,
     const estimatedDuration = this.calculateOptimizedDuration(batchGroups);
 
     const result: DecompositionResult = {
@@ -101,13 +101,13 @@ export class AutoStrategy extends BaseStrategy {
       complexity,
       batchGroups,
       timestamp: new Date(),
-      ttl: 1800000, // 30 minutes
+      ttl: 1800000, // 30 minutes,
       accessCount: 0,
       lastAccessed: new Date(),
       data: { objectiveId: objective.id, strategy: 'auto' }
     };
 
-    // Cache the result
+    // Cache the result,
     this.decompositionCache.set(cacheKey, result);
     this.updateMetrics(result, Date.now() - startTime);
 
@@ -120,7 +120,7 @@ export class AutoStrategy extends BaseStrategy {
   override async selectAgentForTask(task: TaskDefinition, availableAgents: AgentState[]): Promise<string | null> {
     if (availableAgents.length === 0) return null;
 
-    // Score agents using ML heuristics
+    // Score agents using ML heuristics,
     const scoredAgents = await Promise.all(
       availableAgents.map(async (agent) => ({
         agent,
@@ -128,10 +128,10 @@ export class AutoStrategy extends BaseStrategy {
       }))
     );
 
-    // Sort by score and select best agent
+    // Sort by score and select best agent,
     scoredAgents.sort((a, b) => b.score - a.score);
     
-    // Update performance history
+    // Update performance history,
     const selectedAgent = scoredAgents[0].agent;
     this.updateAgentPerformanceHistory(selectedAgent.id.id, scoredAgents[0].score);
 
@@ -147,7 +147,7 @@ export class AutoStrategy extends BaseStrategy {
     return this.allocateAgentsOptimally(tasks, agents, schedule);
   }
 
-  // Private implementation methods
+  // Private implementation methods,
 
   private initializeMLHeuristics(): MLHeuristics {
     return {
@@ -185,14 +185,14 @@ export class AutoStrategy extends BaseStrategy {
       return this.patternCache.get(cacheKey)!;
     }
 
-    // Simulate async pattern detection with enhanced matching
+    // Simulate async pattern detection with enhanced matching,
     return new Promise((resolve) => {
       setTimeout(() => {
         const patterns = this.taskPatterns.filter(pattern => 
           pattern.pattern.test(description)
         );
         
-        // Add dynamic patterns based on content analysis
+        // Add dynamic patterns based on content analysis,
         const dynamicPatterns = this.generateDynamicPatterns(description);
         const allPatterns = [...patterns, ...dynamicPatterns];
         
@@ -207,7 +207,7 @@ export class AutoStrategy extends BaseStrategy {
       setTimeout(() => {
         const types = [];
         
-        // Enhanced task type detection
+        // Enhanced task type detection,
         if (/create|build|implement|develop|code/i.test(description)) {
           types.push('development');
         }
@@ -237,7 +237,7 @@ export class AutoStrategy extends BaseStrategy {
       setTimeout(() => {
         let complexity = this.estimateComplexity(description);
         
-        // Apply ML heuristics for complexity adjustment
+        // Apply ML heuristics for complexity adjustment,
         for (const [factor, weight] of Object.entries(this.mlHeuristics.complexityFactors)) {
           if (description.toLowerCase().includes(factor)) {
             complexity *= weight;
@@ -252,7 +252,7 @@ export class AutoStrategy extends BaseStrategy {
   private generateDynamicPatterns(description: string): TaskPattern[] {
     const patterns: TaskPattern[] = [];
     
-    // Generate patterns based on specific keywords and context
+    // Generate patterns based on specific keywords and context,
     if (description.includes('API') || description.includes('endpoint')) {
       patterns.push({
         pattern: /api|endpoint|service/i,
@@ -286,13 +286,13 @@ export class AutoStrategy extends BaseStrategy {
   ): Promise<TaskDefinition[]> {
     const tasks: TaskDefinition[] = [];
     
-    // Determine strategy-specific task generation
+    // Determine strategy-specific task generation,
     if (objective.strategy === 'development') {
       tasks.push(...await this.generateDevelopmentTasks(objective, complexity));
     } else if (objective.strategy === 'analysis') {
       tasks.push(...await this.generateAnalysisTasks(objective, complexity));
     } else {
-      // Auto strategy - intelligent task generation based on patterns
+      // Auto strategy - intelligent task generation based on patterns,
       tasks.push(...await this.generateAutoTasks(objective, patterns, taskTypes, complexity));
     }
 
@@ -303,7 +303,7 @@ export class AutoStrategy extends BaseStrategy {
     const tasks: TaskDefinition[] = [];
     const baseId = generateId('task');
 
-    // Analysis and Planning Phase
+    // Analysis and Planning Phase,
     tasks.push(this.createTaskDefinition({
       id: `${baseId}-analysis`,
       type: 'analysis' as TaskType,
@@ -318,7 +318,7 @@ export class AutoStrategy extends BaseStrategy {
     const implementationTasks = this.createParallelImplementationTasks(objective, complexity, baseId);
     tasks.push(...implementationTasks);
 
-    // Testing Phase
+    // Testing Phase,
     tasks.push(this.createTaskDefinition({
       id: `${baseId}-testing`,
       type: 'testing' as TaskType,
@@ -330,7 +330,7 @@ export class AutoStrategy extends BaseStrategy {
       dependencies: implementationTasks.map(t => t.id.id)
     }));
 
-    // Documentation Phase
+    // Documentation Phase,
     tasks.push(this.createTaskDefinition({
       id: `${baseId}-documentation`,
       type: 'documentation' as TaskType,
@@ -348,11 +348,11 @@ export class AutoStrategy extends BaseStrategy {
   private createParallelImplementationTasks(objective: SwarmObjective, complexity: number, baseId: string): TaskDefinition[] {
     const tasks: TaskDefinition[] = [];
     
-    // Determine if we can split implementation into parallel tasks
+    // Determine if we can split implementation into parallel tasks,
     const canParallelize = this.canParallelizeImplementation(objective.description);
     
     if (canParallelize && complexity >= 3) {
-      // Create multiple parallel implementation tasks
+      // Create multiple parallel implementation tasks,
       const components = this.identifyComponents(objective.description);
       
       components.forEach((component, index) => {
@@ -368,7 +368,7 @@ export class AutoStrategy extends BaseStrategy {
         }));
       });
     } else {
-      // Single implementation task
+      // Single implementation task,
       tasks.push(this.createTaskDefinition({
         id: `${baseId}-implementation`,
         type: 'coding' as TaskType,
@@ -388,7 +388,7 @@ export class AutoStrategy extends BaseStrategy {
     const tasks: TaskDefinition[] = [];
     const baseId = generateId('task');
 
-    // Data Collection
+    // Data Collection,
     tasks.push(this.createTaskDefinition({
       id: `${baseId}-collection`,
       type: 'research' as TaskType,
@@ -399,7 +399,7 @@ export class AutoStrategy extends BaseStrategy {
       capabilities: ['research', 'analysis', 'web-search']
     }));
 
-    // Analysis
+    // Analysis,
     tasks.push(this.createTaskDefinition({
       id: `${baseId}-analysis`,
       type: 'analysis' as TaskType,
@@ -411,7 +411,7 @@ export class AutoStrategy extends BaseStrategy {
       dependencies: [`${baseId}-collection`]
     }));
 
-    // Reporting
+    // Reporting,
     tasks.push(this.createTaskDefinition({
       id: `${baseId}-reporting`,
       type: 'documentation' as TaskType,
@@ -435,7 +435,7 @@ export class AutoStrategy extends BaseStrategy {
     const tasks: TaskDefinition[] = [];
     const baseId = generateId('task');
 
-    // Use ML heuristics to determine optimal task structure
+    // Use ML heuristics to determine optimal task structure,
     const optimalStructure = this.determineOptimalTaskStructure(patterns, taskTypes, complexity);
 
     if (optimalStructure.requiresAnalysis) {
@@ -555,7 +555,7 @@ export class AutoStrategy extends BaseStrategy {
   }
 
   private identifyComponents(description: string): string[] {
-    // Simple component identification - in a real implementation this would be more sophisticated
+    // Simple component identification - in a real implementation this would be more sophisticated,
     const components = ['Core Logic', 'User Interface', 'Data Layer'];
     
     if (description.toLowerCase().includes('api')) {
@@ -614,7 +614,7 @@ export class AutoStrategy extends BaseStrategy {
         task.constraints.dependencies.every(dep => processed.has(dep.id))
       );
 
-      if (batchTasks.length === 0) break; // Prevent infinite loop
+      if (batchTasks.length === 0) break; // Prevent infinite loop,
 
       const batch: TaskBatch = {
         id: `batch-${batchIndex++}`,
@@ -634,7 +634,7 @@ export class AutoStrategy extends BaseStrategy {
   private calculateBatchResources(tasks: TaskDefinition[]): Record<string, number> {
     return {
       agents: tasks.length,
-      memory: tasks.length * 512, // MB
+      memory: tasks.length * 512, // MB,
       cpu: tasks.length * 0.5 // CPU cores
     };
   }
@@ -709,7 +709,7 @@ export class AutoStrategy extends BaseStrategy {
 
   private getAgentPerformanceScore(agentId: string): number {
     const history = this.performanceHistory.get(agentId);
-    if (!history || history.length === 0) return 0.8; // Default score
+    if (!history || history.length === 0) return 0.8; // Default score,
 
     const average = history.reduce((sum, score) => sum + score, 0) / history.length;
     return Math.min(average, 1.0);
@@ -719,7 +719,7 @@ export class AutoStrategy extends BaseStrategy {
     const taskType = this.detectTaskType(task.description);
     const weight = this.mlHeuristics.taskTypeWeights[taskType] || 1.0;
     
-    // Apply agent type bonus
+    // Apply agent type bonus,
     let bonus = 0;
     if (agent.type === 'coder' && taskType === 'development') bonus = 0.2;
     if (agent.type === 'tester' && taskType === 'testing') bonus = 0.2;
@@ -736,24 +736,24 @@ export class AutoStrategy extends BaseStrategy {
     const history = this.performanceHistory.get(agentId)!;
     history.push(score);
     
-    // Keep only last 10 scores
+    // Keep only last 10 scores,
     if (history.length > 10) {
       history.shift();
     }
   }
 
   private async createPredictiveSchedule(tasks: TaskDefinition[], agents: AgentState[]): Promise<PredictiveSchedule> {
-    // Simplified predictive scheduling implementation
+    // Simplified predictive scheduling implementation,
     const timeline: ScheduleSlot[] = [];
     let currentTime = Date.now();
 
     for (const task of tasks) {
-      const duration = task.constraints.timeoutAfter || 300000; // 5 min default
+      const duration = task.constraints.timeoutAfter || 300000; // 5 min default,
       timeline.push({
         startTime: currentTime,
         endTime: currentTime + duration,
         tasks: [task.id.id],
-        agents: [], // To be filled by allocation
+        agents: [], // To be filled by allocation,
         dependencies: task.constraints.dependencies.map(dep => dep.id)
       });
       currentTime += duration;
@@ -782,7 +782,7 @@ export class AutoStrategy extends BaseStrategy {
       if (suitableTasks.length > 0) {
         allocations.push({
           agentId: agent.id.id,
-          tasks: suitableTasks.slice(0, 3).map(t => t.id.id), // Limit to 3 tasks per agent
+          tasks: suitableTasks.slice(0, 3).map(t => t.id.id), // Limit to 3 tasks per agent,
           estimatedWorkload: suitableTasks.length * 0.3,
           capabilities: Object.keys(agent.capabilities).filter(cap => 
             (agent.capabilities as any)[cap] === true

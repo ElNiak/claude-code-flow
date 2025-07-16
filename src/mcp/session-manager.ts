@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * Session manager for MCP connections
  */
@@ -47,19 +47,19 @@ export class SessionManager implements ISessionManager {
     private logger: ILogger,
   ) {
     this.authConfig = config.auth || { enabled: false, method: 'token' };
-    this.sessionTimeout = config.sessionTimeout || 3600000; // 1 hour default
+    this.sessionTimeout = config.sessionTimeout || 3600000; // 1 hour default,
     this.maxSessions = config.maxSessions || 100;
 
-    // Start cleanup timer
+    // Start cleanup timer,
     this.cleanupInterval = setInterval(() => {
       this.cleanupExpiredSessions();
-    }, 60000); // Clean up every minute
+    }, 60000) as any; // Clean up every minute
   }
 
   createSession(transport: 'stdio' | 'http' | 'websocket'): MCPSession {
-    // Check session limit
+    // Check session limit,
     if (this.sessions.size >= this.maxSessions) {
-      // Try to clean up expired sessions first
+      // Try to clean up expired sessions first,
       this.cleanupExpiredSessions();
       
       if (this.sessions.size >= this.maxSessions) {
@@ -108,10 +108,10 @@ export class SessionManager implements ISessionManager {
       throw new MCPError(`Session not found: ${sessionId}`);
     }
 
-    // Validate protocol version
+    // Validate protocol version,
     this.validateProtocolVersion(params.protocolVersion);
 
-    // Update session with initialization params
+    // Update session with initialization params,
     session.clientInfo = params.clientInfo;
     session.protocolVersion = params.protocolVersion;
     session.capabilities = params.capabilities;
@@ -273,7 +273,7 @@ export class SessionManager implements ISessionManager {
   }
 
   private validateProtocolVersion(version: MCPProtocolVersion): void {
-    // Currently supporting MCP version 2024-11-05
+    // Currently supporting MCP version 2024-11-05,
     const supportedVersions = [
       { major: 2024, minor: 11, patch: 5 },
     ];
@@ -303,7 +303,7 @@ export class SessionManager implements ISessionManager {
       return false;
     }
 
-    // Use timing-safe comparison to prevent timing attacks
+    // Use timing-safe comparison to prevent timing attacks,
     return this.authConfig.tokens.some((validToken) => {
       const encoder = new TextEncoder();
       const validTokenBytes = encoder.encode(validToken);
@@ -332,7 +332,7 @@ export class SessionManager implements ISessionManager {
       return false;
     }
 
-    // Hash the provided password and compare
+    // Hash the provided password and compare,
     const hashedPassword = this.hashPassword(password);
     const expectedHashedPassword = this.hashPassword(user.password);
 
@@ -349,7 +349,7 @@ export class SessionManager implements ISessionManager {
 
   private authenticateOAuth(credentials: unknown): boolean {
     // TODO: Implement OAuth authentication
-    // This would typically involve validating JWT tokens
+    // This would typically involve validating JWT tokens,
     this.logger.warn('OAuth authentication not yet implemented');
     return false;
   }

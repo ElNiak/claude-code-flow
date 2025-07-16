@@ -1,5 +1,5 @@
 // Type definitions for VS Code extension API (minimal)
-// This is a placeholder for the actual VS Code types when running in extension context
+// This is a placeholder for the actual VS Code types when running in extension context,
 
 declare module 'vscode' {
   export interface ExtensionContext {

@@ -246,6 +246,7 @@ process.on?.('exit', () => {
   console.log(`\n⏱️  Total execution time: ${(duration / 1000).toFixed(2)}s`);
 });
 
-if (import.meta.main) {
+// import.meta.main is Deno-specific, use process.argv check for Node.js compatibility
+if (typeof process !== 'undefined' && process.argv[1] && new URL(import.meta.url).pathname === process.argv[1]) {
   await main();
 }

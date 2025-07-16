@@ -11,7 +11,7 @@ import type {
   SystemHealth, 
   SystemMetrics 
 } from '../integration/types.js';
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 
 export interface HealthCheckConfig {
   interval?: number; // Health check interval in ms (default: 30000)
@@ -48,8 +48,8 @@ export class HealthCheckManager {
     this.systemIntegration = SystemIntegration.getInstance();
     
     this.config = {
-      interval: config.interval || 30000, // 30 seconds
-      timeout: config.timeout || 5000, // 5 seconds
+      interval: config.interval || 30000, // 30 seconds,
+      timeout: config.timeout || 5000, // 5 seconds,
       retries: config.retries || 3,
       enableMetrics: config.enableMetrics !== false,
       enableAlerts: config.enableAlerts !== false
@@ -70,10 +70,10 @@ export class HealthCheckManager {
     this.logger.info('Starting health check monitoring');
     this.isRunning = true;
 
-    // Perform initial health check
+    // Perform initial health check,
     this.performHealthCheck();
 
-    // Set up periodic health checks
+    // Set up periodic health checks,
     this.intervalId = setInterval(() => {
       this.performHealthCheck();
     }, this.config.interval);
@@ -114,21 +114,21 @@ export class HealthCheckManager {
     try {
       this.logger.debug('Performing system health check');
 
-      // Get system health from integration manager
+      // Get system health from integration manager,
       const systemHealth = await this.systemIntegration.getSystemHealth();
 
-      // Perform individual component checks
+      // Perform individual component checks,
       const componentChecks = await this.checkAllComponents();
       
-      // Collect system metrics if enabled
+      // Collect system metrics if enabled,
       if (this.config.enableMetrics) {
         this.lastMetrics = await this.collectSystemMetrics();
       }
 
-      // Store health history
+      // Store health history,
       this.storeHealthHistory(componentChecks);
 
-      // Check for alerts
+      // Check for alerts,
       if (this.config.enableAlerts) {
         await this.checkForAlerts(systemHealth);
       }
@@ -136,7 +136,7 @@ export class HealthCheckManager {
       const duration = Date.now() - startTime;
       this.logger.debug(`Health check completed in ${duration}ms`);
 
-      // Emit health check event
+      // Emit health check event,
       this.eventBus.emit('health:check:completed', {
         health: systemHealth,
         metrics: this.lastMetrics,
@@ -148,10 +148,10 @@ export class HealthCheckManager {
 
     } catch (error) {
       const duration = Date.now() - startTime;
-      this.logger.error('Health check failed:', getErrorMessage(error));
+      this.logger.error('Health check failed:', _getErrorMessage(error));
       
       this.eventBus.emit('health:check:failed', {
-        error: getErrorMessage(error),
+        error: _getErrorMessage(error),
         duration,
         timestamp: Date.now()
       });
@@ -186,7 +186,7 @@ export class HealthCheckManager {
         return {
           component: components[index],
           healthy: false,
-          message: getErrorMessage(result.reason),
+          message: _getErrorMessage(result.reason),
           timestamp: Date.now()
         };
       }
@@ -211,8 +211,8 @@ export class HealthCheckManager {
         };
       }
 
-      // Try to call health check method if available
-      if (typeof component.healthCheck === 'function') {
+      // Try to call health check method if available,
+      if (component && typeof component === 'object' && 'healthCheck' in component && typeof component.healthCheck === 'function') {
         const result = await Promise.race([
           component.healthCheck(),
           new Promise((_, reject) => 
@@ -222,7 +222,7 @@ export class HealthCheckManager {
         return result as HealthCheckResult;
       }
 
-      // Basic availability check
+      // Basic availability check,
       const duration = Date.now() - startTime;
       return {
         component: componentName,
@@ -236,7 +236,7 @@ export class HealthCheckManager {
       return {
         component: componentName,
         healthy: false,
-        message: getErrorMessage(error),
+        message: _getErrorMessage(error),
         timestamp: Date.now()
       };
     }
@@ -249,11 +249,11 @@ export class HealthCheckManager {
     const startTime = Date.now();
     
     try {
-      // Get system resource usage
+      // Get system resource usage,
       const memoryUsage = process.memoryUsage();
       const cpuUsage = process.cpuUsage();
       
-      // Get component-specific metrics
+      // Get component-specific metrics,
       const agentManager = this.systemIntegration.getComponent('agentManager');
       const taskEngine = this.systemIntegration.getComponent('taskEngine');
       
@@ -262,12 +262,12 @@ export class HealthCheckManager {
       let queuedTasks = 0;
       let completedTasks = 0;
 
-      if (agentManager && typeof agentManager.getMetrics === 'function') {
+      if (agentManager && typeof agentManager === 'object' && 'getMetrics' in agentManager && typeof agentManager.getMetrics === 'function') {
         const agentMetrics = await agentManager.getMetrics();
         activeAgents = agentMetrics.activeAgents || 0;
       }
 
-      if (taskEngine && typeof taskEngine.getMetrics === 'function') {
+      if (taskEngine && typeof taskEngine === 'object' && 'getMetrics' in taskEngine && typeof taskEngine.getMetrics === 'function') {
         const taskMetrics = await taskEngine.getMetrics();
         activeTasks = taskMetrics.activeTasks || 0;
         queuedTasks = taskMetrics.queuedTasks || 0;
@@ -275,10 +275,10 @@ export class HealthCheckManager {
       }
 
       return {
-        cpu: (cpuUsage.user + cpuUsage.system) / 1000000, // Convert to percentage
+        cpu: (cpuUsage.user + cpuUsage.system) / 1000000, // Convert to percentage,
         memory: (memoryUsage.heapUsed / memoryUsage.heapTotal) * 100,
-        network: 0, // Placeholder - would need additional monitoring
-        disk: 0, // Placeholder - would need additional monitoring
+        network: 0, // Placeholder - would need additional monitoring,
+        disk: 0, // Placeholder - would need additional monitoring,
         activeAgents,
         activeTasks,
         queuedTasks,
@@ -289,7 +289,7 @@ export class HealthCheckManager {
       };
 
     } catch (error) {
-      this.logger.error('Failed to collect system metrics:', getErrorMessage(error));
+      this.logger.error('Failed to collect system metrics:', _getErrorMessage(error));
       return {
         cpu: 0,
         memory: 0,
@@ -310,7 +310,7 @@ export class HealthCheckManager {
    * Store health check history
    */
   private storeHealthHistory(results: HealthCheckResult[]): void {
-    const maxHistorySize = 100; // Keep last 100 health checks per component
+    const maxHistorySize = 100; // Keep last 100 health checks per component,
 
     results.forEach(result => {
       if (!this.healthHistory.has(result.component)) {
@@ -320,7 +320,7 @@ export class HealthCheckManager {
       const history = this.healthHistory.get(result.component)!;
       history.push(result);
 
-      // Trim history if too large
+      // Trim history if too large,
       if (history.length > maxHistorySize) {
         history.splice(0, history.length - maxHistorySize);
       }
@@ -347,7 +347,7 @@ export class HealthCheckManager {
       this.logger.warn('Health alert triggered:', alert.message);
     }
 
-    // Check system metrics for anomalies
+    // Check system metrics for anomalies,
     if (this.lastMetrics) {
       const alerts = [];
 
@@ -395,7 +395,7 @@ export class HealthCheckManager {
       return this.healthHistory.get(component) || [];
     }
 
-    // Return all history
+    // Return all history,
     const allHistory: HealthCheckResult[] = [];
     for (const history of this.healthHistory.values()) {
       allHistory.push(...history);
@@ -422,7 +422,7 @@ export class HealthCheckManager {
    * Get error count from recent history
    */
   private getErrorCount(): number {
-    const recentTime = Date.now() - 300000; // Last 5 minutes
+    const recentTime = Date.now() - 300000; // Last 5 minutes,
     let errorCount = 0;
 
     for (const history of this.healthHistory.values()) {
@@ -438,14 +438,15 @@ export class HealthCheckManager {
    * Setup event handlers
    */
   private setupEventHandlers(): void {
-    // Listen for component status changes
-    this.eventBus.on('component:status:updated', (status: ComponentStatus) => {
+    // Listen for component status changes,
+    this.eventBus.on('component:status:updated', (data: unknown) => {
+      const status = data as ComponentStatus;
       if (status.status === 'unhealthy') {
         this.logger.warn(`Component ${status.component} became unhealthy: ${status.message}`);
       }
     });
 
-    // Listen for system errors
+    // Listen for system errors,
     this.eventBus.on('system:error', (error) => {
       this.logger.error('System error detected:', error);
     });

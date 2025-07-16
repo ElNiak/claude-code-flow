@@ -8,7 +8,7 @@ import type { ILogger } from '../../core/logger.js';
 import type { IEventBus } from '../../core/event-bus.js';
 import type { DistributedMemorySystem } from '../../memory/distributed-memory.js';
 
-// Type definitions for coordinator activities
+// Type definitions for coordinator activities,
 interface ResourceAssignment {
   resource: string;
   task: string;
@@ -68,8 +68,8 @@ export class CoordinatorAgent extends BaseAgent {
         'status-reporter'
       ],
       maxConcurrentTasks: 8,
-      maxMemoryUsage: 512 * 1024 * 1024, // 512MB
-      maxExecutionTime: 600000, // 10 minutes
+      maxMemoryUsage: 512 * 1024 * 1024, // 512MB,
+      maxExecutionTime: 600000, // 10 minutes,
       reliability: 0.95,
       speed: 0.90,
       quality: 0.88
@@ -178,7 +178,7 @@ export class CoordinatorAgent extends BaseAgent {
       timestamp: new Date()
     };
 
-    // Simulate task orchestration
+    // Simulate task orchestration,
     await this.delay(2000);
 
     orchestration.tasks = tasks.map((t: any, index: number) => ({
@@ -234,7 +234,7 @@ export class CoordinatorAgent extends BaseAgent {
       timestamp: new Date()
     };
 
-    // Simulate progress tracking
+    // Simulate progress tracking,
     await this.delay(1500);
 
     progress.summary = {
@@ -272,7 +272,7 @@ export class CoordinatorAgent extends BaseAgent {
       timestamp: new Date()
     };
 
-    // Simulate resource allocation
+    // Simulate resource allocation,
     await this.delay(2500);
 
     allocation.assignments = [
@@ -323,7 +323,7 @@ export class CoordinatorAgent extends BaseAgent {
       timestamp: new Date()
     };
 
-    // Simulate workflow management
+    // Simulate workflow management,
     await this.delay(2000);
 
     management.stages = [
@@ -371,7 +371,7 @@ export class CoordinatorAgent extends BaseAgent {
       timestamp: new Date()
     };
 
-    // Simulate team coordination
+    // Simulate team coordination,
     await this.delay(1800);
 
     coordination.performance.team = {
@@ -416,7 +416,7 @@ export class CoordinatorAgent extends BaseAgent {
       timestamp: new Date()
     };
 
-    // Simulate report generation
+    // Simulate report generation,
     await this.delay(3000);
 
     report.executive_summary = 'Project is 68% complete and on track for delivery. Team productivity is high with minor blockers identified.';
@@ -442,7 +442,7 @@ export class CoordinatorAgent extends BaseAgent {
       description: task.description
     });
 
-    // Default to task orchestration
+    // Default to task orchestration,
     return await this.orchestrateTasks(task);
   }
 

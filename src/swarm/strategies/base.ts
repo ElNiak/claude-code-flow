@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../../utils/error-handler.js';
 /**
  * Base Strategy Interface for Swarm Task Execution
  * Provides the foundation for different task execution strategies
@@ -14,7 +14,7 @@ export interface StrategyMetrics {
   parallelismEfficiency: number;
   cacheHitRate: number;
   predictionAccuracy: number;
-  // Additional metrics
+  // Additional metrics,
   queriesExecuted?: number;
   averageResponseTime?: number;
   cacheHits?: number;
@@ -38,13 +38,13 @@ export interface DecompositionResult {
   recommendedStrategy: string;
   complexity: number;
   batchGroups: TaskBatch[];
-  // Additional properties for caching and memory
+  // Additional properties for caching and memory,
   timestamp: Date;
   ttl: number;
   accessCount: number;
   lastAccessed: Date;
   data: any;
-  // Resource requirements
+  // Resource requirements,
   resourceRequirements?: {
     memory?: number;
     cpu?: number;
@@ -81,12 +81,12 @@ export abstract class BaseStrategy {
     this.cache = new Map();
   }
 
-  // Abstract methods that must be implemented by concrete strategies
+  // Abstract methods that must be implemented by concrete strategies,
   abstract decomposeObjective(objective: SwarmObjective): Promise<DecompositionResult>;
   abstract selectAgentForTask(task: TaskDefinition, availableAgents: AgentState[]): Promise<string | null>;
   abstract optimizeTaskSchedule(tasks: TaskDefinition[], agents: AgentState[]): Promise<AgentAllocation[]>;
 
-  // Common utility methods
+  // Common utility methods,
   protected initializeMetrics(): StrategyMetrics {
     return {
       tasksCompleted: 0,
@@ -159,7 +159,7 @@ export abstract class BaseStrategy {
       return pattern.complexity;
     }
 
-    // Fallback complexity estimation based on description length and keywords
+    // Fallback complexity estimation based on description length and keywords,
     let complexity = 1;
     const words = description.split(' ').length;
     

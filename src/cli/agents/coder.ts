@@ -8,7 +8,7 @@ import type { ILogger } from '../../core/logger.js';
 import type { IEventBus } from '../../core/event-bus.js';
 import type { DistributedMemorySystem } from '../../memory/distributed-memory.js';
 
-// Type definitions for coder activities
+// Type definitions for coder activities,
 interface CodeFile {
   path: string;
   content: string;
@@ -107,8 +107,8 @@ export class CoderAgent extends BaseAgent {
         'testing-framework'
       ],
       maxConcurrentTasks: 3,
-      maxMemoryUsage: 1024 * 1024 * 1024, // 1GB
-      maxExecutionTime: 1800000, // 30 minutes
+      maxMemoryUsage: 1024 * 1024 * 1024, // 1GB,
+      maxExecutionTime: 1800000, // 30 minutes,
       reliability: 0.95,
       speed: 0.75,
       quality: 0.95
@@ -222,7 +222,7 @@ export class CoderAgent extends BaseAgent {
       timestamp: new Date()
     };
 
-    // Store development progress
+    // Store development progress,
     await this.memory.store(`code:${task.id}:progress`, {
       status: 'generating',
       startTime: new Date(),
@@ -233,7 +233,7 @@ export class CoderAgent extends BaseAgent {
       partition: 'tasks'
     });
 
-    // Simulate code generation
+    // Simulate code generation,
     await this.delay(3000);
     
     result.files = [
@@ -268,7 +268,7 @@ export class CoderAgent extends BaseAgent {
     result.dependencies = this.suggestDependencies(language, framework) as any[];
     result.buildInstructions = this.generateBuildInstructions(language, framework) as string[];
 
-    // Store final results
+    // Store final results,
     await this.memory.store(`code:${task.id}:results`, result, {
       type: 'code-results',
       tags: ['coding', 'completed', this.id, language],
@@ -305,7 +305,7 @@ export class CoderAgent extends BaseAgent {
       timestamp: new Date()
     };
 
-    // Simulate code review
+    // Simulate code review,
     await this.delay(2500);
 
     review.overallScore = 0.88;
@@ -369,7 +369,7 @@ export class CoderAgent extends BaseAgent {
       timestamp: new Date()
     };
 
-    // Simulate refactoring
+    // Simulate refactoring,
     await this.delay(4000);
 
     refactoring.changes = [
@@ -423,7 +423,7 @@ export class CoderAgent extends BaseAgent {
       timestamp: new Date()
     };
 
-    // Simulate test writing
+    // Simulate test writing,
     await this.delay(2000);
 
     testing.testFiles = [
@@ -482,7 +482,7 @@ export class CoderAgent extends BaseAgent {
       timestamp: new Date()
     };
 
-    // Simulate debugging
+    // Simulate debugging,
     await this.delay(3500);
 
     debugging.investigation = [
@@ -539,7 +539,7 @@ export class CoderAgent extends BaseAgent {
       timestamp: new Date()
     };
 
-    // Simulate API development
+    // Simulate API development,
     await this.delay(5000);
 
     api.endpoints = [
@@ -580,7 +580,7 @@ export class CoderAgent extends BaseAgent {
       timestamp: new Date()
     };
 
-    // Simulate database design
+    // Simulate database design,
     await this.delay(3000);
 
     design.tables = [
@@ -618,7 +618,7 @@ export class CoderAgent extends BaseAgent {
       timestamp: new Date()
     };
 
-    // Simulate performance optimization
+    // Simulate performance optimization,
     await this.delay(4000);
 
     optimization.analysis.bottlenecks = [
@@ -641,11 +641,11 @@ export class CoderAgent extends BaseAgent {
       description: task.description
     });
 
-    // Default to code generation
+    // Default to code generation,
     return await this.generateCode(task);
   }
 
-  // Helper methods
+  // Helper methods,
   private getFileExtension(language: string): string {
     const extensions = {
       typescript: 'ts',
@@ -699,7 +699,7 @@ class Application:
         print('Application initialized')
     
     def start(self):
-        # Implementation here
+        # Implementation here,
         pass
 `
     };
@@ -774,11 +774,11 @@ describe('${description}', () => {
     return `
 # ${requirements}
 
-## Overview
+## Overview,
 This ${language} application implements the specified requirements.
 
 ## Installation
-\`\`\`bash
+\`\`\`bash,
 npm install
 \`\`\`
 
@@ -792,7 +792,7 @@ npm install
 - Method 2: Description
 
 ## Testing
-\`\`\`bash
+\`\`\`bash,
 npm test
 \`\`\`
 `;

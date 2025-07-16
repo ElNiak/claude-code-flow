@@ -2,7 +2,7 @@
  * Hive Mind Command - Multi-agent swarm coordination with consensus mechanisms
  */
 
-import { CommandContext, success, error, warning, info } from '../cli-core.js';
+import { CommandContext, success, _error as error, warning as _warning, info } from '../cli-core.js';
 import { generateId } from '../../utils/helpers.js';
 import { SwarmCoordinator } from '../../coordination/swarm-coordinator.js';
 import { SwarmMemoryManager } from '../../memory/swarm-memory.js';
@@ -65,7 +65,7 @@ export async function hiveAction(ctx: CommandContext) {
   console.log(`🤖 Max Agents: ${options.maxAgents}`);
 
   try {
-    // Initialize Hive coordinator
+    // Initialize Hive coordinator,
     const coordinator = new SwarmCoordinator({
       maxAgents: options.maxAgents,
       maxConcurrentTasks: options.maxAgents,
@@ -77,7 +77,7 @@ export async function hiveAction(ctx: CommandContext) {
       coordinationStrategy: 'distributed'
     });
 
-    // Initialize Hive memory
+    // Initialize Hive memory,
     const memory = new SwarmMemoryManager({
       namespace: options.memoryNamespace,
       enableDistribution: true,
@@ -88,17 +88,17 @@ export async function hiveAction(ctx: CommandContext) {
     await coordinator.start();
     await memory.initialize();
 
-    // Create Queen Genesis
+    // Create Queen Genesis,
     const queenId = await coordinator.registerAgent(
       'Queen-Genesis',
       'coordinator',
       ['orchestration', 'consensus', 'decision-making', 'delegation']
     );
 
-    // Create specialized agents based on topology
+    // Create specialized agents based on topology,
     const agents = await spawnHiveAgents(coordinator, options);
     
-    // Store Hive configuration
+    // Store Hive configuration,
     await memory.store(`hive/${hiveId}/config`, {
       hiveId,
       objective,
@@ -108,10 +108,10 @@ export async function hiveAction(ctx: CommandContext) {
       startTime: new Date().toISOString()
     });
 
-    // Create objective with Hive consensus
+    // Create objective with Hive consensus,
     const objectiveId = await coordinator.createObjective(objective, 'development');
     
-    // Execute with consensus mechanisms
+    // Execute with consensus mechanisms,
     if (options.sparc) {
       info('🧪 SPARC methodology enabled - full TDD workflow');
       await executeSparcHive(coordinator, memory, objectiveId, agents, options);
@@ -120,7 +120,7 @@ export async function hiveAction(ctx: CommandContext) {
     }
 
     if (!options.background) {
-      // Show results
+      // Show results,
       const status = coordinator.getSwarmStatus();
       console.log(`\n📊 Hive Mind Summary:`);
       console.log(`  - Consensus Rounds: ${(status as any).customMetrics?.consensusRounds || 0}`);
@@ -139,7 +139,7 @@ export async function hiveAction(ctx: CommandContext) {
 async function spawnHiveAgents(coordinator: SwarmCoordinator, options: HiveOptions): Promise<HiveAgent[]> {
   const agents: HiveAgent[] = [];
   
-  // Define agent types based on topology
+  // Define agent types based on topology,
   const agentConfigs = getAgentConfigsForTopology(options.topology);
   
   for (let i = 0; i < Math.min(options.maxAgents - 1, agentConfigs.length); i++) {
@@ -206,19 +206,19 @@ async function executeHive(
   agents: HiveAgent[],
   options: HiveOptions
 ) {
-  // Phase 1: Task decomposition with consensus
+  // Phase 1: Task decomposition with consensus,
   console.log('\n🧩 Phase 1: Task Decomposition');
   const tasks = await decomposeWithConsensus(coordinator, memory, options.objective, agents, options);
   
-  // Phase 2: Task assignment with voting
+  // Phase 2: Task assignment with voting,
   console.log('\n🗳️ Phase 2: Task Assignment');
   const assignments = await assignTasksWithVoting(coordinator, memory, tasks, agents, options);
   
-  // Phase 3: Parallel execution with monitoring
+  // Phase 3: Parallel execution with monitoring,
   console.log('\n⚡ Phase 3: Parallel Execution');
   await executeTasksWithMonitoring(coordinator, memory, assignments, agents, options);
   
-  // Phase 4: Result aggregation with quality checks
+  // Phase 4: Result aggregation with quality checks,
   console.log('\n📊 Phase 4: Result Aggregation');
   await aggregateResultsWithQuality(coordinator, memory, objectiveId, agents, options);
 }
@@ -232,35 +232,35 @@ async function executeSparcHive(
 ) {
   console.log('\n🧪 SPARC Hive Execution Mode');
   
-  // S: Specification with consensus
+  // S: Specification with consensus,
   console.log('\n📋 S - Specification Phase');
   await conductConsensusRound(memory, agents, 'specification', {
     task: 'Define requirements and acceptance criteria',
     objective: options.objective
   });
   
-  // P: Pseudocode with voting
+  // P: Pseudocode with voting,
   console.log('\n🧮 P - Pseudocode Phase');
   await conductConsensusRound(memory, agents, 'pseudocode', {
     task: 'Design algorithms and data structures',
     objective: options.objective
   });
   
-  // A: Architecture with review
+  // A: Architecture with review,
   console.log('\n🏗️ A - Architecture Phase');
   await conductConsensusRound(memory, agents, 'architecture', {
     task: 'Design system architecture',
     objective: options.objective
   });
   
-  // R: Refinement with TDD
+  // R: Refinement with TDD,
   console.log('\n♻️ R - Refinement Phase (TDD)');
   await conductConsensusRound(memory, agents, 'refinement', {
     task: 'Implement with test-driven development',
     objective: options.objective
   });
   
-  // C: Completion with validation
+  // C: Completion with validation,
   console.log('\n✅ C - Completion Phase');
   await conductConsensusRound(memory, agents, 'completion', {
     task: 'Integrate and validate solution',
@@ -276,7 +276,7 @@ async function conductConsensusRound(
 ) {
   const roundId = generateId('round');
   
-  // Store round context
+  // Store round context,
   await memory.store(`consensus/${roundId}/context`, {
     phase,
     context,
@@ -284,21 +284,21 @@ async function conductConsensusRound(
     timestamp: new Date().toISOString()
   });
   
-  // Simulate voting
+  // Simulate voting,
   const votes = new Map<string, boolean>();
   agents.forEach(agent => {
-    const vote = Math.random() > 0.2; // 80% approval rate
+    const vote = Math.random() > 0.2; // 80% approval rate,
     votes.set(agent.id, vote);
     console.log(`  🗳️ ${agent.type}-${agent.id}: ${vote ? '✅ Approve' : '❌ Reject'}`);
   });
   
-  // Calculate consensus
+  // Calculate consensus,
   const approvals = Array.from(votes.values()).filter(v => v).length;
   const consensus = approvals / agents.length;
   
   console.log(`  📊 Consensus: ${(consensus * 100).toFixed(1)}% (${approvals}/${agents.length})`);
   
-  // Store results
+  // Store results,
   await memory.store(`consensus/${roundId}/results`, {
     votes: Object.fromEntries(votes),
     consensus,
@@ -314,7 +314,7 @@ async function decomposeWithConsensus(
   agents: HiveAgent[],
   options: HiveOptions
 ): Promise<any[]> {
-  // Queen proposes task decomposition
+  // Queen proposes task decomposition,
   const proposedTasks = [
     { type: 'analysis', description: `Analyze requirements for: ${objective}` },
     { type: 'design', description: `Design solution architecture` },
@@ -323,14 +323,14 @@ async function decomposeWithConsensus(
     { type: 'documentation', description: `Document the implementation` }
   ];
   
-  // Agents vote on task breakdown
+  // Agents vote on task breakdown,
   console.log('  👑 Queen proposes task breakdown...');
   console.log('  🗳️ Agents voting on tasks...');
   
-  // Simulate consensus
+  // Simulate consensus,
   const approved = options.consensus === 'unanimous' ? 
-    agents.length === agents.length : // All must agree
-    agents.length > agents.length / 2; // Simple majority
+    agents.length === agents.length : // All must agree,
+    agents.length > agents.length / 2; // Simple majority,
     
   console.log(`  ✅ Task breakdown ${approved ? 'approved' : 'rejected'}`);
   
@@ -347,13 +347,13 @@ async function assignTasksWithVoting(
   const assignments = new Map<string, string>();
   
   for (const task of tasks) {
-    // Agents bid on tasks based on capabilities
+    // Agents bid on tasks based on capabilities,
     const bids = agents.map(agent => ({
       agent,
       score: calculateBidScore(agent, task)
     })).sort((a, b) => b.score - a.score);
     
-    // Assign to highest bidder
+    // Assign to highest bidder,
     const winner = bids[0].agent;
     assignments.set(task.description, winner.id);
     
@@ -364,17 +364,17 @@ async function assignTasksWithVoting(
 }
 
 function calculateBidScore(agent: HiveAgent, task: any): number {
-  // Calculate how well agent capabilities match task requirements
+  // Calculate how well agent capabilities match task requirements,
   let score = 0;
   
-  // Type matching
+  // Type matching,
   if (task.type === 'analysis' && agent.capabilities.includes('analysis')) score += 3;
   if (task.type === 'design' && agent.capabilities.includes('architecture')) score += 3;
   if (task.type === 'implementation' && agent.capabilities.includes('coding')) score += 3;
   if (task.type === 'testing' && agent.capabilities.includes('testing')) score += 3;
   if (task.type === 'documentation' && agent.capabilities.includes('documentation')) score += 2;
   
-  // Add random factor for variety
+  // Add random factor for variety,
   score += Math.random() * 2;
   
   return score;
@@ -393,13 +393,13 @@ async function executeTasksWithMonitoring(
     
     console.log(`  ⚡ ${agent.type}-${agent.id} executing: ${task}`);
     
-    // Simulate execution
+    // Simulate execution,
     await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
     
     agent.status = 'idle';
     console.log(`  ✅ ${agent.type}-${agent.id} completed: ${task}`);
     
-    // Store execution result
+    // Store execution result,
     await memory.store(`execution/${agentId}/${Date.now()}`, {
       task,
       agent: agent.id,
@@ -418,7 +418,7 @@ async function aggregateResultsWithQuality(
   agents: HiveAgent[],
   options: HiveOptions
 ) {
-  // Collect all execution results
+  // Collect all execution results,
   const results = [];
   for (const agent of agents) {
     const pattern = `execution/${agent.id}/*`;
@@ -426,14 +426,14 @@ async function aggregateResultsWithQuality(
     results.push(...executions);
   }
   
-  // Calculate quality score
+  // Calculate quality score,
   const qualityScore = Math.min(100, 75 + Math.random() * 25);
   
   console.log(`  📊 Quality Score: ${qualityScore.toFixed(1)}%`);
   console.log(`  ✅ Threshold: ${options.qualityThreshold * 100}%`);
   console.log(`  ${qualityScore >= options.qualityThreshold * 100 ? '✅ PASSED' : '❌ FAILED'}`);
   
-  // Store aggregated results
+  // Store aggregated results,
   await memory.store(`hive/${objectiveId}/results`, {
     objective: options.objective,
     executionCount: results.length,
@@ -445,10 +445,10 @@ async function aggregateResultsWithQuality(
 
 function showHiveHelp() {
   console.log(`
-🐝 Hive Mind - Advanced Multi-Agent Coordination
+🐝 Hive Mind - Advanced Multi-Agent Coordination,
 
 USAGE:
-  claude-flow hive <objective> [options]
+  claude-flow hive <objective> [options],
 
 DESCRIPTION:
   Hive Mind implements advanced swarm intelligence with consensus mechanisms,
@@ -456,20 +456,20 @@ DESCRIPTION:
 
 EXAMPLES:
   claude-flow hive "Build microservices architecture"
-  claude-flow hive "Optimize database performance" --consensus unanimous
-  claude-flow hive "Develop ML pipeline" --topology mesh --monitor
+  claude-flow hive "Optimize database performance" --consensus unanimous,
+  claude-flow hive "Develop ML pipeline" --topology mesh --monitor,
 
 TOPOLOGIES:
   hierarchical   Queen-led hierarchy (default)
-  mesh           Peer-to-peer coordination
-  ring           Sequential processing
-  star           Centralized hub
+  mesh           Peer-to-peer coordination,
+  ring           Sequential processing,
+  star           Centralized hub,
 
 CONSENSUS MECHANISMS:
   quorum         Simple majority (default)
-  unanimous      All agents must agree
-  weighted       Capability-based voting
-  leader         Queen decides with input
+  unanimous      All agents must agree,
+  weighted       Capability-based voting,
+  leader         Queen decides with input,
 
 OPTIONS:
   --topology <type>         Swarm topology (default: hierarchical)
@@ -487,7 +487,7 @@ AGENT TYPES:
   🏗️ Architect    System design and planning
   🐝 Worker       Implementation and execution
   🔍 Scout        Research and exploration
-  🛡️ Guardian     Quality and validation
+  🛡️ Guardian     Quality and validation,
 
 FEATURES:
   • Consensus-based task decomposition
@@ -495,7 +495,7 @@ FEATURES:
   • Parallel execution with monitoring
   • Quality-driven result aggregation
   • Distributed memory sharing
-  • SPARC methodology support
+  • SPARC methodology support,
 
 For more info: https://github.com/ruvnet/claude-code-flow/docs/hive.md
 `);

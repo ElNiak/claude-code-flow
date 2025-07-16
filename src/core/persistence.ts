@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * Persistence layer for Claude-Flow using SQLite
  */
@@ -35,7 +35,7 @@ export interface PersistedTask {
 }
 
 export class PersistenceManager {
-  private db: Database.Database;
+  private db!: Database.Database; // Use definite assignment assertion since it's initialized in initialize()
   private dbPath: string;
 
   constructor(dataDir: string = "./memory") {
@@ -43,19 +43,19 @@ export class PersistenceManager {
   }
 
   async initialize(): Promise<void> {
-    // Ensure directory exists
+    // Ensure directory exists,
     await mkdir(join(this.dbPath, ".."), { recursive: true });
     
-    // Open database
+    // Open database,
     this.db = new Database(this.dbPath);
     
-    // Create tables if they don't exist
+    // Create tables if they don't exist,
     this.createTables();
   }
 
   private createTables(): void {
-    // Agents table
-    this.db.execute(`
+    // Agents table,
+    this.db.exec(`
       CREATE TABLE IF NOT EXISTS agents (
         id TEXT PRIMARY KEY,
         type TEXT NOT NULL,
@@ -69,8 +69,8 @@ export class PersistenceManager {
       )
     `);
 
-    // Tasks table
-    this.db.execute(`
+    // Tasks table,
+    this.db.exec(`
       CREATE TABLE IF NOT EXISTS tasks (
         id TEXT PRIMARY KEY,
         type TEXT NOT NULL,
@@ -87,8 +87,8 @@ export class PersistenceManager {
       )
     `);
 
-    // Sessions table for terminal sessions
-    this.db.execute(`
+    // Sessions table for terminal sessions,
+    this.db.exec(`
       CREATE TABLE IF NOT EXISTS sessions (
         id TEXT PRIMARY KEY,
         agent_id TEXT NOT NULL,
@@ -100,7 +100,7 @@ export class PersistenceManager {
     `);
   }
 
-  // Agent operations
+  // Agent operations,
   async saveAgent(agent: PersistedAgent): Promise<void> {
     const stmt = this.db.prepare(
       `INSERT OR REPLACE INTO agents 
@@ -161,7 +161,7 @@ export class PersistenceManager {
     stmt.run(status, id);
   }
 
-  // Task operations
+  // Task operations,
   async saveTask(task: PersistedTask): Promise<void> {
     const stmt = this.db.prepare(
       `INSERT OR REPLACE INTO tasks 
@@ -241,7 +241,7 @@ export class PersistenceManager {
     stmt.run(progress, id);
   }
 
-  // Statistics
+  // Statistics,
   async getStats(): Promise<{
     totalAgents: number;
     activeAgents: number;

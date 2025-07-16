@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const fs = require('fs');
-const path = require('path');
+const _path = require('path');
 
 /**
  * Deploy Claude optimized template to a target project

@@ -1,5 +1,5 @@
-#!/usr/bin/env node
-import { getErrorMessage } from '../../utils/error-handler.js';
+#!/usr/bin/env node,
+import { getErrorMessage as _getErrorMessage } from '../../utils/error-handler.js';
 /**
  * Backward Compatibility Wrapper
  * Ensures seamless migration from legacy commands to unified system
@@ -7,7 +7,7 @@ import { getErrorMessage } from '../../utils/error-handler.js';
 
 import chalk from 'chalk';
 import type { Command, CommandContext } from "../cli-core.js";
-import { success, error, warning, info } from "../cli-core.js";
+import { success, _error, warning, info } from "../cli-core.js";
 
 export function createCompatibilityWrapper(legacyCommand: string, newCommand: string): Command {
   return {
@@ -23,7 +23,7 @@ export function createCompatibilityWrapper(legacyCommand: string, newCommand: st
 The '${legacyCommand}' command is now part of the unified coordination system.
 
 Recommended migration:
-  Legacy: claude-flow ${legacyCommand} ${ctx.args.join(' ')}
+  Legacy: claude-flow ${legacyCommand} ${ctx.args.join(' ')},
   New:    claude-flow ${newCommand} ${ctx.args.join(' ')}
 
 Benefits of new unified system:
@@ -31,16 +31,16 @@ Benefits of new unified system:
   ✅ Ruv-swarm integration  
   ✅ Persistent memory across sessions
   ✅ Automatic coordination hooks
-  ✅ Better performance and reliability
+  ✅ Better performance and reliability,
 
 Would you like to use the new command instead? (Recommended)
       `));
       
-      // For now, continue with legacy behavior but show the migration notice
+      // For now, continue with legacy behavior but show the migration notice,
       info(`Executing legacy command: ${legacyCommand}`);
       
       // You would implement the actual legacy command execution here
-      // For this demo, we'll just show what would happen
+      // For this demo, we'll just show what would happen,
       console.log(`[Legacy Mode] Executing: ${legacyCommand} with args: ${ctx.args.join(', ')}`);
       
       success(`✅ Legacy command completed`);
@@ -66,13 +66,13 @@ export const backwardCompatibilityCommands: Command[] = [
 Legacy swarm commands have been unified into the new coordination system.
 
 Migration Guide:
-  Legacy: claude-flow swarm init
-  New:    claude-flow intrinsic --agents 5 --topology hierarchical
+  Legacy: claude-flow swarm init,
+  New:    claude-flow intrinsic --agents 5 --topology hierarchical,
 
-  Legacy: claude-flow swarm spawn agent
-  New:    claude-flow agent spawn [TYPE] --intrinsic
+  Legacy: claude-flow swarm spawn agent,
+  New:    claude-flow agent spawn [TYPE] --intrinsic,
 
-  Legacy: claude-flow swarm status  
+  Legacy: claude-flow swarm status  ,
   New:    claude-flow agent status --session-id [ID]
 
 Benefits of unified system:
@@ -107,7 +107,7 @@ Benefits of unified system:
     name: "agent-legacy",
     description: "🔄 Legacy agent command (use 'agent' for unified system with intrinsic coordination)",
     aliases: ["agents-legacy"],
-    action: async (ctx: CommandContext) => {
+    action: async (_ctx: CommandContext) => {
       warning("⚠️ Using legacy agent command");
       console.log(chalk.cyan(`
 📢 AGENT COMMAND ENHANCEMENT
@@ -119,13 +119,13 @@ What's new in unified agents:
   🧠 Intrinsic coordination with automatic memory hooks
   🔗 Cross-agent communication and synchronization
   💾 Persistent memory across sessions
-  🐝 Ruv-swarm integration when available
+  🐝 Ruv-swarm integration when available,
 
 Your command will work, but consider these enhancements:
-  Basic:    claude-flow agent spawn researcher
-  Enhanced: claude-flow agent spawn researcher --intrinsic --memory-hooks
+  Basic:    claude-flow agent spawn researcher,
+  Enhanced: claude-flow agent spawn researcher --intrinsic --memory-hooks,
 
-  Basic:    claude-flow agent list
+  Basic:    claude-flow agent list,
   Enhanced: claude-flow agent status --detailed --session-id [ID]
       `));
       
@@ -138,7 +138,7 @@ Your command will work, but consider these enhancements:
   {
     name: "memory-legacy", 
     description: "🔄 Legacy memory command (use 'memory-coord' for unified coordination)",
-    action: async (ctx: CommandContext) => {
+    action: async (_ctx: CommandContext) => {
       warning("⚠️ Using legacy memory command");
       console.log(chalk.cyan(`
 📢 MEMORY SYSTEM UPGRADE
@@ -151,13 +151,13 @@ New unified memory features:
   🔄 Automatic memory synchronization  
   🔗 Coordination hooks (pre-task, post-edit, notifications)
   💾 Cross-session persistence
-  🎯 Session-based memory management
+  🎯 Session-based memory management,
 
 Migration examples:
-  Legacy: claude-flow memory store [data]
-  New:    claude-flow memory-coord --action store --session-id [ID]
+  Legacy: claude-flow memory store [data],
+  New:    claude-flow memory-coord --action store --session-id [ID],
 
-  Legacy: claude-flow memory retrieve [id]  
+  Legacy: claude-flow memory retrieve [id]  ,
   New:    claude-flow memory-coord --action retrieve --session-id [ID]
 
 Enhanced coordination:
@@ -181,36 +181,36 @@ KEY CHANGES:
    • One command for all coordination tasks
    • Automatic agent count optimization
    • Ruv-swarm integration when available
-   • Intrinsic agent coordination
+   • Intrinsic agent coordination,
 
 2. ENHANCED AGENT SYSTEM:
    • Intrinsic coordination with memory hooks
    • Automatic cross-agent communication
    • Persistent session memory
-   • Better performance and reliability
+   • Better performance and reliability,
 
 3. UNIFIED MEMORY COORDINATION:
    • Session-based memory management
    • Automatic agent synchronization
-   • Coordination hooks integration
+   • Coordination hooks integration,
 
 MIGRATION EXAMPLES:
 ==================
 
 Complex Task Coordination:
-  NEW: claude-flow work --task "Build REST API with auth" --agents 6
+  NEW: claude-flow work --task "Build REST API with auth" --agents 6,
   
 Agent Management:
-  OLD: claude-flow swarm spawn researcher
-  NEW: claude-flow agent spawn researcher --intrinsic --session-id my-session
+  OLD: claude-flow swarm spawn researcher,
+  NEW: claude-flow agent spawn researcher --intrinsic --session-id my-session,
 
 Memory Coordination:
-  OLD: claude-flow memory store data
-  NEW: claude-flow memory-coord --action store --session-id my-session
+  OLD: claude-flow memory store data,
+  NEW: claude-flow memory-coord --action store --session-id my-session,
 
 Status Checking:
-  OLD: claude-flow swarm status
-  NEW: claude-flow agent status --session-id my-session
+  OLD: claude-flow swarm status,
+  NEW: claude-flow agent status --session-id my-session,
 
 BACKWARD COMPATIBILITY:
 ======================
@@ -218,8 +218,8 @@ BACKWARD COMPATIBILITY:
 All existing commands still work but show migration notices.
 Legacy commands are available with '-legacy' suffix for explicit use.
 
-For full migration: claude-flow help
-For legacy usage: claude-flow [command]-legacy
+For full migration: claude-flow help,
+For legacy usage: claude-flow [command]-legacy,
 
 BENEFITS OF MIGRATION:
 =====================

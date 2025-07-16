@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../../utils/error-handler.js';
 /**
  * Connection State Manager for MCP
  * Persists connection state across disconnections
@@ -91,14 +91,14 @@ export class ConnectionStateManager {
     }
 
     try {
-      // Ensure state directory exists
+      // Ensure state directory exists,
       await fs.mkdir(this.config.stateDirectory, { recursive: true });
       
-      // Load existing state
+      // Load existing state,
       await this.loadState();
       await this.loadMetrics();
       
-      // Start persistence timer
+      // Start persistence timer,
       this.startPersistenceTimer();
       
       this.logger.info('Connection state manager initialized', {
@@ -126,7 +126,7 @@ export class ConnectionStateManager {
       pendingRequests: state.pendingRequests.length,
     });
 
-    // Persist immediately if critical
+    // Persist immediately if critical,
     if (state.pendingRequests.length > 0) {
       this.persistState().catch(error => {
         this.logger.error('Failed to persist critical state', error);
@@ -162,12 +162,12 @@ export class ConnectionStateManager {
 
     this.connectionHistory.push(fullEvent);
     
-    // Trim history if needed
+    // Trim history if needed,
     if (this.connectionHistory.length > this.config.maxHistorySize) {
       this.connectionHistory = this.connectionHistory.slice(-this.config.maxHistorySize);
     }
 
-    // Update metrics
+    // Update metrics,
     this.updateMetrics(fullEvent);
 
     this.logger.debug('Connection event recorded', {
@@ -302,12 +302,12 @@ export class ConnectionStateManager {
       case 'disconnect':
         this.metrics.totalDisconnections++;
         
-        // Calculate session duration
+        // Calculate session duration,
         const duration = this.getSessionDuration(event.sessionId);
         if (duration !== null) {
           this.metrics.lastConnectionDuration = duration;
           
-          // Update average
+          // Update average,
           const totalDuration = this.metrics.averageSessionDuration * 
             (this.metrics.totalDisconnections - 1) + duration;
           this.metrics.averageSessionDuration = totalDuration / this.metrics.totalDisconnections;
@@ -317,10 +317,10 @@ export class ConnectionStateManager {
       case 'reconnect':
         this.metrics.totalReconnections++;
         
-        // Calculate reconnection time
+        // Calculate reconnection time,
         const reconnectTime = this.getReconnectionTime(event.sessionId);
         if (reconnectTime !== null) {
-          // Update average
+          // Update average,
           const totalTime = this.metrics.averageReconnectionTime * 
             (this.metrics.totalReconnections - 1) + reconnectTime;
           this.metrics.averageReconnectionTime = totalTime / this.metrics.totalReconnections;
@@ -334,7 +334,7 @@ export class ConnectionStateManager {
       const data = await fs.readFile(this.statePath, 'utf-8');
       const state = JSON.parse(data);
       
-      // Convert date strings back to Date objects
+      // Convert date strings back to Date objects,
       state.lastConnected = new Date(state.lastConnected);
       if (state.lastDisconnected) {
         state.lastDisconnected = new Date(state.lastDisconnected);
@@ -358,7 +358,7 @@ export class ConnectionStateManager {
       const data = await fs.readFile(this.metricsPath, 'utf-8');
       const loaded = JSON.parse(data);
       
-      // Convert date strings back to Date objects
+      // Convert date strings back to Date objects,
       loaded.connectionHistory = loaded.connectionHistory.map((event: any) => ({
         ...event,
         timestamp: new Date(event.timestamp),
@@ -392,7 +392,7 @@ export class ConnectionStateManager {
         );
       }
 
-      // Also persist metrics
+      // Also persist metrics,
       await fs.writeFile(
         this.metricsPath,
         JSON.stringify({
@@ -429,7 +429,7 @@ export class ConnectionStateManager {
       this.persistenceTimer = undefined;
     }
 
-    // Final persistence
+    // Final persistence,
     await this.persistState();
   }
 }

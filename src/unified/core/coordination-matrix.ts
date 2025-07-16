@@ -23,8 +23,8 @@ import type { ILogger } from '../../core/logger.js';
  * Coordination dimensions representing the three paradigms
  */
 export enum CoordinationDimension {
-  SPARC = 'sparc',      // Structured thinking coordination
-  SWARM = 'swarm',      // Parallel agent coordination  
+  SPARC = 'sparc',      // Structured thinking coordination,
+  SWARM = 'swarm',      // Parallel agent coordination,  
   HIVE = 'hive'         // Collective intelligence coordination
 }
 
@@ -46,8 +46,8 @@ export interface CoordinationNode {
  * 3D position in the coordination space
  */
 export interface CoordinationPosition {
-  sparc: number;    // 0-1: idle -> specification -> pseudocode -> architecture -> refinement -> completion
-  swarm: number;    // 0-1: isolated -> connected -> coordinated -> synchronized -> optimized
+  sparc: number;    // 0-1: idle -> specification -> pseudocode -> architecture -> refinement -> completion,
+  swarm: number;    // 0-1: isolated -> connected -> coordinated -> synchronized -> optimized,
   hive: number;     // 0-1: individual -> collective -> emergent -> adaptive -> transcendent
 }
 
@@ -93,25 +93,25 @@ export interface CoordinationEvent {
  * Types of coordination events
  */
 export enum CoordinationEventType {
-  // SPARC events
+  // SPARC events,
   PHASE_TRANSITION = 'sparc.phase_transition',
   DECISION_MADE = 'sparc.decision_made',
   REFINEMENT_APPLIED = 'sparc.refinement_applied',
   QUALITY_UPDATED = 'sparc.quality_updated',
   
-  // Swarm events
+  // Swarm events,
   CONNECTION_ESTABLISHED = 'swarm.connection_established',
   CONNECTION_LOST = 'swarm.connection_lost',
   TASK_SHARED = 'swarm.task_shared',
   LOAD_BALANCED = 'swarm.load_balanced',
   
-  // Hive events
+  // Hive events,
   KNOWLEDGE_SHARED = 'hive.knowledge_shared',
   PATTERN_EMERGED = 'hive.pattern_emerged',
   CONSENSUS_REACHED = 'hive.consensus_reached',
   ADAPTATION_PERFORMED = 'hive.adaptation_performed',
   
-  // Unified events
+  // Unified events,
   SYNERGY_ACHIEVED = 'unified.synergy_achieved',
   COORDINATION_OPTIMIZED = 'unified.coordination_optimized',
   MATRIX_EVOLVED = 'unified.matrix_evolved'
@@ -135,22 +135,22 @@ export interface CoordinationConnection {
  * Types of connections
  */
 export enum ConnectionType {
-  // SPARC connections
+  // SPARC connections,
   DECISION_DEPENDENCY = 'sparc.decision_dependency',
   PHASE_SEQUENCE = 'sparc.phase_sequence',
   REFINEMENT_FLOW = 'sparc.refinement_flow',
   
-  // Swarm connections
+  // Swarm connections,
   COLLABORATION = 'swarm.collaboration',
   TASK_DEPENDENCY = 'swarm.task_dependency',
   RESOURCE_SHARING = 'swarm.resource_sharing',
   
-  // Hive connections
+  // Hive connections,
   KNOWLEDGE_FLOW = 'hive.knowledge_flow',
   CONSENSUS_LINK = 'hive.consensus_link',
   EMERGENCE_CHANNEL = 'hive.emergence_channel',
   
-  // Unified connections
+  // Unified connections,
   SYNERGY_BRIDGE = 'unified.synergy_bridge',
   MULTI_DIMENSIONAL = 'unified.multi_dimensional'
 }
@@ -280,7 +280,7 @@ export class CoordinationMatrix extends EventEmitter {
       matrix: {
         maxNodes: 1000,
         maxConnections: 5000,
-        optimizationFrequency: 30000, // 30 seconds
+        optimizationFrequency: 30000, // 30 seconds,
         patternDetectionEnabled: true,
         ...config?.matrix
       }
@@ -326,10 +326,10 @@ export class CoordinationMatrix extends EventEmitter {
     this.logger.info('Initializing Coordination Matrix...');
 
     try {
-      // Start optimization process
+      // Start optimization process,
       this.startOptimizationProcess();
       
-      // Start pattern detection
+      // Start pattern detection,
       if (this.config.matrix.patternDetectionEnabled) {
         this.startPatternDetection();
       }
@@ -398,7 +398,7 @@ export class CoordinationMatrix extends EventEmitter {
       const agentNode = this.findNodeByAgentId(assignedAgent);
       if (agentNode) {
         agentNode.taskId = taskId.id;
-        this.updateNodePosition(agentNode, task);
+        this.updateHivePosition(agentNode.position.hive, 'task_assignment', task);
         this.recordEvent(agentNode.id, CoordinationEventType.TASK_SHARED, CoordinationDimension.SWARM, {
           taskId: taskId.id,
           taskType: task.type
@@ -422,19 +422,19 @@ export class CoordinationMatrix extends EventEmitter {
       return;
     }
 
-    // Update position based on activity
+    // Update position based on activity,
     this.updatePositionByActivity(node, dimension, activity, data);
     
-    // Record the coordination event
+    // Record the coordination event,
     this.recordEvent(node.id, this.getEventTypeByActivity(activity), dimension, data);
     
-    // Update connections based on activity
+    // Update connections based on activity,
     this.updateConnectionsByActivity(node, dimension, activity, data);
     
-    // Check for patterns
+    // Check for patterns,
     this.checkForPatterns(node);
     
-    // Update metrics
+    // Update metrics,
     this.updateNodeMetrics(node);
     this.updateMetrics();
   }
@@ -471,7 +471,7 @@ export class CoordinationMatrix extends EventEmitter {
 
     this.state.connections.set(connectionId, connection);
     
-    // Update node connections
+    // Update node connections,
     sourceNode.connections.get(dimension)?.add(connectionId);
     targetNode.connections.get(dimension)?.add(connectionId);
     
@@ -505,17 +505,17 @@ export class CoordinationMatrix extends EventEmitter {
 
     const recommendations: CoordinationRecommendation[] = [];
 
-    // SPARC recommendations
+    // SPARC recommendations,
     if (this.config.dimensions.sparc.enabled) {
       recommendations.push(...this.getSPARCRecommendations(node));
     }
 
-    // Swarm recommendations
+    // Swarm recommendations,
     if (this.config.dimensions.swarm.enabled) {
       recommendations.push(...this.getSwarmRecommendations(node));
     }
 
-    // Hive recommendations
+    // Hive recommendations,
     if (this.config.dimensions.hive.enabled) {
       recommendations.push(...this.getHiveRecommendations(node));
     }
@@ -542,8 +542,8 @@ export class CoordinationMatrix extends EventEmitter {
    */
   private calculateInitialPosition(agentState: AgentState): CoordinationPosition {
     return {
-      sparc: 0.0,  // Start at idle phase
-      swarm: agentState.collaborators.length > 0 ? 0.3 : 0.1,  // Based on existing collaborations
+      sparc: 0.0,  // Start at idle phase,
+      swarm: agentState.collaborators.length > 0 ? 0.3 : 0.1,  // Based on existing collaborations,
       hive: 0.2    // Start with basic collective awareness
     };
   }
@@ -648,7 +648,7 @@ export class CoordinationMatrix extends EventEmitter {
     activity: string,
     data?: any
   ): void {
-    // Update connection strengths based on activity
+    // Update connection strengths based on activity,
     const connections = node.connections.get(dimension);
     if (connections) {
       for (const connectionId of connections) {
@@ -671,13 +671,13 @@ export class CoordinationMatrix extends EventEmitter {
   ): number {
     let strength = 0.5; // Base strength
     
-    // Factor in position similarity
+    // Factor in position similarity,
     const positionDiff = Math.abs(
       sourceNode.position[dimension] - targetNode.position[dimension]
     );
     strength += (1 - positionDiff) * 0.3;
     
-    // Factor in capability overlap
+    // Factor in capability overlap,
     const capabilityOverlap = this.calculateCapabilityOverlap(
       sourceNode.state.capabilities,
       targetNode.state.capabilities
@@ -719,7 +719,7 @@ export class CoordinationMatrix extends EventEmitter {
     if (node) {
       node.history.push(event);
       
-      // Keep only recent events
+      // Keep only recent events,
       if (node.history.length > 100) {
         node.history = node.history.slice(-50);
       }
@@ -732,7 +732,7 @@ export class CoordinationMatrix extends EventEmitter {
    * Check for coordination patterns
    */
   private checkForPatterns(node: CoordinationNode): void {
-    // Detect patterns in coordination behavior
+    // Detect patterns in coordination behavior,
     this.detectSPARCPatterns(node);
     this.detectSwarmPatterns(node);
     this.detectHivePatterns(node);
@@ -743,7 +743,7 @@ export class CoordinationMatrix extends EventEmitter {
    * Detect SPARC patterns
    */
   private detectSPARCPatterns(node: CoordinationNode): void {
-    // Analyze phase transition patterns
+    // Analyze phase transition patterns,
     const recentEvents = node.history
       .filter(e => e.dimension === CoordinationDimension.SPARC)
       .slice(-10);
@@ -760,7 +760,7 @@ export class CoordinationMatrix extends EventEmitter {
    * Detect Swarm patterns
    */
   private detectSwarmPatterns(node: CoordinationNode): void {
-    // Analyze collaboration patterns
+    // Analyze collaboration patterns,
     const collaborationEvents = node.history
       .filter(e => e.dimension === CoordinationDimension.SWARM)
       .slice(-10);
@@ -777,7 +777,7 @@ export class CoordinationMatrix extends EventEmitter {
    * Detect Hive patterns
    */
   private detectHivePatterns(node: CoordinationNode): void {
-    // Analyze emergent behavior patterns
+    // Analyze emergent behavior patterns,
     const emergenceEvents = node.history
       .filter(e => e.dimension === CoordinationDimension.HIVE)
       .slice(-10);
@@ -794,7 +794,7 @@ export class CoordinationMatrix extends EventEmitter {
    * Detect unified patterns across all dimensions
    */
   private detectUnifiedPatterns(node: CoordinationNode): void {
-    // Analyze cross-dimensional patterns
+    // Analyze cross-dimensional patterns,
     const allEvents = node.history.slice(-15);
     const dimensionGroups = new Map<CoordinationDimension, CoordinationEvent[]>();
     
@@ -817,7 +817,7 @@ export class CoordinationMatrix extends EventEmitter {
    * Helper methods for pattern analysis
    */
   private analyzeSPARCSequence(events: CoordinationEvent[]): CoordinationPattern | null {
-    // Simplified pattern detection for SPARC phases
+    // Simplified pattern detection for SPARC phases,
     return {
       id: `sparc-pattern-${Date.now()}`,
       type: 'sparc_sequence',
@@ -832,7 +832,7 @@ export class CoordinationMatrix extends EventEmitter {
   }
 
   private analyzeSwarmBehavior(events: CoordinationEvent[]): CoordinationPattern | null {
-    // Simplified pattern detection for Swarm collaboration
+    // Simplified pattern detection for Swarm collaboration,
     return {
       id: `swarm-pattern-${Date.now()}`,
       type: 'swarm_collaboration',
@@ -847,7 +847,7 @@ export class CoordinationMatrix extends EventEmitter {
   }
 
   private analyzeEmergentBehavior(events: CoordinationEvent[]): CoordinationPattern | null {
-    // Simplified pattern detection for Hive emergence
+    // Simplified pattern detection for Hive emergence,
     return {
       id: `hive-pattern-${Date.now()}`,
       type: 'hive_emergence',
@@ -864,7 +864,7 @@ export class CoordinationMatrix extends EventEmitter {
   private analyzeUnifiedBehavior(
     dimensionGroups: Map<CoordinationDimension, CoordinationEvent[]>
   ): CoordinationPattern | null {
-    // Simplified pattern detection for unified behavior
+    // Simplified pattern detection for unified behavior,
     return {
       id: `unified-pattern-${Date.now()}`,
       type: 'unified_synergy',
@@ -951,11 +951,11 @@ export class CoordinationMatrix extends EventEmitter {
    * Update node metrics
    */
   private updateNodeMetrics(node: CoordinationNode): void {
-    // Calculate synergy between dimensions
+    // Calculate synergy between dimensions,
     const positions = [node.position.sparc, node.position.swarm, node.position.hive];
     node.metrics.synergy = this.calculateSynergy(positions);
     
-    // Update other metrics based on recent activity
+    // Update other metrics based on recent activity,
     node.metrics.efficiency = Math.min(node.metrics.efficiency + 0.01, 1.0);
     node.metrics.collaboration = node.connections.get(CoordinationDimension.SWARM)!.size / 10;
     node.metrics.adaptation = node.position.hive;
@@ -965,11 +965,11 @@ export class CoordinationMatrix extends EventEmitter {
    * Calculate synergy between dimensional positions
    */
   private calculateSynergy(positions: number[]): number {
-    // High synergy when all dimensions are balanced and advanced
+    // High synergy when all dimensions are balanced and advanced,
     const mean = positions.reduce((sum, pos) => sum + pos, 0) / positions.length;
     const variance = positions.reduce((sum, pos) => sum + Math.pow(pos - mean, 2), 0) / positions.length;
     
-    // High mean and low variance = high synergy
+    // High mean and low variance = high synergy,
     return mean * (1 - Math.sqrt(variance));
   }
 
@@ -986,7 +986,7 @@ export class CoordinationMatrix extends EventEmitter {
     this.state.metrics.activeConnections = Array.from(this.state.connections.values())
       .filter(conn => conn.lastActivity > Date.now() - 300000).length; // Active in last 5 minutes
     
-    // Calculate dimension balance
+    // Calculate dimension balance,
     if (activeNodes.length > 0) {
       this.state.metrics.dimensionBalance.sparc = 
         activeNodes.reduce((sum, node) => sum + node.position.sparc, 0) / activeNodes.length;
@@ -996,7 +996,7 @@ export class CoordinationMatrix extends EventEmitter {
         activeNodes.reduce((sum, node) => sum + node.position.hive, 0) / activeNodes.length;
     }
     
-    // Calculate overall metrics
+    // Calculate overall metrics,
     this.state.metrics.overallEfficiency = 
       activeNodes.reduce((sum, node) => sum + node.metrics.efficiency, 0) / Math.max(activeNodes.length, 1);
     this.state.metrics.synergy = 
@@ -1046,7 +1046,7 @@ export class CoordinationMatrix extends EventEmitter {
    * Detect global patterns across the matrix
    */
   private detectGlobalPatterns(): void {
-    // Detect system-wide coordination patterns
+    // Detect system-wide coordination patterns,
     const globalPattern = this.analyzeGlobalBehavior();
     if (globalPattern) {
       this.state.patterns.set(globalPattern.id, globalPattern);
@@ -1055,7 +1055,7 @@ export class CoordinationMatrix extends EventEmitter {
   }
 
   private analyzeGlobalBehavior(): CoordinationPattern | null {
-    // Simplified global pattern analysis
+    // Simplified global pattern analysis,
     const activeNodes = Array.from(this.state.nodes.values()).filter(node => node.state.active);
     
     if (activeNodes.length < 2) {
@@ -1079,7 +1079,7 @@ export class CoordinationMatrix extends EventEmitter {
    * Optimization helper methods
    */
   private pruneInactiveConnections(): void {
-    const cutoffTime = Date.now() - 300000; // 5 minutes
+    const cutoffTime = Date.now() - 300000; // 5 minutes,
     const toRemove: string[] = [];
     
     this.state.connections.forEach((connection, id) => {
@@ -1092,7 +1092,7 @@ export class CoordinationMatrix extends EventEmitter {
   }
 
   private balanceDimensions(): void {
-    // Ensure all dimensions are adequately represented
+    // Ensure all dimensions are adequately represented,
     const balance = this.state.metrics.dimensionBalance;
     const target = 0.6;
     
@@ -1104,13 +1104,13 @@ export class CoordinationMatrix extends EventEmitter {
   }
 
   private optimizeConnections(): void {
-    // Optimize connection strengths and create new beneficial connections
+    // Optimize connection strengths and create new beneficial connections,
     this.strengthenEffectiveConnections();
     this.createOptimalConnections();
   }
 
   private encourageDimensionActivity(dimension: CoordinationDimension): void {
-    // Send recommendations to agents to increase activity in this dimension
+    // Send recommendations to agents to increase activity in this dimension,
     this.emit('dimension.encourage', { dimension, target: 0.6 });
   }
 
@@ -1123,17 +1123,17 @@ export class CoordinationMatrix extends EventEmitter {
   }
 
   private createOptimalConnections(): void {
-    // Find nodes that would benefit from additional connections
+    // Find nodes that would benefit from additional connections,
     const nodes = Array.from(this.state.nodes.values()).filter(node => node.state.active);
     
     for (const node of nodes) {
       const connectionCount = Array.from(node.connections.values())
         .reduce((sum, connections) => sum + connections.size, 0);
       
-      if (connectionCount < 3) { // Target minimum connections
+      if (connectionCount < 3) { // Target minimum connections,
         const candidates = this.findConnectionCandidates(node);
         if (candidates.length > 0) {
-          // Create connection with best candidate
+          // Create connection with best candidate,
           const target = candidates[0];
           this.establishConnection(
             node.agentId,
@@ -1164,19 +1164,19 @@ export class CoordinationMatrix extends EventEmitter {
   }
 
   private calculateConnectionScore(node1: CoordinationNode, node2: CoordinationNode): number {
-    // Score based on compatibility and potential synergy
+    // Score based on compatibility and potential synergy,
     let score = 0;
     
-    // Position compatibility
+    // Position compatibility,
     const posDiff = Math.abs(node1.position.sparc - node2.position.sparc) +
                    Math.abs(node1.position.swarm - node2.position.swarm) +
                    Math.abs(node1.position.hive - node2.position.hive);
     score += (3 - posDiff) / 3 * 0.4;
     
-    // Capability overlap
+    // Capability overlap,
     score += this.calculateCapabilityOverlap(node1.state.capabilities, node2.state.capabilities) * 0.3;
     
-    // Workload balance
+    // Workload balance,
     const workloadBalance = 1 - Math.abs(node1.state.workload - node2.state.workload);
     score += workloadBalance * 0.3;
     
@@ -1193,11 +1193,11 @@ export class CoordinationMatrix extends EventEmitter {
 
     this.logger.info('Shutting down Coordination Matrix...');
 
-    // Clear intervals
+    // Clear intervals,
     if (this.optimizationInterval) clearInterval(this.optimizationInterval);
     if (this.patternDetectionInterval) clearInterval(this.patternDetectionInterval);
 
-    // Clear state
+    // Clear state,
     this.state.nodes.clear();
     this.state.connections.clear();
     this.state.patterns.clear();

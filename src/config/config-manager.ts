@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * Node.js-compatible Configuration management for Claude-Flow
  */
@@ -39,6 +39,18 @@ export interface Config {
     transport: 'stdio' | 'http' | 'websocket';
     port: number;
     tlsEnabled: boolean;
+    defaultTimeout?: number;
+    toolTimeouts?: Record<string, number>;
+    retryConfig?: {
+      maxRetries: number;
+      retryDelay: number;
+      backoffMultiplier: number;
+    };
+    resourceCleanup?: {
+      enabled: boolean;
+      timeoutCleanup: boolean;
+      releaseOnTimeout: boolean;
+    };
   };
   logging: {
     level: 'debug' | 'info' | 'warn' | 'error';
@@ -93,6 +105,35 @@ const DEFAULT_CONFIG: Config = {
     transport: 'stdio',
     port: 3000,
     tlsEnabled: false,
+    defaultTimeout: 30000, // 30 seconds default timeout
+    toolTimeouts: {
+      // Serena MCP tools - prone to hanging
+      'mcp__serena__search_for_pattern': 30000,
+      'mcp__serena__find_symbol': 30000,
+      'mcp__serena__find_referencing_symbols': 30000,
+      'mcp__serena__replace_regex': 30000,
+      'mcp__serena__replace_symbol_body': 30000,
+      'mcp__serena__insert_after_symbol': 30000,
+      'mcp__serena__insert_before_symbol': 30000,
+      'mcp__serena__get_symbols_overview': 30000,
+      // Context7 tools - documentation lookup
+      'mcp__context7__resolve-library-id': 15000,
+      'mcp__context7__get-library-docs': 20000,
+      // Sequential thinking - can be slow
+      'mcp__sequential-thinking__sequentialthinking': 45000,
+      // Default for other tools
+      'mcp__*': 30000,
+    },
+    retryConfig: {
+      maxRetries: 2,
+      retryDelay: 1000,
+      backoffMultiplier: 2,
+    },
+    resourceCleanup: {
+      enabled: true,
+      timeoutCleanup: true,
+      releaseOnTimeout: true,
+    },
   },
   logging: {
     level: 'info',
@@ -154,7 +195,7 @@ export class ConfigManager {
       await this.load(configPath);
       console.log(`✅ Configuration loaded from: ${configPath}`);
     } catch (error) {
-      // Create default config file if it doesn't exist
+      // Create default config file if it doesn't exist,
       await this.createDefaultConfig(configPath);
       console.log(`✅ Default configuration created: ${configPath}`);
     }
@@ -186,13 +227,13 @@ export class ConfigManager {
       const content = await fs.readFile(this.configPath, 'utf8');
       const fileConfig = JSON.parse(content) as Partial<Config>;
       
-      // Merge with defaults
+      // Merge with defaults,
       this.config = this.deepMerge(DEFAULT_CONFIG, fileConfig);
       
-      // Load environment variables
+      // Load environment variables,
       this.loadFromEnv();
       
-      // Validate
+      // Validate,
       this.validate(this.config);
       
       return this.config;
@@ -247,7 +288,7 @@ export class ConfigManager {
     const lastKey = keys[keys.length - 1];
     current[lastKey] = value;
     
-    // Validate after setting
+    // Validate after setting,
     this.validate(this.config);
   }
 
@@ -268,7 +309,7 @@ export class ConfigManager {
    * Validates the configuration
    */
   validate(config: Config): void {
-    // Orchestrator validation
+    // Orchestrator validation,
     if (config.orchestrator.maxConcurrentAgents < 1 || config.orchestrator.maxConcurrentAgents > 100) {
       throw new ConfigError('orchestrator.maxConcurrentAgents must be between 1 and 100');
     }
@@ -276,7 +317,7 @@ export class ConfigManager {
       throw new ConfigError('orchestrator.taskQueueSize must be between 1 and 10000');
     }
 
-    // Terminal validation
+    // Terminal validation,
     if (!['auto', 'vscode', 'native'].includes(config.terminal.type)) {
       throw new ConfigError('terminal.type must be one of: auto, vscode, native');
     }
@@ -284,7 +325,7 @@ export class ConfigManager {
       throw new ConfigError('terminal.poolSize must be between 1 and 50');
     }
 
-    // Memory validation
+    // Memory validation,
     if (!['sqlite', 'markdown', 'hybrid'].includes(config.memory.backend)) {
       throw new ConfigError('memory.backend must be one of: sqlite, markdown, hybrid');
     }
@@ -292,12 +333,12 @@ export class ConfigManager {
       throw new ConfigError('memory.cacheSizeMB must be between 1 and 10000');
     }
 
-    // Coordination validation
+    // Coordination validation,
     if (config.coordination.maxRetries < 0 || config.coordination.maxRetries > 100) {
       throw new ConfigError('coordination.maxRetries must be between 0 and 100');
     }
 
-    // MCP validation
+    // MCP validation,
     if (!['stdio', 'http', 'websocket'].includes(config.mcp.transport)) {
       throw new ConfigError('mcp.transport must be one of: stdio, http, websocket');
     }
@@ -305,7 +346,7 @@ export class ConfigManager {
       throw new ConfigError('mcp.port must be between 1 and 65535');
     }
 
-    // Logging validation
+    // Logging validation,
     if (!['debug', 'info', 'warn', 'error'].includes(config.logging.level)) {
       throw new ConfigError('logging.level must be one of: debug, info, warn, error');
     }
@@ -316,7 +357,7 @@ export class ConfigManager {
       throw new ConfigError('logging.destination must be one of: console, file');
     }
 
-    // ruv-swarm validation
+    // ruv-swarm validation,
     if (!['mesh', 'hierarchical', 'ring', 'star'].includes(config.ruvSwarm.defaultTopology)) {
       throw new ConfigError('ruvSwarm.defaultTopology must be one of: mesh, hierarchical, ring, star');
     }
@@ -332,25 +373,25 @@ export class ConfigManager {
    * Loads configuration from environment variables
    */
   private loadFromEnv(): void {
-    // Orchestrator settings
+    // Orchestrator settings,
     const maxAgents = process.env.CLAUDE_FLOW_MAX_AGENTS;
     if (maxAgents) {
       this.config.orchestrator.maxConcurrentAgents = parseInt(maxAgents, 10);
     }
 
-    // Terminal settings
+    // Terminal settings,
     const terminalType = process.env.CLAUDE_FLOW_TERMINAL_TYPE;
     if (terminalType === 'vscode' || terminalType === 'native' || terminalType === 'auto') {
       this.config.terminal.type = terminalType;
     }
 
-    // Memory settings
+    // Memory settings,
     const memoryBackend = process.env.CLAUDE_FLOW_MEMORY_BACKEND;
     if (memoryBackend === 'sqlite' || memoryBackend === 'markdown' || memoryBackend === 'hybrid') {
       this.config.memory.backend = memoryBackend;
     }
 
-    // MCP settings
+    // MCP settings,
     const mcpTransport = process.env.CLAUDE_FLOW_MCP_TRANSPORT;
     if (mcpTransport === 'stdio' || mcpTransport === 'http' || mcpTransport === 'websocket') {
       this.config.mcp.transport = mcpTransport;
@@ -361,13 +402,13 @@ export class ConfigManager {
       this.config.mcp.port = parseInt(mcpPort, 10);
     }
 
-    // Logging settings
+    // Logging settings,
     const logLevel = process.env.CLAUDE_FLOW_LOG_LEVEL;
     if (logLevel === 'debug' || logLevel === 'info' || logLevel === 'warn' || logLevel === 'error') {
       this.config.logging.level = logLevel;
     }
 
-    // ruv-swarm settings
+    // ruv-swarm settings,
     const ruvSwarmEnabled = process.env.CLAUDE_FLOW_RUV_SWARM_ENABLED;
     if (ruvSwarmEnabled === 'true' || ruvSwarmEnabled === 'false') {
       this.config.ruvSwarm.enabled = ruvSwarmEnabled === 'true';
@@ -410,7 +451,7 @@ export class ConfigManager {
    * Create a configuration template
    */
   createTemplate(name: string, config: any): void {
-    // Implementation for creating templates
+    // Implementation for creating templates,
     console.log(`Creating template: ${name}`, config);
   }
 
@@ -429,7 +470,7 @@ export class ConfigManager {
    */
   validateFile(path: string): boolean {
     try {
-      // Basic validation - file exists and is valid JSON
+      // Basic validation - file exists and is valid JSON,
       require('fs').readFileSync(path, 'utf8');
       return true;
     } catch {
@@ -551,5 +592,5 @@ export class ConfigManager {
   }
 }
 
-// Export singleton instance
+// Export singleton instance,
 export const configManager = ConfigManager.getInstance();

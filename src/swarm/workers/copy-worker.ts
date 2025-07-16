@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../../utils/error-handler.js';
 import { parentPort, workerData } from 'worker_threads';
 import * as fs from 'fs/promises';
 import * as path from 'path';
@@ -23,21 +23,21 @@ interface WorkerResult {
 
 async function copyFile(file: WorkerData['files'][0]): Promise<WorkerResult> {
   try {
-    // Ensure destination directory exists
+    // Ensure destination directory exists,
     const destDir = path.dirname(file.destPath);
     await fs.mkdir(destDir, { recursive: true });
     
-    // Copy the file
+    // Copy the file,
     await fs.copyFile(file.sourcePath, file.destPath);
     
-    // Preserve permissions if requested
+    // Preserve permissions if requested,
     if (file.permissions) {
       await fs.chmod(file.destPath, file.permissions);
     }
     
     let hash: string | undefined;
     
-    // Calculate hash if verification is requested
+    // Calculate hash if verification is requested,
     if (file.verify) {
       const content = await fs.readFile(file.destPath);
       hash = createHash('sha256').update(content).digest('hex');
@@ -70,7 +70,7 @@ async function main() {
   }
 }
 
-// Run the worker
+// Run the worker,
 main().catch(error => {
   if (parentPort) {
     parentPort.postMessage({

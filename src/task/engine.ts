@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * Task Engine Core - Comprehensive task management with orchestration features
  * Integrates with TodoWrite/TodoRead for coordination and Memory for persistence
@@ -173,7 +173,7 @@ export class TaskEngine extends EventEmitter {
         backoffMs: 1000,
         backoffMultiplier: 2
       },
-      timeout: taskData.timeout || 300000, // 5 minutes default
+      timeout: taskData.timeout || 300000, // 5 minutes default,
       tags: taskData.tags || [],
       estimatedDurationMs: taskData.estimatedDurationMs,
       progressPercentage: 0,
@@ -185,7 +185,7 @@ export class TaskEngine extends EventEmitter {
     this.tasks.set(task.id, task);
     this.updateDependencyGraph(task);
     
-    // Store in memory if manager available
+    // Store in memory if manager available,
     if (this.memoryManager) {
       await this.memoryManager.store(`task:${task.id}`, task);
     }
@@ -207,7 +207,7 @@ export class TaskEngine extends EventEmitter {
   ): Promise<{ tasks: WorkflowTask[]; total: number; hasMore: boolean }> {
     let filteredTasks = Array.from(this.tasks.values());
 
-    // Apply filters
+    // Apply filters,
     if (filter) {
       filteredTasks = filteredTasks.filter(task => {
         if (filter.status && !filter.status.includes(task.status)) return false;
@@ -225,7 +225,7 @@ export class TaskEngine extends EventEmitter {
       });
     }
 
-    // Apply sorting
+    // Apply sorting,
     if (sort) {
       filteredTasks.sort((a, b) => {
         const direction = sort.direction === 'desc' ? -1 : 1;
@@ -273,7 +273,7 @@ export class TaskEngine extends EventEmitter {
 
     const execution = this.executions.get(taskId);
     
-    // Get dependency status
+    // Get dependency status,
     const dependencies = await Promise.all(
       task.dependencies.map(async dep => {
         const depTask = this.tasks.get(dep.taskId);
@@ -283,12 +283,12 @@ export class TaskEngine extends EventEmitter {
       })
     );
 
-    // Get dependent tasks
+    // Get dependent tasks,
     const dependents = Array.from(this.tasks.values()).filter(t => 
       t.dependencies.some(dep => dep.taskId === taskId)
     );
 
-    // Get resource status
+    // Get resource status,
     const resourceStatus = task.resourceRequirements.map(req => {
       const resource = this.resources.get(req.resourceId);
       return {
@@ -320,7 +320,7 @@ export class TaskEngine extends EventEmitter {
 
     this.cancelledTasks.add(taskId);
     
-    // Stop running execution
+    // Stop running execution,
     if (this.runningTasks.has(taskId)) {
       this.runningTasks.delete(taskId);
       const execution = this.executions.get(taskId);
@@ -330,15 +330,15 @@ export class TaskEngine extends EventEmitter {
       }
     }
 
-    // Release resources
+    // Release resources,
     await this.releaseTaskResources(taskId);
 
-    // Perform rollback if requested
+    // Perform rollback if requested,
     if (rollback && task.checkpoints.length > 0) {
       await this.rollbackTask(task);
     }
 
-    // Update task status
+    // Update task status,
     task.status = 'cancelled';
     task.metadata = { 
       ...task.metadata, 
@@ -346,14 +346,14 @@ export class TaskEngine extends EventEmitter {
       cancelledAt: new Date() 
     };
 
-    // Update memory
+    // Update memory,
     if (this.memoryManager) {
       await this.memoryManager.store(`task:${taskId}`, task);
     }
 
     this.emit('task:cancelled', { taskId, reason });
 
-    // Cancel dependent tasks if configured
+    // Cancel dependent tasks if configured,
     const dependents = Array.from(this.tasks.values()).filter(t => 
       t.dependencies.some(dep => dep.taskId === taskId)
     );
@@ -371,13 +371,13 @@ export class TaskEngine extends EventEmitter {
   async executeWorkflow(workflow: Workflow): Promise<void> {
     this.workflows.set(workflow.id, workflow);
     
-    // Add all workflow tasks
+    // Add all workflow tasks,
     for (const task of workflow.tasks) {
       this.tasks.set(task.id, task);
       this.updateDependencyGraph(task);
     }
 
-    // Start execution with parallel processing
+    // Start execution with parallel processing,
     await this.processWorkflow(workflow);
   }
 
@@ -443,7 +443,7 @@ export class TaskEngine extends EventEmitter {
     return { nodes, edges };
   }
 
-  // Private helper methods
+  // Private helper methods,
 
   private updateDependencyGraph(task: WorkflowTask): void {
     if (!this.dependencyGraph.has(task.id)) {
@@ -501,7 +501,7 @@ export class TaskEngine extends EventEmitter {
 
   private async executeTask(task: WorkflowTask): Promise<void> {
     if (!await this.acquireTaskResources(task)) {
-      // Resources not available, put back in queue
+      // Resources not available, put back in queue,
       this.readyQueue.unshift(task.id);
       return;
     }
@@ -531,7 +531,7 @@ export class TaskEngine extends EventEmitter {
     this.emit('task:started', { taskId: task.id, agentId: execution.agentId });
 
     try {
-      // Simulate task execution - in real implementation, this would delegate to agents
+      // Simulate task execution - in real implementation, this would delegate to agents,
       await this.simulateTaskExecution(task, execution);
       
       task.status = 'completed';
@@ -560,7 +560,7 @@ export class TaskEngine extends EventEmitter {
   }
 
   private async simulateTaskExecution(task: WorkflowTask, execution: TaskExecution): Promise<void> {
-    // Simulate work with progress updates
+    // Simulate work with progress updates,
     const steps = 10;
     for (let i = 0; i <= steps; i++) {
       if (this.cancelledTasks.has(task.id)) {
@@ -604,10 +604,10 @@ export class TaskEngine extends EventEmitter {
       ? task.checkpoints[0] 
       : task.checkpoints[task.checkpoints.length - 1];
 
-    // Restore state from checkpoint
+    // Restore state from checkpoint,
     this.taskState.set(task.id, { ...targetCheckpoint.state });
     
-    // Remove checkpoints after the target
+    // Remove checkpoints after the target,
     const targetIndex = task.checkpoints.findIndex(cp => cp.id === targetCheckpoint.id);
     task.checkpoints = task.checkpoints.slice(0, targetIndex + 1);
 
@@ -644,13 +644,13 @@ export class TaskEngine extends EventEmitter {
       task.description.toLowerCase().includes(searchLower) ||
       task.type.toLowerCase().includes(searchLower) ||
       task.tags.some(tag => tag.toLowerCase().includes(searchLower)) ||
-      (task.assignedAgent && task.assignedAgent.toLowerCase().includes(searchLower))
+      (task.assignedAgent?.toLowerCase().includes(searchLower) ?? false)
     );
   }
 
   private async processWorkflow(workflow: Workflow): Promise<void> {
     // Implementation would manage workflow execution based on parallelism settings
-    // This is a simplified version
+    // This is a simplified version,
     for (const task of workflow.tasks) {
       this.scheduleTask(task);
     }
@@ -661,7 +661,7 @@ export class TaskEngine extends EventEmitter {
   }
 
   private handleTaskCompleted(data: { taskId: string; result: unknown }): void {
-    // Schedule dependent tasks
+    // Schedule dependent tasks,
     const dependents = Array.from(this.tasks.values()).filter(task =>
       task.dependencies.some(dep => dep.taskId === data.taskId)
     );
@@ -676,11 +676,11 @@ export class TaskEngine extends EventEmitter {
   }
 
   private handleTaskFailed(data: { taskId: string; error: Error }): void {
-    // Handle task failure, potentially retry or fail dependents
+    // Handle task failure, potentially retry or fail dependents,
     const task = this.tasks.get(data.taskId);
     if (!task) return;
 
-    // Implement retry logic based on retryPolicy
+    // Implement retry logic based on retryPolicy,
     if (task.retryPolicy && (task.metadata.retryCount || 0) < task.retryPolicy.maxAttempts) {
       const currentRetryCount = task.metadata.retryCount || 0;
       task.metadata = { 
@@ -690,7 +690,7 @@ export class TaskEngine extends EventEmitter {
       };
       task.status = 'pending';
       
-      // Schedule retry with backoff
+      // Schedule retry with backoff,
       setTimeout(() => {
         this.scheduleTask(task);
       }, task.retryPolicy!.backoffMs * Math.pow(task.retryPolicy!.backoffMultiplier, currentRetryCount));

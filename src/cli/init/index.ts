@@ -1,6 +1,6 @@
-import { getErrorMessage } from '../../utils/error-handler.js';
-// init/index.ts - Main init command orchestrator
-import { printSuccess, printError } from '../utils.js';
+import { getErrorMessage as _getErrorMessage } from '../../utils/error-handler.js';
+// init/index.ts - Main init command orchestrator,
+import { printSuccess, printError } from './utils.js';
 import { createDirectoryStructure } from './directory-structure.js';
 import { createSwarmCommands } from './swarm-commands.js';
 import { createSparcEnvironment } from './sparc-environment.js';
@@ -15,23 +15,23 @@ export interface InitOptions {
 export async function initCommand(options: InitOptions = {}) {
   try {
     const fs = await import('fs/promises');
-    const path = await import('path');
+    const _path = await import('path');
     
     printSuccess('Initializing Claude-Flow project...');
     
-    // Phase 1: Create directory structure
+    // Phase 1: Create directory structure,
     console.log('\n📁 Phase 1: Creating directory structure...');
     await createDirectoryStructure();
     
-    // Phase 2: Create base configuration
+    // Phase 2: Create base configuration,
     console.log('\n⚙️  Phase 2: Creating configuration...');
     await createClaudeConfig(options);
     
-    // Phase 3: Create swarm commands and documentation
+    // Phase 3: Create swarm commands and documentation,
     console.log('\n🤖 Phase 3: Creating swarm commands...');
     await createSwarmCommands();
     
-    // Phase 4: Create batch tools guides
+    // Phase 4: Create batch tools guides,
     console.log('\n🔧 Phase 4: Creating batch tools guides...');
     await createBatchToolsGuide();
     
@@ -41,7 +41,7 @@ export async function initCommand(options: InitOptions = {}) {
       await createSparcEnvironment();
     }
     
-    // Success summary
+    // Success summary,
     console.log('\n🎉 Project initialized successfully!');
     console.log('   📁 Created .claude/ directory structure');
     console.log('   📋 Created comprehensive swarm command documentation');

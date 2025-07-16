@@ -18,7 +18,7 @@ import {
 
 export class Communication extends EventEmitter {
   private swarmId: string;
-  private db: DatabaseManager;
+  private db!: DatabaseManager;
   private agents: Map<string, Agent>;
   private channels: Map<string, CommunicationChannel>;
   private messageQueue: Map<MessagePriority, Message[]>;
@@ -41,7 +41,18 @@ export class Communication extends EventEmitter {
       totalMessages: 0,
       avgLatency: 0,
       activeChannels: 0,
-      messagesByType: {},
+      messagesByType: {
+        direct: 0,
+        broadcast: 0,
+        consensus: 0,
+        query: 0,
+        response: 0,
+        notification: 0,
+        task_assignment: 0,
+        progress_update: 0,
+        coordination: 0,
+        channel: 0
+      } as Record<MessageType, number>,
       throughput: 0
     };
   }
@@ -52,10 +63,10 @@ export class Communication extends EventEmitter {
   async initialize(): Promise<void> {
     this.db = await DatabaseManager.getInstance();
     
-    // Set up default channels
+    // Set up default channels,
     this.setupDefaultChannels();
     
-    // Start message processing
+    // Start message processing,
     this.startMessageProcessor();
     this.startLatencyMonitor();
     this.startStatsCollector();
@@ -70,10 +81,10 @@ export class Communication extends EventEmitter {
   addAgent(agent: Agent): void {
     this.agents.set(agent.id, agent);
     
-    // Create agent-specific channels
+    // Create agent-specific channels,
     this.createAgentChannels(agent);
     
-    // Subscribe agent to relevant channels
+    // Subscribe agent to relevant channels,
     this.subscribeAgentToChannels(agent);
     
     this.emit('agentAdded', { agentId: agent.id });
@@ -85,7 +96,7 @@ export class Communication extends EventEmitter {
   removeAgent(agentId: string): void {
     this.agents.delete(agentId);
     
-    // Remove agent from channels
+    // Remove agent from channels,
     this.channels.forEach(channel => {
       channel.subscribers = channel.subscribers.filter(id => id !== agentId);
     });
@@ -97,7 +108,7 @@ export class Communication extends EventEmitter {
    * Send a message
    */
   async sendMessage(message: Message): Promise<void> {
-    // Store in database
+    // Store in database,
     await this.db.createCommunication({
       from_agent_id: message.fromAgentId,
       to_agent_id: message.toAgentId,
@@ -108,11 +119,11 @@ export class Communication extends EventEmitter {
       requires_response: message.requiresResponse || false
     });
     
-    // Add to queue
+    // Add to queue,
     const priority = message.priority || 'normal';
     this.messageQueue.get(priority)!.push(message);
     
-    // Update stats
+    // Update stats,
     this.stats.totalMessages++;
     this.stats.messagesByType[message.type] = (this.stats.messagesByType[message.type] || 0) + 1;
     
@@ -131,7 +142,7 @@ export class Communication extends EventEmitter {
     const message: Message = {
       id: this.generateMessageId(),
       fromAgentId,
-      toAgentId: null, // null indicates broadcast
+      toAgentId: null, // null indicates broadcast,
       swarmId: this.swarmId,
       type,
       content,
@@ -157,7 +168,7 @@ export class Communication extends EventEmitter {
       throw new Error(`Channel ${channelName} not found`);
     }
     
-    // Send to all subscribers
+    // Send to all subscribers,
     for (const subscriberId of channel.subscribers) {
       if (subscriberId !== fromAgentId) {
         const message: Message = {
@@ -203,7 +214,7 @@ export class Communication extends EventEmitter {
     
     await this.sendMessage(message);
     
-    // Wait for response
+    // Wait for response,
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => {
         reject(new Error('Response timeout'));
@@ -275,8 +286,8 @@ export class Communication extends EventEmitter {
    * Get communication statistics
    */
   async getStats(): Promise<CommunicationStats> {
-    // Calculate throughput
-    const recentMessages = await this.db.getRecentMessages(this.swarmId, 60000); // Last minute
+    // Calculate throughput,
+    const recentMessages = await this.db.getRecentMessages(this.swarmId, 60000); // Last minute,
     this.stats.throughput = recentMessages.length;
     
     return { ...this.stats };
@@ -319,13 +330,13 @@ export class Communication extends EventEmitter {
    * Setup default communication channels
    */
   private setupDefaultChannels(): void {
-    // System channels
+    // System channels,
     this.createChannel('system', 'System-wide notifications and alerts');
     this.createChannel('coordination', 'Task coordination messages');
     this.createChannel('consensus', 'Consensus voting and decisions');
     this.createChannel('monitoring', 'Performance and health monitoring');
     
-    // Agent type channels
+    // Agent type channels,
     this.createChannel('coordinators', 'Coordinator agent communications');
     this.createChannel('researchers', 'Researcher agent communications');
     this.createChannel('coders', 'Coder agent communications');
@@ -336,10 +347,10 @@ export class Communication extends EventEmitter {
    * Create channels for a specific agent
    */
   private createAgentChannels(agent: Agent): void {
-    // Direct message channel
+    // Direct message channel,
     this.createChannel(`agent-${agent.id}`, `Direct messages for ${agent.name}`, 'private');
     
-    // Team channel if agent is coordinator
+    // Team channel if agent is coordinator,
     if (agent.type === 'coordinator') {
       this.createChannel(`team-${agent.id}`, `Team channel led by ${agent.name}`);
     }
@@ -349,20 +360,20 @@ export class Communication extends EventEmitter {
    * Subscribe agent to relevant channels
    */
   private subscribeAgentToChannels(agent: Agent): void {
-    // Subscribe to system channels
+    // Subscribe to system channels,
     this.subscribeToChannel(agent.id, 'system');
     this.subscribeToChannel(agent.id, 'coordination');
     
-    // Subscribe to type-specific channel
+    // Subscribe to type-specific channel,
     const typeChannel = `${agent.type}s`;
     if (this.channels.has(typeChannel)) {
       this.subscribeToChannel(agent.id, typeChannel);
     }
     
-    // Subscribe to own direct channel
+    // Subscribe to own direct channel,
     this.subscribeToChannel(agent.id, `agent-${agent.id}`);
     
-    // Special subscriptions based on capabilities
+    // Special subscriptions based on capabilities,
     if (agent.capabilities.includes('consensus_building')) {
       this.subscribeToChannel(agent.id, 'consensus');
     }
@@ -379,12 +390,12 @@ export class Communication extends EventEmitter {
     setInterval(async () => {
       if (!this.isActive) return;
       
-      // Process messages by priority
+      // Process messages by priority,
       for (const [priority, messages] of this.messageQueue) {
         if (messages.length === 0) continue;
         
-        // Process batch of messages
-        const batch = messages.splice(0, 10); // Process up to 10 messages
+        // Process batch of messages,
+        const batch = messages.splice(0, 10); // Process up to 10 messages,
         
         for (const message of batch) {
           await this.processMessage(message);
@@ -401,14 +412,14 @@ export class Communication extends EventEmitter {
     
     try {
       if (message.toAgentId) {
-        // Direct message
+        // Direct message,
         const agent = this.agents.get(message.toAgentId);
         if (agent) {
           await agent.receiveMessage(message);
           await this.markDelivered(message.id);
         }
       } else {
-        // Broadcast message
+        // Broadcast message,
         for (const agent of this.agents.values()) {
           if (agent.id !== message.fromAgentId) {
             await agent.receiveMessage(message);
@@ -416,7 +427,7 @@ export class Communication extends EventEmitter {
         }
       }
       
-      // Update latency stats
+      // Update latency stats,
       const latency = Date.now() - startTime;
       this.updateLatencyStats(latency);
       
@@ -431,7 +442,7 @@ export class Communication extends EventEmitter {
    * Update latency statistics
    */
   private updateLatencyStats(latency: number): void {
-    // Simple moving average
+    // Simple moving average,
     this.stats.avgLatency = (this.stats.avgLatency * 0.9) + (latency * 0.1);
   }
 
@@ -442,7 +453,7 @@ export class Communication extends EventEmitter {
     setInterval(async () => {
       if (!this.isActive) return;
       
-      // Check for high latency
+      // Check for high latency,
       if (this.stats.avgLatency > 1000) {
         this.emit('highLatency', { avgLatency: this.stats.avgLatency });
       }
@@ -456,7 +467,7 @@ export class Communication extends EventEmitter {
     setInterval(async () => {
       if (!this.isActive) return;
       
-      // Store stats in database
+      // Store stats in database,
       await this.db.storePerformanceMetric({
         swarm_id: this.swarmId,
         metric_type: 'communication_throughput',
@@ -485,10 +496,10 @@ export class Communication extends EventEmitter {
   async shutdown(): Promise<void> {
     this.isActive = false;
     
-    // Clear queues
+    // Clear queues,
     this.messageQueue.forEach(queue => queue.length = 0);
     
-    // Clear channels
+    // Clear channels,
     this.channels.clear();
     
     this.emit('shutdown');

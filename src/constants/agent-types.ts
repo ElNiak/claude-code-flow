@@ -19,22 +19,22 @@ export const AGENT_TYPES = {
 
 export type AgentType = typeof AGENT_TYPES[keyof typeof AGENT_TYPES];
 
-// Array of all valid agent types for runtime validation
+// Array of all valid agent types for runtime validation,
 export const VALID_AGENT_TYPES = Object.values(AGENT_TYPES);
 
-// JSON Schema for agent type validation
+// JSON Schema for agent type validation,
 export const AGENT_TYPE_SCHEMA = {
   type: 'string',
   enum: VALID_AGENT_TYPES,
   description: 'Type of AI agent'
 };
 
-// Helper function to validate agent type
+// Helper function to validate agent type,
 export function isValidAgentType(type: string): type is AgentType {
   return VALID_AGENT_TYPES.includes(type as AgentType);
 }
 
-// Strategy types
+// Strategy types,
 export const SWARM_STRATEGIES = {
   AUTO: 'auto',
   RESEARCH: 'research',

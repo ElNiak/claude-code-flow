@@ -1,9 +1,9 @@
-import { getErrorMessage } from '../../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../../utils/error-handler.js';
 /**
  * MCP command for Claude-Flow
  */
 
-import { Command } from '@cliffy/command';
+import { Command } from 'commander';
 import chalk from 'chalk';
 import { logger } from '../../core/logger.js';
 import { configManager } from '../../core/config.js';
@@ -24,16 +24,16 @@ export const mcpCommand = new Command()
     console.log('  restart - Restart the MCP server');
     console.log('  logs    - Show MCP server logs');
   })
-  .command('start', new Command()
+  .addCommand(new Command('start')
     .description('Start the MCP server')
-    .option('-p, --port <port:number>', 'Port for MCP server', { default: 3000 })
-    .option('-h, --host <host:string>', 'Host for MCP server', { default: 'localhost' })
-    .option('--transport <transport:string>', 'Transport type (stdio, http)', { default: 'stdio' })
+    .option('-p, --port <port>', 'Port for MCP server', '3000')
+    .option('-h, --host <host>', 'Host for MCP server', 'localhost')
+    .option('--transport <transport>', 'Transport type (stdio, http)', 'stdio')
     .action(async (options: any) => {
       try {
         const config = await configManager.load();
         
-        // Override with CLI options
+        // Override with CLI options,
         const mcpConfig = {
           ...config.mcp,
           port: options.port,
@@ -54,7 +54,7 @@ export const mcpCommand = new Command()
       }
     })
   )
-  .command('stop', new Command()
+  .addCommand(new Command('stop')
     .description('Stop the MCP server')
     .action(async () => {
       try {
@@ -71,7 +71,7 @@ export const mcpCommand = new Command()
       }
     })
   )
-  .command('status', new Command()
+  .addCommand(new Command('status')
     .description('Show MCP server status')
     .action(async () => {
       try {
@@ -94,7 +94,7 @@ export const mcpCommand = new Command()
       }
     })
   )
-  .command('tools', new Command()
+  .addCommand(new Command('tools')
     .description('List available MCP tools')
     .action(() => {
       console.log(chalk.cyan('Available MCP Tools:'));
@@ -120,7 +120,7 @@ export const mcpCommand = new Command()
       console.log('  • memory_index - Index and search content');
     })
   )
-  .command('config', new Command()
+  .addCommand(new Command('config')
     .description('Show MCP configuration')
     .action(async () => {
       try {
@@ -133,7 +133,7 @@ export const mcpCommand = new Command()
       }
     })
   )
-  .command('restart', new Command()
+  .addCommand(new Command('restart')
     .description('Restart the MCP server')
     .action(async () => {
       try {
@@ -154,13 +154,13 @@ export const mcpCommand = new Command()
       }
     })
   )
-  .command('logs', new Command()
+  .addCommand(new Command('logs')
     .description('Show MCP server logs')
-    .option('-n, --lines <lines:number>', 'Number of log lines to show', { default: 50 })
+    .option('-n, --lines <lines>', 'Number of log lines to show', '50')
     .action((options: any) => {
       console.log(chalk.cyan(`MCP Server Logs (last ${options.lines} lines):`));
       
-      // Mock logs since logging system might not be fully implemented
+      // Mock logs since logging system might not be fully implemented,
       const logEntries = [
         '2024-01-10 10:00:00 [INFO] MCP server started on localhost:3000',
         '2024-01-10 10:00:01 [INFO] Tools registered: 12',

@@ -71,11 +71,11 @@ export class CommandHandler {
       if (this.allCommands[cmd]) {
         await this.allCommands[cmd](args);
       } else {
-        await this.executeRemoteCommand(cmd, args);
+        await this.executeRemoteCommand(cmd, _args);
       }
     } catch (error) {
       this.terminal.writeError(error.message);
-      console.error('Command execution error:', error);
+      console.error('Command execution error:', _error);
     } finally {
       this.isProcessing = false;
       this.terminal.setLocked(false);
@@ -457,7 +457,7 @@ Examples:
     }
     
     const subcommand = args[0];
-    const subArgs = args.slice(1);
+    const _subArgs = args.slice(1);
     
     try {
       const result = await this.wsClient.executeCommand('claude-flow', {
@@ -635,7 +635,7 @@ Examples:
     try {
       const mode = args[0];
       const task = args.slice(1).join(' ') || 'General task execution';
-      const options = {};
+      const _options = {};
       
       this.terminal.writeInfo(`Executing SPARC mode: ${mode}...`);
       
@@ -657,7 +657,7 @@ Examples:
   /**
    * Execute specific SPARC mode
    */
-  async executeSparcMode(mode, args) {
+  async executeSparcMode(mode, _args) {
     if (!this.wsClient.isConnected) {
       this.terminal.writeError('Not connected to server');
       return;
@@ -665,7 +665,7 @@ Examples:
     
     try {
       const task = args.join(' ') || `Execute ${mode} mode tasks`;
-      const options = {};
+      const _options = {};
       
       this.terminal.writeInfo(`Executing SPARC ${mode} mode...`);
       
@@ -687,7 +687,7 @@ Examples:
   /**
    * Execute remote command via WebSocket
    */
-  async executeRemoteCommand(command, args) {
+  async executeRemoteCommand(command, _args) {
     if (!this.wsClient.isConnected) {
       this.terminal.writeError('Not connected to server. Use "connect" command first.');
       return;
@@ -696,7 +696,7 @@ Examples:
     try {
       // Check if this is a tool name (contains slash)
       if (command.includes('/')) {
-        return await this.executeToolDirect(command, args);
+        return await this.executeToolDirect(command, _args);
       }
       
       this.terminal.writeInfo(`Executing remote command: ${command}`);
@@ -716,7 +716,7 @@ Examples:
   /**
    * Execute tool directly by name
    */
-  async executeToolDirect(toolName, args) {
+  async executeToolDirect(toolName, _args) {
     try {
       this.terminal.writeInfo(`Executing tool: ${toolName}...`);
       

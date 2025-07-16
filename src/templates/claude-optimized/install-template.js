@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const fs = require('fs');
-const path = require('path');
+const _path = require('path');
 
 /**
  * Install Claude optimized template files

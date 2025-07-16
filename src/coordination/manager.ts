@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * Coordination manager for task scheduling and resource management
  */
@@ -64,20 +64,20 @@ export class CoordinationManager implements ICoordinationManager {
     this.logger.info('Initializing coordination manager...');
 
     try {
-      // Initialize components
+      // Initialize components,
       await this.scheduler.initialize();
       await this.resourceManager.initialize();
       await this.messageRouter.initialize();
       
-      // Start metrics collection
+      // Start metrics collection,
       this.metricsCollector.start();
 
-      // Start deadlock detection if enabled
+      // Start deadlock detection if enabled,
       if (this.config.deadlockDetection) {
         this.startDeadlockDetection();
       }
 
-      // Set up event handlers
+      // Set up event handlers,
       this.setupEventHandlers();
 
       this.initialized = true;
@@ -96,15 +96,15 @@ export class CoordinationManager implements ICoordinationManager {
     this.logger.info('Shutting down coordination manager...');
 
     try {
-      // Stop deadlock detection
+      // Stop deadlock detection,
       if (this.deadlockCheckInterval) {
         clearInterval(this.deadlockCheckInterval);
       }
 
-      // Stop metrics collection
+      // Stop metrics collection,
       this.metricsCollector.stop();
       
-      // Shutdown components
+      // Shutdown components,
       await Promise.all([
         this.scheduler.shutdown(),
         this.resourceManager.shutdown(),
@@ -164,12 +164,17 @@ export class CoordinationManager implements ICoordinationManager {
     error?: string; 
     metrics?: Record<string, number>;
   }> {
+    this.logger.info('🔍 DEADLOCK DEBUG: Coordination manager getHealthStatus called', {});
     try {
+      this.logger.info('🔍 DEADLOCK DEBUG: Starting parallel health checks for coordination components', {});
+      const healthStart = Date.now();
       const [schedulerHealth, resourceHealth, messageHealth] = await Promise.all([
         this.scheduler.getHealthStatus(),
         this.resourceManager.getHealthStatus(),
         this.messageRouter.getHealthStatus(),
       ]);
+      const healthDuration = Date.now() - healthStart;
+      this.logger.info('🔍 DEADLOCK DEBUG: Coordination component health checks completed', { duration: healthDuration });
 
       const metrics = {
         ...schedulerHealth.metrics,
@@ -204,7 +209,7 @@ export class CoordinationManager implements ICoordinationManager {
   }
 
   private setupEventHandlers(): void {
-    // Handle task events
+    // Handle task events,
     this.eventBus.on(SystemEvents.TASK_COMPLETED, async (data: unknown) => {
       const { taskId, result } = data as { taskId: string; result: unknown };
       try {
@@ -223,59 +228,134 @@ export class CoordinationManager implements ICoordinationManager {
       }
     });
 
-    // Handle agent termination
+    // Handle agent termination,
     this.eventBus.on(SystemEvents.AGENT_TERMINATED, async (data: unknown) => {
       const { agentId } = data as { agentId: string };
       try {
-        // Release all resources held by the agent
+        // Release all resources held by the agent,
         await this.resourceManager.releaseAllForAgent(agentId);
         
-        // Cancel all tasks assigned to the agent
+        // Cancel all tasks assigned to the agent,
         await this.scheduler.cancelAgentTasks(agentId);
       } catch (error) {
         this.logger.error('Error handling agent termination', { agentId, error });
       }
     });
+
+    // Handle MCP tool timeout events,
+    this.eventBus.on('toolTimeout', async (data: unknown) => {
+      const { method, params, timestamp, timeout } = data as {
+        method: string;
+        params: unknown;
+        timestamp: string;
+        timeout: number;
+      };
+      
+      try {
+        this.logger.warn('🚨 DEADLOCK DEBUG: MCP tool timeout detected', {
+          method,
+          timeout,
+          timestamp,
+        });
+        
+        // Extract agent ID from params if available
+        const agentId = this.extractAgentIdFromParams(params);
+        
+        if (agentId) {
+          this.logger.info('🔍 DEADLOCK DEBUG: Releasing resources for timed-out agent', {
+            agentId,
+            method,
+            timeout,
+          });
+          
+          // Release all resources held by the agent,
+          await this.resourceManager.releaseAllForAgent(agentId);
+          
+          // Reschedule the agent's tasks,
+          await this.scheduler.rescheduleAgentTasks(agentId);
+          
+          this.logger.info('🔍 DEADLOCK DEBUG: Resource cleanup completed for timed-out agent', {
+            agentId,
+            method,
+          });
+        }
+        
+        // Emit a custom event for tool timeout handling
+        this.eventBus.emit('MCP_TOOL_TIMEOUT', {
+          method,
+          agentId,
+          timeout,
+          timestamp,
+        });
+        
+      } catch (error) {
+        this.logger.error('🚨 DEADLOCK DEBUG: Error handling MCP tool timeout', {
+          method,
+          error,
+          timeout,
+        });
+      }
+    });
   }
 
   private startDeadlockDetection(): void {
+    this.logger.info('🔍 DEADLOCK DEBUG: Starting deadlock detection timer', { interval: 10000 });
     this.deadlockCheckInterval = setInterval(async () => {
+      const detectionStart = Date.now();
+      this.logger.info('🔍 DEADLOCK DEBUG: Running deadlock detection cycle', { timestamp: new Date().toISOString() });
       try {
         const deadlock = await this.detectDeadlock();
+        const detectionDuration = Date.now() - detectionStart;
         
         if (deadlock) {
-          this.logger.error('Deadlock detected', deadlock);
+          this.logger.error('🚨 DEADLOCK DEBUG: Deadlock detected!', { deadlock, detectionDuration });
           
-          // Emit deadlock event
+          // Emit deadlock event,
+          this.logger.info('🔍 DEADLOCK DEBUG: Emitting deadlock detected event', {});
           this.eventBus.emit(SystemEvents.DEADLOCK_DETECTED, deadlock);
           
-          // Attempt to resolve deadlock
+          // Attempt to resolve deadlock,
+          this.logger.info('🔍 DEADLOCK DEBUG: Starting deadlock resolution', {});
           await this.resolveDeadlock(deadlock);
+        } else {
+          this.logger.info('🔍 DEADLOCK DEBUG: No deadlock detected', { detectionDuration });
         }
       } catch (error) {
-        this.logger.error('Error during deadlock detection', error);
+        const detectionDuration = Date.now() - detectionStart;
+        this.logger.error('🚨 DEADLOCK DEBUG: Error during deadlock detection', { duration: detectionDuration, error: error });
       }
     }, 10000); // Check every 10 seconds
   }
 
   private async detectDeadlock(): Promise<{ 
-    agents: string[]; 
+    agents: string[];
     resources: string[];
   } | null> {
-    // Get resource allocation graph
+    this.logger.info('🔍 DEADLOCK DEBUG: Starting deadlock detection', {});
+    
+    // Get resource allocation graph,
+    this.logger.info('🔍 DEADLOCK DEBUG: Getting resource allocations', {});
+    const allocStart = Date.now();
     const allocations = await this.resourceManager.getAllocations();
+    const allocDuration = Date.now() - allocStart;
+    this.logger.info('🔍 DEADLOCK DEBUG: Got resource allocations', { allocations: allocations.size, duration: allocDuration });
+    
+    this.logger.info('🔍 DEADLOCK DEBUG: Getting waiting requests', {});
+    const waitStart = Date.now();
     const waitingFor = await this.resourceManager.getWaitingRequests();
+    const waitDuration = Date.now() - waitStart;
+    this.logger.info('🔍 DEADLOCK DEBUG: Got waiting requests', { waitingRequests: waitingFor.size, duration: waitDuration });
 
-    // Build dependency graph
+    // Build dependency graph,
     const graph = new Map<string, Set<string>>();
     
-    // Add edges for resources agents are waiting for
-    for (const [agentId, resources] of waitingFor) {
+    // Add edges for resources agents are waiting for,
+    for (const [agentId, resources] of Array.from(waitingFor.entries())) {
       if (!graph.has(agentId)) {
         graph.set(agentId, new Set());
       }
       
-      // Find who owns these resources
+      // Find who owns these resources,
       for (const resource of resources) {
         const owner = allocations.get(resource);
         if (owner && owner !== agentId) {
@@ -284,7 +364,7 @@ export class CoordinationManager implements ICoordinationManager {
       }
     }
 
-    // Detect cycles using DFS
+    // Detect cycles using DFS,
     const visited = new Set<string>();
     const recursionStack = new Set<string>();
     const cycle: string[] = [];
@@ -294,7 +374,7 @@ export class CoordinationManager implements ICoordinationManager {
       recursionStack.add(node);
 
       const neighbors = graph.get(node) || new Set();
-      for (const neighbor of neighbors) {
+      for (const neighbor of Array.from(neighbors)) {
         if (!visited.has(neighbor)) {
           if (hasCycle(neighbor)) {
             cycle.unshift(node);
@@ -311,13 +391,13 @@ export class CoordinationManager implements ICoordinationManager {
       return false;
     };
 
-    // Check for cycles
+    // Check for cycles,
     for (const node of graph.keys()) {
       if (!visited.has(node) && hasCycle(node)) {
-        // Extract unique agents in cycle
+        // Extract unique agents in cycle,
         const agents = Array.from(new Set(cycle));
         
-        // Find resources involved
+        // Find resources involved,
         const resources: string[] = [];
         for (const agent of agents) {
           const waiting = waitingFor.get(agent) || [];
@@ -334,24 +414,33 @@ export class CoordinationManager implements ICoordinationManager {
     return null;
   }
 
-  private async resolveDeadlock(deadlock: { 
-    agents: string[]; 
+  private async resolveDeadlock(deadlock: {
+    agents: string[];
     resources: string[];
   }): Promise<void> {
-    this.logger.warn('Attempting to resolve deadlock', deadlock);
+    this.logger.warn('🚨 DEADLOCK DEBUG: Attempting to resolve deadlock', deadlock);
 
     // Simple resolution: release resources from the lowest priority agent
-    // In a real implementation, use more sophisticated strategies
+    // In a real implementation, use more sophisticated strategies,
     
     try {
-      // Find the agent with the lowest priority or least work done
+      // Find the agent with the lowest priority or least work done,
       const agentToPreempt = deadlock.agents[0]; // Simplified
+      this.logger.info('🔍 DEADLOCK DEBUG: Selected agent for preemption', { agentId: agentToPreempt });
       
-      // Release all resources held by this agent
+      // Release all resources held by this agent,
+      this.logger.info('🔍 DEADLOCK DEBUG: Releasing all resources for preempted agent', { agentId: agentToPreempt });
+      const releaseStart = Date.now();
       await this.resourceManager.releaseAllForAgent(agentToPreempt);
+      const releaseDuration = Date.now() - releaseStart;
+      this.logger.info('🔍 DEADLOCK DEBUG: Released all resources for preempted agent', { agentId: agentToPreempt, duration: releaseDuration });
       
-      // Reschedule the agent's tasks
+      // Reschedule the agent's tasks,
+      this.logger.info('🔍 DEADLOCK DEBUG: Rescheduling preempted agent tasks', { agentId: agentToPreempt });
+      const rescheduleStart = Date.now();
       await this.scheduler.rescheduleAgentTasks(agentToPreempt);
+      const rescheduleDuration = Date.now() - rescheduleStart;
+      this.logger.info('🔍 DEADLOCK DEBUG: Rescheduled preempted agent tasks', { agentId: agentToPreempt, duration: rescheduleDuration });
       
       this.logger.info('Deadlock resolved by preempting agent', { 
         agentId: agentToPreempt,
@@ -395,7 +484,7 @@ export class CoordinationManager implements ICoordinationManager {
         this.messageRouter.performMaintenance(),
       ]);
       
-      // Clean up old conflicts
+      // Clean up old conflicts,
       this.conflictResolver.cleanupOldConflicts(24 * 60 * 60 * 1000); // 24 hours
     } catch (error) {
       this.logger.error('Error during coordination manager maintenance', error);
@@ -422,7 +511,7 @@ export class CoordinationManager implements ICoordinationManager {
 
     this.logger.info('Enabling advanced scheduling features');
     
-    // Replace basic scheduler with advanced one
+    // Replace basic scheduler with advanced one,
     const advancedScheduler = new AdvancedTaskScheduler(
       this.config,
       this.eventBus,
@@ -448,7 +537,7 @@ export class CoordinationManager implements ICoordinationManager {
       conflict = await this.conflictResolver.reportTaskConflict(id, agents, 'assignment');
     }
 
-    // Auto-resolve using default strategy
+    // Auto-resolve using default strategy,
     try {
       await this.conflictResolver.autoResolve(conflict.id);
     } catch (error) {
@@ -457,5 +546,37 @@ export class CoordinationManager implements ICoordinationManager {
         error,
       });
     }
+  }
+
+  /**
+   * Extract agent ID from MCP tool parameters for resource cleanup
+   */
+  private extractAgentIdFromParams(params: unknown): string | null {
+    if (!params || typeof params !== 'object') {
+      return null;
+    }
+
+    const paramObj = params as Record<string, unknown>;
+    
+    // Check common parameter names that might contain agent ID
+    const possibleKeys = ['agentId', 'agent_id', 'id', 'sessionId', 'session_id'];
+    
+    for (const key of possibleKeys) {
+      if (paramObj[key] && typeof paramObj[key] === 'string') {
+        return paramObj[key] as string;
+      }
+    }
+    
+    // Check nested objects
+    if (paramObj.context && typeof paramObj.context === 'object') {
+      const contextObj = paramObj.context as Record<string, unknown>;
+      for (const key of possibleKeys) {
+        if (contextObj[key] && typeof contextObj[key] === 'string') {
+          return contextObj[key] as string;
+        }
+      }
+    }
+    
+    return null;
   }
 }

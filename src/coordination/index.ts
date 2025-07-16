@@ -2,13 +2,13 @@
  * Coordination system exports
  */
 
-// Core coordination components
+// Core coordination components,
 export { CoordinationManager, type ICoordinationManager } from './manager.js';
 export { TaskScheduler } from './scheduler.js';
 export { ResourceManager } from './resources.js';
 export { MessageRouter } from './messaging.js';
 
-// Advanced scheduling
+// Advanced scheduling,
 export { 
   AdvancedTaskScheduler,
   type SchedulingStrategy,
@@ -19,21 +19,21 @@ export {
   AffinitySchedulingStrategy,
 } from './advanced-scheduler.js';
 
-// Work stealing
+// Work stealing,
 export {
   WorkStealingCoordinator,
   type WorkStealingConfig,
   type AgentWorkload,
 } from './work-stealing.js';
 
-// Dependency management
+// Dependency management,
 export {
   DependencyGraph,
   type DependencyNode,
   type DependencyPath,
 } from './dependency-graph.js';
 
-// Circuit breakers
+// Circuit breakers,
 export {
   CircuitBreaker,
   CircuitBreakerManager,
@@ -42,7 +42,7 @@ export {
   type CircuitBreakerMetrics,
 } from './circuit-breaker.js';
 
-// Conflict resolution
+// Conflict resolution,
 export {
   ConflictResolver,
   PriorityResolutionStrategy,
@@ -55,7 +55,7 @@ export {
   type ConflictResolutionStrategy,
 } from './conflict-resolution.js';
 
-// Metrics and monitoring
+// Metrics and monitoring,
 export {
   CoordinationMetricsCollector,
   type CoordinationMetrics,

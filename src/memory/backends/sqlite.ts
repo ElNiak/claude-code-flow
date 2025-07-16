@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../../utils/error-handler.js';
 /**
  * SQLite backend implementation for memory storage
  */
@@ -26,23 +26,23 @@ export class SQLiteBackend implements IMemoryBackend {
     this.logger.info('Initializing SQLite backend', { dbPath: this.dbPath });
 
     try {
-      // Ensure directory exists
+      // Ensure directory exists,
       const dir = path.dirname(this.dbPath);
       await fs.mkdir(dir, { recursive: true });
 
-      // Open SQLite connection
+      // Open SQLite connection,
       this.db = new Database(this.dbPath);
 
-      // Enable WAL mode for better performance
+      // Enable WAL mode for better performance,
       this.db.pragma('journal_mode = WAL');
       this.db.pragma('synchronous = NORMAL');
       this.db.pragma('cache_size = 1000');
       this.db.pragma('temp_store = memory');
 
-      // Create tables
+      // Create tables,
       this.createTables();
 
-      // Create indexes
+      // Create indexes,
       this.createIndexes();
 
       this.logger.info('SQLite backend initialized');
@@ -116,7 +116,7 @@ export class SQLiteBackend implements IMemoryBackend {
   }
 
   async update(id: string, entry: MemoryEntry): Promise<void> {
-    // SQLite INSERT OR REPLACE handles updates
+    // SQLite INSERT OR REPLACE handles updates,
     await this.store(entry);
   }
 
@@ -192,7 +192,7 @@ export class SQLiteBackend implements IMemoryBackend {
     }
 
     if (query.offset) {
-      // SQLite requires LIMIT when using OFFSET
+      // SQLite requires LIMIT when using OFFSET,
       if (!query.limit) {
         sql += ' LIMIT -1';  // -1 means no limit in SQLite
       }
@@ -238,10 +238,10 @@ export class SQLiteBackend implements IMemoryBackend {
     }
 
     try {
-      // Check database connectivity
+      // Check database connectivity,
       this.db.prepare('SELECT 1').get();
 
-      // Get metrics
+      // Get metrics,
       const countResult = this.db.prepare('SELECT COUNT(*) as count FROM memory_entries').get() as any;
       const entryCount = countResult.count;
 

@@ -116,7 +116,7 @@ function registerCleanup() {
   
   // Cleanup on uncaught exceptions
   process.on('uncaughtException', async (error) => {
-    console.error('Uncaught exception:', error);
+    console.error('Uncaught exception:', _error);
     await cleanupCaches();
     process.exit(1);
   });

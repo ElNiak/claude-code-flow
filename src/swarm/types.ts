@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * Comprehensive types and interfaces for the swarm system
  */
@@ -91,19 +91,19 @@ export interface AgentMetrics {
   averageExecutionTime: number;
   successRate: number;
   
-  // Resource usage
+  // Resource usage,
   cpuUsage: number;
   memoryUsage: number;
   diskUsage: number;
   networkUsage: number;
   
-  // Quality metrics
+  // Quality metrics,
   codeQuality: number;
   testCoverage: number;
   bugRate: number;
   userSatisfaction: number;
   
-  // Time tracking
+  // Time tracking,
   totalUptime: number;
   lastActivity: Date;
   responseTime: number;
@@ -117,68 +117,68 @@ export interface AgentState {
   capabilities: AgentCapabilities;
   metrics: AgentMetrics;
   
-  // Current state
+  // Current state,
   currentTask?: TaskId;
-  workload: number;           // 0-1 current workload
+  workload: number;           // 0-1 current workload,
   health: number;             // 0-1 health score
   
-  // Configuration
+  // Configuration,
   config: AgentConfig;
   environment: AgentEnvironment;
   
-  // Communication
+  // Communication,
   endpoints: string[];
   lastHeartbeat: Date;
   
-  // History
+  // History,
   taskHistory: TaskId[];
   errorHistory: AgentError[];
   
-  // Relationships
+  // Relationships,
   parentAgent?: AgentId;
   childAgents: AgentId[];
   collaborators: AgentId[];
 }
 
 export interface AgentConfig {
-  // Behavior settings
-  autonomyLevel: number;      // 0-1 how autonomous the agent is
+  // Behavior settings,
+  autonomyLevel: number;      // 0-1 how autonomous the agent is,
   learningEnabled: boolean;
   adaptationEnabled: boolean;
   
-  // Resource limits
+  // Resource limits,
   maxTasksPerHour: number;
   maxConcurrentTasks: number;
   timeoutThreshold: number;
   
-  // Communication settings
+  // Communication settings,
   reportingInterval: number;
   heartbeatInterval: number;
   
-  // Security settings
+  // Security settings,
   permissions: string[];
   trustedAgents: AgentId[];
   
-  // Specialization
+  // Specialization,
   expertise: Record<string, number>;
   preferences: Record<string, any>;
 }
 
 export interface AgentEnvironment {
-  // Runtime environment
+  // Runtime environment,
   runtime: 'deno' | 'node' | 'claude' | 'browser';
   version: string;
   
-  // Available resources
+  // Available resources,
   workingDirectory: string;
   tempDirectory: string;
   logDirectory: string;
   
-  // Network configuration
+  // Network configuration,
   apiEndpoints: Record<string, string>;
   credentials: Record<string, string>;
   
-  // Tool access
+  // Tool access,
   availableTools: string[];
   toolConfigs: Record<string, any>;
 }
@@ -233,81 +233,81 @@ export type TaskStatus =
   | 'cancelled'      // Cancelled by user/system
   | 'timeout'        // Timed out
   | 'retrying'       // Being retried
-  | 'blocked';       // Blocked by dependencies
+  | 'blocked';       // Blocked by dependencies,
 
 export type TaskPriority = 
   | 'critical'       // Must be done immediately
   | 'high'           // Important, do soon
   | 'normal'         // Standard priority
   | 'low'            // Can be delayed
-  | 'background';    // Run when resources available
+  | 'background';    // Run when resources available,
 
 export interface TaskRequirements {
-  // Agent requirements
+  // Agent requirements,
   agentType?: AgentType;
   capabilities: string[];
   minReliability?: number;
   
-  // Resource requirements
+  // Resource requirements,
   estimatedDuration?: number;
   maxDuration?: number;
   memoryRequired?: number;
   cpuRequired?: number;
   
-  // Environment requirements
+  // Environment requirements,
   tools: string[];
   permissions: string[];
   environment?: Record<string, any>;
   
-  // Quality requirements
+  // Quality requirements,
   reviewRequired?: boolean;
   testingRequired?: boolean;
   documentationRequired?: boolean;
 }
 
 export interface TaskConstraints {
-  // Time constraints
+  // Time constraints,
   deadline?: Date;
   startAfter?: Date;
   maxRetries?: number;
   maxTokens?: number;
   timeoutAfter?: number;
   
-  // Resource constraints
+  // Resource constraints,
   maxCost?: number;
   exclusiveAccess?: string[];
   
-  // Dependency constraints
+  // Dependency constraints,
   dependencies: TaskId[];
   dependents: TaskId[];
   conflicts: TaskId[];
   
-  // Agent constraints
+  // Agent constraints,
   preferredAgents?: AgentId[];
   excludedAgents?: AgentId[];
   requiresHuman?: boolean;
 }
 
 export interface TaskResult {
-  // Result data
+  // Result data,
   output: any;
   artifacts: Record<string, any>;
   metadata: Record<string, any>;
   
-  // Quality metrics
+  // Quality metrics,
   quality: number;
   completeness: number;
   accuracy: number;
   
-  // Performance metrics
+  // Performance metrics,
   executionTime: number;
   resourcesUsed: Record<string, number>;
   
-  // Validation
+  // Validation,
   validated: boolean;
   validationResults?: any;
   
-  // Follow-up
+  // Follow-up,
   recommendations?: string[];
   nextSteps?: string[];
 }
@@ -318,37 +318,37 @@ export interface TaskDefinition {
   name: string;
   description: string;
   
-  // Task specification
+  // Task specification,
   requirements: TaskRequirements;
   constraints: TaskConstraints;
   priority: TaskPriority;
   
-  // Input/Output
+  // Input/Output,
   input: any;
   expectedOutput?: any;
   
-  // Execution details
+  // Execution details,
   instructions: string;
   context: Record<string, any>;
   parameters?: Record<string, any>;
   examples?: any[];
   
-  // Tracking
+  // Tracking,
   status: TaskStatus;
   createdAt: Date;
   updatedAt: Date;
   
-  // Assignment
+  // Assignment,
   assignedTo?: AgentId;
   assignedAt?: Date;
   
-  // Execution
+  // Execution,
   startedAt?: Date;
   completedAt?: Date;
   result?: TaskResult;
   error?: TaskError;
   
-  // History
+  // History,
   attempts: TaskAttempt[];
   statusHistory: TaskStatusChange[];
 }
@@ -389,7 +389,7 @@ export type SwarmMode =
   | 'distributed'    // Multiple coordinators
   | 'hierarchical'   // Tree structure of coordinators
   | 'mesh'           // Peer-to-peer coordination
-  | 'hybrid';        // Mixed coordination strategies
+  | 'hybrid';        // Mixed coordination strategies,
 
 export type SwarmStrategy = 
   | 'auto'           // Automatically determine approach
@@ -399,76 +399,76 @@ export type SwarmStrategy =
   | 'testing'        // Testing-focused strategy
   | 'optimization'   // Performance optimization
   | 'maintenance'    // System maintenance
-  | 'custom';        // Custom strategy
+  | 'custom';        // Custom strategy,
 
 export interface SwarmObjective {
   id: string;
   name: string;
   description: string;
   
-  // Strategy
+  // Strategy,
   strategy: SwarmStrategy;
   mode: SwarmMode;
   
-  // Requirements
+  // Requirements,
   requirements: SwarmRequirements;
   constraints: SwarmConstraints;
   
-  // Decomposition
+  // Decomposition,
   tasks: TaskDefinition[];
   dependencies: TaskDependency[];
   
-  // Execution
+  // Execution,
   status: SwarmStatus;
   progress: SwarmProgress;
   
-  // Timeline
+  // Timeline,
   createdAt: Date;
   startedAt?: Date;
   completedAt?: Date;
   deadline?: Date;
   
-  // Results
+  // Results,
   results?: SwarmResults;
   metrics: SwarmMetrics;
 }
 
 export interface SwarmRequirements {
-  // Agent requirements
+  // Agent requirements,
   minAgents: number;
   maxAgents: number;
   agentTypes: AgentType[];
   
-  // Resource requirements
+  // Resource requirements,
   estimatedDuration: number;
   maxDuration: number;
   resourceBudget?: Record<string, number>;
   
-  // Quality requirements
+  // Quality requirements,
   qualityThreshold: number;
   reviewCoverage: number;
   testCoverage: number;
   
-  // Performance requirements
+  // Performance requirements,
   throughputTarget?: number;
   latencyTarget?: number;
   reliabilityTarget: number;
 }
 
 export interface SwarmConstraints {
-  // Time constraints
+  // Time constraints,
   deadline?: Date;
   milestones: SwarmMilestone[];
   
-  // Resource constraints
+  // Resource constraints,
   maxCost?: number;
   resourceLimits: Record<string, number>;
   
-  // Quality constraints
+  // Quality constraints,
   minQuality: number;
   requiredApprovals: string[];
   
-  // Operational constraints
+  // Operational constraints,
   allowedFailures: number;
   recoveryTime: number;
   maintenanceWindows?: TimeWindow[];
@@ -501,81 +501,81 @@ export type SwarmStatus =
   | 'failed'         // Failed to complete
   | 'cancelled'      // Cancelled by user
   | 'recovering'     // Recovering from failure
-  | 'optimizing';    // Optimizing performance
+  | 'optimizing';    // Optimizing performance,
 
 export interface SwarmProgress {
-  // Task progress
+  // Task progress,
   totalTasks: number;
   completedTasks: number;
   failedTasks: number;
   runningTasks: number;
   
-  // Time progress
+  // Time progress,
   estimatedCompletion: Date;
   timeRemaining: number;
   percentComplete: number;
   
-  // Quality progress
+  // Quality progress,
   averageQuality: number;
   passedReviews: number;
   passedTests: number;
   
-  // Resource usage
+  // Resource usage,
   resourceUtilization: Record<string, number>;
   costSpent: number;
   
-  // Agent utilization
+  // Agent utilization,
   activeAgents: number;
   idleAgents: number;
   busyAgents: number;
 }
 
 export interface SwarmResults {
-  // Primary outputs
+  // Primary outputs,
   outputs: Record<string, any>;
   artifacts: Record<string, any>;
   reports: Record<string, any>;
   
-  // Quality metrics
+  // Quality metrics,
   overallQuality: number;
   qualityByTask: Record<string, number>;
   
-  // Performance metrics
+  // Performance metrics,
   totalExecutionTime: number;
   resourcesUsed: Record<string, number>;
   efficiency: number;
   
-  // Success metrics
+  // Success metrics,
   objectivesMet: string[];
   objectivesFailed: string[];
   
-  // Recommendations
+  // Recommendations,
   improvements: string[];
   nextActions: string[];
 }
 
 export interface SwarmMetrics {
-  // Performance metrics
+  // Performance metrics,
   throughput: number;
   latency: number;
   efficiency: number;
   reliability: number;
   
-  // Quality metrics
+  // Quality metrics,
   averageQuality: number;
   defectRate: number;
   reworkRate: number;
   
-  // Resource metrics
+  // Resource metrics,
   resourceUtilization: Record<string, number>;
   costEfficiency: number;
   
-  // Agent metrics
+  // Agent metrics,
   agentUtilization: number;
   agentSatisfaction: number;
   collaborationEffectiveness: number;
   
-  // Timeline metrics
+  // Timeline metrics,
   scheduleVariance: number;
   deadlineAdherence: number;
 }
@@ -596,25 +596,25 @@ export type DependencyType =
   | 'start-finish'   // Must start before next finishes
   | 'resource'       // Shares a resource
   | 'data'          // Data dependency
-  | 'approval';     // Requires approval
+  | 'approval';     // Requires approval,
 
 export interface CoordinationStrategy {
   name: string;
   description: string;
   
-  // Agent selection
+  // Agent selection,
   agentSelection: AgentSelectionStrategy;
   
-  // Task scheduling
+  // Task scheduling,
   taskScheduling: TaskSchedulingStrategy;
   
-  // Load balancing
+  // Load balancing,
   loadBalancing: LoadBalancingStrategy;
   
-  // Fault tolerance
+  // Fault tolerance,
   faultTolerance: FaultToleranceStrategy;
   
-  // Communication
+  // Communication,
   communication: CommunicationStrategy;
 }
 
@@ -626,7 +626,7 @@ export type AgentSelectionStrategy =
   | 'round-robin'      // Round-robin selection
   | 'affinity-based'   // Prefer agents with domain affinity
   | 'cost-based'       // Select based on cost
-  | 'hybrid';          // Combination of strategies
+  | 'hybrid';          // Combination of strategies,
 
 export type TaskSchedulingStrategy = 
   | 'fifo'             // First in, first out
@@ -635,7 +635,7 @@ export type TaskSchedulingStrategy =
   | 'shortest-job'     // Shortest job first
   | 'critical-path'    // Critical path method
   | 'resource-aware'   // Consider resource availability
-  | 'adaptive';        // Adaptive scheduling
+  | 'adaptive';        // Adaptive scheduling,
 
 export type LoadBalancingStrategy = 
   | 'work-stealing'    // Agents steal work from busy agents
@@ -643,7 +643,8 @@ export type LoadBalancingStrategy =
   | 'centralized'      // Central dispatcher
   | 'distributed'      // Distributed load balancing
   | 'predictive'       // Predict and prevent overload
-  | 'reactive';        // React to overload conditions
+  | 'reactive'         // React to overload conditions
+  | 'hybrid';          // Hybrid load balancing strategy
 
 export type FaultToleranceStrategy = 
   | 'retry'            // Retry failed tasks
@@ -652,7 +653,7 @@ export type FaultToleranceStrategy =
   | 'circuit-breaker'  // Circuit breaker pattern
   | 'bulkhead'         // Isolate failures
   | 'timeout'          // Timeout protection
-  | 'graceful-degradation'; // Degrade gracefully
+  | 'graceful-degradation'; // Degrade gracefully,
 
 export type CommunicationStrategy = 
   | 'direct'           // Direct agent-to-agent
@@ -666,22 +667,22 @@ export type CommunicationStrategy =
 // ===== MEMORY TYPES =====
 
 export interface SwarmMemory {
-  // Memory organization
+  // Memory organization,
   namespace: string;
   partitions: MemoryPartition[];
   
-  // Access control
+  // Access control,
   permissions: MemoryPermissions;
   
-  // Persistence
+  // Persistence,
   persistent: boolean;
   backupEnabled: boolean;
   
-  // Synchronization
+  // Synchronization,
   distributed: boolean;
   consistency: ConsistencyLevel;
   
-  // Performance
+  // Performance,
   cacheEnabled: boolean;
   compressionEnabled: boolean;
 }
@@ -691,18 +692,18 @@ export interface MemoryPartition {
   name: string;
   type: MemoryType;
   
-  // Data
+  // Data,
   entries: MemoryEntry[];
   
-  // Configuration
+  // Configuration,
   maxSize: number;
   ttl?: number;
   
-  // Access patterns
+  // Access patterns,
   readOnly: boolean;
   shared: boolean;
   
-  // Performance
+  // Performance,
   indexed: boolean;
   compressed: boolean;
 }
@@ -715,31 +716,31 @@ export type MemoryType =
   | 'results'         // Task results
   | 'communication'   // Communication history
   | 'configuration'   // Configuration data
-  | 'metrics';        // Performance metrics
+  | 'metrics';        // Performance metrics,
 
 export interface MemoryEntry {
   id: string;
   key: string;
   value: any;
   
-  // Metadata
+  // Metadata,
   type: string;
   tags: string[];
   
-  // Ownership
+  // Ownership,
   owner: AgentId;
   accessLevel: AccessLevel;
   
-  // Lifecycle
+  // Lifecycle,
   createdAt: Date;
   updatedAt: Date;
   expiresAt?: Date;
   
-  // Versioning
+  // Versioning,
   version: number;
   previousVersions?: MemoryEntry[];
   
-  // Relationships
+  // Relationships,
   references: string[];
   dependencies: string[];
 }
@@ -749,7 +750,7 @@ export type AccessLevel =
   | 'team'            // Team members can access
   | 'swarm'           // All swarm agents can access
   | 'public'          // Publicly accessible
-  | 'system';         // System-level access
+  | 'system';         // System-level access,
 
 export interface MemoryPermissions {
   read: AccessLevel;
@@ -767,26 +768,26 @@ export type ConsistencyLevel =
 // ===== MONITORING TYPES =====
 
 export interface MonitoringConfig {
-  // Collection settings
+  // Collection settings,
   metricsEnabled: boolean;
   loggingEnabled: boolean;
   tracingEnabled: boolean;
   
-  // Collection intervals
+  // Collection intervals,
   metricsInterval: number;
   heartbeatInterval: number;
   healthCheckInterval: number;
   
-  // Retention settings
+  // Retention settings,
   retentionPeriod: number;
   maxLogSize: number;
   maxMetricPoints: number;
   
-  // Alerting
+  // Alerting,
   alertingEnabled: boolean;
   alertThresholds: Record<string, number>;
   
-  // Export settings
+  // Export settings,
   exportEnabled: boolean;
   exportFormat: string;
   exportDestination: string;
@@ -795,26 +796,26 @@ export interface MonitoringConfig {
 export interface SystemMetrics {
   timestamp: Date;
   
-  // System metrics
+  // System metrics,
   cpuUsage: number;
   memoryUsage: number;
   diskUsage: number;
   networkUsage: number;
   
-  // Swarm metrics
+  // Swarm metrics,
   activeSwarms: number;
   totalAgents: number;
   activeAgents: number;
   totalTasks: number;
   runningTasks: number;
   
-  // Performance metrics
+  // Performance metrics,
   throughput: number;
   latency: number;
   errorRate: number;
   successRate: number;
   
-  // Resource metrics
+  // Resource metrics,
   resourceUtilization: Record<string, number>;
   queueLengths: Record<string, number>;
 }
@@ -826,16 +827,16 @@ export interface Alert {
   type: AlertType;
   message: string;
   
-  // Context
+  // Context,
   source: string;
   context: Record<string, any>;
   
-  // Handling
+  // Handling,
   acknowledged: boolean;
   resolved: boolean;
   assignedTo?: string;
   
-  // Escalation
+  // Escalation,
   escalationLevel: number;
   escalatedAt?: Date;
 }
@@ -844,7 +845,7 @@ export type AlertLevel =
   | 'info'            // Informational
   | 'warning'         // Warning condition
   | 'error'           // Error condition
-  | 'critical';       // Critical condition
+  | 'critical';       // Critical condition,
 
 export type AlertType = 
   | 'system'          // System-level alert
@@ -864,18 +865,18 @@ export interface SwarmEvent {
   type: EventType;
   source: string;
   
-  // Event data
+  // Event data,
   data: Record<string, any>;
   
-  // Routing
+  // Routing,
   targets?: string[];
   broadcast: boolean;
   
-  // Processing
+  // Processing,
   processed: boolean;
   processedAt?: Date;
   
-  // Correlation
+  // Correlation,
   correlationId?: string;
   causationId?: string;
 }
@@ -907,6 +908,7 @@ export type EventType =
   | 'task.failed'
   | 'task.cancelled'
   | 'task.retried'
+  | 'task.queued'
   
   // Coordination events
   | 'coordination.load_balanced'
@@ -920,63 +922,74 @@ export type EventType =
   | 'system.resource_limit'
   | 'system.performance_degradation'
   
+  // Objective events
+  | 'objective.completed'
+  | 'objective.failed'
+  
   // Custom events
   | 'custom.user_defined';
 
 // ===== INTERFACE EXTENSIONS =====
 
 export interface SwarmEventEmitter extends EventEmitter {
-  // Event emission
+  // Event emission,
   emitSwarmEvent(event: SwarmEvent): boolean;
   emitSwarmEvents(events: SwarmEvent[]): boolean;
   
-  // Event handling
+  // Event handling,
   onSwarmEvent(type: EventType, handler: (event: SwarmEvent) => void): this;
   offSwarmEvent(type: EventType, handler: (event: SwarmEvent) => void): this;
   
-  // Event filtering
+  // Event filtering,
   filterEvents(predicate: (event: SwarmEvent) => boolean): SwarmEvent[];
   
-  // Event correlation
+  // Event correlation,
   correlateEvents(correlationId: string): SwarmEvent[];
 }
 
 // ===== UTILITY TYPES =====
 
 export interface SwarmConfig {
-  // Basic configuration
+  // Basic configuration,
   name: string;
   description: string;
   version: string;
   
-  // Operational settings
+  // Operational settings,
   mode: SwarmMode;
   strategy: SwarmStrategy;
   coordinationStrategy: CoordinationStrategy;
   
-  // Resource limits
+  // Resource limits,
   maxAgents: number;
   maxTasks: number;
   maxDuration: number;
   taskTimeoutMinutes?: number;
   resourceLimits: Record<string, number>;
   
-  // Quality settings
+  // Quality settings,
   qualityThreshold: number;
   reviewRequired: boolean;
   testingRequired: boolean;
   
-  // Monitoring settings
+  // Monitoring settings,
   monitoring: MonitoringConfig;
   
-  // Memory settings
+  // Memory settings,
   memory: SwarmMemory;
   
-  // Security settings
+  // Security settings,
   security: SecurityConfig;
   
-  // Performance settings
+  // Performance settings,
   performance: PerformanceConfig;
+  
+  // Logging settings,
+  logging?: {
+    level?: string;
+    format?: string;
+    destination?: string;
+  };
 }
 
 export interface SecurityConfig {
@@ -984,35 +997,35 @@ export interface SecurityConfig {
   authorizationRequired: boolean;
   encryptionEnabled: boolean;
   
-  // Access control
+  // Access control,
   defaultPermissions: string[];
   adminRoles: string[];
   
-  // Audit
+  // Audit,
   auditEnabled: boolean;
   auditLevel: string;
   
-  // Validation
+  // Validation,
   inputValidation: boolean;
   outputSanitization: boolean;
 }
 
 export interface PerformanceConfig {
-  // Concurrency
+  // Concurrency,
   maxConcurrency: number;
   defaultTimeout: number;
   
-  // Caching
+  // Caching,
   cacheEnabled: boolean;
   cacheSize: number;
   cacheTtl: number;
   
-  // Optimization
+  // Optimization,
   optimizationEnabled: boolean;
   adaptiveScheduling: boolean;
   predictiveLoading: boolean;
   
-  // Resource management
+  // Resource management,
   resourcePooling: boolean;
   connectionPooling: boolean;
   memoryPooling: boolean;
@@ -1023,7 +1036,7 @@ export interface ValidationResult {
   errors: ValidationError[];
   warnings: ValidationWarning[];
   
-  // Context
+  // Context,
   validatedAt: Date;
   validator: string;
   context: Record<string, any>;
@@ -1068,39 +1081,143 @@ export function isAgentState(obj: any): obj is AgentState {
 // ===== CONSTANTS =====
 
 export const SWARM_CONSTANTS = {
-  // Timeouts
-  DEFAULT_TASK_TIMEOUT: 5 * 60 * 1000,      // 5 minutes
-  DEFAULT_AGENT_TIMEOUT: 30 * 1000,          // 30 seconds
+  // Timeouts,
+  DEFAULT_TASK_TIMEOUT: 5 * 60 * 1000,      // 5 minutes,
+  DEFAULT_AGENT_TIMEOUT: 30 * 1000,          // 30 seconds,
   DEFAULT_HEARTBEAT_INTERVAL: 10 * 1000,     // 10 seconds
   
-  // Limits
+  // Limits,
   MAX_AGENTS_PER_SWARM: 100,
   MAX_TASKS_PER_AGENT: 10,
   MAX_RETRIES: 3,
   
-  // Quality thresholds
+  // Quality thresholds,
   MIN_QUALITY_THRESHOLD: 0.7,
   DEFAULT_QUALITY_THRESHOLD: 0.8,
   HIGH_QUALITY_THRESHOLD: 0.9,
   
-  // Performance targets
-  DEFAULT_THROUGHPUT_TARGET: 10,             // tasks per minute
-  DEFAULT_LATENCY_TARGET: 1000,              // milliseconds
+  // Performance targets,
+  DEFAULT_THROUGHPUT_TARGET: 10,             // tasks per minute,
+  DEFAULT_LATENCY_TARGET: 1000,              // milliseconds,
   DEFAULT_RELIABILITY_TARGET: 0.95,          // 95%
   
-  // Resource limits
-  DEFAULT_MEMORY_LIMIT: 512 * 1024 * 1024,   // 512MB
-  DEFAULT_CPU_LIMIT: 1.0,                    // 1 CPU core
+  // Resource limits,
+  DEFAULT_MEMORY_LIMIT: 512 * 1024 * 1024,   // 512MB,
+  DEFAULT_CPU_LIMIT: 1.0,                    // 1 CPU core,
   DEFAULT_DISK_LIMIT: 1024 * 1024 * 1024,    // 1GB
 } as const;
+
+// ===== EVENT DATA TYPES =====
+
+export interface AgentLoadUpdate {
+  agentId: AgentId;
+  load: number;
+}
+
+export interface AgentTaskData {
+  agentId: AgentId;
+  task: TaskDefinition;
+}
+
+export interface WorkStealingData {
+  sourceAgent: AgentId;
+  targetAgent: AgentId;
+  taskCount: number;
+}
+
+export interface AgentPerformanceUpdate {
+  agentId: string;
+  metrics: {
+    throughput: number;
+    responseTime: number;
+    quality?: number;
+  };
+}
+
+export interface AgentMetricsUpdate {
+  agentId: string;
+  metrics: AgentMetrics;
+}
+
+export interface AgentStatusChange {
+  agentId: string;
+  from: AgentStatus;
+  to: AgentStatus;
+}
+
+export interface TaskEvent {
+  taskId: string;
+  agentId: string;
+}
+
+export interface SystemResourceUpdate {
+  cpuUsage?: number;
+  memoryUsage?: number;
+  diskUsage?: number;
+  networkUsage?: number;
+}
+
+export interface SwarmMetricsUpdate {
+  metrics: SwarmMetrics;
+}
+
+export interface ErrorEvent {
+  message: string;
+  type?: string;
+  source?: string;
+  severity?: 'info' | 'warning' | 'error' | 'critical';
+}
+
+// ===== RESOURCE MANAGEMENT TYPES =====
+
+export interface ResourceRequest {
+  agentId: AgentId;
+  requirements: {
+    cpu?: number;
+    memory?: number;
+    disk?: number;
+    network?: number;
+  };
+  priority?: 'low' | 'normal' | 'high' | 'critical';
+}
+
+export interface ResourceRelease {
+  allocationId: string;
+  agentId: AgentId;
+  reason?: string;
+}
+
+export interface ResourceUsageUpdate {
+  resourceId: string;
+  usage: {
+    cpu: number;
+    memory: number;
+    disk: number;
+    network: number;
+    timestamp: Date;
+  };
+}
+
+export interface ResourceFailure {
+  resourceId: string;
+  type: string;
+  impact?: 'low' | 'medium' | 'high' | 'critical';
+  duration?: number;
+}
+
+export interface ScalingTrigger {
+  action: 'scale-up' | 'scale-down';
+  reason: string;
+  targetCount?: number;
+}
 
 // ===== EXPORTS =====
 
 export default {
-  // Type exports are handled by TypeScript
+  // Type exports are handled by TypeScript,
   SWARM_CONSTANTS,
   
-  // Utility functions
+  // Utility functions,
   isAgentId,
   isTaskId,
   isSwarmEvent,

@@ -57,8 +57,8 @@ export class ResearcherAgent extends BaseAgent {
         'research-planner'
       ],
       maxConcurrentTasks: 5,
-      maxMemoryUsage: 512 * 1024 * 1024, // 512MB
-      maxExecutionTime: 900000, // 15 minutes
+      maxMemoryUsage: 512 * 1024 * 1024, // 512MB,
+      maxExecutionTime: 900000, // 15 minutes,
       reliability: 0.92,
       speed: 0.85,
       quality: 0.95
@@ -158,7 +158,7 @@ export class ResearcherAgent extends BaseAgent {
       }
     };
 
-    // Store research progress
+    // Store research progress,
     await this.memory.store(`research:${task.id}:progress`, {
       status: 'in-progress',
       startTime: new Date(),
@@ -169,7 +169,7 @@ export class ResearcherAgent extends BaseAgent {
       partition: 'tasks'
     });
 
-    // Simulate research process
+    // Simulate research process,
     await this.delay(2000);
     
     results.summary = `Research findings for: ${query}`;
@@ -186,7 +186,7 @@ export class ResearcherAgent extends BaseAgent {
     results.metadata.totalSources = 15;
     results.metadata.sourcesAnalyzed = 12;
 
-    // Store final results
+    // Store final results,
     await this.memory.store(`research:${task.id}:results`, results, {
       type: 'research-results',
       tags: ['research', 'completed', this.id],
@@ -215,7 +215,7 @@ export class ResearcherAgent extends BaseAgent {
       timestamp: new Date()
     };
 
-    // Simulate analysis
+    // Simulate analysis,
     await this.delay(1500);
 
     analysis.insights = [
@@ -245,7 +245,7 @@ export class ResearcherAgent extends BaseAgent {
       timestamp: new Date()
     };
 
-    // Simulate fact-checking
+    // Simulate fact-checking,
     await this.delay(3000);
 
     verification.overallAccuracy = 0.88;
@@ -278,7 +278,7 @@ export class ResearcherAgent extends BaseAgent {
       timestamp: new Date()
     };
 
-    // Simulate literature review
+    // Simulate literature review,
     await this.delay(4000);
 
     review.keyFindings = [
@@ -310,7 +310,7 @@ export class ResearcherAgent extends BaseAgent {
       timestamp: new Date()
     };
 
-    // Simulate market analysis
+    // Simulate market analysis,
     await this.delay(2500);
 
     analysis.trends = [
@@ -328,7 +328,7 @@ export class ResearcherAgent extends BaseAgent {
       description: task.description
     });
 
-    // Default research approach
+    // Default research approach,
     return await this.performResearch(task);
   }
 

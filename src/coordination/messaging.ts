@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * Inter-agent messaging system
  */
@@ -24,7 +24,7 @@ interface PendingResponse {
  * Message router for inter-agent communication
  */
 export class MessageRouter {
-  private queues = new Map<string, MessageQueue>(); // agentId -> queue
+  private queues = new Map<string, MessageQueue>(); // agentId -> queue,
   private pendingResponses = new Map<string, PendingResponse>();
   private messageCount = 0;
 
@@ -37,14 +37,14 @@ export class MessageRouter {
   async initialize(): Promise<void> {
     this.logger.info('Initializing message router');
     
-    // Set up periodic cleanup
+    // Set up periodic cleanup,
     setInterval(() => this.cleanup(), 60000); // Every minute
   }
 
   async shutdown(): Promise<void> {
     this.logger.info('Shutting down message router');
     
-    // Reject all pending responses
+    // Reject all pending responses,
     for (const [id, pending] of this.pendingResponses) {
       pending.reject(new Error('Message router shutdown'));
       clearTimeout(pending.timeout);
@@ -80,7 +80,7 @@ export class MessageRouter {
       priority: 1,
     };
 
-    // Create response promise
+    // Create response promise,
     const responsePromise = new Promise<T>((resolve, reject) => {
       const timeout = setTimeout(() => {
         this.pendingResponses.delete(message.id);
@@ -94,10 +94,10 @@ export class MessageRouter {
       });
     });
 
-    // Send message
+    // Send message,
     await this.sendMessage(from, to, message);
 
-    // Wait for response
+    // Wait for response,
     return await responsePromise;
   }
 
@@ -110,7 +110,7 @@ export class MessageRouter {
       priority: 0,
     };
 
-    // Send to all agents
+    // Send to all agents,
     const agents = Array.from(this.queues.keys()).filter(id => id !== from);
     
     await Promise.all(
@@ -183,17 +183,17 @@ export class MessageRouter {
       type: message.type,
     });
 
-    // Ensure destination queue exists
+    // Ensure destination queue exists,
     const queue = this.ensureQueue(to);
 
-    // Add to queue
+    // Add to queue,
     queue.messages.push(message);
     this.messageCount++;
 
-    // Emit event
+    // Emit event,
     this.eventBus.emit(SystemEvents.MESSAGE_SENT, { from, to, message });
 
-    // Process message immediately if handlers exist
+    // Process message immediately if handlers exist,
     if (queue.handlers.size > 0) {
       await this.processMessage(to, message);
     }
@@ -205,13 +205,13 @@ export class MessageRouter {
       return;
     }
 
-    // Remove message from queue
+    // Remove message from queue,
     const index = queue.messages.indexOf(message);
     if (index !== -1) {
       queue.messages.splice(index, 1);
     }
 
-    // Call all handlers
+    // Call all handlers,
     const handlers = Array.from(queue.handlers.values());
     await Promise.all(
       handlers.map(handler => {
@@ -227,9 +227,9 @@ export class MessageRouter {
       }),
     );
 
-    // Emit received event
+    // Emit received event,
     this.eventBus.emit(SystemEvents.MESSAGE_RECEIVED, { 
-      from: '', // Would need to track this
+      from: '', // Would need to track this,
       to: agentId,
       message,
     });
@@ -253,7 +253,7 @@ export class MessageRouter {
   private cleanup(): void {
     const now = Date.now();
 
-    // Clean up old messages
+    // Clean up old messages,
     for (const [agentId, queue] of this.queues) {
       const filtered = queue.messages.filter(msg => {
         const age = now - msg.timestamp.getTime();
@@ -274,15 +274,15 @@ export class MessageRouter {
 
       queue.messages = filtered;
 
-      // Remove empty queues
+      // Remove empty queues,
       if (queue.messages.length === 0 && queue.handlers.size === 0) {
         this.queues.delete(agentId);
       }
     }
 
-    // Clean up timed out responses
+    // Clean up timed out responses,
     for (const [id, pending] of this.pendingResponses) {
-      // This is handled by the timeout, but double-check
+      // This is handled by the timeout, but double-check,
       clearTimeout(pending.timeout);
       pending.reject(new Error('Response timeout during cleanup'));
     }

@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * Comprehensive MCP Integration Tests
  */
@@ -16,7 +16,7 @@ import type { ILogger } from '../../core/logger.js';
 import type { MCPConfig, MCPInitializeParams, MCPRequest, MCPSession } from '../../utils/types.js';
 import { EventEmitter } from 'node:events';
 
-// Mock logger
+// Mock logger,
 const mockLogger: ILogger = {
   debug: jest.fn(),
   info: jest.fn(),
@@ -25,10 +25,10 @@ const mockLogger: ILogger = {
   configure: jest.fn()
 };
 
-// Mock event bus
+// Mock event bus,
 const mockEventBus = new EventEmitter();
 
-// Mock config
+// Mock config,
 const mockMCPConfig: MCPConfig = {
   transport: 'stdio',
   enableMetrics: true,
@@ -85,7 +85,7 @@ describe('MCP Server', () => {
         params: initParams,
       };
 
-      // Mock transport handler
+      // Mock transport handler,
       const transport = (server as any).transport;
       transport.onRequest = jest.fn();
       
@@ -139,7 +139,7 @@ describe('MCP Server', () => {
       server.registerTool(tool2);
 
       const tools = (server as any).toolRegistry.listTools();
-      expect(tools).toHaveLength(2 + 4); // 2 custom + 4 built-in tools
+      expect(tools).toHaveLength(2 + 4); // 2 custom + 4 built-in tools,
       expect(tools.some((t: any) => t.name === 'test/tool1')).toBe(true);
       expect(tools.some((t: any) => t.name === 'test/tool2')).toBe(true);
     });
@@ -219,7 +219,7 @@ describe('MCP Lifecycle Manager', () => {
       await lifecycleManager.start();
       await lifecycleManager.stop();
 
-      expect(stateChanges).toHaveLength(4); // starting -> running -> stopping -> stopped
+      expect(stateChanges).toHaveLength(4); // starting -> running -> stopping -> stopped,
       expect(stateChanges[0].state).toBe(LifecycleState.STARTING);
       expect(stateChanges[1].state).toBe(LifecycleState.RUNNING);
       expect(stateChanges[2].state).toBe(LifecycleState.STOPPING);
@@ -243,7 +243,7 @@ describe('MCP Lifecycle Manager', () => {
 
       await lifecycleManager.start();
       
-      // Wait for health check
+      // Wait for health check,
       await new Promise(resolve => setTimeout(resolve, 150));
       
       const health = await lifecycleManager.healthCheck();
@@ -254,7 +254,7 @@ describe('MCP Lifecycle Manager', () => {
     it('should track uptime', async () => {
       await lifecycleManager.start();
       
-      // Wait a bit
+      // Wait a bit,
       await new Promise(resolve => setTimeout(resolve, 50));
       
       const uptime = lifecycleManager.getUptime();
@@ -299,7 +299,7 @@ describe('MCP Performance Monitor', () => {
       const requestId = performanceMonitor.recordRequestStart(mockRequest, mockSession);
       expect(requestId).toBeDefined();
       
-      // Simulate request completion
+      // Simulate request completion,
       await new Promise(resolve => setTimeout(resolve, 10));
       
       performanceMonitor.recordRequestEnd(requestId, {
@@ -436,7 +436,7 @@ describe('Tool Registry', () => {
 
       toolRegistry.register(tool);
       
-      // Execute tool multiple times
+      // Execute tool multiple times,
       await toolRegistry.executeTool('test/metric-tool', {});
       await toolRegistry.executeTool('test/metric-tool', {});
       
@@ -495,7 +495,7 @@ describe('MCP Orchestration Integration', () => {
       await integration.start();
       
       const status = integration.getIntegrationStatus();
-      expect(status).toHaveLength(7); // All component types
+      expect(status).toHaveLength(7); // All component types,
       
       const orchestratorStatus = status.find(s => s.component === 'orchestrator');
       expect(orchestratorStatus?.enabled).toBe(true);
@@ -507,14 +507,14 @@ describe('MCP Orchestration Integration', () => {
       const server = integration.getServer();
       expect(server).toBeDefined();
       
-      // Check that orchestrator tools are registered
+      // Check that orchestrator tools are registered,
       const tools = (server as any).toolRegistry.listTools();
       const orchestratorTools = tools.filter((t: any) => t.name.startsWith('orchestrator/'));
       expect(orchestratorTools.length).toBeGreaterThan(0);
     });
 
     it('should handle component connection failures gracefully', async () => {
-      // Mock a failing component
+      // Mock a failing component,
       mockComponents.orchestrator.getStatus = jest.fn().mockRejectedValue(new Error('Connection failed'));
       
       await integration.start();
@@ -529,7 +529,7 @@ describe('MCP Orchestration Integration', () => {
     it('should monitor component health', async () => {
       await integration.start();
       
-      // Wait for health check
+      // Wait for health check,
       await new Promise(resolve => setTimeout(resolve, 100));
       
       const status = integration.getIntegrationStatus();

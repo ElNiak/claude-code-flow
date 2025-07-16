@@ -1,11 +1,12 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
+import type { Message } from './missing-message-types.js';
 import { EventEmitter } from 'node:events';
 import { Logger } from '../core/logger.js';
 import { EventBus } from '../core/event-bus.js';
 import { generateId } from '../utils/helpers.js';
 import { SwarmMonitor } from './swarm-monitor.js';
 import type { AdvancedTaskScheduler } from './advanced-scheduler.js';
-import { MemoryManager } from '../memory/manager.js';
+import { MemoryManager as _MemoryManager } from '../memory/manager.js';
 
 export interface SwarmAgent {
   id: string;
@@ -75,7 +76,7 @@ export class SwarmCoordinator extends EventEmitter {
   private tasks: Map<string, SwarmTask>;
   private monitor?: SwarmMonitor;
   private scheduler?: AdvancedTaskScheduler;
-  private memoryManager: MemoryManager;
+  private memoryManager: _MemoryManager;
   private backgroundWorkers: Map<string, NodeJS.Timeout>;
   private isRunning: boolean = false;
   private workStealer?: any;
@@ -83,18 +84,25 @@ export class SwarmCoordinator extends EventEmitter {
 
   constructor(config: Partial<SwarmConfig> = {}) {
     super();
-    this.logger = new Logger('SwarmCoordinator');
+    this.logger = new Logger(
+      {
+        level: 'info',
+        format: 'json',
+        destination: 'console'
+      },
+      { context: 'SwarmCoordinator' }
+    );
     this.config = {
       maxAgents: 10,
       maxConcurrentTasks: 5,
-      taskTimeout: 300000, // 5 minutes
+      taskTimeout: 300000, // 5 minutes,
       enableMonitoring: true,
       enableWorkStealing: true,
       enableCircuitBreaker: true,
       memoryNamespace: 'swarm',
       coordinationStrategy: 'hybrid',
-      backgroundTaskInterval: 5000, // 5 seconds
-      healthCheckInterval: 10000, // 10 seconds
+      backgroundTaskInterval: 5000, // 5 seconds,
+      healthCheckInterval: 10000, // 10 seconds,
       maxRetries: 3,
       backoffMultiplier: 2,
       ...config
@@ -105,15 +113,14 @@ export class SwarmCoordinator extends EventEmitter {
     this.tasks = new Map();
     this.backgroundWorkers = new Map();
 
-    // Initialize memory manager
+    // Initialize memory manager,
     const eventBus = EventBus.getInstance();
-    this.memoryManager = new MemoryManager({
+    this.memoryManager = new _MemoryManager({
       backend: 'sqlite',
-      namespace: this.config.memoryNamespace,
       cacheSizeMB: 50,
-      syncOnExit: true,
-      maxEntries: 10000,
-      ttlMinutes: 60
+      syncInterval: 60000,
+      conflictResolution: 'last-write',
+      retentionDays: 30
     }, eventBus, this.logger);
 
     if (this.config.enableMonitoring) {
@@ -128,14 +135,14 @@ export class SwarmCoordinator extends EventEmitter {
   }
 
   private setupEventHandlers(): void {
-    // Monitor events
+    // Monitor events,
     if (this.monitor) {
       this.monitor.on('alert', (alert: any) => {
         this.handleMonitorAlert(alert);
       });
     }
 
-    // Add custom event handlers for swarm coordination
+    // Add custom event handlers for swarm coordination,
     this.on('task:completed', (data: any) => {
       this.handleTaskCompleted(data.taskId, data.result);
     });
@@ -154,14 +161,14 @@ export class SwarmCoordinator extends EventEmitter {
     this.logger.info('Starting swarm coordinator...');
     this.isRunning = true;
 
-    // Start subsystems
+    // Start subsystems,
     await this.memoryManager.initialize();
     
     if (this.monitor) {
       await this.monitor.start();
     }
 
-    // Start background workers
+    // Start background workers,
     this.startBackgroundWorkers();
 
     this.emit('coordinator:started');
@@ -175,11 +182,11 @@ export class SwarmCoordinator extends EventEmitter {
     this.logger.info('Stopping swarm coordinator...');
     this.isRunning = false;
 
-    // Stop background workers
+    // Stop background workers,
     this.stopBackgroundWorkers();
 
-    // Stop subsystems
-    await this.scheduler.shutdown();
+    // Stop subsystems,
+    await this.scheduler?.shutdown();
     
     if (this.monitor) {
       this.monitor.stop();
@@ -189,19 +196,19 @@ export class SwarmCoordinator extends EventEmitter {
   }
 
   private startBackgroundWorkers(): void {
-    // Task processor worker
+    // Task processor worker,
     const taskProcessor = setInterval(() => {
       this.processBackgroundTasks();
     }, this.config.backgroundTaskInterval);
     this.backgroundWorkers.set('taskProcessor', taskProcessor);
 
-    // Health check worker
+    // Health check worker,
     const healthChecker = setInterval(() => {
       this.performHealthChecks();
     }, this.config.healthCheckInterval);
     this.backgroundWorkers.set('healthChecker', healthChecker);
 
-    // Work stealing worker
+    // Work stealing worker,
     if (this.workStealer) {
       const workStealerWorker = setInterval(() => {
         this.performWorkStealing();
@@ -209,7 +216,7 @@ export class SwarmCoordinator extends EventEmitter {
       this.backgroundWorkers.set('workStealer', workStealerWorker);
     }
 
-    // Memory sync worker
+    // Memory sync worker,
     const memorySync = setInterval(() => {
       this.syncMemoryState();
     }, this.config.backgroundTaskInterval * 2);
@@ -238,23 +245,25 @@ export class SwarmCoordinator extends EventEmitter {
     this.objectives.set(objectiveId, objective);
     this.logger.info(`Created objective: ${objectiveId} - ${description}`);
 
-    // Decompose objective into tasks
+    // Decompose objective into tasks,
     const tasks = await this.decomposeObjective(objective);
     objective.tasks = tasks;
 
-    // Store in memory
+    // Store in memory,
     await this.memoryManager.store({
       id: `objective:${objectiveId}`,
       agentId: 'swarm-coordinator',
-      type: 'objective',
+      sessionId: this.config.memoryNamespace,
+      type: 'decision',
       content: JSON.stringify(objective),
-      namespace: this.config.memoryNamespace,
-      timestamp: new Date(),
-      metadata: {
-        type: 'objective',
+      context: {
+        objectiveType: 'swarm-objective',
         strategy,
         taskCount: tasks.length
-      }
+      },
+      timestamp: new Date(),
+      tags: ['objective', 'swarm', strategy],
+      version: 1
     });
 
     this.emit('objective:created', objective);
@@ -293,7 +302,7 @@ export class SwarmCoordinator extends EventEmitter {
         break;
 
       default: // auto
-        // Use AI to decompose based on objective description
+        // Use AI to decompose based on objective description,
         tasks.push(
           this.createTask('exploration', 'Explore and understand requirements', 1),
           this.createTask('planning', 'Create execution plan', 2, ['exploration']),
@@ -303,7 +312,7 @@ export class SwarmCoordinator extends EventEmitter {
         );
     }
 
-    // Register tasks
+    // Register tasks,
     tasks.forEach(task => {
       this.tasks.set(task.id, task);
     });
@@ -357,7 +366,7 @@ export class SwarmCoordinator extends EventEmitter {
       this.monitor.registerAgent(agentId, name);
     }
 
-    // Register with work stealer if enabled
+    // Register with work stealer if enabled,
     if (this.workStealer) {
       this.workStealer.registerWorker(agentId, 1);
     }
@@ -380,7 +389,7 @@ export class SwarmCoordinator extends EventEmitter {
       throw new Error('Agent is not available');
     }
 
-    // Check circuit breaker
+    // Check circuit breaker,
     if (this.circuitBreaker && !this.circuitBreaker.canExecute(agentId)) {
       throw new Error('Agent circuit breaker is open');
     }
@@ -399,14 +408,14 @@ export class SwarmCoordinator extends EventEmitter {
     this.logger.info(`Assigned task ${taskId} to agent ${agentId}`);
     this.emit('task:assigned', { task, agent });
 
-    // Execute task in background
+    // Execute task in background,
     this.executeTask(task, agent);
   }
 
   private async executeTask(task: SwarmTask, agent: SwarmAgent): Promise<void> {
     try {
       // Simulate task execution
-      // In real implementation, this would spawn actual Claude instances
+      // In real implementation, this would spawn actual Claude instances,
       const result = await this.simulateTaskExecution(task, agent);
       
       await this.handleTaskCompleted(task.id, result);
@@ -417,13 +426,13 @@ export class SwarmCoordinator extends EventEmitter {
 
   private async simulateTaskExecution(task: SwarmTask, agent: SwarmAgent): Promise<any> {
     // This is where we would actually spawn Claude processes
-    // For now, simulate with timeout
+    // For now, simulate with timeout,
     return new Promise((resolve, reject) => {
       const timeout = setTimeout(() => {
         reject(new Error('Task timeout'));
       }, task.timeout || this.config.taskTimeout);
 
-      // Simulate work
+      // Simulate work,
       setTimeout(() => {
         clearTimeout(timeout);
         resolve({
@@ -462,25 +471,27 @@ export class SwarmCoordinator extends EventEmitter {
       }
     }
 
-    // Store result in memory
+    // Store result in memory,
     await this.memoryManager.store({
       id: `task:${taskId}:result`,
       agentId: agent?.id || 'unknown',
-      type: 'task-result',
+      sessionId: this.config.memoryNamespace,
+      type: 'artifact',
       content: JSON.stringify(result),
-      namespace: this.config.memoryNamespace,
-      timestamp: new Date(),
-      metadata: {
-        type: 'task-result',
+      context: {
+        resultType: 'task-completion',
         taskType: task.type,
         agentId: agent?.id
-      }
+      },
+      timestamp: new Date(),
+      tags: ['task-result', 'completion', task.type],
+      version: 1
     });
 
     this.logger.info(`Task ${taskId} completed successfully`);
     this.emit('task:completed', { task, result });
 
-    // Check if objective is complete
+    // Check if objective is complete,
     this.checkObjectiveCompletion(task);
   }
 
@@ -508,7 +519,7 @@ export class SwarmCoordinator extends EventEmitter {
       }
     }
 
-    // Retry logic
+    // Retry logic,
     if (task.retryCount < task.maxRetries) {
       task.status = 'pending';
       task.assignedTo = undefined;
@@ -544,15 +555,15 @@ export class SwarmCoordinator extends EventEmitter {
     if (!this.isRunning) return;
 
     try {
-      // Process pending tasks
+      // Process pending tasks,
       const pendingTasks = Array.from(this.tasks.values())
         .filter(t => t.status === 'pending' && this.areDependenciesMet(t));
 
-      // Get available agents
+      // Get available agents,
       const availableAgents = Array.from(this.agents.values())
         .filter(a => a.status === 'idle');
 
-      // Assign tasks to agents
+      // Assign tasks to agents,
       for (const task of pendingTasks) {
         if (availableAgents.length === 0) break;
 
@@ -579,9 +590,9 @@ export class SwarmCoordinator extends EventEmitter {
   }
 
   private selectBestAgent(task: SwarmTask, availableAgents: SwarmAgent[]): SwarmAgent | null {
-    // Simple selection based on task type and agent capabilities
+    // Simple selection based on task type and agent capabilities,
     const compatibleAgents = availableAgents.filter(agent => {
-      // Match task type to agent type
+      // Match task type to agent type,
       if (task.type.includes('research') && agent.type === 'researcher') return true;
       if (task.type.includes('implement') && agent.type === 'coder') return true;
       if (task.type.includes('analysis') && agent.type === 'analyst') return true;
@@ -593,7 +604,7 @@ export class SwarmCoordinator extends EventEmitter {
       return availableAgents[0]; // Fallback to any available agent
     }
 
-    // Select agent with best performance metrics
+    // Select agent with best performance metrics,
     return compatibleAgents.reduce((best, agent) => {
       const bestRatio = best.metrics.tasksCompleted / (best.metrics.tasksFailed + 1);
       const agentRatio = agent.metrics.tasksCompleted / (agent.metrics.tasksFailed + 1);
@@ -608,7 +619,7 @@ export class SwarmCoordinator extends EventEmitter {
       const now = new Date();
       
       for (const [agentId, agent] of this.agents) {
-        // Check for stalled agents
+        // Check for stalled agents,
         if (agent.status === 'busy' && agent.currentTask) {
           const taskDuration = now.getTime() - (agent.currentTask.startedAt?.getTime() || 0);
           if (taskDuration > this.config.taskTimeout) {
@@ -617,7 +628,7 @@ export class SwarmCoordinator extends EventEmitter {
           }
         }
 
-        // Check agent health
+        // Check agent health,
         const inactivityTime = now.getTime() - agent.metrics.lastActivity.getTime();
         if (inactivityTime > this.config.healthCheckInterval * 3) {
           this.logger.warn(`Agent ${agentId} has been inactive for ${Math.round(inactivityTime / 1000)}s`);
@@ -632,16 +643,16 @@ export class SwarmCoordinator extends EventEmitter {
     if (!this.isRunning || !this.workStealer) return;
 
     try {
-      // Get agent workloads
+      // Get agent workloads,
       const workloads = new Map<string, number>();
       for (const [agentId, agent] of this.agents) {
         workloads.set(agentId, agent.status === 'busy' ? 1 : 0);
       }
 
-      // Update work stealer
+      // Update work stealer,
       this.workStealer.updateLoads(workloads);
 
-      // Check for work stealing opportunities
+      // Check for work stealing opportunities,
       const stealingSuggestions = this.workStealer.suggestWorkStealing();
       
       for (const suggestion of stealingSuggestions) {
@@ -657,7 +668,7 @@ export class SwarmCoordinator extends EventEmitter {
     if (!this.isRunning) return;
 
     try {
-      // Sync current state to memory
+      // Sync current state to memory,
       const state = {
         objectives: Array.from(this.objectives.values()),
         tasks: Array.from(this.tasks.values()),
@@ -671,16 +682,18 @@ export class SwarmCoordinator extends EventEmitter {
       await this.memoryManager.store({
         id: 'swarm:state',
         agentId: 'swarm-coordinator',
-        type: 'swarm-state',
+        sessionId: this.config.memoryNamespace,
+        type: 'observation',
         content: JSON.stringify(state),
-        namespace: this.config.memoryNamespace,
-        timestamp: new Date(),
-        metadata: {
-          type: 'swarm-state',
+        context: {
+          stateType: 'swarm-sync',
           objectiveCount: state.objectives.length,
           taskCount: state.tasks.length,
           agentCount: state.agents.length
-        }
+        },
+        timestamp: new Date(),
+        tags: ['swarm-state', 'sync', 'coordination'],
+        version: 1
       });
     } catch (error) {
       this.logger.error('Error syncing memory state:', error);
@@ -697,7 +710,7 @@ export class SwarmCoordinator extends EventEmitter {
     this.emit('agent:message', message);
   }
 
-  // Public API methods
+  // Public API methods,
   async executeObjective(objectiveId: string): Promise<void> {
     const objective = this.objectives.get(objectiveId);
     if (!objective) {

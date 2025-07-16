@@ -7,7 +7,7 @@ import { Logger } from '../core/logger.js';
 import { SystemIntegration } from '../integration/system-integration.js';
 import { HealthCheckManager } from './health-check.js';
 import type { SystemHealth, SystemMetrics, ComponentStatus } from '../integration/types.js';
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 import { promises as fs } from 'fs';
 import path from 'path';
 
@@ -86,24 +86,24 @@ export class DiagnosticManager {
     const startTime = Date.now();
     
     try {
-      // Get system health
+      // Get system health,
       const systemHealth = await this.systemIntegration.getSystemHealth();
       
-      // Get current metrics
+      // Get current metrics,
       const metrics = this.healthCheckManager.getCurrentMetrics();
       
-      // Analyze components
+      // Analyze components,
       const components = await this.analyzeComponents(config);
       
-      // Analyze performance
+      // Analyze performance,
       const performance = await this.analyzePerformance(config);
       
-      // Generate recommendations
+      // Generate recommendations,
       const recommendations = config.generateRecommendations !== false 
         ? this.generateRecommendations(systemHealth, performance, components)
         : [];
       
-      // Determine overall severity
+      // Determine overall severity,
       const severity = this.calculateSeverity(systemHealth, components);
       
       const report: DiagnosticReport = {
@@ -116,7 +116,7 @@ export class DiagnosticManager {
         severity
       };
       
-      // Export report if requested
+      // Export report if requested,
       if (config.outputPath) {
         await this.exportReport(report, config);
       }
@@ -133,7 +133,7 @@ export class DiagnosticManager {
       return report;
       
     } catch (error) {
-      this.logger.error('Failed to generate diagnostic report:', getErrorMessage(error));
+      this.logger.error('Failed to generate diagnostic report:', _getErrorMessage(error));
       throw error;
     }
   }
@@ -187,9 +187,9 @@ export class DiagnosticManager {
       const issues: DiagnosticIssue[] = [];
       let status: 'healthy' | 'warning' | 'unhealthy' = 'healthy';
 
-      // Check component health history
+      // Check component health history,
       const healthHistory = this.healthCheckManager.getHealthHistory(componentName);
-      const recentChecks = healthHistory.slice(-10); // Last 10 checks
+      const recentChecks = healthHistory.slice(-10); // Last 10 checks,
       const failureRate = recentChecks.filter(check => !check.healthy).length / recentChecks.length;
 
       if (failureRate > 0.5) {
@@ -210,23 +210,28 @@ export class DiagnosticManager {
         });
       }
 
-      // Check for performance issues
+      // Check for performance issues,
       if (config.includePerformanceMetrics !== false) {
         const performanceIssues = this.analyzeComponentPerformance(componentName);
         issues.push(...performanceIssues);
       }
 
-      // Check for memory leaks
+      // Check for memory leaks,
       const memoryIssues = this.checkMemoryLeaks(componentName);
       issues.push(...memoryIssues);
 
-      // Get component metrics
+      // Get component metrics,
       let componentMetrics: Record<string, any> = {};
-      if (typeof component.getMetrics === 'function') {
-        componentMetrics = await component.getMetrics();
+      if (component && typeof component === 'object' && 'getMetrics' in component && typeof component.getMetrics === 'function') {
+        try {
+          componentMetrics = await component.getMetrics();
+        } catch (error) {
+          // If getMetrics fails, log and continue
+          this.logger.warn(`Failed to get metrics for ${componentName}: ${_getErrorMessage(error)}`);
+        }
       }
 
-      // Get last error
+      // Get last error,
       const lastError = this.getLastError(componentName);
 
       return {
@@ -243,11 +248,11 @@ export class DiagnosticManager {
         name: componentName,
         status: 'unhealthy',
         uptime: 0,
-        lastError: getErrorMessage(error),
+        lastError: _getErrorMessage(error),
         issues: [{
           type: 'analysis_error',
           severity: 'medium',
-          message: `Failed to analyze component: ${getErrorMessage(error)}`,
+          message: `Failed to analyze component: ${_getErrorMessage(error)}`,
           recommendation: 'Check component accessibility'
         }]
       };
@@ -262,22 +267,22 @@ export class DiagnosticManager {
     const bottlenecks: string[] = [];
     const optimization: string[] = [];
 
-    // Calculate averages from history
+    // Calculate averages from history,
     const responseTimeHistory = this.performanceHistory.get('responseTime') || [];
     const averageResponseTime = responseTimeHistory.length > 0
       ? responseTimeHistory.reduce((sum, time) => sum + time, 0) / responseTimeHistory.length
       : 0;
 
-    // Calculate throughput
+    // Calculate throughput,
     const throughput = this.calculateThroughput();
 
-    // Calculate error rate
+    // Calculate error rate,
     const errorRate = this.calculateErrorRate();
 
-    // Check for memory leaks
+    // Check for memory leaks,
     const memoryLeaks = this.detectMemoryLeaks();
 
-    // Identify bottlenecks
+    // Identify bottlenecks,
     if (metrics) {
       if (metrics.cpu > 80) {
         bottlenecks.push('High CPU usage');
@@ -325,14 +330,14 @@ export class DiagnosticManager {
   ): string[] {
     const recommendations: string[] = [];
 
-    // System-level recommendations
+    // System-level recommendations,
     if (health.overall === 'unhealthy') {
       recommendations.push('System health is compromised - immediate attention required');
     } else if (health.overall === 'warning') {
       recommendations.push('System showing warning signs - proactive maintenance recommended');
     }
 
-    // Performance recommendations
+    // Performance recommendations,
     if (performance.averageResponseTime > 1000) {
       recommendations.push('Response times are slow - consider performance optimization');
     }
@@ -345,7 +350,7 @@ export class DiagnosticManager {
       recommendations.push('Memory leaks detected - review memory management');
     }
 
-    // Component-specific recommendations
+    // Component-specific recommendations,
     const unhealthyComponents = components.filter(c => c.status === 'unhealthy');
     if (unhealthyComponents.length > 0) {
       recommendations.push(`${unhealthyComponents.length} component(s) unhealthy - restart or investigate`);
@@ -358,10 +363,10 @@ export class DiagnosticManager {
       recommendations.push('Some components have high failure rates - check logs and dependencies');
     }
 
-    // Add performance optimizations
+    // Add performance optimizations,
     recommendations.push(...performance.optimization);
 
-    // General recommendations
+    // General recommendations,
     if (recommendations.length === 0) {
       recommendations.push('System appears healthy - continue regular monitoring');
     }
@@ -431,7 +436,7 @@ export class DiagnosticManager {
       this.logger.info(`Diagnostic report exported to: ${outputPath}`);
 
     } catch (error) {
-      this.logger.error('Failed to export report:', getErrorMessage(error));
+      this.logger.error('Failed to export report:', _getErrorMessage(error));
       throw error;
     }
   }
@@ -539,16 +544,16 @@ export class DiagnosticManager {
 CLAUDE FLOW v2.0.0 DIAGNOSTIC REPORT
 =====================================
 
-Generated: ${timestamp}
+Generated: ${timestamp},
 Severity: ${report.severity.toUpperCase()}
 
 SYSTEM HEALTH
 -------------
 Overall Status: ${report.systemHealth.overall}
-Total Components: ${report.systemHealth.metrics.totalComponents}
-Healthy: ${report.systemHealth.metrics.healthyComponents}
-Unhealthy: ${report.systemHealth.metrics.unhealthyComponents}
-Uptime: ${(report.systemHealth.metrics.uptime / 1000 / 60).toFixed(1)} minutes
+Total Components: ${report.systemHealth.metrics.totalComponents},
+Healthy: ${report.systemHealth.metrics.healthyComponents},
+Unhealthy: ${report.systemHealth.metrics.unhealthyComponents},
+Uptime: ${(report.systemHealth.metrics.uptime / 1000 / 60).toFixed(1)} minutes,
 
 COMPONENTS
 ----------
@@ -557,7 +562,7 @@ COMPONENTS
     report.components.forEach(component => {
       text += `
 ${component.name}
-  Status: ${component.status}
+  Status: ${component.status},
   Uptime: ${(component.uptime / 1000 / 60).toFixed(1)} minutes
 `;
       if (component.lastError) {
@@ -578,8 +583,8 @@ ${component.name}
     text += `
 PERFORMANCE
 -----------
-Average Response Time: ${report.performance.averageResponseTime.toFixed(2)}ms
-Throughput: ${report.performance.throughput.toFixed(2)} ops/sec
+Average Response Time: ${report.performance.averageResponseTime.toFixed(2)}ms,
+Throughput: ${report.performance.throughput.toFixed(2)} ops/sec,
 Error Rate: ${(report.performance.errorRate * 100).toFixed(2)}%
 Memory Leaks: ${report.performance.memoryLeaks ? 'Detected' : 'None detected'}
 `;
@@ -602,14 +607,14 @@ RECOMMENDATIONS
     return text;
   }
 
-  // Helper methods for analysis
+  // Helper methods for analysis,
   private analyzeComponentPerformance(componentName: string): DiagnosticIssue[] {
-    // Placeholder implementation
+    // Placeholder implementation,
     return [];
   }
 
   private checkMemoryLeaks(componentName: string): DiagnosticIssue[] {
-    // Placeholder implementation
+    // Placeholder implementation,
     return [];
   }
 
@@ -619,44 +624,46 @@ RECOMMENDATIONS
   }
 
   private getComponentUptime(componentName: string): number {
-    // Placeholder implementation
+    // Placeholder implementation,
     return process.uptime() * 1000;
   }
 
   private calculateThroughput(): number {
-    // Placeholder implementation
+    // Placeholder implementation,
     return 100; // ops/sec
   }
 
   private calculateErrorRate(): number {
-    // Placeholder implementation
+    // Placeholder implementation,
     return 0.01; // 1%
   }
 
   private detectMemoryLeaks(): boolean {
-    // Placeholder implementation
+    // Placeholder implementation,
     return false;
   }
 
   private setupEventHandlers(): void {
-    // Track performance metrics
-    this.eventBus.on('performance:metric', (metric) => {
-      if (!this.performanceHistory.has(metric.name)) {
-        this.performanceHistory.set(metric.name, []);
-      }
-      
-      const history = this.performanceHistory.get(metric.name)!;
-      history.push(metric.value);
-      
-      // Keep only last 100 measurements
-      if (history.length > 100) {
-        history.shift();
+    // Track performance metrics,
+    this.eventBus.on('performance:metric', (metric: any) => {
+      if (metric && typeof metric === 'object' && metric.name && typeof metric.value === 'number') {
+        if (!this.performanceHistory.has(metric.name)) {
+          this.performanceHistory.set(metric.name, []);
+        }
+        
+        const history = this.performanceHistory.get(metric.name)!;
+        history.push(metric.value);
+        
+        // Keep only last 100 measurements,
+        if (history.length > 100) {
+          history.shift();
+        }
       }
     });
 
-    // Track errors
-    this.eventBus.on('system:error', (error) => {
-      const component = error.component || 'system';
+    // Track errors,
+    this.eventBus.on('system:error', (error: any) => {
+      const component = (error && typeof error === 'object' && error.component) ? error.component : 'system';
       
       if (!this.errorHistory.has(component)) {
         this.errorHistory.set(component, []);
@@ -669,7 +676,7 @@ RECOMMENDATIONS
         stack: error.stack
       });
       
-      // Keep only last 50 errors per component
+      // Keep only last 50 errors per component,
       if (history.length > 50) {
         history.shift();
       }
@@ -695,7 +702,7 @@ RECOMMENDATIONS
       memoryLeaks: false,
       bottlenecks: [],
       optimization: []
-    }, components).slice(0, 3); // Top 3 recommendations
+    }, components).slice(0, 3); // Top 3 recommendations,
 
     return {
       status: health.overall,

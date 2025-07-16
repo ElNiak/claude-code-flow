@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../../utils/error-handler.js';
 /**
  * Comprehensive Agent management commands - Simplified version
  */
@@ -9,11 +9,11 @@ import { DistributedMemorySystem } from '../../memory/distributed-memory.js';
 import { EventBus } from '../../core/event-bus.js';
 import { Logger } from '../../core/logger.js';
 
-// Global instances
+// Global instances,
 let agentManager: AgentManager | null = null;
 let agentRegistry: AgentRegistry | null = null;
 
-// Initialize agent management system
+// Initialize agent management system,
 async function initializeAgentSystem(): Promise<{ manager: AgentManager; registry: AgentRegistry }> {
   if (agentManager && agentRegistry) {
     return { manager: agentManager, registry: agentRegistry };
@@ -57,7 +57,7 @@ async function initializeAgentSystem(): Promise<{ manager: AgentManager; registr
         healthCheckInterval: 30000,
         autoRestart: true,
         resourceLimits: {
-          memory: 1024 * 1024 * 1024, // 1GB
+          memory: 1024 * 1024 * 1024, // 1GB,
           cpu: 2.0,
           disk: 2 * 1024 * 1024 * 1024 // 2GB
         }
@@ -75,7 +75,7 @@ async function initializeAgentSystem(): Promise<{ manager: AgentManager; registr
   }
 }
 
-// Agent Management Commands
+// Agent Management Commands,
 export const agentCommands = {
   async spawn(args: string[], options: Record<string, any> = {}): Promise<void> {
     try {
@@ -116,7 +116,7 @@ export const agentCommands = {
       
       let agents = manager.getAllAgents();
       
-      // Apply filters
+      // Apply filters,
       if (options.type) {
         agents = agents.filter(agent => agent.type === options.type);
       }
@@ -159,7 +159,7 @@ export const agentCommands = {
         console.log('');
       }
       
-      // System stats
+      // System stats,
       const stats = manager.getSystemStats();
       console.log('📊 System Overview:');
       console.log(`   Total: ${stats.totalAgents} | Active: ${stats.activeAgents} | Healthy: ${stats.healthyAgents}`);
@@ -170,7 +170,7 @@ export const agentCommands = {
     }
   },
 
-  async info(args: string[], options: Record<string, any> = {}): Promise<void> {
+  async info(args: string[], _options: Record<string, any> = {}): Promise<void> {
     try {
       const { manager } = await initializeAgentSystem();
       
@@ -185,7 +185,7 @@ export const agentCommands = {
       if (!agent) {
         console.error(`❌ Agent '${agentId}' not found`);
         
-        // Suggest similar agents
+        // Suggest similar agents,
         const allAgents = manager.getAllAgents();
         const similar = allAgents.filter(a => 
           a.id.id.includes(agentId) || 
@@ -202,7 +202,7 @@ export const agentCommands = {
       console.log(`🤖 Agent Information: ${agent.name}`);
       console.log('=' .repeat(50));
       
-      // Basic info
+      // Basic info,
       console.log(`ID: ${agent.id.id}`);
       console.log(`Name: ${agent.name}`);
       console.log(`Type: ${agent.type}`);
@@ -210,14 +210,14 @@ export const agentCommands = {
       console.log(`Health: ${Math.round(agent.health * 100)}%`);
       console.log(`Workload: ${agent.workload} active tasks`);
       
-      // Configuration
+      // Configuration,
       console.log('\\n⚙️ Configuration:');
       console.log(`  Autonomy Level: ${agent.config.autonomyLevel}`);
       console.log(`  Max Concurrent Tasks: ${agent.config.maxConcurrentTasks}`);
       console.log(`  Timeout Threshold: ${agent.config.timeoutThreshold}ms`);
       console.log(`  Runtime: ${agent.environment.runtime}`);
       
-      // Metrics
+      // Metrics,
       console.log('\\n📊 Performance Metrics:');
       console.log(`  Tasks Completed: ${agent.metrics.tasksCompleted}`);
       console.log(`  Tasks Failed: ${agent.metrics.tasksFailed}`);
@@ -226,7 +226,7 @@ export const agentCommands = {
       console.log(`  Memory Usage: ${Math.round(agent.metrics.memoryUsage / 1024 / 1024)}MB`);
       console.log(`  CPU Usage: ${Math.round(agent.metrics.cpuUsage * 100)}%`);
       
-      // Health details
+      // Health details,
       const health = manager.getAgentHealth(agentId);
       if (health) {
         console.log('\\n🏥 Health Details:');
@@ -243,7 +243,7 @@ export const agentCommands = {
         }
       }
       
-      // Capabilities
+      // Capabilities,
       console.log('\\n🛠️ Capabilities:');
       console.log(`  Code Generation: ${agent.capabilities.codeGeneration ? '✅' : '❌'}`);
       console.log(`  Code Review: ${agent.capabilities.codeReview ? '✅' : '❌'}`);
@@ -285,7 +285,7 @@ export const agentCommands = {
       
       const reason = options.reason || 'user_request';
       
-      // Graceful or force termination
+      // Graceful or force termination,
       if (options.force) {
         console.log('⚡ Force terminating agent...');
       } else {
@@ -301,7 +301,7 @@ export const agentCommands = {
       
       console.log('✅ Agent terminated successfully');
       
-      // Show final stats
+      // Show final stats,
       if (agent.metrics) {
         console.log('\\n📈 Final Statistics:');
         console.log(`  Tasks Completed: ${agent.metrics.tasksCompleted}`);
@@ -314,7 +314,7 @@ export const agentCommands = {
     }
   },
 
-  async start(args: string[], options: Record<string, any> = {}): Promise<void> {
+  async start(args: string[], _options: Record<string, any> = {}): Promise<void> {
     try {
       const { manager } = await initializeAgentSystem();
       
@@ -380,7 +380,7 @@ export const agentCommands = {
         console.log('\\n✅ All agents are healthy!');
       }
       
-      // Resource utilization
+      // Resource utilization,
       console.log('\\n💻 Resource Utilization:');
       console.log(`  CPU: ${Math.round(stats.resourceUtilization.cpu * 100)}%`);
       console.log(`  Memory: ${Math.round(stats.resourceUtilization.memory / 1024 / 1024)}MB`);
@@ -419,7 +419,7 @@ export const agentCommands = {
   }
 };
 
-// Export individual command functions for use in CLI
+// Export individual command functions for use in CLI,
 export const {
   spawn: spawnAgent,
   list: listAgents,

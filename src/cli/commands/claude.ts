@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../../utils/error-handler.js';
 /**
  * Claude instance management commands
  */
@@ -16,7 +16,7 @@ export const claudeCommand = new Command()
     claudeCommand.help();
   });
 
-// Spawn command
+// Spawn command,
 claudeCommand
   .command('spawn')
   .description('Spawn a new Claude instance with specific configuration')
@@ -35,7 +35,7 @@ claudeCommand
       try {
         const instanceId = generateId('claude');
         
-        // Build allowed tools list
+        // Build allowed tools list,
         let tools = options.tools;
         if (options.parallel && !tools.includes('BatchTool')) {
           tools += ',BatchTool,dispatch_agent';
@@ -44,7 +44,7 @@ claudeCommand
           tools += ',WebFetchTool';
         }
         
-        // Build Claude command
+        // Build Claude command,
         const claudeArgs = [task];
         claudeArgs.push('--allowedTools', tools);
         
@@ -77,7 +77,7 @@ claudeCommand
         console.log(chalk.gray(`Task: ${task}`));
         console.log(chalk.gray(`Tools: ${tools}`));
         
-        // Spawn Claude process
+        // Spawn Claude process,
         const claude = spawn('claude', claudeArgs, {
           stdio: 'inherit',
           env: {
@@ -106,7 +106,7 @@ claudeCommand
       }
     });
 
-// Batch command
+// Batch command,
 claudeCommand
   .command('batch')
   .description('Spawn multiple Claude instances from workflow')
@@ -128,12 +128,12 @@ claudeCommand
       for (const task of workflow.tasks) {
         const claudeArgs = [task.description || task.name];
         
-        // Add tools
+        // Add tools,
         if (task.tools) {
           claudeArgs.push('--allowedTools', Array.isArray(task.tools) ? task.tools.join(',') : task.tools);
         }
         
-        // Add flags
+        // Add flags,
         if (task.skipPermissions) {
           claudeArgs.push('--dangerously-skip-permissions');
         }
@@ -157,7 +157,7 @@ claudeCommand
             }
           });
           
-          // Wait for completion if sequential
+          // Wait for completion if sequential,
           if (!workflow.parallel) {
             await new Promise((resolve) => {
               claude.on('exit', resolve);

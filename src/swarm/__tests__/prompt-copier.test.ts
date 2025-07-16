@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import * as os from 'os';
@@ -19,7 +19,7 @@ describe('PromptCopier', () => {
     await fs.mkdir(sourceDir, { recursive: true });
     await fs.mkdir(destDir, { recursive: true });
     
-    // Create test files
+    // Create test files,
     await createTestFiles();
   });
 
@@ -57,7 +57,7 @@ describe('PromptCopier', () => {
       expect(result.copiedFiles).toBe(6);
       expect(result.failedFiles).toBe(0);
 
-      // Verify files exist
+      // Verify files exist,
       const destFiles = await fs.readdir(destDir, { recursive: true });
       expect(destFiles).toHaveLength(6);
     });
@@ -87,7 +87,7 @@ describe('PromptCopier', () => {
 
   describe('Conflict resolution', () => {
     test('should skip existing files when conflict resolution is skip', async () => {
-      // Create existing file
+      // Create existing file,
       await fs.writeFile(path.join(destDir, 'test1.md'), 'Existing content');
 
       const result = await copyPrompts({
@@ -99,13 +99,13 @@ describe('PromptCopier', () => {
       expect(result.success).toBe(true);
       expect(result.skippedFiles).toBeGreaterThan(0);
 
-      // Verify original content preserved
+      // Verify original content preserved,
       const content = await fs.readFile(path.join(destDir, 'test1.md'), 'utf-8');
       expect(content).toBe('Existing content');
     });
 
     test('should backup existing files when conflict resolution is backup', async () => {
-      // Create existing file
+      // Create existing file,
       await fs.writeFile(path.join(destDir, 'test1.md'), 'Existing content');
 
       const result = await copyPrompts({
@@ -117,14 +117,14 @@ describe('PromptCopier', () => {
       expect(result.success).toBe(true);
       expect(result.backupLocation).toBeDefined();
 
-      // Verify backup directory exists
+      // Verify backup directory exists,
       const backupDir = path.join(destDir, '.prompt-backups');
       const backupExists = await fs.access(backupDir).then(() => true).catch(() => false);
       expect(backupExists).toBe(true);
     });
 
     test('should merge files when conflict resolution is merge', async () => {
-      // Create existing file
+      // Create existing file,
       await fs.writeFile(path.join(destDir, 'test1.md'), 'Existing content');
 
       const result = await copyPrompts({
@@ -135,7 +135,7 @@ describe('PromptCopier', () => {
 
       expect(result.success).toBe(true);
 
-      // Verify merged content
+      // Verify merged content,
       const content = await fs.readFile(path.join(destDir, 'test1.md'), 'utf-8');
       expect(content).toContain('Existing content');
       expect(content).toContain('MERGED CONTENT');
@@ -156,7 +156,7 @@ describe('PromptCopier', () => {
     });
 
     test('should detect verification failures', async () => {
-      // Mock fs.stat to simulate size mismatch
+      // Mock fs.stat to simulate size mismatch,
       const originalStat = fs.stat;
       jest.spyOn(fs, 'stat').mockImplementation(async (filePath: any) => {
         const stats = await originalStat(filePath);
@@ -190,7 +190,7 @@ describe('PromptCopier', () => {
       expect(result.success).toBe(true);
       expect(result.totalFiles).toBe(6);
 
-      // Verify no files were actually copied
+      // Verify no files were actually copied,
       const destFiles = await fs.readdir(destDir);
       expect(destFiles).toHaveLength(0);
     });
@@ -227,7 +227,7 @@ describe('EnhancedPromptCopier', () => {
     await fs.mkdir(sourceDir, { recursive: true });
     await fs.mkdir(destDir, { recursive: true });
     
-    // Create test files
+    // Create test files,
     for (let i = 0; i < 20; i++) {
       await fs.writeFile(
         path.join(sourceDir, `test${i}.md`),
@@ -252,7 +252,7 @@ describe('EnhancedPromptCopier', () => {
     expect(result.copiedFiles).toBe(20);
     expect(result.failedFiles).toBe(0);
 
-    // Verify all files were copied
+    // Verify all files were copied,
     const destFiles = await fs.readdir(destDir);
     expect(destFiles).toHaveLength(20);
   }, 10000);
@@ -346,11 +346,11 @@ describe('PromptValidator', () => {
   test('should extract front matter metadata', async () => {
     const filePath = path.join(tempDir, 'with-metadata.md');
     const content = `---
-title: Test Prompt
+title: Test Prompt,
 version: 1.0
 ---
 
-# Test Prompt
+# Test Prompt,
 Content here`;
     
     await fs.writeFile(filePath, content);
@@ -364,7 +364,7 @@ Content here`;
 
   test('should warn about large files', async () => {
     const filePath = path.join(tempDir, 'large.md');
-    const largeContent = '# Large Prompt\n' + 'x'.repeat(200 * 1024); // 200KB
+    const largeContent = '# Large Prompt\n' + 'x'.repeat(200 * 1024); // 200KB,
     
     await fs.writeFile(filePath, largeContent);
 

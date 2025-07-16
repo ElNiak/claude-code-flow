@@ -2,7 +2,7 @@
  * Type definitions for the unified work command system
  */
 
-// Core command options
+// Core command options,
 export interface WorkOptions {
   verbose?: boolean;
   debug?: boolean;
@@ -16,9 +16,11 @@ export interface WorkOptions {
   memory?: boolean;
   hooks?: boolean;
   autoOptimize?: boolean;
+  tmux?: boolean;
+  tmuxSession?: string;
 }
 
-// Task analysis types
+// Task analysis types,
 export type TaskComplexity = 'low' | 'medium' | 'high' | 'very_high';
 export type AgentTopology = 'mesh' | 'hierarchical' | 'ring' | 'star';
 export type ExecutionStrategy = 'parallel' | 'sequential' | 'adaptive';
@@ -48,7 +50,7 @@ export interface TaskAnalysis {
   recommendations: string[];
 }
 
-// Execution plan types
+// Execution plan types,
 export interface ExecutionStep {
   type: string;
   action: string;
@@ -75,7 +77,7 @@ export interface ExecutionPlan {
   resources: string[];
 }
 
-// Configuration types
+// Configuration types,
 export interface WorkConfig {
   coordination: {
     defaultAgents: number;
@@ -156,7 +158,7 @@ export interface ConfigSchema {
   };
 }
 
-// Preset types
+// Preset types,
 export interface WorkPreset {
   overrides: Partial<TaskAnalysis>;
   steps?: ExecutionStep[];
@@ -188,7 +190,7 @@ export interface CustomPreset {
   metadata: PresetMetadata;
 }
 
-// Agent and coordination types
+// Agent and coordination types,
 export interface AgentConfig {
   type: string;
   name: string;
@@ -207,7 +209,7 @@ export interface CoordinationResult {
   errors: string[];
 }
 
-// Metrics and monitoring types
+// Metrics and monitoring types,
 export interface ExecutionMetrics {
   startTime: number;
   endTime: number;
@@ -234,7 +236,7 @@ export interface PerformanceMetrics {
   userSatisfaction?: number;
 }
 
-// Context analysis types
+// Context analysis types,
 export interface ProjectContext {
   projectType: string;
   language: string;
@@ -259,7 +261,7 @@ export interface SystemContext {
   cores: number;
 }
 
-// Error handling types
+// Error handling types,
 export interface WorkError {
   code: string;
   message: string;
@@ -276,12 +278,12 @@ export interface ErrorRecovery {
   fallbackAction?: string;
 }
 
-// Progress tracking types
+// Progress tracking types,
 export interface ProgressUpdate {
   stepId: string;
   stepName: string;
   status: 'pending' | 'running' | 'completed' | 'failed' | 'skipped';
-  progress: number; // 0-100
+  progress: number; // 0-100,
   message?: string;
   startTime?: number;
   endTime?: number;
@@ -303,7 +305,7 @@ export interface WorkSession {
   errors: WorkError[];
 }
 
-// Integration types
+// Integration types,
 export interface MCPIntegration {
   enabled: boolean;
   tools: string[];
@@ -325,7 +327,7 @@ export interface CacheConfig {
   strategy: 'lru' | 'fifo' | 'ttl';
 }
 
-// Validation types
+// Validation types,
 export interface ValidationRule {
   name: string;
   description: string;
@@ -340,7 +342,7 @@ export interface ValidationResult {
   suggestions: string[];
 }
 
-// Hook system types
+// Hook system types,
 export interface HookEvent {
   type: string;
   phase: 'pre' | 'post' | 'error';
@@ -372,11 +374,11 @@ export interface LearningData {
   analysis: TaskAnalysis;
   plan: ExecutionPlan;
   result: CoordinationResult;
-  feedback: number; // -1 to 1 scale
+  feedback: number; // -1 to 1 scale,
   timestamp: number;
 }
 
-// Search and filtering types
+// Search and filtering types,
 export interface SearchFilter {
   taskType?: string[];
   complexity?: TaskComplexity[];
@@ -394,7 +396,49 @@ export interface SortOptions {
   direction: 'asc' | 'desc';
 }
 
-// Export aggregated types
+// Execution interfaces for preset system
+export interface WorkExecutionContext {
+  taskType?: string;
+  complexity?: string;
+  deadline?: string;
+  dataSize?: string;
+  availableResources?: string[];
+}
+
+export interface PresetExecutionOptions {
+  dryRun?: boolean;
+  skipSteps?: string[];
+  overrideParams?: Record<string, any>;
+  adaptiveExecution?: boolean;
+  maxConcurrency?: number;
+  timeout?: number;
+  stopOnFailure?: boolean;
+}
+
+export interface StepExecutionResult {
+  stepId: string;
+  success: boolean;
+  output?: any;
+  duration: number;
+  resources: string[];
+  metadata?: Record<string, any>;
+}
+
+export interface PresetExecutionResult {
+  presetName: string;
+  success: boolean;
+  duration: number;
+  steps: StepExecutionResult[];
+  adaptations: string[];
+  performance: {
+    efficiency: number;
+    resourceUtilization: number;
+    parallelization: number;
+  };
+  metadata: Record<string, any>;
+}
+
+// Export aggregated types,
 export type WorkCommandTypes = {
   WorkOptions: WorkOptions;
   TaskAnalysis: TaskAnalysis;

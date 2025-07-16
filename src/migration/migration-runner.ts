@@ -1,7 +1,10 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-const __dirname = dirname(fileURLToPath(import.meta.url));
+// Use compatible dirname resolution for CommonJS/ESM
+const __dirname = typeof __filename !== 'undefined' 
+  ? dirname(__filename) 
+  : dirname(fileURLToPath(process.cwd() + '/src/migration/migration-runner.ts'));
 /**
  * Migration Runner - Executes migration strategies
  */
@@ -23,7 +26,7 @@ import { logger } from './logger.js';
 import { ProgressReporter } from './progress-reporter.js';
 import { MigrationValidator } from './migration-validator.js';
 import { glob } from 'glob';
-import * as inquirer from 'inquirer';
+import inquirer from 'inquirer';
 import * as chalk from 'chalk';
 
 export class MigrationRunner {
@@ -52,11 +55,11 @@ export class MigrationRunner {
     };
 
     try {
-      // Analyze project
+      // Analyze project,
       this.progress.start('analyzing', 'Analyzing project...');
       const analysis = await this.analyzer.analyze(this.options.projectPath);
       
-      // Show analysis and confirm
+      // Show analysis and confirm,
       if (!this.options.force && !this.options.dryRun) {
         this.analyzer.printAnalysis(analysis);
         const confirm = await this.confirmMigration(analysis);
@@ -66,7 +69,7 @@ export class MigrationRunner {
         }
       }
 
-      // Create backup
+      // Create backup,
       if (!this.options.dryRun && analysis.hasClaudeFolder) {
         this.progress.update('backing-up', 'Creating backup...');
         const backup = await this.createBackup();
@@ -74,7 +77,7 @@ export class MigrationRunner {
         result.filesBackedUp = backup.files.map(f => f.path);
       }
 
-      // Execute migration based on strategy
+      // Execute migration based on strategy,
       this.progress.update('migrating', 'Migrating files...');
       
       switch (this.options.strategy) {
@@ -89,7 +92,7 @@ export class MigrationRunner {
           break;
       }
 
-      // Validate migration
+      // Validate migration,
       if (!this.options.skipValidation && !this.options.dryRun) {
         this.progress.update('validating', 'Validating migration...');
         const validation = await this.validator.validate(this.options.projectPath);
@@ -103,14 +106,14 @@ export class MigrationRunner {
       result.success = result.errors.length === 0;
       this.progress.complete(result.success ? 'Migration completed successfully!' : 'Migration completed with errors');
 
-      // Print summary
+      // Print summary,
       this.printSummary(result);
 
     } catch (error) {
-      result.errors.push({ error: (error instanceof Error ? error.message : String(error)), stack: error.stack });
+      result.errors.push({ error: (error instanceof Error ? error.message : String(error)), stack: error instanceof Error ? error.stack : undefined });
       this.progress.error('Migration failed');
       
-      // Attempt rollback on failure
+      // Attempt rollback on failure,
       if (result.rollbackPath && !this.options.dryRun) {
         logger.warn('Attempting automatic rollback...');
         try {
@@ -134,16 +137,16 @@ export class MigrationRunner {
       return;
     }
 
-    // Remove existing .claude folder
+    // Remove existing .claude folder,
     if (await fs.pathExists(targetPath)) {
       await fs.remove(targetPath);
     }
 
-    // Copy new .claude folder
+    // Copy new .claude folder,
     await fs.copy(sourcePath, targetPath);
     result.filesCreated.push('.claude');
 
-    // Copy other required files
+    // Copy other required files,
     await this.copyRequiredFiles(result);
   }
 
@@ -151,15 +154,15 @@ export class MigrationRunner {
     const sourcePath = path.join(__dirname, '../../.claude');
     const targetPath = path.join(this.options.projectPath, '.claude');
 
-    // Ensure target directory exists
+    // Ensure target directory exists,
     await fs.ensureDir(targetPath);
 
-    // Migrate commands selectively
+    // Migrate commands selectively,
     const commandsSource = path.join(sourcePath, 'commands');
     const commandsTarget = path.join(targetPath, 'commands');
     await fs.ensureDir(commandsTarget);
 
-    // Copy optimized commands
+    // Copy optimized commands,
     for (const command of this.manifest.files.commands) {
       const sourceFile = path.join(commandsSource, command.source);
       const targetFile = path.join(commandsTarget, command.target);
@@ -177,7 +180,7 @@ export class MigrationRunner {
       }
     }
 
-    // Copy optimization guides
+    // Copy optimization guides,
     const guides = [
       'BATCHTOOLS_GUIDE.md',
       'BATCHTOOLS_BEST_PRACTICES.md',
@@ -199,22 +202,22 @@ export class MigrationRunner {
       }
     }
 
-    // Update configurations
+    // Update configurations,
     await this.updateConfigurations(result);
   }
 
   private async mergeMigration(result: MigrationResult, analysis: any): Promise<void> {
-    // Similar to selective but merges configurations
+    // Similar to selective but merges configurations,
     await this.selectiveMigration(result, analysis);
 
-    // Merge configurations
+    // Merge configurations,
     if (!this.options.dryRun) {
       await this.mergeConfigurations(result, analysis);
     }
   }
 
   private async mergeConfigurations(result: MigrationResult, analysis: any): Promise<void> {
-    // Merge CLAUDE.md
+    // Merge CLAUDE.md,
     const claudeMdPath = path.join(this.options.projectPath, 'CLAUDE.md');
     if (await fs.pathExists(claudeMdPath)) {
       const existingContent = await fs.readFile(claudeMdPath, 'utf-8');
@@ -224,7 +227,7 @@ export class MigrationRunner {
       result.filesModified.push('CLAUDE.md');
     }
 
-    // Merge .roomodes
+    // Merge .roomodes,
     const roomodesPath = path.join(this.options.projectPath, '.roomodes');
     if (await fs.pathExists(roomodesPath)) {
       const existing = await fs.readJson(roomodesPath);
@@ -257,7 +260,7 @@ export class MigrationRunner {
   }
 
   private async updateConfigurations(result: MigrationResult): Promise<void> {
-    // Update package.json scripts if needed
+    // Update package.json scripts if needed,
     const packageJsonPath = path.join(this.options.projectPath, 'package.json');
     if (await fs.pathExists(packageJsonPath)) {
       const packageJson = await fs.readJson(packageJsonPath);
@@ -273,12 +276,12 @@ export class MigrationRunner {
       };
 
       let modified = false;
-      for (const [name, command] of Object.entries(scripts)) {
+      Object.entries(scripts).forEach(([name, command]) => {
         if (!packageJson.scripts[name]) {
           packageJson.scripts[name] = command;
           modified = true;
         }
-      }
+      });
 
       if (modified && !this.options.dryRun) {
         await fs.writeJson(packageJsonPath, packageJson, { spaces: 2 });
@@ -304,12 +307,12 @@ export class MigrationRunner {
       }
     };
 
-    // Backup .claude folder
+    // Backup .claude folder,
     const claudePath = path.join(this.options.projectPath, '.claude');
     if (await fs.pathExists(claudePath)) {
       await fs.copy(claudePath, path.join(backupPath, '.claude'));
       
-      // Record backed up files
+      // Record backed up files,
       const files = await glob('**/*', { cwd: claudePath, nodir: true });
       for (const file of files) {
         const content = await fs.readFile(path.join(claudePath, file), 'utf-8');
@@ -321,7 +324,7 @@ export class MigrationRunner {
       }
     }
 
-    // Backup other important files
+    // Backup other important files,
     const importantFiles = ['CLAUDE.md', '.roomodes', 'package.json'];
     for (const file of importantFiles) {
       const filePath = path.join(this.options.projectPath, file);
@@ -336,7 +339,7 @@ export class MigrationRunner {
       }
     }
 
-    // Save backup manifest
+    // Save backup manifest,
     await fs.writeJson(path.join(backupPath, 'backup.json'), backup, { spaces: 2 });
 
     logger.success(`Backup created at ${backupPath}`);
@@ -355,7 +358,7 @@ export class MigrationRunner {
     if (timestamp) {
       backupPath = path.join(backupDir, timestamp);
     } else {
-      // Use most recent backup
+      // Use most recent backup,
       const backups = await fs.readdir(backupDir);
       if (backups.length === 0) {
         throw new Error('No backups found');
@@ -370,9 +373,9 @@ export class MigrationRunner {
 
     logger.info(`Rolling back from ${backupPath}...`);
 
-    // Confirm rollback
+    // Confirm rollback,
     if (!this.options.force) {
-      const confirm = await inquirer.prompt([{
+      const confirm = await (inquirer as any).prompt([{
         type: 'confirm',
         name: 'proceed',
         message: 'Are you sure you want to rollback? This will overwrite current files.',
@@ -385,7 +388,7 @@ export class MigrationRunner {
       }
     }
 
-    // Restore files
+    // Restore files,
     const backup = await fs.readJson(path.join(backupPath, 'backup.json'));
     
     for (const file of backup.files) {
@@ -462,7 +465,7 @@ export class MigrationRunner {
       });
     }
 
-    const answers = await inquirer.prompt(questions);
+    const answers = await (inquirer as any).prompt(questions);
     
     if (answers.preserveCustom) {
       this.options.preserveCustom = true;
@@ -472,7 +475,7 @@ export class MigrationRunner {
   }
 
   private loadManifest(): MigrationManifest {
-    // This would normally load from a manifest file
+    // This would normally load from a manifest file,
     return {
       version: '1.0.0',
       files: {
@@ -492,11 +495,11 @@ export class MigrationRunner {
   }
 
   private async getMergedClaudeMd(existingContent: string): Promise<string> {
-    // Merge logic for CLAUDE.md
+    // Merge logic for CLAUDE.md,
     const templatePath = path.join(__dirname, '../../CLAUDE.md');
     const templateContent = await fs.readFile(templatePath, 'utf-8');
 
-    // Simple merge: append custom content to template
+    // Simple merge: append custom content to template,
     if (!existingContent.includes('SPARC Development Environment')) {
       return templateContent + '\n\n## Previous Configuration\n\n' + existingContent;
     }
@@ -508,14 +511,14 @@ export class MigrationRunner {
     const templatePath = path.join(__dirname, '../../.roomodes');
     const template = await fs.readJson(templatePath);
 
-    // Merge custom modes with template
+    // Merge custom modes with template,
     const merged = { ...template };
     
-    for (const [mode, config] of Object.entries(existing)) {
+    Object.entries(existing).forEach(([mode, config]) => {
       if (!merged[mode]) {
         merged[mode] = config;
       }
-    }
+    });
 
     return merged;
   }

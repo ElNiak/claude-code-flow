@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../../../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../../../utils/error-handler.js';
 /**
  * Process Manager - Handles lifecycle of system processes
  */
@@ -36,7 +36,7 @@ export class ProcessManager extends EventEmitter {
   }
 
   private initializeProcesses(): void {
-    // Define all manageable processes
+    // Define all manageable processes,
     const processDefinitions: ProcessInfo[] = [
       {
         id: 'event-bus',
@@ -106,7 +106,7 @@ export class ProcessManager extends EventEmitter {
     try {
       switch (process.type) {
         case ProcessType.EVENT_BUS:
-          // Event bus is already initialized globally
+          // Event bus is already initialized globally,
           process.pid = Deno.pid;
           break;
 
@@ -238,12 +238,12 @@ export class ProcessManager extends EventEmitter {
 
   async restartProcess(processId: string): Promise<void> {
     await this.stopProcess(processId);
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Brief delay
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Brief delay,
     await this.startProcess(processId);
   }
 
   async startAll(): Promise<void> {
-    // Start in dependency order
+    // Start in dependency order,
     const startOrder = [
       'event-bus',
       'memory-manager',
@@ -264,7 +264,7 @@ export class ProcessManager extends EventEmitter {
   }
 
   async stopAll(): Promise<void> {
-    // Stop in reverse dependency order
+    // Stop in reverse dependency order,
     const stopOrder = [
       'orchestrator',
       'mcp-server',
@@ -328,17 +328,17 @@ export class ProcessManager extends EventEmitter {
   }
 
   private getTotalMemoryUsage(): number {
-    // Placeholder - would integrate with actual memory monitoring
+    // Placeholder - would integrate with actual memory monitoring,
     return 0;
   }
 
   private getTotalCpuUsage(): number {
-    // Placeholder - would integrate with actual CPU monitoring
+    // Placeholder - would integrate with actual CPU monitoring,
     return 0;
   }
 
   async getProcessLogs(processId: string, lines: number = 50): Promise<string[]> {
-    // Placeholder - would integrate with actual logging system
+    // Placeholder - would integrate with actual logging system,
     return [
       `[${new Date().toISOString()}] Process ${processId} started`,
       `[${new Date().toISOString()}] Process ${processId} is running normally`

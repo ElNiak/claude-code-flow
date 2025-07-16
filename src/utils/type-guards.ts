@@ -123,7 +123,7 @@ export function isArray<T = unknown>(value: unknown): value is T[] {
 /**
  * Type guard for checking if value is a function
  */
-export function isFunction(value: unknown): value is Function {
+export function isFunction(value: unknown): value is (...args: any[]) => any {
   return typeof value === 'function';
 }
 
@@ -170,8 +170,8 @@ export function hasAgentTask(value: unknown): value is { agentId: { id: string }
  * Type guard for work stealing event data
  */
 export function hasWorkStealingData(value: unknown): value is { 
-  sourceAgent: { id: string }; 
-  targetAgent: { id: string }; 
+  sourceAgent: { id: string };
+  targetAgent: { id: string };
   taskCount: number 
 } {
   return isObject(value) && 

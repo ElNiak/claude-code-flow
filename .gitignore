@@ -96,3 +96,87 @@ test-reports/
 
 #Ignore vscode AI rules
 .github/copilot-instructions.md
+
+# ===== CENTRALIZED FILE GENERATION EXCLUSIONS =====
+# Generated files directory - contains all automatically generated content
+.generated/
+
+# Root-level analysis files (moved to .generated/analysis/)
+*_ANALYSIS*.md
+*_REPORT*.md
+*_SUMMARY*.md
+*_IMPLEMENTATION*.md
+*_SPECIFICATION*.md
+*_TESTING*.md
+*_INTEGRATION*.md
+*_ARCHITECTURE*.md
+*_EVALUATION*.md
+*_STRATEGY*.md
+*_PLAN*.md
+*_GUIDE*.md
+*_FRAMEWORK*.md
+*_DESIGN*.md
+*_SYSTEM*.md
+*_COMMAND*.md
+*_FEATURE*.md
+*_TOOL*.md
+*_MERGER*.md
+*_MIGRATION*.md
+*_VALIDATION*.md
+*_WORKFLOW*.md
+*_COORDINATION*.md
+*_CONSENSUS*.md
+*_COMPREHENSIVE*.md
+*_UNIFIED*.md
+*_REQUIREMENTS*.md
+*_SERENA*.md
+*_TYPESCRIPT*.md
+*_TYPE*.md
+*_SYMBOL*.md
+*_SWARM*.md
+*_WORK*.md
+*_CLAUDE*.md
+*_AGENT*.md
+*_MEMORY*.md
+*_TASK*.md
+*_VISUAL*.md
+*_OVERVIEW*.md
+*_INVENTORY*.md
+*_MAPPING*.md
+*_COMPARISON*.md
+
+# Generated test files
+test-*.js
+test-*.ts
+test-*.cjs
+test-*.mjs
+*-test.js
+*-test.ts
+validate-*.js
+validate-*.ts
+type-safety-test-*.ts
+
+# Generated configuration files
+work-config-*.json
+*-config-example.json
+*-config-*.json
+serena.yaml
+
+# Generated temporary directories
+current_tasks/
+task-spec-templates/
+temporary-*/
+temp-*/
+workspace-*/
+
+# Generated prompt files
+*-prompt-*.txt
+*-prompt-*.md
+claude-prompt-*.txt
+unified-work-prompt-*.txt
+
+# Generated logs and traces
+*-execution-*.log
+*-coordination-*.log
+*-analysis-*.log
+.serena.yaml

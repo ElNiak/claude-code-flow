@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * Terminal session management
  */
@@ -45,10 +45,10 @@ export class TerminalSession {
     });
 
     try {
-      // Set up environment
+      // Set up environment,
       await this.setupEnvironment();
 
-      // Run initialization commands
+      // Run initialization commands,
       await this.runInitializationCommands();
 
       this.initialized = true;
@@ -78,20 +78,20 @@ export class TerminalSession {
     });
 
     try {
-      // Notify listeners of command
+      // Notify listeners of command,
       this.notifyOutputListeners(`$ ${command}\n`);
 
-      // Execute with timeout
+      // Execute with timeout,
       const result = await timeout(
         this.terminal.executeCommand(command),
         this.commandTimeout,
         `Command timeout after ${this.commandTimeout}ms`,
       );
 
-      // Notify listeners of output
+      // Notify listeners of output,
       this.notifyOutputListeners(result);
 
-      // Update history
+      // Update history,
       this.commandHistory.push(command);
       this.lastCommandTime = new Date();
 
@@ -118,7 +118,7 @@ export class TerminalSession {
     this.logger.debug('Cleaning up terminal session', { sessionId: this.id });
 
     try {
-      // Run cleanup commands
+      // Run cleanup commands,
       await this.runCleanupCommands();
     } catch (error) {
       this.logger.warn('Error during session cleanup', { 
@@ -133,11 +133,11 @@ export class TerminalSession {
       return false;
     }
 
-    // Check if terminal is responsive
+    // Check if terminal is responsive,
     if (this.lastCommandTime) {
       const timeSinceLastCommand = Date.now() - this.lastCommandTime.getTime();
       if (timeSinceLastCommand > 300000) { // 5 minutes
-        // Terminal might be stale, do a health check
+        // Terminal might be stale, do a health check,
         this.performHealthCheck().catch((error) => {
           this.logger.warn('Health check failed', { sessionId: this.id, error });
         });
@@ -152,7 +152,7 @@ export class TerminalSession {
   }
 
   private async setupEnvironment(): Promise<void> {
-    // Set environment variables
+    // Set environment variables,
     const envVars = {
       CLAUDE_FLOW_SESSION: this.id,
       CLAUDE_FLOW_AGENT: this.profile.id,
@@ -163,7 +163,7 @@ export class TerminalSession {
       await this.terminal.executeCommand(`export ${key}="${value}"`);
     }
 
-    // Set working directory if specified
+    // Set working directory if specified,
     if (this.profile.metadata?.workingDirectory) {
       await this.terminal.executeCommand(
         `cd "${this.profile.metadata.workingDirectory}"`,
@@ -172,7 +172,7 @@ export class TerminalSession {
   }
 
   private async runInitializationCommands(): Promise<void> {
-    // Run any profile-specific initialization commands
+    // Run any profile-specific initialization commands,
     if (this.profile.metadata?.initCommands) {
       const commands = this.profile.metadata.initCommands as string[];
       for (const command of commands) {
@@ -180,12 +180,12 @@ export class TerminalSession {
       }
     }
 
-    // Set up command prompt
+    // Set up command prompt,
     await this.terminal.executeCommand('export PS1="[claude-flow]$ "');
   }
 
   private async runCleanupCommands(): Promise<void> {
-    // Run any profile-specific cleanup commands
+    // Run any profile-specific cleanup commands,
     if (this.profile.metadata?.cleanupCommands) {
       const commands = this.profile.metadata.cleanupCommands as string[];
       for (const command of commands) {
@@ -222,12 +222,12 @@ export class TerminalSession {
   streamOutput(callback: (output: string) => void): () => void {
     this.outputListeners.add(callback);
     
-    // Set up terminal output listener if supported
+    // Set up terminal output listener if supported,
     if (this.terminal.addOutputListener) {
       this.terminal.addOutputListener(callback);
     }
     
-    // Return unsubscribe function
+    // Return unsubscribe function,
     return () => {
       this.outputListeners.delete(callback);
       if (this.terminal.removeOutputListener) {

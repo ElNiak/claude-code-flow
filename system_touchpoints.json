@@ -29,23 +29,35 @@
       },
       "integration_benefits": [
         "Seamless AI-assisted development workflows",
-        "Intelligent task breakdown and coordination", 
+        "Intelligent task breakdown and coordination",
         "Persistent context across complex operations",
         "Enhanced problem-solving coordination",
         "Token usage optimization available"
       ],
       "configuration": {
-        "server_startup": "npx claude-flow@alpha mcp start",
+        "server_startup": "npx claude-flow mcp start",
         "port": "Dynamic assignment or stdio",
         "authentication": "Local session based",
-        "capabilities": ["tools", "resources", "prompts"]
+        "capabilities": [
+          "tools",
+          "resources",
+          "prompts"
+        ]
       }
     },
     "anthropic_api_integration": {
       "purpose": "Future direct API integration capabilities",
       "status": "Planned/Optional",
-      "integration_points": ["Direct model access", "Custom prompt management", "Response optimization"],
-      "benefits": ["Reduced latency", "Custom model parameters", "Direct billing control"]
+      "integration_points": [
+        "Direct model access",
+        "Custom prompt management",
+        "Response optimization"
+      ],
+      "benefits": [
+        "Reduced latency",
+        "Custom model parameters",
+        "Direct billing control"
+      ]
     }
   },
   "development_tool_integrations": {
@@ -53,8 +65,15 @@
       "integration_method": "Command line execution through terminal manager",
       "purpose": "Version control operations and repository management",
       "commands_used": [
-        "git status", "git add", "git commit", "git push", "git pull",
-        "git branch", "git checkout", "git merge", "git diff"
+        "git status",
+        "git add",
+        "git commit",
+        "git push",
+        "git pull",
+        "git branch",
+        "git checkout",
+        "git merge",
+        "git diff"
       ],
       "automation_features": [
         "Automated commit generation with AI assistance",
@@ -112,8 +131,15 @@
         ]
       },
       "performance_testing": {
-        "tools": ["Custom benchmark suite", "Load testing utilities"],
-        "metrics": ["Execution speed", "Memory usage", "Coordination efficiency"],
+        "tools": [
+          "Custom benchmark suite",
+          "Load testing utilities"
+        ],
+        "metrics": [
+          "Execution speed",
+          "Memory usage",
+          "Coordination efficiency"
+        ],
         "integration": "Automated performance validation in CI/CD"
       }
     },
@@ -121,7 +147,11 @@
       "typescript": {
         "purpose": "Type checking and compile-time validation",
         "integration": "Integrated compilation and type checking",
-        "benefits": ["Type safety", "IDE support", "Refactoring assistance"]
+        "benefits": [
+          "Type safety",
+          "IDE support",
+          "Refactoring assistance"
+        ]
       },
       "eslint": {
         "purpose": "Code style and quality enforcement",
@@ -236,17 +266,29 @@
     "cross_platform_support": {
       "linux": {
         "status": "Primary platform",
-        "features": ["Full terminal support", "Process management", "File system operations"],
+        "features": [
+          "Full terminal support",
+          "Process management",
+          "File system operations"
+        ],
         "optimizations": "Native performance optimizations"
       },
       "macos": {
         "status": "Fully supported",
-        "features": ["Terminal integration", "Native module compilation", "Process spawning"],
+        "features": [
+          "Terminal integration",
+          "Native module compilation",
+          "Process spawning"
+        ],
         "considerations": "Security permission handling"
       },
       "windows": {
         "status": "Supported with limitations",
-        "features": ["Basic terminal support", "Process management", "File operations"],
+        "features": [
+          "Basic terminal support",
+          "Process management",
+          "File operations"
+        ],
         "limitations": "PTY features may be limited"
       }
     },
@@ -303,8 +345,17 @@
   },
   "monitoring_and_observability": {
     "logging_integration": {
-      "log_levels": ["debug", "info", "warn", "error"],
-      "log_destinations": ["console", "file", "database"],
+      "log_levels": [
+        "debug",
+        "info",
+        "warn",
+        "error"
+      ],
+      "log_destinations": [
+        "console",
+        "file",
+        "database"
+      ],
       "structured_logging": "JSON format with correlation IDs",
       "log_aggregation": "Centralized logging across all components"
     },

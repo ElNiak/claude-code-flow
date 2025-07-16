@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * Comprehensive resource management system for swarm operations
  */
@@ -6,7 +6,15 @@ import { getErrorMessage } from '../utils/error-handler.js';
 import { EventEmitter } from 'node:events';
 import type { ILogger } from '../core/logger.js';
 import type { IEventBus } from '../core/event-bus.js';
-import type { AgentId, TaskId } from '../swarm/types.js';
+import type { 
+  AgentId, 
+  TaskId,
+  ResourceRequest,
+  ResourceRelease,
+  ResourceUsageUpdate,
+  ResourceFailure,
+  ScalingTrigger
+} from '../swarm/types.js';
 import { generateId } from '../utils/helpers.js';
 
 export interface ResourceManagerConfig {
@@ -26,11 +34,11 @@ export interface ResourceManagerConfig {
 }
 
 export interface ResourceLimits {
-  cpu: number;        // CPU cores
-  memory: number;     // Bytes
-  disk: number;       // Bytes
-  network: number;    // Bytes per second
-  gpu?: number;       // GPU units
+  cpu: number;        // CPU cores,
+  memory: number;     // Bytes,
+  disk: number;       // Bytes,
+  network: number;    // Bytes per second,
+  gpu?: number;       // GPU units,
   custom: Record<string, number>;
 }
 
@@ -65,7 +73,7 @@ export interface ResourcePool {
   id: string;
   name: string;
   type: ResourceType;
-  resources: string[]; // Resource IDs
+  resources: string[]; // Resource IDs,
   strategy: PoolStrategy;
   loadBalancing: LoadBalancingStrategy;
   scaling: ScalingConfig;
@@ -303,7 +311,7 @@ export type ResourcePriority = 'critical' | 'high' | 'normal' | 'low' | 'backgro
 export type ReservationStatus = 'pending' | 'confirmed' | 'active' | 'expired' | 'cancelled' | 'failed';
 export type AllocationStatus = 'active' | 'completed' | 'failed' | 'terminated' | 'suspended';
 export type PoolStrategy = 'round-robin' | 'least-loaded' | 'performance-based' | 'cost-optimized';
-export type LoadBalancingStrategy = 'round-robin' | 'weighted' | 'least-connections' | 'resource-based';
+export type LoadBalancingStrategy = 'round-robin' | 'weighted' | 'least-connections' | 'resource-based' | 'hybrid';
 export type BillingModel = 'hourly' | 'per-usage' | 'reserved' | 'spot' | 'hybrid';
 
 /**
@@ -314,23 +322,23 @@ export class ResourceManager extends EventEmitter {
   private eventBus: IEventBus;
   private config: ResourceManagerConfig;
 
-  // Resource tracking
+  // Resource tracking,
   private resources = new Map<string, Resource>();
   private pools = new Map<string, ResourcePool>();
   private reservations = new Map<string, ResourceReservation>();
   private allocations = new Map<string, ResourceAllocation>();
 
-  // Monitoring and optimization
+  // Monitoring and optimization,
   private usageHistory = new Map<string, ResourceUsage[]>();
   private predictions = new Map<string, ResourcePrediction>();
   private optimizer: ResourceOptimizer;
 
-  // Scheduling and cleanup
+  // Scheduling and cleanup,
   private monitoringInterval?: NodeJS.Timeout;
   private cleanupInterval?: NodeJS.Timeout;
   private scalingInterval?: NodeJS.Timeout;
 
-  // Performance tracking
+  // Performance tracking,
   private metrics: ResourceManagerMetrics;
 
   constructor(
@@ -351,12 +359,12 @@ export class ResourceManager extends EventEmitter {
       cleanupInterval: 300000,
       defaultLimits: {
         cpu: 4.0,
-        memory: 8 * 1024 * 1024 * 1024, // 8GB
-        disk: 100 * 1024 * 1024 * 1024, // 100GB
-        network: 1024 * 1024 * 1024, // 1Gbps
+        memory: 8 * 1024 * 1024 * 1024, // 8GB,
+        disk: 100 * 1024 * 1024 * 1024, // 100GB,
+        network: 1024 * 1024 * 1024, // 1Gbps,
         custom: {}
       },
-      reservationTimeout: 300000, // 5 minutes
+      reservationTimeout: 300000, // 5 minutes,
       allocationStrategy: 'best-fit',
       priorityWeights: {
         critical: 1.0,
@@ -378,24 +386,41 @@ export class ResourceManager extends EventEmitter {
   }
 
   private setupEventHandlers(): void {
-    this.eventBus.on('agent:resource-request', (data) => {
-      this.handleResourceRequest(data);
+    this.eventBus.on('agent:resource-request', (data: unknown) => {
+      if (isResourceRequest(data)) {
+        this.handleResourceRequest(data);
+      }
     });
 
-    this.eventBus.on('agent:resource-release', (data) => {
-      this.handleResourceRelease(data);
+    this.eventBus.on('agent:resource-release', (data: unknown) => {
+      if (isResourceRelease(data)) {
+        this.handleResourceRelease(data);
+      }
     });
 
-    this.eventBus.on('resource:usage-update', (data) => {
-      this.updateResourceUsage(data.resourceId, data.usage);
+    this.eventBus.on('resource:usage-update', (data: unknown) => {
+      if (isResourceUsageUpdate(data)) {
+        // Ensure usage has all required properties
+        const usageData = data.usage as any;
+        const usage: ResourceUsage = {
+          ...usageData,
+          custom: usageData.custom || {},
+          duration: usageData.duration || 0
+        };
+        this.updateResourceUsage(data.resourceId, usage);
+      }
     });
 
-    this.eventBus.on('resource:failure', (data) => {
-      this.handleResourceFailure(data);
+    this.eventBus.on('resource:failure', (data: unknown) => {
+      if (isResourceFailure(data)) {
+        this.handleResourceFailure(data);
+      }
     });
 
-    this.eventBus.on('scaling:trigger', (data) => {
-      this.handleScalingTrigger(data);
+    this.eventBus.on('scaling:trigger', (data: unknown) => {
+      if (isScalingTrigger(data)) {
+        this.handleScalingTrigger(data);
+      }
     });
   }
 
@@ -406,21 +431,21 @@ export class ResourceManager extends EventEmitter {
       autoScaling: this.config.enableAutoScaling
     });
 
-    // Initialize optimizer
+    // Initialize optimizer,
     await this.optimizer.initialize();
 
-    // Create default resource pools
+    // Create default resource pools,
     await this.createDefaultPools();
 
-    // Start monitoring
+    // Start monitoring,
     if (this.config.enableResourceMonitoring) {
       this.startMonitoring();
     }
 
-    // Start cleanup
+    // Start cleanup,
     this.startCleanup();
 
-    // Start auto-scaling
+    // Start auto-scaling,
     if (this.config.enableAutoScaling) {
       this.startAutoScaling();
     }
@@ -431,15 +456,15 @@ export class ResourceManager extends EventEmitter {
   async shutdown(): Promise<void> {
     this.logger.info('Shutting down resource manager');
 
-    // Stop intervals
+    // Stop intervals,
     if (this.monitoringInterval) clearInterval(this.monitoringInterval);
     if (this.cleanupInterval) clearInterval(this.cleanupInterval);
     if (this.scalingInterval) clearInterval(this.scalingInterval);
 
-    // Release all active allocations
+    // Release all active allocations,
     await this.releaseAllAllocations();
 
-    // Shutdown optimizer
+    // Shutdown optimizer,
     await this.optimizer.shutdown();
 
     this.emit('resource-manager:shutdown');
@@ -501,12 +526,12 @@ export class ResourceManager extends EventEmitter {
       throw new Error(`Resource ${resourceId} not found`);
     }
 
-    // Check for active allocations
+    // Check for active allocations,
     if (resource.allocations.length > 0) {
       throw new Error(`Cannot unregister resource ${resourceId}: has active allocations`);
     }
 
-    // Cancel pending reservations
+    // Cancel pending reservations,
     for (const reservation of resource.reservations) {
       await this.cancelReservation(reservation.id, 'resource_unregistered');
     }
@@ -534,7 +559,7 @@ export class ResourceManager extends EventEmitter {
     
     const reservation: ResourceReservation = {
       id: reservationId,
-      resourceId: '', // Will be set when resource is found
+      resourceId: '', // Will be set when resource is found,
       agentId,
       taskId: options.taskId,
       requirements,
@@ -551,7 +576,7 @@ export class ResourceManager extends EventEmitter {
     this.reservations.set(reservationId, reservation);
 
     try {
-      // Find suitable resource
+      // Find suitable resource,
       const resource = await this.findSuitableResource(requirements, reservation.priority);
       
       if (!resource) {
@@ -559,11 +584,11 @@ export class ResourceManager extends EventEmitter {
         throw new Error('No suitable resource available');
       }
 
-      // Reserve resource
+      // Reserve resource,
       reservation.resourceId = resource.id;
       resource.reservations.push(reservation);
       
-      // Update availability
+      // Update availability,
       this.updateResourceAvailability(resource);
 
       reservation.status = 'confirmed';
@@ -577,7 +602,7 @@ export class ResourceManager extends EventEmitter {
 
       this.emit('reservation:created', { reservation });
 
-      // Auto-activate if possible
+      // Auto-activate if possible,
       if (this.canActivateReservation(reservation)) {
         await this.activateReservation(reservationId);
       }
@@ -610,7 +635,7 @@ export class ResourceManager extends EventEmitter {
       throw new Error(`Resource ${reservation.resourceId} not found`);
     }
 
-    // Create allocation
+    // Create allocation,
     const allocationId = generateId('allocation');
     
     const allocation: ResourceAllocation = {
@@ -630,11 +655,11 @@ export class ResourceManager extends EventEmitter {
     this.allocations.set(allocationId, allocation);
     resource.allocations.push(allocation);
 
-    // Update resource allocated amounts
+    // Update resource allocated amounts,
     this.addToResourceLimits(resource.allocated, allocation.allocated);
     this.updateResourceAvailability(resource);
 
-    // Update reservation status
+    // Update reservation status,
     reservation.status = 'active';
     reservation.activatedAt = new Date();
 
@@ -665,23 +690,23 @@ export class ResourceManager extends EventEmitter {
       throw new Error(`Resource ${allocation.resourceId} not found`);
     }
 
-    // Update allocation status
+    // Update allocation status,
     allocation.status = 'completed';
     allocation.endTime = new Date();
 
-    // Calculate final efficiency
+    // Calculate final efficiency,
     allocation.efficiency = this.calculateEfficiency(allocation);
 
-    // Remove from resource allocated amounts
+    // Remove from resource allocated amounts,
     this.subtractFromResourceLimits(resource.allocated, allocation.allocated);
 
-    // Remove allocation from resource
+    // Remove allocation from resource,
     resource.allocations = resource.allocations.filter(a => a.id !== allocationId);
 
-    // Update resource availability
+    // Update resource availability,
     this.updateResourceAvailability(resource);
 
-    // Update reservation if exists
+    // Update reservation if exists,
     const reservation = this.reservations.get(allocation.reservationId);
     if (reservation) {
       reservation.releasedAt = new Date();
@@ -697,7 +722,7 @@ export class ResourceManager extends EventEmitter {
 
     this.emit('allocation:released', { allocation, reason });
 
-    // Update metrics
+    // Update metrics,
     this.metrics.recordAllocationReleased(allocation);
   }
 
@@ -710,7 +735,7 @@ export class ResourceManager extends EventEmitter {
       throw new Error(`Reservation ${reservationId} not found`);
     }
 
-    // If reservation is active, release the allocation first
+    // If reservation is active, release the allocation first,
     if (reservation.status === 'active') {
       const allocation = Array.from(this.allocations.values())
         .find(a => a.reservationId === reservationId);
@@ -720,10 +745,10 @@ export class ResourceManager extends EventEmitter {
       }
     }
 
-    // Update reservation status
+    // Update reservation status,
     reservation.status = 'cancelled';
 
-    // Remove from resource if it was reserved
+    // Remove from resource if it was reserved,
     if (reservation.resourceId) {
       const resource = this.resources.get(reservation.resourceId);
       if (resource) {
@@ -750,7 +775,7 @@ export class ResourceManager extends EventEmitter {
   ): Promise<string> {
     const poolId = generateId('pool');
     
-    // Validate resources exist and are of correct type
+    // Validate resources exist and are of correct type,
     for (const resourceId of resourceIds) {
       const resource = this.resources.get(resourceId);
       if (!resource) {
@@ -873,7 +898,7 @@ export class ResourceManager extends EventEmitter {
     // Sort by score (highest first)
     candidates.sort((a, b) => b.score - a.score);
 
-    // Apply allocation strategy
+    // Apply allocation strategy,
     return this.selectResourceByStrategy(candidates, requirements);
   }
 
@@ -884,7 +909,7 @@ export class ResourceManager extends EventEmitter {
   ): number {
     let score = 0;
 
-    // Check if resource can satisfy requirements
+    // Check if resource can satisfy requirements,
     if (!this.canSatisfyRequirements(resource, requirements)) {
       return 0;
     }
@@ -893,16 +918,16 @@ export class ResourceManager extends EventEmitter {
     const utilization = this.calculateResourceUtilization(resource);
     score += (1 - utilization) * 100;
 
-    // Performance score
+    // Performance score,
     score += resource.metadata.performance.cpuScore * 10;
 
-    // Reliability score
+    // Reliability score,
     score += resource.metadata.reliability.uptime * 50;
 
     // Cost efficiency (lower cost is better)
     score += (1 / resource.cost) * 20;
 
-    // Priority adjustment
+    // Priority adjustment,
     const priorityWeight = this.config.priorityWeights[priority] || 1.0;
     score *= priorityWeight;
 
@@ -913,27 +938,27 @@ export class ResourceManager extends EventEmitter {
     resource: Resource,
     requirements: ResourceRequirements
   ): boolean {
-    // Check CPU
+    // Check CPU,
     if (requirements.cpu && requirements.cpu.min > resource.available.cpu) {
       return false;
     }
 
-    // Check memory
+    // Check memory,
     if (requirements.memory && requirements.memory.min > resource.available.memory) {
       return false;
     }
 
-    // Check disk
+    // Check disk,
     if (requirements.disk && requirements.disk.min > resource.available.disk) {
       return false;
     }
 
-    // Check network
+    // Check network,
     if (requirements.network && requirements.network.min > resource.available.network) {
       return false;
     }
 
-    // Check custom resources
+    // Check custom resources,
     if (requirements.custom) {
       for (const [name, spec] of Object.entries(requirements.custom)) {
         const available = resource.available.custom[name] || 0;
@@ -943,7 +968,7 @@ export class ResourceManager extends EventEmitter {
       }
     }
 
-    // Check constraints
+    // Check constraints,
     if (requirements.constraints) {
       if (!this.checkConstraints(resource, requirements.constraints)) {
         return false;
@@ -954,7 +979,7 @@ export class ResourceManager extends EventEmitter {
   }
 
   private checkConstraints(resource: Resource, constraints: ResourceConstraints): boolean {
-    // Location constraints
+    // Location constraints,
     if (constraints.location && constraints.location.length > 0) {
       if (!constraints.location.includes(resource.location || '')) {
         return false;
@@ -967,12 +992,12 @@ export class ResourceManager extends EventEmitter {
       }
     }
 
-    // Cost constraints
+    // Cost constraints,
     if (constraints.maxCost && resource.cost > constraints.maxCost) {
       return false;
     }
 
-    // Time window constraints
+    // Time window constraints,
     if (constraints.timeWindow) {
       const now = new Date();
       if (now < constraints.timeWindow.start || now > constraints.timeWindow.end) {
@@ -992,7 +1017,7 @@ export class ResourceManager extends EventEmitter {
         return candidates[0].resource;
 
       case 'best-fit':
-        // Find resource with smallest waste
+        // Find resource with smallest waste,
         return candidates.reduce((best, current) => {
           const bestWaste = this.calculateWaste(best.resource, requirements);
           const currentWaste = this.calculateWaste(current.resource, requirements);
@@ -1106,34 +1131,34 @@ export class ResourceManager extends EventEmitter {
   private startAutoScaling(): void {
     this.scalingInterval = setInterval(() => {
       this.evaluateScaling();
-    }, 60000); // Every minute
+    }, 60000); // Every minute,
 
     this.logger.info('Started auto-scaling');
   }
 
   private async performMonitoring(): Promise<void> {
     try {
-      // Update resource statistics
+      // Update resource statistics,
       for (const resource of this.resources.values()) {
         await this.updateResourceStatistics(resource);
       }
 
-      // Update pool statistics
+      // Update pool statistics,
       for (const pool of this.pools.values()) {
         this.updatePoolStatistics(pool);
       }
 
-      // Check QoS violations
+      // Check QoS violations,
       if (this.config.enableQoS) {
         await this.checkQoSViolations();
       }
 
-      // Predictive analysis
+      // Predictive analysis,
       if (this.config.enablePredictiveAllocation) {
         await this.updatePredictions();
       }
 
-      // Emit monitoring update
+      // Emit monitoring update,
       this.emit('monitoring:updated', {
         resources: this.resources.size,
         pools: this.pools.size,
@@ -1148,7 +1173,7 @@ export class ResourceManager extends EventEmitter {
   private async performCleanup(): Promise<void> {
     const now = new Date();
 
-    // Clean up expired reservations
+    // Clean up expired reservations,
     const expiredReservations = Array.from(this.reservations.values())
       .filter(r => r.expiresAt && r.expiresAt < now && r.status === 'pending');
 
@@ -1156,8 +1181,8 @@ export class ResourceManager extends EventEmitter {
       await this.cancelReservation(reservation.id, 'expired');
     }
 
-    // Clean up old usage history
-    const cutoff = new Date(now.getTime() - 86400000); // 24 hours
+    // Clean up old usage history,
+    const cutoff = new Date(now.getTime() - 86400000); // 24 hours,
     for (const [resourceId, history] of this.usageHistory) {
       this.usageHistory.set(
         resourceId,
@@ -1198,12 +1223,12 @@ export class ResourceManager extends EventEmitter {
     let totalCapacity = 0;
     let totalAllocated = 0;
 
-    // CPU utilization
+    // CPU utilization,
     totalCapacity += resource.capacity.cpu;
     totalAllocated += resource.allocated.cpu;
 
-    // Memory utilization
-    totalCapacity += resource.capacity.memory / (1024 * 1024); // Convert to MB for comparison
+    // Memory utilization,
+    totalCapacity += resource.capacity.memory / (1024 * 1024); // Convert to MB for comparison,
     totalAllocated += resource.allocated.memory / (1024 * 1024);
 
     return totalCapacity > 0 ? totalAllocated / totalCapacity : 0;
@@ -1215,7 +1240,7 @@ export class ResourceManager extends EventEmitter {
     const duration = allocation.endTime.getTime() - allocation.startTime.getTime();
     if (duration <= 0) return 0;
 
-    // Calculate efficiency based on actual usage vs allocated
+    // Calculate efficiency based on actual usage vs allocated,
     let efficiencySum = 0;
     let factors = 0;
 
@@ -1241,7 +1266,7 @@ export class ResourceManager extends EventEmitter {
       custom: {}
     };
 
-    // Update custom resources
+    // Update custom resources,
     for (const [name, capacity] of Object.entries(resource.capacity.custom)) {
       const allocated = resource.allocated.custom[name] || 0;
       resource.available.custom[name] = Math.max(0, capacity - allocated);
@@ -1295,9 +1320,9 @@ export class ResourceManager extends EventEmitter {
   private createDefaultPerformanceMetrics(): PerformanceMetrics {
     return {
       cpuScore: 1.0,
-      memoryBandwidth: 1000000000, // 1GB/s
+      memoryBandwidth: 1000000000, // 1GB/s,
       diskIOPS: 1000,
-      networkBandwidth: 1000000000, // 1Gbps
+      networkBandwidth: 1000000000, // 1Gbps,
       benchmarkResults: {}
     };
   }
@@ -1305,7 +1330,7 @@ export class ResourceManager extends EventEmitter {
   private createDefaultReliabilityMetrics(): ReliabilityMetrics {
     return {
       uptime: 0.99,
-      meanTimeBetweenFailures: 8760, // 1 year in hours
+      meanTimeBetweenFailures: 8760, // 1 year in hours,
       errorRate: 0.01,
       failureHistory: []
     };
@@ -1335,7 +1360,7 @@ export class ResourceManager extends EventEmitter {
   }
 
   private async createDefaultPools(): Promise<void> {
-    // Create default compute pool if we have compute resources
+    // Create default compute pool if we have compute resources,
     const computeResources = Array.from(this.resources.values())
       .filter(r => r.type === 'compute')
       .map(r => r.id);
@@ -1349,18 +1374,18 @@ export class ResourceManager extends EventEmitter {
     const resource = this.resources.get(resourceId);
     if (!resource) return;
 
-    // Store usage history
+    // Store usage history,
     const history = this.usageHistory.get(resourceId) || [];
     history.push(usage);
     
-    // Keep only last 1000 entries
+    // Keep only last 1000 entries,
     if (history.length > 1000) {
       history.shift();
     }
     
     this.usageHistory.set(resourceId, history);
 
-    // Update active allocations with actual usage
+    // Update active allocations with actual usage,
     for (const allocation of resource.allocations) {
       if (allocation.status === 'active') {
         allocation.actualUsage = usage;
@@ -1370,16 +1395,16 @@ export class ResourceManager extends EventEmitter {
   }
 
   private async updateResourceStatistics(resource: Resource): Promise<void> {
-    // Update utilization
+    // Update utilization,
     const utilization = this.calculateResourceUtilization(resource);
     
-    // Update performance metrics based on usage history
+    // Update performance metrics based on usage history,
     const history = this.usageHistory.get(resource.id) || [];
     if (history.length > 0) {
-      const recent = history.slice(-10); // Last 10 measurements
+      const recent = history.slice(-10); // Last 10 measurements,
       const avgCpu = recent.reduce((sum, h) => sum + h.cpu, 0) / recent.length;
       
-      // Update performance score based on load
+      // Update performance score based on load,
       resource.metadata.performance.cpuScore = Math.max(0.1, 1.0 - (avgCpu / 100));
     }
 
@@ -1402,14 +1427,14 @@ export class ResourceManager extends EventEmitter {
   }
 
   private async checkQoSViolations(): Promise<void> {
-    // Check QoS for all active allocations
+    // Check QoS for all active allocations,
     for (const allocation of this.allocations.values()) {
       if (allocation.status !== 'active') continue;
 
       const resource = this.resources.get(allocation.resourceId);
       if (!resource) continue;
 
-      // Find applicable pools
+      // Find applicable pools,
       const pools = Array.from(this.pools.values())
         .filter(p => p.resources.includes(resource.id));
 
@@ -1431,7 +1456,7 @@ export class ResourceManager extends EventEmitter {
           expected: guarantee.threshold,
           actual: value,
           severity: this.calculateViolationSeverity(guarantee, value),
-          duration: 0, // Will be calculated over time
+          duration: 0, // Will be calculated over time,
           resolved: false
         };
 
@@ -1446,7 +1471,7 @@ export class ResourceManager extends EventEmitter {
 
         this.emit('qos:violation', { allocation, violation });
 
-        // Auto-remediation if enabled
+        // Auto-remediation if enabled,
         if (pool.qos.violations.autoRemediation) {
           await this.remediateQoSViolation(allocation, violation);
         }
@@ -1457,7 +1482,7 @@ export class ResourceManager extends EventEmitter {
   private async updatePredictions(): Promise<void> {
     for (const resource of this.resources.values()) {
       const history = this.usageHistory.get(resource.id) || [];
-      if (history.length < 10) continue; // Need minimum history
+      if (history.length < 10) continue; // Need minimum history,
 
       const prediction = await this.optimizer.predictUsage(resource, history);
       this.predictions.set(resource.id, prediction);
@@ -1470,7 +1495,7 @@ export class ResourceManager extends EventEmitter {
 
     if (resources.length === 0) return metrics;
 
-    // Calculate utilization
+    // Calculate utilization,
     const totalUtilization = resources.reduce((sum, r) => sum + this.calculateResourceUtilization(r), 0);
     metrics.utilization = totalUtilization / resources.length;
 
@@ -1484,7 +1509,7 @@ export class ResourceManager extends EventEmitter {
   private shouldScale(pool: ResourcePool, metrics: Record<string, number>): { action: 'scale-up' | 'scale-down' | 'none'; reason: string } {
     const scaling = pool.scaling;
 
-    // Check scale-up conditions
+    // Check scale-up conditions,
     for (const metric of scaling.metrics) {
       const value = metrics[metric.name] || 0;
       
@@ -1495,7 +1520,7 @@ export class ResourceManager extends EventEmitter {
       }
     }
 
-    // Check scale-down conditions
+    // Check scale-down conditions,
     for (const metric of scaling.metrics) {
       const value = metrics[metric.name] || 0;
       
@@ -1511,13 +1536,13 @@ export class ResourceManager extends EventEmitter {
 
   private async scalePoolUp(pool: ResourcePool): Promise<void> {
     this.logger.info('Scaling pool up', { poolId: pool.id });
-    // Implementation would add new resources to the pool
+    // Implementation would add new resources to the pool,
     this.emit('pool:scaled-up', { pool });
   }
 
   private async scalePoolDown(pool: ResourcePool): Promise<void> {
     this.logger.info('Scaling pool down', { poolId: pool.id });
-    // Implementation would remove underutilized resources from the pool
+    // Implementation would remove underutilized resources from the pool,
     this.emit('pool:scaled-down', { pool });
   }
 
@@ -1557,16 +1582,16 @@ export class ResourceManager extends EventEmitter {
       severity: violation.severity
     });
 
-    // Simple remediation strategies
+    // Simple remediation strategies,
     switch (violation.metric) {
       case 'cpu':
-        // Could migrate to a less loaded resource
+        // Could migrate to a less loaded resource,
         break;
       case 'memory':
-        // Could increase memory allocation if available
+        // Could increase memory allocation if available,
         break;
       case 'efficiency':
-        // Could provide optimization recommendations
+        // Could provide optimization recommendations,
         break;
     }
 
@@ -1582,22 +1607,22 @@ export class ResourceManager extends EventEmitter {
     }
   }
 
-  private handleResourceRequest(data: any): void {
-    // Handle resource requests from agents
+  private handleResourceRequest(data: ResourceRequest): void {
+    // Handle resource requests from agents,
     this.emit('resource:request-received', data);
   }
 
-  private handleResourceRelease(data: any): void {
-    // Handle resource releases from agents
+  private handleResourceRelease(data: ResourceRelease): void {
+    // Handle resource releases from agents,
     this.emit('resource:release-received', data);
   }
 
-  private handleResourceFailure(data: any): void {
+  private handleResourceFailure(data: ResourceFailure): void {
     const resource = this.resources.get(data.resourceId);
     if (resource) {
       resource.status = 'failed';
       
-      // Record failure
+      // Record failure,
       resource.metadata.reliability.failureHistory.push({
         timestamp: new Date(),
         type: data.type || 'unknown',
@@ -1615,8 +1640,8 @@ export class ResourceManager extends EventEmitter {
     }
   }
 
-  private handleScalingTrigger(data: any): void {
-    // Handle scaling triggers from monitoring system
+  private handleScalingTrigger(data: ScalingTrigger): void {
+    // Handle scaling triggers from monitoring system,
     this.emit('scaling:triggered', data);
   }
 
@@ -1724,17 +1749,17 @@ class ResourceOptimizer {
   }
 
   async predictUsage(resource: Resource, history: ResourceUsage[]): Promise<ResourcePrediction> {
-    // Simple linear trend analysis
+    // Simple linear trend analysis,
     const predictions: Array<{ timestamp: Date; predictedUsage: ResourceUsage; confidence: number }> = [];
     
-    // Calculate trends
+    // Calculate trends,
     const cpuTrend = this.calculateTrend(history.map(h => h.cpu));
     const memoryTrend = this.calculateTrend(history.map(h => h.memory));
     const diskTrend = this.calculateTrend(history.map(h => h.disk));
 
-    // Generate predictions for next 24 hours
+    // Generate predictions for next 24 hours,
     for (let i = 1; i <= 24; i++) {
-      const futureTime = new Date(Date.now() + i * 3600000); // i hours from now
+      const futureTime = new Date(Date.now() + i * 3600000); // i hours from now,
       
       predictions.push({
         timestamp: futureTime,
@@ -1742,7 +1767,7 @@ class ResourceOptimizer {
           cpu: Math.max(0, Math.min(100, this.extrapolateTrend(cpuTrend, i))),
           memory: Math.max(0, this.extrapolateTrend(memoryTrend, i)),
           disk: Math.max(0, this.extrapolateTrend(diskTrend, i)),
-          network: 0, // Simplified
+          network: 0, // Simplified,
           custom: {},
           timestamp: futureTime,
           duration: 3600000 // 1 hour
@@ -1812,14 +1837,14 @@ class ResourceOptimizer {
     const avgCpu = recent.reduce((sum, h) => sum + h.cpu, 0) / recent.length;
     const avgMemory = recent.reduce((sum, h) => sum + h.memory, 0) / recent.length;
 
-    // CPU recommendations
+    // CPU recommendations,
     if (avgCpu > 80) {
       recommendations.push('High CPU usage detected. Consider scaling up or optimizing workloads.');
     } else if (avgCpu < 20) {
       recommendations.push('Low CPU usage. Consider scaling down to reduce costs.');
     }
 
-    // Memory recommendations
+    // Memory recommendations,
     const memoryUtilization = avgMemory / resource.capacity.memory;
     if (memoryUtilization > 0.9) {
       recommendations.push('High memory usage. Consider increasing memory allocation.');
@@ -1829,6 +1854,50 @@ class ResourceOptimizer {
 
     return recommendations;
   }
+}
+
+// Type guard functions (imported from swarm/types.js)
+function isResourceRequest(data: unknown): data is ResourceRequest {
+  return (
+    typeof data === 'object' &&
+    data !== null &&
+    'agentId' in data &&
+    'requirements' in data
+  );
+}
+
+function isResourceRelease(data: unknown): data is ResourceRelease {
+  return (
+    typeof data === 'object' &&
+    data !== null &&
+    'allocationId' in data
+  );
+}
+
+function isResourceUsageUpdate(data: unknown): data is ResourceUsageUpdate {
+  return (
+    typeof data === 'object' &&
+    data !== null &&
+    'resourceId' in data &&
+    'usage' in data
+  );
+}
+
+function isResourceFailure(data: unknown): data is ResourceFailure {
+  return (
+    typeof data === 'object' &&
+    data !== null &&
+    'resourceId' in data &&
+    'type' in data
+  );
+}
+
+function isScalingTrigger(data: unknown): data is ScalingTrigger {
+  return (
+    typeof data === 'object' &&
+    data !== null &&
+    'action' in data
+  );
 }
 
 class ResourceManagerMetrics {

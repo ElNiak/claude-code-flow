@@ -32,7 +32,7 @@ export class MCPToolWrapper extends EventEmitter {
    */
   async initialize(): Promise<void> {
     try {
-      // Check if MCP tools are available
+      // Check if MCP tools are available,
       await this.checkToolAvailability();
       this.isInitialized = true;
       this.emit('initialized');
@@ -76,7 +76,7 @@ export class MCPToolWrapper extends EventEmitter {
     }
   }
 
-  // Swarm coordination tools
+  // Swarm coordination tools,
 
   async initSwarm(params: {
     topology: string;
@@ -115,7 +115,7 @@ export class MCPToolWrapper extends EventEmitter {
     return this.executeTool('swarm_monitor', params);
   }
 
-  // Neural and pattern tools
+  // Neural and pattern tools,
 
   async analyzePattern(params: {
     action: string;
@@ -144,7 +144,7 @@ export class MCPToolWrapper extends EventEmitter {
     return this.executeTool('neural_status', { modelId });
   }
 
-  // Memory management tools
+  // Memory management tools,
 
   async storeMemory(params: {
     action: 'store';
@@ -188,7 +188,7 @@ export class MCPToolWrapper extends EventEmitter {
     return this.executeTool('memory_usage', params);
   }
 
-  // Performance and monitoring tools
+  // Performance and monitoring tools,
 
   async getPerformanceReport(params?: {
     format?: string;
@@ -211,7 +211,7 @@ export class MCPToolWrapper extends EventEmitter {
     return this.executeTool('token_usage', params || {});
   }
 
-  // Agent management tools
+  // Agent management tools,
 
   async listAgents(swarmId?: string): Promise<any> {
     return this.executeTool('agent_list', { swarmId });
@@ -221,7 +221,7 @@ export class MCPToolWrapper extends EventEmitter {
     return this.executeTool('agent_metrics', { agentId });
   }
 
-  // Task management tools
+  // Task management tools,
 
   async getTaskStatus(taskId: string): Promise<any> {
     return this.executeTool('task_status', { taskId });
@@ -231,7 +231,7 @@ export class MCPToolWrapper extends EventEmitter {
     return this.executeTool('task_results', { taskId });
   }
 
-  // Advanced coordination tools
+  // Advanced coordination tools,
 
   async optimizeTopology(swarmId?: string): Promise<any> {
     return this.executeTool('topology_optimize', { swarmId });
@@ -255,7 +255,7 @@ export class MCPToolWrapper extends EventEmitter {
     return this.executeTool('swarm_scale', params);
   }
 
-  // SPARC mode integration
+  // SPARC mode integration,
 
   async runSparcMode(params: {
     mode: string;
@@ -265,7 +265,7 @@ export class MCPToolWrapper extends EventEmitter {
     return this.executeTool('sparc_mode', params);
   }
 
-  // Workflow tools
+  // Workflow tools,
 
   async createWorkflow(params: {
     name: string;
@@ -282,7 +282,7 @@ export class MCPToolWrapper extends EventEmitter {
     return this.executeTool('workflow_execute', params);
   }
 
-  // GitHub integration tools
+  // GitHub integration tools,
 
   async analyzeRepository(params: {
     repo: string;
@@ -299,7 +299,7 @@ export class MCPToolWrapper extends EventEmitter {
     return this.executeTool('github_pr_manage', params);
   }
 
-  // Dynamic Agent Architecture tools
+  // Dynamic Agent Architecture tools,
 
   async createDynamicAgent(params: {
     agent_type: string;
@@ -316,7 +316,7 @@ export class MCPToolWrapper extends EventEmitter {
     return this.executeTool('daa_capability_match', params);
   }
 
-  // System tools
+  // System tools,
 
   async runBenchmark(suite?: string): Promise<any> {
     return this.executeTool('benchmark_run', { suite });
@@ -348,7 +348,7 @@ export class MCPToolWrapper extends EventEmitter {
     return this.executeTool('health_check', { components });
   }
 
-  // Batch operations
+  // Batch operations,
 
   async batchProcess(params: {
     items: any[];

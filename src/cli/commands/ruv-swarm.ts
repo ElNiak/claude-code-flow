@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../../utils/error-handler.js';
 /**
  * ruv-swarm CLI commands for Claude Code integration
  * 
@@ -6,14 +6,15 @@ import { getErrorMessage } from '../../utils/error-handler.js';
  * package to enable advanced swarm coordination and neural capabilities.
  */
 
-import { success, error, warning, info } from "../cli-core.js";
+import path from 'path';
+import { success, _error as error, warning, info } from "../cli-core.js";
 import type { CommandContext } from "../cli-core.js";
 import { getRuvSwarmConfigManager } from '../../config/ruv-swarm-config.js';
 import { execAsync } from '../../utils/helpers.js';
 import { Logger } from '../../core/logger.js';
 import { isRuvSwarmAvailable, initializeRuvSwarmIntegration } from '../../mcp/ruv-swarm-tools.js';
 
-// Create logger for CLI commands
+// Create logger for CLI commands,
 const logger = new Logger({ level: "info", format: "text", destination: "console" });
 
 /**
@@ -33,7 +34,7 @@ export async function ruvSwarmAction(ctx: CommandContext) {
   };
   
   try {
-    // Check if ruv-swarm is available first
+    // Check if ruv-swarm is available first,
     const available = await isRuvSwarmAvailable(logger);
     if (!available) {
       error('ruv-swarm is not available');
@@ -144,7 +145,7 @@ async function handleInit(ctx: CommandContext) {
       console.log(result.stdout);
     }
     
-    // Initialize integration
+    // Initialize integration,
     const integration = await initializeRuvSwarmIntegration(process.cwd(), logger);
     if (integration.success) {
       info('Claude Code integration enabled');
@@ -168,7 +169,7 @@ async function handleStatus(ctx: CommandContext) {
     const result = await execAsync(command);
     
     if (result.stdout) {
-      // Try to parse as JSON for better formatting
+      // Try to parse as JSON for better formatting,
       try {
         const statusData = JSON.parse(result.stdout);
         
@@ -202,7 +203,7 @@ async function handleStatus(ctx: CommandContext) {
           console.log(result.stdout);
         }
       } catch {
-        // Not JSON, display as-is
+        // Not JSON, display as-is,
         console.log(result.stdout);
       }
     }
@@ -519,16 +520,16 @@ async function handleConfig(ctx: CommandContext) {
           return;
         }
         
-        const path = ctx.args[1];
+        const _path = ctx.args[1];
         const value = ctx.args[2];
-        const [section, key] = path.split('.');
+        const [section, key] = _path.split('.');
         
         if (!section || !key) {
           error('Invalid path format. Use: section.key');
           return;
         }
         
-        // Parse value
+        // Parse value,
         let parsedValue: any = value;
         if (value === 'true') parsedValue = true;
         else if (value === 'false') parsedValue = false;
@@ -537,7 +538,7 @@ async function handleConfig(ctx: CommandContext) {
         const updates = { [section]: { [key]: parsedValue } };
         configManager.updateConfig(updates);
         
-        success(`Configuration updated: ${path} = ${value}`);
+        success(`Configuration updated: ${_path} = ${value}`);
         break;
       }
       

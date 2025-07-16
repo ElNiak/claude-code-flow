@@ -3,11 +3,11 @@
  */
 
 export interface IntegrationConfig {
-  // Core configuration
+  // Core configuration,
   logLevel?: 'debug' | 'info' | 'warn' | 'error';
   environment?: 'development' | 'production' | 'testing';
   
-  // Component-specific configuration
+  // Component-specific configuration,
   orchestrator?: {
     maxConcurrency?: number;
     timeout?: number;

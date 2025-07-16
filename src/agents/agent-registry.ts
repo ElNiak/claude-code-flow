@@ -44,7 +44,7 @@ export class AgentRegistry extends EventEmitter {
   private memory: DistributedMemorySystem;
   private namespace: string;
   private cache = new Map<string, AgentRegistryEntry>();
-  private cacheExpiry = 60000; // 1 minute
+  private cacheExpiry = 60000; // 1 minute,
   private lastCacheUpdate = 0;
 
   constructor(memory: DistributedMemorySystem, namespace: string = 'agents') {
@@ -73,7 +73,7 @@ export class AgentRegistry extends EventEmitter {
       }
     };
 
-    // Store in memory
+    // Store in memory,
     const key = this.getAgentKey(agent.id.id);
     await this.memory.store(key, entry, {
       type: 'agent-registry',
@@ -81,7 +81,7 @@ export class AgentRegistry extends EventEmitter {
       partition: this.namespace
     });
 
-    // Update cache
+    // Update cache,
     this.cache.set(agent.id.id, entry);
 
     this.emit('agent:registered', { agentId: agent.id.id, agent });
@@ -96,14 +96,14 @@ export class AgentRegistry extends EventEmitter {
       throw new Error(`Agent ${agentId} not found in registry`);
     }
 
-    // Merge updates
+    // Merge updates,
     entry.agent = { ...entry.agent, ...updates };
     entry.lastUpdated = new Date();
     entry.tags = [entry.agent.type, entry.agent.status, ...entry.tags.filter(t => 
       t !== entry.agent.type && t !== entry.agent.status
     )];
 
-    // Store updated entry
+    // Store updated entry,
     const key = this.getAgentKey(agentId);
     await this.memory.store(key, entry, {
       type: 'agent-registry',
@@ -111,7 +111,7 @@ export class AgentRegistry extends EventEmitter {
       partition: this.namespace
     });
 
-    // Update cache
+    // Update cache,
     this.cache.set(agentId, entry);
 
     this.emit('agent:updated', { agentId, agent: entry.agent });
@@ -127,7 +127,7 @@ export class AgentRegistry extends EventEmitter {
     }
 
     if (preserveHistory) {
-      // Move to archived partition
+      // Move to archived partition,
       const archiveKey = this.getArchiveKey(agentId);
       await this.memory.store(archiveKey, {
         ...entry,
@@ -140,11 +140,11 @@ export class AgentRegistry extends EventEmitter {
       });
     }
 
-    // Remove from active registry
+    // Remove from active registry,
     const key = this.getAgentKey(agentId);
     await this.memory.deleteEntry(key);
 
-    // Remove from cache
+    // Remove from cache,
     this.cache.delete(agentId);
 
     this.emit('agent:unregistered', { agentId, preserved: preserveHistory });
@@ -162,17 +162,17 @@ export class AgentRegistry extends EventEmitter {
    * Get agent entry with metadata
    */
   async getAgentEntry(agentId: string): Promise<AgentRegistryEntry | null> {
-    // Check cache first
+    // Check cache first,
     if (this.cache.has(agentId) && this.isCacheValid()) {
       return this.cache.get(agentId) || null;
     }
 
-    // Load from memory
+    // Load from memory,
     const key = this.getAgentKey(agentId);
     const memoryEntry = await this.memory.retrieve(key);
     
     if (memoryEntry && memoryEntry.value) {
-      // Convert MemoryEntry to AgentRegistryEntry
+      // Convert MemoryEntry to AgentRegistryEntry,
       const registryEntry: AgentRegistryEntry = memoryEntry.value as AgentRegistryEntry;
       this.cache.set(agentId, registryEntry);
       return registryEntry;
@@ -189,7 +189,7 @@ export class AgentRegistry extends EventEmitter {
 
     let agents = Array.from(this.cache.values()).map(entry => entry.agent);
 
-    // Apply filters
+    // Apply filters,
     if (query.type) {
       agents = agents.filter(agent => agent.type === query.type);
     }
@@ -281,7 +281,7 @@ export class AgentRegistry extends EventEmitter {
       return stats;
     }
 
-    // Count by type and status
+    // Count by type and status,
     for (const agent of agents) {
       stats.byType[agent.type] = (stats.byType[agent.type] || 0) + 1;
       stats.byStatus[agent.status] = (stats.byStatus[agent.status] || 0) + 1;
@@ -294,7 +294,7 @@ export class AgentRegistry extends EventEmitter {
       stats.tasksCompleted += agent.metrics.tasksCompleted;
     }
 
-    // Calculate averages
+    // Calculate averages,
     stats.averageHealth = agents.reduce((sum, agent) => sum + agent.health, 0) / agents.length;
     
     const totalTasks = agents.reduce((sum, agent) => 
@@ -338,12 +338,12 @@ export class AgentRegistry extends EventEmitter {
   ): Promise<AgentState | null> {
     let candidates = await this.getHealthyAgents(0.5);
 
-    // Filter by capabilities if specified
+    // Filter by capabilities if specified,
     if (requiredCapabilities.length > 0) {
       candidates = await this.searchByCapabilities(requiredCapabilities);
     }
 
-    // Prefer specific agent if available and healthy
+    // Prefer specific agent if available and healthy,
     if (preferredAgent) {
       const preferred = candidates.find(agent => 
         agent.id.id === preferredAgent || agent.name === preferredAgent
@@ -351,7 +351,7 @@ export class AgentRegistry extends EventEmitter {
       if (preferred) return preferred;
     }
 
-    // Filter by availability
+    // Filter by availability,
     candidates = candidates.filter(agent => 
       agent.status === 'idle' && 
       agent.workload < 0.8 &&
@@ -360,7 +360,7 @@ export class AgentRegistry extends EventEmitter {
 
     if (candidates.length === 0) return null;
 
-    // Score candidates
+    // Score candidates,
     const scored = candidates.map(agent => ({
       agent,
       score: this.calculateAgentScore(agent, taskType, requiredCapabilities)

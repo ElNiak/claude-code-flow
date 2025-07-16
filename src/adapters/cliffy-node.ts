@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * Cliffy Node.js Adapter
  * 
@@ -10,8 +10,8 @@ import chalk from 'chalk';
 import inquirer from 'inquirer';
 import Table from 'cli-table3';
 
-// Colors adapter - map Cliffy colors to chalk
-export const colors = {
+// Colors adapter - map Cliffy colors to chalk,
+export const _colors = {
   green: chalk.green,
   red: chalk.red,
   yellow: chalk.yellow,
@@ -31,7 +31,7 @@ export const colors = {
   bgBlue: chalk.bgBlue,
 };
 
-// Prompt adapter - map Cliffy prompt to inquirer
+// Prompt adapter - map Cliffy prompt to inquirer,
 export const Input = async (options: { message: string; default?: string }) => {
   const answers = await inquirer.prompt([{
     type: 'input',
@@ -67,5 +67,5 @@ export const Select = async <T>(options: {
   return answers.value;
 };
 
-// Table adapter - re-export cli-table3 with Cliffy-like API
+// Table adapter - re-export cli-table3 with Cliffy-like API,
 export { Table };

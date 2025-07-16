@@ -687,6 +687,7 @@ EXAMPLES:
   }
 }
 
-if (import.meta.main) {
+// import.meta.main is Deno-specific, use process.argv check for Node.js compatibility
+if (typeof process !== 'undefined' && process.argv[1] && new URL(import.meta.url).pathname === process.argv[1]) {
   main();
 }

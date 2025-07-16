@@ -15,13 +15,14 @@ import {
   TaskStrategy,
   ExecutionPlan,
   OrchestrationResult,
-  TaskAssignment
+  TaskAssignment,
+  AgentCapability
 } from '../types.js';
 
 export class SwarmOrchestrator extends EventEmitter {
   private hiveMind: HiveMind;
-  private db: DatabaseManager;
-  private mcpWrapper: MCPToolWrapper;
+  private db!: DatabaseManager;
+  private mcpWrapper!: MCPToolWrapper;
   private executionPlans: Map<string, ExecutionPlan>;
   private taskAssignments: Map<string, TaskAssignment[]>;
   private activeExecutions: Map<string, any>;
@@ -43,7 +44,7 @@ export class SwarmOrchestrator extends EventEmitter {
     this.mcpWrapper = new MCPToolWrapper();
     await this.mcpWrapper.initialize();
     
-    // Start orchestration loops
+    // Start orchestration loops,
     this.startTaskDistributor();
     this.startProgressMonitor();
     this.startLoadBalancer();
@@ -56,11 +57,11 @@ export class SwarmOrchestrator extends EventEmitter {
    * Submit a task for orchestration
    */
   async submitTask(task: Task): Promise<void> {
-    // Create execution plan based on strategy
+    // Create execution plan based on strategy,
     const plan = await this.createExecutionPlan(task);
     this.executionPlans.set(task.id, plan);
     
-    // Orchestrate task using MCP tools
+    // Orchestrate task using MCP tools,
     const orchestrationResult = await this.mcpWrapper.orchestrateTask({
       task: task.description,
       priority: task.priority,
@@ -69,7 +70,7 @@ export class SwarmOrchestrator extends EventEmitter {
     });
     
     if (orchestrationResult.success) {
-      // Start task execution
+      // Start task execution,
       await this.executeTask(task, plan);
     } else {
       this.emit('orchestrationError', { task, error: orchestrationResult.error });
@@ -82,15 +83,15 @@ export class SwarmOrchestrator extends EventEmitter {
   private async createExecutionPlan(task: Task): Promise<ExecutionPlan> {
     const strategy = this.getStrategyImplementation(task.strategy);
     
-    // Analyze task complexity
+    // Analyze task complexity,
     const analysis = await this.analyzeTaskComplexity(task);
     
-    // Determine phases based on strategy and complexity
+    // Determine phases based on strategy and complexity,
     const phases = strategy.determinePhases(task, analysis);
     
-    // Create assignments for each phase
+    // Create assignments for each phase,
     const phaseAssignments = await Promise.all(
-      phases.map(phase => this.createPhaseAssignments(task, phase, analysis))
+      phases.map((phase: string) => this.createPhaseAssignments(task, phase, analysis))
     );
     
     return {
@@ -116,26 +117,27 @@ export class SwarmOrchestrator extends EventEmitter {
       startTime: Date.now(),
       currentPhase: 0,
       phaseResults: [],
-      status: 'executing'
+      status: 'executing',
+      error: null
     };
     
     this.activeExecutions.set(task.id, execution);
     
     try {
-      // Execute phases according to strategy
+      // Execute phases according to strategy,
       if (plan.parallelizable) {
         await this.executeParallel(task, plan, execution);
       } else {
         await this.executeSequential(task, plan, execution);
       }
       
-      // Mark task as completed
+      // Mark task as completed,
       execution.status = 'completed';
       await this.completeTask(task, execution);
       
     } catch (error) {
       execution.status = 'failed';
-      execution.error = error;
+      execution.error = error instanceof Error ? error.message : String(error) as any;
       await this.handleTaskFailure(task, execution, error);
     } finally {
       this.activeExecutions.delete(task.id);
@@ -170,7 +172,7 @@ export class SwarmOrchestrator extends EventEmitter {
       const result = await this.executePhase(task, phase, plan, execution);
       execution.phaseResults.push(result);
       
-      // Check checkpoint
+      // Check checkpoint,
       if (plan.checkpoints[i]) {
         await this.evaluateCheckpoint(task, plan.checkpoints[i], execution);
       }
@@ -189,17 +191,17 @@ export class SwarmOrchestrator extends EventEmitter {
     const phaseIndex = plan.phases.indexOf(phase);
     const assignments = plan.phaseAssignments[phaseIndex];
     
-    // Assign agents to phase tasks
+    // Assign agents to phase tasks,
     const agentAssignments = await this.assignAgentsToPhase(task, phase, assignments);
     
-    // Execute phase tasks
+    // Execute phase tasks,
     const phaseResults = await Promise.all(
       agentAssignments.map(assignment => 
         this.executeAssignment(task, phase, assignment)
       )
     );
     
-    // Aggregate phase results
+    // Aggregate phase results,
     return this.aggregatePhaseResults(phase, phaseResults);
   }
 
@@ -214,7 +216,7 @@ export class SwarmOrchestrator extends EventEmitter {
     const agentAssignments = [];
     
     for (const assignment of assignments) {
-      // Find suitable agent
+      // Find suitable agent,
       const agent = await this.findSuitableAgent(assignment.requiredCapabilities);
       
       if (agent) {
@@ -225,7 +227,7 @@ export class SwarmOrchestrator extends EventEmitter {
           phase
         });
       } else {
-        // Queue for later assignment
+        // Queue for later assignment,
         this.queueAssignment(task.id, assignment);
       }
     }
@@ -243,7 +245,7 @@ export class SwarmOrchestrator extends EventEmitter {
   ): Promise<any> {
     const { agent, assignment: taskAssignment } = assignment;
     
-    // Send execution command to agent
+    // Send execution command to agent,
     await agent.assignTask(task.id, {
       phase,
       role: taskAssignment.role,
@@ -251,7 +253,7 @@ export class SwarmOrchestrator extends EventEmitter {
       expectedOutput: taskAssignment.expectedOutput
     });
     
-    // Wait for completion or timeout
+    // Wait for completion or timeout,
     return this.waitForAgentCompletion(agent, task.id, taskAssignment.timeout);
   }
 
@@ -259,7 +261,7 @@ export class SwarmOrchestrator extends EventEmitter {
    * Assign task to a specific agent
    */
   async assignTaskToAgent(taskId: string, agentId: string): Promise<void> {
-    // Update database
+    // Update database,
     const task = await this.db.getTask(taskId);
     const assignedAgents = JSON.parse(task.assigned_agents || '[]');
     
@@ -271,7 +273,7 @@ export class SwarmOrchestrator extends EventEmitter {
       });
     }
     
-    // Update agent
+    // Update agent,
     await this.db.updateAgent(agentId, {
       current_task_id: taskId,
       status: 'busy'
@@ -289,7 +291,7 @@ export class SwarmOrchestrator extends EventEmitter {
     if (execution) {
       execution.status = 'cancelled';
       
-      // Notify assigned agents
+      // Notify assigned agents,
       const task = await this.db.getTask(taskId);
       const assignedAgents = JSON.parse(task.assigned_agents || '[]');
       
@@ -308,10 +310,10 @@ export class SwarmOrchestrator extends EventEmitter {
    * Rebalance agent assignments
    */
   async rebalance(): Promise<void> {
-    // Get current load distribution
+    // Get current load distribution,
     const loadDistribution = await this.analyzeLoadDistribution();
     
-    // Use MCP tool for load balancing
+    // Use MCP tool for load balancing,
     const balanceResult = await this.mcpWrapper.loadBalance({
       tasks: loadDistribution.unassignedTasks
     });
@@ -394,7 +396,7 @@ export class SwarmOrchestrator extends EventEmitter {
   ): Promise<TaskAssignment[]> {
     const assignments: TaskAssignment[] = [];
     
-    // Define assignments based on phase
+    // Define assignments based on phase,
     switch (phase) {
       case 'analysis':
       case 'deep-analysis':
@@ -403,7 +405,7 @@ export class SwarmOrchestrator extends EventEmitter {
           requiredCapabilities: ['data_analysis', 'pattern_recognition'],
           responsibilities: ['Analyze task requirements', 'Identify patterns', 'Assess complexity'],
           expectedOutput: 'Analysis report',
-          timeout: 300000, // 5 minutes
+          timeout: 300000, // 5 minutes,
           canRunParallel: false
         });
         break;
@@ -414,14 +416,14 @@ export class SwarmOrchestrator extends EventEmitter {
           requiredCapabilities: ['system_design', 'architecture_patterns'],
           responsibilities: ['Design solution', 'Create implementation plan', 'Define interfaces'],
           expectedOutput: 'Implementation plan',
-          timeout: 600000, // 10 minutes
+          timeout: 600000, // 10 minutes,
           canRunParallel: false
         });
         break;
         
       case 'execution':
       case 'parallel-execution':
-        // Multiple execution assignments based on complexity
+        // Multiple execution assignments based on complexity,
         const executionCount = Math.min(analysis.resourceRequirements.maxAgents, 3);
         for (let i = 0; i < executionCount; i++) {
           assignments.push({
@@ -429,7 +431,7 @@ export class SwarmOrchestrator extends EventEmitter {
             requiredCapabilities: task.requiredCapabilities,
             responsibilities: ['Implement solution', 'Execute plan', 'Handle errors'],
             expectedOutput: 'Execution results',
-            timeout: 1800000, // 30 minutes
+            timeout: 1800000, // 30 minutes,
             canRunParallel: true
           });
         }
@@ -441,7 +443,7 @@ export class SwarmOrchestrator extends EventEmitter {
           requiredCapabilities: ['quality_assurance', 'test_generation'],
           responsibilities: ['Validate results', 'Run tests', 'Ensure quality'],
           expectedOutput: 'Validation report',
-          timeout: 600000, // 10 minutes
+          timeout: 600000, // 10 minutes,
           canRunParallel: false
         });
         break;
@@ -453,7 +455,7 @@ export class SwarmOrchestrator extends EventEmitter {
           requiredCapabilities: ['consensus_building'],
           responsibilities: ['Coordinate voting', 'Collect opinions', 'Determine consensus'],
           expectedOutput: 'Consensus decision',
-          timeout: 300000, // 5 minutes
+          timeout: 300000, // 5 minutes,
           canRunParallel: false
         });
         break;
@@ -507,17 +509,17 @@ export class SwarmOrchestrator extends EventEmitter {
   private async findSuitableAgent(requiredCapabilities: string[]): Promise<Agent | null> {
     const agents = await this.hiveMind.getAgents();
     
-    // Filter available agents with required capabilities
+    // Filter available agents with required capabilities,
     const suitableAgents = agents.filter(agent => 
       agent.status === 'idle' &&
-      requiredCapabilities.every(cap => agent.capabilities.includes(cap))
+      requiredCapabilities.every((cap: string) => agent.capabilities.includes(cap as AgentCapability))
     );
     
     if (suitableAgents.length === 0) {
       return null;
     }
     
-    // Select best agent based on performance history
+    // Select best agent based on performance history,
     return this.selectBestAgent(suitableAgents, requiredCapabilities);
   }
 
@@ -525,7 +527,7 @@ export class SwarmOrchestrator extends EventEmitter {
    * Select best agent from candidates
    */
   private async selectBestAgent(agents: Agent[], capabilities: string[]): Promise<Agent> {
-    // Simple selection - in production would use performance metrics
+    // Simple selection - in production would use performance metrics,
     const scores = await Promise.all(
       agents.map(async agent => {
         const performance = await this.db.getAgentPerformance(agent.id);
@@ -560,7 +562,7 @@ export class SwarmOrchestrator extends EventEmitter {
           clearTimeout(timer);
           clearInterval(interval);
           
-          // Get task result
+          // Get task result,
           const task = await this.db.getTask(taskId);
           resolve(task.result ? JSON.parse(task.result) : {});
         }
@@ -633,7 +635,7 @@ export class SwarmOrchestrator extends EventEmitter {
    * Evaluate validation criterion
    */
   private evaluateCriterion(result: any, criterion: any): number {
-    // Simplified evaluation - in production would be more sophisticated
+    // Simplified evaluation - in production would be more sophisticated,
     if (result.summary && result.summary.successRate !== undefined) {
       return result.summary.successRate;
     }
@@ -679,7 +681,7 @@ export class SwarmOrchestrator extends EventEmitter {
    */
   private createExecutionSummary(execution: any): any {
     const phaseCount = execution.phaseResults.length;
-    const successfulPhases = execution.phaseResults.filter(r => r.summary?.successRate > 0.5).length;
+    const successfulPhases = execution.phaseResults.filter((r: any) => r.summary?.successRate > 0.5).length;
     
     return {
       totalPhases: phaseCount,
@@ -693,7 +695,7 @@ export class SwarmOrchestrator extends EventEmitter {
    * Notify agent of task cancellation
    */
   private async notifyAgentTaskCancelled(agentId: string, taskId: string): Promise<void> {
-    // Send cancellation message to agent
+    // Send cancellation message to agent,
     await this.db.createCommunication({
       from_agent_id: 'orchestrator',
       to_agent_id: agentId,
@@ -742,10 +744,10 @@ export class SwarmOrchestrator extends EventEmitter {
    * Reassign task from one agent to another
    */
   private async reassignTask(taskId: string, fromAgentId: string, toAgentId: string): Promise<void> {
-    // Update task assignment
+    // Update task assignment,
     await this.db.reassignTask(taskId, toAgentId);
     
-    // Update agent states
+    // Update agent states,
     await this.db.updateAgent(fromAgentId, {
       current_task_id: null,
       status: 'idle'
@@ -756,7 +758,7 @@ export class SwarmOrchestrator extends EventEmitter {
       status: 'busy'
     });
     
-    // Notify agents
+    // Notify agents,
     await this.notifyAgentReassignment(fromAgentId, toAgentId, taskId);
   }
 
@@ -764,7 +766,7 @@ export class SwarmOrchestrator extends EventEmitter {
    * Notify agents of reassignment
    */
   private async notifyAgentReassignment(fromAgentId: string, toAgentId: string, taskId: string): Promise<void> {
-    // Notify source agent
+    // Notify source agent,
     await this.db.createCommunication({
       from_agent_id: 'orchestrator',
       to_agent_id: fromAgentId,
@@ -774,7 +776,7 @@ export class SwarmOrchestrator extends EventEmitter {
       priority: 'high'
     });
     
-    // Notify target agent
+    // Notify target agent,
     const task = await this.db.getTask(taskId);
     const plan = this.executionPlans.get(taskId);
     
@@ -800,13 +802,13 @@ export class SwarmOrchestrator extends EventEmitter {
       if (!this.isActive) return;
       
       try {
-        // Check for queued assignments
+        // Check for queued assignments,
         for (const [taskId, assignments] of this.taskAssignments) {
           for (const assignment of assignments) {
             const agent = await this.findSuitableAgent(assignment.requiredCapabilities);
             if (agent) {
               await this.assignTaskToAgent(taskId, agent.id);
-              // Remove from queue
+              // Remove from queue,
               const remaining = assignments.filter(a => a !== assignment);
               if (remaining.length === 0) {
                 this.taskAssignments.delete(taskId);
@@ -830,7 +832,7 @@ export class SwarmOrchestrator extends EventEmitter {
       if (!this.isActive) return;
       
       try {
-        // Monitor active executions
+        // Monitor active executions,
         for (const [taskId, execution] of this.activeExecutions) {
           const task = await this.db.getTask(taskId);
           
@@ -859,7 +861,7 @@ export class SwarmOrchestrator extends EventEmitter {
       try {
         const load = await this.analyzeLoadDistribution();
         
-        // Trigger rebalancing if needed
+        // Trigger rebalancing if needed,
         if (load.loadFactor > 0.8 && load.idleAgents.length > 0 && load.unassignedTasks.length > 0) {
           await this.rebalance();
         }
@@ -882,12 +884,28 @@ export class SwarmOrchestrator extends EventEmitter {
   }
 
   /**
+   * Create Gradio application (placeholder implementation)
+   */
+  async createGradioApp(config?: any): Promise<any> {
+    // Placeholder implementation - this would integrate with Gradio for web UI
+    throw new Error('createGradioApp not yet implemented - requires Gradio integration');
+  }
+
+  /**
+   * Create Python REST API (placeholder implementation)
+   */
+  async createPythonRestAPI(config?: any): Promise<any> {
+    // Placeholder implementation - this would create a Python REST API
+    throw new Error('createPythonRestAPI not yet implemented - requires Python API framework integration');
+  }
+
+  /**
    * Shutdown orchestrator
    */
   async shutdown(): Promise<void> {
     this.isActive = false;
     
-    // Cancel all active executions
+    // Cancel all active executions,
     for (const taskId of this.activeExecutions.keys()) {
       await this.cancelTask(taskId);
     }

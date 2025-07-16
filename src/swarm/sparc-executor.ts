@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * SPARC-Enhanced Task Executor for Swarm
  * Implements the full SPARC methodology with TDD
@@ -37,6 +37,7 @@ export class SparcTaskExecutor {
     this.enableTDD = config.enableTDD ?? true;
     this.qualityThreshold = config.qualityThreshold ?? 0.8;
     this.enableMemory = config.enableMemory ?? true;
+    this.phases = new Map();
     this.initializePhases();
   }
 
@@ -85,12 +86,12 @@ export class SparcTaskExecutor {
     const startTime = Date.now();
 
     try {
-      // Ensure target directory exists
+      // Ensure target directory exists,
       if (targetDir) {
         await fs.mkdir(targetDir, { recursive: true });
       }
 
-      // Determine which SPARC phase to execute based on task and agent
+      // Determine which SPARC phase to execute based on task and agent,
       const result = await this.executeSparcPhase(task, agent, targetDir);
 
       const endTime = Date.now();
@@ -136,7 +137,7 @@ export class SparcTaskExecutor {
   ): Promise<any> {
     const objective = task.description.toLowerCase();
     
-    // Map agent types to SPARC phases
+    // Map agent types to SPARC phases,
     switch (agent.type) {
       case 'analyst':
         if (task.name.includes('Requirements') || task.name.includes('Plan')) {
@@ -284,13 +285,13 @@ export class SparcTaskExecutor {
     const appType = this.determineAppType(task.description);
     const language = this.detectLanguage(task.description);
     
-    // Red Phase: Write failing tests first
+    // Red Phase: Write failing tests first,
     const tests = await this.generateFailingTests(appType, language);
     
-    // Green Phase: Implement minimal code to pass tests
+    // Green Phase: Implement minimal code to pass tests,
     const implementation = await this.generateMinimalImplementation(appType, language, tests);
     
-    // Refactor Phase: Optimize and clean up
+    // Refactor Phase: Optimize and clean up,
     const refactored = await this.refactorImplementation(implementation, tests);
     
     const tddResult = {
@@ -304,16 +305,16 @@ export class SparcTaskExecutor {
     };
 
     if (targetDir) {
-      // Create proper project structure
+      // Create proper project structure,
       await this.createProjectStructure(targetDir, appType, language);
       
-      // Write test files
+      // Write test files,
       await this.writeTestFiles(targetDir, tests, language);
       
-      // Write implementation files
+      // Write implementation files,
       await this.writeImplementationFiles(targetDir, refactored, language);
       
-      // Generate additional files
+      // Generate additional files,
       await this.generateProjectFiles(targetDir, appType, language);
     }
 
@@ -407,7 +408,7 @@ export class SparcTaskExecutor {
     return documentation;
   }
 
-  // Helper methods for generating content
+  // Helper methods for generating content,
 
   private determineAppType(description: string): string {
     const desc = description.toLowerCase();
@@ -439,7 +440,7 @@ export class SparcTaskExecutor {
   }
 
   private generateUserStories(appType: string): any[] {
-    const stories = {
+    const stories: Record<string, any[]> = {
       'rest-api': [
         { id: 'US001', story: 'As a developer, I want to create resources via POST endpoints', priority: 'high' },
         { id: 'US002', story: 'As a developer, I want to retrieve resources via GET endpoints', priority: 'high' },
@@ -465,7 +466,7 @@ export class SparcTaskExecutor {
   }
 
   private generateAcceptanceCriteria(appType: string): any {
-    const criteria = {
+    const criteria: Record<string, any> = {
       'rest-api': {
         endpoints: ['All CRUD operations return appropriate status codes', 'API responses follow consistent format'],
         performance: ['Response time < 200ms for simple queries', 'Can handle 100 concurrent requests'],
@@ -528,7 +529,7 @@ export class SparcTaskExecutor {
     const testDir = path.join(targetDir, this.getTestDirectory(language));
     await fs.mkdir(testDir, { recursive: true });
     
-    // Write unit tests
+    // Write unit tests,
     for (const [name, content] of Object.entries(tests.unit)) {
       const filename = this.getTestFileName(name as string, language);
       await fs.writeFile(path.join(testDir, filename), content as string);
@@ -539,7 +540,7 @@ export class SparcTaskExecutor {
     const srcDir = path.join(targetDir, this.getSourceDirectory(language));
     await fs.mkdir(srcDir, { recursive: true });
     
-    // Write implementation files
+    // Write implementation files,
     for (const [module, content] of Object.entries(implementation.modules)) {
       const filename = this.getSourceFileName(module as string, language);
       await fs.writeFile(path.join(srcDir, filename), content as string);
@@ -554,10 +555,10 @@ export class SparcTaskExecutor {
     }
   }
 
-  // Utility methods for language-specific details
+  // Utility methods for language-specific details,
 
   private getTestFramework(language: string): string {
-    const frameworks = {
+    const frameworks: Record<string, string> = {
       python: 'pytest',
       javascript: 'jest',
       typescript: 'jest',
@@ -567,7 +568,7 @@ export class SparcTaskExecutor {
   }
 
   private getProjectStructure(appType: string, language: string): any {
-    const structures = {
+    const structures: Record<string, any> = {
       'python-rest-api': {
         directories: ['src', 'tests', 'docs', 'config', 'migrations', 'scripts'],
         files: ['requirements.txt', 'setup.py', 'pytest.ini', '.gitignore', 'Dockerfile']
@@ -578,7 +579,8 @@ export class SparcTaskExecutor {
       }
     };
     
-    return structures[`${language}-${appType}`] || {
+    const key = `${language}-${appType}`;
+    return (structures as any)[key] || {
       directories: ['src', 'tests', 'docs'],
       files: ['README.md', '.gitignore']
     };
@@ -598,7 +600,7 @@ export class SparcTaskExecutor {
   }
 
   private getSourceFileName(name: string, language: string): string {
-    const extensions = {
+    const extensions: Record<string, string> = {
       python: 'py',
       javascript: 'js',
       typescript: 'ts',
@@ -607,10 +609,10 @@ export class SparcTaskExecutor {
     return `${name}.${extensions[language] || 'js'}`;
   }
 
-  // Content generation methods
+  // Content generation methods,
 
   private getFunctionalRequirements(appType: string): string[] {
-    const requirements = {
+    const requirements: Record<string, string[]> = {
       'rest-api': [
         'Implement RESTful endpoints for all resources',
         'Support JSON request/response format',
@@ -648,7 +650,7 @@ export class SparcTaskExecutor {
   }
 
   private getTechnicalRequirements(appType: string): string[] {
-    const tech = {
+    const tech: Record<string, string[]> = {
       'rest-api': [
         'Use appropriate web framework (Express, Flask, FastAPI)',
         'Implement database ORM/ODM',
@@ -681,8 +683,8 @@ export class SparcTaskExecutor {
   private generateUnitTestCases(appType: string, language: string, framework: string): any {
     if (language === 'python' && appType === 'rest-api') {
       return {
-        'test_models': `import pytest
-from src.models import User, Product
+        'test_models': `import pytest,
+from src.models import User, Product,
 
 class TestUserModel:
     def test_create_user(self):
@@ -690,7 +692,7 @@ class TestUserModel:
         user = User(username="testuser", email="test@example.com")
         assert user.username == "testuser"
         assert user.email == "test@example.com"
-        assert user.id is None  # Not saved yet
+        assert user.id is None  # Not saved yet,
     
     def test_user_validation(self):
         """Test user validation rules"""
@@ -702,7 +704,7 @@ class TestUserModel:
         user = User(username="testuser", email="test@example.com")
         data = user.to_dict()
         assert data['username'] == "testuser"
-        assert 'password' not in data  # Should not expose password
+        assert 'password' not in data  # Should not expose password,
 
 class TestProductModel:
     def test_create_product(self):
@@ -711,12 +713,12 @@ class TestProductModel:
         assert product.name == "Test Product"
         assert product.price == 99.99
 `,
-        'test_services': `import pytest
-from unittest.mock import Mock, patch
-from src.services import UserService, ProductService
+        'test_services': `import pytest,
+from unittest.mock import Mock, patch,
+from src.services import UserService, ProductService,
 
 class TestUserService:
-    @pytest.fixture
+    @pytest.fixture,
     def user_service(self):
         return UserService()
     
@@ -733,13 +735,13 @@ class TestUserService:
         with patch('src.services.User.query') as mock_query:
             mock_query.get.return_value = Mock(id=1, username="testuser")
             user = user_service.get_user(1)
-            assert user.id == 1
+            assert user.id == 1,
             assert user.username == "testuser"
 `
       };
     }
     
-    // Return generic tests for other combinations
+    // Return generic tests for other combinations,
     return {
       'test_main': 'Test file content for main functionality'
     };
@@ -748,21 +750,21 @@ class TestUserService:
   private generateIntegrationTestCases(appType: string, language: string, framework: string): any {
     if (language === 'python' && appType === 'rest-api') {
       return {
-        'test_api': `import pytest
-from flask import Flask
-from src.app import create_app
+        'test_api': `import pytest,
+from flask import Flask,
+from src.app import create_app,
 
 class TestAPI:
-    @pytest.fixture
+    @pytest.fixture,
     def client(self):
         app = create_app('testing')
         with app.test_client() as client:
-            yield client
+            yield client,
     
     def test_health_endpoint(self, client):
         """Test health check endpoint"""
         response = client.get('/health')
-        assert response.status_code == 200
+        assert response.status_code == 200,
         assert response.json['status'] == 'healthy'
     
     def test_create_user_endpoint(self, client):
@@ -773,13 +775,13 @@ class TestAPI:
             "password": "securepass123"
         }
         response = client.post('/api/users', json=user_data)
-        assert response.status_code == 201
+        assert response.status_code == 201,
         assert response.json['username'] == "testuser"
     
     def test_get_users_endpoint(self, client):
         """Test GET /users endpoint"""
         response = client.get('/api/users')
-        assert response.status_code == 200
+        assert response.status_code == 200,
         assert isinstance(response.json, list)
 `
       };
@@ -814,21 +816,21 @@ class TestAPI:
   private generateModules(appType: string, language: string): any {
     if (language === 'python' && appType === 'rest-api') {
       return {
-        'app': `from flask import Flask
-from flask_cors import CORS
-from config import Config
-from models import db
-from routes import api_bp
+        'app': `from flask import Flask,
+from flask_cors import CORS,
+from config import Config,
+from models import db,
+from routes import api_bp,
 
 def create_app(config_name='development'):
     app = Flask(__name__)
     app.config.from_object(Config[config_name])
     
-    # Initialize extensions
+    # Initialize extensions,
     db.init_app(app)
     CORS(app)
     
-    # Register blueprints
+    # Register blueprints,
     app.register_blueprint(api_bp, url_prefix='/api')
     
     # Health check
@@ -836,15 +838,15 @@ def create_app(config_name='development'):
     def health_check():
         return {'status': 'healthy', 'service': 'REST API'}
     
-    return app
+    return app,
 
 if __name__ == '__main__':
     app = create_app()
     app.run(debug=True)
 `,
-        'models': `from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
-from werkzeug.security import generate_password_hash, check_password_hash
+        'models': `from flask_sqlalchemy import SQLAlchemy,
+from datetime import datetime,
+from werkzeug.security import generate_password_hash, check_password_hash,
 
 db = SQLAlchemy()
 
@@ -889,9 +891,9 @@ class Product(db.Model):
             'created_at': self.created_at.isoformat()
         }
 `,
-        'routes': `from flask import Blueprint, request, jsonify
-from models import db, User, Product
-from services import UserService, ProductService
+        'routes': `from flask import Blueprint, request, jsonify,
+from models import db, User, Product,
+from services import UserService, ProductService,
 
 api_bp = Blueprint('api', __name__)
 user_service = UserService()
@@ -920,13 +922,13 @@ def get_user(user_id):
 def create_user():
     data = request.get_json()
     
-    # Validation
+    # Validation,
     if not data.get('username') or not data.get('email'):
         return jsonify({'error': 'Username and email required'}), 400
     
-    # Check if user exists
+    # Check if user exists,
     if User.query.filter_by(username=data['username']).first():
-        return jsonify({'error': 'Username already exists'}), 409
+        return jsonify({'error': 'Username already exists'}), 409,
     
     user = user_service.create_user(data)
     return jsonify(user.to_dict()), 201
@@ -957,7 +959,7 @@ def create_product():
     product = product_service.create_product(data)
     return jsonify(product.to_dict()), 201
 `,
-        'services': `from models import db, User, Product
+        'services': `from models import db, User, Product,
 
 class UserService:
     def create_user(self, data):
@@ -970,7 +972,7 @@ class UserService:
         
         db.session.add(user)
         db.session.commit()
-        return user
+        return user,
     
     def update_user(self, user, data):
         if 'username' in data:
@@ -981,7 +983,7 @@ class UserService:
             user.set_password(data['password'])
         
         db.session.commit()
-        return user
+        return user,
     
     def delete_user(self, user):
         db.session.delete(user)
@@ -1001,7 +1003,7 @@ class ProductService:
         
         db.session.add(product)
         db.session.commit()
-        return product
+        return product,
     
     def update_product(self, product, data):
         if 'name' in data:
@@ -1016,25 +1018,25 @@ class ProductService:
         db.session.commit()
         return product
 `,
-        'config': `import os
-from dotenv import load_dotenv
+        'config': `import os,
+from dotenv import load_dotenv,
 
 load_dotenv()
 
 class BaseConfig:
     SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-secret-key')
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_TRACK_MODIFICATIONS = False,
     
 class DevelopmentConfig(BaseConfig):
-    DEBUG = True
+    DEBUG = True,
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'sqlite:///dev.db')
     
 class TestingConfig(BaseConfig):
-    TESTING = True
+    TESTING = True,
     SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
     
 class ProductionConfig(BaseConfig):
-    DEBUG = False
+    DEBUG = False,
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
     
 Config = {
@@ -1077,16 +1079,16 @@ Config = {
   private async getProjectFiles(appType: string, language: string): Promise<any> {
     if (language === 'python') {
       return {
-        'requirements.txt': `flask==2.3.2
-flask-sqlalchemy==3.0.5
-flask-cors==4.0.0
-python-dotenv==1.0.0
-pytest==7.4.0
-pytest-cov==4.1.0
-black==23.7.0
+        'requirements.txt': `flask==2.3.2,
+flask-sqlalchemy==3.0.5,
+flask-cors==4.0.0,
+python-dotenv==1.0.0,
+pytest==7.4.0,
+pytest-cov==4.1.0,
+black==23.7.0,
 flake8==6.0.0
 `,
-        'setup.py': `from setuptools import setup, find_packages
+        'setup.py': `from setuptools import setup, find_packages,
 
 setup(
     name="${appType}",
@@ -1109,8 +1111,8 @@ setup(
 )
 `,
         'pytest.ini': `[pytest]
-testpaths = tests
-python_files = test_*.py
+testpaths = tests,
+python_files = test_*.py,
 python_classes = Test*
 python_functions = test_*
 addopts = -v --cov=src --cov-report=html --cov-report=term
@@ -1119,48 +1121,48 @@ addopts = -v --cov=src --cov-report=html --cov-report=term
 *.py[cod]
 *$py.class
 *.so
-.Python
+.Python,
 env/
 venv/
 .env
 *.db
-.coverage
+.coverage,
 htmlcov/
 .pytest_cache/
 `,
-        'Dockerfile': `FROM python:3.9-slim
+        'Dockerfile': `FROM python:3.9-slim,
 
-WORKDIR /app
+WORKDIR /app,
 
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt,
 
 COPY . .
 
-EXPOSE 5000
+EXPOSE 5000,
 
 CMD ["python", "-m", "src.app"]
 `,
-        'docker-compose.yml': `version: '3.8'
+        'docker-compose.yml': `version: '3.8',
 
 services:
-  app:
-    build: .
+  app:,
+    build: .,
     ports:
-      - "5000:5000"
+      - "5000:5000",
     environment:
-      - DATABASE_URL=postgresql://user:pass@db:5432/appdb
+      - DATABASE_URL=postgresql://user:pass@db:5432/appdb,
     depends_on:
-      - db
+      - db,
   
   db:
-    image: postgres:13
+    image: postgres:13,
     environment:
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=pass
-      - POSTGRES_DB=appdb
+      - POSTGRES_DB=appdb,
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data,
 
 volumes:
   postgres_data:
@@ -1183,7 +1185,7 @@ volumes:
     };
   }
 
-  // Formatting methods
+  // Formatting methods,
 
   private formatRequirements(requirements: any): string {
     return `# Requirements
@@ -1252,8 +1254,8 @@ ${JSON.stringify(architecture.infrastructure, null, 2)}
   private formatComponentDiagram(components: any): string {
     return `# Component Diagram
 
-\`\`\`mermaid
-graph TD
+\`\`\`mermaid,
+graph TD,
     A[Client] --> B[API Gateway]
     B --> C[Application Server]
     C --> D[Database]
@@ -1272,8 +1274,8 @@ graph TD
 - E2E Tests: ${plan.e2eTests}
 - Performance Tests: ${plan.performanceTests}
 
-## Coverage Target
-Target: ${plan.coverage.target}%
+## Coverage Target,
+Target: ${plan.coverage.target}%,
 Current: ${plan.coverage.current}%
 `;
   }
@@ -1306,39 +1308,39 @@ ${task.description}
 ## Installation
 
 \`\`\`bash
-# Clone the repository
+# Clone the repository,
 git clone <repository-url>
 cd <project-directory>
 
-# Install dependencies
+# Install dependencies,
 pip install -r requirements.txt
-# or
+# or,
 npm install
 \`\`\`
 
 ## Usage
 
 \`\`\`bash
-# Run the application
+# Run the application,
 python -m src.app
-# or
+# or,
 npm start
 \`\`\`
 
 ## Testing
 
 \`\`\`bash
-# Run tests
+# Run tests,
 pytest
-# or
+# or,
 npm test
 \`\`\`
 
-## Documentation
+## Documentation,
 
 See the \`docs/\` directory for detailed documentation.
 
-## License
+## License,
 
 MIT
 `;
@@ -1349,19 +1351,19 @@ MIT
 
 ## Endpoints
 
-### GET /api/users
+### GET /api/users,
 Retrieve all users
 
-### POST /api/users
+### POST /api/users,
 Create a new user
 
-### GET /api/users/:id
+### GET /api/users/:id,
 Retrieve a specific user
 
-### PUT /api/users/:id
+### PUT /api/users/:id,
 Update a user
 
-### DELETE /api/users/:id
+### DELETE /api/users/:id,
 Delete a user
 `;
   }
@@ -1369,10 +1371,10 @@ Delete a user
   private generateUserGuide(task: TaskDefinition): string {
     return `# User Guide
 
-## Getting Started
+## Getting Started,
 
-1. Install the application
-2. Configure your environment
+1. Install the application,
+2. Configure your environment,
 3. Start using the features
 
 ## Features
@@ -1386,23 +1388,23 @@ Delete a user
   private generateDeveloperGuide(task: TaskDefinition): string {
     return `# Developer Guide
 
-## Architecture
+## Architecture,
 
 The application follows a modular architecture...
 
-## Development Setup
+## Development Setup,
 
-1. Clone the repository
-2. Install dependencies
+1. Clone the repository,
+2. Install dependencies,
 3. Set up development environment
 
-## Contributing
+## Contributing,
 
 Please follow our contribution guidelines...
 `;
   }
 
-  // Additional helper methods
+  // Additional helper methods,
 
   private assessCodeQuality(task: TaskDefinition): any {
     return {

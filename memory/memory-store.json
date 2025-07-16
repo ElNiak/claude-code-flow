@@ -1,0 +1,16 @@
+{
+  "default": [
+    {
+      "key": "test-key",
+      "value": "integration test data",
+      "namespace": "default",
+      "timestamp": 1752462458960
+    },
+    {
+      "key": "documentation-completion",
+      "value": "Comprehensive unified work command documentation suite created successfully with 5 major documents covering API reference, user guide, developer guide, architecture, and migration/deployment",
+      "namespace": "default",
+      "timestamp": 1752463602219
+    }
+  ]
+}

@@ -1,5 +1,5 @@
-#!/usr/bin/env node
-import { getErrorMessage } from '../utils/error-handler.js';
+#!/usr/bin/env node,
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * Unified Migration Utilities
  * Helps users migrate from legacy Claude Flow to unified coordination system
@@ -44,11 +44,11 @@ export class UnifiedMigrationManager {
       riskLevel: 'low'
     };
 
-    // Check existing files and configurations
+    // Check existing files and configurations,
     const existingFiles = await this.scanExistingFiles();
     const legacyConfigs = await this.detectLegacyConfigurations();
     
-    // Create backup command
+    // Create backup command,
     plan.commands.push({
       type: 'backup',
       description: 'Backup existing Claude Flow configuration and data',
@@ -57,7 +57,7 @@ export class UnifiedMigrationManager {
       required: true
     });
 
-    // Migration commands based on existing setup
+    // Migration commands based on existing setup,
     if (existingFiles.hasMemoryData) {
       plan.commands.push({
         type: 'migrate',
@@ -80,7 +80,7 @@ export class UnifiedMigrationManager {
       plan.estimatedTime += 15;
     }
 
-    // Create new unified configuration files
+    // Create new unified configuration files,
     plan.commands.push({
       type: 'create',
       description: 'Create unified coordination configuration',
@@ -89,7 +89,7 @@ export class UnifiedMigrationManager {
       required: true
     });
 
-    // Update CLAUDE.md for unified system
+    // Update CLAUDE.md for unified system,
     plan.commands.push({
       type: 'update',
       description: 'Update CLAUDE.md with unified coordination instructions',
@@ -99,7 +99,7 @@ export class UnifiedMigrationManager {
       required: false
     });
 
-    // Create migration completion marker
+    // Create migration completion marker,
     plan.commands.push({
       type: 'create',
       description: 'Create migration completion marker',
@@ -112,7 +112,7 @@ export class UnifiedMigrationManager {
       required: true
     });
 
-    plan.estimatedTime += 30; // Additional time for setup and verification
+    plan.estimatedTime += 30; // Additional time for setup and verification,
 
     this.log('info', `Migration plan created: ${plan.commands.length} steps, estimated ${plan.estimatedTime}s`);
     return plan;
@@ -131,7 +131,7 @@ export class UnifiedMigrationManager {
           completed++;
           this.log('info', `✅ ${command.description}`);
         } catch (error) {
-          const errorMsg = `Failed to ${command.description}: ${getErrorMessage(error)}`;
+          const errorMsg = `Failed to ${command.description}: ${_getErrorMessage(error)}`;
           errors.push(errorMsg);
           this.log('error', errorMsg);
           
@@ -154,7 +154,7 @@ export class UnifiedMigrationManager {
       return { success, errors };
 
     } catch (error) {
-      const errorMsg = `Migration execution failed: ${getErrorMessage(error)}`;
+      const errorMsg = `Migration execution failed: ${_getErrorMessage(error)}`;
       errors.push(errorMsg);
       this.log('error', errorMsg);
       return { success: false, errors };
@@ -195,12 +195,17 @@ export class UnifiedMigrationManager {
     hasSwarmConfig: boolean;
     swarmConfigPath?: string;
   }> {
-    const result = {
+    const result: {
+      hasMemoryData: boolean;
+      hasSwarmConfig: boolean;
+      memoryPath?: string;
+      swarmConfigPath?: string;
+    } = {
       hasMemoryData: false,
       hasSwarmConfig: false
     };
 
-    // Check for memory data
+    // Check for memory data,
     const memoryPaths = [
       'memory/claude-flow-data.json',
       'memory/claude-flow-memory.db',
@@ -216,7 +221,7 @@ export class UnifiedMigrationManager {
       }
     }
 
-    // Check for swarm configuration
+    // Check for swarm configuration,
     const swarmConfigPaths = [
       '.claude/swarm-config.json',
       'swarm-config.json',
@@ -236,7 +241,7 @@ export class UnifiedMigrationManager {
   }
 
   private async detectLegacyConfigurations(): Promise<any[]> {
-    // Implementation would scan for legacy configuration patterns
+    // Implementation would scan for legacy configuration patterns,
     return [];
   }
 
@@ -281,27 +286,27 @@ export class UnifiedMigrationManager {
 The unified \`work\` command replaces multiple legacy commands with a single, powerful coordination interface:
 
 \`\`\`bash
-# Execute any task with automatic coordination
+# Execute any task with automatic coordination,
 npx claude-flow@alpha work --task "Build a REST API with authentication"
 
-# Custom agent count and topology
+# Custom agent count and topology,
 npx claude-flow@alpha work --task "Create a frontend app" --agents 6 --topology mesh
 
-# Enable specific features
+# Enable specific features,
 npx claude-flow@alpha work --task "Analyze codebase" --intrinsic --memory --ruv-swarm
 \`\`\`
 
-### Enhanced Agent System
+### Enhanced Agent System,
 Agents now have intrinsic coordination with automatic memory hooks:
 
 \`\`\`bash
-# Spawn intrinsic agents with coordination
+# Spawn intrinsic agents with coordination,
 npx claude-flow@alpha agent spawn researcher --intrinsic --memory-hooks
 
-# Check agent coordination status  
+# Check agent coordination status,  
 npx claude-flow@alpha agent status --session-id my-session
 
-# Memory-based agent coordination
+# Memory-based agent coordination,
 npx claude-flow@alpha memory-coord --action coordinate --session-id my-session
 \`\`\`
 
@@ -313,29 +318,29 @@ npx claude-flow@alpha memory-coord --action coordinate --session-id my-session
 - \`swarm status\` → \`agent status --session-id [ID]\`
 - \`memory store\` → \`memory-coord --action store --session-id [ID]\`
 
-### Backward Compatibility
+### Backward Compatibility,
 All legacy commands still work with migration notices:
 
 \`\`\`bash
-# View migration guide
+# View migration guide,
 npx claude-flow@alpha migrate-guide
 
-# Use legacy commands explicitly
-npx claude-flow@alpha swarm-legacy init
+# Use legacy commands explicitly,
+npx claude-flow@alpha swarm-legacy init,
 npx claude-flow@alpha agent-legacy spawn
 \`\`\`
 
 ## 🧠 INTRINSIC COORDINATION FEATURES
 
-### Automatic Coordination Hooks
+### Automatic Coordination Hooks,
 Every agent automatically executes coordination hooks:
 
-1. **Pre-task hooks**: Load context and coordinate with other agents
-2. **Post-edit hooks**: Store progress and sync with session memory
-3. **Notification hooks**: Share decisions and findings
+1. **Pre-task hooks**: Load context and coordinate with other agents,
+2. **Post-edit hooks**: Store progress and sync with session memory,
+3. **Notification hooks**: Share decisions and findings,
 4. **Memory hooks**: Maintain persistent coordination state
 
-### Memory-Based Coordination
+### Memory-Based Coordination,
 Agents coordinate through shared session memory:
 
 - Cross-agent communication
@@ -352,7 +357,7 @@ Agents coordinate through shared session memory:
 
 ### MCP Integration
 \`\`\`bash
-# Add Claude Flow MCP server with unified tools
+# Add Claude Flow MCP server with unified tools,
 claude mcp add claude-flow npx claude-flow@alpha mcp start
 \`\`\`
 
@@ -366,17 +371,17 @@ claude mcp add claude-flow npx claude-flow@alpha mcp start
 ## 📖 QUICK START WITH UNIFIED SYSTEM
 
 ### 1. Initialize Project
-\`\`\`bash
+\`\`\`bash,
 npx claude-flow@alpha init --force
 \`\`\`
 
 ### 2. Execute Unified Task
-\`\`\`bash
+\`\`\`bash,
 npx claude-flow@alpha work --task "Build a complete web application with authentication, database, and testing"
 \`\`\`
 
 ### 3. Monitor Coordination
-\`\`\`bash
+\`\`\`bash,
 npx claude-flow@alpha agent status --detailed
 \`\`\`
 
@@ -392,22 +397,22 @@ npx claude-flow@alpha agent status --detailed
 - Distributed decision making
 - Best for complex, interdependent tasks
 
-### Ruv-Swarm Integration
+### Ruv-Swarm Integration,
 When ruv-swarm is available, the system automatically:
 - Uses ruv-swarm for primary coordination
 - Falls back to intrinsic coordination if unavailable
 - Provides hybrid coordination benefits
 
-## 🔄 MIGRATION STATUS
+## 🔄 MIGRATION STATUS,
 
 This project has been migrated to:
 - ✅ Unified Coordination System
 - ✅ Intrinsic Agent Coordination  
 - ✅ Memory-Based Coordination
-- ✅ Backward Compatibility Support
+- ✅ Backward Compatibility Support,
 
 For legacy usage patterns, see migration guide:
-\`\`\`bash
+\`\`\`bash,
 npx claude-flow@alpha migrate-guide
 \`\`\`
 
@@ -438,7 +443,7 @@ npx claude-flow@alpha migrate-guide
       JSON.stringify(backupManifest, null, 2)
     );
 
-    // Copy relevant files
+    // Copy relevant files,
     const filesToBackup = [
       'CLAUDE.md',
       'memory',
@@ -459,14 +464,14 @@ npx claude-flow@alpha migrate-guide
   }
 
   private async migrateData(oldPath: string, newPath: string): Promise<void> {
-    // Implementation would handle data format migration
+    // Implementation would handle data format migration,
     await fs.ensureDir(path.dirname(newPath));
     
     if (await fs.pathExists(oldPath)) {
-      // Copy and potentially transform data
+      // Copy and potentially transform data,
       await fs.copy(oldPath, newPath);
       
-      // Add migration metadata
+      // Add migration metadata,
       const migrationMeta = {
         migratedFrom: oldPath,
         migratedAt: new Date().toISOString(),
@@ -511,7 +516,22 @@ npx claude-flow@alpha migrate-guide
 
   private log(level: string, message: string): void {
     if (this.logger) {
-      this.logger[level]?.(message);
+      switch (level) {
+        case 'info':
+          this.logger.info(message);
+          break;
+        case 'warn':
+          this.logger.warn(message);
+          break;
+        case 'error':
+          this.logger.error(message);
+          break;
+        case 'debug':
+          this.logger.debug(message);
+          break;
+        default:
+          this.logger.info(message);
+      }
     } else {
       console.log(`[${level.toUpperCase()}] ${message}`);
     }

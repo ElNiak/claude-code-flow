@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 import * as path from 'path';
 import { EventEmitter } from 'events';
 import { copyPrompts, copyPromptsEnhanced, CopyOptions, CopyResult } from './prompt-copier-enhanced.js';
@@ -60,16 +60,16 @@ export class PromptManager extends EventEmitter {
   async initialize(): Promise<void> {
     logger.info('Initializing PromptManager...');
     
-    // Load configuration
+    // Load configuration,
     await this.configManager.loadConfig();
     
-    // Auto-discover prompt directories if enabled
+    // Auto-discover prompt directories if enabled,
     if (this.options.autoDiscovery) {
       const discovered = await this.pathResolver.discoverPromptDirectories();
       if (discovered.length > 0) {
         logger.info(`Auto-discovered ${discovered.length} prompt directories`);
         
-        // Update config with discovered directories
+        // Update config with discovered directories,
         const config = this.configManager.getConfig();
         const uniqueDirs = Array.from(new Set([
           ...config.sourceDirectories,
@@ -89,7 +89,7 @@ export class PromptManager extends EventEmitter {
     const config = this.configManager.getConfig();
     const profile = this.options.defaultProfile;
     
-    // Resolve paths
+    // Resolve paths,
     const resolved = this.pathResolver.resolvePaths(
       config.sourceDirectories,
       config.destinationDirectory
@@ -99,9 +99,9 @@ export class PromptManager extends EventEmitter {
       throw new Error('No valid source directories found');
     }
 
-    // Build copy options
+    // Build copy options,
     const copyOptions: CopyOptions = {
-      source: resolved.sources[0], // Use first available source
+      source: resolved.sources[0], // Use first available source,
       destination: resolved.destination,
       ...this.configManager.getProfile(profile),
       ...options
@@ -156,7 +156,7 @@ export class PromptManager extends EventEmitter {
         logger.error(`Failed to copy from ${source}:`, error);
         this.emit('sourceError', { source, error });
         
-        // Add error result
+        // Add error result,
         results.push({
           success: false,
           totalFiles: 0,
@@ -268,7 +268,7 @@ export class PromptManager extends EventEmitter {
 
     let backwardResult: CopyResult | undefined;
 
-    // Backward sync if bidirectional
+    // Backward sync if bidirectional,
     if (syncOptions.bidirectional) {
       backwardResult = await this.performIncrementalSync(
         resolved.destination,
@@ -289,7 +289,7 @@ export class PromptManager extends EventEmitter {
     options: SyncOptions
   ): Promise<CopyResult> {
     // This would implement incremental sync logic
-    // For now, we'll use the regular copy with overwrite
+    // For now, we'll use the regular copy with overwrite,
     return copyPrompts({
       source,
       destination,
@@ -319,7 +319,7 @@ export class PromptManager extends EventEmitter {
       config.destinationDirectory
     );
 
-    // Analyze sources
+    // Analyze sources,
     const sources = await Promise.all(
       resolved.sources.map(async (sourcePath) => {
         try {
@@ -330,7 +330,7 @@ export class PromptManager extends EventEmitter {
             return { path: sourcePath, exists: false };
           }
 
-          // Count files and calculate total size
+          // Count files and calculate total size,
           let fileCount = 0;
           let totalSize = 0;
 
@@ -370,7 +370,7 @@ export class PromptManager extends EventEmitter {
     };
   }
 
-  // Utility methods
+  // Utility methods,
   getConfig() {
     return this.configManager.getConfig();
   }
@@ -392,12 +392,12 @@ export class PromptManager extends EventEmitter {
   }
 }
 
-// Export factory function
+// Export factory function,
 export function createPromptManager(options?: PromptManagerOptions): PromptManager {
   return new PromptManager(options);
 }
 
-// Export singleton instance
+// Export singleton instance,
 let defaultManager: PromptManager | null = null;
 
 export function getDefaultPromptManager(): PromptManager {

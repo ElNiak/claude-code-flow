@@ -84,7 +84,7 @@ class ClaudeCodeConsole {
       console.log('Claude Code Console initialized successfully');
       
     } catch (error) {
-      console.error('Failed to initialize console:', error);
+      console.error('Failed to initialize console:', _error);
       this.showError('Failed to initialize console: ' + error.message);
     }
   }
@@ -362,7 +362,7 @@ class ClaudeCodeConsole {
         break;
         
       default:
-        console.log('Unhandled notification:', method, params);
+        console.log('Unhandled notification:', method, _params);
     }
   }
   
@@ -453,7 +453,7 @@ class ClaudeCodeConsole {
    */
   handleConnectionEstablished(params) {
     // Log connection details without cluttering the terminal
-    console.log('Connection established:', params);
+    console.log('Connection established:', _params);
     // Optionally show a brief success message
     // this.terminal.writeSuccess(`Connected to ${params.server} v${params.version}`);
   }

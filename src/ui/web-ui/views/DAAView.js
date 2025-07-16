@@ -772,7 +772,7 @@ Example:
     
     if (params.tool) {
       console.log(`\n🔧 Executing: ${params.tool}`);
-      this.quickAction(params.tool, params);
+      this.quickAction(params.tool, _params);
     }
   }
 
@@ -821,7 +821,7 @@ Example:
       }
       
     } catch (error) {
-      console.error(`❌ Error executing ${toolName}:`, error);
+      console.error(`❌ Error executing ${toolName}:`, _error);
     }
   }
 

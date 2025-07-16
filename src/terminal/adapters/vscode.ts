@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../../utils/error-handler.js';
 /**
  * VSCode terminal adapter implementation
  */
@@ -56,7 +56,7 @@ class VSCodeTerminalWrapper implements Terminal {
 
   async initialize(): Promise<void> {
     try {
-      // Create VSCode terminal
+      // Create VSCode terminal,
       const shellPath = this.getShellPath();
       const terminalOptions: any = {
         name: `Claude-Flow Terminal ${this.id}`,
@@ -72,7 +72,7 @@ class VSCodeTerminalWrapper implements Terminal {
       }
       this.vscodeTerminal = this.vscodeApi.window.createTerminal(terminalOptions);
 
-      // Get process ID
+      // Get process ID,
       const processId = await this.vscodeTerminal.processId;
       if (processId !== undefined) {
         this.pid = processId;
@@ -81,7 +81,7 @@ class VSCodeTerminalWrapper implements Terminal {
       // Show terminal (but don't steal focus)
       this.vscodeTerminal.show(true);
 
-      // Wait for terminal to be ready
+      // Wait for terminal to be ready,
       await this.waitForReady();
 
       this.logger.debug('VSCode terminal initialized', { id: this.id, pid: this.pid });
@@ -96,15 +96,15 @@ class VSCodeTerminalWrapper implements Terminal {
     }
 
     try {
-      // Clear output buffer
+      // Clear output buffer,
       this.outputBuffer = '';
       this.outputDeferred = createDeferred<string>();
 
-      // Send command with marker
+      // Send command with marker,
       const markedCommand = `${command} && echo "${this.commandMarker}"`;
       this.vscodeTerminal.sendText(markedCommand, true);
 
-      // Wait for command to complete
+      // Wait for command to complete,
       const output = await timeout(
         this.outputDeferred.promise,
         30000,
@@ -130,7 +130,7 @@ class VSCodeTerminalWrapper implements Terminal {
       throw new TerminalError('Terminal is not alive');
     }
 
-    // Return buffered output
+    // Return buffered output,
     const output = this.outputBuffer;
     this.outputBuffer = '';
     return output;
@@ -143,11 +143,11 @@ class VSCodeTerminalWrapper implements Terminal {
   async kill(): Promise<void> {
     if (this.vscodeTerminal && !this.isDisposed) {
       try {
-        // Try graceful shutdown first
+        // Try graceful shutdown first,
         this.vscodeTerminal.sendText('exit', true);
         await delay(500);
 
-        // Dispose terminal
+        // Dispose terminal,
         this.vscodeTerminal.dispose();
         this.isDisposed = true;
       } catch (error) {
@@ -162,18 +162,18 @@ class VSCodeTerminalWrapper implements Terminal {
   processOutput(data: string): void {
     this.outputBuffer += data;
 
-    // Check for command completion marker
+    // Check for command completion marker,
     const markerIndex = this.outputBuffer.indexOf(this.commandMarker);
     if (markerIndex !== -1) {
-      // Extract output before marker
+      // Extract output before marker,
       const output = this.outputBuffer.substring(0, markerIndex).trim();
       
-      // Clear buffer up to after marker
+      // Clear buffer up to after marker,
       this.outputBuffer = this.outputBuffer.substring(
         markerIndex + this.commandMarker.length,
       ).trim();
 
-      // Resolve pending command
+      // Resolve pending command,
       this.outputDeferred.resolve(output);
     }
   }
@@ -209,7 +209,7 @@ class VSCodeTerminalWrapper implements Terminal {
   }
 
   private async waitForReady(): Promise<void> {
-    // Send a test command to ensure terminal is ready
+    // Send a test command to ensure terminal is ready,
     this.vscodeTerminal!.sendText('echo "READY"', true);
     
     const startTime = Date.now();
@@ -241,20 +241,20 @@ export class VSCodeAdapter implements ITerminalAdapter {
   async initialize(): Promise<void> {
     this.logger.info('Initializing VSCode terminal adapter');
     
-    // Check if running in VSCode extension context
+    // Check if running in VSCode extension context,
     if (!this.isVSCodeExtensionContext()) {
       throw new TerminalError('Not running in VSCode extension context');
     }
 
-    // Get VSCode API from global
+    // Get VSCode API from global,
     this.vscodeApi = (globalThis as any).vscode;
     if (!this.vscodeApi) {
       throw new TerminalError('VSCode API not available');
     }
 
-    // Register terminal close listener
+    // Register terminal close listener,
     this.terminalCloseListener = this.vscodeApi.window.onDidCloseTerminal((terminal) => {
-      // Find and clean up closed terminal
+      // Find and clean up closed terminal,
       for (const [id, wrapper] of this.terminals.entries()) {
         if ((wrapper as any).vscodeTerminal === terminal) {
           this.logger.info('VSCode terminal closed', { id });
@@ -270,12 +270,12 @@ export class VSCodeAdapter implements ITerminalAdapter {
   async shutdown(): Promise<void> {
     this.logger.info('Shutting down VSCode terminal adapter');
     
-    // Dispose listener
+    // Dispose listener,
     if (this.terminalCloseListener) {
       this.terminalCloseListener.dispose();
     }
 
-    // Kill all terminals
+    // Kill all terminals,
     const terminals = Array.from(this.terminals.values());
     await Promise.all(terminals.map(term => term.kill()));
     
@@ -296,7 +296,7 @@ export class VSCodeAdapter implements ITerminalAdapter {
     await terminal.initialize();
     this.terminals.set(terminal.id, terminal);
     
-    // Register output processor if extension provides it
+    // Register output processor if extension provides it,
     const outputProcessor = (globalThis as any).registerTerminalOutputProcessor;
     if (outputProcessor) {
       outputProcessor(terminal.id, (data: string) => terminal.processOutput(data));
@@ -311,24 +311,24 @@ export class VSCodeAdapter implements ITerminalAdapter {
   }
 
   private isVSCodeExtensionContext(): boolean {
-    // Check for VSCode extension environment
+    // Check for VSCode extension environment,
     return typeof (globalThis as any).vscode !== 'undefined' &&
            typeof (globalThis as any).vscode.window !== 'undefined';
   }
 
   private detectShell(): string {
-    // Get default shell from VSCode settings or environment
+    // Get default shell from VSCode settings or environment,
     const osplatform = platform();
     
     if (osplatform === 'win32') {
-      // Windows defaults
+      // Windows defaults,
       const comspec = process.env.COMSPEC;
       if (comspec?.toLowerCase().includes('powershell')) {
         return 'powershell';
       }
       return 'cmd';
     } else {
-      // Unix-like defaults
+      // Unix-like defaults,
       const shell = process.env.SHELL;
       if (shell) {
         const shellName = shell.split('/').pop();

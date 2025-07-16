@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * Logging infrastructure for Claude-Flow
  */
@@ -54,7 +54,7 @@ export class Logger implements ILogger {
     },
     context: Record<string, unknown> = {},
   ) {
-    // Validate file path if file destination
+    // Validate file path if file destination,
     if ((config.destination === 'file' || config.destination === 'both') && !config.filePath) {
       throw new Error('File path required for file logging');
     }
@@ -69,7 +69,7 @@ export class Logger implements ILogger {
   static getInstance(config?: LoggingConfig): Logger {
     if (!Logger.instance) {
       if (!config) {
-        // Use default config if none provided and not in test environment
+        // Use default config if none provided and not in test environment,
         const isTestEnv = process.env.CLAUDE_FLOW_ENV === 'test';
         if (isTestEnv) {
           throw new Error('Logger configuration required for initialization');
@@ -91,7 +91,7 @@ export class Logger implements ILogger {
   async configure(config: LoggingConfig): Promise<void> {
     this.config = config;
     
-    // Reset file handle if destination changed
+    // Reset file handle if destination changed,
     if (this.fileHandle && config.destination !== 'file' && config.destination !== 'both') {
       await this.fileHandle.close();
       delete this.fileHandle;
@@ -169,7 +169,7 @@ export class Logger implements ILogger {
 
   private format(entry: LogEntry): string {
     if (this.config.format === 'json') {
-      // Handle error serialization for JSON format
+      // Handle error serialization for JSON format,
       const jsonEntry = { ...entry };
       if (jsonEntry.error instanceof Error) {
         jsonEntry.error = {
@@ -181,7 +181,7 @@ export class Logger implements ILogger {
       return JSON.stringify(jsonEntry);
     }
 
-    // Text format
+    // Text format,
     const contextStr = Object.keys(entry.context).length > 0
       ? ` ${JSON.stringify(entry.context)}`
       : '';
@@ -220,17 +220,17 @@ export class Logger implements ILogger {
     }
 
     try {
-      // Check if we need to rotate the log file
+      // Check if we need to rotate the log file,
       if (await this.shouldRotate()) {
         await this.rotate();
       }
 
-      // Open file handle if not already open
+      // Open file handle if not already open,
       if (!this.fileHandle) {
         this.fileHandle = await fs.open(this.config.filePath, 'a');
       }
 
-      // Write the message
+      // Write the message,
       const data = Buffer.from(message + '\n', 'utf8');
       await this.fileHandle.write(data);
       this.currentFileSize += data.length;
@@ -257,21 +257,21 @@ export class Logger implements ILogger {
       return;
     }
 
-    // Close current file
+    // Close current file,
     if (this.fileHandle) {
       await this.fileHandle.close();
       delete this.fileHandle;
     }
 
-    // Rename current file
+    // Rename current file,
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const rotatedPath = `${this.config.filePath}.${timestamp}`;
     await fs.rename(this.config.filePath, rotatedPath);
 
-    // Clean up old files
+    // Clean up old files,
     await this.cleanupOldFiles();
 
-    // Reset file size
+    // Reset file size,
     this.currentFileSize = 0;
   }
 
@@ -296,7 +296,7 @@ export class Logger implements ILogger {
       // Sort files by timestamp (newest first)
       files.sort().reverse();
 
-      // Remove old files
+      // Remove old files,
       const filesToRemove = files.slice(this.config.maxFiles - 1);
       for (const file of filesToRemove) {
         await fs.unlink(path.join(dir, file));
@@ -307,5 +307,5 @@ export class Logger implements ILogger {
   }
 }
 
-// Export singleton instance with lazy initialization
+// Export singleton instance with lazy initialization,
 export const logger = Logger.getInstance();

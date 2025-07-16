@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../../utils/error-handler.js';
 /**
  * Configuration integration commands for ruv-swarm
  * 
@@ -6,7 +6,7 @@ import { getErrorMessage } from '../../utils/error-handler.js';
  * specifically for ruv-swarm integration with Claude Code.
  */
 
-import { success, error, warning, info } from "../cli-core.js";
+import { success, _error, warning, info } from "../cli-core.js";
 import type { CommandContext } from "../cli-core.js";
 import { configManager } from '../../config/config-manager.js';
 import { getRuvSwarmIntegration, RuvSwarmConfigHelpers, initializeRuvSwarmIntegration } from '../../config/ruv-swarm-integration.js';
@@ -21,7 +21,7 @@ export async function configIntegrationAction(ctx: CommandContext) {
   }
   
   const subcommand = ctx.args[0];
-  const subArgs = ctx.args.slice(1);
+  const _subArgs = ctx.args.slice(1);
   
   try {
     switch (subcommand) {
@@ -47,12 +47,12 @@ export async function configIntegrationAction(ctx: CommandContext) {
         await handleImport(ctx);
         break;
       default:
-        error(`Unknown config-integration subcommand: ${subcommand}`);
+        _error(`Unknown config-integration subcommand: ${subcommand}`);
         showConfigIntegrationHelp();
         break;
     }
   } catch (err) {
-    error(`Configuration integration command failed: ${(err as Error).message}`);
+    _error(`Configuration integration command failed: ${_getErrorMessage(err)}`);
   }
 }
 
@@ -97,21 +97,21 @@ async function handleSetup(ctx: CommandContext) {
   info('Setting up ruv-swarm integration...');
   
   try {
-    // Enable ruv-swarm in main config if requested
+    // Enable ruv-swarm in main config if requested,
     if (enableRuvSwarm) {
       configManager.setRuvSwarmConfig({ enabled: true });
       await configManager.save();
       success('ruv-swarm enabled in main configuration');
     }
     
-    // Initialize integration
+    // Initialize integration,
     const result = await initializeRuvSwarmIntegration();
     
     if (result.success) {
       success('ruv-swarm integration setup completed successfully!');
       console.log(`✅ ${result.message}`);
       
-      // Show quick status
+      // Show quick status,
       const integration = getRuvSwarmIntegration();
       const status = integration.getStatus();
       
@@ -123,7 +123,7 @@ async function handleSetup(ctx: CommandContext) {
       console.log(`  Strategy: ${status.mainConfig.defaultStrategy}`);
       
     } else {
-      error('ruv-swarm integration setup failed');
+      _error('ruv-swarm integration setup failed');
       console.log(`❌ ${result.message}`);
       
       if (force) {
@@ -132,7 +132,7 @@ async function handleSetup(ctx: CommandContext) {
     }
     
   } catch (err) {
-    error(`Setup failed: ${(err as Error).message}`);
+    _error(`Setup failed: ${_getErrorMessage(err)}`);
   }
 }
 
@@ -147,17 +147,17 @@ async function handleSync(ctx: CommandContext) {
   try {
     const integration = getRuvSwarmIntegration();
     
-    // Check current sync status
+    // Check current sync status,
     const statusBefore = integration.getStatus();
     if (statusBefore.synchronized && !force) {
       success('Configurations are already synchronized');
       return;
     }
     
-    // Perform sync
+    // Perform sync,
     integration.syncConfiguration();
     
-    // Verify sync
+    // Verify sync,
     const statusAfter = integration.getStatus();
     
     if (statusAfter.synchronized) {
@@ -169,7 +169,7 @@ async function handleSync(ctx: CommandContext) {
     }
     
   } catch (err) {
-    error(`Synchronization failed: ${(err as Error).message}`);
+    _error(`Synchronization failed: ${_getErrorMessage(err)}`);
   }
 }
 
@@ -191,12 +191,12 @@ async function handleStatus(ctx: CommandContext) {
     
     console.log('🔧 Configuration Integration Status\\n');
     
-    // Main status
+    // Main status,
     console.log('📊 Overview:');
     console.log(`  ruv-swarm Enabled: ${status.enabled ? '✅ Yes' : '❌ No'}`);
     console.log(`  Configurations Synchronized: ${status.synchronized ? '✅ Yes' : '⚠️  No'}`);
     
-    // Main configuration
+    // Main configuration,
     console.log('\\n⚙️  Main Configuration:');
     console.log(`  Default Topology: ${status.mainConfig.defaultTopology}`);
     console.log(`  Max Agents: ${status.mainConfig.maxAgents}`);
@@ -222,7 +222,7 @@ async function handleStatus(ctx: CommandContext) {
     }
     
   } catch (err) {
-    error(`Failed to get status: ${(err as Error).message}`);
+    _error(`Failed to get status: ${_getErrorMessage(err)}`);
   }
 }
 
@@ -237,21 +237,21 @@ async function handleValidate(ctx: CommandContext) {
   try {
     const integration = getRuvSwarmIntegration();
     
-    // Validate main config
+    // Validate main config,
     console.log('🔍 Validating main configuration...');
     try {
       const mainConfig = configManager.show();
       configManager.validate(mainConfig);
       success('Main configuration is valid');
     } catch (err) {
-      error(`Main configuration validation failed: ${(err as Error).message}`);
+      _error(`Main configuration validation failed: ${_getErrorMessage(err)}`);
       if (fix) {
         warning('Auto-fix for main configuration not implemented');
       }
       return;
     }
     
-    // Validate ruv-swarm config
+    // Validate ruv-swarm config,
     console.log('🔍 Validating ruv-swarm configuration...');
     const ruvSwarmManager = integration['ruvSwarmManager'];
     const ruvSwarmValidation = ruvSwarmManager.validateConfig();
@@ -259,7 +259,7 @@ async function handleValidate(ctx: CommandContext) {
     if (ruvSwarmValidation.valid) {
       success('ruv-swarm configuration is valid');
     } else {
-      error('ruv-swarm configuration validation failed:');
+      _error('ruv-swarm configuration validation failed:');
       ruvSwarmValidation.errors.forEach(err => console.log(`  - ${err}`));
       
       if (fix) {
@@ -268,7 +268,7 @@ async function handleValidate(ctx: CommandContext) {
       return;
     }
     
-    // Check synchronization
+    // Check synchronization,
     console.log('🔍 Checking synchronization...');
     const status = integration.getStatus();
     
@@ -286,7 +286,7 @@ async function handleValidate(ctx: CommandContext) {
     success('All validations passed');
     
   } catch (err) {
-    error(`Validation failed: ${(err as Error).message}`);
+    _error(`Validation failed: ${_getErrorMessage(err)}`);
   }
 }
 
@@ -295,7 +295,7 @@ async function handleValidate(ctx: CommandContext) {
  */
 async function handlePreset(ctx: CommandContext) {
   if (ctx.args.length < 2) {
-    error('Preset type is required');
+    _error('Preset type is required');
     console.log('Available presets: development, research, production');
     return;
   }
@@ -304,7 +304,7 @@ async function handlePreset(ctx: CommandContext) {
   const dryRun = ctx.flags.dryRun as boolean || ctx.flags['dry-run'] as boolean;
   
   if (!['development', 'research', 'production'].includes(presetType)) {
-    error('Invalid preset type');
+    _error('Invalid preset type');
     console.log('Available presets: development, research, production');
     return;
   }
@@ -331,12 +331,12 @@ async function handlePreset(ctx: CommandContext) {
         break;
     }
     
-    // Save configuration
+    // Save configuration,
     await configManager.save();
     
     success(`${presetType} preset applied successfully`);
     
-    // Show applied configuration
+    // Show applied configuration,
     const integration = getRuvSwarmIntegration();
     const status = integration.getStatus();
     
@@ -350,7 +350,7 @@ async function handlePreset(ctx: CommandContext) {
       .join(', ')}`);
     
   } catch (err) {
-    error(`Failed to apply preset: ${(err as Error).message}`);
+    _error(`Failed to apply preset: ${_getErrorMessage(err)}`);
   }
 }
 
@@ -359,7 +359,7 @@ async function handlePreset(ctx: CommandContext) {
  */
 async function handleExport(ctx: CommandContext) {
   if (ctx.args.length < 2) {
-    error('Export file path is required');
+    _error('Export file path is required');
     console.log('Usage: config-integration export <file>');
     return;
   }
@@ -384,7 +384,7 @@ async function handleExport(ctx: CommandContext) {
     if (format === 'yaml') {
       // Simple YAML export (basic implementation)
       const yamlContent = `# Claude-Flow Configuration Export
-# Generated: ${exportData.timestamp}
+# Generated: ${exportData.timestamp},
 
 main:
 ${JSON.stringify(exportData.main, null, 2).split('\\n').map(line => '  ' + line).join('\\n')}
@@ -405,7 +405,7 @@ ${JSON.stringify(exportData.unified, null, 2).split('\\n').map(line => '  ' + li
     console.log(`📊 Size: ${JSON.stringify(exportData).length} bytes`);
     
   } catch (err) {
-    error(`Export failed: ${(err as Error).message}`);
+    _error(`Export failed: ${_getErrorMessage(err)}`);
   }
 }
 
@@ -414,7 +414,7 @@ ${JSON.stringify(exportData.unified, null, 2).split('\\n').map(line => '  ' + li
  */
 async function handleImport(ctx: CommandContext) {
   if (ctx.args.length < 2) {
-    error('Import file path is required');
+    _error('Import file path is required');
     console.log('Usage: config-integration import <file>');
     return;
   }
@@ -431,12 +431,12 @@ async function handleImport(ctx: CommandContext) {
     try {
       importData = JSON.parse(content);
     } catch {
-      error('Invalid JSON format in import file');
+      _error('Invalid JSON format in import file');
       return;
     }
     
     if (!importData.main || !importData.ruvSwarm) {
-      error('Import file does not contain required configuration sections');
+      _error('Import file does not contain required configuration sections');
       return;
     }
     
@@ -459,13 +459,13 @@ async function handleImport(ctx: CommandContext) {
     
     const integration = getRuvSwarmIntegration();
     
-    // Update configurations
+    // Update configurations,
     integration.updateConfiguration({
       main: importData.main,
       ruvSwarm: importData.ruvSwarm
     });
     
-    // Save changes
+    // Save changes,
     await configManager.save();
     
     success('Configuration imported successfully');
@@ -473,7 +473,7 @@ async function handleImport(ctx: CommandContext) {
     console.log(`📅 Imported: ${importData.timestamp || 'Unknown timestamp'}`);
     
   } catch (err) {
-    error(`Import failed: ${(err as Error).message}`);
+    _error(`Import failed: ${_getErrorMessage(err)}`);
   }
 }
 

@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * Claude-Flow specific MCP tools
  */
@@ -16,42 +16,42 @@ export interface ClaudeFlowToolContext extends MCPContext {
  */
 export function createClaudeFlowTools(logger: ILogger): MCPTool[] {
   return [
-    // Agent management tools
+    // Agent management tools,
     createSpawnAgentTool(logger),
     createListAgentsTool(logger),
     createTerminateAgentTool(logger),
     createGetAgentInfoTool(logger),
 
-    // Task management tools
+    // Task management tools,
     createCreateTaskTool(logger),
     createListTasksTool(logger),
     createGetTaskStatusTool(logger),
     createCancelTaskTool(logger),
     createAssignTaskTool(logger),
 
-    // Memory management tools
+    // Memory management tools,
     createQueryMemoryTool(logger),
     createStoreMemoryTool(logger),
     createDeleteMemoryTool(logger),
     createExportMemoryTool(logger),
     createImportMemoryTool(logger),
 
-    // System monitoring tools
+    // System monitoring tools,
     createGetSystemStatusTool(logger),
     createGetMetricsTool(logger),
     createHealthCheckTool(logger),
 
-    // Configuration tools
+    // Configuration tools,
     createGetConfigTool(logger),
     createUpdateConfigTool(logger),
     createValidateConfigTool(logger),
 
-    // Workflow tools
+    // Workflow tools,
     createExecuteWorkflowTool(logger),
     createCreateWorkflowTool(logger),
     createListWorkflowsTool(logger),
 
-    // Terminal management tools
+    // Terminal management tools,
     createExecuteCommandTool(logger),
     createListTerminalsTool(logger),
     createCreateTerminalTool(logger),
@@ -327,7 +327,7 @@ function createCreateTaskTool(logger: ILogger): MCPTool {
 
       const taskId = await context.orchestrator.createTask(task);
 
-      // Handle assignment
+      // Handle assignment,
       if (input.assignToAgent) {
         await context.orchestrator.assignTask(taskId, input.assignToAgent);
       } else if (input.assignToAgentType) {

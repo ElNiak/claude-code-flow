@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 import { EventEmitter } from 'events';
 import { writeFile, readFile, mkdir, readdir } from 'fs/promises';
 import { join } from 'path';
@@ -255,7 +255,7 @@ export interface DeploymentPipeline {
     totalDeployments: number;
     successRate: number;
     averageDeploymentTime: number;
-    mttr: number; // Mean Time To Recovery
+    mttr: number; // Mean Time To Recovery,
     changeFailureRate: number;
     deploymentFrequency: number;
   };
@@ -500,18 +500,18 @@ export class DeploymentManager extends EventEmitter {
     this.addLog(stage, 'info', `Starting stage: ${stage.name}`, 'system');
     
     try {
-      // Check conditions
+      // Check conditions,
       if (!this.evaluateStageConditions(deployment, stage)) {
         stage.status = 'skipped';
         this.addLog(stage, 'info', 'Stage skipped due to conditions', 'system');
         return;
       }
 
-      // Handle approvals
+      // Handle approvals,
       if (stage.type === 'deploy' && await this.requiresApproval(deployment, stage)) {
         await this.requestApproval(deployment, stage);
         
-        // Wait for approval
+        // Wait for approval,
         while (await this.isPendingApproval(deployment, stage)) {
           await new Promise(resolve => setTimeout(resolve, 10000)); // Check every 10 seconds
         }
@@ -523,7 +523,7 @@ export class DeploymentManager extends EventEmitter {
         }
       }
 
-      // Execute commands
+      // Execute commands,
       for (const command of stage.commands) {
         await this.executeCommand(deployment, stage, command);
       }
@@ -540,7 +540,7 @@ export class DeploymentManager extends EventEmitter {
       
       this.addLog(stage, 'error', `Stage failed: ${(error instanceof Error ? error.message : String(error))}`, 'system');
       
-      // Retry logic
+      // Retry logic,
       if (stage.retryPolicy.maxRetries > 0) {
         await this.retryStage(deployment, stage);
       }
@@ -601,7 +601,7 @@ export class DeploymentManager extends EventEmitter {
         clearTimeout(timeout);
         this.activeProcesses.delete(`${deployment.id}-${stage.id}-${command.id}`);
 
-        // Check success criteria
+        // Check success criteria,
         const success = this.evaluateCommandSuccess(command, code, stdout, stderr);
         
         if (success) {
@@ -632,7 +632,7 @@ export class DeploymentManager extends EventEmitter {
       throw new Error(`Deployment not found: ${deploymentId}`);
     }
 
-    // Find previous successful deployment
+    // Find previous successful deployment,
     const previousDeployment = await this.getPreviousSuccessfulDeployment(
       deployment.projectId,
       deployment.environmentId,
@@ -663,7 +663,7 @@ export class DeploymentManager extends EventEmitter {
     });
 
     try {
-      // Execute rollback strategy
+      // Execute rollback strategy,
       await this.executeRollbackStrategy(deployment, previousDeployment);
       
       deployment.rollback.rollbackDuration = Date.now() - rollbackStartTime.getTime();
@@ -699,7 +699,7 @@ export class DeploymentManager extends EventEmitter {
   ): Promise<DeploymentMetrics> {
     let deployments = Array.from(this.deployments.values());
 
-    // Apply filters
+    // Apply filters,
     if (filters) {
       if (filters.projectId) {
         deployments = deployments.filter(d => d.projectId === filters.projectId);
@@ -732,7 +732,7 @@ export class DeploymentManager extends EventEmitter {
         sum + (d.metrics.endTime!.getTime() - d.metrics.startTime.getTime()), 0
       ) / completedDeployments.length : 0;
 
-    // Calculate environment metrics
+    // Calculate environment metrics,
     const environmentMetrics: Record<string, any> = {};
     for (const env of this.environments.values()) {
       const envDeployments = deployments.filter(d => d.environmentId === env.id);
@@ -748,7 +748,7 @@ export class DeploymentManager extends EventEmitter {
       };
     }
 
-    // Calculate strategy metrics
+    // Calculate strategy metrics,
     const strategyMetrics: Record<string, any> = {};
     for (const strategy of this.strategies.values()) {
       const strategyDeployments = deployments.filter(d => d.strategyId === strategy.id);
@@ -779,9 +779,9 @@ export class DeploymentManager extends EventEmitter {
     };
   }
 
-  // Private helper methods
+  // Private helper methods,
   private async loadConfigurations(): Promise<void> {
-    // Load environments, strategies, and pipelines from disk
+    // Load environments, strategies, and pipelines from disk,
     try {
       const envFiles = await readdir(join(this.deploymentsPath, 'environments'));
       for (const file of envFiles.filter(f => f.endsWith('.json'))) {
@@ -816,7 +816,7 @@ export class DeploymentManager extends EventEmitter {
         name: 'Blue-Green Deployment',
         type: 'blue-green',
         configuration: {
-          monitoringDuration: 300000, // 5 minutes
+          monitoringDuration: 300000, // 5 minutes,
           automatedRollback: true,
           rollbackThreshold: 5
         },
@@ -893,7 +893,7 @@ export class DeploymentManager extends EventEmitter {
         type: 'canary',
         configuration: {
           trafficSplitPercentage: 10,
-          monitoringDuration: 600000, // 10 minutes
+          monitoringDuration: 600000, // 10 minutes,
           automatedRollback: true,
           rollbackThreshold: 2
         },
@@ -1100,7 +1100,7 @@ export class DeploymentManager extends EventEmitter {
   }
 
   private evaluateStageConditions(deployment: Deployment, stage: DeploymentStage): boolean {
-    // Implement condition evaluation logic
+    // Implement condition evaluation logic,
     return true; // Simplified for now
   }
 
@@ -1110,17 +1110,17 @@ export class DeploymentManager extends EventEmitter {
   }
 
   private async requestApproval(deployment: Deployment, stage: DeploymentStage): Promise<void> {
-    // Implement approval request logic
+    // Implement approval request logic,
     this.emit('approval:requested', { deployment, stage });
   }
 
   private async isPendingApproval(deployment: Deployment, stage: DeploymentStage): Promise<boolean> {
-    // Check if there are pending approvals for this stage
+    // Check if there are pending approvals for this stage,
     return false; // Simplified for now
   }
 
   private async isApproved(deployment: Deployment, stage: DeploymentStage): Promise<boolean> {
-    // Check if stage is approved
+    // Check if stage is approved,
     return true; // Simplified for now
   }
 
@@ -1154,7 +1154,7 @@ export class DeploymentManager extends EventEmitter {
   }
 
   private async retryStage(deployment: Deployment, stage: DeploymentStage): Promise<void> {
-    // Implement retry logic
+    // Implement retry logic,
     this.logger.info(`Retrying stage: ${stage.name}`);
   }
 
@@ -1172,7 +1172,7 @@ export class DeploymentManager extends EventEmitter {
     await this.saveDeployment(deployment);
     this.emit('deployment:failed', { deployment, failedStage });
 
-    // Check if automatic rollback is enabled
+    // Check if automatic rollback is enabled,
     const strategy = this.strategies.get(deployment.strategyId);
     if (strategy?.rollbackStrategy.automatic) {
       await this.rollbackDeployment(deployment.id, 'Automatic rollback due to deployment failure');
@@ -1233,7 +1233,7 @@ export class DeploymentManager extends EventEmitter {
     deployment: Deployment,
     previousDeployment: Deployment
   ): Promise<void> {
-    // Implement rollback execution logic
+    // Implement rollback execution logic,
     this.logger.info(`Executing rollback from ${deployment.id} to ${previousDeployment.id}`);
     
     // This would typically involve:
@@ -1241,7 +1241,7 @@ export class DeploymentManager extends EventEmitter {
     // 2. Updating load balancer configuration
     // 3. Rolling back container deployments
     // 4. Reverting database migrations if needed
-    // 5. Updating DNS records
+    // 5. Updating DNS records,
     
     this.emit('rollback:executed', { deployment, previousDeployment });
   }
@@ -1280,7 +1280,7 @@ export class DeploymentManager extends EventEmitter {
 
   private calculateLeadTime(deployments: Deployment[]): number {
     // This would typically calculate from commit to production
-    // For now, return average deployment time
+    // For now, return average deployment time,
     const completedDeployments = deployments.filter(d => d.metrics.duration);
     
     if (completedDeployments.length === 0) return 0;

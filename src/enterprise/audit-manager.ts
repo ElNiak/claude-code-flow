@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 import { EventEmitter } from 'events';
 import { writeFile, readFile, mkdir, readdir } from 'fs/promises';
 import { join } from 'path';
@@ -453,20 +453,20 @@ export class AuditManager extends EventEmitter {
       metadata: {}
     };
 
-    // Calculate integrity hash
+    // Calculate integrity hash,
     entry.integrity.hash = this.calculateHash(entry);
     entry.integrity.verified = true;
 
-    // Add to buffer for batch processing
+    // Add to buffer for batch processing,
     this.auditBuffer.push(entry);
 
-    // Immediate processing for critical events
+    // Immediate processing for critical events,
     if (entry.severity === 'critical') {
       await this.processAuditEntry(entry);
       await this.generateSecurityAlert(entry);
     }
 
-    // Batch process if buffer is full
+    // Batch process if buffer is full,
     if (this.auditBuffer.length >= this.configuration.collection.batchSize) {
       await this.flushAuditBuffer();
     }
@@ -496,10 +496,9 @@ export class AuditManager extends EventEmitter {
         id: `req-${Date.now()}-${index}`,
         ...req,
         automatedCheck: {
-          enabled: false,
-          frequency: 'daily',
-          query: '',
-          ...req.automatedCheck
+          enabled: req.automatedCheck?.enabled ?? false,
+          frequency: req.automatedCheck?.frequency ?? 'daily',
+          query: req.automatedCheck?.query ?? ''
         }
       })),
       auditFrequency: frameworkData.auditFrequency,
@@ -516,7 +515,7 @@ export class AuditManager extends EventEmitter {
       })),
       status: 'active',
       implementationDate: new Date(),
-      nextReview: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year
+      nextReview: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year,
       responsible: frameworkData.responsible
     };
 
@@ -574,16 +573,16 @@ export class AuditManager extends EventEmitter {
       createdBy: 'audit-manager'
     };
 
-    // Collect relevant audit entries
+    // Collect relevant audit entries,
     const auditEntries = await this.queryAuditEntries(reportConfig.scope);
     report.summary.totalEvents = auditEntries.length;
 
-    // Analyze entries for findings
+    // Analyze entries for findings,
     const findings = await this.analyzeAuditEntries(auditEntries, reportConfig.type);
     report.findings = findings;
     report.summary.criticalFindings = findings.filter(f => f.severity === 'critical').length;
 
-    // Calculate compliance score
+    // Calculate compliance score,
     if (reportConfig.scope.compliance && reportConfig.scope.compliance.length > 0) {
       report.summary.complianceScore = await this.calculateComplianceScore(
         reportConfig.scope.compliance,
@@ -591,10 +590,10 @@ export class AuditManager extends EventEmitter {
       );
     }
 
-    // Determine risk level
+    // Determine risk level,
     report.summary.riskLevel = this.calculateRiskLevel(findings);
 
-    // Generate recommendations
+    // Generate recommendations,
     if (reportConfig.includeRecommendations !== false) {
       report.recommendations = await this.generateRecommendations(findings, reportConfig.type);
     }
@@ -661,12 +660,12 @@ export class AuditManager extends EventEmitter {
         throw new Error(`Unsupported export format: ${exportConfig.format}`);
     }
 
-    // Apply compression if requested
+    // Apply compression if requested,
     if (exportConfig.compression) {
       // Would implement compression here
     }
 
-    // Apply encryption if requested
+    // Apply encryption if requested,
     if (exportConfig.encryption) {
       // Would implement encryption here
     }
@@ -710,7 +709,7 @@ export class AuditManager extends EventEmitter {
     let totalEntries = 0;
     let verifiedEntries = 0;
     let corruptedEntries = 0;
-    let missingEntries = 0;
+    const missingEntries = 0;
 
     const trails = trailId ? [this.auditTrails.get(trailId)].filter(Boolean) as AuditTrail[] : 
                             Array.from(this.auditTrails.values());
@@ -719,7 +718,7 @@ export class AuditManager extends EventEmitter {
       for (const entry of trail.entries) {
         totalEntries++;
         
-        // Verify hash
+        // Verify hash,
         const calculatedHash = this.calculateHash(entry);
         if (calculatedHash === entry.integrity.hash) {
           verifiedEntries++;
@@ -736,7 +735,7 @@ export class AuditManager extends EventEmitter {
         }
       }
 
-      // Update trail integrity status
+      // Update trail integrity status,
       trail.integrity.verified = issues.length === 0;
       trail.integrity.lastVerification = new Date();
       trail.integrity.tamperEvidence = issues;
@@ -780,13 +779,13 @@ export class AuditManager extends EventEmitter {
     timeRange?: { start: Date; end: Date }
   ): Promise<AuditMetrics> {
     const range = timeRange || {
-      start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // Last 30 days
+      start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // Last 30 days,
       end: new Date()
     };
 
     const entries = await this.queryAuditEntries({ timeRange: range });
 
-    // Volume metrics
+    // Volume metrics,
     const volumeMetrics = {
       totalEntries: entries.length,
       dailyAverage: entries.length / 30,
@@ -795,14 +794,14 @@ export class AuditManager extends EventEmitter {
       bySeverity: this.groupBy(entries, 'severity')
     };
 
-    // Compliance metrics
+    // Compliance metrics,
     const complianceMetrics = {
-      overallScore: 85, // Would be calculated from actual compliance data
+      overallScore: 85, // Would be calculated from actual compliance data,
       byFramework: {} as Record<string, any>,
       trending: 'stable' as const
     };
 
-    // Calculate compliance scores by framework
+    // Calculate compliance scores by framework,
     for (const framework of this.frameworks.values()) {
       const score = await this.calculateComplianceScore([framework.id], entries);
       complianceMetrics.byFramework[framework.id] = {
@@ -813,7 +812,7 @@ export class AuditManager extends EventEmitter {
       };
     }
 
-    // Integrity metrics
+    // Integrity metrics,
     const integrityMetrics = {
       verificationSuccess: 99.5,
       tamperAttempts: entries.filter(e => e.eventType === 'unauthorized_access').length,
@@ -821,15 +820,15 @@ export class AuditManager extends EventEmitter {
       corruptionEvents: 0
     };
 
-    // Performance metrics
+    // Performance metrics,
     const performanceMetrics = {
-      ingestionRate: entries.length / 24, // entries per hour
-      queryResponseTime: 150, // ms
-      storageEfficiency: 85, // percentage
+      ingestionRate: entries.length / 24, // entries per hour,
+      queryResponseTime: 150, // ms,
+      storageEfficiency: 85, // percentage,
       availabilityPercentage: 99.9
     };
 
-    // Security metrics
+    // Security metrics,
     const securityMetrics = {
       unauthorizedAccess: entries.filter(e => 
         e.outcome === 'denied' || e.eventType === 'unauthorized_access'
@@ -854,7 +853,7 @@ export class AuditManager extends EventEmitter {
     };
   }
 
-  // Private helper methods
+  // Private helper methods,
   private getDefaultConfiguration(): AuditConfiguration {
     return {
       general: {
@@ -929,7 +928,7 @@ export class AuditManager extends EventEmitter {
 
   private async loadConfigurations(): Promise<void> {
     try {
-      // Load frameworks
+      // Load frameworks,
       const frameworkFiles = await readdir(join(this.auditPath, 'frameworks'));
       for (const file of frameworkFiles.filter(f => f.endsWith('.json'))) {
         const content = await readFile(join(this.auditPath, 'frameworks', file), 'utf-8');
@@ -937,7 +936,7 @@ export class AuditManager extends EventEmitter {
         this.frameworks.set(framework.id, framework);
       }
 
-      // Load audit trails
+      // Load audit trails,
       const trailFiles = await readdir(join(this.auditPath, 'trails'));
       for (const file of trailFiles.filter(f => f.endsWith('.json'))) {
         const content = await readFile(join(this.auditPath, 'trails', file), 'utf-8');
@@ -945,7 +944,7 @@ export class AuditManager extends EventEmitter {
         this.auditTrails.set(trail.id, trail);
       }
 
-      // Load reports
+      // Load reports,
       const reportFiles = await readdir(join(this.auditPath, 'reports'));
       for (const file of reportFiles.filter(f => f.endsWith('.json'))) {
         const content = await readFile(join(this.auditPath, 'reports', file), 'utf-8');
@@ -1053,17 +1052,17 @@ export class AuditManager extends EventEmitter {
   }
 
   private async startAuditProcessing(): Promise<void> {
-    // Start buffer flush timer
+    // Start buffer flush timer,
     setInterval(async () => {
       if (this.auditBuffer.length > 0) {
         await this.flushAuditBuffer();
       }
     }, this.configuration.collection.flushInterval);
 
-    // Start integrity verification timer
+    // Start integrity verification timer,
     setInterval(async () => {
       await this.verifyAuditIntegrity();
-    }, 24 * 60 * 60 * 1000); // Daily
+    }, 24 * 60 * 60 * 1000); // Daily,
 
     this.logger.info('Started audit processing timers');
   }
@@ -1083,7 +1082,7 @@ export class AuditManager extends EventEmitter {
     } catch (error) {
       this.logger.error('Failed to flush audit buffer', { error });
       
-      // Re-add entries to buffer for retry if configured
+      // Re-add entries to buffer for retry if configured,
       if (this.configuration.collection.failureHandling === 'retry') {
         this.auditBuffer.unshift(...entries);
       }
@@ -1091,7 +1090,7 @@ export class AuditManager extends EventEmitter {
   }
 
   private async processAuditEntry(entry: AuditEntry): Promise<void> {
-    // Determine which trail to add the entry to
+    // Determine which trail to add the entry to,
     const trailId = this.determineAuditTrail(entry);
     let trail = this.auditTrails.get(trailId);
 
@@ -1099,25 +1098,25 @@ export class AuditManager extends EventEmitter {
       trail = await this.createAuditTrail(trailId, entry.category);
     }
 
-    // Add entry to trail
+    // Add entry to trail,
     trail.entries.push(entry);
     trail.updatedAt = new Date();
 
-    // Update trail integrity
+    // Update trail integrity,
     trail.integrity.checksum = this.calculateTrailChecksum(trail);
     trail.integrity.lastVerification = new Date();
 
     await this.saveAuditTrail(trail);
 
-    // Check for compliance violations
+    // Check for compliance violations,
     await this.checkComplianceViolations(entry);
 
-    // Check for security alerts
+    // Check for security alerts,
     await this.checkSecurityAlerts(entry);
   }
 
   private determineAuditTrail(entry: AuditEntry): string {
-    // Use category and date for trail determination
+    // Use category and date for trail determination,
     const date = entry.timestamp.toISOString().split('T')[0];
     return `${entry.category}-${date}`;
   }
@@ -1173,7 +1172,7 @@ export class AuditManager extends EventEmitter {
   }
 
   private calculateHash(entry: AuditEntry): string {
-    // Create a deterministic string representation of the entry
+    // Create a deterministic string representation of the entry,
     const data = {
       timestamp: entry.timestamp.toISOString(),
       eventType: entry.eventType,
@@ -1201,7 +1200,7 @@ export class AuditManager extends EventEmitter {
     const categoryRetention = this.configuration.compliance.retentionPolicies[category];
     if (categoryRetention) return categoryRetention;
 
-    // Check framework requirements
+    // Check framework requirements,
     if (frameworks) {
       let maxRetention = this.configuration.general.defaultRetention;
       for (const frameworkId of frameworks) {
@@ -1241,12 +1240,12 @@ export class AuditManager extends EventEmitter {
   }): Promise<AuditEntry[]> {
     let entries: AuditEntry[] = [];
     
-    // Collect entries from all trails
+    // Collect entries from all trails,
     for (const trail of this.auditTrails.values()) {
       entries.push(...trail.entries);
     }
 
-    // Apply filters
+    // Apply filters,
     if (scope.timeRange) {
       entries = entries.filter(e => 
         e.timestamp >= scope.timeRange!.start && 
@@ -1282,9 +1281,9 @@ export class AuditManager extends EventEmitter {
   private async analyzeAuditEntries(entries: AuditEntry[], reportType: string): Promise<AuditFinding[]> {
     const findings: AuditFinding[] = [];
 
-    // Security-focused analysis
+    // Security-focused analysis,
     if (reportType === 'security') {
-      // Check for failed login patterns
+      // Check for failed login patterns,
       const failedLogins = entries.filter(e => 
         e.eventType === 'user_login' && e.outcome === 'failure'
       );
@@ -1317,9 +1316,9 @@ export class AuditManager extends EventEmitter {
       }
     }
 
-    // Compliance-focused analysis
+    // Compliance-focused analysis,
     if (reportType === 'compliance') {
-      // Check for data access patterns
+      // Check for data access patterns,
       const dataAccess = entries.filter(e => 
         e.category === 'data-access' && e.details.pii === true
       );
@@ -1369,7 +1368,7 @@ export class AuditManager extends EventEmitter {
         if (requirement.status === 'compliant') {
           metRequirements++;
         } else if (requirement.automatedCheck.enabled) {
-          // Check if automated requirement is met based on audit data
+          // Check if automated requirement is met based on audit data,
           const violations = this.checkAutomatedRequirement(requirement, entries);
           if (violations.length === 0) {
             metRequirements++;
@@ -1383,7 +1382,7 @@ export class AuditManager extends EventEmitter {
 
   private checkAutomatedRequirement(requirement: ComplianceRequirement, entries: AuditEntry[]): AuditEntry[] {
     // Simplified automated compliance checking
-    // In a real implementation, this would parse the query and evaluate against entries
+    // In a real implementation, this would parse the query and evaluate against entries,
     const violations = entries.filter(e => {
       if (requirement.automatedCheck.query.includes('outcome:failure')) {
         return e.outcome === 'failure';
@@ -1407,7 +1406,7 @@ export class AuditManager extends EventEmitter {
   private async generateRecommendations(findings: AuditFinding[], reportType: string): Promise<AuditRecommendation[]> {
     const recommendations: AuditRecommendation[] = [];
 
-    // Generic security recommendations
+    // Generic security recommendations,
     if (findings.some(f => f.category === 'authentication')) {
       recommendations.push({
         id: `rec-${Date.now()}-1`,
@@ -1460,7 +1459,7 @@ export class AuditManager extends EventEmitter {
   private async checkSecurityAlerts(entry: AuditEntry): Promise<void> {
     const thresholds = this.configuration.monitoring.alerting.thresholds;
 
-    // Check for specific alert conditions
+    // Check for specific alert conditions,
     if (entry.eventType === 'user_login' && entry.outcome === 'failure') {
       // Would implement failed login threshold checking
     }
@@ -1486,7 +1485,7 @@ export class AuditManager extends EventEmitter {
     const hourlyBuckets: Record<string, number> = {};
     
     for (const entry of entries) {
-      const hour = entry.timestamp.toISOString().substr(0, 13); // YYYY-MM-DDTHH
+      const hour = entry.timestamp.toISOString().substr(0, 13); // YYYY-MM-DDTHH,
       hourlyBuckets[hour] = (hourlyBuckets[hour] || 0) + 1;
     }
     
@@ -1536,7 +1535,7 @@ export class AuditManager extends EventEmitter {
   }
 
   private async convertToPDF(entries: AuditEntry[]): Promise<string> {
-    // Would implement PDF generation
+    // Would implement PDF generation,
     return 'PDF generation not implemented';
   }
 

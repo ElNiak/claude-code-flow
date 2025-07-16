@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * Shell completion generator for Claude-Flow CLI
  */
@@ -83,20 +83,20 @@ export class CompletionGenerator {
   }
 
   private getBashCompletionScript(): string {
-    return `# Claude-Flow bash completion
+    return `# Claude-Flow bash completion,
 _claude_flow_completion() {
-    local cur prev words cword
-    _init_completion || return
+    local cur prev words cword,
+    _init_completion || return,
 
-    case \${words[1]} in
+    case \${words[1]} in,
         agent)
-            case \${words[2]} in
+            case \${words[2]} in,
                 spawn)
                     COMPREPLY=($(compgen -W "coordinator researcher implementer analyst custom" -- "$cur"))
                     return
                     ;;
                 terminate|info)
-                    # In production, this would complete with actual agent IDs
+                    # In production, this would complete with actual agent IDs,
                     COMPREPLY=($(compgen -W "agent-001 agent-002 agent-003" -- "$cur"))
                     return
                     ;;
@@ -107,15 +107,15 @@ _claude_flow_completion() {
             esac
             ;;
         task)
-            case \${words[2]} in
+            case \${words[2]} in,
                 create)
-                    if [[ \${#words[@]} -eq 4 ]]; then
+                    if [[ \${#words[@]} -eq 4 ]]; then,
                         COMPREPLY=($(compgen -W "research implementation analysis coordination" -- "$cur"))
-                    fi
+                    fi,
                     return
                     ;;
                 status|cancel)
-                    # In production, this would complete with actual task IDs
+                    # In production, this would complete with actual task IDs,
                     COMPREPLY=($(compgen -W "task-001 task-002 task-003" -- "$cur"))
                     return
                     ;;
@@ -138,9 +138,9 @@ _claude_flow_completion() {
             return
             ;;
         session)
-            case \${words[2]} in
+            case \${words[2]} in,
                 restore|delete|info|export)
-                    # In production, this would complete with actual session IDs
+                    # In production, this would complete with actual session IDs,
                     COMPREPLY=($(compgen -W "session-001 session-002 session-003" -- "$cur"))
                     return
                     ;;
@@ -155,7 +155,7 @@ _claude_flow_completion() {
             esac
             ;;
         workflow)
-            case \${words[2]} in
+            case \${words[2]} in,
                 run|validate)
                     COMPREPLY=($(compgen -f -X '!*.@(json|yaml|yml)' -- "$cur"))
                     return
@@ -165,7 +165,7 @@ _claude_flow_completion() {
                     return
                     ;;
                 status|stop)
-                    # In production, this would complete with actual workflow IDs
+                    # In production, this would complete with actual workflow IDs,
                     COMPREPLY=($(compgen -W "workflow-001 workflow-002 workflow-003" -- "$cur"))
                     return
                     ;;
@@ -192,11 +192,11 @@ complete -F _claude_flow_completion claude-flow`;
   private getZshCompletionScript(): string {
     return `#compdef claude-flow
 
-# Claude-Flow zsh completion
+# Claude-Flow zsh completion,
 
 _claude_flow() {
-    local context state state_descr line
-    typeset -A opt_args
+    local context state state_descr line,
+    typeset -A opt_args,
 
     _arguments -C \\
         '(-h --help)'{-h,--help}'[Show help information]' \\
@@ -210,9 +210,9 @@ _claude_flow() {
         '1: :_claude_flow_commands' \\
         '*::arg:->args'
 
-    case $state in
+    case $state in,
         args)
-            case $words[1] in
+            case $words[1] in,
                 agent)
                     _claude_flow_agent
                     ;;
@@ -242,7 +242,7 @@ _claude_flow() {
 }
 
 _claude_flow_commands() {
-    local commands
+    local commands,
     commands=(
         'start:Start the Claude-Flow orchestration system'
         'agent:Manage Claude-Flow agents'
@@ -261,7 +261,7 @@ _claude_flow_commands() {
 }
 
 _claude_flow_agent() {
-    case $words[2] in
+    case $words[2] in,
         spawn)
             _arguments \\
                 '(-n --name)'{-n,--name}'[Agent name]:name:' \\
@@ -280,7 +280,7 @@ _claude_flow_agent() {
 }
 
 _claude_flow_task() {
-    case $words[2] in
+    case $words[2] in,
         create)
             _arguments \\
                 '(-p --priority)'{-p,--priority}'[Task priority]:priority:' \\
@@ -311,7 +311,7 @@ _claude_flow_config() {
 }
 
 _claude_flow_session() {
-    case $words[2] in
+    case $words[2] in,
         restore|delete|info|export)
             _arguments '1: :_claude_flow_sessions'
             ;;
@@ -325,7 +325,7 @@ _claude_flow_session() {
 }
 
 _claude_flow_workflow() {
-    case $words[2] in
+    case $words[2] in,
         run|validate)
             _arguments '1: :_files -g "*.json *.yaml *.yml"'
             ;;
@@ -341,31 +341,31 @@ _claude_flow_workflow() {
     esac
 }
 
-# Helper functions for completion
+# Helper functions for completion,
 _claude_flow_agents() {
-    # In production, this would query the running orchestrator
-    local agents
+    # In production, this would query the running orchestrator,
+    local agents,
     agents=('agent-001:Coordinator Agent' 'agent-002:Research Agent' 'agent-003:Implementation Agent')
     _describe 'agents' agents
 }
 
 _claude_flow_tasks() {
-    # In production, this would query the running orchestrator
-    local tasks
+    # In production, this would query the running orchestrator,
+    local tasks,
     tasks=('task-001:Research Task' 'task-002:Analysis Task' 'task-003:Implementation Task')
     _describe 'tasks' tasks
 }
 
 _claude_flow_sessions() {
-    # In production, this would query saved sessions
-    local sessions
+    # In production, this would query saved sessions,
+    local sessions,
     sessions=('session-001:Research Session' 'session-002:Development Session' 'session-003:Analysis Session')
     _describe 'sessions' sessions
 }
 
 _claude_flow_workflows() {
-    # In production, this would query running workflows
-    local workflows
+    # In production, this would query running workflows,
+    local workflows,
     workflows=('workflow-001:Research Workflow' 'workflow-002:Implementation Workflow')
     _describe 'workflows' workflows
 }
@@ -378,27 +378,27 @@ _claude_flow "$@"`;
   }
 
   private getFishCompletionScript(): string {
-    return `# Claude-Flow fish completion
+    return `# Claude-Flow fish completion,
 
-function __fish_claude_flow_needs_command
+function __fish_claude_flow_needs_command,
     set cmd (commandline -opc)
     if [ (count $cmd) -eq 1 ]
-        return 0
+        return 0,
     end
-    return 1
+    return 1,
 end
 
-function __fish_claude_flow_using_command
+function __fish_claude_flow_using_command,
     set cmd (commandline -opc)
     if [ (count $cmd) -gt 1 ]
         if [ $argv[1] = $cmd[2] ]
-            return 0
+            return 0,
         end
-    end
-    return 1
+    end,
+    return 1,
 end
 
-# Main commands
+# Main commands,
 complete -f -c claude-flow -n '__fish_claude_flow_needs_command' -a 'start' -d 'Start the Claude-Flow orchestration system'
 complete -f -c claude-flow -n '__fish_claude_flow_needs_command' -a 'agent' -d 'Manage Claude-Flow agents'
 complete -f -c claude-flow -n '__fish_claude_flow_needs_command' -a 'task' -d 'Manage tasks'
@@ -412,7 +412,7 @@ complete -f -c claude-flow -n '__fish_claude_flow_needs_command' -a 'repl' -d 'S
 complete -f -c claude-flow -n '__fish_claude_flow_needs_command' -a 'version' -d 'Show detailed version information'
 complete -f -c claude-flow -n '__fish_claude_flow_needs_command' -a 'completion' -d 'Generate shell completion scripts'
 
-# Global options
+# Global options,
 complete -c claude-flow -s h -l help -d 'Show help information'
 complete -c claude-flow -s v -l verbose -d 'Enable verbose logging'
 complete -c claude-flow -s q -l quiet -d 'Suppress non-essential output'
@@ -422,34 +422,34 @@ complete -c claude-flow -l no-color -d 'Disable colored output'
 complete -c claude-flow -l json -d 'Output in JSON format'
 complete -c claude-flow -l profile -r -d 'Use named configuration profile'
 
-# Agent subcommands
+# Agent subcommands,
 complete -f -c claude-flow -n '__fish_claude_flow_using_command agent' -a 'spawn' -d 'Spawn a new agent'
 complete -f -c claude-flow -n '__fish_claude_flow_using_command agent' -a 'list' -d 'List all agents'
 complete -f -c claude-flow -n '__fish_claude_flow_using_command agent' -a 'terminate' -d 'Terminate an agent'
 complete -f -c claude-flow -n '__fish_claude_flow_using_command agent' -a 'info' -d 'Get agent information'
 
-# Task subcommands
+# Task subcommands,
 complete -f -c claude-flow -n '__fish_claude_flow_using_command task' -a 'create' -d 'Create a new task'
 complete -f -c claude-flow -n '__fish_claude_flow_using_command task' -a 'list' -d 'List all tasks'
 complete -f -c claude-flow -n '__fish_claude_flow_using_command task' -a 'status' -d 'Get task status'
 complete -f -c claude-flow -n '__fish_claude_flow_using_command task' -a 'cancel' -d 'Cancel a task'
 complete -f -c claude-flow -n '__fish_claude_flow_using_command task' -a 'workflow' -d 'Execute workflow from file'
 
-# Memory subcommands
+# Memory subcommands,
 complete -f -c claude-flow -n '__fish_claude_flow_using_command memory' -a 'query' -d 'Query memory entries'
 complete -f -c claude-flow -n '__fish_claude_flow_using_command memory' -a 'export' -d 'Export memory to file'
 complete -f -c claude-flow -n '__fish_claude_flow_using_command memory' -a 'import' -d 'Import memory from file'
 complete -f -c claude-flow -n '__fish_claude_flow_using_command memory' -a 'stats' -d 'Show memory statistics'
 complete -f -c claude-flow -n '__fish_claude_flow_using_command memory' -a 'cleanup' -d 'Clean up old entries'
 
-# Config subcommands
+# Config subcommands,
 complete -f -c claude-flow -n '__fish_claude_flow_using_command config' -a 'show' -d 'Show current configuration'
 complete -f -c claude-flow -n '__fish_claude_flow_using_command config' -a 'get' -d 'Get specific config value'
 complete -f -c claude-flow -n '__fish_claude_flow_using_command config' -a 'set' -d 'Set config value'
 complete -f -c claude-flow -n '__fish_claude_flow_using_command config' -a 'init' -d 'Initialize config file'
 complete -f -c claude-flow -n '__fish_claude_flow_using_command config' -a 'validate' -d 'Validate config file'
 
-# Session subcommands
+# Session subcommands,
 complete -f -c claude-flow -n '__fish_claude_flow_using_command session' -a 'list' -d 'List all saved sessions'
 complete -f -c claude-flow -n '__fish_claude_flow_using_command session' -a 'save' -d 'Save current session state'
 complete -f -c claude-flow -n '__fish_claude_flow_using_command session' -a 'restore' -d 'Restore a saved session'
@@ -459,7 +459,7 @@ complete -f -c claude-flow -n '__fish_claude_flow_using_command session' -a 'imp
 complete -f -c claude-flow -n '__fish_claude_flow_using_command session' -a 'info' -d 'Show detailed session information'
 complete -f -c claude-flow -n '__fish_claude_flow_using_command session' -a 'clean' -d 'Clean up old sessions'
 
-# Workflow subcommands
+# Workflow subcommands,
 complete -f -c claude-flow -n '__fish_claude_flow_using_command workflow' -a 'run' -d 'Execute a workflow from file'
 complete -f -c claude-flow -n '__fish_claude_flow_using_command workflow' -a 'validate' -d 'Validate a workflow file'
 complete -f -c claude-flow -n '__fish_claude_flow_using_command workflow' -a 'list' -d 'List running workflows'
@@ -467,7 +467,7 @@ complete -f -c claude-flow -n '__fish_claude_flow_using_command workflow' -a 'st
 complete -f -c claude-flow -n '__fish_claude_flow_using_command workflow' -a 'stop' -d 'Stop a running workflow'
 complete -f -c claude-flow -n '__fish_claude_flow_using_command workflow' -a 'template' -d 'Generate workflow templates'
 
-# Completion subcommands
+# Completion subcommands,
 complete -f -c claude-flow -n '__fish_claude_flow_using_command completion' -a 'bash zsh fish'`;
   }
 
@@ -490,7 +490,7 @@ complete -f -c claude-flow -n '__fish_claude_flow_using_command completion' -a '
         console.log(chalk.gray('Restart your shell or run: source ~/.bashrc'));
         return;
       } catch (error) {
-        // Try next path
+        // Try next path,
         continue;
       }
     }
@@ -517,7 +517,7 @@ complete -f -c claude-flow -n '__fish_claude_flow_using_command completion' -a '
         console.log(chalk.gray('Restart your shell or run: autoload -U compinit && compinit'));
         return;
       } catch (error) {
-        // Try next path
+        // Try next path,
         continue;
       }
     }
@@ -544,7 +544,7 @@ complete -f -c claude-flow -n '__fish_claude_flow_using_command completion' -a '
         console.log(chalk.gray('Completions will be available in new fish sessions'));
         return;
       } catch (error) {
-        // Try next path
+        // Try next path,
         continue;
       }
     }

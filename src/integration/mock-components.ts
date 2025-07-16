@@ -14,7 +14,7 @@ export class MockConfigManager {
   }
 
   async load(): Promise<void> {
-    // Mock configuration loading
+    // Mock configuration loading,
     this.config = {
       agents: { maxAgents: 10 },
       swarm: { topology: 'mesh' },
@@ -90,7 +90,7 @@ export class MockMemoryManager {
     const allKeys = Array.from(this.storage.keys());
     if (!pattern) return allKeys;
     
-    // Simple pattern matching
+    // Simple pattern matching,
     const regex = new RegExp(pattern.replace(/\*/g, '.*'));
     return allKeys.filter(key => regex.test(key));
   }
@@ -115,7 +115,14 @@ export class MockMemoryManager {
 export class MockAgentManager {
   private agents: Map<string, any> = new Map();
 
-  constructor(private eventBus: EventBus, private logger: Logger) {}
+  constructor(
+    private config?: any,
+    private eventBusOrLogger?: any,
+    private logger?: any,
+    private memoryManager?: any
+  ) {
+    // Constructor accepts flexible parameters for backward compatibility
+  }
 
   async initialize(): Promise<void> {
     // Mock initialization
@@ -150,7 +157,7 @@ export class MockAgentManager {
   }
 
   async sendMessage(message: any): Promise<any> {
-    // Mock message sending
+    // Mock message sending,
     return { success: true, id: `msg-${Date.now()}` };
   }
 
@@ -175,9 +182,10 @@ export class MockSwarmCoordinator {
   private swarms: Map<string, any> = new Map();
 
   constructor(
+    private config: any,
     private eventBus: EventBus,
     private logger: Logger,
-    private memoryManager: MockMemoryManager
+    private memoryManager: any
   ) {}
 
   async initialize(): Promise<void> {
@@ -240,9 +248,8 @@ export class MockTaskEngine {
   private tasks: Map<string, any> = new Map();
 
   constructor(
-    private eventBus: EventBus,
-    private logger: Logger,
-    private memoryManager: MockMemoryManager
+    private maxConcurrent: number,
+    private memoryManager: any
   ) {}
 
   async initialize(): Promise<void> {
@@ -296,7 +303,7 @@ export class MockTaskEngine {
 }
 
 export class MockRealTimeMonitor {
-  constructor(private eventBus: EventBus, private logger: Logger) {}
+  constructor(private config: any, private logger: any, private eventBus: EventBus, private memory: any) {}
 
   async initialize(): Promise<void> {
     // Mock initialization
@@ -361,6 +368,35 @@ export class MockMcpServer {
 
   attachToMemoryManager(memoryManager: any): void {
     // Mock attachment
+  }
+
+  healthCheck(): Promise<any> {
+    return Promise.resolve({
+      component: 'mcpServer',
+      healthy: true,
+      message: 'Mock MCP server healthy',
+      timestamp: Date.now()
+    });
+  }
+}
+
+export class MockMCPServer {
+  constructor(private config: any, private eventBus: EventBus, private logger: Logger) {}
+
+  async initialize(): Promise<void> {
+    // Mock initialization
+  }
+
+  async shutdown(): Promise<void> {
+    // Mock shutdown
+  }
+
+  async start(): Promise<void> {
+    // Mock start
+  }
+
+  async stop(): Promise<void> {
+    // Mock stop
   }
 
   healthCheck(): Promise<any> {

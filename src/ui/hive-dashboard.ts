@@ -23,7 +23,7 @@ export interface AgentStatus {
   type: string;
   status: 'idle' | 'thinking' | 'voting' | 'executing' | 'communicating';
   currentTask?: string;
-  workload: number; // 0-100
+  workload: number; // 0-100,
   votes: number;
   contributions: number;
 }
@@ -34,7 +34,7 @@ export interface TaskProgress {
   description: string;
   status: string;
   assignedTo?: string;
-  progress: number; // 0-100
+  progress: number; // 0-100,
   dependencies: string[];
   votes?: { approve: number; reject: number };
 }
@@ -55,7 +55,7 @@ export interface VoteStatus {
 
 export interface CommunicationStats {
   totalMessages: number;
-  messageRate: number; // messages per minute
+  messageRate: number; // messages per minute,
   channelActivity: Map<string, number>;
   knowledgeShared: number;
 }
@@ -71,7 +71,7 @@ export interface PerformanceMetrics {
 export class HiveDashboard {
   private orchestrator: HiveOrchestrator;
   private protocol: HiveCommunicationProtocol;
-  private refreshInterval: number = 1000; // 1 second
+  private refreshInterval: number = 1000; // 1 second,
   private updateCallback?: (data: HiveDashboardData) => void;
   
   constructor(
@@ -89,7 +89,7 @@ export class HiveDashboard {
     this.updateCallback = callback;
     this.update();
     
-    // Set up periodic updates
+    // Set up periodic updates,
     const interval = setInterval(() => {
       this.update();
     }, this.refreshInterval);
@@ -140,7 +140,7 @@ export class HiveDashboard {
    * Get status of all agents
    */
   private getAgentStatuses(): AgentStatus[] {
-    // This would be populated from actual agent data
+    // This would be populated from actual agent data,
     return [
       {
         id: 'queen-1',
@@ -223,7 +223,7 @@ export class HiveDashboard {
   private getCommunicationStats(stats: any): CommunicationStats {
     return {
       totalMessages: stats.totalMessages,
-      messageRate: stats.totalMessages / 10, // Approximate rate
+      messageRate: stats.totalMessages / 10, // Approximate rate,
       channelActivity: stats.messagesByType,
       knowledgeShared: stats.knowledgeEntries
     };
@@ -249,13 +249,13 @@ export class HiveDashboard {
   static formatConsoleOutput(data: HiveDashboardData): string {
     const output = [];
     
-    // Header
+    // Header,
     output.push('🐝 Hive Mind Dashboard');
     output.push('═══════════════════════════════════════════════════════════════');
     output.push(`Status: ${data.status.toUpperCase()} | Time: ${new Date(data.timestamp).toLocaleTimeString()}`);
     output.push('');
     
-    // Agents Section
+    // Agents Section,
     output.push('👥 Agent Status');
     output.push('───────────────────────────────────────────────────────────────');
     for (const agent of data.agents) {
@@ -270,7 +270,7 @@ export class HiveDashboard {
       output.push('');
     }
     
-    // Tasks Section
+    // Tasks Section,
     output.push('📋 Task Progress');
     output.push('───────────────────────────────────────────────────────────────');
     for (const task of data.tasks) {
@@ -284,7 +284,7 @@ export class HiveDashboard {
       output.push('');
     }
     
-    // Consensus Section
+    // Consensus Section,
     output.push('🗳️ Consensus Metrics');
     output.push('───────────────────────────────────────────────────────────────');
     output.push(`Total Decisions: ${data.consensus.totalDecisions}`);
@@ -292,7 +292,7 @@ export class HiveDashboard {
     output.push(`Average Consensus: ${(data.consensus.averageConsensus * 100).toFixed(1)}%`);
     output.push('');
     
-    // Performance Section
+    // Performance Section,
     output.push('📊 Performance');
     output.push('───────────────────────────────────────────────────────────────');
     output.push(`Tasks: ${data.performance.tasksCompleted}/${data.performance.tasksCompleted + data.performance.tasksPending} completed`);
@@ -301,7 +301,7 @@ export class HiveDashboard {
     output.push(`Avg Execution Time: ${(data.performance.avgExecutionTime / 1000).toFixed(1)}s`);
     output.push('');
     
-    // Communication Section
+    // Communication Section,
     output.push('💬 Communication');
     output.push('───────────────────────────────────────────────────────────────');
     output.push(`Total Messages: ${data.communication.totalMessages}`);
@@ -362,7 +362,7 @@ export class HiveDashboard {
    * Get real-time event stream
    */
   getEventStream(): AsyncGenerator<any> {
-    // This would return a stream of dashboard events
+    // This would return a stream of dashboard events,
     return (async function* () {
       while (true) {
         yield { type: 'update', timestamp: Date.now() };

@@ -1,7 +1,7 @@
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * Direct Task Executor for Swarm
  * Executes tasks directly without relying on Claude CLI
@@ -45,12 +45,12 @@ export class DirectTaskExecutor {
     const startTime = Date.now();
 
     try {
-      // Ensure target directory exists
+      // Ensure target directory exists,
       if (targetDir) {
         await fs.mkdir(targetDir, { recursive: true });
       }
 
-      // Execute based on task type and objective
+      // Execute based on task type and objective,
       const result = await this.executeTaskByType(task, agent, targetDir);
 
       const endTime = Date.now();
@@ -94,7 +94,7 @@ export class DirectTaskExecutor {
   ): Promise<any> {
     const objective = task.description.toLowerCase();
     
-    // Extract key information from the task
+    // Extract key information from the task,
     const isRestAPI = objective.includes('rest api') || objective.includes('crud');
     const isTodo = objective.includes('todo');
     const isChat = objective.includes('chat') || objective.includes('websocket');
@@ -104,19 +104,20 @@ export class DirectTaskExecutor {
     const isAnalysis = task.type === 'analysis' || objective.includes('analyze');
     const isResearch = task.type === 'research' || objective.includes('research');
 
-    // Route to appropriate implementation based on agent type and task
+    // Route to appropriate implementation based on agent type and task,
     switch (agent.type) {
       case 'analyst':
         return this.executeAnalyzerTask(task, targetDir);
       
       case 'coder':
-        if (isRestAPI) return this.createRestAPI(targetDir, task);
-        if (isTodo) return this.createTodoApp(targetDir, task);
-        if (isChat) return this.createChatApp(targetDir, task);
-        if (isAuth) return this.createAuthService(targetDir, task);
-        if (isHelloWorld) return this.createHelloWorld(targetDir, task);
-        if (isCalculator) return this.createCalculator(targetDir, task);
-        return this.createGenericApp(targetDir, task);
+        const workingDir = targetDir || './temp-output';
+        if (isRestAPI) return this.createRestAPI(workingDir, task);
+        if (isTodo) return this.createTodoApp(workingDir, task);
+        if (isChat) return this.createChatApp(workingDir, task);
+        if (isAuth) return this.createAuthService(workingDir, task);
+        if (isHelloWorld) return this.createHelloWorld(workingDir, task);
+        if (isCalculator) return this.createCalculator(workingDir, task);
+        return this.createGenericApp(workingDir, task);
       
       case 'tester':
         return this.executeTestingTask(task, targetDir);
@@ -178,17 +179,17 @@ export class DirectTaskExecutor {
       '.gitignore': 'node_modules/\n.env\n*.log'
     };
 
-    // Create middleware and routes directories
+    // Create middleware and routes directories,
     await fs.mkdir(path.join(targetDir, 'routes'), { recursive: true });
     await fs.mkdir(path.join(targetDir, 'middleware'), { recursive: true });
     await fs.mkdir(path.join(targetDir, 'models'), { recursive: true });
 
-    // Write all files
+    // Write all files,
     for (const [filename, content] of Object.entries(files)) {
       await fs.writeFile(path.join(targetDir, filename), content);
     }
 
-    // Add route files
+    // Add route files,
     await fs.writeFile(
       path.join(targetDir, 'routes', 'users.js'),
       this.generateUserRoutes()
@@ -312,7 +313,7 @@ export class DirectTaskExecutor {
 
 module.exports = Calculator;
 `,
-      'cli.js': `#!/usr/bin/env node
+      'cli.js': `#!/usr/bin/env node,
 const Calculator = require('./calculator');
 const readline = require('readline');
 
@@ -338,8 +339,9 @@ function prompt() {
         try {
           const result = calc.sqrt(parseFloat(num));
           console.log(\`Result: \${result}\\n\`);
-        } catch (error) {
-          console.log(\`Error: \${(error instanceof Error ? error.message : String(error))}\\n\`);
+        } catch (error: unknown) {
+          const errorMsg = error instanceof Error ? error.message : String(error);
+          console.log(\`Error: \${errorMsg}\\n\`);
         }
         prompt();
       });
@@ -374,8 +376,9 @@ function prompt() {
             }
 
             console.log(\`Result: \${result}\\n\`);
-          } catch (error) {
-            console.log(\`Error: \${(error instanceof Error ? error.message : String(error))}\\n\`);
+          } catch (error: unknown) {
+            const errorMsg = error instanceof Error ? error.message : String(error);
+            console.log(\`Error: \${errorMsg}\\n\`);
           }
           prompt();
         });
@@ -391,40 +394,40 @@ const assert = require('assert');
 
 const calc = new Calculator();
 
-// Test addition
+// Test addition,
 assert.strictEqual(calc.add(2, 3), 5);
 assert.strictEqual(calc.add(-1, 1), 0);
 
-// Test subtraction
+// Test subtraction,
 assert.strictEqual(calc.subtract(5, 3), 2);
 assert.strictEqual(calc.subtract(0, 5), -5);
 
-// Test multiplication
+// Test multiplication,
 assert.strictEqual(calc.multiply(3, 4), 12);
 assert.strictEqual(calc.multiply(-2, 3), -6);
 
-// Test division
+// Test division,
 assert.strictEqual(calc.divide(10, 2), 5);
 assert.strictEqual(calc.divide(7, 2), 3.5);
 
-// Test division by zero
+// Test division by zero,
 assert.throws(() => calc.divide(5, 0), /Division by zero/);
 
-// Test power
+// Test power,
 assert.strictEqual(calc.power(2, 3), 8);
 assert.strictEqual(calc.power(5, 0), 1);
 
-// Test square root
+// Test square root,
 assert.strictEqual(calc.sqrt(16), 4);
 assert.strictEqual(calc.sqrt(2), Math.sqrt(2));
 
-// Test negative square root
+// Test negative square root,
 assert.throws(() => calc.sqrt(-1), /Cannot calculate square root of negative number/);
 
 console.log('All tests passed! ✅');
 `,
       'package.json': this.generatePackageJson('calculator-app', []),
-      'README.md': `# Calculator Application
+      'README.md': `# Calculator Application,
 
 A simple calculator with basic mathematical operations.
 
@@ -437,28 +440,28 @@ A simple calculator with basic mathematical operations.
 - Square Root
 
 ## Installation
-\`\`\`bash
+\`\`\`bash,
 npm install
 \`\`\`
 
 ## Usage
 
 ### CLI Mode
-\`\`\`bash
+\`\`\`bash,
 node cli.js
 \`\`\`
 
 ### Programmatic Usage
-\`\`\`javascript
+\`\`\`javascript,
 const Calculator = require('./calculator');
 const calc = new Calculator();
 
-console.log(calc.add(5, 3)); // 8
+console.log(calc.add(5, 3)); // 8,
 console.log(calc.multiply(4, 7)); // 28
 \`\`\`
 
 ## Testing
-\`\`\`bash
+\`\`\`bash,
 npm test
 \`\`\`
 
@@ -466,7 +469,7 @@ Created by Claude Flow Swarm
 `
     };
 
-    // Update package.json with test script
+    // Update package.json with test script,
     const pkgJson = JSON.parse(files['package.json']);
     pkgJson.scripts.test = 'node test.js';
     pkgJson.main = 'calculator.js';
@@ -487,7 +490,7 @@ Created by Claude Flow Swarm
     this.logger.info('Creating Hello World', { targetDir });
 
     const files = {
-      'index.js': `#!/usr/bin/env node
+      'index.js': `#!/usr/bin/env node,
 console.log('Hello, World!');
 console.log('Created by Claude Flow Swarm');
 `,
@@ -588,14 +591,14 @@ console.log('Created by Claude Flow Swarm');
 ${task.description}
 
 ## Installation
-\`\`\`bash
+\`\`\`bash,
 npm install
 \`\`\`
 
-## Usage
+## Usage,
 Follow the instructions in the README file.
 
-## API Reference
+## API Reference,
 See the generated API documentation.
 `;
 
@@ -653,7 +656,7 @@ See the generated API documentation.
     };
   }
 
-  // Helper methods for generating code
+  // Helper methods for generating code,
   private generateRestAPIServer(task: TaskDefinition): string {
     return `const express = require('express');
 const cors = require('cors');
@@ -662,20 +665,20 @@ require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Middleware
+// Middleware,
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Routes
+// Routes,
 app.use('/api/users', require('./routes/users'));
 
-// Health check
+// Health check,
 app.get('/health', (req, res) => {
   res.json({ status: 'healthy', service: 'REST API' });
 });
 
-// Error handling
+// Error handling,
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ error: 'Internal server error' });
@@ -697,19 +700,19 @@ const router = express.Router();
 let users = [];
 let nextId = 1;
 
-// GET all users
+// GET all users,
 router.get('/', (req, res) => {
   res.json(users);
 });
 
-// GET user by ID
+// GET user by ID,
 router.get('/:id', (req, res) => {
   const user = users.find(u => u.id === parseInt(req.params.id));
   if (!user) return res.status(404).json({ error: 'User not found' });
   res.json(user);
 });
 
-// POST create user
+// POST create user,
 router.post('/', (req, res) => {
   const user = {
     id: nextId++,
@@ -720,7 +723,7 @@ router.post('/', (req, res) => {
   res.status(201).json(user);
 });
 
-// PUT update user
+// PUT update user,
 router.put('/:id', (req, res) => {
   const index = users.findIndex(u => u.id === parseInt(req.params.id));
   if (index === -1) return res.status(404).json({ error: 'User not found' });
@@ -733,7 +736,7 @@ router.put('/:id', (req, res) => {
   res.json(users[index]);
 });
 
-// DELETE user
+// DELETE user,
 router.delete('/:id', (req, res) => {
   const index = users.findIndex(u => u.id === parseInt(req.params.id));
   if (index === -1) return res.status(404).json({ error: 'User not found' });
@@ -747,15 +750,15 @@ module.exports = router;
   }
 
   private generateTodoApp(task: TaskDefinition): string {
-    return `#!/usr/bin/env node
+    return `#!/usr/bin/env node,
 const { program } = require('commander');
 const chalk = require('chalk');
 const fs = require('fs').promises;
-const path = require('path');
+const _path = require('path');
 
-const TODO_FILE = path.join(__dirname, 'todos.json');
+const TODO_FILE = _path.join(__dirname, 'todos.json');
 
-// Load todos
+// Load todos,
 async function loadTodos() {
   try {
     const data = await fs.readFile(TODO_FILE, 'utf8');
@@ -765,12 +768,12 @@ async function loadTodos() {
   }
 }
 
-// Save todos
+// Save todos,
 async function saveTodos(todos) {
   await fs.writeFile(TODO_FILE, JSON.stringify(todos, null, 2));
 }
 
-// Add todo
+// Add todo,
 program
   .command('add <task>')
   .description('Add a new todo')
@@ -787,7 +790,7 @@ program
     console.log(chalk.green('✓ Todo added:', task));
   });
 
-// List todos
+// List todos,
 program
   .command('list')
   .description('List all todos')
@@ -804,7 +807,7 @@ program
     });
   });
 
-// Remove todo
+// Remove todo,
 program
   .command('remove <id>')
   .description('Remove a todo by ID')
@@ -821,7 +824,7 @@ program
     console.log(chalk.green('✓ Todo removed:', removed[0].task));
   });
 
-// Complete todo
+// Complete todo,
 program
   .command('done <id>')
   .description('Mark todo as completed')
@@ -847,7 +850,7 @@ program.parse(process.argv);
     return `const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
-const path = require('path');
+const _path = require('path');
 
 const app = express();
 const server = http.createServer(app);
@@ -876,7 +879,7 @@ io.on('connection', (socket) => {
     };
     
     messages.push(message);
-    if (messages.length > 100) messages.shift(); // Keep last 100 messages
+    if (messages.length > 100) messages.shift(); // Keep last 100 messages,
     
     io.emit('message', message);
   });
@@ -1003,20 +1006,20 @@ app.use(express.json());
 // In-memory user storage (use database in production)
 const users = [];
 
-// Register endpoint
+// Register endpoint,
 app.post('/api/register', async (req, res) => {
   try {
     const { username, password } = req.body;
     
-    // Check if user exists
+    // Check if user exists,
     if (users.find(u => u.username === username)) {
       return res.status(400).json({ error: 'User already exists' });
     }
     
-    // Hash password
+    // Hash password,
     const hashedPassword = await bcrypt.hash(password, 10);
     
-    // Create user
+    // Create user,
     const user = {
       id: users.length + 1,
       username,
@@ -1025,7 +1028,7 @@ app.post('/api/register', async (req, res) => {
     
     users.push(user);
     
-    // Generate token
+    // Generate token,
     const token = jwt.sign(
       { id: user.id, username: user.username },
       process.env.JWT_SECRET || 'default-secret',
@@ -1038,24 +1041,24 @@ app.post('/api/register', async (req, res) => {
   }
 });
 
-// Login endpoint
+// Login endpoint,
 app.post('/api/login', async (req, res) => {
   try {
     const { username, password } = req.body;
     
-    // Find user
+    // Find user,
     const user = users.find(u => u.username === username);
     if (!user) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
     
-    // Verify password
+    // Verify password,
     const validPassword = await bcrypt.compare(password, user.password);
     if (!validPassword) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
     
-    // Generate token
+    // Generate token,
     const token = jwt.sign(
       { id: user.id, username: user.username },
       process.env.JWT_SECRET || 'default-secret',
@@ -1068,7 +1071,7 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-// Protected route example
+// Protected route example,
 app.get('/api/profile', require('./middleware/auth'), (req, res) => {
   res.json({ user: req.user });
 });
@@ -1134,17 +1137,17 @@ Created by Claude Flow Swarm
 ${task.description}
 
 ## Installation
-\`\`\`bash
+\`\`\`bash,
 npm install
 \`\`\`
 
 ## Usage
-\`\`\`bash
+\`\`\`bash,
 npm start
 \`\`\`
 
 ## Development
-\`\`\`bash
+\`\`\`bash,
 npm run dev
 \`\`\`
 
@@ -1173,7 +1176,7 @@ module.exports = { main };
 `;
   }
 
-  // Analysis helper methods
+  // Analysis helper methods,
   private extractRequirements(description: string): string[] {
     const requirements = [];
     

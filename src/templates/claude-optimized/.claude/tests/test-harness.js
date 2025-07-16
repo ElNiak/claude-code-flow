@@ -1,5 +1,5 @@
 const fs = require('fs').promises;
-const path = require('path');
+const _path = require('path');
 const { performance } = require('perf_hooks');
 
 /**
@@ -89,7 +89,7 @@ class TestHarness {
           const result = await operation(item);
           return { success: true, result, index: i + index };
         } catch (error) {
-          return { success: false, error, index: i + index };
+          return { success: false, _error, index: i + index };
         }
       });
       

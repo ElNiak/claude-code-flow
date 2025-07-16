@@ -1,7 +1,7 @@
 import { describe, test, expect } from '@jest/globals';
 import { VALID_AGENT_TYPES } from '../constants/agent-types.js';
 
-// Import validation schemas from various files
+// Import validation schemas from various files,
 const mcpServer = require('../mcp/mcp-server.js');
 import { getClaudeFlowTools } from '../mcp/claude-flow-tools.js';
 import { getRuvSwarmTools } from '../mcp/ruv-swarm-tools.js';
@@ -39,7 +39,7 @@ describe('Agent Type Validation Consistency', () => {
 
   test('Error wrapper validation uses consistent agent types', () => {
     // This would require importing the error wrapper module
-    // For now, we've manually verified it's updated
+    // For now, we've manually verified it's updated,
     expect(true).toBe(true);
   });
 });

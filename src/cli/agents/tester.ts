@@ -8,7 +8,7 @@ import type { ILogger } from '../../core/logger.js';
 import type { IEventBus } from '../../core/event-bus.js';
 import type { DistributedMemorySystem } from '../../memory/distributed-memory.js';
 
-// Type definitions for tester activities
+// Type definitions for tester activities,
 interface TestCoverageItem {
   path: string;
   testCount: number;
@@ -108,8 +108,8 @@ export class TesterAgent extends BaseAgent {
         'performance-profiler'
       ],
       maxConcurrentTasks: 4,
-      maxMemoryUsage: 1024 * 1024 * 1024, // 1GB
-      maxExecutionTime: 1800000, // 30 minutes
+      maxMemoryUsage: 1024 * 1024 * 1024, // 1GB,
+      maxExecutionTime: 1800000, // 30 minutes,
       reliability: 0.95,
       speed: 0.80,
       quality: 0.95
@@ -224,7 +224,7 @@ export class TesterAgent extends BaseAgent {
       timestamp: new Date()
     };
 
-    // Simulate unit test creation
+    // Simulate unit test creation,
     await this.delay(2000);
 
     testing.testFiles = [
@@ -280,7 +280,7 @@ export class TesterAgent extends BaseAgent {
       timestamp: new Date()
     };
 
-    // Simulate integration test creation
+    // Simulate integration test creation,
     await this.delay(3000);
 
     integration.scenarios = [
@@ -335,7 +335,7 @@ export class TesterAgent extends BaseAgent {
       timestamp: new Date()
     };
 
-    // Simulate E2E test creation
+    // Simulate E2E test creation,
     await this.delay(4000);
 
     e2e.testScenarios = [
@@ -397,7 +397,7 @@ export class TesterAgent extends BaseAgent {
       timestamp: new Date()
     };
 
-    // Simulate performance testing
+    // Simulate performance testing,
     await this.delay(6000);
 
     performance.metrics = {
@@ -446,7 +446,7 @@ export class TesterAgent extends BaseAgent {
       timestamp: new Date()
     };
 
-    // Simulate security testing
+    // Simulate security testing,
     await this.delay(5000);
 
     security.vulnerabilities = [
@@ -496,7 +496,7 @@ export class TesterAgent extends BaseAgent {
       timestamp: new Date()
     };
 
-    // Simulate API testing
+    // Simulate API testing,
     await this.delay(3000);
 
     apiTest.testResults = [
@@ -553,7 +553,7 @@ export class TesterAgent extends BaseAgent {
       timestamp: new Date()
     };
 
-    // Simulate test automation setup
+    // Simulate test automation setup,
     await this.delay(2000);
 
     return automation;
@@ -589,7 +589,7 @@ export class TesterAgent extends BaseAgent {
       timestamp: new Date()
     };
 
-    // Simulate test analysis
+    // Simulate test analysis,
     await this.delay(1500);
 
     analysis.summary = {
@@ -614,7 +614,7 @@ export class TesterAgent extends BaseAgent {
       description: task.description
     });
 
-    // Default to unit testing
+    // Default to unit testing,
     return await this.createUnitTests(task);
   }
 

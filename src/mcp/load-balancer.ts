@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * Load balancer and rate limiting for MCP
  */
@@ -100,7 +100,7 @@ class CircuitBreaker {
 
   constructor(
     private failureThreshold: number,
-    private recoveryTimeout: number, // milliseconds
+    private recoveryTimeout: number, // milliseconds,
     private halfOpenMaxRequests = 3,
   ) {}
 
@@ -200,7 +200,7 @@ export class LoadBalancer implements ILoadBalancer {
       lastReset: new Date(),
     };
 
-    // Clean up old session rate limiters periodically
+    // Clean up old session rate limiters periodically,
     setInterval(() => {
       this.cleanupSessionRateLimiters();
     }, 300000); // Every 5 minutes
@@ -211,7 +211,7 @@ export class LoadBalancer implements ILoadBalancer {
       return true;
     }
 
-    // Check circuit breaker
+    // Check circuit breaker,
     if (!this.circuitBreaker.canExecute()) {
       this.logger.warn('Request rejected by circuit breaker', {
         sessionId: session.id,
@@ -222,7 +222,7 @@ export class LoadBalancer implements ILoadBalancer {
       return false;
     }
 
-    // Check global rate limit
+    // Check global rate limit,
     if (!this.rateLimiter.tryConsume()) {
       this.logger.warn('Request rejected by global rate limiter', {
         sessionId: session.id,
@@ -233,7 +233,7 @@ export class LoadBalancer implements ILoadBalancer {
       return false;
     }
 
-    // Check per-session rate limit
+    // Check per-session rate limit,
     const sessionRateLimiter = this.getSessionRateLimiter(session.id);
     if (!sessionRateLimiter.tryConsume()) {
       this.logger.warn('Request rejected by session rate limiter', {
@@ -272,7 +272,7 @@ export class LoadBalancer implements ILoadBalancer {
     metrics.endTime = Date.now();
     const duration = metrics.endTime - metrics.startTime;
 
-    // Update response time tracking
+    // Update response time tracking,
     this.requestTimes.push(duration);
     if (this.requestTimes.length > 1000) {
       this.requestTimes.shift(); // Keep only last 1000 requests
@@ -293,7 +293,7 @@ export class LoadBalancer implements ILoadBalancer {
       this.circuitBreaker.recordFailure();
     }
 
-    // Update average response time
+    // Update average response time,
     this.metrics.averageResponseTime = this.calculateAverageResponseTime();
 
     this.logger.debug('Request completed', {
@@ -382,12 +382,12 @@ export class LoadBalancer implements ILoadBalancer {
   }
 
   private cleanupSessionRateLimiters(): void {
-    // Remove rate limiters for sessions that haven't been used recently
-    const cutoffTime = Date.now() - 300000; // 5 minutes ago
+    // Remove rate limiters for sessions that haven't been used recently,
+    const cutoffTime = Date.now() - 300000; // 5 minutes ago,
     let cleaned = 0;
 
     for (const [sessionId, rateLimiter] of this.sessionRateLimiters.entries()) {
-      // If the rate limiter has full tokens, it hasn't been used recently
+      // If the rate limiter has full tokens, it hasn't been used recently,
       if (rateLimiter.getTokens() === this.config.maxRequestsPerSecond) {
         this.sessionRateLimiters.delete(sessionId);
         cleaned++;
@@ -418,13 +418,13 @@ export class RequestQueue {
 
   constructor(
     maxQueueSize = 1000,
-    requestTimeout = 30000, // 30 seconds
+    requestTimeout = 30000, // 30 seconds,
     private logger: ILogger,
   ) {
     this.maxQueueSize = maxQueueSize;
     this.requestTimeout = requestTimeout;
 
-    // Clean up expired requests periodically
+    // Clean up expired requests periodically,
     setInterval(() => {
       this.cleanupExpiredRequests();
     }, 10000); // Every 10 seconds
@@ -466,7 +466,7 @@ export class RequestQueue {
     while (this.queue.length > 0) {
       const item = this.queue.shift()!;
 
-      // Check if request has expired
+      // Check if request has expired,
       if (Date.now() - item.timestamp > this.requestTimeout) {
         item.reject(new MCPError('Request timeout'));
         continue;

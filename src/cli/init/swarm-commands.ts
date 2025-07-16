@@ -1,12 +1,12 @@
-import { getErrorMessage } from '../../utils/error-handler.js';
-// init/swarm-commands.ts - Swarm command documentation creation
+import { getErrorMessage as _getErrorMessage } from '../../utils/error-handler.js';
+// init/swarm-commands.ts - Swarm command documentation creation,
 export async function createSwarmCommands(): Promise<void> {
   const fs = await import('fs/promises');
-  const path = await import('path');
+  const _path = await import('path');
   
   const swarmDir = '.claude/commands/swarm';
   
-  // Individual strategy documentation
+  // Individual strategy documentation,
   const swarmCommands = {
     'research.md': createResearchCommand(),
     'development.md': createDevelopmentCommand(),
@@ -20,9 +20,9 @@ export async function createSwarmCommands(): Promise<void> {
     'task-tracking.md': createTaskTracking()
   };
   
-  // Write swarm command documentation
+  // Write swarm command documentation,
   for (const [filename, content] of Object.entries(swarmCommands)) {
-    await fs.writeFile(path.join(swarmDir, filename), content);
+    await fs.writeFile(_path.join(swarmDir, filename), content);
     console.log(`  ✅ Created ${filename}`);
   }
 }
@@ -31,11 +31,11 @@ function createResearchCommand(): string {
   return `# Research Swarm Command
 
 ## Usage
-\`\`\`bash
+\`\`\`bash,
 claude-flow swarm "Research objective" --strategy research --mode distributed --parallel
 \`\`\`
 
-## Description
+## Description,
 Multi-agent research coordination with distributed intelligence gathering using batch tools.
 
 ## Strategy Features
@@ -57,11 +57,11 @@ Multi-agent research coordination with distributed intelligence gathering using 
 - Use \`--monitor\` for real-time progress tracking
 - Increase agent count with \`--max-agents\` for broad topics
 
-## Example Workflow
-1. **Initialize**: TodoWrite creates research plan with subtopics
-2. **Search**: Task launches agents for parallel domain research
-3. **Validate**: Cross-reference findings using Memory coordination
-4. **Synthesize**: Combine results into comprehensive report
+## Example Workflow,
+1. **Initialize**: TodoWrite creates research plan with subtopics,
+2. **Search**: Task launches agents for parallel domain research,
+3. **Validate**: Cross-reference findings using Memory coordination,
+4. **Synthesize**: Combine results into comprehensive report,
 5. **Output**: Generate formatted report with citations
 
 ## Output Formats
@@ -75,11 +75,11 @@ function createDevelopmentCommand(): string {
   return `# Development Swarm Command
 
 ## Usage
-\`\`\`bash
+\`\`\`bash,
 claude-flow swarm "Build application" --strategy development --mode hierarchical --parallel
 \`\`\`
 
-## Description
+## Description,
 Coordinated software development with specialized agents using batch operations.
 
 ## Strategy Features
@@ -102,12 +102,12 @@ Coordinated software development with specialized agents using batch operations.
 - Monitor progress with \`--monitor\` for real-time updates
 - Use \`--output sqlite\` for detailed development metrics
 
-## Example Workflow
-1. **Planning**: TodoWrite creates development roadmap
-2. **Architecture**: Lead agent designs system architecture
-3. **Implementation**: Task launches parallel development agents
-4. **Integration**: Memory coordinates interface contracts
-5. **Testing**: Batch testing across all components
+## Example Workflow,
+1. **Planning**: TodoWrite creates development roadmap,
+2. **Architecture**: Lead agent designs system architecture,
+3. **Implementation**: Task launches parallel development agents,
+4. **Integration**: Memory coordinates interface contracts,
+5. **Testing**: Batch testing across all components,
 6. **Deployment**: Automated deployment pipeline
 
 ## Coordination Patterns
@@ -122,11 +122,11 @@ function createAnalysisCommand(): string {
   return `# Analysis Swarm Command
 
 ## Usage
-\`\`\`bash
+\`\`\`bash,
 claude-flow swarm "Analyze data" --strategy analysis --parallel --max-agents 10
 \`\`\`
 
-## Description
+## Description,
 Data analysis and insights generation with coordinated batch processing.
 
 ## Strategy Features
@@ -149,12 +149,12 @@ Data analysis and insights generation with coordinated batch processing.
 - Use \`--monitor\` for long-running analysis tasks
 - Choose appropriate output format (\`json\`, \`csv\`, \`sqlite\`)
 
-## Example Workflow
-1. **Data Collection**: TodoWrite defines data sources and collection strategy
-2. **Preprocessing**: Task launches data cleaning and preparation agents
-3. **Analysis**: Parallel statistical and ML analysis across data segments
-4. **Pattern Discovery**: Memory coordinates pattern sharing between agents
-5. **Visualization**: Generate charts, dashboards, and reports
+## Example Workflow,
+1. **Data Collection**: TodoWrite defines data sources and collection strategy,
+2. **Preprocessing**: Task launches data cleaning and preparation agents,
+3. **Analysis**: Parallel statistical and ML analysis across data segments,
+4. **Pattern Discovery**: Memory coordinates pattern sharing between agents,
+5. **Visualization**: Generate charts, dashboards, and reports,
 6. **Insights**: Synthesize findings into actionable recommendations
 
 ## Analysis Types
@@ -170,11 +170,11 @@ function createTestingCommand(): string {
   return `# Testing Swarm Command
 
 ## Usage
-\`\`\`bash
+\`\`\`bash,
 claude-flow swarm "Test application" --strategy testing --mode mesh --parallel
 \`\`\`
 
-## Description
+## Description,
 Comprehensive testing coordination with distributed validation and batch operations.
 
 ## Strategy Features
@@ -197,12 +197,12 @@ Comprehensive testing coordination with distributed validation and batch operati
 - Monitor results with \`--monitor\` for real-time test feedback
 - Use \`--output sqlite\` for detailed test analytics
 
-## Example Workflow
+## Example Workflow,
 1. **Test Planning**: TodoWrite creates test matrix (unit, integration, e2e)
-2. **Environment Setup**: Task prepares multiple test environments
-3. **Parallel Execution**: Simultaneous test execution across environments
-4. **Result Collection**: Memory aggregates test results and metrics
-5. **Analysis**: Identify failures, performance issues, coverage gaps
+2. **Environment Setup**: Task prepares multiple test environments,
+3. **Parallel Execution**: Simultaneous test execution across environments,
+4. **Result Collection**: Memory aggregates test results and metrics,
+5. **Analysis**: Identify failures, performance issues, coverage gaps,
 6. **Reporting**: Generate comprehensive test reports and recommendations
 
 ## Test Types
@@ -219,11 +219,11 @@ function createOptimizationCommand(): string {
   return `# Optimization Swarm Command
 
 ## Usage
-\`\`\`bash
+\`\`\`bash,
 claude-flow swarm "Optimize performance" --strategy optimization --mode hybrid --parallel
 \`\`\`
 
-## Description
+## Description,
 Performance optimization with coordinated analysis and improvements using batch operations.
 
 ## Strategy Features
@@ -246,12 +246,12 @@ Performance optimization with coordinated analysis and improvements using batch 
 - Set adequate timeout for thorough performance analysis
 - Use \`--output sqlite\` for detailed performance tracking
 
-## Example Workflow
-1. **Profiling**: TodoWrite defines profiling strategy and target metrics
-2. **Analysis**: Task launches performance analysis agents
-3. **Optimization**: Parallel implementation of performance improvements
-4. **Validation**: Memory coordinates before/after performance comparisons
-5. **Regression Testing**: Ensure optimizations don't break functionality
+## Example Workflow,
+1. **Profiling**: TodoWrite defines profiling strategy and target metrics,
+2. **Analysis**: Task launches performance analysis agents,
+3. **Optimization**: Parallel implementation of performance improvements,
+4. **Validation**: Memory coordinates before/after performance comparisons,
+5. **Regression Testing**: Ensure optimizations don't break functionality,
 6. **Monitoring**: Set up ongoing performance monitoring
 
 ## Optimization Areas
@@ -267,11 +267,11 @@ function createMaintenanceCommand(): string {
   return `# Maintenance Swarm Command
 
 ## Usage
-\`\`\`bash
+\`\`\`bash,
 claude-flow swarm "System maintenance" --strategy maintenance --mode centralized --monitor
 \`\`\`
 
-## Description
+## Description,
 System maintenance and updates with coordinated agents and batch operations.
 
 ## Strategy Features
@@ -294,12 +294,12 @@ System maintenance and updates with coordinated agents and batch operations.
 - Use \`--output json\` for detailed audit trails
 - Plan rollback procedures before starting maintenance
 
-## Example Workflow
-1. **Health Assessment**: TodoWrite creates system health checklist
-2. **Backup Creation**: Task creates comprehensive system backups
-3. **Maintenance Execution**: Coordinated maintenance operations
-4. **Verification**: Memory tracks changes and validates system state
-5. **Rollback (if needed)**: Automated rollback to previous state
+## Example Workflow,
+1. **Health Assessment**: TodoWrite creates system health checklist,
+2. **Backup Creation**: Task creates comprehensive system backups,
+3. **Maintenance Execution**: Coordinated maintenance operations,
+4. **Verification**: Memory tracks changes and validates system state,
+5. **Rollback (if needed)**: Automated rollback to previous state,
 6. **Documentation**: Update maintenance logs and documentation
 
 ## Maintenance Types
@@ -319,55 +319,55 @@ function createSwarmExamples(): string {
 
 ### Research Tasks with Parallel Execution
 \`\`\`bash
-# Distributed research with parallel agents
+# Distributed research with parallel agents,
 claude-flow swarm "Research modern web frameworks" --strategy research --mode distributed --parallel --max-agents 6
 
-# Market analysis with coordinated batch operations
+# Market analysis with coordinated batch operations,
 claude-flow swarm "Analyze AI market trends" --strategy research --parallel --monitor --timeout 120
 \`\`\`
 
 ### Development Tasks with Batch Coordination
 \`\`\`bash
-# Hierarchical development with batch file operations
+# Hierarchical development with batch file operations,
 claude-flow swarm "Build microservice API" --strategy development --mode hierarchical --parallel --max-agents 8
 
-# React dashboard with coordinated component development
+# React dashboard with coordinated component development,
 claude-flow swarm "Create React dashboard" --strategy development --parallel --monitor --output sqlite
 \`\`\`
 
 ### Analysis Tasks with Batch Processing
 \`\`\`bash
-# Mesh-coordinated data analysis
+# Mesh-coordinated data analysis,
 claude-flow swarm "Analyze user behavior data" --strategy analysis --mode mesh --parallel --max-agents 10
 
-# Performance analysis with monitoring
+# Performance analysis with monitoring,
 claude-flow swarm "Performance analysis of application" --strategy analysis --monitor --output csv
 \`\`\`
 
 ### Testing Tasks with Parallel Validation
 \`\`\`bash
-# Comprehensive parallel testing
+# Comprehensive parallel testing,
 claude-flow swarm "Comprehensive testing suite" --strategy testing --parallel --max-agents 12
 
-# Security testing with distributed coordination
+# Security testing with distributed coordination,
 claude-flow swarm "Security testing analysis" --strategy testing --mode distributed --monitor
 \`\`\`
 
 ### Optimization Tasks with Hybrid Coordination
 \`\`\`bash
-# Database optimization with hybrid approach
+# Database optimization with hybrid approach,
 claude-flow swarm "Optimize database queries" --strategy optimization --mode hybrid --parallel
 
-# Frontend optimization with batch processing
+# Frontend optimization with batch processing,
 claude-flow swarm "Frontend performance optimization" --strategy optimization --monitor --max-agents 6
 \`\`\`
 
 ### Maintenance Tasks with Centralized Control
 \`\`\`bash
-# Dependency updates with centralized coordination
+# Dependency updates with centralized coordination,
 claude-flow swarm "Update dependencies safely" --strategy maintenance --mode centralized --monitor
 
-# System health checks with batch operations
+# System health checks with batch operations,
 claude-flow swarm "System health check" --strategy maintenance --parallel --output json
 \`\`\`
 
@@ -588,28 +588,28 @@ function createBestPractices(): string {
 
 ## Common Patterns
 
-### Research and Analysis
-1. TodoWrite creates research plan
-2. Task launches parallel research agents
-3. Memory stores and cross-references findings
+### Research and Analysis,
+1. TodoWrite creates research plan,
+2. Task launches parallel research agents,
+3. Memory stores and cross-references findings,
 4. Batch operations generate comprehensive reports
 
-### Development and Implementation
-1. TodoWrite creates development roadmap
-2. Hierarchical coordination for organized development
-3. Parallel implementation with Memory coordination
+### Development and Implementation,
+1. TodoWrite creates development roadmap,
+2. Hierarchical coordination for organized development,
+3. Parallel implementation with Memory coordination,
 4. Integrated testing and validation
 
-### Testing and Validation
-1. TodoWrite creates comprehensive test matrix
-2. Mesh coordination for distributed testing
-3. Parallel test execution across environments
+### Testing and Validation,
+1. TodoWrite creates comprehensive test matrix,
+2. Mesh coordination for distributed testing,
+3. Parallel test execution across environments,
 4. Memory aggregates results and identifies patterns
 
-### Optimization and Performance
-1. TodoWrite defines optimization strategy
-2. Hybrid coordination adapts to optimization phases
-3. Parallel profiling and optimization implementation
+### Optimization and Performance,
+1. TodoWrite defines optimization strategy,
+2. Hybrid coordination adapts to optimization phases,
+3. Parallel profiling and optimization implementation,
 4. Memory tracks performance improvements
 
 ## Troubleshooting
@@ -637,10 +637,10 @@ function createBestPractices(): string {
 function createTaskTracking(): string {
   return `# Task Tracking Format for Swarm Operations
 
-## Overview
+## Overview,
 Swarm operations use a standardized task tracking format to provide clear visibility into progress, priorities, and dependencies across all agents.
 
-## Progress Overview Display
+## Progress Overview Display,
 
 The swarm coordinator will display task progress using this format:
 
@@ -655,14 +655,14 @@ The swarm coordinator will display task progress using this format:
 
 ## Task Lists by Status
 
-### 📋 Todo Tasks
+### 📋 Todo Tasks,
 Tasks waiting to be started:
 \`\`\`
 📋 Todo (1)
    └── 🔴 001: Set up authentication system [HIGH] ▶
 \`\`\`
 
-### 🔄 In Progress Tasks
+### 🔄 In Progress Tasks,
 Tasks currently being worked on:
 \`\`\`
 🔄 In progress (2)
@@ -670,7 +670,7 @@ Tasks currently being worked on:
    └── 🔴 003: Add payment integration [CRITICAL] ▶
 \`\`\`
 
-### ✅ Completed Tasks
+### ✅ Completed Tasks,
 Tasks that have been finished:
 \`\`\`
 ✅ Completed (8)
@@ -680,14 +680,14 @@ Tasks that have been finished:
    └── ... (more completed tasks)
 \`\`\`
 
-### ❌ Blocked Tasks
+### ❌ Blocked Tasks,
 Tasks that cannot proceed due to dependencies:
 \`\`\`
 ❌ Blocked (1)
    └── 🔴 007: Deploy to production ↳ 3 deps [BLOCKED]
 \`\`\`
 
-## Priority Indicators
+## Priority Indicators,
 
 Tasks use color-coded priority indicators:
 - 🔴 **HIGH/CRITICAL**: Urgent tasks requiring immediate attention
@@ -707,9 +707,9 @@ Tasks use color-coded priority indicators:
 
 ## Usage in Swarm Operations
 
-### TodoWrite Integration
+### TodoWrite Integration,
 When creating tasks with TodoWrite, include priority and dependency information:
-\`\`\`javascript
+\`\`\`javascript,
 TodoWrite([
   {
     id: "auth_001",
@@ -735,11 +735,11 @@ TodoWrite([
 ]);
 \`\`\`
 
-### Real-time Updates
+### Real-time Updates,
 The swarm coordinator will:
-1. Update task statuses as agents progress
-2. Recalculate percentages automatically
-3. Move tasks between categories based on status
+1. Update task statuses as agents progress,
+2. Recalculate percentages automatically,
+3. Move tasks between categories based on status,
 4. Show dependency resolution in real-time
 
 ## Best Practices
@@ -801,7 +801,7 @@ This format ensures all swarm participants have clear visibility into:
 - Task priorities and urgencies
 - Dependencies and blockers
 - What can be worked on immediately (▶ indicators)
-- Distribution of work across different states
+- Distribution of work across different states,
 
 Use this format consistently across all swarm operations for maximum clarity and coordination efficiency.
 `;

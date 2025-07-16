@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const fs = require('fs');
-const path = require('path');
+const _path = require('path');
 
 /**
  * Validate Claude optimized template installation
@@ -12,7 +12,7 @@ const TEMPLATE_DIR = path.join(__dirname, '.claude');
 const MANIFEST_PATH = path.join(__dirname, 'manifest.json');
 
 // Colors for console output
-const colors = {
+const _colors = {
   green: '\x1b[32m',
   red: '\x1b[31m',
   yellow: '\x1b[33m',

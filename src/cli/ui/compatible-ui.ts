@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../../utils/error-handler.js';
 /**
  * Compatible Terminal UI - Works without raw mode
  * Designed for environments that don't support stdin raw mode
@@ -44,10 +44,10 @@ export class CompatibleUI {
   async start(): Promise<void> {
     this.running = true;
     
-    // Initial render
+    // Initial render,
     this.render();
     
-    // Setup command loop
+    // Setup command loop,
     while (this.running) {
       const command = await this.promptCommand();
       await this.handleCommand(command);
@@ -91,7 +91,7 @@ export class CompatibleUI {
       case 'h':
       case 'help':
       case '?':
-        this.outputHelp();
+        this.showHelp();
         break;
         
       case 's':
@@ -120,11 +120,11 @@ export class CompatibleUI {
     console.clear();
     const stats = this.getSystemStats();
 
-    // Header
+    // Header,
     console.log(chalk.cyan.bold('🧠 Claude-Flow System Monitor'));
     console.log(chalk.gray('─'.repeat(60)));
     
-    // System stats
+    // System stats,
     console.log(chalk.white('System Status:'), 
       chalk.green(`${stats.runningProcesses}/${stats.totalProcesses} running`));
     
@@ -134,7 +134,7 @@ export class CompatibleUI {
     
     console.log();
 
-    // Process list
+    // Process list,
     console.log(chalk.white.bold('Processes:'));
     console.log(chalk.gray('─'.repeat(60)));
     
@@ -154,7 +154,7 @@ export class CompatibleUI {
       });
     }
 
-    // Footer
+    // Footer,
     console.log(chalk.gray('─'.repeat(60)));
     console.log(chalk.gray('Commands: [1-9] Process details [s] Status [l] List [r] Refresh [h] Help [q] Quit'));
   }
@@ -273,7 +273,7 @@ export class CompatibleUI {
   }
 
   private getSystemLoad(): string {
-    // Simulate system load
+    // Simulate system load,
     return '0.45, 0.52, 0.48';
   }
 
@@ -319,6 +319,10 @@ export class CompatibleUI {
     console.log('  • Compatible with VS Code, CI/CD, containers');
   }
 
+  private outputHelp(): void {
+    this.showHelp();
+  }
+
   private async handleExit(): Promise<void> {
     const runningProcesses = this.processes.filter(p => p.status === 'running');
     
@@ -333,12 +337,12 @@ export class CompatibleUI {
   }
 }
 
-// Factory function to create UI instances
+// Factory function to create UI instances,
 export function createCompatibleUI(): CompatibleUI {
   return new CompatibleUI();
 }
 
-// Check if raw mode is supported
+// Check if raw mode is supported,
 export function isRawModeSupported(): boolean {
   try {
     return process.stdin.isTTY && typeof process.stdin.setRawMode === 'function';
@@ -347,11 +351,11 @@ export function isRawModeSupported(): boolean {
   }
 }
 
-// Fallback UI launcher that chooses the best available UI
+// Fallback UI launcher that chooses the best available UI,
 export async function launchUI(): Promise<void> {
   const ui = createCompatibleUI();
   
-  // Mock some example processes for demonstration
+  // Mock some example processes for demonstration,
   const mockProcesses: UIProcess[] = [
     {
       id: 'orchestrator',

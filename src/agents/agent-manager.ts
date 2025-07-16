@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * Comprehensive agent management system
  */
@@ -18,7 +18,7 @@ import type {
   AgentMetrics,
   AgentError,
   TaskId,
-  TaskDefinition
+  TaskDefinition as _TaskDefinition
 } from '../swarm/types.js';
 import type { DistributedMemorySystem } from '../memory/distributed-memory.js';
 import { generateId } from '../utils/helpers.js';
@@ -131,23 +131,23 @@ export class AgentManager extends EventEmitter {
   private memory: DistributedMemorySystem;
   private config: AgentManagerConfig;
 
-  // Agent tracking
+  // Agent tracking,
   private agents = new Map<string, AgentState>();
   private processes = new Map<string, ChildProcess>();
   private templates = new Map<string, AgentTemplate>();
   private clusters = new Map<string, AgentCluster>();
   private pools = new Map<string, AgentPool>();
 
-  // Health monitoring
+  // Health monitoring,
   private healthChecks = new Map<string, AgentHealth>();
   private healthInterval?: NodeJS.Timeout;
   private heartbeatInterval?: NodeJS.Timeout;
 
-  // Scaling and policies
+  // Scaling and policies,
   private scalingPolicies = new Map<string, ScalingPolicy>();
   private scalingOperations = new Map<string, { timestamp: Date; type: string }>();
 
-  // Resource tracking
+  // Resource tracking,
   private resourceUsage = new Map<string, { cpu: number; memory: number; disk: number }>();
   private performanceHistory = new Map<string, Array<{ timestamp: Date; metrics: AgentMetrics }>>();
 
@@ -335,7 +335,7 @@ export class AgentManager extends EventEmitter {
   }
 
   private initializeSpecializedTemplates(): void {
-    // Analyzer template
+    // Analyzer template,
     this.templates.set('analyst', {
       name: 'Analyzer Agent',
       type: 'analyst',
@@ -396,13 +396,13 @@ export class AgentManager extends EventEmitter {
       templates: this.templates.size
     });
 
-    // Start health monitoring
+    // Start health monitoring,
     this.startHealthMonitoring();
 
-    // Start heartbeat monitoring
+    // Start heartbeat monitoring,
     this.startHeartbeatMonitoring();
 
-    // Initialize default scaling policies
+    // Initialize default scaling policies,
     this.initializeScalingPolicies();
 
     this.emit('agent-manager:initialized');
@@ -411,11 +411,11 @@ export class AgentManager extends EventEmitter {
   async shutdown(): Promise<void> {
     this.logger.info('Shutting down agent manager');
 
-    // Stop monitoring
+    // Stop monitoring,
     if (this.healthInterval) clearInterval(this.healthInterval);
     if (this.heartbeatInterval) clearInterval(this.heartbeatInterval);
 
-    // Gracefully shutdown all agents
+    // Gracefully shutdown all agents,
     const shutdownPromises = Array.from(this.agents.keys()).map(agentId =>
       this.stopAgent(agentId, 'shutdown')
     );
@@ -445,7 +445,7 @@ export class AgentManager extends EventEmitter {
     }
 
     const agentId = generateId('agent');
-    const swarmId = 'default'; // Could be parameterized
+    const swarmId = 'default'; // Could be parameterized,
 
     const agent: AgentState = {
       id: { id: agentId, swarmId, type: template.type, instance: 1 },
@@ -503,7 +503,7 @@ export class AgentManager extends EventEmitter {
 
     this.emit('agent:created', { agent });
 
-    // Store in memory for persistence
+    // Store in memory for persistence,
     await this.memory.store(`agent:${agentId}`, agent, {
       type: 'agent-state',
       tags: [agent.type, 'active'],
@@ -527,11 +527,11 @@ export class AgentManager extends EventEmitter {
       agent.status = 'initializing';
       this.updateAgentStatus(agentId, 'initializing');
 
-      // Spawn agent process
+      // Spawn agent process,
       const process = await this.spawnAgentProcess(agent);
       this.processes.set(agentId, process);
 
-      // Wait for agent to signal ready
+      // Wait for agent to signal ready,
       await this.waitForAgentReady(agentId, this.config.defaultTimeout);
 
       agent.status = 'idle';
@@ -571,12 +571,12 @@ export class AgentManager extends EventEmitter {
       agent.status = 'terminating';
       this.updateAgentStatus(agentId, 'terminating');
 
-      // Send graceful shutdown signal
+      // Send graceful shutdown signal,
       const process = this.processes.get(agentId);
       if (process && !process.killed) {
         process.kill('SIGTERM');
 
-        // Force kill after timeout
+        // Force kill after timeout,
         setTimeout(() => {
           if (process && !process.killed) {
             process.kill('SIGKILL');
@@ -584,13 +584,13 @@ export class AgentManager extends EventEmitter {
         }, this.config.defaultTimeout);
       }
 
-      // Wait for process to exit
+      // Wait for process to exit,
       await this.waitForProcessExit(agentId, this.config.defaultTimeout);
 
       agent.status = 'terminated';
       this.updateAgentStatus(agentId, 'terminated');
 
-      // Cleanup
+      // Cleanup,
       this.processes.delete(agentId);
 
       this.logger.info('Stopped agent', { agentId, reason });
@@ -598,7 +598,7 @@ export class AgentManager extends EventEmitter {
 
     } catch (error) {
       this.logger.error('Failed to stop agent gracefully', { agentId, error });
-      // Force cleanup
+      // Force cleanup,
       this.processes.delete(agentId);
       agent.status = 'terminated';
     }
@@ -619,21 +619,21 @@ export class AgentManager extends EventEmitter {
       throw new Error(`Agent ${agentId} not found`);
     }
 
-    // Stop agent if running
+    // Stop agent if running,
     if (agent.status !== 'terminated' && agent.status !== 'offline') {
       await this.stopAgent(agentId, 'removal');
     }
 
-    // Remove from all data structures
+    // Remove from all data structures,
     this.agents.delete(agentId);
     this.healthChecks.delete(agentId);
     this.resourceUsage.delete(agentId);
     this.performanceHistory.delete(agentId);
 
-    // Remove from pools and clusters
+    // Remove from pools and clusters,
     this.removeAgentFromPoolsAndClusters(agentId);
 
-    // Remove from memory
+    // Remove from memory,
     await this.memory.deleteEntry(`agent:${agentId}`);
 
     this.logger.info('Removed agent', { agentId });
@@ -676,7 +676,7 @@ export class AgentManager extends EventEmitter {
 
     this.pools.set(poolId, pool);
 
-    // Create minimum agents
+    // Create minimum agents,
     for (let i = 0; i < config.minSize; i++) {
       const agentId = await this.createAgent(templateName, {
         name: `${name}-${i + 1}`
@@ -706,7 +706,7 @@ export class AgentManager extends EventEmitter {
     const delta = targetSize - currentSize;
 
     if (delta > 0) {
-      // Scale up
+      // Scale up,
       for (let i = 0; i < delta; i++) {
         const agentId = await this.createAgent(pool.template.name, {
           name: `${pool.name}-${currentSize + i + 1}`
@@ -720,7 +720,7 @@ export class AgentManager extends EventEmitter {
         });
       }
     } else if (delta < 0) {
-      // Scale down
+      // Scale down,
       const agentsToRemove = pool.availableAgents.slice(0, Math.abs(delta));
       for (const agentId of agentsToRemove) {
         await this.removeAgent(agentId.id);
@@ -772,34 +772,34 @@ export class AgentManager extends EventEmitter {
     const now = new Date();
 
     try {
-      // Check responsiveness
+      // Check responsiveness,
       const responsiveness = await this.checkResponsiveness(agentId);
       health.components.responsiveness = responsiveness;
 
-      // Check performance
+      // Check performance,
       const performance = this.calculatePerformanceScore(agentId);
       health.components.performance = performance;
 
-      // Check reliability
+      // Check reliability,
       const reliability = this.calculateReliabilityScore(agentId);
       health.components.reliability = reliability;
 
-      // Check resource usage
+      // Check resource usage,
       const resourceScore = this.calculateResourceScore(agentId);
       health.components.resourceUsage = resourceScore;
 
-      // Calculate overall health
+      // Calculate overall health,
       const overall = (responsiveness + performance + reliability + resourceScore) / 4;
       health.overall = overall;
       health.lastCheck = now;
 
-      // Update agent health
+      // Update agent health,
       agent.health = overall;
 
-      // Check for issues
+      // Check for issues,
       this.detectHealthIssues(agentId, health);
 
-      // Auto-restart if critically unhealthy
+      // Auto-restart if critically unhealthy,
       if (overall < 0.3 && this.config.autoRestart) {
         this.logger.warn('Agent critically unhealthy, restarting', { agentId, health: overall });
         await this.restartAgent(agentId, 'health_critical');
@@ -813,12 +813,10 @@ export class AgentManager extends EventEmitter {
   }
 
   private async checkResponsiveness(agentId: string): Promise<number> {
-    // Send ping and measure response time
-    const startTime = Date.now();
-    
+    // Send ping and measure response time,
     try {
       // This would send an actual ping to the agent
-      // For now, simulate based on last heartbeat
+      // For now, simulate based on last heartbeat,
       const agent = this.agents.get(agentId)!;
       const timeSinceHeartbeat = Date.now() - agent.lastHeartbeat.getTime();
       
@@ -839,12 +837,12 @@ export class AgentManager extends EventEmitter {
     const history = this.performanceHistory.get(agentId) || [];
     if (history.length === 0) return 1.0;
 
-    // Calculate average task completion time vs expected
-    const recent = history.slice(-10); // Last 10 entries
+    // Calculate average task completion time vs expected,
+    const recent = history.slice(-10); // Last 10 entries,
     const avgTime = recent.reduce((sum, entry) => sum + entry.metrics.averageExecutionTime, 0) / recent.length;
     
     // Normalize based on expected performance (simplified)
-    const expectedTime = 60000; // 1 minute baseline
+    const expectedTime = 60000; // 1 minute baseline,
     return Math.max(0, Math.min(1, expectedTime / avgTime));
   }
 
@@ -930,7 +928,7 @@ export class AgentManager extends EventEmitter {
 
         this.emit('agent:heartbeat-timeout', { agentId, timeSinceHeartbeat });
 
-        // Auto-restart if enabled
+        // Auto-restart if enabled,
         if (this.config.autoRestart) {
           this.restartAgent(agentId, 'heartbeat_timeout').catch(error => {
             this.logger.error('Failed to auto-restart agent', { agentId, error });
@@ -966,7 +964,7 @@ export class AgentManager extends EventEmitter {
       cwd: agent.environment.workingDirectory
     });
 
-    // Handle process events
+    // Handle process events,
     childProcess.on('exit', (code: number | null) => {
       this.handleProcessExit(agent.id.id, code);
     });
@@ -1062,7 +1060,7 @@ export class AgentManager extends EventEmitter {
       this.updateAgentMetrics(data.agentId, data.metrics);
     }
 
-    // Update health if agent was previously unresponsive
+    // Update health if agent was previously unresponsive,
     if (agent.status === 'error') {
       agent.status = 'idle';
       this.updateAgentStatus(data.agentId, 'idle');
@@ -1102,11 +1100,11 @@ export class AgentManager extends EventEmitter {
 
     agent.metrics = { ...agent.metrics, ...metrics };
 
-    // Store performance history
+    // Store performance history,
     const history = this.performanceHistory.get(agentId) || [];
     history.push({ timestamp: new Date(), metrics: { ...metrics } });
     
-    // Keep only last 100 entries
+    // Keep only last 100 entries,
     if (history.length > 100) {
       history.shift();
     }
@@ -1124,7 +1122,7 @@ export class AgentManager extends EventEmitter {
 
     agent.errorHistory.push(error);
 
-    // Keep only last 50 errors
+    // Keep only last 50 errors,
     if (agent.errorHistory.length > 50) {
       agent.errorHistory.shift();
     }
@@ -1167,25 +1165,25 @@ export class AgentManager extends EventEmitter {
   }
 
   private removeAgentFromPoolsAndClusters(agentId: string): void {
-    // Remove from pools
+    // Remove from pools,
     for (const pool of Array.from(this.pools.values())) {
       pool.availableAgents = pool.availableAgents.filter(a => a.id !== agentId);
       pool.busyAgents = pool.busyAgents.filter(a => a.id !== agentId);
       pool.currentSize = pool.availableAgents.length + pool.busyAgents.length;
     }
 
-    // Remove from clusters
+    // Remove from clusters,
     for (const cluster of Array.from(this.clusters.values())) {
       cluster.agents = cluster.agents.filter(a => a.id !== agentId);
     }
   }
 
   private initializeScalingPolicies(): void {
-    // Default auto-scaling policy
+    // Default auto-scaling policy,
     const defaultPolicy: ScalingPolicy = {
       name: 'default-autoscale',
       enabled: true,
-      cooldownPeriod: 300000, // 5 minutes
+      cooldownPeriod: 300000, // 5 minutes,
       maxScaleOperations: 10,
       rules: [
         {

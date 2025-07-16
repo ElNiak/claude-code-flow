@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../../utils/error-handler.js';
 import * as process from 'node:process';
 /**
  * Native terminal adapter implementation
@@ -49,7 +49,7 @@ class NativeTerminal implements Terminal {
     try {
       const shellConfig = this.getShellConfig();
       
-      // Start shell process
+      // Start shell process,
       this.process = spawn(shellConfig.path, shellConfig.args, {
         stdio: ['pipe', 'pipe', 'pipe'],
         env: {
@@ -60,16 +60,16 @@ class NativeTerminal implements Terminal {
         },
       });
       
-      // Get PID
+      // Get PID,
       this.pid = this.process.pid;
 
-      // Set up output handlers
+      // Set up output handlers,
       this.setupOutputHandlers();
 
-      // Monitor process status
+      // Monitor process status,
       this.monitorProcess();
 
-      // Wait for shell to be ready
+      // Wait for shell to be ready,
       await this.waitForReady();
       
       this.logger.debug('Native terminal initialized', { 
@@ -89,17 +89,17 @@ class NativeTerminal implements Terminal {
     }
 
     try {
-      // Create deferred for this command
+      // Create deferred for this command,
       this.commandDeferred = createDeferred<string>();
 
-      // Clear output buffer
+      // Clear output buffer,
       this.outputBuffer = '';
 
-      // Send command with marker
+      // Send command with marker,
       const markedCommand = this.wrapCommand(command);
       await this.write(markedCommand + '\n');
 
-      // Wait for command to complete
+      // Wait for command to complete,
       const output = await timeout(
         this.commandDeferred.promise,
         30000,
@@ -138,7 +138,7 @@ class NativeTerminal implements Terminal {
       throw new TerminalError('Terminal is not alive');
     }
 
-    // Return buffered output
+    // Return buffered output,
     const output = this.outputBuffer;
     this.outputBuffer = '';
     return output;
@@ -154,12 +154,12 @@ class NativeTerminal implements Terminal {
     try {
       this.alive = false;
 
-      // Close streams
+      // Close streams,
       if (this.process.stdin && !this.process.stdin.destroyed) {
         this.process.stdin.end();
       }
 
-      // Try graceful shutdown first
+      // Try graceful shutdown first,
       try {
         await this.write('exit\n');
         await delay(500);
@@ -167,12 +167,12 @@ class NativeTerminal implements Terminal {
         // Ignore write errors during shutdown
       }
 
-      // Force kill if still alive
+      // Force kill if still alive,
       try {
         this.process.kill('SIGTERM');
         await delay(500);
         
-        // Use SIGKILL if SIGTERM didn't work
+        // Use SIGKILL if SIGTERM didn't work,
         if (!this.process.killed) {
           this.process.kill('SIGKILL');
         }
@@ -244,13 +244,13 @@ class NativeTerminal implements Terminal {
     const osplatform = platform();
     
     if (this.shell === 'powershell') {
-      // PowerShell command wrapping
+      // PowerShell command wrapping,
       return `${command}; Write-Host "${this.commandMarker}"`;
     } else if (this.shell === 'cmd' && osplatform === 'win32') {
-      // Windows CMD command wrapping
+      // Windows CMD command wrapping,
       return `${command} & echo ${this.commandMarker}`;
     } else {
-      // Unix-like shell command wrapping
+      // Unix-like shell command wrapping,
       return `${command} && echo "${this.commandMarker}" || (echo "${this.commandMarker}"; false)`;
     }
   }
@@ -258,22 +258,22 @@ class NativeTerminal implements Terminal {
   private setupOutputHandlers(): void {
     if (!this.process) return;
 
-    // Handle stdout
+    // Handle stdout,
     this.process.stdout?.on('data', (data: Buffer) => {
       const text = data.toString();
       this.processOutput(text);
     });
 
-    // Handle stderr
+    // Handle stderr,
     this.process.stderr?.on('data', (data: Buffer) => {
       const text = data.toString();
       this.errorBuffer += text;
       
-      // Also send stderr to output listeners
+      // Also send stderr to output listeners,
       this.notifyListeners(text);
     });
 
-    // Handle process errors
+    // Handle process errors,
     this.process.on('error', (error) => {
       if (this.alive) {
         this.logger.error('Process error', { id: this.id, error });
@@ -284,25 +284,25 @@ class NativeTerminal implements Terminal {
   private processOutput(text: string): void {
     this.outputBuffer += text;
     
-    // Notify listeners
+    // Notify listeners,
     this.notifyListeners(text);
     
-    // Check for command completion marker
+    // Check for command completion marker,
     const markerIndex = this.outputBuffer.indexOf(this.commandMarker);
     if (markerIndex !== -1 && this.commandDeferred) {
-      // Extract output before marker
+      // Extract output before marker,
       const output = this.outputBuffer.substring(0, markerIndex).trim();
       
-      // Include any stderr output
+      // Include any stderr output,
       const fullOutput = this.errorBuffer ? `${output}\n${this.errorBuffer}` : output;
       this.errorBuffer = '';
       
-      // Clear buffer up to after marker
+      // Clear buffer up to after marker,
       this.outputBuffer = this.outputBuffer.substring(
         markerIndex + this.commandMarker.length,
       ).trim();
       
-      // Resolve pending command
+      // Resolve pending command,
       this.commandDeferred.resolve(fullOutput);
       this.commandDeferred = undefined;
     }
@@ -329,7 +329,7 @@ class NativeTerminal implements Terminal {
       });
       this.alive = false;
       
-      // Reject any pending command
+      // Reject any pending command,
       if (this.commandDeferred) {
         this.commandDeferred.reject(new Error('Terminal process exited'));
       }
@@ -339,7 +339,7 @@ class NativeTerminal implements Terminal {
       this.logger.error('Error monitoring process', { id: this.id, error });
       this.alive = false;
       
-      // Reject any pending command
+      // Reject any pending command,
       if (this.commandDeferred) {
         this.commandDeferred.reject(error);
       }
@@ -347,7 +347,7 @@ class NativeTerminal implements Terminal {
   }
 
   private async waitForReady(): Promise<void> {
-    // Send a test command to ensure shell is ready
+    // Send a test command to ensure shell is ready,
     const testCommand = this.shell === 'powershell' 
       ? 'Write-Host "READY"'
       : 'echo "READY"';
@@ -375,14 +375,14 @@ export class NativeAdapter implements ITerminalAdapter {
   private shell: string;
 
   constructor(private logger: ILogger) {
-    // Detect available shell
+    // Detect available shell,
     this.shell = this.detectShell();
   }
 
   async initialize(): Promise<void> {
     this.logger.info('Initializing native terminal adapter', { shell: this.shell });
     
-    // Verify shell is available
+    // Verify shell is available,
     try {
       const testConfig = this.getTestCommand();
       const { spawnSync } = require('child_process');
@@ -400,7 +400,7 @@ export class NativeAdapter implements ITerminalAdapter {
   async shutdown(): Promise<void> {
     this.logger.info('Shutting down native terminal adapter');
     
-    // Kill all terminals
+    // Kill all terminals,
     const terminals = Array.from(this.terminals.values());
     await Promise.all(terminals.map(term => term.kill()));
     
@@ -425,13 +425,13 @@ export class NativeAdapter implements ITerminalAdapter {
     const osplatform = platform();
     
     if (osplatform === 'win32') {
-      // Windows shell detection
+      // Windows shell detection,
       const comspec = process.env.COMSPEC;
       if (comspec?.toLowerCase().includes('powershell')) {
         return 'powershell';
       }
       
-      // Check if PowerShell is available
+      // Check if PowerShell is available,
       try {
         const { spawnSync } = require('child_process');
         const result = spawnSync('powershell', ['-Version'], { stdio: 'ignore' });
@@ -444,7 +444,7 @@ export class NativeAdapter implements ITerminalAdapter {
       
       return 'cmd';
     } else {
-      // Unix-like shell detection
+      // Unix-like shell detection,
       const shell = process.env.SHELL;
       if (shell) {
         const shellName = shell.split('/').pop();
@@ -453,7 +453,7 @@ export class NativeAdapter implements ITerminalAdapter {
         }
       }
 
-      // Try common shells in order of preference
+      // Try common shells in order of preference,
       const shells = ['bash', 'zsh', 'sh'];
       for (const shell of shells) {
         try {
@@ -467,7 +467,7 @@ export class NativeAdapter implements ITerminalAdapter {
         }
       }
 
-      // Default to sh
+      // Default to sh,
       return 'sh';
     }
   }

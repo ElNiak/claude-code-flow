@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * Memory cache implementation with LRU eviction
  */
@@ -38,7 +38,7 @@ export class MemoryCache {
       return undefined;
     }
 
-    // Update access time
+    // Update access time,
     entry.lastAccessed = Date.now();
     this.hits++;
     
@@ -51,7 +51,7 @@ export class MemoryCache {
   set(id: string, data: MemoryEntry, dirty = true): void {
     const size = this.calculateSize(data);
 
-    // Check if we need to evict entries
+    // Check if we need to evict entries,
     if (this.currentSize + size > this.maxSize) {
       this.evict(size);
     }
@@ -63,7 +63,7 @@ export class MemoryCache {
       dirty,
     };
 
-    // Update size if replacing existing entry
+    // Update size if replacing existing entry,
     const existing = this.cache.get(id);
     if (existing) {
       this.currentSize -= existing.size;
@@ -169,23 +169,23 @@ export class MemoryCache {
    */
   performMaintenance(): void {
     // Remove expired entries if needed
-    // For now, just log metrics
+    // For now, just log metrics,
     const metrics = this.getMetrics();
     this.logger.debug('Cache maintenance', metrics);
   }
 
   private calculateSize(entry: MemoryEntry): number {
-    // Rough estimate of memory size
+    // Rough estimate of memory size,
     let size = 0;
     
-    // String fields
-    size += entry.id.length * 2; // UTF-16
+    // String fields,
+    size += entry.id.length * 2; // UTF-16,
     size += entry.agentId.length * 2;
     size += entry.sessionId.length * 2;
     size += entry.type.length * 2;
     size += entry.content.length * 2;
     
-    // Tags
+    // Tags,
     size += entry.tags.reduce((sum, tag) => sum + tag.length * 2, 0);
     
     // JSON objects (rough estimate)
@@ -194,10 +194,10 @@ export class MemoryCache {
       size += JSON.stringify(entry.metadata).length * 2;
     }
     
-    // Fixed size fields
-    size += 8; // timestamp
-    size += 4; // version
-    size += 100; // overhead
+    // Fixed size fields,
+    size += 8; // timestamp,
+    size += 4; // version,
+    size += 100; // overhead,
     
     return size;
   }
@@ -220,7 +220,7 @@ export class MemoryCache {
         break;
       }
 
-      // Don't evict dirty entries if possible
+      // Don't evict dirty entries if possible,
       if (entry.dirty && evicted.length > 0) {
         continue;
       }

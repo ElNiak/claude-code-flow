@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * Task scheduler implementation
  */
@@ -22,8 +22,8 @@ interface ScheduledTask {
  */
 export class TaskScheduler {
   protected tasks = new Map<string, ScheduledTask>();
-  protected agentTasks = new Map<string, Set<string>>(); // agentId -> taskIds
-  protected taskDependencies = new Map<string, Set<string>>(); // taskId -> dependent taskIds
+  protected agentTasks = new Map<string, Set<string>>(); // agentId -> taskIds,
+  protected taskDependencies = new Map<string, Set<string>>(); // taskId -> dependent taskIds,
   protected completedTasks = new Set<string>();
 
   constructor(
@@ -35,14 +35,14 @@ export class TaskScheduler {
   async initialize(): Promise<void> {
     this.logger.info('Initializing task scheduler');
     
-    // Set up periodic cleanup
+    // Set up periodic cleanup,
     setInterval(() => this.cleanup(), 60000); // Every minute
   }
 
   async shutdown(): Promise<void> {
     this.logger.info('Shutting down task scheduler');
     
-    // Cancel all active tasks
+    // Cancel all active tasks,
     const taskIds = Array.from(this.tasks.keys());
     await Promise.all(taskIds.map(id => this.cancelTask(id, 'Scheduler shutdown')));
     
@@ -53,36 +53,40 @@ export class TaskScheduler {
   }
 
   async assignTask(task: Task, agentId: string): Promise<void> {
-    this.logger.info('Assigning task', { taskId: task.id, agentId });
+    this.logger.info('🔍 DEADLOCK DEBUG: Scheduler assignTask called', { taskId: task.id, agentId });
 
-    // Check dependencies
+    // Check dependencies,
     if (task.dependencies.length > 0) {
+      this.logger.info('🔍 DEADLOCK DEBUG: Checking task dependencies', { taskId: task.id, dependencies: task.dependencies });
       const unmetDependencies = task.dependencies.filter(
         depId => !this.completedTasks.has(depId),
       );
       
       if (unmetDependencies.length > 0) {
+        this.logger.warn('🚨 DEADLOCK DEBUG: Task has unmet dependencies', { taskId: task.id, unmetDependencies });
         throw new TaskDependencyError(task.id, unmetDependencies);
       }
     }
 
-    // Create scheduled task
+    // Create scheduled task,
+    this.logger.info('🔍 DEADLOCK DEBUG: Creating scheduled task', { taskId: task.id, agentId });
     const scheduledTask: ScheduledTask = {
       task: { ...task, status: 'assigned', assignedAgent: agentId },
       agentId,
       attempts: 0,
     };
 
-    // Store task
+    // Store task,
     this.tasks.set(task.id, scheduledTask);
 
-    // Update agent tasks
+    // Update agent tasks,
     if (!this.agentTasks.has(agentId)) {
       this.agentTasks.set(agentId, new Set());
     }
     this.agentTasks.get(agentId)!.add(task.id);
+    this.logger.info('🔍 DEADLOCK DEBUG: Updated agent tasks', { agentId, taskCount: this.agentTasks.get(agentId)!.size });
 
-    // Update dependencies
+    // Update dependencies,
     for (const depId of task.dependencies) {
       if (!this.taskDependencies.has(depId)) {
         this.taskDependencies.set(depId, new Set());
@@ -90,8 +94,10 @@ export class TaskScheduler {
       this.taskDependencies.get(depId)!.add(task.id);
     }
 
-    // Start task execution
+    // Start task execution,
+    this.logger.info('🔍 DEADLOCK DEBUG: Starting task execution', { taskId: task.id });
     this.startTask(task.id);
+    this.logger.info('🔍 DEADLOCK DEBUG: Scheduler assignTask completed', { taskId: task.id, agentId });
   }
 
   async completeTask(taskId: string, result: unknown): Promise<void> {
@@ -102,24 +108,24 @@ export class TaskScheduler {
 
     this.logger.info('Task completed', { taskId, agentId: scheduled.agentId });
 
-    // Update task status
+    // Update task status,
     scheduled.task.status = 'completed';
     scheduled.task.output = result as Record<string, unknown>;
     scheduled.task.completedAt = new Date();
 
-    // Clear timeout
+    // Clear timeout,
     if (scheduled.timeout) {
       clearTimeout(scheduled.timeout);
     }
 
-    // Remove from active tasks
+    // Remove from active tasks,
     this.tasks.delete(taskId);
     this.agentTasks.get(scheduled.agentId)?.delete(taskId);
     
-    // Add to completed tasks
+    // Add to completed tasks,
     this.completedTasks.add(taskId);
 
-    // Check and start dependent tasks
+    // Check and start dependent tasks,
     const dependents = this.taskDependencies.get(taskId);
     if (dependents) {
       for (const dependentId of dependents) {
@@ -144,7 +150,7 @@ export class TaskScheduler {
       error,
     });
 
-    // Clear timeout
+    // Clear timeout,
     if (scheduled.timeout) {
       clearTimeout(scheduled.timeout);
     }
@@ -152,7 +158,7 @@ export class TaskScheduler {
     scheduled.attempts++;
     scheduled.lastAttempt = new Date();
 
-    // Check if we should retry
+    // Check if we should retry,
     if (scheduled.attempts < this.config.maxRetries) {
       this.logger.info('Retrying task', { 
         taskId,
@@ -160,23 +166,23 @@ export class TaskScheduler {
         maxRetries: this.config.maxRetries,
       });
 
-      // Schedule retry with exponential backoff
+      // Schedule retry with exponential backoff,
       const retryDelay = this.config.retryDelay * Math.pow(2, scheduled.attempts - 1);
       
       setTimeout(() => {
         this.startTask(taskId);
       }, retryDelay);
     } else {
-      // Max retries exceeded, mark as failed
+      // Max retries exceeded, mark as failed,
       scheduled.task.status = 'failed';
       scheduled.task.error = error;
       scheduled.task.completedAt = new Date();
 
-      // Remove from active tasks
+      // Remove from active tasks,
       this.tasks.delete(taskId);
       this.agentTasks.get(scheduled.agentId)?.delete(taskId);
 
-      // Cancel dependent tasks
+      // Cancel dependent tasks,
       await this.cancelDependentTasks(taskId, 'Parent task failed');
     }
   }
@@ -189,23 +195,23 @@ export class TaskScheduler {
 
     this.logger.info('Cancelling task', { taskId, reason });
 
-    // Clear timeout
+    // Clear timeout,
     if (scheduled.timeout) {
       clearTimeout(scheduled.timeout);
     }
 
-    // Update task status
+    // Update task status,
     scheduled.task.status = 'cancelled';
     scheduled.task.completedAt = new Date();
 
-    // Emit cancellation event
+    // Emit cancellation event,
     this.eventBus.emit(SystemEvents.TASK_CANCELLED, { taskId, reason });
 
-    // Remove from active tasks
+    // Remove from active tasks,
     this.tasks.delete(taskId);
     this.agentTasks.get(scheduled.agentId)?.delete(taskId);
 
-    // Cancel dependent tasks
+    // Cancel dependent tasks,
     await this.cancelDependentTasks(taskId, 'Parent task cancelled');
   }
 
@@ -242,11 +248,11 @@ export class TaskScheduler {
     for (const taskId of taskIds) {
       const scheduled = this.tasks.get(taskId);
       if (scheduled && scheduled.task.status === 'running') {
-        // Reset task status
+        // Reset task status,
         scheduled.task.status = 'queued';
         scheduled.attempts = 0;
         
-        // Re-emit task created event for reassignment
+        // Re-emit task created event for reassignment,
         this.eventBus.emit(SystemEvents.TASK_CREATED, { 
           task: scheduled.task,
         });
@@ -312,10 +318,10 @@ export class TaskScheduler {
   async performMaintenance(): Promise<void> {
     this.logger.debug('Performing task scheduler maintenance');
     
-    // Cleanup old completed tasks
+    // Cleanup old completed tasks,
     this.cleanup();
     
-    // Check for stuck tasks
+    // Check for stuck tasks,
     const now = new Date();
     for (const [taskId, scheduled] of this.tasks) {
       if (scheduled.task.status === 'running' && scheduled.task.startedAt) {
@@ -327,7 +333,7 @@ export class TaskScheduler {
             agentId: scheduled.agentId,
           });
           
-          // Force fail the task
+          // Force fail the task,
           await this.failTask(taskId, new TaskTimeoutError(taskId, runtime));
         }
       }
@@ -340,25 +346,25 @@ export class TaskScheduler {
       return;
     }
 
-    // Update status
+    // Update status,
     scheduled.task.status = 'running';
     scheduled.task.startedAt = new Date();
 
-    // Emit task started event
+    // Emit task started event,
     this.eventBus.emit(SystemEvents.TASK_STARTED, { 
       taskId,
       agentId: scheduled.agentId,
     });
 
-    // Set timeout for task execution
+    // Set timeout for task execution,
     const timeoutMs = this.config.resourceTimeout;
     scheduled.timeout = setTimeout(() => {
       this.failTask(taskId, new TaskTimeoutError(taskId, timeoutMs));
-    }, timeoutMs);
+    }, timeoutMs) as any;
   }
 
   private canStartTask(task: Task): boolean {
-    // Check if all dependencies are completed
+    // Check if all dependencies are completed,
     return task.dependencies.every(depId => this.completedTasks.has(depId));
   }
 

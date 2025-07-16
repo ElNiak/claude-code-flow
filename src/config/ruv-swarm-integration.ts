@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * ruv-swarm integration helper for Claude Code configuration
  * 
@@ -9,10 +9,17 @@ import { getErrorMessage } from '../utils/error-handler.js';
 
 import { configManager, ConfigManager } from './config-manager.js';
 import { getRuvSwarmConfigManager, RuvSwarmConfigManager } from './ruv-swarm-config.js';
-// import { createLogger } from '../core/logger.js';
+import { Logger } from '../core/logger.js';
 
 // Create logger for integration
-// const logger = createLogger('ruv-swarm-integration');
+const logger = new Logger(
+  {
+    level: 'info',
+    format: 'json',
+    destination: 'console'
+  },
+  { context: 'ruv-swarm-integration' }
+);
 
 /**
  * Integration manager that synchronizes configurations
@@ -33,7 +40,7 @@ export class RuvSwarmIntegration {
     const mainConfig = this.configManager.getRuvSwarmConfig();
     const ruvSwarmConfig = this.ruvSwarmManager.getConfig();
 
-    // Update ruv-swarm config from main config
+    // Update ruv-swarm config from main config,
     if (mainConfig.enabled) {
       this.ruvSwarmManager.updateSwarmConfig({
         defaultTopology: mainConfig.defaultTopology,
@@ -67,15 +74,15 @@ export class RuvSwarmIntegration {
     const mainArgs = this.configManager.getRuvSwarmArgs();
     const ruvSwarmArgs = this.ruvSwarmManager.getCommandArgs();
 
-    // Main config takes precedence, then ruv-swarm specific
+    // Main config takes precedence, then ruv-swarm specific,
     const unified = [...mainArgs];
     
-    // Add ruv-swarm specific args that aren't in main config
+    // Add ruv-swarm specific args that aren't in main config,
     for (let i = 0; i < ruvSwarmArgs.length; i += 2) {
       const flag = ruvSwarmArgs[i];
       const value = ruvSwarmArgs[i + 1];
       
-      // Skip if already set by main config
+      // Skip if already set by main config,
       if (!unified.includes(flag)) {
         unified.push(flag, value);
       }
@@ -89,7 +96,7 @@ export class RuvSwarmIntegration {
    */
   async initialize(): Promise<{ success: boolean; message: string }> {
     try {
-      // Check if ruv-swarm is enabled in main config
+      // Check if ruv-swarm is enabled in main config,
       if (!this.configManager.isRuvSwarmEnabled()) {
         return {
           success: false,
@@ -97,10 +104,10 @@ export class RuvSwarmIntegration {
         };
       }
 
-      // Sync configurations
+      // Sync configurations,
       this.syncConfiguration();
 
-      // Validate configurations
+      // Validate configurations,
       const mainValidation = this.validateMainConfig();
       if (!mainValidation.valid) {
         return {
@@ -142,7 +149,7 @@ export class RuvSwarmIntegration {
     const errors: string[] = [];
     const ruvSwarmConfig = this.configManager.getRuvSwarmConfig();
 
-    // Check required fields
+    // Check required fields,
     if (!ruvSwarmConfig.defaultTopology) {
       errors.push('ruvSwarm.defaultTopology is required');
     }
@@ -213,7 +220,7 @@ export class RuvSwarmIntegration {
       this.ruvSwarmManager.updateConfig(updates.ruvSwarm);
     }
 
-    // Re-sync after updates
+    // Re-sync after updates,
     this.syncConfiguration();
   }
 }

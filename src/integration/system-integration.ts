@@ -6,11 +6,11 @@
 import { EventBus } from '../core/event-bus.js';
 import { Logger } from '../core/logger.js';
 import type { ConfigManager } from '../config/config-manager.js';
-import { MemoryManager } from '../memory/manager.js';
+import { MemoryManager as _MemoryManager } from '../memory/manager.js';
 import { AgentManager } from '../agents/agent-manager.js';
 import { TaskEngine } from '../task/engine.js';
 import { RealTimeMonitor } from '../monitoring/real-time-monitor.js';
-import { McpServer } from '../mcp/server.js';
+import { MCPServer } from '../mcp/server.js';
 import { getErrorMessage } from '../utils/error-handler.js';
 import type { IntegrationConfig, SystemHealth, ComponentStatus } from './types.js';
 
@@ -33,9 +33,9 @@ export class SystemIntegration {
     this.eventBus = EventBus.getInstance();
     this.logger = new Logger({ level: 'info', format: 'text', destination: 'console' });
     
-    // Initialize configManager safely
+    // Initialize configManager safely,
     try {
-      // Dynamic import for ConfigManager if available
+      // Dynamic import for ConfigManager if available,
       this.configManager = { getInstance: () => ({ load: async () => {}, get: () => null, set: () => {} }) };
     } catch (error) {
       this.logger.warn('ConfigManager not available, using mock');
@@ -64,28 +64,28 @@ export class SystemIntegration {
     this.logger.info('🚀 Starting Claude Flow v2.0.0 System Integration');
     
     try {
-      // Phase 1: Core Infrastructure
+      // Phase 1: Core Infrastructure,
       await this.initializeCore(config);
       
-      // Phase 2: Memory and Configuration
+      // Phase 2: Memory and Configuration,
       await this.initializeMemoryAndConfig();
       
-      // Phase 3: Agents and Coordination
+      // Phase 3: Agents and Coordination,
       await this.initializeAgentsAndCoordination();
       
-      // Phase 4: Task Management
+      // Phase 4: Task Management,
       await this.initializeTaskManagement();
       
-      // Phase 5: Monitoring and MCP
+      // Phase 5: Monitoring and MCP,
       await this.initializeMonitoringAndMcp();
       
-      // Phase 6: Cross-component wiring
+      // Phase 6: Cross-component wiring,
       await this.wireComponents();
       
       this.initialized = true;
       this.logger.info('✅ Claude Flow v2.0.0 System Integration Complete');
       
-      // Emit system ready event
+      // Emit system ready event,
       this.eventBus.emit('system:ready', {
         timestamp: Date.now(),
         components: Array.from(this.componentStatuses.keys()),
@@ -105,7 +105,7 @@ export class SystemIntegration {
     this.logger.info('🔧 Phase 1: Initializing Core Infrastructure');
     
     try {
-      // Initialize configuration
+      // Initialize configuration,
       if (this.configManager && typeof this.configManager.load === 'function') {
         await this.configManager.load();
         this.updateComponentStatus('config', 'healthy', 'Configuration loaded');
@@ -113,7 +113,7 @@ export class SystemIntegration {
         this.updateComponentStatus('config', 'warning', 'Configuration manager not available');
       }
       
-      // Try to initialize orchestrator if available
+      // Try to initialize orchestrator if available,
       try {
         const { Orchestrator } = await import('../core/orchestrator-fixed.js');
         this.orchestrator = new Orchestrator(
@@ -144,10 +144,14 @@ export class SystemIntegration {
     this.logger.info('🧠 Phase 2: Initializing Memory and Configuration');
     
     try {
-      // Initialize memory manager
+      // Initialize memory manager,
       try {
         const { MemoryManager } = await import('../memory/manager.js');
-        this.memoryManager = new MemoryManager();
+        this.memoryManager = new MemoryManager(
+          { backend: 'sqlite', cacheSizeMB: 10, syncInterval: 60000, conflictResolution: 'last-write', retentionDays: 30 },
+          this.eventBus,
+          this.logger
+        );
         if (typeof this.memoryManager.initialize === 'function') {
           await this.memoryManager.initialize();
         }
@@ -171,10 +175,37 @@ export class SystemIntegration {
     this.logger.info('🤖 Phase 3: Initializing Agents and Coordination');
     
     try {
-      // Initialize agent manager
+      // Initialize agent manager,
       try {
         const { AgentManager } = await import('../agents/agent-manager.js');
-        this.agentManager = new AgentManager(this.eventBus, this.logger);
+        this.agentManager = new AgentManager(
+          { 
+            maxAgents: 100, 
+            defaultTimeout: 30000,
+            heartbeatInterval: 10000,
+            healthCheckInterval: 30000,
+            autoRestart: true,
+            resourceLimits: {
+              memory: 512 * 1024 * 1024,
+              cpu: 1.0,
+              disk: 1024 * 1024 * 1024
+            },
+            agentDefaults: {
+              autonomyLevel: 0.7,
+              learningEnabled: true,
+              adaptationEnabled: true
+            },
+            environmentDefaults: {
+              runtime: 'deno',
+              workingDirectory: './agents',
+              tempDirectory: './tmp',
+              logDirectory: './logs'
+            }
+          },
+          this.logger,
+          this.eventBus,
+          this.memoryManager!
+        );
         if (typeof this.agentManager.initialize === 'function') {
           await this.agentManager.initialize();
         }
@@ -182,18 +213,33 @@ export class SystemIntegration {
       } catch (error) {
         this.logger.warn('Agent manager not available, using mock:', getErrorMessage(error));
         const { MockAgentManager } = await import('./mock-components.js');
-        this.agentManager = new MockAgentManager(this.eventBus, this.logger);
+        this.agentManager = new MockAgentManager(
+          { maxAgents: 100, autoSpawn: false },
+          this.eventBus,
+          this.logger
+        );
         await this.agentManager.initialize();
         this.updateComponentStatus('agents', 'warning', 'Using mock agent manager');
       }
       
-      // Initialize swarm coordinator
+      // Initialize swarm coordinator,
       try {
         const { SwarmCoordinator } = await import('../coordination/swarm-coordinator.js');
         this.swarmCoordinator = new SwarmCoordinator(
-          this.eventBus,
-          this.logger,
-          this.memoryManager!
+          { 
+            maxAgents: 10,
+            maxConcurrentTasks: 5,
+            taskTimeout: 300000,
+            enableMonitoring: true,
+            enableWorkStealing: true,
+            enableCircuitBreaker: true,
+            memoryNamespace: 'swarm',
+            coordinationStrategy: 'hybrid',
+            backgroundTaskInterval: 5000,
+            healthCheckInterval: 10000,
+            maxRetries: 3,
+            backoffMultiplier: 2
+          }
         );
         if (typeof this.swarmCoordinator.initialize === 'function') {
           await this.swarmCoordinator.initialize();
@@ -202,7 +248,12 @@ export class SystemIntegration {
       } catch (error) {
         this.logger.warn('Swarm coordinator not available, using mock:', getErrorMessage(error));
         const { MockSwarmCoordinator } = await import('./mock-components.js');
-        this.swarmCoordinator = new MockSwarmCoordinator(this.eventBus, this.logger, this.memoryManager!);
+        this.swarmCoordinator = new MockSwarmCoordinator(
+          { topology: 'mesh', maxAgents: 10 },
+          this.eventBus,
+          this.logger,
+          this.memoryManager!
+        );
         await this.swarmCoordinator.initialize();
         this.updateComponentStatus('swarm', 'warning', 'Using mock swarm coordinator');
       }
@@ -221,12 +272,11 @@ export class SystemIntegration {
     this.logger.info('📋 Phase 4: Initializing Task Management');
     
     try {
-      // Initialize task engine
+      // Initialize task engine,
       try {
         const { TaskEngine } = await import('../task/engine.js');
         this.taskEngine = new TaskEngine(
-          this.eventBus,
-          this.logger,
+          50,
           this.memoryManager!
         );
         if (typeof this.taskEngine.initialize === 'function') {
@@ -236,7 +286,10 @@ export class SystemIntegration {
       } catch (error) {
         this.logger.warn('Task engine not available, using mock:', getErrorMessage(error));
         const { MockTaskEngine } = await import('./mock-components.js');
-        this.taskEngine = new MockTaskEngine(this.eventBus, this.logger, this.memoryManager!);
+        this.taskEngine = new MockTaskEngine(
+          50,
+          this.memoryManager!
+        );
         await this.taskEngine.initialize();
         this.updateComponentStatus('tasks', 'warning', 'Using mock task engine');
       }
@@ -255,10 +308,35 @@ export class SystemIntegration {
     this.logger.info('📊 Phase 5: Initializing Monitoring and MCP');
     
     try {
-      // Initialize real-time monitor
+      // Initialize real-time monitor,
       try {
         const { RealTimeMonitor } = await import('../monitoring/real-time-monitor.js');
-        this.monitor = new RealTimeMonitor(this.eventBus, this.logger);
+        this.monitor = new RealTimeMonitor(
+          { 
+            updateInterval: 1000, 
+            retentionPeriod: 86400000,
+            alertingEnabled: true,
+            alertThresholds: {
+              cpu: { warning: 0.7, critical: 0.9 },
+              memory: { warning: 0.8, critical: 0.95 },
+              disk: { warning: 0.8, critical: 0.95 },
+              errorRate: { warning: 0.05, critical: 0.1 },
+              responseTime: { warning: 1000, critical: 5000 },
+              queueDepth: { warning: 100, critical: 500 },
+              agentHealth: { warning: 0.7, critical: 0.5 },
+              swarmUtilization: { warning: 0.8, critical: 0.95 }
+            },
+            metricsEnabled: true,
+            tracingEnabled: true,
+            dashboardEnabled: false,
+            exportEnabled: false,
+            exportFormat: 'json',
+            debugMode: false
+          },
+          this.logger,
+          this.eventBus,
+          this.memoryManager!
+        );
         if (typeof this.monitor.initialize === 'function') {
           await this.monitor.initialize();
         }
@@ -266,23 +344,36 @@ export class SystemIntegration {
       } catch (error) {
         this.logger.warn('Real-time monitor not available, using mock:', getErrorMessage(error));
         const { MockRealTimeMonitor } = await import('./mock-components.js');
-        this.monitor = new MockRealTimeMonitor(this.eventBus, this.logger);
+        this.monitor = new MockRealTimeMonitor(
+          { updateInterval: 1000, maxMetrics: 100 },
+          this.logger,
+          this.eventBus,
+          this.memoryManager!
+        );
         await this.monitor.initialize();
         this.updateComponentStatus('monitor', 'warning', 'Using mock monitor');
       }
       
-      // Initialize MCP server
+      // Initialize MCP server,
       try {
-        const { McpServer } = await import('../mcp/server.js');
-        this.mcpServer = new McpServer(this.eventBus, this.logger);
+        const { MCPServer } = await import('../mcp/server.js');
+        this.mcpServer = new MCPServer(
+          { transport: 'http', port: 3001 },
+          this.eventBus,
+          this.logger
+        );
         if (typeof this.mcpServer.initialize === 'function') {
           await this.mcpServer.initialize();
         }
         this.updateComponentStatus('mcp', 'healthy', 'MCP server initialized');
       } catch (error) {
         this.logger.warn('MCP server not available, using mock:', getErrorMessage(error));
-        const { MockMcpServer } = await import('./mock-components.js');
-        this.mcpServer = new MockMcpServer(this.eventBus, this.logger);
+        const { MockMCPServer } = await import('./mock-components.js');
+        this.mcpServer = new MockMCPServer(
+          { transport: 'http', port: 3001 },
+          this.eventBus,
+          this.logger
+        );
         await this.mcpServer.initialize();
         this.updateComponentStatus('mcp', 'warning', 'Using mock MCP server');
       }
@@ -300,20 +391,20 @@ export class SystemIntegration {
   private async wireComponents(): Promise<void> {
     this.logger.info('🔗 Phase 6: Wiring Components');
     
-    // Wire orchestrator to agents
+    // Wire orchestrator to agents,
     if (this.orchestrator && this.agentManager) {
       this.orchestrator.setAgentManager(this.agentManager);
       this.agentManager.setOrchestrator(this.orchestrator);
     }
     
-    // Wire swarm coordinator to agents and tasks
+    // Wire swarm coordinator to agents and tasks,
     if (this.swarmCoordinator && this.agentManager && this.taskEngine) {
       this.swarmCoordinator.setAgentManager(this.agentManager);
       this.swarmCoordinator.setTaskEngine(this.taskEngine);
       this.taskEngine.setSwarmCoordinator(this.swarmCoordinator);
     }
     
-    // Wire monitor to all components
+    // Wire monitor to all components,
     if (this.monitor) {
       this.monitor.attachToOrchestrator(this.orchestrator!);
       this.monitor.attachToAgentManager(this.agentManager!);
@@ -321,7 +412,7 @@ export class SystemIntegration {
       this.monitor.attachToTaskEngine(this.taskEngine!);
     }
     
-    // Wire MCP server to core components
+    // Wire MCP server to core components,
     if (this.mcpServer) {
       this.mcpServer.attachToOrchestrator(this.orchestrator!);
       this.mcpServer.attachToAgentManager(this.agentManager!);
@@ -337,20 +428,23 @@ export class SystemIntegration {
    * Setup event handlers for cross-component communication
    */
   private setupEventHandlers(): void {
-    // System health monitoring
-    this.eventBus.on('component:status', (event) => {
-      this.updateComponentStatus(event.component, event.status, event.message);
+    // System health monitoring,
+    this.eventBus.on('component:status', (event: unknown) => {
+      const statusEvent = event as { component: string; status: 'healthy' | 'unhealthy' | 'warning'; message: string };
+      this.updateComponentStatus(statusEvent.component, statusEvent.status, statusEvent.message);
     });
     
-    // Error handling
-    this.eventBus.on('system:error', (event) => {
-      this.logger.error(`System Error in ${event.component}:`, event.error);
-      this.updateComponentStatus(event.component, 'unhealthy', event.error.message);
+    // Error handling,
+    this.eventBus.on('system:error', (event: unknown) => {
+      const errorEvent = event as { component: string; error: { message: string } };
+      this.logger.error(`System Error in ${errorEvent.component}:`, errorEvent.error);
+      this.updateComponentStatus(errorEvent.component, 'unhealthy', errorEvent.error.message);
     });
     
-    // Performance monitoring
-    this.eventBus.on('performance:metric', (event) => {
-      this.logger.debug(`Performance Metric: ${event.metric} = ${event.value}`);
+    // Performance monitoring,
+    this.eventBus.on('performance:metric', (event: unknown) => {
+      const metricEvent = event as { metric: string; value: number };
+      this.logger.debug(`Performance Metric: ${metricEvent.metric} = ${metricEvent.value}`);
     });
   }
 
@@ -368,7 +462,7 @@ export class SystemIntegration {
     
     this.componentStatuses.set(component, statusInfo);
     
-    // Emit status update
+    // Emit status update,
     this.eventBus.emit('component:status:updated', statusInfo);
   }
 
@@ -438,7 +532,7 @@ export class SystemIntegration {
   async shutdown(): Promise<void> {
     this.logger.info('🛑 Shutting down Claude Flow v2.0.0');
     
-    // Shutdown in reverse order
+    // Shutdown in reverse order,
     if (this.mcpServer) {
       await this.mcpServer.shutdown();
     }
@@ -494,5 +588,5 @@ export class SystemIntegration {
   }
 }
 
-// Export singleton instance
+// Export singleton instance,
 export const systemIntegration = SystemIntegration.getInstance();

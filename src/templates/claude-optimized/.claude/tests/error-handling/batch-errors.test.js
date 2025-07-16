@@ -321,7 +321,7 @@ describe('Batch Error Handling Tests', () => {
         file,
         operation: async () => {
           if (file.includes('missing')) {
-            const error = new Error('File not found');
+            const _error = new Error('File not found');
             error.code = 'ENOENT';
             error.path = file;
             error.syscall = 'open';
@@ -329,7 +329,7 @@ describe('Batch Error Handling Tests', () => {
           }
           
           if (file.includes('locked')) {
-            const error = new Error('Permission denied');
+            const _error = new Error('Permission denied');
             error.code = 'EACCES';
             error.path = file;
             error.syscall = 'open';
@@ -339,7 +339,7 @@ describe('Batch Error Handling Tests', () => {
           const content = await harness.mockReadFile(file);
           
           if (file.includes('corrupt') && content.length === 0) {
-            const error = new Error('File appears to be corrupted');
+            const _error = new Error('File appears to be corrupted');
             error.code = 'CORRUPT';
             error.path = file;
             error.details = { size: 0, expected: '>0' };
@@ -469,7 +469,7 @@ describe('Batch Error Handling Tests', () => {
   describe('Error Recovery Validation', () => {
     it('should validate error recovery mechanisms', async () => {
       const recoveryStrategies = {
-        retry: async (operation, error) => {
+        retry: async (operation, _error) => {
           if (error.code === 'TEMPORARY') {
             await harness.simulateDelay(100);
             return await operation();
@@ -477,14 +477,14 @@ describe('Batch Error Handling Tests', () => {
           throw error;
         },
         
-        fallback: async (operation, error) => {
+        fallback: async (operation, _error) => {
           if (error.code === 'SERVICE_UNAVAILABLE') {
             return { source: 'fallback', data: 'cached_value' };
           }
           throw error;
         },
         
-        skip: async (operation, error) => {
+        skip: async (operation, _error) => {
           if (error.code === 'OPTIONAL') {
             return { skipped: true, reason: error.message };
           }
@@ -504,13 +504,13 @@ describe('Batch Error Handling Tests', () => {
         const operation = async () => {
           if (op.errorCode === 'TEMPORARY' && op.attempts === 0) {
             op.attempts++;
-            const error = new Error('Temporary failure');
+            const _error = new Error('Temporary failure');
             error.code = op.errorCode;
             throw error;
           }
           
           if (op.errorCode && op.errorCode !== 'TEMPORARY') {
-            const error = new Error(`${op.errorCode} error`);
+            const _error = new Error(`${op.errorCode} error`);
             error.code = op.errorCode;
             throw error;
           }
@@ -524,7 +524,7 @@ describe('Batch Error Handling Tests', () => {
           // Try recovery strategies in order
           for (const [strategy, handler] of Object.entries(recoveryStrategies)) {
             try {
-              return await handler(operation, error);
+              return await handler(operation, _error);
             } catch (recoveryError) {
               // Continue to next strategy
             }

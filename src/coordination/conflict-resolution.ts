@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * Conflict resolution mechanisms for multi-agent coordination
  */
@@ -113,12 +113,12 @@ export class VotingResolutionStrategy implements ConflictResolutionStrategy {
   ): Promise<ConflictResolution> {
     const voteCounts = new Map<string, number>();
     
-    // Count votes
+    // Count votes,
     for (const [agentId, voters] of context.votes) {
       voteCounts.set(agentId, voters.length);
     }
 
-    // Find winner
+    // Find winner,
     let maxVotes = 0;
     let winner = '';
     const losers: string[] = [];
@@ -157,7 +157,7 @@ export class ConflictResolver {
     private logger: ILogger,
     private eventBus: IEventBus,
   ) {
-    // Register default strategies
+    // Register default strategies,
     this.registerStrategy(new PriorityResolutionStrategy());
     this.registerStrategy(new TimestampResolutionStrategy());
     this.registerStrategy(new VotingResolutionStrategy());
@@ -189,7 +189,7 @@ export class ConflictResolver {
     this.conflicts.set(conflict.id, conflict);
     this.logger.warn('Resource conflict reported', conflict);
 
-    // Emit conflict event
+    // Emit conflict event,
     this.eventBus.emit('conflict:resource', conflict);
 
     return conflict;
@@ -215,7 +215,7 @@ export class ConflictResolver {
     this.conflicts.set(conflict.id, conflict);
     this.logger.warn('Task conflict reported', conflict);
 
-    // Emit conflict event
+    // Emit conflict event,
     this.eventBus.emit('conflict:task', conflict);
 
     return conflict;
@@ -243,17 +243,17 @@ export class ConflictResolver {
       throw new Error(`Strategy not found: ${strategyName}`);
     }
 
-    // Resolve the conflict
+    // Resolve the conflict,
     const resolution = await strategy.resolve(conflict, context);
     
-    // Update conflict
+    // Update conflict,
     conflict.resolved = true;
     conflict.resolution = resolution;
 
-    // Store in history
+    // Store in history,
     this.resolutionHistory.push(resolution);
 
-    // Emit resolution event
+    // Emit resolution event,
     this.eventBus.emit('conflict:resolved', {
       conflict,
       resolution,
@@ -280,16 +280,16 @@ export class ConflictResolver {
       throw new Error(`Conflict not found: ${conflictId}`);
     }
 
-    // Build context based on conflict type
-    let context: any = {};
+    // Build context based on conflict type,
+    const context: any = {};
 
     if (preferredStrategy === 'priority') {
-      // In a real implementation, fetch agent priorities from configuration
+      // In a real implementation, fetch agent priorities from configuration,
       context.agentPriorities = new Map(
         conflict.agents.map((id, index) => [id, conflict.agents.length - index])
       );
     } else if (preferredStrategy === 'timestamp') {
-      // In a real implementation, fetch request timestamps
+      // In a real implementation, fetch request timestamps,
       context.requestTimestamps = new Map(
         conflict.agents.map((id, index) => [id, new Date(Date.now() - index * 1000)])
       );
@@ -329,7 +329,7 @@ export class ConflictResolver {
       }
     }
 
-    // Also cleanup old history
+    // Also cleanup old history,
     const cutoffTime = now - maxAgeMs;
     this.resolutionHistory = this.resolutionHistory.filter(
       r => r.timestamp.getTime() > cutoffTime
@@ -418,7 +418,7 @@ export class OptimisticLockManager {
     const currentVersion = this.versions.get(resourceId) || 0;
     const lock = this.locks.get(resourceId);
 
-    // Check if versions match
+    // Check if versions match,
     if (currentVersion !== expectedVersion) {
       this.logger.warn('Optimistic lock conflict', {
         resourceId,
@@ -429,7 +429,7 @@ export class OptimisticLockManager {
       return false;
     }
 
-    // Check if this agent holds the lock
+    // Check if this agent holds the lock,
     if (!lock || lock.holder !== agentId) {
       this.logger.warn('Agent does not hold lock', {
         resourceId,
@@ -438,7 +438,7 @@ export class OptimisticLockManager {
       return false;
     }
 
-    // Update version
+    // Update version,
     this.versions.set(resourceId, currentVersion + 1);
     this.locks.delete(resourceId);
 

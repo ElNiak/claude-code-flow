@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * Advanced Task Executor with timeout handling and process management
  */
@@ -66,8 +66,8 @@ export interface ExecutionConfig {
 }
 
 export class TaskExecutor extends EventEmitter {
-  private logger: Logger;
-  private config: ExecutionConfig;
+  protected logger: Logger;
+  protected config: ExecutionConfig;
   private activeExecutions: Map<string, ExecutionSession> = new Map();
   private resourceMonitor: ResourceMonitor;
   private processPool: ProcessPool;
@@ -77,7 +77,7 @@ export class TaskExecutor extends EventEmitter {
     
     this.config = this.mergeWithDefaults(config);
     this.logger = new Logger(
-      { level: this.config.logLevel || 'info', format: 'text', destination: 'console' },
+      { level: this.getValidLogLevel(this.config.logLevel), format: 'text', destination: 'console' },
       { component: 'TaskExecutor' }
     );
     this.resourceMonitor = new ResourceMonitor();
@@ -98,7 +98,7 @@ export class TaskExecutor extends EventEmitter {
   async shutdown(): Promise<void> {
     this.logger.info('Shutting down task executor...');
     
-    // Stop all active executions
+    // Stop all active executions,
     const stopPromises = Array.from(this.activeExecutions.values())
       .map(session => this.stopExecution(session.id, 'Executor shutdown'));
     
@@ -138,13 +138,13 @@ export class TaskExecutor extends EventEmitter {
     this.activeExecutions.set(sessionId, session);
 
     try {
-      // Setup monitoring
+      // Setup monitoring,
       this.resourceMonitor.startMonitoring(sessionId, context.resources);
       
-      // Execute with timeout protection
+      // Execute with timeout protection,
       const result = await this.executeWithTimeout(session);
       
-      // Cleanup
+      // Cleanup,
       await this.cleanupExecution(session);
       
       this.logger.info('Task execution completed', {
@@ -155,11 +155,13 @@ export class TaskExecutor extends EventEmitter {
 
       return result;
 
-    } catch (error) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorStack = error instanceof Error ? error.stack : undefined;
       this.logger.error('Task execution failed', {
         sessionId,
-        error: (error instanceof Error ? error.message : String(error)),
-        stack: error.stack
+        error: errorMessage,
+        stack: errorStack
       });
 
       await this.cleanupExecution(session);
@@ -267,10 +269,10 @@ export class TaskExecutor extends EventEmitter {
     const startTime = Date.now();
     const timeout = options.timeout || this.config.timeoutMs;
 
-    // Build Claude command
+    // Build Claude command,
     const command = this.buildClaudeCommand(task, agent, options);
     
-    // Create execution environment
+    // Create execution environment,
     const env = {
       ...process.env,
       ...context.environment,
@@ -293,7 +295,7 @@ export class TaskExecutor extends EventEmitter {
       let isTimeout = false;
       let process: ChildProcess | null = null;
 
-      // Setup timeout
+      // Setup timeout,
       const timeoutHandle = setTimeout(() => {
         isTimeout = true;
         if (process) {
@@ -303,10 +305,10 @@ export class TaskExecutor extends EventEmitter {
             timeout
           });
           
-          // Graceful shutdown first
+          // Graceful shutdown first,
           process.kill('SIGTERM');
           
-          // Force kill after grace period
+          // Force kill after grace period,
           setTimeout(() => {
             if (process && !process.killed) {
               process.kill('SIGKILL');
@@ -316,7 +318,7 @@ export class TaskExecutor extends EventEmitter {
       }, timeout);
 
       try {
-        // Spawn Claude process
+        // Spawn Claude process,
         process = spawn(command.command, command.args, {
           cwd: context.workingDirectory,
           env,
@@ -336,7 +338,7 @@ export class TaskExecutor extends EventEmitter {
           command: command.command
         });
 
-        // Handle process output
+        // Handle process output,
         if (process.stdout) {
           process.stdout.on('data', (data: Buffer) => {
             const chunk = data.toString();
@@ -367,7 +369,7 @@ export class TaskExecutor extends EventEmitter {
           });
         }
 
-        // Handle process completion
+        // Handle process completion,
         process.on('close', async (code: number | null, signal: string | null) => {
           clearTimeout(timeoutHandle);
           
@@ -383,10 +385,10 @@ export class TaskExecutor extends EventEmitter {
           });
 
           try {
-            // Collect resource usage
+            // Collect resource usage,
             const resourceUsage = await this.collectResourceUsage(sessionId);
             
-            // Collect artifacts
+            // Collect artifacts,
             const artifacts = await this.collectArtifacts(context);
             
             const result: ExecutionResult = {
@@ -419,7 +421,7 @@ export class TaskExecutor extends EventEmitter {
           }
         });
 
-        // Handle process errors
+        // Handle process errors,
         process.on('error', (error: Error) => {
           clearTimeout(timeoutHandle);
           this.logger.error('Claude process error', {
@@ -429,13 +431,13 @@ export class TaskExecutor extends EventEmitter {
           reject(error);
         });
 
-        // Send input if provided
+        // Send input if provided,
         if (command.input && process.stdin) {
           process.stdin.write(command.input);
           process.stdin.end();
         }
 
-        // If detached, unreference to allow parent to exit
+        // If detached, unreference to allow parent to exit,
         if (options.detached) {
           process.unref();
         }
@@ -455,41 +457,41 @@ export class TaskExecutor extends EventEmitter {
     const args: string[] = [];
     let input = '';
 
-    // Build prompt
+    // Build prompt,
     const prompt = this.buildClaudePrompt(task, agent);
     
     if (options.useStdin) {
-      // Send prompt via stdin
+      // Send prompt via stdin,
       input = prompt;
     } else {
-      // Send prompt as argument
+      // Send prompt as argument,
       args.push('-p', prompt);
     }
 
-    // Add tools
+    // Add tools,
     if (task.requirements.tools.length > 0) {
       args.push('--allowedTools', task.requirements.tools.join(','));
     }
 
-    // Add model if specified
+    // Add model if specified,
     if (options.model) {
       args.push('--model', options.model);
     }
 
-    // Add max tokens if specified
+    // Add max tokens if specified,
     if (options.maxTokens) {
       args.push('--max-tokens', options.maxTokens.toString());
     }
 
-    // Add temperature if specified
+    // Add temperature if specified,
     if (options.temperature !== undefined) {
       args.push('--temperature', options.temperature.toString());
     }
 
-    // Skip permissions check for swarm execution
+    // Skip permissions check for swarm execution,
     args.push('--dangerously-skip-permissions');
 
-    // Add output format
+    // Add output format,
     if (options.outputFormat) {
       args.push('--output-format', options.outputFormat);
     }
@@ -501,46 +503,46 @@ export class TaskExecutor extends EventEmitter {
     };
   }
 
-  private buildClaudePrompt(task: TaskDefinition, agent: AgentState): string {
+  protected buildClaudePrompt(task: TaskDefinition, agent: AgentState): string {
     const sections: string[] = [];
 
-    // Agent identification
+    // Agent identification,
     sections.push(`You are ${agent.name}, a ${agent.type} agent in a swarm system.`);
     sections.push(`Agent ID: ${agent.id.id}`);
     sections.push(`Swarm ID: ${agent.id.swarmId}`);
     sections.push('');
 
-    // Task information
+    // Task information,
     sections.push(`TASK: ${task.name}`);
     sections.push(`Type: ${task.type}`);
     sections.push(`Priority: ${task.priority}`);
     sections.push('');
 
-    // Task description
+    // Task description,
     sections.push('DESCRIPTION:');
     sections.push(task.description);
     sections.push('');
 
-    // Task instructions
+    // Task instructions,
     sections.push('INSTRUCTIONS:');
     sections.push(task.instructions);
     sections.push('');
 
-    // Context if provided
+    // Context if provided,
     if (Object.keys(task.context).length > 0) {
       sections.push('CONTEXT:');
       sections.push(JSON.stringify(task.context, null, 2));
       sections.push('');
     }
 
-    // Input data if provided
+    // Input data if provided,
     if (task.input && Object.keys(task.input).length > 0) {
       sections.push('INPUT DATA:');
       sections.push(JSON.stringify(task.input, null, 2));
       sections.push('');
     }
 
-    // Examples if provided
+    // Examples if provided,
     if (task.examples && task.examples.length > 0) {
       sections.push('EXAMPLES:');
       task.examples.forEach((example, index) => {
@@ -550,7 +552,7 @@ export class TaskExecutor extends EventEmitter {
       });
     }
 
-    // Expected output format
+    // Expected output format,
     sections.push('EXPECTED OUTPUT:');
     if (task.expectedOutput) {
       sections.push(JSON.stringify(task.expectedOutput, null, 2));
@@ -563,7 +565,7 @@ export class TaskExecutor extends EventEmitter {
     }
     sections.push('');
 
-    // Quality requirements
+    // Quality requirements,
     sections.push('QUALITY REQUIREMENTS:');
     sections.push(`- Quality threshold: ${task.requirements.minReliability || 0.8}`);
     if (task.requirements.reviewRequired) {
@@ -577,7 +579,7 @@ export class TaskExecutor extends EventEmitter {
     }
     sections.push('');
 
-    // Capabilities and constraints
+    // Capabilities and constraints,
     sections.push('CAPABILITIES:');
     const capabilities = Object.entries(agent.capabilities)
       .filter(([key, value]) => typeof value === 'boolean' && value)
@@ -593,7 +595,7 @@ export class TaskExecutor extends EventEmitter {
     }
     sections.push('');
 
-    // Final instructions
+    // Final instructions,
     sections.push('EXECUTION GUIDELINES:');
     sections.push('1. Read and understand the task completely before starting');
     sections.push('2. Use your capabilities efficiently and effectively');
@@ -608,7 +610,7 @@ export class TaskExecutor extends EventEmitter {
     return sections.join('\n');
   }
 
-  private async createExecutionContext(
+  protected async createExecutionContext(
     task: TaskDefinition,
     agent: AgentState
   ): Promise<ExecutionContext> {
@@ -617,7 +619,7 @@ export class TaskExecutor extends EventEmitter {
     const tempDir = path.join(baseDir, 'temp');
     const logDir = path.join(baseDir, 'logs');
 
-    // Create directories
+    // Create directories,
     await fs.mkdir(workingDir, { recursive: true });
     await fs.mkdir(tempDir, { recursive: true });
     await fs.mkdir(logDir, { recursive: true });
@@ -658,19 +660,19 @@ export class TaskExecutor extends EventEmitter {
     }
   }
 
-  private async collectResourceUsage(sessionId: string): Promise<ResourceUsage> {
+  protected async collectResourceUsage(sessionId: string): Promise<ResourceUsage> {
     return this.resourceMonitor.getUsage(sessionId);
   }
 
-  private async collectArtifacts(context: ExecutionContext): Promise<Record<string, any>> {
+  protected async collectArtifacts(context: ExecutionContext): Promise<Record<string, any>> {
     const artifacts: Record<string, any> = {};
 
     try {
-      // Scan working directory for artifacts
+      // Scan working directory for artifacts,
       const files = await this.scanDirectory(context.workingDirectory);
       artifacts.files = files;
 
-      // Check for specific artifact types
+      // Check for specific artifact types,
       artifacts.logs = await this.collectLogs(context.logDirectory);
       artifacts.outputs = await this.collectOutputs(context.workingDirectory);
 
@@ -728,7 +730,7 @@ export class TaskExecutor extends EventEmitter {
     const outputs: Record<string, any> = {};
 
     try {
-      // Look for common output files
+      // Look for common output files,
       const outputFiles = ['output.json', 'result.json', 'response.json'];
       
       for (const fileName of outputFiles) {
@@ -763,7 +765,7 @@ export class TaskExecutor extends EventEmitter {
     return {
       timeoutMs: SWARM_CONSTANTS.DEFAULT_TASK_TIMEOUT,
       retryAttempts: SWARM_CONSTANTS.MAX_RETRIES,
-      killTimeout: 5000, // 5 seconds
+      killTimeout: 5000, // 5 seconds,
       resourceLimits: {
         maxMemory: SWARM_CONSTANTS.DEFAULT_MEMORY_LIMIT,
         maxCpuTime: SWARM_CONSTANTS.DEFAULT_TASK_TIMEOUT,
@@ -782,7 +784,7 @@ export class TaskExecutor extends EventEmitter {
   }
 
   private setupEventHandlers(): void {
-    // Handle resource limit violations
+    // Handle resource limit violations,
     this.resourceMonitor.on('limit-violation', (data: any) => {
       this.logger.warn('Resource limit violation', data);
       
@@ -797,10 +799,18 @@ export class TaskExecutor extends EventEmitter {
       }
     });
 
-    // Handle process pool events
+    // Handle process pool events,
     this.processPool.on('process-failed', (data: any) => {
       this.logger.error('Process failed in pool', data);
     });
+  }
+
+  private getValidLogLevel(level?: string): 'debug' | 'info' | 'warn' | 'error' {
+    const validLevels = ['debug', 'info', 'warn', 'error'] as const;
+    if (level && (validLevels as readonly string[]).includes(level)) {
+      return level as 'debug' | 'info' | 'warn' | 'error';
+    }
+    return 'info';
   }
 }
 
@@ -837,7 +847,7 @@ class ExecutionSession {
     this.startTime = new Date();
     
     // Implementation would go here for actual task execution
-    // This is a placeholder that simulates execution
+    // This is a placeholder that simulates execution,
     
     await new Promise(resolve => setTimeout(resolve, 1000));
     
@@ -870,7 +880,7 @@ class ExecutionSession {
     if (this.process) {
       this.process.kill('SIGTERM');
       
-      // Force kill after timeout
+      // Force kill after timeout,
       setTimeout(() => {
         if (this.process && !this.process.killed) {
           this.process.kill('SIGKILL');
@@ -880,7 +890,7 @@ class ExecutionSession {
   }
 
   async cleanup(): Promise<void> {
-    // Cleanup temporary files and resources
+    // Cleanup temporary files and resources,
     try {
       await fs.rm(this.context.tempDirectory, { recursive: true, force: true });
     } catch (error) {
@@ -898,7 +908,7 @@ class ResourceMonitor extends EventEmitter {
   }
 
   async shutdown(): Promise<void> {
-    // Stop all monitors
+    // Stop all monitors,
     for (const [sessionId, timer] of this.activeMonitors) {
       clearInterval(timer);
     }
@@ -932,7 +942,7 @@ class ResourceMonitor extends EventEmitter {
   }
 
   getUtilization(): Record<string, number> {
-    // Return overall system utilization
+    // Return overall system utilization,
     return {
       cpu: 0.1,
       memory: 0.2,
@@ -942,7 +952,7 @@ class ResourceMonitor extends EventEmitter {
   }
 
   private checkResources(sessionId: string, limits: ExecutionResources): void {
-    // Check if any limits are exceeded
+    // Check if any limits are exceeded,
     const usage = this.collectCurrentUsage(sessionId);
     this.usage.set(sessionId, usage);
 
@@ -966,7 +976,7 @@ class ResourceMonitor extends EventEmitter {
   }
 
   private collectCurrentUsage(sessionId: string): ResourceUsage {
-    // Collect actual resource usage - this would interface with system APIs
+    // Collect actual resource usage - this would interface with system APIs,
     return {
       cpuTime: Math.random() * 1000,
       maxMemory: Math.random() * 100 * 1024 * 1024,

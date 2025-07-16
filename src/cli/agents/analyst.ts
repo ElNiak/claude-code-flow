@@ -8,7 +8,7 @@ import type { ILogger } from '../../core/logger.js';
 import type { IEventBus } from '../../core/event-bus.js';
 import type { DistributedMemorySystem } from '../../memory/distributed-memory.js';
 
-// Type definitions for analysis
+// Type definitions for analysis,
 interface AnalysisVisualization {
   type: string;
   title: string;
@@ -328,8 +328,8 @@ export class AnalystAgent extends BaseAgent {
         'trend-analyzer'
       ],
       maxConcurrentTasks: 4,
-      maxMemoryUsage: 2048 * 1024 * 1024, // 2GB
-      maxExecutionTime: 1200000, // 20 minutes
+      maxMemoryUsage: 2048 * 1024 * 1024, // 2GB,
+      maxExecutionTime: 1200000, // 20 minutes,
       reliability: 0.90,
       speed: 0.80,
       quality: 0.95
@@ -450,7 +450,7 @@ export class AnalystAgent extends BaseAgent {
       timestamp: new Date()
     };
 
-    // Store analysis progress
+    // Store analysis progress,
     await this.memory.store(`analysis:${task.id}:progress`, {
       status: 'analyzing',
       startTime: new Date(),
@@ -461,7 +461,7 @@ export class AnalystAgent extends BaseAgent {
       partition: 'tasks'
     });
 
-    // Simulate data analysis
+    // Simulate data analysis,
     await this.delay(3000);
     
     analysis.summary = {
@@ -488,7 +488,7 @@ export class AnalystAgent extends BaseAgent {
     
     analysis.confidence = 0.88;
 
-    // Store final results
+    // Store final results,
     await this.memory.store(`analysis:${task.id}:results`, analysis, {
       type: 'analysis-results',
       tags: ['analysis', 'completed', this.id, analysisType],
@@ -538,14 +538,14 @@ export class AnalystAgent extends BaseAgent {
       confidence: 0
     };
 
-    // Simulate performance analysis
+    // Simulate performance analysis,
     await this.delay(2500);
 
     performance.metrics = {
-      averageResponseTime: 245, // ms
+      averageResponseTime: 245, // ms,
       p95ResponseTime: 520,
       p99ResponseTime: 1200,
-      throughput: 1250, // requests/min
+      throughput: 1250, // requests/min,
       errorRate: 0.03, // 3%
       availability: 99.85 // %
     };
@@ -575,7 +575,7 @@ export class AnalystAgent extends BaseAgent {
   }
 
   private async performStatisticalAnalysis(task: TaskDefinition): Promise<StatisticalAnalysis> {
-    const data = task.context?.data;
+    const _data = task.context?.data;
     const tests = task.context?.tests || ['normality', 'correlation', 'significance'];
     const alpha = task.context?.alpha || 0.05;
     const hypothesis = task.context?.hypothesis;
@@ -607,7 +607,7 @@ export class AnalystAgent extends BaseAgent {
       timestamp: new Date()
     };
 
-    // Simulate statistical analysis
+    // Simulate statistical analysis,
     await this.delay(2000);
 
     statistics.results = {
@@ -635,7 +635,7 @@ export class AnalystAgent extends BaseAgent {
   }
 
   private async createVisualization(task: TaskDefinition): Promise<VisualizationResult> {
-    const data = task.context?.data;
+    const _data = task.context?.data;
     const chartType = task.context?.type || 'auto';
     const style = task.context?.style || 'professional';
     const interactive = task.context?.interactive || false;
@@ -663,7 +663,7 @@ export class AnalystAgent extends BaseAgent {
       timestamp: new Date()
     };
 
-    // Simulate visualization creation
+    // Simulate visualization creation,
     await this.delay(1500);
 
     visualization.charts.push(
@@ -693,7 +693,7 @@ export class AnalystAgent extends BaseAgent {
   }
 
   private async buildPredictiveModel(task: TaskDefinition): Promise<PredictiveModelResult> {
-    const data = task.context?.data;
+    const _data = task.context?.data;
     const target = task.context?.target;
     const algorithm = task.context?.algorithm || 'auto';
     const validation = task.context?.validation || 'k-fold';
@@ -741,7 +741,7 @@ export class AnalystAgent extends BaseAgent {
       timestamp: new Date()
     };
 
-    // Simulate model building
+    // Simulate model building,
     await this.delay(4000);
 
     model.performance = {
@@ -764,7 +764,7 @@ export class AnalystAgent extends BaseAgent {
   }
 
   private async detectAnomalies(task: TaskDefinition): Promise<AnomalyDetectionResult> {
-    const data = task.context?.data;
+    const _data = task.context?.data;
     const method = task.context?.method || 'isolation_forest';
     const sensitivity = task.context?.sensitivity || 0.1;
     const threshold = task.context?.threshold;
@@ -795,7 +795,7 @@ export class AnalystAgent extends BaseAgent {
       timestamp: new Date()
     };
 
-    // Simulate anomaly detection
+    // Simulate anomaly detection,
     await this.delay(2000);
 
     (anomalies.detected as any).push(
@@ -833,7 +833,7 @@ export class AnalystAgent extends BaseAgent {
   }
 
   private async analyzeTrends(task: TaskDefinition): Promise<TrendAnalysisResult> {
-    const data = task.context?.data;
+    const _data = task.context?.data;
     const timeframe = task.context?.timeframe || '3-months';
     const granularity = task.context?.granularity || 'daily';
     const forecast = task.context?.forecast || false;
@@ -861,7 +861,7 @@ export class AnalystAgent extends BaseAgent {
       timestamp: new Date()
     };
 
-    // Simulate trend analysis
+    // Simulate trend analysis,
     await this.delay(2500);
 
     (trends.trends as any).push(
@@ -930,7 +930,7 @@ export class AnalystAgent extends BaseAgent {
       timestamp: new Date()
     };
 
-    // Simulate business intelligence generation
+    // Simulate business intelligence generation,
     await this.delay(3500);
 
     intelligence.kpis = {
@@ -962,7 +962,7 @@ export class AnalystAgent extends BaseAgent {
     const subject = task.context?.subject;
     const criteria = task.context?.criteria || ['accuracy', 'completeness', 'consistency'];
     const standards = task.context?.standards || 'industry';
-    const benchmark = task.context?.benchmark;
+    const _benchmark = task.context?.benchmark;
 
     this.logger.info('Analyzing quality', {
       subject,
@@ -986,7 +986,7 @@ export class AnalystAgent extends BaseAgent {
       timestamp: new Date()
     };
 
-    // Simulate quality analysis
+    // Simulate quality analysis,
     await this.delay(2000);
 
     quality.codeQuality = {
@@ -1017,7 +1017,7 @@ export class AnalystAgent extends BaseAgent {
       description: task.description
     });
 
-    // Default to data analysis
+    // Default to data analysis,
     return await this.analyzeData(task);
   }
 

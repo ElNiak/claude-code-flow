@@ -15,6 +15,7 @@ import {
   AgentCapability,
   Task,
   Message,
+  MessageType,
   AgentConfig,
   ExecutionResult
 } from '../types.js';
@@ -31,8 +32,8 @@ export class Agent extends EventEmitter {
   public currentTask: string | null = null;
   public messageCount: number = 0;
   
-  private db: DatabaseManager;
-  private mcpWrapper: MCPToolWrapper;
+  private db!: DatabaseManager;
+  private mcpWrapper!: MCPToolWrapper;
   private memory: Map<string, any>;
   private communicationBuffer: Message[];
   private lastHeartbeat: number;
@@ -50,6 +51,10 @@ export class Agent extends EventEmitter {
     this.memory = new Map();
     this.communicationBuffer = [];
     this.lastHeartbeat = Date.now();
+    
+    // Initialize db and mcpWrapper - they will be properly set during initialization
+    this.db = null as any; // Will be properly initialized in initialize()
+    this.mcpWrapper = new MCPToolWrapper();
   }
 
   /**
@@ -59,7 +64,7 @@ export class Agent extends EventEmitter {
     this.db = await DatabaseManager.getInstance();
     this.mcpWrapper = new MCPToolWrapper();
     
-    // Load agent state from database if exists
+    // Load agent state from database if exists,
     const existingAgent = await this.db.getAgent(this.id);
     if (existingAgent) {
       this.status = existingAgent.status as AgentStatus;
@@ -67,7 +72,7 @@ export class Agent extends EventEmitter {
       this.messageCount = existingAgent.message_count;
     }
     
-    // Start agent loops
+    // Start agent loops,
     this.startHeartbeatLoop();
     this.startCommunicationLoop();
     this.startLearningLoop();
@@ -87,16 +92,16 @@ export class Agent extends EventEmitter {
     this.currentTask = taskId;
     this.status = 'busy';
     
-    // Update database
+    // Update database,
     await this.db.updateAgent(this.id, {
       status: 'busy',
       current_task_id: taskId
     });
     
-    // Store task in memory
+    // Store task in memory,
     this.memory.set('current_task', { taskId, executionPlan, startTime: Date.now() });
     
-    // Start task execution
+    // Start task execution,
     this.executeTask(taskId, executionPlan).catch(error => {
       this.emit('taskError', { taskId, error });
     });
@@ -109,19 +114,19 @@ export class Agent extends EventEmitter {
    */
   private async executeTask(taskId: string, executionPlan: any): Promise<void> {
     try {
-      // Load task details
+      // Load task details,
       const task = await this.db.getTask(taskId);
       if (!task) {
         throw new Error('Task not found');
       }
       
-      // Update task status
+      // Update task status,
       await this.db.updateTaskStatus(taskId, 'in_progress');
       
-      // Execute based on agent type
+      // Execute based on agent type,
       const result = await this.executeByType(task, executionPlan);
       
-      // Store result
+      // Store result,
       await this.db.updateTask(taskId, {
         status: 'completed',
         result: JSON.stringify(result),
@@ -129,10 +134,10 @@ export class Agent extends EventEmitter {
         completed_at: new Date()
       });
       
-      // Learn from execution
+      // Learn from execution,
       await this.learnFromExecution(task, result);
       
-      // Clear task
+      // Clear task,
       this.currentTask = null;
       this.status = 'idle';
       
@@ -145,7 +150,7 @@ export class Agent extends EventEmitter {
       this.emit('taskCompleted', { taskId, result });
       
     } catch (error) {
-      // Handle task failure
+      // Handle task failure,
       await this.handleTaskFailure(taskId, error);
     }
   }
@@ -154,10 +159,10 @@ export class Agent extends EventEmitter {
    * Execute task based on agent type
    */
   protected async executeByType(task: any, executionPlan: any): Promise<ExecutionResult> {
-    // Base implementation - override in specialized agents
+    // Base implementation - override in specialized agents,
     const startTime = Date.now();
     
-    // Simulate task execution phases
+    // Simulate task execution phases,
     const phases = executionPlan.phases || ['analysis', 'execution', 'validation'];
     const results: any[] = [];
     
@@ -165,11 +170,11 @@ export class Agent extends EventEmitter {
       const phaseResult = await this.executePhase(phase, task, executionPlan);
       results.push(phaseResult);
       
-      // Update progress
+      // Update progress,
       const progress = Math.round((phases.indexOf(phase) + 1) / phases.length * 100);
       await this.updateTaskProgress(task.id, progress);
       
-      // Communicate progress
+      // Communicate progress,
       await this.communicateProgress(task.id, phase, progress);
     }
     
@@ -189,7 +194,7 @@ export class Agent extends EventEmitter {
    * Execute a specific phase of the task
    */
   protected async executePhase(phase: string, task: any, plan: any): Promise<any> {
-    // Use MCP tools based on phase and agent capabilities
+    // Use MCP tools based on phase and agent capabilities,
     switch (phase) {
       case 'analysis':
         return this.performAnalysis(task);
@@ -209,7 +214,7 @@ export class Agent extends EventEmitter {
    * Perform analysis phase
    */
   protected async performAnalysis(task: any): Promise<any> {
-    // Use neural analysis for task understanding
+    // Use neural analysis for task understanding,
     const analysis = await this.mcpWrapper.analyzePattern({
       action: 'analyze',
       operation: `${this.type}_analysis`,
@@ -220,7 +225,7 @@ export class Agent extends EventEmitter {
       }
     });
     
-    // Store analysis in memory
+    // Store analysis in memory,
     await this.storeInMemory('task_analysis', analysis);
     
     return {
@@ -235,7 +240,7 @@ export class Agent extends EventEmitter {
    * Perform execution phase
    */
   protected async performExecution(task: any, plan: any): Promise<any> {
-    // Base execution - specialized agents override this
+    // Base execution - specialized agents override this,
     const actions = plan.agentAssignments?.find((a: any) => a.agentId === this.id)?.responsibilities || [];
     const results = [];
     
@@ -255,21 +260,21 @@ export class Agent extends EventEmitter {
    * Perform validation phase
    */
   protected async performValidation(task: any): Promise<any> {
-    // Validate execution results
+    // Validate execution results,
     const validation = {
       phase: 'validation',
       checks: [],
       passed: true
     };
     
-    // Basic validation checks
+    // Basic validation checks,
     const checks = [
       { name: 'completeness', passed: true },
       { name: 'quality', passed: true },
       { name: 'performance', passed: true }
     ];
     
-    validation.checks = checks;
+    validation.checks = checks as any;
     validation.passed = checks.every(c => c.passed);
     
     return validation;
@@ -279,7 +284,7 @@ export class Agent extends EventEmitter {
    * Execute a specific action
    */
   protected async executeAction(action: string, task: any): Promise<any> {
-    // Base action execution
+    // Base action execution,
     return {
       action: action,
       status: 'completed',
@@ -296,13 +301,13 @@ export class Agent extends EventEmitter {
       fromAgentId: this.id,
       toAgentId,
       swarmId: this.swarmId,
-      type: messageType,
+      type: messageType as MessageType,
       content,
       timestamp: new Date(),
       requiresResponse: false
     };
     
-    // Store in database
+    // Store in database,
     await this.db.createCommunication({
       from_agent_id: this.id,
       to_agent_id: toAgentId,
@@ -361,7 +366,7 @@ export class Agent extends EventEmitter {
   protected async storeInMemory(key: string, value: any): Promise<void> {
     this.memory.set(key, value);
     
-    // Also store in persistent memory
+    // Also store in persistent memory,
     await this.mcpWrapper.storeMemory({
       action: 'store',
       key: `agent/${this.id}/${key}`,
@@ -375,12 +380,12 @@ export class Agent extends EventEmitter {
    * Retrieve from agent memory
    */
   protected async retrieveFromMemory(key: string): Promise<any> {
-    // Check local memory first
+    // Check local memory first,
     if (this.memory.has(key)) {
       return this.memory.get(key);
     }
     
-    // Check persistent memory
+    // Check persistent memory,
     const result = await this.mcpWrapper.retrieveMemory({
       action: 'retrieve',
       key: `agent/${this.id}/${key}`,
@@ -402,7 +407,7 @@ export class Agent extends EventEmitter {
       patterns: this.extractPatterns(task, result)
     };
     
-    // Train neural patterns
+    // Train neural patterns,
     await this.mcpWrapper.trainNeural({
       pattern_type: 'optimization',
       training_data: JSON.stringify(learningData),
@@ -414,25 +419,25 @@ export class Agent extends EventEmitter {
    * Handle task failure
    */
   protected async handleTaskFailure(taskId: string, error: any): Promise<void> {
-    // Update task status
+    // Update task status,
     await this.db.updateTask(taskId, {
       status: 'failed',
       error: error.message,
       completed_at: new Date()
     });
     
-    // Update agent stats
+    // Update agent stats,
     await this.db.updateAgent(this.id, {
       status: 'idle',
       current_task_id: null,
       error_count: this.db.raw('error_count + 1')
     });
     
-    // Clear current task
+    // Clear current task,
     this.currentTask = null;
     this.status = 'idle';
     
-    // Notify swarm of failure
+    // Notify swarm of failure,
     await this.sendMessage(null, 'task_failed', {
       taskId,
       agentId: this.id,
@@ -452,7 +457,7 @@ export class Agent extends EventEmitter {
       
       this.lastHeartbeat = Date.now();
       
-      // Update last active timestamp
+      // Update last active timestamp,
       await this.db.updateAgent(this.id, {
         last_active_at: new Date()
       });
@@ -468,7 +473,7 @@ export class Agent extends EventEmitter {
     setInterval(async () => {
       if (!this.isActive || this.communicationBuffer.length === 0) return;
       
-      // Process buffered messages
+      // Process buffered messages,
       const messages = [...this.communicationBuffer];
       this.communicationBuffer = [];
       
@@ -486,10 +491,10 @@ export class Agent extends EventEmitter {
       if (!this.isActive) return;
       
       try {
-        // Analyze recent patterns
+        // Analyze recent patterns,
         const patterns = await this.analyzeRecentPatterns();
         
-        // Update capabilities if needed
+        // Update capabilities if needed,
         await this.updateCapabilities(patterns);
         
       } catch (error) {
@@ -528,7 +533,7 @@ export class Agent extends EventEmitter {
    * Check if agent is responsive
    */
   isResponsive(): boolean {
-    const timeout = 60000; // 1 minute
+    const timeout = 60000; // 1 minute,
     return Date.now() - this.lastHeartbeat < timeout;
   }
 
@@ -555,19 +560,19 @@ export class Agent extends EventEmitter {
   async shutdown(): Promise<void> {
     this.isActive = false;
     
-    // Update status in database
+    // Update status in database,
     await this.db.updateAgent(this.id, {
       status: 'offline'
     });
     
-    // Clear memory
+    // Clear memory,
     this.memory.clear();
     this.communicationBuffer = [];
     
     this.emit('shutdown');
   }
 
-  // Helper methods
+  // Helper methods,
   
   private detectTaskType(description: string): string {
     const lower = description.toLowerCase();
@@ -604,13 +609,13 @@ export class Agent extends EventEmitter {
 
   private async updateCapabilities(patterns: any): Promise<void> {
     if (patterns.suggestedCapabilities) {
-      // Update capabilities based on learning
+      // Update capabilities based on learning,
       const newCapabilities = patterns.suggestedCapabilities.filter(
-        (cap: string) => !this.capabilities.includes(cap)
+        (cap: string) => !this.capabilities.includes(cap as AgentCapability)
       );
       
       if (newCapabilities.length > 0) {
-        this.capabilities.push(...newCapabilities);
+        this.capabilities.push(...newCapabilities as AgentCapability[]);
         
         await this.db.updateAgent(this.id, {
           capabilities: JSON.stringify(this.capabilities)
@@ -622,20 +627,20 @@ export class Agent extends EventEmitter {
   }
 
   private async handleTaskAssignment(content: any): Promise<void> {
-    // Handle incoming task assignment
+    // Handle incoming task assignment,
     if (!this.currentTask && content.taskId) {
       await this.assignTask(content.taskId, content.executionPlan || {});
     }
   }
 
   private async handleConsensusRequest(content: any): Promise<void> {
-    // Analyze proposal and vote
+    // Analyze proposal and vote,
     const analysis = await this.analyzeProposal(content);
     await this.voteOnProposal(content.proposalId, analysis.vote, analysis.reason);
   }
 
   private async handleQuery(message: Message): Promise<void> {
-    // Respond to query
+    // Respond to query,
     const response = await this.processQuery(message.content);
     
     if (message.fromAgentId) {
@@ -647,20 +652,20 @@ export class Agent extends EventEmitter {
   }
 
   private async handleCoordination(content: any): Promise<void> {
-    // Handle coordination messages
+    // Handle coordination messages,
     this.emit('coordinationReceived', content);
   }
 
   private async analyzeProposal(proposal: any): Promise<any> {
-    // Simple analysis - can be overridden by specialized agents
+    // Simple analysis - can be overridden by specialized agents,
     return {
-      vote: Math.random() > 0.3, // 70% approval rate
+      vote: Math.random() > 0.3, // 70% approval rate,
       reason: 'Based on agent analysis'
     };
   }
 
   private async processQuery(query: any): Promise<any> {
-    // Process and respond to queries
+    // Process and respond to queries,
     return {
       agentId: this.id,
       agentType: this.type,

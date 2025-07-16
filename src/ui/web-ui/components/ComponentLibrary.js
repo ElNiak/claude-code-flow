@@ -938,16 +938,16 @@ export class ComponentLibrary {
     const chartHeight = canvas.height - (padding * 2);
     
     if (config.type === 'line') {
-      this.drawLineChart(ctx, data, padding, chartWidth, chartHeight);
+      this.drawLineChart(_ctx, data, padding, chartWidth, chartHeight);
     } else if (config.type === 'bar') {
-      this.drawBarChart(ctx, data, padding, chartWidth, chartHeight);
+      this.drawBarChart(_ctx, data, padding, chartWidth, chartHeight);
     }
   }
 
   /**
    * Draw line chart
    */
-  drawLineChart(ctx, data, padding, width, height) {
+  drawLineChart(_ctx, data, padding, width, height) {
     if (!data || data.length === 0) return;
     
     const maxValue = Math.max(...data.map(d => d.value));
@@ -974,7 +974,7 @@ export class ComponentLibrary {
   /**
    * Draw bar chart
    */
-  drawBarChart(ctx, data, padding, width, height) {
+  drawBarChart(_ctx, data, padding, width, height) {
     if (!data || data.length === 0) return;
     
     const maxValue = Math.max(...data.map(d => d.value));

@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * MCP Performance Monitoring and Optimization
  */
@@ -17,7 +17,7 @@ export interface PerformanceMetrics {
   p95ResponseTime: number;
   p99ResponseTime: number;
   errorRate: number;
-  throughput: number; // requests per second
+  throughput: number; // requests per second,
   activeConnections: number;
   memoryUsage: {
     heapUsed: number;
@@ -51,7 +51,7 @@ export interface AlertRule {
   metric: string;
   operator: 'gt' | 'lt' | 'eq' | 'gte' | 'lte';
   threshold: number;
-  duration: number; // milliseconds
+  duration: number; // milliseconds,
   enabled: boolean;
   severity: 'low' | 'medium' | 'high' | 'critical';
   actions: string[];
@@ -100,11 +100,11 @@ export class MCPPerformanceMonitor extends EventEmitter {
   private cleanupTimer?: NodeJS.Timeout;
   
   private readonly config = {
-    metricsInterval: 10000, // 10 seconds
-    alertCheckInterval: 5000, // 5 seconds
+    metricsInterval: 10000, // 10 seconds,
+    alertCheckInterval: 5000, // 5 seconds,
     maxHistorySize: 1000,
     maxResponseTimeHistory: 10000,
-    cleanupInterval: 300000, // 5 minutes
+    cleanupInterval: 300000, // 5 minutes,
     requestTimeout: 30000, // 30 seconds
   };
 
@@ -157,7 +157,7 @@ export class MCPPerformanceMonitor extends EventEmitter {
     metrics.error = error?.message;
     metrics.responseSize = response ? this.calculateResponseSize(response) : 0;
 
-    // Add to response time history
+    // Add to response time history,
     this.responseTimes.push(duration);
     if (this.responseTimes.length > this.config.maxResponseTimeHistory) {
       this.responseTimes.shift();
@@ -172,7 +172,7 @@ export class MCPPerformanceMonitor extends EventEmitter {
 
     this.emit('requestCompleted', metrics);
 
-    // Remove from active metrics after some time
+    // Remove from active metrics after some time,
     setTimeout(() => {
       this.requestMetrics.delete(requestId);
     }, 60000); // Keep for 1 minute
@@ -191,7 +191,7 @@ export class MCPPerformanceMonitor extends EventEmitter {
       ? (completedRequests.length - successfulRequests.length) / completedRequests.length * 100
       : 0;
 
-    // Calculate response time percentiles
+    // Calculate response time percentiles,
     const sortedTimes = [...this.responseTimes].sort((a, b) => a - b);
     const p50 = this.getPercentile(sortedTimes, 0.5);
     const p95 = this.getPercentile(sortedTimes, 0.95);
@@ -227,7 +227,7 @@ export class MCPPerformanceMonitor extends EventEmitter {
         rss: memUsage.rss,
       },
       cpuUsage: {
-        user: cpuUsage.user / 1000000, // Convert to seconds
+        user: cpuUsage.user / 1000000, // Convert to seconds,
         system: cpuUsage.system / 1000000,
       },
       timestamp: new Date(),
@@ -264,7 +264,7 @@ export class MCPPerformanceMonitor extends EventEmitter {
   removeAlertRule(ruleId: string): void {
     this.alertRules.delete(ruleId);
     
-    // Resolve any active alerts for this rule
+    // Resolve any active alerts for this rule,
     for (const [alertId, alert] of this.activeAlerts.entries()) {
       if (alert.ruleId === ruleId) {
         this.resolveAlert(alertId);
@@ -362,12 +362,12 @@ export class MCPPerformanceMonitor extends EventEmitter {
   }
 
   private startMonitoring(): void {
-    // Collect metrics periodically
+    // Collect metrics periodically,
     this.metricsTimer = setInterval(() => {
       const metrics = this.getCurrentMetrics();
       this.historicalMetrics.push(metrics);
       
-      // Keep only recent history
+      // Keep only recent history,
       if (this.historicalMetrics.length > this.config.maxHistorySize) {
         this.historicalMetrics.shift();
       }
@@ -375,12 +375,12 @@ export class MCPPerformanceMonitor extends EventEmitter {
       this.emit('metricsCollected', metrics);
     }, this.config.metricsInterval);
 
-    // Check alerts periodically
+    // Check alerts periodically,
     this.alertCheckTimer = setInterval(() => {
       this.checkAlerts();
     }, this.config.alertCheckInterval);
 
-    // Cleanup old data
+    // Cleanup old data,
     this.cleanupTimer = setInterval(() => {
       this.cleanup();
       this.generateOptimizationSuggestions();
@@ -396,8 +396,8 @@ export class MCPPerformanceMonitor extends EventEmitter {
         name: 'High Response Time',
         metric: 'averageResponseTime',
         operator: 'gt',
-        threshold: 5000, // 5 seconds
-        duration: 30000, // 30 seconds
+        threshold: 5000, // 5 seconds,
+        duration: 30000, // 30 seconds,
         enabled: true,
         severity: 'medium',
         actions: ['log', 'notify'],
@@ -408,7 +408,7 @@ export class MCPPerformanceMonitor extends EventEmitter {
         metric: 'errorRate',
         operator: 'gt',
         threshold: 10, // 10%
-        duration: 60000, // 1 minute
+        duration: 60000, // 1 minute,
         enabled: true,
         severity: 'high',
         actions: ['log', 'notify', 'alert'],
@@ -418,8 +418,8 @@ export class MCPPerformanceMonitor extends EventEmitter {
         name: 'Low Throughput',
         metric: 'throughput',
         operator: 'lt',
-        threshold: 1, // 1 request per second
-        duration: 120000, // 2 minutes
+        threshold: 1, // 1 request per second,
+        duration: 120000, // 2 minutes,
         enabled: true,
         severity: 'medium',
         actions: ['log', 'notify'],
@@ -429,8 +429,8 @@ export class MCPPerformanceMonitor extends EventEmitter {
         name: 'High Memory Usage',
         metric: 'memoryUsage.heapUsed',
         operator: 'gt',
-        threshold: 1024 * 1024 * 1024, // 1GB
-        duration: 300000, // 5 minutes
+        threshold: 1024 * 1024 * 1024, // 1GB,
+        duration: 300000, // 5 minutes,
         enabled: true,
         severity: 'high',
         actions: ['log', 'notify', 'alert'],
@@ -455,7 +455,7 @@ export class MCPPerformanceMonitor extends EventEmitter {
         .find(a => a.ruleId === rule.id && !a.resolvedAt);
 
       if (triggered && !existingAlert) {
-        // Create new alert
+        // Create new alert,
         const alert: Alert = {
           id: `alert_${rule.id}_${Date.now()}`,
           ruleId: rule.id,
@@ -479,7 +479,7 @@ export class MCPPerformanceMonitor extends EventEmitter {
         
         this.emit('alertTriggered', alert);
       } else if (!triggered && existingAlert) {
-        // Resolve existing alert
+        // Resolve existing alert,
         this.resolveAlert(existingAlert.id);
       }
     }
@@ -520,7 +520,7 @@ export class MCPPerformanceMonitor extends EventEmitter {
     throughput: 'improving' | 'degrading' | 'stable';
     errorRate: 'improving' | 'degrading' | 'stable';
   } {
-    const recentMetrics = this.historicalMetrics.slice(-10); // Last 10 data points
+    const recentMetrics = this.historicalMetrics.slice(-10); // Last 10 data points,
     
     if (recentMetrics.length < 2) {
       return {
@@ -542,7 +542,7 @@ export class MCPPerformanceMonitor extends EventEmitter {
 
   private getTrend(oldValue: number, newValue: number, lowerIsBetter: boolean): 'improving' | 'degrading' | 'stable' {
     const change = (newValue - oldValue) / oldValue;
-    const threshold = 0.1; // 10% change threshold
+    const threshold = 0.1; // 10% change threshold,
 
     if (Math.abs(change) < threshold) {
       return 'stable';
@@ -556,7 +556,7 @@ export class MCPPerformanceMonitor extends EventEmitter {
     const metrics = this.getCurrentMetrics();
     const suggestions: OptimizationSuggestion[] = [];
 
-    // High response time suggestion
+    // High response time suggestion,
     if (metrics.averageResponseTime > 2000) {
       suggestions.push({
         id: `opt_response_time_${Date.now()}`,
@@ -572,8 +572,8 @@ export class MCPPerformanceMonitor extends EventEmitter {
       });
     }
 
-    // High memory usage suggestion
-    if (metrics.memoryUsage.heapUsed > 512 * 1024 * 1024) { // 512MB
+    // High memory usage suggestion,
+    if (metrics.memoryUsage.heapUsed > 512 * 1024 * 1024) { // 512MB,
       suggestions.push({
         id: `opt_memory_${Date.now()}`,
         type: 'memory',
@@ -588,7 +588,7 @@ export class MCPPerformanceMonitor extends EventEmitter {
       });
     }
 
-    // Low throughput suggestion
+    // Low throughput suggestion,
     if (metrics.throughput < 5 && metrics.requestCount > 100) {
       suggestions.push({
         id: `opt_throughput_${Date.now()}`,
@@ -604,7 +604,7 @@ export class MCPPerformanceMonitor extends EventEmitter {
       });
     }
 
-    // Add only new suggestions
+    // Add only new suggestions,
     for (const suggestion of suggestions) {
       const exists = this.optimizationSuggestions.some(s => 
         s.type === suggestion.type && s.title === suggestion.title
@@ -626,14 +626,14 @@ export class MCPPerformanceMonitor extends EventEmitter {
   private cleanup(): void {
     const now = Date.now();
     
-    // Clean up old request metrics
+    // Clean up old request metrics,
     for (const [id, metrics] of this.requestMetrics.entries()) {
       if (now - metrics.startTime > this.config.requestTimeout) {
         this.requestMetrics.delete(id);
       }
     }
 
-    // Clean up old response times
+    // Clean up old response times,
     if (this.responseTimes.length > this.config.maxResponseTimeHistory) {
       this.responseTimes = this.responseTimes.slice(-this.config.maxResponseTimeHistory);
     }

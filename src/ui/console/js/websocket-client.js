@@ -88,9 +88,9 @@ export class WebSocketClient {
         
         this.ws.onerror = (error) => {
           clearTimeout(connectionTimer);
-          console.error('WebSocket error:', error);
+          console.error('WebSocket error:', _error);
           this.isConnecting = false;
-          this.emit('error', error);
+          this.emit('error', _error);
           
           if (!this.isConnected) {
             reject(error);
@@ -185,8 +185,8 @@ export class WebSocketClient {
       this.ws.send(messageStr);
       this.emit('message_sent', message);
     } catch (error) {
-      console.error('Failed to send message:', error);
-      this.emit('send_error', error);
+      console.error('Failed to send message:', _error);
+      this.emit('send_error', _error);
     }
   }
   
@@ -225,8 +225,8 @@ export class WebSocketClient {
       this.emit('message_received', message);
       
     } catch (error) {
-      console.error('Failed to parse WebSocket message:', error);
-      this.emit('parse_error', error);
+      console.error('Failed to parse WebSocket message:', _error);
+      this.emit('parse_error', _error);
     }
   }
   
@@ -265,7 +265,7 @@ export class WebSocketClient {
       try {
         await this.establishConnection();
       } catch (error) {
-        console.error('Reconnection failed:', error);
+        console.error('Reconnection failed:', _error);
         
         if (this.reconnectAttempts >= this.maxReconnectAttempts) {
           this.emit('reconnection_failed');
@@ -384,7 +384,7 @@ export class WebSocketClient {
         try {
           callback(data);
         } catch (error) {
-          console.error('Error in event listener:', error);
+          console.error('Error in event listener:', _error);
         }
       });
     }
@@ -424,11 +424,11 @@ export class WebSocketClient {
     };
     
     try {
-      const result = await this.sendRequest('initialize', params);
+      const result = await this.sendRequest('initialize', _params);
       this.emit('session_initialized', result);
       return result;
     } catch (error) {
-      this.emit('session_error', error);
+      this.emit('session_error', _error);
       throw error;
     }
   }
@@ -445,7 +445,7 @@ export class WebSocketClient {
       
       return result;
     } catch (error) {
-      console.error('Command execution failed:', error);
+      console.error('Command execution failed:', _error);
       throw error;
     }
   }
@@ -459,7 +459,7 @@ export class WebSocketClient {
       // The server returns { tools: [...] }, so we need to extract the tools array
       return result && result.tools ? result.tools : [];
     } catch (error) {
-      console.error('Failed to get tools:', error);
+      console.error('Failed to get tools:', _error);
       return []; // Return empty array on error instead of throwing
     }
   }
@@ -473,7 +473,7 @@ export class WebSocketClient {
         name: 'system/health'
       });
     } catch (error) {
-      console.error('Failed to get health status:', error);
+      console.error('Failed to get health status:', _error);
       throw error;
     }
   }

@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 import { EventEmitter } from 'events';
 import { writeFile, readFile, mkdir, readdir } from 'fs/promises';
 import { join } from 'path';
@@ -33,7 +33,7 @@ export interface AnalyticsDashboard {
   };
   schedule: {
     autoRefresh: boolean;
-    refreshInterval: number; // seconds
+    refreshInterval: number; // seconds,
     exportSchedule?: {
       frequency: 'daily' | 'weekly' | 'monthly';
       format: 'pdf' | 'png' | 'csv' | 'json';
@@ -94,7 +94,7 @@ export interface AlertCondition {
   metric: string;
   operator: '>' | '<' | '>=' | '<=' | '==' | '!=';
   threshold: number;
-  duration: number; // seconds
+  duration: number; // seconds,
   severity: 'info' | 'warning' | 'critical';
 }
 
@@ -104,7 +104,7 @@ export interface AnalyticsInsight {
   description: string;
   type: 'anomaly' | 'trend' | 'correlation' | 'prediction' | 'recommendation';
   category: 'performance' | 'usage' | 'business' | 'technical' | 'security' | 'cost';
-  confidence: number; // 0-100
+  confidence: number; // 0-100,
   impact: 'low' | 'medium' | 'high';
   priority: 'low' | 'medium' | 'high' | 'critical';
   data: {
@@ -257,7 +257,7 @@ export interface BusinessMetrics {
     total: number;
     recurring: number;
     growth: number;
-    arpu: number; // Average Revenue Per User
+    arpu: number; // Average Revenue Per User,
     ltv: number;  // Lifetime Value
   };
   customers: {
@@ -317,7 +317,7 @@ export interface PredictionResult {
   prediction: any;
   confidence: number;
   timestamp: Date;
-  actual?: any; // For validation
+  actual?: any; // For validation,
   accuracy?: number;
 }
 
@@ -456,17 +456,17 @@ export class AnalyticsManager extends EventEmitter {
     metricArray.push(fullMetric);
 
     // Keep only recent metrics in memory (configurable retention)
-    const retentionPeriod = 24 * 60 * 60 * 1000; // 24 hours
+    const retentionPeriod = 24 * 60 * 60 * 1000; // 24 hours,
     const cutoff = Date.now() - retentionPeriod;
     const filteredMetrics = metricArray.filter(m => m.timestamp.getTime() > cutoff);
     this.metrics.set(key, filteredMetrics);
 
-    // Persist to disk for longer-term storage
+    // Persist to disk for longer-term storage,
     await this.persistMetric(fullMetric);
 
     this.emit('metric:recorded', fullMetric);
 
-    // Check for anomalies and generate insights
+    // Check for anomalies and generate insights,
     await this.checkForAnomalies(key, fullMetric);
   }
 
@@ -491,13 +491,13 @@ export class AnalyticsManager extends EventEmitter {
         allMetrics.push(...keyMetrics);
       }
 
-      // Filter by time range
+      // Filter by time range,
       allMetrics = allMetrics.filter(m => 
         m.timestamp >= query.timeRange.start && 
         m.timestamp <= query.timeRange.end
       );
 
-      // Apply filters
+      // Apply filters,
       if (query.filters) {
         for (const [field, value] of Object.entries(query.filters)) {
           allMetrics = allMetrics.filter(m => {
@@ -511,7 +511,7 @@ export class AnalyticsManager extends EventEmitter {
         }
       }
 
-      // Group by if specified
+      // Group by if specified,
       if (query.groupBy && query.groupBy.length > 0) {
         const grouped = this.groupMetrics(allMetrics, query.groupBy);
         for (const [group, metrics] of Object.entries(grouped)) {
@@ -583,33 +583,33 @@ export class AnalyticsManager extends EventEmitter {
   ): Promise<AnalyticsInsight[]> {
     const insights: AnalyticsInsight[] = [];
 
-    // Default time range: last 24 hours
+    // Default time range: last 24 hours,
     const timeRange = scope.timeRange || {
       start: new Date(Date.now() - 24 * 60 * 60 * 1000),
       end: new Date()
     };
 
-    // Anomaly detection
+    // Anomaly detection,
     const anomalies = await this.detectAnomalies(timeRange, scope.metrics);
     insights.push(...anomalies);
 
-    // Trend analysis
+    // Trend analysis,
     const trends = await this.analyzeTrends(timeRange, scope.metrics);
     insights.push(...trends);
 
-    // Performance insights
+    // Performance insights,
     const performance = await this.analyzePerformance(timeRange);
     insights.push(...performance);
 
-    // Usage insights
+    // Usage insights,
     const usage = await this.analyzeUsage(timeRange);
     insights.push(...usage);
 
-    // Cost optimization insights
+    // Cost optimization insights,
     const costOptimizations = await this.analyzeCostOptimization(timeRange);
     insights.push(...costOptimizations);
 
-    // Store insights
+    // Store insights,
     for (const insight of insights) {
       this.insights.set(insight.id, insight);
       await this.saveInsight(insight);
@@ -656,7 +656,7 @@ export class AnalyticsManager extends EventEmitter {
     };
 
     try {
-      // Collect training data
+      // Collect training data,
       const trainingData = await this.collectTrainingData(model);
       
       // Train the model (simplified implementation)
@@ -720,7 +720,7 @@ export class AnalyticsManager extends EventEmitter {
     timeRange?: { start: Date; end: Date }
   ): Promise<PerformanceMetrics> {
     const range = timeRange || {
-      start: new Date(Date.now() - 60 * 60 * 1000), // Last hour
+      start: new Date(Date.now() - 60 * 60 * 1000), // Last hour,
       end: new Date()
     };
 
@@ -747,12 +747,12 @@ export class AnalyticsManager extends EventEmitter {
       system: {
         cpu: {
           usage: this.getLatestValue(systemMetrics['cpu-usage']) || 0,
-          cores: 8, // Would be detected from system
+          cores: 8, // Would be detected from system,
           loadAverage: [1.2, 1.5, 1.8] // Would be collected from system
         },
         memory: {
           used: this.getLatestValue(systemMetrics['memory-usage']) || 0,
-          free: 4000000000, // Would be calculated
+          free: 4000000000, // Would be calculated,
           total: 8000000000,
           usage: 50
         },
@@ -806,7 +806,7 @@ export class AnalyticsManager extends EventEmitter {
         },
         storage: {
           size: this.getLatestValue(dbMetrics['db-size']) || 0,
-          growth: 1000000, // bytes per day
+          growth: 1000000, // bytes per day,
           fragmentation: 5
         }
       },
@@ -829,7 +829,7 @@ export class AnalyticsManager extends EventEmitter {
     timeRange?: { start: Date; end: Date }
   ): Promise<UsageMetrics> {
     const range = timeRange || {
-      start: new Date(Date.now() - 24 * 60 * 60 * 1000), // Last 24 hours
+      start: new Date(Date.now() - 24 * 60 * 60 * 1000), // Last 24 hours,
       end: new Date()
     };
 
@@ -850,7 +850,7 @@ export class AnalyticsManager extends EventEmitter {
       sessions: {
         total: this.getLatestValue(usageData['sessions']) || 0,
         duration: {
-          avg: 15 * 60, // 15 minutes
+          avg: 15 * 60, // 15 minutes,
           median: 12 * 60
         },
         bounceRate: 25,
@@ -913,13 +913,13 @@ export class AnalyticsManager extends EventEmitter {
       support: {
         tickets: 150,
         resolved: 140,
-        avgResolutionTime: 4 * 60 * 60, // 4 hours
+        avgResolutionTime: 4 * 60 * 60, // 4 hours,
         satisfaction: 4.5
       }
     };
   }
 
-  // Private helper methods
+  // Private helper methods,
   private getDefaultConfiguration(): AnalyticsConfiguration {
     return {
       collection: {
@@ -961,7 +961,7 @@ export class AnalyticsManager extends EventEmitter {
 
   private async loadConfigurations(): Promise<void> {
     try {
-      // Load dashboards
+      // Load dashboards,
       const dashboardFiles = await readdir(join(this.analyticsPath, 'dashboards'));
       for (const file of dashboardFiles.filter(f => f.endsWith('.json'))) {
         const content = await readFile(join(this.analyticsPath, 'dashboards', file), 'utf-8');
@@ -969,7 +969,7 @@ export class AnalyticsManager extends EventEmitter {
         this.dashboards.set(dashboard.id, dashboard);
       }
 
-      // Load insights
+      // Load insights,
       const insightFiles = await readdir(join(this.analyticsPath, 'insights'));
       for (const file of insightFiles.filter(f => f.endsWith('.json'))) {
         const content = await readFile(join(this.analyticsPath, 'insights', file), 'utf-8');
@@ -977,7 +977,7 @@ export class AnalyticsManager extends EventEmitter {
         this.insights.set(insight.id, insight);
       }
 
-      // Load models
+      // Load models,
       const modelFiles = await readdir(join(this.analyticsPath, 'models'));
       for (const file of modelFiles.filter(f => f.endsWith('.json'))) {
         const content = await readFile(join(this.analyticsPath, 'models', file), 'utf-8');
@@ -1011,7 +1011,7 @@ export class AnalyticsManager extends EventEmitter {
               groupBy: []
             },
             visualization: {
-              chartType: 'gauge' as const,
+              chartType: 'bar' as const,
               options: { max: 100, unit: '%' },
               thresholds: { warning: 70, critical: 90 }
             },
@@ -1030,7 +1030,7 @@ export class AnalyticsManager extends EventEmitter {
               groupBy: []
             },
             visualization: {
-              chartType: 'gauge' as const,
+              chartType: 'bar' as const,
               options: { max: 100, unit: '%' },
               thresholds: { warning: 80, critical: 95 }
             },
@@ -1090,22 +1090,22 @@ export class AnalyticsManager extends EventEmitter {
   }
 
   private async startMetricsCollection(): Promise<void> {
-    // Start collecting system metrics
+    // Start collecting system metrics,
     setInterval(async () => {
       await this.collectSystemMetrics();
     }, 60000); // Every minute
 
-    // Start collecting application metrics
+    // Start collecting application metrics,
     setInterval(async () => {
       await this.collectApplicationMetrics();
-    }, 30000); // Every 30 seconds
+    }, 30000); // Every 30 seconds,
 
     this.logger.info('Started automatic metrics collection');
   }
 
   private async collectSystemMetrics(): Promise<void> {
     try {
-      // Mock system metrics collection
+      // Mock system metrics collection,
       await this.recordMetric({
         name: 'cpu-usage',
         description: 'CPU usage percentage',
@@ -1148,7 +1148,7 @@ export class AnalyticsManager extends EventEmitter {
 
   private async collectApplicationMetrics(): Promise<void> {
     try {
-      // Mock application metrics collection
+      // Mock application metrics collection,
       await this.recordMetric({
         name: 'response-time',
         description: 'Average response time',
@@ -1211,7 +1211,7 @@ export class AnalyticsManager extends EventEmitter {
 
   private async checkForAnomalies(metricKey: string, metric: AnalyticsMetric): Promise<void> {
     const historical = this.metrics.get(metricKey) || [];
-    if (historical.length < 10) return; // Need enough data for baseline
+    if (historical.length < 10) return; // Need enough data for baseline,
 
     const recent = historical.slice(-10);
     const average = recent.reduce((sum, m) => sum + m.value, 0) / recent.length;
@@ -1219,7 +1219,7 @@ export class AnalyticsManager extends EventEmitter {
       recent.reduce((sum, m) => sum + Math.pow(m.value - average, 2), 0) / recent.length
     );
 
-    const threshold = 2; // 2 standard deviations
+    const threshold = 2; // 2 standard deviations,
     const deviation = Math.abs(metric.value - average) / stdDev;
 
     if (deviation > threshold) {
@@ -1272,7 +1272,7 @@ export class AnalyticsManager extends EventEmitter {
     timeRange: { start: Date; end: Date },
     metrics?: string[]
   ): Promise<AnalyticsInsight[]> {
-    // Simplified anomaly detection
+    // Simplified anomaly detection,
     return [];
   }
 
@@ -1280,7 +1280,7 @@ export class AnalyticsManager extends EventEmitter {
     timeRange: { start: Date; end: Date },
     metrics?: string[]
   ): Promise<AnalyticsInsight[]> {
-    // Simplified trend analysis
+    // Simplified trend analysis,
     return [];
   }
 
@@ -1289,7 +1289,7 @@ export class AnalyticsManager extends EventEmitter {
   ): Promise<AnalyticsInsight[]> {
     const insights: AnalyticsInsight[] = [];
 
-    // Check response time trends
+    // Check response time trends,
     const responseTimeData = await this.queryMetrics({
       metrics: ['response-time'],
       timeRange,
@@ -1359,19 +1359,19 @@ export class AnalyticsManager extends EventEmitter {
   private async analyzeUsage(
     timeRange: { start: Date; end: Date }
   ): Promise<AnalyticsInsight[]> {
-    // Simplified usage analysis
+    // Simplified usage analysis,
     return [];
   }
 
   private async analyzeCostOptimization(
     timeRange: { start: Date; end: Date }
   ): Promise<AnalyticsInsight[]> {
-    // Simplified cost optimization analysis
+    // Simplified cost optimization analysis,
     return [];
   }
 
   private async collectTrainingData(model: PredictiveModel): Promise<any[]> {
-    // Collect historical data for training
+    // Collect historical data for training,
     const data = await this.queryMetrics({
       metrics: model.features,
       timeRange: model.trainingData.timeRange,
@@ -1383,7 +1383,7 @@ export class AnalyticsManager extends EventEmitter {
   }
 
   private async executeModelTraining(model: PredictiveModel, data: any[]): Promise<Partial<PredictiveModel>> {
-    // Simplified model training
+    // Simplified model training,
     return {
       accuracy: 85 + Math.random() * 10,
       confidence: 80 + Math.random() * 15,
@@ -1400,7 +1400,7 @@ export class AnalyticsManager extends EventEmitter {
   }
 
   private async executePrediction(model: PredictiveModel, input: Record<string, any>): Promise<{ value: any; confidence: number }> {
-    // Simplified prediction logic
+    // Simplified prediction logic,
     const value = Math.random() * 100;
     const confidence = 70 + Math.random() * 25;
     
@@ -1430,7 +1430,7 @@ export class AnalyticsManager extends EventEmitter {
   private aggregateMetrics(metrics: AnalyticsMetric[], aggregation: string): any[] {
     if (metrics.length === 0) return [];
 
-    // Group by time buckets for time series aggregation
+    // Group by time buckets for time series aggregation,
     const buckets: Record<string, AnalyticsMetric[]> = {};
     
     for (const metric of metrics) {

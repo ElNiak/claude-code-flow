@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 import { spawn, ChildProcess } from 'node:child_process';
 import { EventEmitter } from 'node:events';
 import { Logger } from '../core/logger.js';
@@ -49,14 +49,21 @@ export class BackgroundExecutor extends EventEmitter {
 
   constructor(config: Partial<BackgroundExecutorConfig> = {}) {
     super();
-    this.logger = new Logger('BackgroundExecutor');
+    this.logger = new Logger(
+      {
+        level: 'info',
+        format: 'json',
+        destination: 'console'
+      },
+      { context: 'BackgroundExecutor' }
+    );
     this.config = {
       maxConcurrentTasks: 5,
-      defaultTimeout: 300000, // 5 minutes
+      defaultTimeout: 300000, // 5 minutes,
       logPath: './background-tasks',
       enablePersistence: true,
-      checkInterval: 1000, // 1 second
-      cleanupInterval: 60000, // 1 minute
+      checkInterval: 1000, // 1 second,
+      cleanupInterval: 60000, // 1 minute,
       maxRetries: 3,
       ...config
     };
@@ -72,18 +79,18 @@ export class BackgroundExecutor extends EventEmitter {
     this.logger.info('Starting background executor...');
     this.isRunning = true;
 
-    // Create log directory
+    // Create log directory,
     if (this.config.enablePersistence) {
       await fs.mkdir(this.config.logPath, { recursive: true });
     }
 
-    // Start background processing
+    // Start background processing,
     this.checkTimer = setInterval(() => {
       this.processQueue();
       this.checkRunningTasks();
     }, this.config.checkInterval);
 
-    // Start cleanup timer
+    // Start cleanup timer,
     this.cleanupTimer = setInterval(() => {
       this.cleanupCompletedTasks();
     }, this.config.cleanupInterval);
@@ -97,7 +104,7 @@ export class BackgroundExecutor extends EventEmitter {
     this.logger.info('Stopping background executor...');
     this.isRunning = false;
 
-    // Clear timers
+    // Clear timers,
     if (this.checkTimer) {
       clearInterval(this.checkTimer);
       this.checkTimer = undefined;
@@ -108,7 +115,7 @@ export class BackgroundExecutor extends EventEmitter {
       this.cleanupTimer = undefined;
     }
 
-    // Kill all running processes
+    // Kill all running processes,
     for (const [taskId, process] of this.processes) {
       this.logger.warn(`Killing process for task ${taskId}`);
       process.kill('SIGTERM');
@@ -148,7 +155,7 @@ export class BackgroundExecutor extends EventEmitter {
     this.logger.info(`Submitted background task: ${taskId} - ${command}`);
     this.emit('task:submitted', task);
 
-    // Process immediately if possible
+    // Process immediately if possible,
     this.processQueue();
 
     return taskId;
@@ -165,7 +172,7 @@ export class BackgroundExecutor extends EventEmitter {
       maxTokens?: number;
     }> = {}
   ): Promise<string> {
-    // Build claude command arguments
+    // Build claude command arguments,
     const args = ['-p', prompt];
     
     if (tools.length > 0) {
@@ -191,13 +198,13 @@ export class BackgroundExecutor extends EventEmitter {
   private async processQueue(): Promise<void> {
     if (!this.isRunning) return;
 
-    // Check how many tasks are running
+    // Check how many tasks are running,
     const runningTasks = Array.from(this.tasks.values())
       .filter(t => t.status === 'running').length;
 
     const availableSlots = this.config.maxConcurrentTasks - runningTasks;
 
-    // Process pending tasks
+    // Process pending tasks,
     for (let i = 0; i < availableSlots && this.queue.length > 0; i++) {
       const taskId = this.queue.shift();
       if (!taskId) continue;
@@ -216,39 +223,39 @@ export class BackgroundExecutor extends EventEmitter {
 
       this.logger.info(`Executing task ${task.id}: ${task.command} ${task.args.join(' ')}`);
 
-      // Create log files for task
+      // Create log files for task,
       const logDir = path.join(this.config.logPath, task.id);
       if (this.config.enablePersistence) {
         await fs.mkdir(logDir, { recursive: true });
       }
 
-      // Spawn process
-      const process = spawn(task.command, task.args, {
+      // Spawn process,
+      const childProcess = spawn(task.command, task.args, {
         cwd: task.options?.cwd,
         env: { ...process.env, ...task.options?.env },
         detached: task.options?.detached,
         stdio: ['ignore', 'pipe', 'pipe']
       });
 
-      task.pid = process.pid;
-      this.processes.set(task.id, process);
+      task.pid = childProcess.pid;
+      this.processes.set(task.id, childProcess);
 
-      // Collect output
+      // Collect output,
       let stdout = '';
       let stderr = '';
 
-      process.stdout?.on('data', (data) => {
+      childProcess.stdout?.on('data', (data: Buffer) => {
         stdout += data.toString();
         this.emit('task:output', { taskId: task.id, data: data.toString() });
       });
 
-      process.stderr?.on('data', (data) => {
+      childProcess.stderr?.on('data', (data: Buffer) => {
         stderr += data.toString();
         this.emit('task:error', { taskId: task.id, data: data.toString() });
       });
 
-      // Handle process completion
-      process.on('close', async (code) => {
+      // Handle process completion,
+      childProcess.on('close', async (code: number | null) => {
         task.endTime = new Date();
         task.output = stdout;
         task.error = stderr;
@@ -261,7 +268,7 @@ export class BackgroundExecutor extends EventEmitter {
           task.status = 'failed';
           this.logger.error(`Task ${task.id} failed with code ${code}`);
           
-          // Retry logic
+          // Retry logic,
           if (task.retryCount < (task.options?.retries || 0)) {
             task.retryCount++;
             task.status = 'pending';
@@ -280,19 +287,19 @@ export class BackgroundExecutor extends EventEmitter {
         }
       });
 
-      // Set timeout if specified
+      // Set timeout if specified,
       if (task.options?.timeout) {
         setTimeout(() => {
           if (this.processes.has(task.id)) {
             this.logger.warn(`Task ${task.id} timed out after ${task.options?.timeout}ms`);
-            process.kill('SIGTERM');
+            childProcess.kill('SIGTERM');
           }
         }, task.options.timeout);
       }
 
-      // For detached processes, unref to allow main process to exit
+      // For detached processes, unref to allow main process to exit,
       if (task.options?.detached) {
-        process.unref();
+        childProcess.unref();
       }
 
       this.emit('task:started', task);
@@ -316,7 +323,7 @@ export class BackgroundExecutor extends EventEmitter {
   }
 
   private checkRunningTasks(): void {
-    // Check for hung or timed out tasks
+    // Check for hung or timed out tasks,
     const now = Date.now();
 
     for (const [taskId, task] of this.tasks) {
@@ -331,7 +338,7 @@ export class BackgroundExecutor extends EventEmitter {
           this.logger.warn(`Killing timed out task ${taskId}`);
           process.kill('SIGTERM');
           
-          // Force kill after 5 seconds
+          // Force kill after 5 seconds,
           setTimeout(() => {
             if (this.processes.has(taskId)) {
               process.kill('SIGKILL');
@@ -343,7 +350,7 @@ export class BackgroundExecutor extends EventEmitter {
   }
 
   private cleanupCompletedTasks(): void {
-    const cutoffTime = Date.now() - 3600000; // 1 hour
+    const cutoffTime = Date.now() - 3600000; // 1 hour,
 
     for (const [taskId, task] of this.tasks) {
       if (task.status === 'completed' || task.status === 'failed') {
@@ -380,14 +387,14 @@ export class BackgroundExecutor extends EventEmitter {
         await fs.writeFile(path.join(logDir, 'stderr.log'), task.error);
       }
 
-      // Save final task state
+      // Save final task state,
       await this.saveTaskState(task);
     } catch (error) {
       this.logger.error(`Failed to save task output for ${task.id}:`, error);
     }
   }
 
-  // Public API methods
+  // Public API methods,
   getTask(taskId: string): BackgroundTask | undefined {
     return this.tasks.get(taskId);
   }
@@ -445,7 +452,7 @@ export class BackgroundExecutor extends EventEmitter {
       this.logger.info(`Killing task ${taskId}`);
       process.kill('SIGTERM');
       
-      // Force kill after 5 seconds
+      // Force kill after 5 seconds,
       setTimeout(() => {
         if (this.processes.has(taskId)) {
           process.kill('SIGKILL');

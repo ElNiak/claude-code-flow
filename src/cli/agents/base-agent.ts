@@ -82,7 +82,7 @@ export abstract class BaseAgent extends EventEmitter {
     this.eventBus = eventBus;
     this.memory = memory;
     
-    // Merge with defaults
+    // Merge with defaults,
     this.capabilities = { ...this.getDefaultCapabilities(), ...(config as any).capabilities };
     this.config = { ...this.getDefaultConfig(), ...config };
     this.environment = { ...this.getDefaultEnvironment(), ...environment };
@@ -91,12 +91,12 @@ export abstract class BaseAgent extends EventEmitter {
     this.setupEventHandlers();
   }
 
-  // Abstract methods that specialized agents must implement
+  // Abstract methods that specialized agents must implement,
   protected abstract getDefaultCapabilities(): AgentCapabilities;
   protected abstract getDefaultConfig(): Partial<AgentConfig>;
   public abstract executeTask(task: TaskDefinition): Promise<any>;
 
-  // Common agent lifecycle methods
+  // Common agent lifecycle methods,
   async initialize(): Promise<void> {
     this.logger.info('Initializing agent', {
       agentId: this.id,
@@ -106,13 +106,13 @@ export abstract class BaseAgent extends EventEmitter {
     this.status = 'initializing';
     this.emit('agent:status-changed', { agentId: this.id, status: this.status });
 
-    // Start heartbeat
+    // Start heartbeat,
     this.startHeartbeat();
     
-    // Start metrics collection
+    // Start metrics collection,
     this.startMetricsCollection();
 
-    // Store initial state
+    // Store initial state,
     await this.saveState();
 
     this.status = 'idle';
@@ -135,10 +135,10 @@ export abstract class BaseAgent extends EventEmitter {
     this.status = 'terminating';
     this.emit('agent:status-changed', { agentId: this.id, status: this.status });
 
-    // Wait for current tasks to complete
+    // Wait for current tasks to complete,
     await this.waitForTasksCompletion();
 
-    // Stop intervals
+    // Stop intervals,
     if (this.heartbeatInterval) {
       clearInterval(this.heartbeatInterval);
     }
@@ -146,7 +146,7 @@ export abstract class BaseAgent extends EventEmitter {
       clearInterval(this.metricsInterval);
     }
 
-    // Save final state
+    // Save final state,
     await this.saveState();
 
     this.status = 'terminated';
@@ -186,14 +186,14 @@ export abstract class BaseAgent extends EventEmitter {
       const result = await this.executeTask(task);
       const executionTime = Date.now() - startTime;
 
-      // Update metrics
+      // Update metrics,
       this.updateTaskMetrics(task.id, executionTime, true);
       
-      // Remove from current tasks
+      // Remove from current tasks,
       this.currentTasks = this.currentTasks.filter(id => id !== task.id);
       this.taskHistory.push(task.id);
       
-      // Update status
+      // Update status,
       this.status = this.currentTasks.length > 0 ? 'busy' : 'idle';
       this.workload = this.currentTasks.length / this.capabilities.maxConcurrentTasks;
 
@@ -215,10 +215,10 @@ export abstract class BaseAgent extends EventEmitter {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       
-      // Update metrics
+      // Update metrics,
       this.updateTaskMetrics(task.id, 0, false);
       
-      // Add to error history
+      // Add to error history,
       this.addError({
         timestamp: new Date(),
         type: 'task_execution_failed',
@@ -228,7 +228,7 @@ export abstract class BaseAgent extends EventEmitter {
         resolved: false
       });
 
-      // Remove from current tasks
+      // Remove from current tasks,
       this.currentTasks = this.currentTasks.filter(id => id !== task.id);
       this.status = this.currentTasks.length > 0 ? 'busy' : 'idle';
       this.workload = this.currentTasks.length / this.capabilities.maxConcurrentTasks;
@@ -249,7 +249,7 @@ export abstract class BaseAgent extends EventEmitter {
     }
   }
 
-  // Agent information and status methods
+  // Agent information and status methods,
   getAgentInfo(): AgentState {
     return {
       id: {
@@ -309,7 +309,7 @@ export abstract class BaseAgent extends EventEmitter {
     return this.metrics.lastActivity;
   }
 
-  // Health and metrics methods
+  // Health and metrics methods,
   updateHealth(health: number): void {
     this.health = Math.max(0, Math.min(1, health));
     this.emit('agent:health-changed', { agentId: this.id, health: this.health });
@@ -327,7 +327,7 @@ export abstract class BaseAgent extends EventEmitter {
     this.emit('agent:collaborator-removed', { agentId: this.id, collaborator: agentId });
   }
 
-  // Protected helper methods
+  // Protected helper methods,
   protected getDefaultEnvironment(): Partial<AgentEnvironment> {
     return {
       runtime: 'deno',
@@ -401,22 +401,22 @@ export abstract class BaseAgent extends EventEmitter {
   }
 
   protected async collectMetrics(): Promise<void> {
-    // Update response time based on recent tasks
+    // Update response time based on recent tasks,
     const recentTasksTime = this.getRecentTasksAverageTime();
     this.metrics.responseTime = recentTasksTime;
     
-    // Update activity timestamp
+    // Update activity timestamp,
     if (this.currentTasks.length > 0) {
       this.metrics.lastActivity = new Date();
     }
 
-    // Calculate success rate
+    // Calculate success rate,
     const totalTasks = this.metrics.tasksCompleted + this.metrics.tasksFailed;
     if (totalTasks > 0) {
       this.metrics.successRate = this.metrics.tasksCompleted / totalTasks;
     }
 
-    // Store metrics in memory
+    // Store metrics in memory,
     await this.memory.store(`agent:${this.id}:metrics`, this.metrics, {
       type: 'agent-metrics',
       tags: ['metrics', this.type, this.id],
@@ -428,7 +428,7 @@ export abstract class BaseAgent extends EventEmitter {
     if (success) {
       this.metrics.tasksCompleted++;
       
-      // Update average execution time
+      // Update average execution time,
       const totalTime = this.metrics.averageExecutionTime * (this.metrics.tasksCompleted - 1) + executionTime;
       this.metrics.averageExecutionTime = totalTime / this.metrics.tasksCompleted;
     } else {
@@ -441,7 +441,7 @@ export abstract class BaseAgent extends EventEmitter {
   protected addError(error: AgentError): void {
     this.errorHistory.push(error);
     
-    // Keep only last 50 errors
+    // Keep only last 50 errors,
     if (this.errorHistory.length > 50) {
       this.errorHistory.shift();
     }
@@ -451,7 +451,7 @@ export abstract class BaseAgent extends EventEmitter {
       error
     });
 
-    // Reduce health based on error severity
+    // Reduce health based on error severity,
     const healthImpact = {
       low: 0.01,
       medium: 0.05,
@@ -463,7 +463,7 @@ export abstract class BaseAgent extends EventEmitter {
   }
 
   protected getRecentTasksAverageTime(): number {
-    // Simplified - would normally track individual task times
+    // Simplified - would normally track individual task times,
     return this.metrics.averageExecutionTime;
   }
 

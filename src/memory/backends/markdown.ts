@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../../utils/error-handler.js';
 /**
  * Markdown backend implementation for human-readable memory storage
  */
@@ -28,12 +28,12 @@ export class MarkdownBackend implements IMemoryBackend {
     this.logger.info('Initializing Markdown backend', { baseDir: this.baseDir });
 
     try {
-      // Ensure directories exist
+      // Ensure directories exist,
       await fs.mkdir(this.baseDir, { recursive: true });
       await fs.mkdir(path.join(this.baseDir, 'agents'), { recursive: true });
       await fs.mkdir(path.join(this.baseDir, 'sessions'), { recursive: true });
 
-      // Load index
+      // Load index,
       await this.loadIndex();
 
       this.logger.info('Markdown backend initialized');
@@ -45,20 +45,20 @@ export class MarkdownBackend implements IMemoryBackend {
   async shutdown(): Promise<void> {
     this.logger.info('Shutting down Markdown backend');
 
-    // Save index before shutdown
+    // Save index before shutdown,
     await this.saveIndex();
     this.entries.clear();
   }
 
   async store(entry: MemoryEntry): Promise<void> {
     try {
-      // Store in memory
+      // Store in memory,
       this.entries.set(entry.id, entry);
 
-      // Write to markdown file
+      // Write to markdown file,
       await this.writeEntryToFile(entry);
 
-      // Update index
+      // Update index,
       await this.saveIndex();
     } catch (error) {
       throw new MemoryBackendError('Failed to store entry', { error });
@@ -84,14 +84,14 @@ export class MarkdownBackend implements IMemoryBackend {
     }
 
     try {
-      // Delete from memory
+      // Delete from memory,
       this.entries.delete(id);
 
-      // Delete file
+      // Delete file,
       const filePath = this.getEntryFilePath(entry);
       await fs.unlink(filePath);
 
-      // Update index
+      // Update index,
       await this.saveIndex();
     } catch (error) {
       throw new MemoryBackendError('Failed to delete entry', { error });
@@ -101,7 +101,7 @@ export class MarkdownBackend implements IMemoryBackend {
   async query(query: MemoryQuery): Promise<MemoryEntry[]> {
     let results = Array.from(this.entries.values());
 
-    // Apply filters
+    // Apply filters,
     if (query.agentId) {
       results = results.filter(e => e.agentId === query.agentId);
     }
@@ -143,7 +143,7 @@ export class MarkdownBackend implements IMemoryBackend {
     // Sort by timestamp (newest first)
     results.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
 
-    // Apply pagination
+    // Apply pagination,
     const start = query.offset || 0;
     const limit = query.limit || results.length;
     results = results.slice(start, start + limit);
@@ -161,13 +161,13 @@ export class MarkdownBackend implements IMemoryBackend {
     metrics?: Record<string, number>;
   }> {
     try {
-      // Check if directory is accessible
+      // Check if directory is accessible,
       await fs.stat(this.baseDir);
 
       const entryCount = this.entries.size;
       let totalSizeBytes = 0;
 
-      // Calculate total size
+      // Calculate total size,
       for (const entry of this.entries.values()) {
         const filePath = this.getEntryFilePath(entry);
         try {
@@ -198,16 +198,16 @@ export class MarkdownBackend implements IMemoryBackend {
       const content = await fs.readFile(this.indexPath, 'utf-8');
       const index = JSON.parse(content) as Record<string, MemoryEntry>;
 
-      // Convert and validate entries
+      // Convert and validate entries,
       for (const [id, entry] of Object.entries(index)) {
-        // Reconstruct dates
+        // Reconstruct dates,
         entry.timestamp = new Date(entry.timestamp);
         this.entries.set(id, entry);
       }
 
       this.logger.info('Loaded memory index', { entries: this.entries.size });
     } catch (error) {
-      if (error.code !== 'ENOENT') {
+      if ((error as any).code !== 'ENOENT') {
         this.logger.warn('Failed to load index', { error });
       }
       // Start with empty index if file doesn't exist
@@ -229,13 +229,13 @@ export class MarkdownBackend implements IMemoryBackend {
     const filePath = this.getEntryFilePath(entry);
     const dirPath = path.dirname(filePath);
 
-    // Ensure directory exists
+    // Ensure directory exists,
     await fs.mkdir(dirPath, { recursive: true });
 
-    // Generate markdown content
+    // Generate markdown content,
     const content = this.entryToMarkdown(entry);
 
-    // Write file
+    // Write file,
     await fs.writeFile(filePath, content, 'utf-8');
   }
 

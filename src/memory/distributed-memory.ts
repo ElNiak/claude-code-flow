@@ -1,9 +1,10 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * Distributed memory system with sharing capabilities
  */
 
 import { EventEmitter } from 'node:events';
+import { generateId } from '../utils/helpers.js';
 import type { ILogger } from '../core/logger.js';
 import type { IEventBus } from '../core/event-bus.js';
 import type { 
@@ -16,7 +17,6 @@ import type {
   MemoryPermissions,
   AgentId
 } from '../swarm/types.js';
-import { generateId } from '../utils/helpers.js';
 
 export interface DistributedMemoryConfig {
   namespace: string;
@@ -108,23 +108,23 @@ export class DistributedMemorySystem extends EventEmitter {
   private eventBus: IEventBus;
   private config: DistributedMemoryConfig;
   
-  // Storage
+  // Storage,
   private partitions = new Map<string, MemoryPartition>();
   private entries = new Map<string, MemoryEntry>();
   private cache = new Map<string, { entry: MemoryEntry; expiry: number }>();
   
-  // Distribution
+  // Distribution,
   private nodes = new Map<string, MemoryNode>();
   private localNodeId: string;
   private syncQueue: SyncOperation[] = [];
   private replicationMap = new Map<string, string[]>(); // entryId -> nodeIds
   
-  // Synchronization
+  // Synchronization,
   private syncInterval?: NodeJS.Timeout;
   private vectorClock = new Map<string, number>();
   private conflictResolver?: (local: MemoryEntry, remote: MemoryEntry) => MemoryEntry;
   
-  // Performance tracking
+  // Performance tracking,
   private statistics: MemoryStatistics;
   private operationMetrics = new Map<string, { count: number; totalTime: number }>();
 
@@ -143,7 +143,7 @@ export class DistributedMemorySystem extends EventEmitter {
       consistency: 'eventual',
       replicationFactor: 3,
       syncInterval: 5000,
-      maxMemorySize: 1024 * 1024 * 1024, // 1GB
+      maxMemorySize: 1024 * 1024 * 1024, // 1GB,
       compressionEnabled: true,
       encryptionEnabled: false,
       backupEnabled: true,
@@ -185,7 +185,7 @@ export class DistributedMemorySystem extends EventEmitter {
       distributed: this.config.distributed
     });
 
-    // Register local node
+    // Register local node,
     const localNode: MemoryNode = {
       id: this.localNodeId,
       address: 'localhost',
@@ -199,18 +199,18 @@ export class DistributedMemorySystem extends EventEmitter {
 
     this.nodes.set(this.localNodeId, localNode);
 
-    // Initialize default partitions
+    // Initialize default partitions,
     await this.createPartition('knowledge', 'knowledge');
     await this.createPartition('state', 'state');
     await this.createPartition('cache', 'cache');
     await this.createPartition('results', 'results');
 
-    // Start synchronization if distributed
+    // Start synchronization if distributed,
     if (this.config.distributed) {
       this.startSynchronization();
     }
 
-    // Load persisted data if enabled
+    // Load persisted data if enabled,
     if (this.config.persistenceEnabled) {
       await this.loadPersistedData();
     }
@@ -221,20 +221,20 @@ export class DistributedMemorySystem extends EventEmitter {
   async shutdown(): Promise<void> {
     this.logger.info('Shutting down distributed memory system');
 
-    // Stop synchronization
+    // Stop synchronization,
     if (this.syncInterval) {
       clearInterval(this.syncInterval);
     }
 
-    // Complete pending sync operations
+    // Complete pending sync operations,
     await this.completePendingSyncOperations();
 
-    // Persist data if enabled
+    // Persist data if enabled,
     if (this.config.persistenceEnabled) {
       await this.persistData();
     }
 
-    // Clear caches
+    // Clear caches,
     this.cache.clear();
     this.partitions.clear();
     this.entries.clear();
@@ -266,21 +266,21 @@ export class DistributedMemorySystem extends EventEmitter {
       maxSize: options.maxSize || this.config.maxMemorySize / 10,
       ttl: options.ttl,
       readOnly: options.readOnly || false,
-      shared: options.shared !== false, // Default to shared
+      shared: options.shared !== false, // Default to shared,
       indexed: options.indexed || false,
       compressed: options.compressed || this.config.compressionEnabled
     };
 
     this.partitions.set(partitionId, partition);
 
-    // Update local node partition list
+    // Update local node partition list,
     const localNode = this.nodes.get(this.localNodeId)!;
     localNode.partitions.push(partitionId);
 
     this.logger.info('Created partition', { partitionId, name, type });
     this.emit('memory:partition-created', { partition });
 
-    // Sync with other nodes if distributed
+    // Sync with other nodes if distributed,
     if (this.config.distributed) {
       await this.syncPartitionCreation(partition);
     }
@@ -294,7 +294,7 @@ export class DistributedMemorySystem extends EventEmitter {
       throw new Error(`Partition ${partitionId} not found`);
     }
 
-    // Delete all entries in partition
+    // Delete all entries in partition,
     const entriesToDelete = Array.from(this.entries.values())
       .filter(entry => this.getEntryPartition(entry.id) === partitionId);
 
@@ -302,17 +302,17 @@ export class DistributedMemorySystem extends EventEmitter {
       await this.deleteEntry(entry.id);
     }
 
-    // Remove partition
+    // Remove partition,
     this.partitions.delete(partitionId);
 
-    // Update local node
+    // Update local node,
     const localNode = this.nodes.get(this.localNodeId)!;
     localNode.partitions = localNode.partitions.filter(p => p !== partitionId);
 
     this.logger.info('Deleted partition', { partitionId });
     this.emit('memory:partition-deleted', { partitionId });
 
-    // Sync with other nodes if distributed
+    // Sync with other nodes if distributed,
     if (this.config.distributed) {
       await this.syncPartitionDeletion(partitionId);
     }
@@ -339,7 +339,7 @@ export class DistributedMemorySystem extends EventEmitter {
       const entryId = generateId('entry');
       const now = new Date();
       
-      // Determine partition
+      // Determine partition,
       const partitionId = options.partition || this.selectPartition(options.type || 'knowledge');
       const partition = this.partitions.get(partitionId);
       
@@ -351,12 +351,12 @@ export class DistributedMemorySystem extends EventEmitter {
         throw new Error('Cannot write to read-only partition');
       }
 
-      // Check partition capacity
+      // Check partition capacity,
       if (this.getPartitionSize(partitionId) >= partition.maxSize) {
         await this.evictOldEntries(partitionId);
       }
 
-      // Create entry
+      // Create entry,
       const entry: MemoryEntry = {
         id: entryId,
         key,
@@ -373,20 +373,20 @@ export class DistributedMemorySystem extends EventEmitter {
         dependencies: []
       };
 
-      // Store entry
+      // Store entry,
       this.entries.set(entryId, entry);
       partition.entries.push(entry);
 
-      // Update cache
+      // Update cache,
       this.updateCache(entryId, entry);
 
-      // Update vector clock
+      // Update vector clock,
       this.incrementVectorClock(this.localNodeId);
 
       this.logger.debug('Stored entry', { entryId, key, partition: partitionId });
       this.emit('memory:entry-stored', { entry });
 
-      // Replicate if distributed and requested
+      // Replicate if distributed and requested,
       if (this.config.distributed && options.replicate !== false) {
         await this.replicateEntry(entry);
       }
@@ -411,14 +411,14 @@ export class DistributedMemorySystem extends EventEmitter {
     const startTime = Date.now();
     
     try {
-      // Check cache first
+      // Check cache first,
       const cached = this.getCachedEntry(key);
       if (cached && this.isCacheValid(cached)) {
         this.recordMetric('retrieve-cache', Date.now() - startTime);
         return cached.entry;
       }
 
-      // Search in specified partition or all partitions
+      // Search in specified partition or all partitions,
       const partitions = options.partition 
         ? [this.partitions.get(options.partition)].filter(Boolean)
         : Array.from(this.partitions.values());
@@ -426,18 +426,18 @@ export class DistributedMemorySystem extends EventEmitter {
       for (const partition of partitions) {
         const entry = partition!.entries.find(e => e.key === key);
         if (entry) {
-          // Check if entry is expired
+          // Check if entry is expired,
           if (entry.expiresAt && entry.expiresAt < new Date()) {
             await this.deleteEntry(entry.id);
             continue;
           }
 
-          // Check access permissions
+          // Check access permissions,
           if (!this.checkAccess(entry, 'read')) {
             continue;
           }
 
-          // Apply consistency model
+          // Apply consistency model,
           if (this.config.distributed && options.consistency === 'strong') {
             const latestEntry = await this.ensureConsistency(entry);
             this.updateCache(latestEntry.id, latestEntry);
@@ -451,7 +451,7 @@ export class DistributedMemorySystem extends EventEmitter {
         }
       }
 
-      // Not found locally, try remote nodes if distributed
+      // Not found locally, try remote nodes if distributed,
       if (this.config.distributed) {
         const remoteEntry = await this.retrieveFromRemote(key, options);
         if (remoteEntry) {
@@ -487,17 +487,17 @@ export class DistributedMemorySystem extends EventEmitter {
         return false;
       }
 
-      // Check access permissions
+      // Check access permissions,
       if (!this.checkAccess(entry, 'write')) {
         throw new Error('Access denied for update operation');
       }
 
-      // Version check for optimistic locking
+      // Version check for optimistic locking,
       if (options.version && entry.version !== options.version) {
         throw new Error('Version conflict: entry has been modified');
       }
 
-      // Update entry
+      // Update entry,
       const partition = this.partitions.get(this.getEntryPartition(entry.id))!;
       
       entry.value = options.merge 
@@ -507,16 +507,16 @@ export class DistributedMemorySystem extends EventEmitter {
       entry.updatedAt = new Date();
       entry.version++;
 
-      // Update cache
+      // Update cache,
       this.updateCache(entry.id, entry);
 
-      // Update vector clock
+      // Update vector clock,
       this.incrementVectorClock(this.localNodeId);
 
       this.logger.debug('Updated entry', { entryId: entry.id, key });
       this.emit('memory:entry-updated', { entry });
 
-      // Sync with other nodes if distributed
+      // Sync with other nodes if distributed,
       if (this.config.distributed) {
         await this.syncEntryUpdate(entry);
       }
@@ -540,31 +540,31 @@ export class DistributedMemorySystem extends EventEmitter {
         return false;
       }
 
-      // Check access permissions
+      // Check access permissions,
       if (!this.checkAccess(entry, 'delete')) {
         throw new Error('Access denied for delete operation');
       }
 
-      // Remove from partition
+      // Remove from partition,
       const partitionId = this.getEntryPartition(entryId);
       const partition = this.partitions.get(partitionId);
       if (partition) {
         partition.entries = partition.entries.filter(e => e.id !== entryId);
       }
 
-      // Remove from storage
+      // Remove from storage,
       this.entries.delete(entryId);
 
-      // Remove from cache
+      // Remove from cache,
       this.removeFromCache(entry.key);
 
-      // Update vector clock
+      // Update vector clock,
       this.incrementVectorClock(this.localNodeId);
 
       this.logger.debug('Deleted entry', { entryId, key: entry.key });
       this.emit('memory:entry-deleted', { entryId });
 
-      // Sync with other nodes if distributed
+      // Sync with other nodes if distributed,
       if (this.config.distributed) {
         await this.syncEntryDeletion(entryId);
       }
@@ -586,7 +586,7 @@ export class DistributedMemorySystem extends EventEmitter {
     try {
       let results: MemoryEntry[] = [];
 
-      // Get relevant partitions
+      // Get relevant partitions,
       const partitions = query.partition
         ? [this.partitions.get(query.partition)].filter(Boolean)
         : Array.from(this.partitions.values());
@@ -599,7 +599,7 @@ export class DistributedMemorySystem extends EventEmitter {
         }
       }
 
-      // Apply sorting
+      // Apply sorting,
       if (query.sortBy) {
         results.sort((a, b) => {
           const aVal = this.getNestedProperty(a, query.sortBy!);
@@ -612,7 +612,7 @@ export class DistributedMemorySystem extends EventEmitter {
         });
       }
 
-      // Apply pagination
+      // Apply pagination,
       const offset = query.offset || 0;
       const limit = query.limit || results.length;
       results = results.slice(offset, offset + limit);
@@ -631,7 +631,7 @@ export class DistributedMemorySystem extends EventEmitter {
    */
   async queryByType(type: string, namespace?: string): Promise<MemoryEntry[]> {
     return this.query({
-      filter: { type },
+      type: type as MemoryType,
       namespace
     });
   }
@@ -651,16 +651,16 @@ export class DistributedMemorySystem extends EventEmitter {
 
   private async performSync(): Promise<void> {
     try {
-      // Process pending sync operations
+      // Process pending sync operations,
       await this.processSyncQueue();
 
-      // Send heartbeat to other nodes
+      // Send heartbeat to other nodes,
       await this.sendHeartbeat();
 
-      // Check for conflicts and resolve them
+      // Check for conflicts and resolve them,
       await this.detectAndResolveConflicts();
 
-      // Update statistics
+      // Update statistics,
       this.updateStatistics();
 
     } catch (error) {
@@ -685,7 +685,7 @@ export class DistributedMemorySystem extends EventEmitter {
       }
     }
 
-    // Remove completed/failed operations older than 1 hour
+    // Remove completed/failed operations older than 1 hour,
     const cutoff = new Date(Date.now() - 3600000);
     this.syncQueue = this.syncQueue.filter(op => 
       op.status === 'pending' || op.timestamp > cutoff
@@ -702,7 +702,7 @@ export class DistributedMemorySystem extends EventEmitter {
   }
 
   private async mergeValues(oldValue: any, newValue: any, partition: MemoryPartition): Promise<any> {
-    // Simple merge strategy - can be enhanced
+    // Simple merge strategy - can be enhanced,
     if (typeof oldValue === 'object' && typeof newValue === 'object') {
       return { ...oldValue, ...newValue };
     }
@@ -710,24 +710,24 @@ export class DistributedMemorySystem extends EventEmitter {
   }
 
   private compressValue(value: any): any {
-    // Placeholder for compression logic
+    // Placeholder for compression logic,
     return value;
   }
 
   private checkAccess(entry: MemoryEntry, operation: 'read' | 'write' | 'delete'): boolean {
-    // Simplified access control - can be enhanced
+    // Simplified access control - can be enhanced,
     return true;
   }
 
   private selectPartition(type: string): string {
-    // Simple partition selection based on type
+    // Simple partition selection based on type,
     for (const [id, partition] of this.partitions) {
       if (partition.type === type) {
         return id;
       }
     }
     
-    // Default to first available partition
+    // Default to first available partition,
     return Array.from(this.partitions.keys())[0] || '';
   }
 
@@ -773,7 +773,7 @@ export class DistributedMemorySystem extends EventEmitter {
   }
 
   private evictCache(): void {
-    // Simple LRU eviction - remove oldest entries
+    // Simple LRU eviction - remove oldest entries,
     const entries = Array.from(this.cache.entries());
     entries.sort((a, b) => a[1].expiry - b[1].expiry);
     
@@ -858,7 +858,7 @@ export class DistributedMemorySystem extends EventEmitter {
     this.statistics.partitionCount = this.partitions.size;
     this.statistics.nodeCount = this.nodes.size;
     
-    // Calculate performance metrics
+    // Calculate performance metrics,
     const readMetrics = this.operationMetrics.get('retrieve') || { count: 0, totalTime: 0 };
     const writeMetrics = this.operationMetrics.get('store') || { count: 0, totalTime: 0 };
     
@@ -891,12 +891,12 @@ export class DistributedMemorySystem extends EventEmitter {
   }
 
   private async retrieveFromRemote(key: string, options: any): Promise<MemoryEntry | null> {
-    // Implementation for retrieving from remote nodes
+    // Implementation for retrieving from remote nodes,
     return null;
   }
 
   private async ensureConsistency(entry: MemoryEntry): Promise<MemoryEntry> {
-    // Implementation for ensuring strong consistency
+    // Implementation for ensuring strong consistency,
     return entry;
   }
 
@@ -956,7 +956,7 @@ export class DistributedMemorySystem extends EventEmitter {
   }
 
   async backup(): Promise<string> {
-    // Create backup of all data
+    // Create backup of all data,
     const backup = {
       timestamp: new Date(),
       partitions: Array.from(this.partitions.values()),
@@ -972,20 +972,20 @@ export class DistributedMemorySystem extends EventEmitter {
   }
 
   async restore(backupData: string): Promise<void> {
-    // Restore from backup
+    // Restore from backup,
     const backup = JSON.parse(backupData);
     
-    // Clear current data
+    // Clear current data,
     this.partitions.clear();
     this.entries.clear();
     this.cache.clear();
 
-    // Restore partitions
+    // Restore partitions,
     for (const partition of backup.partitions) {
       this.partitions.set(partition.id, partition);
     }
 
-    // Restore entries
+    // Restore entries,
     for (const entry of backup.entries) {
       this.entries.set(entry.id, entry);
     }

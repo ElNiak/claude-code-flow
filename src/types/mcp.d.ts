@@ -1,5 +1,5 @@
-import { getErrorMessage } from '../utils/error-handler.js';
-// Type definitions for Model Context Protocol SDK
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
+// Type definitions for Model Context Protocol SDK,
 declare module '@modelcontextprotocol/sdk/types.js' {
   export interface Tool {
     name: string;

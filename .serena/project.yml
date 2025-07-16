@@ -1,0 +1,40 @@
+name: claude-code-flow
+language: typescript
+read_only: false
+
+# Web dashboard configuration
+web_dashboard:
+  enabled: false
+
+# GUI log window configuration  
+gui_log_window:
+  enabled: false
+
+# Shell commands configuration
+shell_commands:
+  allow:
+    - "npm"
+    - "node" 
+    - "git"
+    - "ls"
+    - "cat"
+    - "find"
+  deny:
+    - "rm -rf"
+    - "sudo"
+
+# File patterns to ignore
+ignore_patterns:
+  - "node_modules/"
+  - ".git/"
+  - "dist/"
+  - "*.log"
+
+# Project description
+description: "Advanced AI agent coordination platform with intelligent task distribution and persistent memory"
+
+# Log level configuration
+log_level: "INFO"
+
+# Tool timeout configuration (seconds)
+tool_timeout: 30

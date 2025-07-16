@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * Progress Reporter - Provides visual feedback during migration
  */
@@ -94,7 +94,7 @@ export class ProgressReporter {
       clearInterval(this.intervalId);
       this.intervalId = null;
     }
-    // Clear the spinner line
+    // Clear the spinner line,
     process.stdout.write('\r\x1b[K');
   }
 
@@ -105,7 +105,7 @@ export class ProgressReporter {
     
     const message = `${spinner} ${phase} ${progress} ${this.progress.current}`;
     
-    // Clear line and write new message
+    // Clear line and write new message,
     process.stdout.write('\r\x1b[K' + message);
   }
 

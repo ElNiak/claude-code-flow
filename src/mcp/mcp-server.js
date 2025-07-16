@@ -680,15 +680,15 @@ class ClaudeFlowMCPServer {
 
       switch (method) {
         case 'initialize':
-          return this.handleInitialize(id, params);
+          return this.handleInitialize(id, _params);
         case 'tools/list':
           return this.handleToolsList(id);
         case 'tools/call':
-          return this.handleToolCall(id, params);
+          return this.handleToolCall(id, _params);
         case 'resources/list':
           return this.handleResourcesList(id);
         case 'resources/read':
-          return this.handleResourceRead(id, params);
+          return this.handleResourceRead(id, _params);
         default:
           return this.createErrorResponse(id, -32601, 'Method not found');
       }
@@ -697,7 +697,7 @@ class ClaudeFlowMCPServer {
     }
   }
 
-  handleInitialize(id, params) {
+  handleInitialize(id, _params) {
     console.error(`[${new Date().toISOString()}] INFO [claude-flow-mcp] (${this.sessionId}) 🔌 Connection established: ${this.sessionId}`);
     
     return {
@@ -725,13 +725,13 @@ class ClaudeFlowMCPServer {
     };
   }
 
-  async handleToolCall(id, params) {
+  async handleToolCall(id, _params) {
     const { name, arguments: args } = params;
     
     console.error(`[${new Date().toISOString()}] INFO [claude-flow-mcp] (${this.sessionId}) 🔧 Tool called: ${name}`);
     
     try {
-      const result = await this.executeTool(name, args);
+      const result = await this.executeTool(name, _args);
       return {
         jsonrpc: '2.0',
         id,
@@ -760,7 +760,7 @@ class ClaudeFlowMCPServer {
     };
   }
 
-  async handleResourceRead(id, params) {
+  async handleResourceRead(id, _params) {
     const { uri } = params;
     
     try {
@@ -783,7 +783,7 @@ class ClaudeFlowMCPServer {
     }
   }
 
-  async executeTool(name, args) {
+  async executeTool(name, _args) {
     // Simulate tool execution based on the tool name
     switch (name) {
       case 'swarm_init':

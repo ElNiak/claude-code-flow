@@ -2,7 +2,7 @@
  * Agent System Index - Central exports and agent factory
  */
 
-// Agent Classes
+// Agent Classes,
 export { BaseAgent } from './base-agent.js';
 export { ResearcherAgent, createResearcherAgent } from './researcher.js';
 export { CoderAgent, createCoderAgent } from './coder.js';
@@ -11,12 +11,12 @@ export { ArchitectAgent, createArchitectAgent } from './architect.js';
 export { TesterAgent, createTesterAgent } from './tester.js';
 export { CoordinatorAgent, createCoordinatorAgent } from './coordinator.js';
 
-// Systems
+// Systems,
 export { AgentCapabilitySystem } from './capabilities.js';
 export { AgentManager } from '../../agents/agent-manager.js';
 export { AgentRegistry } from '../../agents/agent-registry.js';
 
-// Types
+// Types,
 export type { AgentState } from './base-agent.js';
 export type {
   CapabilityMatch,
@@ -24,7 +24,7 @@ export type {
   CapabilityRegistry
 } from './capabilities.js';
 
-// Agent Factory
+// Agent Factory,
 import type { AgentType, AgentConfig, AgentEnvironment } from '../../swarm/types.js';
 import type { ILogger } from '../../core/logger.js';
 import type { IEventBus } from '../../core/event-bus.js';
@@ -36,7 +36,7 @@ import { createAnalystAgent } from './analyst.js';
 import { createArchitectAgent } from './architect.js';
 import { createTesterAgent } from './tester.js';
 import { createCoordinatorAgent } from './coordinator.js';
-import { generateId } from '../../utils/helpers.js';
+import { generateId as _generateId } from '../../utils/helpers.js';
 
 export interface AgentFactoryConfig {
   logger: ILogger;
@@ -175,10 +175,10 @@ export class AgentFactory {
       specs.push({ type: type as AgentType, count });
     }
 
-    // Adjust if we have too many agents
+    // Adjust if we have too many agents,
     const totalCount = specs.reduce((sum, spec) => sum + spec.count, 0);
     if (totalCount > size) {
-      // Remove from largest groups first
+      // Remove from largest groups first,
       specs.sort((a, b) => b.count - a.count);
       let excess = totalCount - size;
       for (const spec of specs) {
@@ -348,10 +348,10 @@ export class AgentLifecycle {
     for (const agent of this.agents.values()) {
       const info = agent.getAgentInfo();
       
-      // Count by type
+      // Count by type,
       stats.byType[info.type] = (stats.byType[info.type] || 0) + 1;
       
-      // Count by status
+      // Count by status,
       stats.byStatus[info.status] = (stats.byStatus[info.status] || 0) + 1;
       
       // Count healthy agents (health > 0.7)
@@ -359,7 +359,7 @@ export class AgentLifecycle {
         stats.healthy++;
       }
       
-      // Count active agents
+      // Count active agents,
       if (info.status === 'idle' || info.status === 'busy') {
         stats.active++;
       }

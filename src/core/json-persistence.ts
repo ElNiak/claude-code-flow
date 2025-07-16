@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * JSON-based persistence layer for Claude-Flow
  */
@@ -53,17 +53,17 @@ export class JsonPersistenceManager {
   }
 
   async initialize(): Promise<void> {
-    // Ensure directory exists
+    // Ensure directory exists,
     await mkdir(join(this.dataPath, ".."), { recursive: true });
     
-    // Load existing data if available
+    // Load existing data if available,
     try {
       await access(this.dataPath);
       const content = await readFile(this.dataPath, "utf-8");
       this.data = JSON.parse(content);
     } catch (error) {
-      // File doesn't exist or can't be read, keep default empty data
-      console.error("Failed to load persistence data:", error);
+      // File doesn't exist or can't be read, keep default empty data,
+      console.error("Failed to load persistence data:", (error as Error).message);
     }
   }
 
@@ -72,9 +72,9 @@ export class JsonPersistenceManager {
     await writeFile(this.dataPath, JSON.stringify(this.data, null, 2));
   }
 
-  // Agent operations
+  // Agent operations,
   async saveAgent(agent: PersistedAgent): Promise<void> {
-    // Remove existing agent if updating
+    // Remove existing agent if updating,
     this.data.agents = this.data.agents.filter(a => a.id !== agent.id);
     this.data.agents.push(agent);
     await this.save();
@@ -100,9 +100,9 @@ export class JsonPersistenceManager {
     }
   }
 
-  // Task operations
+  // Task operations,
   async saveTask(task: PersistedTask): Promise<void> {
-    // Remove existing task if updating
+    // Remove existing task if updating,
     this.data.tasks = this.data.tasks.filter(t => t.id !== task.id);
     this.data.tasks.push(task);
     await this.save();
@@ -146,7 +146,7 @@ export class JsonPersistenceManager {
     }
   }
 
-  // Statistics
+  // Statistics,
   async getStats(): Promise<{
     totalAgents: number;
     activeAgents: number;

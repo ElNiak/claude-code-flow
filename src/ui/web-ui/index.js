@@ -58,7 +58,7 @@ export async function initializeEnhancedUI(options = {}) {
     }
     
   } catch (error) {
-    console.warn('Enhanced UI initialization failed, using fallback:', error);
+    console.warn('Enhanced UI initialization failed, using fallback:', _error);
     
     // Always provide fallback
     const { EnhancedProcessUI } = await import('./EnhancedProcessUI.js');
@@ -213,7 +213,7 @@ if (typeof window !== 'undefined') {
         window.claudeFlowEnhanced = enhancedUI;
         console.log('✅ Enhanced UI auto-initialization complete');
       } catch (error) {
-        console.warn('Enhanced UI auto-initialization failed:', error);
+        console.warn('Enhanced UI auto-initialization failed:', _error);
       }
     }
   });

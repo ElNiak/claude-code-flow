@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * Work stealing algorithm for load balancing between agents
  */
@@ -9,8 +9,8 @@ import type { ILogger } from '../core/logger.js';
 
 export interface WorkStealingConfig {
   enabled: boolean;
-  stealThreshold: number; // Min difference in task count to trigger stealing
-  maxStealBatch: number; // Max tasks to steal at once
+  stealThreshold: number; // Min difference in task count to trigger stealing,
+  maxStealBatch: number; // Max tasks to steal at once,
   stealInterval: number; // How often to check for steal opportunities (ms)
 }
 
@@ -30,7 +30,7 @@ export interface AgentWorkload {
 export class WorkStealingCoordinator {
   private workloads = new Map<string, AgentWorkload>();
   private stealInterval?: ReturnType<typeof setInterval>;
-  private taskDurations = new Map<string, number[]>(); // agentId -> task durations
+  private taskDurations = new Map<string, number[]>(); // agentId -> task durations,
 
   constructor(
     private config: WorkStealingConfig,
@@ -46,7 +46,7 @@ export class WorkStealingCoordinator {
 
     this.logger.info('Initializing work stealing coordinator');
     
-    // Start periodic steal checks
+    // Start periodic steal checks,
     this.stealInterval = setInterval(
       () => this.checkAndSteal(),
       this.config.stealInterval,
@@ -84,12 +84,12 @@ export class WorkStealingCoordinator {
     const durations = this.taskDurations.get(agentId)!;
     durations.push(duration);
 
-    // Keep only last 100 durations
+    // Keep only last 100 durations,
     if (durations.length > 100) {
       durations.shift();
     }
 
-    // Update average duration
+    // Update average duration,
     const avg = durations.reduce((sum, d) => sum + d, 0) / durations.length;
     this.updateAgentWorkload(agentId, { avgTaskDuration: avg });
   }
@@ -106,13 +106,13 @@ export class WorkStealingCoordinator {
     const minLoaded = workloads[0];
     const maxLoaded = workloads[workloads.length - 1];
 
-    // Check if stealing is warranted
+    // Check if stealing is warranted,
     const difference = maxLoaded.taskCount - minLoaded.taskCount;
     if (difference < this.config.stealThreshold) {
       return; // Not enough imbalance
     }
 
-    // Calculate how many tasks to steal
+    // Calculate how many tasks to steal,
     const tasksToSteal = Math.min(
       Math.floor(difference / 2),
       this.config.maxStealBatch,
@@ -125,7 +125,7 @@ export class WorkStealingCoordinator {
       difference,
     });
 
-    // Emit steal request event
+    // Emit steal request event,
     this.eventBus.emit('workstealing:request', {
       sourceAgent: maxLoaded.agentId,
       targetAgent: minLoaded.agentId,
@@ -148,7 +148,7 @@ export class WorkStealingCoordinator {
         continue;
       }
 
-      // Calculate score based on multiple factors
+      // Calculate score based on multiple factors,
       let score = 100;
 
       // Factor 1: Task count (lower is better)
@@ -163,7 +163,7 @@ export class WorkStealingCoordinator {
       // Factor 4: Agent priority (higher is better)
       score += agent.priority * 5;
 
-      // Factor 5: Capability match
+      // Factor 5: Capability match,
       const taskType = task.type;
       if (agent.capabilities.includes(taskType)) {
         score += 20; // Bonus for capability match
@@ -171,7 +171,7 @@ export class WorkStealingCoordinator {
 
       // Factor 6: Average task duration (predictive load)
       const predictedLoad = workload.avgTaskDuration * workload.taskCount;
-      score -= predictedLoad / 1000; // Convert to seconds
+      score -= predictedLoad / 1000; // Convert to seconds,
 
       candidates.push({ agentId: agent.id, score });
     }
@@ -180,7 +180,7 @@ export class WorkStealingCoordinator {
       return null;
     }
 
-    // Sort by score (descending) and return best
+    // Sort by score (descending) and return best,
     candidates.sort((a, b) => b.score - a.score);
     
     this.logger.debug('Agent selection scores', {

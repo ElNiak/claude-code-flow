@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * Node.js Interactive REPL for Claude-Flow
  * Compatible implementation using Node.js readline and inquirer
@@ -12,6 +12,10 @@ import chalk from 'chalk';
 import colors from 'chalk';
 import Table from 'cli-table3';
 import inquirer from 'inquirer';
+import { generateId as _generateId } from '../utils/helpers.js';
+
+// Add missing variables and functions
+const generateId = _generateId;
 
 interface REPLCommand {
   name: string;
@@ -173,8 +177,8 @@ export async function startNodeREPL(options: any = {}): Promise<void> {
         'memory query --agent agent-001',
         'memory export memory.json'
       ],
-      handler: async (args, ctx) => {
-        await handleMemoryCommand(args, ctx);
+      handler: async (_args, _ctx) => {
+        await handleMemoryCommand(_args, _ctx);
       },
     },
     {
@@ -186,8 +190,8 @@ export async function startNodeREPL(options: any = {}): Promise<void> {
         'session save "Development Session"',
         'session restore session-001'
       ],
-      handler: async (args, ctx) => {
-        await handleSessionCommand(args, ctx);
+      handler: async (_args, _ctx) => {
+        await handleSessionCommand(_args, _ctx);
       },
     },
     {
@@ -199,8 +203,8 @@ export async function startNodeREPL(options: any = {}): Promise<void> {
         'workflow run workflow.json',
         'workflow status workflow-001'
       ],
-      handler: async (args, ctx) => {
-        await handleWorkflowCommand(args, ctx);
+      handler: async (_args, _ctx) => {
+        await handleWorkflowCommand(_args, _ctx);
       },
     },
     {
@@ -232,7 +236,7 @@ export async function startNodeREPL(options: any = {}): Promise<void> {
           return;
         }
         
-        const recent = historyItems.slice(-20); // Show last 20
+        const recent = historyItems.slice(-20); // Show last 20,
         recent.forEach((cmd, i) => {
           const lineNumber = historyItems.length - recent.length + i + 1;
           console.log(`${chalk.gray(lineNumber.toString().padStart(3))} ${cmd}`);
@@ -252,17 +256,17 @@ export async function startNodeREPL(options: any = {}): Promise<void> {
       description: 'Change working directory',
       usage: 'cd <directory>',
       examples: ['cd /path/to/project', 'cd ..'],
-      handler: async (args, ctx) => {
-        if (args.length === 0) {
-          console.log(ctx.workingDirectory);
+      handler: async (_args, _ctx) => {
+        if (_args.length === 0) {
+          console.log(_ctx.workingDirectory);
           return;
         }
         
         try {
-          const newDir = args[0] === '~' ? process.env.HOME || '/' : args[0];
+          const newDir = _args[0] === '~' ? process.env.HOME || '/' : _args[0];
           process.chdir(newDir);
-          ctx.workingDirectory = process.cwd();
-          console.log(chalk.gray(`Changed to: ${ctx.workingDirectory}`));
+          _ctx.workingDirectory = process.cwd();
+          console.log(chalk.gray(`Changed to: ${_ctx.workingDirectory}`));
         } catch (error) {
           console.error(chalk.red('Error:'), error instanceof Error ? error.message : String(error));
         }
@@ -271,8 +275,8 @@ export async function startNodeREPL(options: any = {}): Promise<void> {
     {
       name: 'pwd',
       description: 'Print working directory',
-      handler: async (_, ctx) => {
-        console.log(ctx.workingDirectory);
+      handler: async (_, _ctx) => {
+        console.log(_ctx.workingDirectory);
       },
     },
     {
@@ -288,16 +292,16 @@ export async function startNodeREPL(options: any = {}): Promise<void> {
       name: 'exit',
       aliases: ['quit', 'q'],
       description: 'Exit the REPL',
-      handler: async (_, ctx) => {
+      handler: async (_, _ctx) => {
         console.log(chalk.gray('Goodbye!'));
-        ctx.rl.close();
+        _ctx.rl.close();
         process.exit(0);
       },
     },
   ];
 
   
-  // Show initial status
+  // Show initial status,
   if (options.banner !== false) {
     displayBanner();
   }
@@ -305,22 +309,22 @@ export async function startNodeREPL(options: any = {}): Promise<void> {
   await showSystemStatus(context);
   console.log(chalk.gray('Type "help" for available commands or "exit" to quit.\n'));
 
-  // Main REPL loop
+  // Main REPL loop,
   const processCommand = async (input: string) => {
     if (!input.trim()) {
       return;
     }
 
-    // Add to history
+    // Add to history,
     history.add(input);
     context.history.push(input);
     context.lastActivity = new Date();
 
-    // Parse command
+    // Parse command,
     const args = parseCommand(input);
     const [commandName, ...commandArgs] = args;
     
-    // Find and execute command
+    // Find and execute command,
     const command = commands.find(c => 
       c.name === commandName || 
       (c.aliases && c.aliases.includes(commandName))
@@ -336,7 +340,7 @@ export async function startNodeREPL(options: any = {}): Promise<void> {
       console.log(chalk.red(`Unknown command: ${commandName}`));
       console.log(chalk.gray('Type "help" for available commands'));
       
-      // Suggest similar commands
+      // Suggest similar commands,
       const suggestions = findSimilarCommands(commandName, commands);
       if (suggestions.length > 0) {
         console.log(chalk.gray('Did you mean:'), suggestions.map(s => chalk.cyan(s)).join(', '));
@@ -344,7 +348,7 @@ export async function startNodeREPL(options: any = {}): Promise<void> {
     }
   };
 
-  // Set up readline prompt
+  // Set up readline prompt,
   const showPrompt = () => {
     const prompt = createPrompt(context);
     rl.setPrompt(prompt);
@@ -370,7 +374,7 @@ export async function startNodeREPL(options: any = {}): Promise<void> {
     showPrompt();
   });
 
-  // Start the REPL
+  // Start the REPL,
   showPrompt();
 }
 
@@ -401,7 +405,7 @@ function getConnectionStatusIcon(status: string): string {
 }
 
 function parseCommand(input: string): string[] {
-  // Simple command parsing - handle quoted strings
+  // Simple command parsing - handle quoted strings,
   const args: string[] = [];
   let current = '';
   let inQuotes = false;
@@ -530,10 +534,10 @@ async function connectToOrchestrator(context: REPLContext, target?: string): Pro
   console.log(chalk.yellow(`Connecting to ${host}...`));
   context.connectionStatus = 'connecting';
   
-  // Mock connection attempt
+  // Mock connection attempt,
   await new Promise(resolve => setTimeout(resolve, 1000));
   
-  // Check if orchestrator is actually running by trying to execute status command
+  // Check if orchestrator is actually running by trying to execute status command,
   try {
     const result = await executeCliCommand(['status']);
     if (result.success) {
@@ -559,20 +563,20 @@ async function executeCliCommand(args: string[]): Promise<{ success: boolean; ou
     });
 
     let output = '';
-    let error = '';
+    let errorOutput = '';
 
     child.stdout?.on('data', (data) => {
       output += data.toString();
     });
 
     child.stderr?.on('data', (data) => {
-      error += data.toString();
+      errorOutput += data.toString();
     });
 
     child.on('close', (code) => {
       resolve({
         success: code === 0,
-        output: output || error,
+        output: output || errorOutput,
       });
     });
 
@@ -687,7 +691,7 @@ function findSimilarCommands(input: string, commands: REPLCommand[]): string[] {
   
   return allNames
     .filter(name => {
-      // Simple similarity check - could use Levenshtein distance
+      // Simple similarity check - could use Levenshtein distance,
       const commonChars = input.split('').filter(char => name.includes(char)).length;
       return commonChars >= Math.min(2, input.length / 2);
     })

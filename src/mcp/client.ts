@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * MCP Client for Model Context Protocol
  */
@@ -12,28 +12,42 @@ import { RecoveryManager, RecoveryConfig } from './recovery/index.js';
 export interface MCPClientConfig {
   transport: ITransport;
   timeout?: number;
+  toolTimeouts?: Record<string, number>;
   enableRecovery?: boolean;
   recoveryConfig?: RecoveryConfig;
   mcpConfig?: MCPConfig;
+  resourceCleanup?: {
+    enabled: boolean;
+    timeoutCleanup: boolean;
+    releaseOnTimeout: boolean;
+  };
 }
 
 export class MCPClient extends EventEmitter {
   private transport: ITransport;
   private timeout: number;
+  private toolTimeouts: Record<string, number>;
   private connected = false;
   private recoveryManager?: RecoveryManager;
   private pendingRequests = new Map<string, { resolve: Function; reject: Function; timer: NodeJS.Timeout }>();
+  private resourceCleanup: { enabled: boolean; timeoutCleanup: boolean; releaseOnTimeout: boolean };
 
   constructor(config: MCPClientConfig) {
     super();
     this.transport = config.transport;
     this.timeout = config.timeout || 30000;
+    this.toolTimeouts = config.toolTimeouts || {};
+    this.resourceCleanup = config.resourceCleanup || {
+      enabled: true,
+      timeoutCleanup: true,
+      releaseOnTimeout: true,
+    };
 
-    // Initialize recovery manager if enabled
+    // Initialize recovery manager if enabled,
     if (config.enableRecovery) {
       this.recoveryManager = new RecoveryManager(
         this,
-        config.mcpConfig || {},
+        config.mcpConfig || { transport: 'stdio', port: 3000, tlsEnabled: false },
         logger,
         config.recoveryConfig
       );
@@ -47,7 +61,7 @@ export class MCPClient extends EventEmitter {
       this.connected = true;
       logger.info('MCP Client connected');
       
-      // Start recovery manager if enabled
+      // Start recovery manager if enabled,
       if (this.recoveryManager) {
         await this.recoveryManager.start();
       }
@@ -57,7 +71,7 @@ export class MCPClient extends EventEmitter {
       logger.error('Failed to connect MCP client', error);
       this.connected = false;
       
-      // Trigger recovery if enabled
+      // Trigger recovery if enabled,
       if (this.recoveryManager) {
         await this.recoveryManager.forceRecovery();
       }
@@ -68,7 +82,7 @@ export class MCPClient extends EventEmitter {
 
   async disconnect(): Promise<void> {
     if (this.connected) {
-      // Stop recovery manager first
+      // Stop recovery manager first,
       if (this.recoveryManager) {
         await this.recoveryManager.stop();
       }
@@ -89,7 +103,7 @@ export class MCPClient extends EventEmitter {
       id: Math.random().toString(36).slice(2),
     };
 
-    // If recovery manager is enabled, let it handle the request
+    // If recovery manager is enabled, let it handle the request,
     if (this.recoveryManager && !this.connected) {
       await this.recoveryManager.handleRequest(request);
     }
@@ -98,37 +112,46 @@ export class MCPClient extends EventEmitter {
       throw new Error('Client not connected');
     }
 
-    // Create promise for tracking the request
+    // Determine timeout for this specific tool or use default
+    const toolTimeout = this.getToolTimeout(method);
+    
+    // Create promise for tracking the request,
     const requestPromise = new Promise((resolve, reject) => {
       const timer = setTimeout(() => {
-        this.pendingRequests.delete(request.id!);
-        reject(new Error(`Request timeout: ${method}`));
-      }, this.timeout);
+        this.pendingRequests.delete(String(request.id!));
+        
+        // Trigger resource cleanup on timeout if enabled
+        if (this.resourceCleanup.enabled && this.resourceCleanup.timeoutCleanup) {
+          this.handleTimeoutCleanup(method, params);
+        }
+        
+        reject(new Error(`Request timeout: ${method} (${toolTimeout}ms)`));
+      }, toolTimeout);
 
-      this.pendingRequests.set(request.id!, { resolve, reject, timer });
+      this.pendingRequests.set(String(request.id!), { resolve, reject, timer });
     });
 
     try {
       const response = await this.transport.sendRequest(request);
       
-      // Clear pending request
-      const pending = this.pendingRequests.get(request.id!);
+      // Clear pending request,
+      const pending = this.pendingRequests.get(String(request.id!));
       if (pending) {
         clearTimeout(pending.timer);
-        this.pendingRequests.delete(request.id!);
+        this.pendingRequests.delete(String(request.id!));
       }
       
       if ('error' in response) {
-        throw new Error(response.error);
+        throw new Error(String(response.error));
       }
 
       return response.result;
     } catch (error) {
-      // Clear pending request on error
-      const pending = this.pendingRequests.get(request.id!);
+      // Clear pending request on error,
+      const pending = this.pendingRequests.get(String(request.id!));
       if (pending) {
         clearTimeout(pending.timer);
-        this.pendingRequests.delete(request.id!);
+        this.pendingRequests.delete(String(request.id!));
       }
       
       throw error;
@@ -136,9 +159,9 @@ export class MCPClient extends EventEmitter {
   }
 
   async notify(method: string, params?: unknown): Promise<void> {
-    // Special handling for heartbeat notifications
+    // Special handling for heartbeat notifications,
     if (method === 'heartbeat') {
-      // Always allow heartbeat notifications for recovery
+      // Always allow heartbeat notifications for recovery,
       const notification: MCPNotification = {
         jsonrpc: '2.0' as const,
         method,
@@ -194,7 +217,7 @@ export class MCPClient extends EventEmitter {
       return;
     }
 
-    // Handle recovery events
+    // Handle recovery events,
     this.recoveryManager.on('recoveryStart', ({ trigger }) => {
       logger.info('Recovery started', { trigger });
       this.emit('recoveryStart', { trigger });
@@ -222,22 +245,68 @@ export class MCPClient extends EventEmitter {
   }
 
   /**
+   * Get timeout for a specific tool
+   */
+  private getToolTimeout(method: string): number {
+    // Check for exact match first
+    if (this.toolTimeouts[method]) {
+      return this.toolTimeouts[method];
+    }
+    
+    // Check for pattern matches (e.g., "mcp__serena__*" -> 30000)
+    for (const [pattern, timeout] of Object.entries(this.toolTimeouts)) {
+      if (pattern.includes('*')) {
+        const regex = new RegExp(pattern.replace('*', '.*'));
+        if (regex.test(method)) {
+          return timeout;
+        }
+      }
+    }
+    
+    // Return default timeout
+    return this.timeout;
+  }
+
+  /**
+   * Handle timeout cleanup for tools
+   */
+  private handleTimeoutCleanup(method: string, params: unknown): void {
+    if (!this.resourceCleanup.releaseOnTimeout) {
+      return;
+    }
+
+    // Emit timeout event for coordination manager to handle
+    this.emit('toolTimeout', {
+      method,
+      params,
+      timestamp: new Date().toISOString(),
+      timeout: this.getToolTimeout(method),
+    });
+
+    logger.warn('MCP tool timeout detected, triggering resource cleanup', {
+      method,
+      timeout: this.getToolTimeout(method),
+      resourceCleanup: this.resourceCleanup,
+    });
+  }
+
+  /**
    * Cleanup resources
    */
   async cleanup(): Promise<void> {
-    // Clear all pending requests
-    for (const [id, pending] of this.pendingRequests) {
+    // Clear all pending requests,
+    for (const [id, pending] of Array.from(this.pendingRequests.entries())) {
       clearTimeout(pending.timer);
       pending.reject(new Error('Client cleanup'));
     }
     this.pendingRequests.clear();
 
-    // Cleanup recovery manager
+    // Cleanup recovery manager,
     if (this.recoveryManager) {
       await this.recoveryManager.cleanup();
     }
 
-    // Disconnect if connected
+    // Disconnect if connected,
     await this.disconnect();
   }
 }

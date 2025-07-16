@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../../../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../../../utils/error-handler.js';
 /**
  * System Monitor - Real-time monitoring of system processes
  */
@@ -20,7 +20,7 @@ export class SystemMonitor {
   }
 
   private setupEventListeners(): void {
-    // System events
+    // System events,
     eventBus.on(SystemEvents.AGENT_SPAWNED, (data: any) => {
       this.addEvent({
         type: 'agent_spawned',
@@ -75,7 +75,7 @@ export class SystemMonitor {
       });
     });
 
-    // Process manager events
+    // Process manager events,
     this.processManager.on('processStarted', ({ processId, process }) => {
       this.addEvent({
         type: 'process_started',
@@ -112,7 +112,7 @@ export class SystemMonitor {
   }
 
   start(): void {
-    // Start collecting metrics
+    // Start collecting metrics,
     this.metricsInterval = setInterval(() => {
       this.collectMetrics();
     }, 5000);
@@ -125,7 +125,7 @@ export class SystemMonitor {
   }
 
   private collectMetrics(): void {
-    // Collect system metrics
+    // Collect system metrics,
     const processes = this.processManager.getAllProcesses();
     
     for (const process of processes) {
@@ -227,7 +227,7 @@ export class SystemMonitor {
     console.log(chalk.cyan.bold('🏥 System Health'));
     console.log(chalk.gray('─'.repeat(60)));
     
-    // Overall status
+    // Overall status,
     const healthStatus = stats.errorProcesses === 0 ? 
       chalk.green('● Healthy') : 
       chalk.red(`● Unhealthy (${stats.errorProcesses} errors)`);
@@ -236,7 +236,7 @@ export class SystemMonitor {
     console.log('Uptime:', this.formatUptime(stats.systemUptime));
     console.log();
     
-    // Process status
+    // Process status,
     console.log(chalk.white.bold('Process Status:'));
     for (const process of processes) {
       const status = this.getProcessStatusIcon(process.status);
@@ -254,12 +254,12 @@ export class SystemMonitor {
     
     console.log();
     
-    // System metrics
+    // System metrics,
     console.log(chalk.white.bold('System Metrics:'));
     console.log(`  Active Processes: ${stats.runningProcesses}/${stats.totalProcesses}`);
     console.log(`  Recent Events: ${this.events.length}`);
     
-    // Recent errors
+    // Recent errors,
     const recentErrors = this.events
       .filter(e => e.level === 'error')
       .slice(0, 3);

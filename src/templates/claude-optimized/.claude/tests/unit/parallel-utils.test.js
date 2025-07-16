@@ -84,7 +84,7 @@ describe('Parallel Utilities Unit Tests', () => {
       const items = ['valid', 'error', 'valid'];
       const operation = async (item) => {
         if (item === 'error') {
-          const error = new Error('Detailed error message');
+          const _error = new Error('Detailed error message');
           error.code = 'TEST_ERROR';
           error.details = { item, timestamp: Date.now() };
           throw error;

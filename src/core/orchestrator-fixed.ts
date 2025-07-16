@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * Fixed orchestrator implementation for Claude-Flow
  */
@@ -69,13 +69,13 @@ export class Orchestrator {
 
     this.logger.info('Starting orchestrator...');
     
-    // Initialize persistence
+    // Initialize persistence,
     await this.persistence.initialize();
     
-    // Load existing agents and tasks from database
+    // Load existing agents and tasks from database,
     await this.loadFromPersistence();
     
-    // Initialize components
+    // Initialize components,
     this.eventBus.emit('system:ready', { timestamp: new Date() });
     
     this.started = true;
@@ -83,7 +83,7 @@ export class Orchestrator {
   }
 
   private async loadFromPersistence(): Promise<void> {
-    // Load agents
+    // Load agents,
     const persistedAgents = await this.persistence.getActiveAgents();
     for (const agent of persistedAgents) {
       this.agents.set(agent.id, {
@@ -96,7 +96,7 @@ export class Orchestrator {
       });
     }
     
-    // Load tasks
+    // Load tasks,
     const persistedTasks = await this.persistence.getActiveTasks();
     for (const task of persistedTasks) {
       this.tasks.set(task.id, {
@@ -120,13 +120,13 @@ export class Orchestrator {
 
     this.logger.info('Stopping orchestrator...');
     
-    // Clean up resources
+    // Clean up resources,
     this.agents.clear();
     this.tasks.clear();
     this.sessions.clear();
     this.workflows.clear();
     
-    // Close persistence
+    // Close persistence,
     this.persistence.close();
     
     this.started = false;
@@ -152,7 +152,7 @@ export class Orchestrator {
       createdAt: Date.now(),
     };
     
-    // Save to persistence
+    // Save to persistence,
     await this.persistence.saveAgent({
       id: agentId,
       type: profile.type,
@@ -177,7 +177,7 @@ export class Orchestrator {
       throw new Error(`Agent ${agentId} not found`);
     }
     
-    // Update persistence
+    // Update persistence,
     await this.persistence.updateAgentStatus(agentId, 'terminated');
     
     this.agents.delete(agentId);
@@ -209,7 +209,7 @@ export class Orchestrator {
       progress: 0,
     };
     
-    // Save to persistence
+    // Save to persistence,
     await this.persistence.saveTask({
       id: taskId,
       type: task.type,
@@ -225,7 +225,7 @@ export class Orchestrator {
     this.tasks.set(taskId, taskInfo);
     this.eventBus.emit('task:created', { taskId, task });
     
-    // Simulate task assignment
+    // Simulate task assignment,
     const availableAgents = Array.from(this.agents.values()).filter(a => a.status === 'active');
     if (availableAgents.length > 0) {
       const agent = availableAgents[0];
@@ -234,7 +234,7 @@ export class Orchestrator {
       agent.assignedTasks.push(taskId);
       this.eventBus.emit('task:assigned', { taskId, agentId: agent.id });
       
-      // Update persistence with assignment
+      // Update persistence with assignment,
       await this.persistence.updateTaskStatus(taskId, 'assigned', agent.id);
     }
     
@@ -284,7 +284,7 @@ export class Orchestrator {
     this.workflows.set(workflowId, status);
     this.eventBus.emit('workflow:started', { workflowId, workflow });
     
-    // Simulate workflow execution
+    // Simulate workflow execution,
     setTimeout(() => {
       status.status = 'completed';
       status.progress = 100;

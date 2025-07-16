@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * MCP Integration with Claude-Flow Orchestration System
  * Provides seamless integration between MCP servers and the broader orchestration components
@@ -78,9 +78,9 @@ export class MCPOrchestrationIntegration extends EventEmitter {
       terminals: true,
     },
     autoStart: true,
-    healthCheckInterval: 30000, // 30 seconds
+    healthCheckInterval: 30000, // 30 seconds,
     reconnectAttempts: 3,
-    reconnectDelay: 5000, // 5 seconds
+    reconnectDelay: 5000, // 5 seconds,
     enableMetrics: true,
     enableAlerts: true,
   };
@@ -104,16 +104,16 @@ export class MCPOrchestrationIntegration extends EventEmitter {
     this.logger.info('Starting MCP orchestration integration');
 
     try {
-      // Initialize protocol manager
+      // Initialize protocol manager,
       this.protocolManager = new MCPProtocolManager(this.logger);
 
-      // Initialize performance monitor
+      // Initialize performance monitor,
       if (this.orchestrationConfig.enableMetrics) {
         this.performanceMonitor = new MCPPerformanceMonitor(this.logger);
         this.setupPerformanceMonitoring();
       }
 
-      // Create MCP server
+      // Create MCP server,
       this.server = new MCPServer(
         this.mcpConfig,
         this.components.eventBus || new EventEmitter(),
@@ -126,28 +126,28 @@ export class MCPOrchestrationIntegration extends EventEmitter {
         this.components.monitor,
       );
 
-      // Initialize lifecycle manager
+      // Initialize lifecycle manager,
       this.lifecycleManager = new MCPLifecycleManager(
         this.mcpConfig,
         this.logger,
         () => this.server!,
       );
 
-      // Setup lifecycle event handlers
+      // Setup lifecycle event handlers,
       this.setupLifecycleHandlers();
 
-      // Register orchestration tools
+      // Register orchestration tools,
       this.registerOrchestrationTools();
 
-      // Start the server
+      // Start the server,
       if (this.orchestrationConfig.autoStart) {
         await this.lifecycleManager.start();
       }
 
-      // Start health monitoring
+      // Start health monitoring,
       this.startHealthMonitoring();
 
-      // Setup component integrations
+      // Setup component integrations,
       await this.setupComponentIntegrations();
 
       this.logger.info('MCP orchestration integration started successfully');
@@ -165,20 +165,20 @@ export class MCPOrchestrationIntegration extends EventEmitter {
     this.logger.info('Stopping MCP orchestration integration');
 
     try {
-      // Stop health monitoring
+      // Stop health monitoring,
       this.stopHealthMonitoring();
 
-      // Stop lifecycle manager
+      // Stop lifecycle manager,
       if (this.lifecycleManager) {
         await this.lifecycleManager.stop();
       }
 
-      // Stop performance monitor
+      // Stop performance monitor,
       if (this.performanceMonitor) {
         this.performanceMonitor.stop();
       }
 
-      // Clear reconnect timers
+      // Clear reconnect timers,
       for (const timer of this.reconnectTimers.values()) {
         clearTimeout(timer);
       }
@@ -307,7 +307,7 @@ export class MCPOrchestrationIntegration extends EventEmitter {
         error: event.error?.message,
       });
 
-      // Emit to orchestration event bus
+      // Emit to orchestration event bus,
       if (this.components.eventBus) {
         this.components.eventBus.emit(SystemEvents.SYSTEM_HEALTHCHECK, {
           status: event.state === LifecycleState.RUNNING ? 'healthy' : 'unhealthy',
@@ -324,7 +324,7 @@ export class MCPOrchestrationIntegration extends EventEmitter {
     if (!this.performanceMonitor) return;
 
     this.performanceMonitor.on('metricsCollected', (metrics) => {
-      // Forward metrics to orchestration monitor
+      // Forward metrics to orchestration monitor,
       if (this.components.monitor && typeof this.components.monitor.recordMetrics === 'function') {
         this.components.monitor.recordMetrics('mcp', metrics);
       }
@@ -340,7 +340,7 @@ export class MCPOrchestrationIntegration extends EventEmitter {
         message: alert.message,
       });
 
-      // Forward to orchestration alert system
+      // Forward to orchestration alert system,
       if (this.orchestrationConfig.enableAlerts && this.components.monitor) {
         if (typeof this.components.monitor.sendAlert === 'function') {
           this.components.monitor.sendAlert({
@@ -369,37 +369,37 @@ export class MCPOrchestrationIntegration extends EventEmitter {
   private registerOrchestrationTools(): void {
     if (!this.server) return;
 
-    // Register orchestrator tools
+    // Register orchestrator tools,
     if (this.orchestrationConfig.enabledIntegrations.orchestrator && this.components.orchestrator) {
       this.registerOrchestratorTools();
     }
 
-    // Register swarm tools
+    // Register swarm tools,
     if (this.orchestrationConfig.enabledIntegrations.swarm && this.components.swarmCoordinator) {
       this.registerSwarmTools();
     }
 
-    // Register agent tools
+    // Register agent tools,
     if (this.orchestrationConfig.enabledIntegrations.agents && this.components.agentManager) {
       this.registerAgentTools();
     }
 
-    // Register resource tools
+    // Register resource tools,
     if (this.orchestrationConfig.enabledIntegrations.resources && this.components.resourceManager) {
       this.registerResourceTools();
     }
 
-    // Register memory tools
+    // Register memory tools,
     if (this.orchestrationConfig.enabledIntegrations.memory && this.components.memoryManager) {
       this.registerMemoryTools();
     }
 
-    // Register monitoring tools
+    // Register monitoring tools,
     if (this.orchestrationConfig.enabledIntegrations.monitoring && this.components.monitor) {
       this.registerMonitoringTools();
     }
 
-    // Register terminal tools
+    // Register terminal tools,
     if (this.orchestrationConfig.enabledIntegrations.terminals && this.components.terminalManager) {
       this.registerTerminalTools();
     }
@@ -675,7 +675,7 @@ export class MCPOrchestrationIntegration extends EventEmitter {
     if (!status) return;
 
     try {
-      // Component-specific connection logic
+      // Component-specific connection logic,
       switch (component) {
         case 'orchestrator':
           await this.connectOrchestrator();
@@ -725,7 +725,7 @@ export class MCPOrchestrationIntegration extends EventEmitter {
     status.healthy = false;
     status.lastCheck = new Date();
 
-    // Clear any reconnect timers
+    // Clear any reconnect timers,
     const timer = this.reconnectTimers.get(component);
     if (timer) {
       clearTimeout(timer);
@@ -738,7 +738,7 @@ export class MCPOrchestrationIntegration extends EventEmitter {
 
   private scheduleReconnect(component: string): void {
     const timer = this.reconnectTimers.get(component);
-    if (timer) return; // Already scheduled
+    if (timer) return; // Already scheduled,
 
     const reconnectTimer = setTimeout(async () => {
       this.reconnectTimers.delete(component);
@@ -786,13 +786,13 @@ export class MCPOrchestrationIntegration extends EventEmitter {
     const componentInstance = this.getComponentInstance(component);
     if (!componentInstance) return false;
 
-    // Check if component has health check method
+    // Check if component has health check method,
     if (typeof componentInstance.healthCheck === 'function') {
       const result = await componentInstance.healthCheck();
       return result === true || (typeof result === 'object' && result.healthy === true);
     }
 
-    // Basic check - component exists and is not null
+    // Basic check - component exists and is not null,
     return true;
   }
 
@@ -809,7 +809,7 @@ export class MCPOrchestrationIntegration extends EventEmitter {
     }
   }
 
-  // Component-specific connection methods
+  // Component-specific connection methods,
   private async connectOrchestrator(): Promise<void> {
     if (!this.components.orchestrator) {
       throw new MCPError('Orchestrator component not available');

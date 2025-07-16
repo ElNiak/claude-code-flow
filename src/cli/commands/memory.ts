@@ -1,12 +1,12 @@
 import chalk from 'chalk';
-import { getErrorMessage } from '../../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../../utils/error-handler.js';
 /**
  * Memory management commands
  */
 
 import { Command } from 'commander';
 import { promises as fs } from 'node:fs';
-import * as Table from 'cli-table3';
+import * as _Table from 'cli-table3';
 
 interface MemoryEntry {
   key: string;
@@ -24,7 +24,7 @@ export class SimpleMemoryManager {
       const content = await fs.readFile(this.filePath, 'utf-8');
       this.data = JSON.parse(content);
     } catch {
-      // File doesn't exist yet
+      // File doesn't exist yet,
       this.data = {};
     }
   }
@@ -41,10 +41,10 @@ export class SimpleMemoryManager {
       this.data[namespace] = [];
     }
 
-    // Remove existing entry with same key
+    // Remove existing entry with same key,
     this.data[namespace] = this.data[namespace].filter(e => e.key !== key);
     
-    // Add new entry
+    // Add new entry,
     this.data[namespace].push({
       key,
       value,
@@ -128,7 +128,7 @@ export const memoryCommand = new Command()
     memoryCommand.help();
   });
 
-// Store command
+// Store command,
 memoryCommand
   .command('store')
   .description('Store information in memory')
@@ -147,7 +147,7 @@ memoryCommand
     }
   });
 
-// Query command
+// Query command,
 memoryCommand
   .command('query')
   .description('Search memory entries')
@@ -182,12 +182,12 @@ memoryCommand
     }
   });
 
-// Export command
+// Export command,
 memoryCommand
   .command('export')
   .description('Export memory to file')
   .arguments('<file>')
-  .action(async (file: string, options: any) => {
+  .action(async (file: string, _options: any) => {
     try {
       const memory = new SimpleMemoryManager();
       await memory.exportData(file);
@@ -201,12 +201,12 @@ memoryCommand
     }
   });
 
-// Import command
+// Import command,
 memoryCommand
   .command('import')
   .description('Import memory from file')
   .arguments('<file>')
-  .action(async (file: string, options: any) => {
+  .action(async (file: string, _options: any) => {
     try {
       const memory = new SimpleMemoryManager();
       await memory.importData(file);
@@ -220,7 +220,7 @@ memoryCommand
     }
   });
 
-// Stats command
+// Stats command,
 memoryCommand
   .command('stats')
   .description('Show memory statistics')
@@ -245,7 +245,7 @@ memoryCommand
     }
   });
 
-// Cleanup command
+// Cleanup command,
 memoryCommand
   .command('cleanup')
   .description('Clean up old entries')

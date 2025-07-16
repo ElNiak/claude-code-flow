@@ -30,7 +30,7 @@ export class QueenAgent extends BaseAgent {
 
   protected getDefaultCapabilities(): AgentCapabilities {
     return {
-      // Core capabilities
+      // Core capabilities,
       codeGeneration: false,
       codeReview: true,
       testing: false,
@@ -38,24 +38,24 @@ export class QueenAgent extends BaseAgent {
       research: true,
       analysis: true,
       
-      // Communication capabilities
+      // Communication capabilities,
       webSearch: true,
       apiIntegration: true,
       fileSystem: true,
       terminalAccess: false,
       
-      // Specialized capabilities
+      // Specialized capabilities,
       languages: ['javascript', 'typescript'],
       frameworks: ['node.js'],
       domains: ['orchestration', 'coordination'],
       tools: ['consensus', 'delegation'],
       
-      // Resource limits
+      // Resource limits,
       maxConcurrentTasks: 5,
       maxMemoryUsage: 512,
       maxExecutionTime: 300000,
       
-      // Performance characteristics
+      // Performance characteristics,
       reliability: 0.95,
       speed: 0.8,
       quality: 0.9
@@ -77,7 +77,7 @@ export class QueenAgent extends BaseAgent {
   }
 
   public async executeTask(task: TaskDefinition): Promise<any> {
-    // Queen agent execution logic
+    // Queen agent execution logic,
     return {
       result: 'orchestrated',
       taskId: task.id,
@@ -92,20 +92,20 @@ ROLE: Orchestrator and Decision Maker
 - Coordinate all swarm activities
 - Make final decisions after consensus
 - Delegate tasks to appropriate agents
-- Monitor overall progress and quality
+- Monitor overall progress and quality,
 
 RESPONSIBILITIES:
-1. Task decomposition and planning
-2. Agent assignment and coordination
-3. Consensus facilitation
-4. Quality assurance
-5. Strategic decision making
+1. Task decomposition and planning,
+2. Agent assignment and coordination,
+3. Consensus facilitation,
+4. Quality assurance,
+5. Strategic decision making,
 
 CONSENSUS PROTOCOL:
 - Propose major decisions for voting
 - Facilitate discussion among agents
 - Calculate consensus thresholds
-- Make tie-breaking decisions when needed
+- Make tie-breaking decisions when needed,
 
 COMMUNICATION STYLE:
 - Clear and authoritative
@@ -114,7 +114,7 @@ COMMUNICATION STYLE:
 - Focus on swarm objectives`;
   }
 
-  async analyzeObjective(objective: string): Promise<any> {
+  async analyzeObjective(_objective: string): Promise<any> {
     return {
       complexity: 'high',
       requiredAgents: ['architect', 'worker', 'scout', 'guardian'],
@@ -146,7 +146,7 @@ export class WorkerAgent extends BaseAgent {
 
   protected getDefaultCapabilities(): AgentCapabilities {
     return {
-      // Core capabilities
+      // Core capabilities,
       codeGeneration: true,
       codeReview: false,
       testing: true,
@@ -154,24 +154,24 @@ export class WorkerAgent extends BaseAgent {
       research: false,
       analysis: false,
       
-      // Communication capabilities
+      // Communication capabilities,
       webSearch: false,
       apiIntegration: true,
       fileSystem: true,
       terminalAccess: true,
       
-      // Specialized capabilities
+      // Specialized capabilities,
       languages: ['javascript', 'typescript', 'python'],
       frameworks: ['node.js', 'react', 'express'],
       domains: ['backend', 'frontend', 'fullstack'],
       tools: ['git', 'npm', 'docker'],
       
-      // Resource limits
+      // Resource limits,
       maxConcurrentTasks: 3,
       maxMemoryUsage: 1024,
       maxExecutionTime: 600000,
       
-      // Performance characteristics
+      // Performance characteristics,
       reliability: 0.9,
       speed: 0.9,
       quality: 0.85
@@ -193,7 +193,7 @@ export class WorkerAgent extends BaseAgent {
   }
 
   public async executeTask(task: TaskDefinition): Promise<any> {
-    // Worker agent execution logic
+    // Worker agent execution logic,
     return {
       result: 'implemented',
       taskId: task.id,
@@ -209,22 +209,22 @@ ROLE: Implementation and Execution Specialist
 - Execute assigned tasks efficiently
 - Implement solutions based on designs
 - Collaborate with other workers
-- Report progress and issues
+- Report progress and issues,
 
-SPECIALIZATION: ${this.specialization || 'general'}
+SPECIALIZATION: ${this.specialization || 'general'},
 
 RESPONSIBILITIES:
-1. Task implementation
-2. Code development
-3. Testing and validation
-4. Bug fixing
-5. Performance optimization
+1. Task implementation,
+2. Code development,
+3. Testing and validation,
+4. Bug fixing,
+5. Performance optimization,
 
 WORK PROTOCOL:
 - Accept tasks from Queen or consensus
 - Provide effort estimates
 - Request help when blocked
-- Share knowledge with swarm
+- Share knowledge with swarm,
 
 COMMUNICATION STYLE:
 - Technical and precise
@@ -234,7 +234,7 @@ COMMUNICATION STYLE:
   }
 
   async estimateEffort(task: any): Promise<number> {
-    // Estimate based on task type and specialization match
+    // Estimate based on task type and specialization match,
     const baseEffort = task.complexity || 5;
     const specializationBonus = task.type === this.specialization ? 0.8 : 1.0;
     return Math.round(baseEffort * specializationBonus);
@@ -258,7 +258,7 @@ export class ScoutAgent extends BaseAgent {
 
   protected getDefaultCapabilities(): AgentCapabilities {
     return {
-      // Core capabilities
+      // Core capabilities,
       codeGeneration: false,
       codeReview: false,
       testing: false,
@@ -266,24 +266,24 @@ export class ScoutAgent extends BaseAgent {
       research: true,
       analysis: true,
       
-      // Communication capabilities
+      // Communication capabilities,
       webSearch: true,
       apiIntegration: true,
       fileSystem: false,
       terminalAccess: false,
       
-      // Specialized capabilities
+      // Specialized capabilities,
       languages: [],
       frameworks: [],
       domains: ['research', 'analysis', 'discovery'],
       tools: ['web-search', 'data-analysis'],
       
-      // Resource limits
+      // Resource limits,
       maxConcurrentTasks: 4,
       maxMemoryUsage: 768,
       maxExecutionTime: 300000,
       
-      // Performance characteristics
+      // Performance characteristics,
       reliability: 0.85,
       speed: 0.95,
       quality: 0.9
@@ -305,7 +305,7 @@ export class ScoutAgent extends BaseAgent {
   }
 
   public async executeTask(task: TaskDefinition): Promise<any> {
-    // Scout agent execution logic
+    // Scout agent execution logic,
     return {
       result: 'researched',
       taskId: task.id,
@@ -321,20 +321,20 @@ ROLE: Research and Exploration Specialist
 - Explore new territories and solutions
 - Research best practices and patterns
 - Identify potential risks and opportunities
-- Gather intelligence for the swarm
+- Gather intelligence for the swarm,
 
 RESPONSIBILITIES:
-1. Information gathering
-2. Technology research
-3. Risk assessment
-4. Opportunity identification
-5. Knowledge synthesis
+1. Information gathering,
+2. Technology research,
+3. Risk assessment,
+4. Opportunity identification,
+5. Knowledge synthesis,
 
 SCOUTING PROTOCOL:
 - Proactively investigate unknowns
 - Report findings to swarm
 - Suggest new approaches
-- Validate assumptions
+- Validate assumptions,
 
 COMMUNICATION STYLE:
 - Curious and investigative
@@ -370,7 +370,7 @@ export class GuardianAgent extends BaseAgent {
 
   protected getDefaultCapabilities(): AgentCapabilities {
     return {
-      // Core capabilities
+      // Core capabilities,
       codeGeneration: false,
       codeReview: true,
       testing: true,
@@ -378,24 +378,24 @@ export class GuardianAgent extends BaseAgent {
       research: false,
       analysis: true,
       
-      // Communication capabilities
+      // Communication capabilities,
       webSearch: false,
       apiIntegration: false,
       fileSystem: true,
       terminalAccess: false,
       
-      // Specialized capabilities
+      // Specialized capabilities,
       languages: ['javascript', 'typescript'],
       frameworks: ['jest', 'eslint'],
       domains: ['quality-assurance', 'security', 'review'],
       tools: ['linting', 'testing', 'security-scan'],
       
-      // Resource limits
+      // Resource limits,
       maxConcurrentTasks: 2,
       maxMemoryUsage: 512,
       maxExecutionTime: 180000,
       
-      // Performance characteristics
+      // Performance characteristics,
       reliability: 0.98,
       speed: 0.7,
       quality: 0.95
@@ -417,7 +417,7 @@ export class GuardianAgent extends BaseAgent {
   }
 
   public async executeTask(task: TaskDefinition): Promise<any> {
-    // Guardian agent execution logic
+    // Guardian agent execution logic,
     return {
       result: 'reviewed',
       taskId: task.id,
@@ -433,20 +433,20 @@ ROLE: Quality Assurance and Protection
 - Ensure code quality and standards
 - Identify security vulnerabilities
 - Validate implementations
-- Protect swarm from errors
+- Protect swarm from errors,
 
 RESPONSIBILITIES:
-1. Code review
-2. Security analysis
-3. Quality validation
-4. Standard enforcement
-5. Risk mitigation
+1. Code review,
+2. Security analysis,
+3. Quality validation,
+4. Standard enforcement,
+5. Risk mitigation,
 
 GUARDIAN PROTOCOL:
 - Review all implementations
 - Flag potential issues
 - Suggest improvements
-- Enforce best practices
+- Enforce best practices,
 
 COMMUNICATION STYLE:
 - Protective and thorough
@@ -455,7 +455,7 @@ COMMUNICATION STYLE:
 - Security-minded`;
   }
 
-  async validateWork(work: any): Promise<any> {
+  async validateWork(_work: any): Promise<any> {
     return {
       qualityScore: 0.85,
       issues: ['Missing error handling', 'Incomplete tests'],
@@ -483,7 +483,7 @@ export class ArchitectAgent extends BaseAgent {
 
   protected getDefaultCapabilities(): AgentCapabilities {
     return {
-      // Core capabilities
+      // Core capabilities,
       codeGeneration: false,
       codeReview: true,
       testing: false,
@@ -491,24 +491,24 @@ export class ArchitectAgent extends BaseAgent {
       research: true,
       analysis: true,
       
-      // Communication capabilities
+      // Communication capabilities,
       webSearch: true,
       apiIntegration: false,
       fileSystem: true,
       terminalAccess: false,
       
-      // Specialized capabilities
+      // Specialized capabilities,
       languages: ['javascript', 'typescript'],
       frameworks: ['architecture-patterns'],
       domains: ['system-design', 'architecture', 'planning'],
       tools: ['design-patterns', 'documentation'],
       
-      // Resource limits
+      // Resource limits,
       maxConcurrentTasks: 2,
       maxMemoryUsage: 1024,
       maxExecutionTime: 240000,
       
-      // Performance characteristics
+      // Performance characteristics,
       reliability: 0.92,
       speed: 0.75,
       quality: 0.95
@@ -530,7 +530,7 @@ export class ArchitectAgent extends BaseAgent {
   }
 
   public async executeTask(task: TaskDefinition): Promise<any> {
-    // Architect agent execution logic
+    // Architect agent execution logic,
     return {
       result: 'designed',
       taskId: task.id,
@@ -546,20 +546,20 @@ ROLE: System Design and Architecture
 - Design system architecture
 - Plan technical solutions
 - Define interfaces and contracts
-- Ensure scalability and maintainability
+- Ensure scalability and maintainability,
 
 RESPONSIBILITIES:
-1. System architecture design
-2. Technical planning
-3. Interface definition
-4. Pattern selection
-5. Documentation
+1. System architecture design,
+2. Technical planning,
+3. Interface definition,
+4. Pattern selection,
+5. Documentation,
 
 ARCHITECTURE PROTOCOL:
 - Design before implementation
 - Consider all requirements
 - Plan for scalability
-- Document decisions
+- Document decisions,
 
 COMMUNICATION STYLE:
 - Strategic and systematic
@@ -568,7 +568,7 @@ COMMUNICATION STYLE:
 - Technically detailed`;
   }
 
-  async designSystem(requirements: any): Promise<any> {
+  async designSystem(_requirements: any): Promise<any> {
     return {
       architecture: 'microservices',
       components: ['API Gateway', 'Auth Service', 'Business Logic', 'Database'],
@@ -626,10 +626,10 @@ export class HiveAgentFactory {
   ): BaseAgent[] {
     const agents: BaseAgent[] = [];
     
-    // Always include a Queen
+    // Always include a Queen,
     agents.push(new QueenAgent('Queen-Genesis', agentConfig, environment, logger, eventBus, memory));
     
-    // Determine agent composition based on objective
+    // Determine agent composition based on objective,
     const needsDesign = objective.toLowerCase().includes('build') || 
                        objective.toLowerCase().includes('create');
     const needsResearch = objective.toLowerCase().includes('research') || 
@@ -643,15 +643,15 @@ export class HiveAgentFactory {
       agents.push(new ScoutAgent('Scout-Alpha', agentConfig, environment, logger, eventBus, memory));
     }
     
-    // Add workers based on remaining slots
-    const workerCount = Math.min(3, maxAgents - agents.length - 1); // -1 for Guardian
+    // Add workers based on remaining slots,
+    const workerCount = Math.min(3, maxAgents - agents.length - 1); // -1 for Guardian,
     for (let i = 0; i < workerCount; i++) {
       const specializations = ['backend', 'frontend', 'database', 'integration'];
       const spec = specializations[i % specializations.length];
       agents.push(new WorkerAgent(`Worker-${i + 1}`, agentConfig, environment, logger, eventBus, memory, spec));
     }
     
-    // Always include a Guardian if space
+    // Always include a Guardian if space,
     if (agents.length < maxAgents) {
       agents.push(new GuardianAgent('Guardian-Omega', agentConfig, environment, logger, eventBus, memory));
     }

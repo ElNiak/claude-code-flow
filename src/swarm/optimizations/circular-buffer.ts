@@ -34,7 +34,7 @@ export class CircularBuffer<T> {
       return undefined;
     }
     
-    // Calculate actual buffer index based on current state
+    // Calculate actual buffer index based on current state,
     const actualIndex = this.size < this.capacity
       ? index
       : (this.writeIndex + index) % this.capacity;
@@ -46,7 +46,7 @@ export class CircularBuffer<T> {
     const result: T[] = [];
     const itemsToReturn = Math.min(count, this.size);
     
-    // Calculate starting position for most recent items
+    // Calculate starting position for most recent items,
     const start = this.size < this.capacity
       ? Math.max(0, this.size - itemsToReturn)
       : (this.writeIndex - itemsToReturn + this.capacity) % this.capacity;
@@ -66,7 +66,7 @@ export class CircularBuffer<T> {
     const result: T[] = [];
     
     if (this.size < this.capacity) {
-      // Buffer not full yet, return items in order
+      // Buffer not full yet, return items in order,
       for (let i = 0; i < this.size; i++) {
         const item = this.buffer[i];
         if (item !== undefined) {
@@ -74,7 +74,7 @@ export class CircularBuffer<T> {
         }
       }
     } else {
-      // Buffer is full, start from oldest item
+      // Buffer is full, start from oldest item,
       for (let i = 0; i < this.capacity; i++) {
         const index = (this.writeIndex + i) % this.capacity;
         const item = this.buffer[index];
@@ -133,16 +133,16 @@ export class CircularBuffer<T> {
   getMemoryUsage(): number {
     if (this.size === 0) return 0;
     
-    // Sample first item to estimate size
+    // Sample first item to estimate size,
     const sample = this.buffer[0];
     if (sample === undefined) return 0;
     
     try {
-      // Rough estimation based on JSON serialization
-      const sampleSize = JSON.stringify(sample).length * 2; // 2 bytes per character
+      // Rough estimation based on JSON serialization,
+      const sampleSize = JSON.stringify(sample).length * 2; // 2 bytes per character,
       return sampleSize * this.size;
     } catch {
-      // If serialization fails, return a default estimate
+      // If serialization fails, return a default estimate,
       return this.size * 1024; // 1KB per item default
     }
   }

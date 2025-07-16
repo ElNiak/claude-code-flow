@@ -176,7 +176,7 @@ describe('Batch Operations Unit Tests', () => {
     it('should handle memory efficiently with large batches', async () => {
       const largeContent = 'x'.repeat(10000); // 10KB per file
       const files = Array.from({ length: 100 }, (_, i) => {
-        const path = `large${i}.txt`;
+        const _path = `large${i}.txt`;
         harness.mockFS.set(path, largeContent);
         return path;
       });

@@ -1,4 +1,4 @@
-// Patch for StrategyMetrics interface
+// Patch for StrategyMetrics interface,
 import { StrategyMetrics } from './base.js';
 
 declare module './base.js' {

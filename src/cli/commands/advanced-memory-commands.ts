@@ -7,16 +7,16 @@ import { getErrorMessage } from '../../utils/error-handler.js';
 
 import { promises as fs } from 'node:fs';
 import { join, extname, basename } from 'node:path';
-import { AdvancedMemoryManager, type QueryOptions, type ExportOptions, type ImportOptions, type CleanupOptions } from '../../memory/advanced-memory-manager.js';
+import { AdvancedMemoryManager, type QueryOptions, type ExportOptions, type ImportOptions, type CleanupOptions, type QueryResult, type ExportResult, type ImportResult, type CleanupResult, type MemoryStats } from '../../memory/advanced-memory-manager.js';
 import { Logger } from '../../core/logger.js';
 
-// Initialize logger
+// Initialize logger,
 const logger = Logger.getInstance();
 
-// Global memory manager instance
+// Global memory manager instance,
 let memoryManager: AdvancedMemoryManager | null = null;
 
-// Helper functions
+// Helper functions,
 function printSuccess(message: string): void {
   console.log(`✅ ${message}`);
 }
@@ -50,7 +50,7 @@ function formatDuration(ms: number): string {
 async function ensureMemoryManager(): Promise<AdvancedMemoryManager> {
   if (!memoryManager) {
     memoryManager = new AdvancedMemoryManager({
-      maxMemorySize: 1024 * 1024 * 1024, // 1GB
+      maxMemorySize: 1024 * 1024 * 1024, // 1GB,
       autoCompress: true,
       autoCleanup: true,
       indexingEnabled: true,
@@ -186,7 +186,7 @@ async function queryCommand(args: string[], flags: Record<string, any>): Promise
     const manager = await ensureMemoryManager();
     const startTime = Date.now();
 
-    // Build query options from flags
+    // Build query options from flags,
     const queryOptions: QueryOptions = {
       fullTextSearch: search,
       namespace: flags.namespace,
@@ -207,7 +207,7 @@ async function queryCommand(args: string[], flags: Record<string, any>): Promise
       offset: flags.offset ? parseInt(flags.offset) : undefined,
       sortBy: flags['sort-by'],
       sortOrder: flags['sort-order'] || 'asc',
-      aggregateBy: flags['aggregate-by'],
+      aggregations: flags['aggregate-by'],
       includeMetadata: flags['include-metadata']
     };
 
@@ -221,7 +221,7 @@ async function queryCommand(args: string[], flags: Record<string, any>): Promise
       return;
     }
 
-    // Display results based on format
+    // Display results based on format,
     const format = flags.format || 'table';
     switch (format) {
       case 'json':
@@ -248,9 +248,9 @@ async function queryCommand(args: string[], flags: Record<string, any>): Promise
         }
         break;
 
-      default: // table
+      default: // table,
         console.log('\n📋 Query Results:\n');
-        result.entries.forEach((entry, i) => {
+        result.entries.forEach((entry: any, i: number) => {
           const value = typeof entry.value === 'string' && entry.value.length > 100 
             ? entry.value.substring(0, 100) + '...'
             : JSON.stringify(entry.value);
@@ -269,19 +269,19 @@ async function queryCommand(args: string[], flags: Record<string, any>): Promise
         });
     }
 
-    // Show aggregations if requested
+    // Show aggregations if requested,
     if (result.aggregations) {
       console.log('\n📊 Aggregations:\n');
       for (const [key, value] of Object.entries(result.aggregations)) {
         console.log(`${key}:`);
         for (const [subKey, stats] of Object.entries(value as Record<string, any>)) {
-          console.log(`  ${subKey}: ${stats.count} entries, ${formatBytes(stats.totalSize)}`);
+          console.log(`  ${subKey}: ${(stats as any).count} entries, ${formatBytes((stats as any).totalSize)}`);
         }
         console.log();
       }
     }
 
-    // Show pagination info
+    // Show pagination info,
     if (result.total > result.entries.length) {
       const showing = (flags.offset ? parseInt(flags.offset) : 0) + result.entries.length;
       console.log(`Showing ${showing} of ${result.total} entries`);
@@ -316,7 +316,7 @@ async function exportCommand(args: string[], flags: Record<string, any>): Promis
   try {
     const manager = await ensureMemoryManager();
     
-    // Determine format from file extension if not specified
+    // Determine format from file extension if not specified,
     let format = flags.format;
     if (!format) {
       const ext = extname(file).toLowerCase();
@@ -330,7 +330,7 @@ async function exportCommand(args: string[], flags: Record<string, any>): Promis
       }
     }
 
-    // Parse filter query if provided
+    // Parse filter query if provided,
     let filtering: QueryOptions | undefined;
     if (flags['filter-query']) {
       try {
@@ -341,7 +341,7 @@ async function exportCommand(args: string[], flags: Record<string, any>): Promis
       }
     }
 
-    // Build export options
+    // Build export options,
     const exportOptions: ExportOptions = {
       format: format as ExportOptions['format'],
       namespace: flags.namespace,
@@ -358,7 +358,7 @@ async function exportCommand(args: string[], flags: Record<string, any>): Promis
     printInfo(`Starting export to ${file} (format: ${format})`);
     const startTime = Date.now();
 
-    const result = await manager.export(file, exportOptions);
+    const result = await manager.export(exportOptions);
     const duration = Date.now() - startTime;
 
     printSuccess(`Export completed in ${formatDuration(duration)}`);
@@ -396,7 +396,7 @@ async function importCommand(args: string[], flags: Record<string, any>): Promis
   }
   
   try {
-    // Check if file exists
+    // Check if file exists,
     try {
       await fs.access(file);
     } catch {
@@ -406,7 +406,7 @@ async function importCommand(args: string[], flags: Record<string, any>): Promis
 
     const manager = await ensureMemoryManager();
     
-    // Determine format from file extension if not specified
+    // Determine format from file extension if not specified,
     let format = flags.format;
     if (!format) {
       const ext = extname(file).toLowerCase();
@@ -422,7 +422,7 @@ async function importCommand(args: string[], flags: Record<string, any>): Promis
       }
     }
 
-    // Build import options
+    // Build import options,
     const importOptions: ImportOptions = {
       format: format as ImportOptions['format'],
       namespace: flags.namespace,
@@ -437,8 +437,9 @@ async function importCommand(args: string[], flags: Record<string, any>): Promis
 
     printInfo(`Starting import from ${file} (format: ${format})`);
     const startTime = Date.now();
-
-    const result = await manager.import(file, importOptions);
+    
+    const content = await fs.readFile(file, 'utf8');
+    const result = await manager.import(content, importOptions);
     const duration = Date.now() - startTime;
 
     printSuccess(`Import completed in ${formatDuration(duration)}`);
@@ -455,11 +456,11 @@ async function importCommand(args: string[], flags: Record<string, any>): Promis
     if (result.conflicts.length > 0) {
       console.log(`⚠️  Conflicts: ${result.conflicts.length}`);
       if (result.conflicts.length <= 10) {
-        result.conflicts.forEach(conflict => {
+        result.conflicts.forEach((conflict: any) => {
           console.log(`   • ${conflict}`);
         });
       } else {
-        result.conflicts.slice(0, 10).forEach(conflict => {
+        result.conflicts.slice(0, 10).forEach((conflict: any) => {
           console.log(`   • ${conflict}`);
         });
         console.log(`   ... and ${result.conflicts.length - 10} more`);
@@ -479,7 +480,7 @@ async function statsCommand(args: string[], flags: Record<string, any>): Promise
     const manager = await ensureMemoryManager();
     const startTime = Date.now();
 
-    const stats = await manager.getStatistics();
+    const stats = await manager.getStats();
     const duration = Date.now() - startTime;
 
     if (flags.format === 'json') {
@@ -498,10 +499,10 @@ async function statsCommand(args: string[], flags: Record<string, any>): Promise
       return;
     }
 
-    // Table format display
+    // Table format display,
     console.log('🧠 Memory System Statistics\n');
 
-    // Overview
+    // Overview,
     console.log('📊 Overview:');
     console.log(`   Total Entries: ${stats.overview.totalEntries.toLocaleString()}`);
     console.log(`   Total Size: ${formatBytes(stats.overview.totalSize)}`);
@@ -511,25 +512,25 @@ async function statsCommand(args: string[], flags: Record<string, any>): Promise
     console.log(`   Disk Usage: ${formatBytes(stats.overview.diskUsage)}`);
     console.log();
 
-    // Distribution
+    // Distribution,
     console.log('📈 Distribution:');
     
     if (Object.keys(stats.distribution.byNamespace).length > 0) {
       console.log('   By Namespace:');
       for (const [namespace, data] of Object.entries(stats.distribution.byNamespace)) {
-        console.log(`     ${namespace}: ${data.count} entries, ${formatBytes(data.size)}`);
+        console.log(`     ${namespace}: ${(data as any).count} entries, ${formatBytes((data as any).size)}`);
       }
     }
     
     if (Object.keys(stats.distribution.byType).length > 0) {
       console.log('   By Type:');
       for (const [type, data] of Object.entries(stats.distribution.byType)) {
-        console.log(`     ${type}: ${data.count} entries, ${formatBytes(data.size)}`);
+        console.log(`     ${type}: ${(data as any).count} entries, ${formatBytes((data as any).size)}`);
       }
     }
     console.log();
 
-    // Performance
+    // Performance,
     console.log('⚡ Performance:');
     console.log(`   Average Query Time: ${formatDuration(stats.performance.averageQueryTime)}`);
     console.log(`   Average Write Time: ${formatDuration(stats.performance.averageWriteTime)}`);
@@ -537,7 +538,7 @@ async function statsCommand(args: string[], flags: Record<string, any>): Promise
     console.log(`   Index Efficiency: ${(stats.performance.indexEfficiency * 100).toFixed(1)}%`);
     console.log();
 
-    // Health
+    // Health,
     console.log('🏥 Health:');
     const healthStatus = stats.health.recommendedCleanup ? 'Needs Attention' : 'Healthy';
     console.log(`   Status: ${healthStatus}`);
@@ -547,10 +548,10 @@ async function statsCommand(args: string[], flags: Record<string, any>): Promise
     console.log(`   Corrupted Entries: ${stats.health.corruptedEntries}`);
     console.log();
 
-    // Optimization suggestions
+    // Optimization suggestions,
     if (stats.optimization.suggestions.length > 0) {
       console.log('💡 Optimization Suggestions:');
-      stats.optimization.suggestions.forEach(suggestion => {
+      stats.optimization.suggestions.forEach((suggestion: any) => {
         console.log(`   • ${suggestion}`);
       });
       console.log();
@@ -564,7 +565,7 @@ async function statsCommand(args: string[], flags: Record<string, any>): Promise
 
     console.log(`Statistics generated in ${formatDuration(duration)}`);
 
-    // Export if requested
+    // Export if requested,
     if (flags.export) {
       const output = {
         statistics: stats,
@@ -591,7 +592,7 @@ async function cleanupCommand(args: string[], flags: Record<string, any>): Promi
       printWarning('DRY RUN MODE - No changes will be made');
     }
 
-    // Build cleanup options
+    // Build cleanup options,
     const cleanupOptions: CleanupOptions = {
       dryRun: flags['dry-run'],
       removeExpired: flags['remove-expired'] !== false,
@@ -630,7 +631,7 @@ async function cleanupCommand(args: string[], flags: Record<string, any>): Promi
 
     if (result.actions.length > 0) {
       console.log('\n📋 Actions Performed:');
-      result.actions.forEach(action => {
+      result.actions.forEach((action: any) => {
         console.log(`   • ${action}`);
       });
     }
@@ -667,7 +668,7 @@ async function storeCommand(args: string[], flags: Record<string, any>): Promise
   try {
     const manager = await ensureMemoryManager();
     
-    // Parse value as JSON if possible
+    // Parse value as JSON if possible,
     let parsedValue;
     try {
       parsedValue = JSON.parse(value);
@@ -675,7 +676,7 @@ async function storeCommand(args: string[], flags: Record<string, any>): Promise
       parsedValue = value;
     }
     
-    const entryId = await manager.store(key, parsedValue, {
+    await manager.store(key, parsedValue, {
       namespace: flags.namespace || 'default',
       type: flags.type,
       tags: flags.tags ? flags.tags.split(',').map((t: string) => t.trim()) : undefined,
@@ -686,7 +687,6 @@ async function storeCommand(args: string[], flags: Record<string, any>): Promise
     });
     
     printSuccess('Entry stored successfully');
-    console.log(`📝 Entry ID: ${entryId}`);
     console.log(`🔑 Key: ${key}`);
     console.log(`📦 Namespace: ${flags.namespace || 'default'}`);
     console.log(`🏷️  Type: ${flags.type || 'auto-detected'}`);
@@ -718,10 +718,7 @@ async function getCommand(args: string[], flags: Record<string, any>): Promise<v
   try {
     const manager = await ensureMemoryManager();
     
-    const entry = await manager.retrieve(key, {
-      namespace: flags.namespace,
-      updateLastAccessed: true
-    });
+    const entry = await manager.get(key);
     
     if (!entry) {
       printWarning(`Entry not found: ${key}`);
@@ -784,7 +781,7 @@ async function deleteCommand(args: string[], flags: Record<string, any>): Promis
   try {
     const manager = await ensureMemoryManager();
     
-    const entry = await manager.retrieve(key, { namespace: flags.namespace });
+    const entry = await manager.get(key);
     if (!entry) {
       printWarning(`Entry not found: ${key}`);
       return;
@@ -796,7 +793,7 @@ async function deleteCommand(args: string[], flags: Record<string, any>): Promis
       return;
     }
     
-    const success = await manager.deleteEntry(entry.id);
+    const success = await manager.delete(key);
     
     if (success) {
       printSuccess(`Entry deleted: ${key}`);
@@ -828,7 +825,7 @@ async function listCommand(args: string[], flags: Record<string, any>): Promise<
     
     console.log(`\n📋 Memory Entries (${result.total} total):\n`);
     
-    result.entries.forEach((entry, i) => {
+    result.entries.forEach((entry: any, i: number) => {
       const num = (flags.offset ? parseInt(flags.offset) : 0) + i + 1;
       console.log(`${num}. ${entry.key}`);
       console.log(`   Namespace: ${entry.namespace} | Type: ${entry.type} | Size: ${formatBytes(entry.size)}`);
@@ -849,7 +846,7 @@ async function listCommand(args: string[], flags: Record<string, any>): Promise<
   }
 }
 
-async function namespacesCommand(args: string[], flags: Record<string, any>): Promise<void> {
+async function namespacesCommand(_args: string[], _flags: Record<string, any>): Promise<void> {
   try {
     const manager = await ensureMemoryManager();
     const namespaces = await manager.listNamespaces();
@@ -860,7 +857,7 @@ async function namespacesCommand(args: string[], flags: Record<string, any>): Pr
     }
     
     console.log('\n📁 Namespaces:\n');
-    namespaces.forEach((namespace, i) => {
+    namespaces.forEach((namespace: any, i: number) => {
       console.log(`${i + 1}. ${namespace}`);
     });
   } catch (error) {
@@ -868,7 +865,7 @@ async function namespacesCommand(args: string[], flags: Record<string, any>): Pr
   }
 }
 
-async function typesCommand(args: string[], flags: Record<string, any>): Promise<void> {
+async function typesCommand(_args: string[], _flags: Record<string, any>): Promise<void> {
   try {
     const manager = await ensureMemoryManager();
     const types = await manager.listTypes();
@@ -879,7 +876,7 @@ async function typesCommand(args: string[], flags: Record<string, any>): Promise
     }
     
     console.log('\n🏷️  Data Types:\n');
-    types.forEach((type, i) => {
+    types.forEach((type: any, i: number) => {
       console.log(`${i + 1}. ${type}`);
     });
   } catch (error) {
@@ -887,7 +884,7 @@ async function typesCommand(args: string[], flags: Record<string, any>): Promise
   }
 }
 
-async function tagsCommand(args: string[], flags: Record<string, any>): Promise<void> {
+async function tagsCommand(_args: string[], _flags: Record<string, any>): Promise<void> {
   try {
     const manager = await ensureMemoryManager();
     const tags = await manager.listTags();
@@ -898,7 +895,7 @@ async function tagsCommand(args: string[], flags: Record<string, any>): Promise<
     }
     
     console.log('\n🏷️  Tags:\n');
-    tags.forEach((tag, i) => {
+    tags.forEach((tag: any, i: number) => {
       console.log(`${i + 1}. ${tag}`);
     });
   } catch (error) {

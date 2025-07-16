@@ -191,8 +191,8 @@ export class EventBus {
           }
           handlersExecuted++;
         } catch (error) {
-          console.error(`📡 EventBus: Error in handler for '${event}':`, error);
-          this.emit('error', { event, error, handlerInfo });
+          console.error(`📡 EventBus: Error in handler for '${event}':`, _error);
+          this.emit('error', { event, _error, handlerInfo });
         }
       }
     }
@@ -209,8 +209,8 @@ export class EventBus {
           }
           handlersExecuted++;
         } catch (error) {
-          console.error(`📡 EventBus: Error in once handler for '${event}':`, error);
-          this.emit('error', { event, error, handlerInfo });
+          console.error(`📡 EventBus: Error in once handler for '${event}':`, _error);
+          this.emit('error', { event, _error, handlerInfo });
         }
       }
       // Clear once handlers after execution
@@ -229,8 +229,8 @@ export class EventBus {
             }
             handlersExecuted++;
           } catch (error) {
-            console.error(`📡 EventBus: Error in wildcard handler for '${pattern}':`, error);
-            this.emit('error', { event, error, handlerInfo, pattern });
+            console.error(`📡 EventBus: Error in wildcard handler for '${pattern}':`, _error);
+            this.emit('error', { event, _error, handlerInfo, pattern });
           }
         }
       }
@@ -322,7 +322,7 @@ export class EventBus {
 
       return result;
     } catch (error) {
-      console.error(`📡 EventBus: Error in async handler:`, error);
+      console.error(`📡 EventBus: Error in async handler:`, _error);
       throw error;
     }
   }

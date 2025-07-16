@@ -18,6 +18,7 @@ import {
   HiveMindConfig,
   SwarmTopology,
   AgentType,
+  AgentCapability,
   Task,
   TaskPriority,
   TaskStrategy,
@@ -27,22 +28,23 @@ import {
 } from '../types.js';
 
 export class HiveMind extends EventEmitter {
-  private id: string;
+  public readonly id: string = '';
   private config: HiveMindConfig;
-  private queen: Queen;
+  private queen!: Queen;
   private agents: Map<string, Agent>;
-  private memory: Memory;
-  private communication: Communication;
-  private orchestrator: SwarmOrchestrator;
-  private consensus: ConsensusEngine;
-  private db: DatabaseManager;
+  private memory!: Memory;
+  private communication!: Communication;
+  private orchestrator!: SwarmOrchestrator;
+  private consensus!: ConsensusEngine;
+  private db!: DatabaseManager;
   private started: boolean = false;
   private startTime: number;
 
-  constructor(config: HiveMindConfig) {
+  constructor(config: HiveMindConfig, id?: string) {
     super();
     this.config = config;
-    this.id = uuidv4();
+    // Initialize readonly id property
+    (this as any).id = id || uuidv4();
     this.agents = new Map();
     this.startTime = Date.now();
   }
@@ -52,10 +54,10 @@ export class HiveMind extends EventEmitter {
    */
   async initialize(): Promise<string> {
     try {
-      // Initialize database
+      // Initialize database,
       this.db = await DatabaseManager.getInstance();
       
-      // Create swarm in database
+      // Create swarm in database,
       await this.db.createSwarm({
         id: this.id,
         name: this.config.name,
@@ -67,20 +69,20 @@ export class HiveMind extends EventEmitter {
         config: JSON.stringify(this.config)
       });
       
-      // Initialize Queen
+      // Initialize Queen,
       this.queen = new Queen({
         swarmId: this.id,
         mode: this.config.queenMode,
         topology: this.config.topology
       });
       
-      // Initialize subsystems
+      // Initialize subsystems,
       this.memory = new Memory(this.id);
       this.communication = new Communication(this.id);
       this.orchestrator = new SwarmOrchestrator(this);
       this.consensus = new ConsensusEngine(this.config.consensusThreshold);
       
-      // Initialize subsystems
+      // Initialize subsystems,
       await Promise.all([
         this.queen.initialize(),
         this.memory.initialize(),
@@ -88,10 +90,10 @@ export class HiveMind extends EventEmitter {
         this.orchestrator.initialize()
       ]);
       
-      // Set as active swarm
+      // Set as active swarm,
       await this.db.setActiveSwarm(this.id);
       
-      // Auto-spawn agents if configured
+      // Auto-spawn agents if configured,
       if (this.config.autoSpawn) {
         await this.autoSpawnAgents();
       }
@@ -119,12 +121,11 @@ export class HiveMind extends EventEmitter {
     }
     
     const config = JSON.parse(swarmData.config);
-    const hiveMind = new HiveMind(config);
-    hiveMind.id = swarmId;
+    const hiveMind = new HiveMind(config, swarmId);
     
     await hiveMind.initialize();
     
-    // Load existing agents
+    // Load existing agents,
     const agents = await db.getAgents(swarmId);
     for (const agentData of agents) {
       const agent = new Agent({
@@ -199,15 +200,15 @@ export class HiveMind extends EventEmitter {
       name: options.name || `${options.type}-${Date.now()}`,
       type: options.type,
       swarmId: this.id,
-      capabilities: options.capabilities || this.getDefaultCapabilities(options.type)
+      capabilities: options.capabilities || this.getDefaultCapabilities(options.type) as AgentCapability[]
     });
     
     await agent.initialize();
     
-    // Register with Queen
+    // Register with Queen,
     await this.queen.registerAgent(agent);
     
-    // Store in database
+    // Store in database,
     await this.db.createAgent({
       id: agent.id,
       swarmId: this.id,
@@ -217,13 +218,13 @@ export class HiveMind extends EventEmitter {
       status: 'idle'
     });
     
-    // Add to local map
+    // Add to local map,
     this.agents.set(agent.id, agent);
     
-    // Setup communication channels
+    // Setup communication channels,
     this.communication.addAgent(agent);
     
-    // Auto-assign to pending tasks if configured
+    // Auto-assign to pending tasks if configured,
     if (options.autoAssign) {
       await this.assignPendingTasksToAgent(agent);
     }
@@ -254,7 +255,7 @@ export class HiveMind extends EventEmitter {
       metadata: options.metadata || {}
     };
     
-    // Store in database
+    // Store in database,
     await this.db.createTask({
       ...task,
       dependencies: JSON.stringify(task.dependencies),
@@ -263,10 +264,10 @@ export class HiveMind extends EventEmitter {
       metadata: JSON.stringify(task.metadata)
     });
     
-    // Submit to orchestrator
+    // Submit to orchestrator,
     await this.orchestrator.submitTask(task);
     
-    // Notify Queen
+    // Notify Queen,
     await this.queen.onTaskSubmitted(task);
     
     this.emit('taskSubmitted', { task });
@@ -280,16 +281,20 @@ export class HiveMind extends EventEmitter {
   async getFullStatus(): Promise<SwarmStatus> {
     const agents = Array.from(this.agents.values());
     const tasks = await this.db.getTasks(this.id);
-    const memoryStats = await this.memory.getStats();
+    const memoryStats = {
+      ...await this.memory.getStats(),
+      byNamespace: {} as Record<string, { entries: number; size: number; avgTTL: number; }>,
+      hotKeys: [] as string[]
+    };
     const communicationStats = await this.communication.getStats();
     
-    // Calculate agent statistics
+    // Calculate agent statistics,
     const agentsByType = agents.reduce((acc, agent) => {
       acc[agent.type] = (acc[agent.type] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
     
-    // Calculate task statistics
+    // Calculate task statistics,
     const taskStats = {
       total: tasks.length,
       pending: tasks.filter(t => t.status === 'pending').length,
@@ -298,13 +303,13 @@ export class HiveMind extends EventEmitter {
       failed: tasks.filter(t => t.status === 'failed').length
     };
     
-    // Calculate performance metrics
+    // Calculate performance metrics,
     const performance = await this.calculatePerformanceMetrics();
     
-    // Determine health status
+    // Determine health status,
     const health = this.determineHealth(agents, tasks, performance);
     
-    // Get any warnings
+    // Get any warnings,
     const warnings = this.getSystemWarnings(agents, tasks, performance);
     
     return {
@@ -312,7 +317,7 @@ export class HiveMind extends EventEmitter {
       name: this.config.name,
       topology: this.config.topology,
       queenMode: this.config.queenMode,
-      health,
+      health: health as any,
       uptime: Date.now() - this.startTime,
       agents: agents.map(a => ({
         id: a.id,
@@ -425,12 +430,12 @@ export class HiveMind extends EventEmitter {
   async shutdown(): Promise<void> {
     this.started = false;
     
-    // Shutdown all agents
+    // Shutdown all agents,
     for (const agent of this.agents.values()) {
       await agent.shutdown();
     }
     
-    // Shutdown subsystems
+    // Shutdown subsystems,
     await Promise.all([
       this.queen.shutdown(),
       this.memory.shutdown(),
@@ -441,9 +446,9 @@ export class HiveMind extends EventEmitter {
     this.emit('shutdown');
   }
 
-  // Private helper methods
+  // Private helper methods,
 
-  private getDefaultCapabilities(type: AgentType): string[] {
+  private getDefaultCapabilities(type: AgentType): AgentCapability[] {
     const capabilityMap: Record<AgentType, string[]> = {
       coordinator: ['task_management', 'resource_allocation', 'consensus_building'],
       researcher: ['information_gathering', 'pattern_recognition', 'knowledge_synthesis'],
@@ -458,7 +463,7 @@ export class HiveMind extends EventEmitter {
       specialist: ['domain_expertise', 'custom_capabilities', 'problem_solving']
     };
     
-    return capabilityMap[type] || [];
+    return (capabilityMap[type] || []) as AgentCapability[];
   }
 
   private async assignPendingTasksToAgent(agent: Agent): Promise<void> {
@@ -467,8 +472,8 @@ export class HiveMind extends EventEmitter {
     for (const task of pendingTasks) {
       const requiredCapabilities = JSON.parse(task.required_capabilities || '[]');
       
-      // Check if agent has required capabilities
-      if (requiredCapabilities.every((cap: string) => agent.capabilities.includes(cap))) {
+      // Check if agent has required capabilities,
+      if (requiredCapabilities.every((cap: string) => agent.capabilities.includes(cap as AgentCapability))) {
         await this.orchestrator.assignTaskToAgent(task.id, agent.id);
         break; // Only assign one task at a time
       }
@@ -476,7 +481,7 @@ export class HiveMind extends EventEmitter {
   }
 
   private async calculatePerformanceMetrics() {
-    // This would calculate real metrics from the database
+    // This would calculate real metrics from the database,
     return {
       avgTaskCompletion: 3500,
       messageThroughput: 120,

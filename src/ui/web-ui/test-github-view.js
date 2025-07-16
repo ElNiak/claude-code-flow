@@ -67,7 +67,7 @@ try {
   console.log('═'.repeat(60));
   
 } catch (error) {
-  console.error('❌ Test failed:', error);
+  console.error('❌ Test failed:', _error);
   process.exit(1);
 }
 

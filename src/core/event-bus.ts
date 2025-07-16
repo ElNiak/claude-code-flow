@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * Event bus implementation for Claude-Flow
  */
@@ -35,7 +35,7 @@ class TypedEventBus extends TypedEventEmitter<EventMap> {
       console.debug(`[EventBus] Emitting event: ${String(event)}`, data);
     }
     
-    // Track event metrics
+    // Track event metrics,
     const count = this.eventCounts.get(event) || 0;
     this.eventCounts.set(event, count + 1);
     this.lastEventTimes.set(event, Date.now());
@@ -95,11 +95,11 @@ export class EventBus implements IEventBus {
    * Emits an event
    */
   emit(event: string, data?: unknown): void {
-    // Type-safe emission for known events
+    // Type-safe emission for known events,
     if (event in SystemEvents) {
       this.typedBus.emit(event as keyof EventMap, data as any);
     } else {
-      // For custom events, emit as-is
+      // For custom events, emit as-is,
       this.typedBus.emit(event as any, data as any);
     }
   }
@@ -140,7 +140,7 @@ export class EventBus implements IEventBus {
         timer = setTimeout(() => {
           this.off(event, handler);
           reject(new Error(`Timeout waiting for event: ${event}`));
-        }, timeoutMs);
+        }, timeoutMs) as any;
       }
 
       this.once(event, handler);
@@ -184,5 +184,5 @@ export class EventBus implements IEventBus {
   }
 }
 
-// Export singleton instance
+// Export singleton instance,
 export const eventBus = EventBus.getInstance();

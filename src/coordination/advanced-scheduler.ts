@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * Advanced task scheduler with intelligent agent selection and priority handling
  */
@@ -38,7 +38,7 @@ export class CapabilitySchedulingStrategy implements SchedulingStrategy {
   name = 'capability';
 
   selectAgent(task: Task, agents: AgentProfile[], context: SchedulingContext): string | null {
-    // Filter agents by capability match
+    // Filter agents by capability match,
     const capableAgents = agents.filter(agent => {
       const capabilities = context.agentCapabilities.get(agent.id) || agent.capabilities;
       return task.type === 'any' || 
@@ -122,18 +122,18 @@ export class AffinitySchedulingStrategy implements SchedulingStrategy {
     const taskStats = context.taskHistory.get(task.type);
     
     if (taskStats?.lastAgent) {
-      // Check if the last agent is available
+      // Check if the last agent is available,
       const lastAgent = agents.find(a => a.id === taskStats.lastAgent);
       if (lastAgent) {
         const load = context.taskLoads.get(lastAgent.id) || 0;
-        // Use last agent if not overloaded
+        // Use last agent if not overloaded,
         if (load < lastAgent.maxConcurrentTasks * 0.8) {
           return lastAgent.id;
         }
       }
     }
 
-    // Fall back to capability-based selection
+    // Fall back to capability-based selection,
     return new CapabilitySchedulingStrategy().selectAgent(task, agents, context);
   }
 }
@@ -157,7 +157,7 @@ export class AdvancedTaskScheduler extends TaskScheduler {
   ) {
     super(config, eventBus, logger);
 
-    // Initialize components
+    // Initialize components,
     this.workStealing = new WorkStealingCoordinator(
       {
         enabled: true,
@@ -179,13 +179,13 @@ export class AdvancedTaskScheduler extends TaskScheduler {
     };
     this.circuitBreakers = new CircuitBreakerManager(cbConfig, logger, eventBus);
 
-    // Register default strategies
+    // Register default strategies,
     this.registerStrategy(new CapabilitySchedulingStrategy());
     this.registerStrategy(new RoundRobinSchedulingStrategy());
     this.registerStrategy(new LeastLoadedSchedulingStrategy());
     this.registerStrategy(new AffinitySchedulingStrategy());
 
-    // Set up event handlers
+    // Set up event handlers,
     this.setupAdvancedEventHandlers();
   }
 
@@ -246,10 +246,10 @@ export class AdvancedTaskScheduler extends TaskScheduler {
    * Override assignTask to use advanced scheduling
    */
   override async assignTask(task: Task, agentId?: string): Promise<void> {
-    // Add to dependency graph
+    // Add to dependency graph,
     this.dependencyGraph.addTask(task);
 
-    // If no agent specified, select one
+    // If no agent specified, select one,
     if (!agentId) {
       const selectedAgent = await this.selectAgentForTask(task);
       if (!selectedAgent) {
@@ -258,12 +258,12 @@ export class AdvancedTaskScheduler extends TaskScheduler {
       agentId = selectedAgent;
     }
 
-    // Use circuit breaker for assignment
+    // Use circuit breaker for assignment,
     await this.circuitBreakers.execute(`assign-${agentId}`, async () => {
       await super.assignTask(task, agentId!);
     });
 
-    // Update work stealing metrics
+    // Update work stealing metrics,
     const taskCount = await this.getAgentTaskCount(agentId);
     this.workStealing.updateAgentWorkload(agentId, { taskCount });
   }
@@ -277,7 +277,7 @@ export class AdvancedTaskScheduler extends TaskScheduler {
       return null;
     }
 
-    // Build scheduling context
+    // Build scheduling context,
     const context: SchedulingContext = {
       taskLoads: new Map(),
       agentCapabilities: new Map(),
@@ -286,7 +286,7 @@ export class AdvancedTaskScheduler extends TaskScheduler {
       currentTime: new Date(),
     };
 
-    // Populate context
+    // Populate context,
     for (const agent of availableAgents) {
       const taskCount = await this.getAgentTaskCount(agent.id);
       context.taskLoads.set(agent.id, taskCount);
@@ -294,13 +294,13 @@ export class AdvancedTaskScheduler extends TaskScheduler {
       context.agentPriorities.set(agent.id, agent.priority);
     }
 
-    // Try work stealing first
+    // Try work stealing first,
     const workStealingAgent = this.workStealing.findBestAgent(task, availableAgents);
     if (workStealingAgent) {
       return workStealingAgent;
     }
 
-    // Use configured strategy
+    // Use configured strategy,
     const strategy = this.strategies.get(this.defaultStrategy);
     if (!strategy) {
       throw new Error(`Strategy not found: ${this.defaultStrategy}`);
@@ -318,26 +318,26 @@ export class AdvancedTaskScheduler extends TaskScheduler {
       throw new Error(`Task not found: ${taskId}`);
     }
 
-    // Calculate duration
+    // Calculate duration,
     const duration = task.startedAt 
       ? new Date().getTime() - task.startedAt.getTime()
       : 0;
 
-    // Update task stats
+    // Update task stats,
     this.updateTaskStats(task.type, true, duration);
 
-    // Update work stealing metrics
+    // Update work stealing metrics,
     if (task.assignedAgent) {
       this.workStealing.recordTaskDuration(task.assignedAgent, duration);
     }
 
-    // Mark as completed in dependency graph
+    // Mark as completed in dependency graph,
     const readyTasks = this.dependencyGraph.markCompleted(taskId);
 
-    // Complete the task
+    // Complete the task,
     await super.completeTask(taskId, result);
 
-    // Start ready tasks
+    // Start ready tasks,
     for (const readyTaskId of readyTasks) {
       const readyTask = await this.getTask(readyTaskId);
       if (readyTask) {
@@ -355,16 +355,16 @@ export class AdvancedTaskScheduler extends TaskScheduler {
       throw new Error(`Task not found: ${taskId}`);
     }
 
-    // Update task stats
+    // Update task stats,
     this.updateTaskStats(task.type, false, 0);
 
-    // Mark as failed in dependency graph
+    // Mark as failed in dependency graph,
     const toCancelIds = this.dependencyGraph.markFailed(taskId);
 
-    // Fail the task
+    // Fail the task,
     await super.failTask(taskId, error);
 
-    // Cancel dependent tasks
+    // Cancel dependent tasks,
     for (const cancelId of toCancelIds) {
       await this.cancelTask(cancelId, 'Parent task failed');
     }
@@ -375,7 +375,7 @@ export class AdvancedTaskScheduler extends TaskScheduler {
    */
   private async getTask(taskId: string): Promise<Task | null> {
     // This would need to be implemented based on how tasks are stored
-    // For now, return null
+    // For now, return null,
     return null;
   }
 
@@ -411,7 +411,7 @@ export class AdvancedTaskScheduler extends TaskScheduler {
    * Set up advanced event handlers
    */
   private setupAdvancedEventHandlers(): void {
-    // Handle work stealing requests
+    // Handle work stealing requests,
     this.eventBus.on('workstealing:request', async (data: any) => {
       const { sourceAgent, targetAgent, taskCount } = data;
       
@@ -435,7 +435,7 @@ export class AdvancedTaskScheduler extends TaskScheduler {
       }
     });
 
-    // Update workload on task events
+    // Update workload on task events,
     this.eventBus.on(SystemEvents.TASK_ASSIGNED, async (data: any) => {
       const { agentId } = data;
       const taskCount = await this.getAgentTaskCount(agentId);
@@ -453,16 +453,16 @@ export class AdvancedTaskScheduler extends TaskScheduler {
    * Reassign a task to a different agent
    */
   private async reassignTask(taskId: string, newAgentId: string): Promise<void> {
-    // Cancel the current assignment
+    // Cancel the current assignment,
     await this.cancelTask(taskId, 'Reassigning to different agent');
     
-    // Get the task
+    // Get the task,
     const task = await this.getTask(taskId);
     if (!task) {
       throw new Error(`Task not found: ${taskId}`);
     }
 
-    // Assign to new agent
+    // Assign to new agent,
     await this.assignTask(task, newAgentId);
   }
 

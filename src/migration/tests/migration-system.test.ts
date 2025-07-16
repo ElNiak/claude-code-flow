@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * Migration System Tests
  * Comprehensive test suite for migration functionality
@@ -19,14 +19,14 @@ describe('Migration System', () => {
   let projectPath: string;
 
   beforeEach(async () => {
-    // Create temporary test directory
+    // Create temporary test directory,
     testDir = await fs.mkdtemp(path.join(os.tmpdir(), 'migration-test-'));
     projectPath = path.join(testDir, 'test-project');
     await fs.ensureDir(projectPath);
   });
 
   afterEach(async () => {
-    // Cleanup test directory
+    // Cleanup test directory,
     await fs.remove(testDir);
   });
 
@@ -46,12 +46,12 @@ describe('Migration System', () => {
     });
 
     it('should detect existing .claude folder and commands', async () => {
-      // Create mock .claude structure
+      // Create mock .claude structure,
       const claudePath = path.join(projectPath, '.claude');
       const commandsPath = path.join(claudePath, 'commands');
       await fs.ensureDir(commandsPath);
 
-      // Create standard commands
+      // Create standard commands,
       await fs.writeFile(path.join(commandsPath, 'sparc.md'), '# SPARC Command');
       await fs.writeFile(path.join(commandsPath, 'custom-command.md'), '# Custom Command');
 
@@ -64,7 +64,7 @@ describe('Migration System', () => {
     });
 
     it('should detect optimized prompts', async () => {
-      // Create mock optimized files
+      // Create mock optimized files,
       const claudePath = path.join(projectPath, '.claude');
       await fs.ensureDir(claudePath);
       await fs.writeFile(path.join(claudePath, 'BATCHTOOLS_GUIDE.md'), '# Guide');
@@ -77,7 +77,7 @@ describe('Migration System', () => {
     });
 
     it('should detect conflicting files', async () => {
-      // Create files that would conflict
+      // Create files that would conflict,
       const claudePath = path.join(projectPath, '.claude');
       const commandsPath = path.join(claudePath, 'commands');
       await fs.ensureDir(commandsPath);
@@ -115,7 +115,7 @@ describe('Migration System', () => {
     });
 
     it('should preserve custom commands in selective migration', async () => {
-      // Setup project with custom command
+      // Setup project with custom command,
       const claudePath = path.join(projectPath, '.claude');
       const commandsPath = path.join(claudePath, 'commands');
       await fs.ensureDir(commandsPath);
@@ -138,7 +138,7 @@ describe('Migration System', () => {
     });
 
     it('should create backup before migration', async () => {
-      // Create existing .claude folder
+      // Create existing .claude folder,
       const claudePath = path.join(projectPath, '.claude');
       await fs.ensureDir(claudePath);
       await fs.writeFile(path.join(claudePath, 'test.md'), '# Test');
@@ -157,7 +157,7 @@ describe('Migration System', () => {
     });
 
     it('should handle migration errors gracefully', async () => {
-      // Create invalid project state
+      // Create invalid project state,
       const runner = new MigrationRunner({
         projectPath: '/invalid/path',
         strategy: 'full',
@@ -180,7 +180,7 @@ describe('Migration System', () => {
 
       const result = await runner.run();
 
-      // Should not create actual files in dry-run
+      // Should not create actual files in dry-run,
       const claudePath = path.join(projectPath, '.claude');
       const exists = await fs.pathExists(claudePath);
       expect(exists).toBe(false);
@@ -195,7 +195,7 @@ describe('Migration System', () => {
     });
 
     it('should create backup with file checksums', async () => {
-      // Create files to backup
+      // Create files to backup,
       const claudePath = path.join(projectPath, '.claude');
       await fs.ensureDir(claudePath);
       await fs.writeFile(path.join(claudePath, 'test.md'), '# Test Content');
@@ -209,9 +209,9 @@ describe('Migration System', () => {
     });
 
     it('should list backups chronologically', async () => {
-      // Create multiple backups
+      // Create multiple backups,
       await rollbackManager.createBackup({ type: 'first' });
-      await new Promise(resolve => setTimeout(resolve, 100)); // Ensure different timestamps
+      await new Promise(resolve => setTimeout(resolve, 100)); // Ensure different timestamps,
       await rollbackManager.createBackup({ type: 'second' });
 
       const backups = await rollbackManager.listBackups();
@@ -222,28 +222,28 @@ describe('Migration System', () => {
     });
 
     it('should restore files from backup', async () => {
-      // Create original files
+      // Create original files,
       const claudePath = path.join(projectPath, '.claude');
       await fs.ensureDir(claudePath);
       const originalContent = '# Original Content';
       await fs.writeFile(path.join(claudePath, 'test.md'), originalContent);
 
-      // Create backup
+      // Create backup,
       const backup = await rollbackManager.createBackup();
 
-      // Modify file
+      // Modify file,
       await fs.writeFile(path.join(claudePath, 'test.md'), '# Modified Content');
 
-      // Rollback
+      // Rollback,
       await rollbackManager.rollback(backup.metadata.backupId, false);
 
-      // Verify restoration
+      // Verify restoration,
       const restoredContent = await fs.readFile(path.join(claudePath, 'test.md'), 'utf-8');
       expect(restoredContent).toBe(originalContent);
     });
 
     it('should cleanup old backups', async () => {
-      // Create multiple backups
+      // Create multiple backups,
       for (let i = 0; i < 5; i++) {
         await rollbackManager.createBackup({ type: `backup-${i}` });
       }
@@ -251,7 +251,7 @@ describe('Migration System', () => {
       const backupsBefore = await rollbackManager.listBackups();
       expect(backupsBefore).toHaveLength(5);
 
-      // Cleanup keeping only 2 backups
+      // Cleanup keeping only 2 backups,
       await rollbackManager.cleanupOldBackups(0, 2);
 
       const backupsAfter = await rollbackManager.listBackups();
@@ -259,14 +259,14 @@ describe('Migration System', () => {
     });
 
     it('should export and import backups', async () => {
-      // Create backup
+      // Create backup,
       const backup = await rollbackManager.createBackup();
       
-      // Export backup
+      // Export backup,
       const exportPath = path.join(testDir, 'exported-backup');
       await rollbackManager.exportBackup(backup.metadata.backupId, exportPath);
       
-      // Verify export
+      // Verify export,
       const manifestPath = path.join(exportPath, 'backup-manifest.json');
       expect(await fs.pathExists(manifestPath)).toBe(true);
       
@@ -287,12 +287,12 @@ describe('Migration System', () => {
     });
 
     it('should validate successful migration', async () => {
-      // Create valid migrated structure
+      // Create valid migrated structure,
       const claudePath = path.join(projectPath, '.claude');
       const commandsPath = path.join(claudePath, 'commands');
       await fs.ensureDir(commandsPath);
       
-      // Create required files
+      // Create required files,
       await fs.writeFile(path.join(commandsPath, 'sparc.md'), '# SPARC Command');
       await fs.writeFile(path.join(commandsPath, 'claude-flow-help.md'), '# Help');
       await fs.writeFile(path.join(claudePath, 'BATCHTOOLS_GUIDE.md'), '# Guide');
@@ -304,7 +304,7 @@ describe('Migration System', () => {
     });
 
     it('should detect missing required files', async () => {
-      // Create incomplete structure
+      // Create incomplete structure,
       const claudePath = path.join(projectPath, '.claude');
       await fs.ensureDir(claudePath);
 
@@ -316,12 +316,12 @@ describe('Migration System', () => {
     });
 
     it('should detect corrupted files', async () => {
-      // Create structure with empty files
+      // Create structure with empty files,
       const claudePath = path.join(projectPath, '.claude');
       const commandsPath = path.join(claudePath, 'commands');
       await fs.ensureDir(commandsPath);
       
-      await fs.writeFile(path.join(commandsPath, 'sparc.md'), ''); // Empty file
+      await fs.writeFile(path.join(commandsPath, 'sparc.md'), ''); // Empty file,
 
       const result = await validator.validate(projectPath);
 
@@ -340,12 +340,12 @@ describe('Migration System', () => {
 
   describe('Integration Tests', () => {
     it('should complete full migration workflow', async () => {
-      // 1. Analyze project
+      // 1. Analyze project,
       const analyzer = new MigrationAnalyzer();
       const analysis = await analyzer.analyze(projectPath);
       expect(analysis.hasClaudeFolder).toBe(false);
 
-      // 2. Run migration
+      // 2. Run migration,
       const runner = new MigrationRunner({
         projectPath,
         strategy: 'full',
@@ -355,30 +355,30 @@ describe('Migration System', () => {
       const result = await runner.run();
       expect(result.success).toBe(true);
 
-      // 3. Validate migration
+      // 3. Validate migration,
       const validator = new MigrationValidator();
       const validation = await validator.validate(projectPath);
       expect(validation.valid).toBe(true);
 
-      // 4. Verify rollback capability
+      // 4. Verify rollback capability,
       const rollbackManager = new RollbackManager(projectPath);
       const backups = await rollbackManager.listBackups();
       expect(backups.length).toBeGreaterThan(0);
     });
 
     it('should handle migration with conflicts', async () => {
-      // Create conflicting files
+      // Create conflicting files,
       const claudePath = path.join(projectPath, '.claude');
       const commandsPath = path.join(claudePath, 'commands');
       await fs.ensureDir(commandsPath);
       await fs.writeFile(path.join(commandsPath, 'sparc.md'), '# Custom SPARC');
 
-      // Run analysis
+      // Run analysis,
       const analyzer = new MigrationAnalyzer();
       const analysis = await analyzer.analyze(projectPath);
       expect(analysis.conflictingFiles.length).toBeGreaterThan(0);
 
-      // Run merge migration
+      // Run merge migration,
       const runner = new MigrationRunner({
         projectPath,
         strategy: 'merge',
@@ -391,7 +391,7 @@ describe('Migration System', () => {
     });
 
     it('should recover from failed migration', async () => {
-      // Create backup first
+      // Create backup first,
       const rollbackManager = new RollbackManager(projectPath);
       const claudePath = path.join(projectPath, '.claude');
       await fs.ensureDir(claudePath);
@@ -399,13 +399,13 @@ describe('Migration System', () => {
       
       const backup = await rollbackManager.createBackup();
 
-      // Simulate failed migration by creating invalid state
+      // Simulate failed migration by creating invalid state,
       await fs.writeFile(path.join(claudePath, 'broken.md'), '');
 
-      // Rollback
+      // Rollback,
       await rollbackManager.rollback(backup.metadata.backupId, false);
 
-      // Verify recovery
+      // Verify recovery,
       const exists = await fs.pathExists(path.join(claudePath, 'original.md'));
       expect(exists).toBe(true);
       
@@ -416,12 +416,12 @@ describe('Migration System', () => {
 
   describe('Edge Cases', () => {
     it('should handle readonly files', async () => {
-      // Create readonly file
+      // Create readonly file,
       const claudePath = path.join(projectPath, '.claude');
       await fs.ensureDir(claudePath);
       const readonlyFile = path.join(claudePath, 'readonly.md');
       await fs.writeFile(readonlyFile, '# Readonly');
-      await fs.chmod(readonlyFile, 0o444); // readonly
+      await fs.chmod(readonlyFile, 0o444); // readonly,
 
       const runner = new MigrationRunner({
         projectPath,
@@ -430,13 +430,13 @@ describe('Migration System', () => {
         dryRun: false
       });
 
-      // Should handle gracefully
+      // Should handle gracefully,
       const result = await runner.run();
       expect(result.warnings.length).toBeGreaterThan(0);
     });
 
     it('should handle invalid JSON configurations', async () => {
-      // Create invalid .roomodes file
+      // Create invalid .roomodes file,
       const roomodesPath = path.join(projectPath, '.roomodes');
       await fs.writeFile(roomodesPath, 'invalid json {');
 
@@ -447,10 +447,10 @@ describe('Migration System', () => {
     });
 
     it('should handle missing permissions', async () => {
-      // Create directory without write permissions
+      // Create directory without write permissions,
       const claudePath = path.join(projectPath, '.claude');
       await fs.ensureDir(claudePath);
-      await fs.chmod(claudePath, 0o555); // readonly
+      await fs.chmod(claudePath, 0o555); // readonly,
 
       const validator = new MigrationValidator();
       const result = await validator.validate(projectPath);
@@ -459,10 +459,10 @@ describe('Migration System', () => {
     });
 
     it('should handle very large files', async () => {
-      // Create large file
+      // Create large file,
       const claudePath = path.join(projectPath, '.claude');
       await fs.ensureDir(claudePath);
-      const largeContent = 'a'.repeat(1024 * 1024); // 1MB
+      const largeContent = 'a'.repeat(1024 * 1024); // 1MB,
       await fs.writeFile(path.join(claudePath, 'large.md'), largeContent);
 
       const rollbackManager = new RollbackManager(projectPath);
@@ -473,7 +473,7 @@ describe('Migration System', () => {
 
     it('should handle concurrent migrations', async () => {
       // This test would need careful setup to avoid race conditions
-      // For now, we just ensure the migration system is thread-safe
+      // For now, we just ensure the migration system is thread-safe,
       const runners = Array.from({ length: 3 }, () => 
         new MigrationRunner({
           projectPath,
@@ -483,12 +483,12 @@ describe('Migration System', () => {
         })
       );
 
-      // Run multiple migrations concurrently
+      // Run multiple migrations concurrently,
       const results = await Promise.allSettled(
         runners.map(runner => runner.run())
       );
 
-      // At least one should succeed
+      // At least one should succeed,
       expect(results.some(r => r.status === 'fulfilled')).toBe(true);
     });
   });

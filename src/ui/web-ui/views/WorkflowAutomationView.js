@@ -716,7 +716,7 @@ npm run lint</textarea>
     
     if (params.tool) {
       console.log(`\n🔧 Executing: ${params.tool}`);
-      this.quickAction(params.tool, params);
+      this.quickAction(params.tool, _params);
     }
   }
 
@@ -750,7 +750,7 @@ npm run lint</textarea>
       }
       
     } catch (error) {
-      console.error(`❌ Error executing ${toolName}:`, error);
+      console.error(`❌ Error executing ${toolName}:`, _error);
     }
   }
 

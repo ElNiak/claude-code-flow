@@ -4,7 +4,7 @@
  * Core types and interfaces for the Hive Mind system
  */
 
-// Swarm types
+// Swarm types,
 export type SwarmTopology = 'mesh' | 'hierarchical' | 'ring' | 'star';
 export type QueenMode = 'centralized' | 'distributed';
 
@@ -20,7 +20,7 @@ export interface HiveMindConfig {
   createdAt: Date;
 }
 
-// Agent types
+// Agent types,
 export type AgentType = 
   | 'coordinator'
   | 'researcher'
@@ -86,7 +86,7 @@ export interface AgentSpawnOptions {
   autoAssign?: boolean;
 }
 
-// Task types
+// Task types,
 export type TaskPriority = 'low' | 'medium' | 'high' | 'critical';
 export type TaskStrategy = 'parallel' | 'sequential' | 'adaptive' | 'consensus';
 export type TaskStatus = 'pending' | 'assigned' | 'in_progress' | 'completed' | 'failed' | 'cancelled';
@@ -135,7 +135,7 @@ export interface TaskAssignment {
   canRunParallel: boolean;
 }
 
-// Communication types
+// Communication types,
 export type MessageType = 
   | 'direct'
   | 'broadcast'
@@ -178,7 +178,7 @@ export interface CommunicationStats {
   throughput: number;
 }
 
-// Memory types
+// Memory types,
 export interface MemoryEntry {
   key: string;
   namespace: string;
@@ -229,7 +229,7 @@ export interface MemoryPattern {
   frequency: number;
 }
 
-// Consensus types
+// Consensus types,
 export interface ConsensusProposal {
   id: string;
   swarmId: string;
@@ -277,7 +277,7 @@ export interface ConsensusMetrics {
   avgParticipation: number;
 }
 
-// Orchestration types
+// Orchestration types,
 export interface ExecutionPlan {
   taskId: string;
   strategy: TaskStrategy;
@@ -306,7 +306,7 @@ export interface ExecutionResult {
   metadata?: any;
 }
 
-// Queen types
+// Queen types,
 export interface QueenDecision {
   id: string;
   taskId: string;
@@ -327,7 +327,7 @@ export interface CoordinationStrategy {
   suitable_for: string[];
 }
 
-// Status types
+// Status types,
 export interface SwarmStatus {
   swarmId: string;
   name: string;
@@ -372,7 +372,7 @@ export interface SwarmStatus {
   warnings: string[];
 }
 
-// Neural pattern types
+// Neural pattern types,
 export interface NeuralPattern {
   id: string;
   swarmId: string;
@@ -385,7 +385,7 @@ export interface NeuralPattern {
   lastUsedAt?: Date;
 }
 
-// Performance types
+// Performance types,
 export interface PerformanceMetric {
   swarmId: string;
   agentId?: string;

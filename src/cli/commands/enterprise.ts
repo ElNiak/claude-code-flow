@@ -1,17 +1,17 @@
-import { getErrorMessage } from '../../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../../utils/error-handler.js';
 import type { Command, CommandContext } from '../cli-core.js';
-import { success, error, warning, info } from '../cli-core.js';
+import { success, _error, warning, info } from '../cli-core.js';
 import colors from 'chalk';
-import { ProjectManager, Project } from '../../enterprise/project-manager.js';
-import { DeploymentManager, Deployment, DeploymentEnvironment } from '../../enterprise/deployment-manager.js';
-import { CloudManager, CloudProvider, CloudResource } from '../../enterprise/cloud-manager.js';
-import { SecurityManager, SecurityScan } from '../../enterprise/security-manager.js';
+import { ProjectManager, Project as _Project } from '../../enterprise/project-manager.js';
+import { DeploymentManager, Deployment, DeploymentEnvironment as _DeploymentEnvironment } from '../../enterprise/deployment-manager.js';
+import { CloudManager, CloudProvider as _CloudProvider, CloudResource as _CloudResource } from '../../enterprise/cloud-manager.js';
+import { SecurityManager, SecurityScan as _SecurityScan } from '../../enterprise/security-manager.js';
 import { AnalyticsManager } from '../../enterprise/analytics-manager.js';
 import { AuditManager } from '../../enterprise/audit-manager.js';
-import { Logger } from '../../core/logger.js';
-import type { ConfigManager } from '../../core/config.js';
+import { Logger as _Logger } from '../../core/logger.js';
+import type { ConfigManager as _ConfigManager } from '../../core/config.js';
 
-const { bold, blue, green, yellow, red, cyan, magenta } = colors;
+const { bold, blue, green, yellow, red, cyan, magenta: _magenta } = colors;
 
 let projectManager: ProjectManager | null = null;
 let deploymentManager: DeploymentManager | null = null;
@@ -89,7 +89,7 @@ export const enterpriseCommands: Command[] = [
         case 'create': {
           const name = ctx.args[1];
           if (!name) {
-            error('Usage: project create <name> [options]');
+            _error('Usage: project create <name> [options]');
             break;
           }
 
@@ -115,7 +115,7 @@ export const enterpriseCommands: Command[] = [
               console.log(`${blue('Budget:')} ${project.budget.total} ${project.budget.currency}`);
             }
           } catch (err) {
-            error(`Failed to create project: ${(err as Error).message}`);
+            _error(`Failed to create project: ${_getErrorMessage(err)}`);
           }
           break;
         }
@@ -156,7 +156,7 @@ export const enterpriseCommands: Command[] = [
               console.log();
             }
           } catch (err) {
-            error(`Failed to list projects: ${(err as Error).message}`);
+            _error(`Failed to list projects: ${_getErrorMessage(err)}`);
           }
           break;
         }
@@ -164,14 +164,14 @@ export const enterpriseCommands: Command[] = [
         case 'show': {
           const projectId = ctx.args[1];
           if (!projectId) {
-            error('Usage: project show <project-id>');
+            _error('Usage: project show <project-id>');
             break;
           }
 
           try {
             const project = await manager.getProject(projectId);
             if (!project) {
-              error(`Project not found: ${projectId}`);
+              _error(`Project not found: ${projectId}`);
               break;
             }
 
@@ -214,7 +214,7 @@ export const enterpriseCommands: Command[] = [
               }
             }
           } catch (err) {
-            error(`Failed to show project: ${(err as Error).message}`);
+            _error(`Failed to show project: ${_getErrorMessage(err)}`);
           }
           break;
         }
@@ -234,7 +234,7 @@ export const enterpriseCommands: Command[] = [
             console.log(`${blue('Resource Utilization:')} ${(metrics.resourceUtilization * 100).toFixed(1)}%`);
             console.log(`${blue('Quality Score:')} ${metrics.qualityScore.toFixed(1)}%`);
           } catch (err) {
-            error(`Failed to get metrics: ${(err as Error).message}`);
+            _error(`Failed to get metrics: ${_getErrorMessage(err)}`);
           }
           break;
         }
@@ -244,7 +244,7 @@ export const enterpriseCommands: Command[] = [
           const reportType = (ctx.args[2] as any) || 'status';
 
           if (!projectId) {
-            error('Usage: project report <project-id> [type]');
+            _error('Usage: project report <project-id> [type]');
             break;
           }
 
@@ -268,7 +268,7 @@ export const enterpriseCommands: Command[] = [
               }
             }
           } catch (err) {
-            error(`Failed to generate report: ${(err as Error).message}`);
+            _error(`Failed to generate report: ${_getErrorMessage(err)}`);
           }
           break;
         }
@@ -334,7 +334,7 @@ export const enterpriseCommands: Command[] = [
         case 'create': {
           const name = ctx.args[1];
           if (!name) {
-            error('Usage: deploy create <name> --environment <env> --strategy <strategy>');
+            _error('Usage: deploy create <name> --environment <env> --strategy <strategy>');
             break;
           }
 
@@ -367,7 +367,7 @@ export const enterpriseCommands: Command[] = [
               warning('Dry run - deployment not executed');
             }
           } catch (err) {
-            error(`Failed to create deployment: ${(err as Error).message}`);
+            _error(`Failed to create deployment: ${_getErrorMessage(err)}`);
           }
           break;
         }
@@ -378,7 +378,7 @@ export const enterpriseCommands: Command[] = [
             if (ctx.flags.environment) filters.environmentId = ctx.flags.environment;
             if (ctx.flags.status) filters.status = ctx.flags.status;
 
-            // Note: This would need to be implemented in DeploymentManager
+            // Note: This would need to be implemented in DeploymentManager,
             const deployments: Deployment[] = [];
 
             if (deployments.length === 0) {
@@ -404,7 +404,7 @@ export const enterpriseCommands: Command[] = [
               console.log();
             }
           } catch (err) {
-            error(`Failed to list deployments: ${(err as Error).message}`);
+            _error(`Failed to list deployments: ${_getErrorMessage(err)}`);
           }
           break;
         }
@@ -414,7 +414,7 @@ export const enterpriseCommands: Command[] = [
           const reason = ctx.args.slice(2).join(' ') || 'Manual rollback requested';
 
           if (!deploymentId) {
-            error('Usage: deploy rollback <deployment-id> [reason]');
+            _error('Usage: deploy rollback <deployment-id> [reason]');
             break;
           }
 
@@ -423,7 +423,7 @@ export const enterpriseCommands: Command[] = [
             success(`Rollback initiated for deployment: ${deploymentId}`);
             console.log(`${blue('Reason:')} ${reason}`);
           } catch (err) {
-            error(`Failed to rollback deployment: ${(err as Error).message}`);
+            _error(`Failed to rollback deployment: ${_getErrorMessage(err)}`);
           }
           break;
         }
@@ -460,7 +460,7 @@ export const enterpriseCommands: Command[] = [
               }
             }
           } catch (err) {
-            error(`Failed to get metrics: ${(err as Error).message}`);
+            _error(`Failed to get metrics: ${_getErrorMessage(err)}`);
           }
           break;
         }
@@ -472,7 +472,7 @@ export const enterpriseCommands: Command[] = [
             case 'create': {
               const name = ctx.args[2];
               if (!name) {
-                error('Usage: deploy environments create <name> --type <type>');
+                _error('Usage: deploy environments create <name> --type <type>');
                 break;
               }
 
@@ -497,13 +497,13 @@ export const enterpriseCommands: Command[] = [
                 console.log(`${blue('Region:')} ${environment.configuration.region}`);
                 console.log(`${blue('Provider:')} ${environment.configuration.provider}`);
               } catch (err) {
-                error(`Failed to create environment: ${(err as Error).message}`);
+                _error(`Failed to create environment: ${_getErrorMessage(err)}`);
               }
               break;
             }
 
             case 'list': {
-              // Would implement environment listing
+              // Would implement environment listing,
               info('Environment listing not yet implemented');
               break;
             }
@@ -572,7 +572,7 @@ export const enterpriseCommands: Command[] = [
               const type = ctx.args[3] as any;
 
               if (!name || !type) {
-                error('Usage: cloud providers add <name> <type>');
+                _error('Usage: cloud providers add <name> <type>');
                 break;
               }
 
@@ -601,13 +601,13 @@ export const enterpriseCommands: Command[] = [
                 console.log(`${blue('Status:')} ${provider.status}`);
                 console.log(`${blue('Default Region:')} ${provider.configuration.defaultRegion}`);
               } catch (err) {
-                error(`Failed to add provider: ${(err as Error).message}`);
+                _error(`Failed to add provider: ${_getErrorMessage(err)}`);
               }
               break;
             }
 
             case 'list': {
-              // Would implement provider listing
+              // Would implement provider listing,
               info('Provider listing not yet implemented');
               break;
             }
@@ -629,7 +629,7 @@ export const enterpriseCommands: Command[] = [
               const type = ctx.args[3] as any;
 
               if (!name || !type) {
-                error('Usage: cloud resources create <name> <type> --provider <provider-id>');
+                _error('Usage: cloud resources create <name> <type> --provider <provider-id>');
                 break;
               }
 
@@ -659,13 +659,13 @@ export const enterpriseCommands: Command[] = [
                 console.log(`${blue('Region:')} ${resource.region}`);
                 console.log(`${blue('Monthly Cost:')} $${resource.costs.monthlyEstimate.toFixed(2)}`);
               } catch (err) {
-                error(`Failed to create resource: ${(err as Error).message}`);
+                _error(`Failed to create resource: ${_getErrorMessage(err)}`);
               }
               break;
             }
 
             case 'list': {
-              // Would implement resource listing
+              // Would implement resource listing,
               info('Resource listing not yet implemented');
               break;
             }
@@ -673,7 +673,7 @@ export const enterpriseCommands: Command[] = [
             case 'scale': {
               const resourceId = ctx.args[2];
               if (!resourceId) {
-                error('Usage: cloud resources scale <resource-id> --size <size>');
+                _error('Usage: cloud resources scale <resource-id> --size <size>');
                 break;
               }
 
@@ -685,7 +685,7 @@ export const enterpriseCommands: Command[] = [
 
                 success(`Resource scaled: ${resourceId}`);
               } catch (err) {
-                error(`Failed to scale resource: ${(err as Error).message}`);
+                _error(`Failed to scale resource: ${_getErrorMessage(err)}`);
               }
               break;
             }
@@ -693,7 +693,7 @@ export const enterpriseCommands: Command[] = [
             case 'delete': {
               const resourceId = ctx.args[2];
               if (!resourceId) {
-                error('Usage: cloud resources delete <resource-id>');
+                _error('Usage: cloud resources delete <resource-id>');
                 break;
               }
 
@@ -701,7 +701,7 @@ export const enterpriseCommands: Command[] = [
                 await manager.deleteResource(resourceId);
                 success(`Resource deleted: ${resourceId}`);
               } catch (err) {
-                error(`Failed to delete resource: ${(err as Error).message}`);
+                _error(`Failed to delete resource: ${_getErrorMessage(err)}`);
               }
               break;
             }
@@ -741,7 +741,7 @@ export const enterpriseCommands: Command[] = [
             const totalSavings = optimizations.reduce((sum, opt) => sum + opt.potentialSavings, 0);
             success(`Total potential savings: $${totalSavings.toFixed(2)}/month`);
           } catch (err) {
-            error(`Failed to analyze cost optimization: ${(err as Error).message}`);
+            _error(`Failed to analyze cost optimization: ${_getErrorMessage(err)}`);
           }
           break;
         }
@@ -778,7 +778,7 @@ export const enterpriseCommands: Command[] = [
             console.log(`  Encryption Coverage: ${metrics.security.encryptionCoverage.toFixed(1)}%`);
             console.log(`  Backup Coverage: ${metrics.security.backupCoverage.toFixed(1)}%`);
           } catch (err) {
-            error(`Failed to get metrics: ${(err as Error).message}`);
+            _error(`Failed to get metrics: ${_getErrorMessage(err)}`);
           }
           break;
         }
@@ -834,7 +834,7 @@ export const enterpriseCommands: Command[] = [
           const target = ctx.args[2];
 
           if (!name || !target) {
-            error('Usage: security scan <name> <target-path> --type <scan-type>');
+            _error('Usage: security scan <name> <target-path> --type <scan-type>');
             break;
           }
 
@@ -875,7 +875,7 @@ export const enterpriseCommands: Command[] = [
               console.log(`${blue('Duration:')} ${(updatedScan.metrics.scanDuration / 1000).toFixed(1)}s`);
             }
           } catch (err) {
-            error(`Failed to execute scan: ${(err as Error).message}`);
+            _error(`Failed to execute scan: ${_getErrorMessage(err)}`);
           }
           break;
         }
@@ -887,7 +887,7 @@ export const enterpriseCommands: Command[] = [
             case 'create': {
               const title = ctx.args[2];
               if (!title) {
-                error('Usage: security incident create <title> --severity <level>');
+                _error('Usage: security incident create <title> --severity <level>');
                 break;
               }
 
@@ -914,13 +914,13 @@ export const enterpriseCommands: Command[] = [
                 console.log(`${blue('Status:')} ${incident.status}`);
                 console.log(`${blue('Assigned To:')} ${incident.response.assignedTo.join(', ')}`);
               } catch (err) {
-                error(`Failed to create incident: ${(err as Error).message}`);
+                _error(`Failed to create incident: ${_getErrorMessage(err)}`);
               }
               break;
             }
 
             case 'list': {
-              // Would implement incident listing
+              // Would implement incident listing,
               info('Incident listing not yet implemented');
               break;
             }
@@ -936,7 +936,7 @@ export const enterpriseCommands: Command[] = [
         case 'compliance': {
           const frameworks = ctx.args.slice(1);
           if (frameworks.length === 0) {
-            error('Usage: security compliance <framework1> [framework2] ...');
+            _error('Usage: security compliance <framework1> [framework2] ...');
             break;
           }
 
@@ -970,7 +970,7 @@ export const enterpriseCommands: Command[] = [
               console.log();
             }
           } catch (err) {
-            error(`Failed to run compliance assessment: ${(err as Error).message}`);
+            _error(`Failed to run compliance assessment: ${_getErrorMessage(err)}`);
           }
           break;
         }
@@ -1005,7 +1005,7 @@ export const enterpriseCommands: Command[] = [
             console.log(`  MTTD: ${(metrics.incidents.meanTimeToDetection / 1000 / 60).toFixed(1)} minutes`);
             console.log(`  MTTR: ${(metrics.incidents.meanTimeToResolution / 1000 / 60 / 60).toFixed(1)} hours`);
           } catch (err) {
-            error(`Failed to get security metrics: ${(err as Error).message}`);
+            _error(`Failed to get security metrics: ${_getErrorMessage(err)}`);
           }
           break;
         }
@@ -1057,7 +1057,7 @@ export const enterpriseCommands: Command[] = [
             case 'create': {
               const name = ctx.args[2];
               if (!name) {
-                error('Usage: analytics dashboard create <name> --type <type>');
+                _error('Usage: analytics dashboard create <name> --type <type>');
                 break;
               }
 
@@ -1074,13 +1074,13 @@ export const enterpriseCommands: Command[] = [
                 console.log(`${blue('Type:')} ${dashboard.type}`);
                 console.log(`${blue('Widgets:')} ${dashboard.widgets.length}`);
               } catch (err) {
-                error(`Failed to create dashboard: ${(err as Error).message}`);
+                _error(`Failed to create dashboard: ${_getErrorMessage(err)}`);
               }
               break;
             }
 
             case 'list': {
-              // Would implement dashboard listing
+              // Would implement dashboard listing,
               info('Dashboard listing not yet implemented');
               break;
             }
@@ -1152,7 +1152,7 @@ export const enterpriseCommands: Command[] = [
               console.log();
             }
           } catch (err) {
-            error(`Failed to generate insights: ${(err as Error).message}`);
+            _error(`Failed to generate insights: ${_getErrorMessage(err)}`);
           }
           break;
         }
@@ -1235,13 +1235,13 @@ export const enterpriseCommands: Command[] = [
               }
 
               default: {
-                error(`Unknown metric type: ${metricType}`);
+                _error(`Unknown metric type: ${metricType}`);
                 console.log('Available types: performance, usage, business');
                 break;
               }
             }
           } catch (err) {
-            error(`Failed to get ${metricType} metrics: ${(err as Error).message}`);
+            _error(`Failed to get ${metricType} metrics: ${_getErrorMessage(err)}`);
           }
           break;
         }
@@ -1253,7 +1253,7 @@ export const enterpriseCommands: Command[] = [
             case 'train': {
               const name = ctx.args[2];
               if (!name) {
-                error('Usage: analytics predict train <name> --features <features> --target <target>');
+                _error('Usage: analytics predict train <name> --features <features> --target <target>');
                 break;
               }
 
@@ -1282,7 +1282,7 @@ export const enterpriseCommands: Command[] = [
                 console.log(`${blue('Accuracy:')} ${model.accuracy.toFixed(1)}%`);
                 console.log(`${blue('Features:')} ${model.features.join(', ')}`);
               } catch (err) {
-                error(`Failed to train model: ${(err as Error).message}`);
+                _error(`Failed to train model: ${_getErrorMessage(err)}`);
               }
               break;
             }
@@ -1290,7 +1290,7 @@ export const enterpriseCommands: Command[] = [
             case 'predict': {
               const modelId = ctx.args[2];
               if (!modelId) {
-                error('Usage: analytics predict predict <model-id> --input <json>');
+                _error('Usage: analytics predict predict <model-id> --input <json>');
                 break;
               }
 
@@ -1307,7 +1307,7 @@ export const enterpriseCommands: Command[] = [
                 console.log(`${blue('Prediction:')} ${JSON.stringify(prediction.prediction)}`);
                 console.log(`${blue('Confidence:')} ${prediction.confidence.toFixed(1)}%`);
               } catch (err) {
-                error(`Failed to make prediction: ${(err as Error).message}`);
+                _error(`Failed to make prediction: ${_getErrorMessage(err)}`);
               }
               break;
             }
@@ -1371,7 +1371,7 @@ export const enterpriseCommands: Command[] = [
           const action = ctx.args[2];
 
           if (!eventType || !action) {
-            error('Usage: audit log <event-type> <action> --resource <resource>');
+            _error('Usage: audit log <event-type> <action> --resource <resource>');
             break;
           }
 
@@ -1407,7 +1407,7 @@ export const enterpriseCommands: Command[] = [
             console.log(`${blue('Outcome:')} ${entry.outcome}`);
             console.log(`${blue('Timestamp:')} ${entry.timestamp.toISOString()}`);
           } catch (err) {
-            error(`Failed to log audit event: ${(err as Error).message}`);
+            _error(`Failed to log audit event: ${_getErrorMessage(err)}`);
           }
           break;
         }
@@ -1476,7 +1476,7 @@ export const enterpriseCommands: Command[] = [
               }
             }
           } catch (err) {
-            error(`Failed to generate audit report: ${(err as Error).message}`);
+            _error(`Failed to generate audit report: ${_getErrorMessage(err)}`);
           }
           break;
         }
@@ -1525,7 +1525,7 @@ export const enterpriseCommands: Command[] = [
             console.log(`${blue('Encrypted:')} ${ctx.flags.encrypt ? 'Yes' : 'No'}`);
             console.log(`${blue('Compressed:')} ${ctx.flags.compress ? 'Yes' : 'No'}`);
           } catch (err) {
-            error(`Failed to export audit data: ${(err as Error).message}`);
+            _error(`Failed to export audit data: ${_getErrorMessage(err)}`);
           }
           break;
         }
@@ -1537,7 +1537,7 @@ export const enterpriseCommands: Command[] = [
             if (verification.verified) {
               success('Audit integrity verification passed');
             } else {
-              error(`Audit integrity verification failed: ${verification.issues.length} issues found`);
+              _error(`Audit integrity verification failed: ${verification.issues.length} issues found`);
             }
 
             console.log(`${blue('Total Entries:')} ${verification.summary.totalEntries}`);
@@ -1552,7 +1552,7 @@ export const enterpriseCommands: Command[] = [
               }
             }
           } catch (err) {
-            error(`Failed to verify audit integrity: ${(err as Error).message}`);
+            _error(`Failed to verify audit integrity: ${_getErrorMessage(err)}`);
           }
           break;
         }
@@ -1611,7 +1611,7 @@ export const enterpriseCommands: Command[] = [
               }
             }
           } catch (err) {
-            error(`Failed to get audit metrics: ${(err as Error).message}`);
+            _error(`Failed to get audit metrics: ${_getErrorMessage(err)}`);
           }
           break;
         }

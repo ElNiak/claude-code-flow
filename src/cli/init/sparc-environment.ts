@@ -1,14 +1,14 @@
-import { getErrorMessage } from '../../utils/error-handler.js';
-// init/sparc-environment.ts - SPARC development environment setup
+import { getErrorMessage as _getErrorMessage } from '../../utils/error-handler.js';
+// init/sparc-environment.ts - SPARC development environment setup,
 export async function createSparcEnvironment(): Promise<void> {
   const fs = await import('fs/promises');
   
-  // Create .roomodes file with 17 pre-configured modes
+  // Create .roomodes file with 17 pre-configured modes,
   const roomodes = createRoomodes();
   await fs.writeFile('.roomodes', JSON.stringify(roomodes, null, 2));
   console.log('  ✅ Created .roomodes file with 17 pre-configured modes');
   
-  // Create comprehensive CLAUDE.md with batch tools integration
+  // Create comprehensive CLAUDE.md with batch tools integration,
   const claudeMd = createClaudeMd();
   await fs.writeFile('CLAUDE.md', claudeMd);
   console.log('  ✅ Created CLAUDE.md with batch tools and swarm orchestration');
@@ -109,7 +109,7 @@ function createRoomodes() {
 function createClaudeMd(): string {
   return `# Claude Code Configuration for Your Project
 
-## 🎯 Purpose of This Configuration
+## 🎯 Purpose of This Configuration,
 This CLAUDE.md file configures Claude Code to help you BUILD YOUR OWN APPLICATIONS using the claude-flow orchestration system. Claude-flow is a tool to help you develop software - it is NOT the project you should be modifying.
 
 **IMPORTANT**: 
@@ -117,14 +117,14 @@ This CLAUDE.md file configures Claude Code to help you BUILD YOUR OWN APPLICATIO
 - DO NOT modify the claude-flow system itself
 - Focus on YOUR PROJECT'S code, not the orchestration tool
 
-## 📁 Project Structure
+## 📁 Project Structure,
 When building your application, organize your code in:
 - \`src/\`: Your application source code
 - \`tests/\`: Your application tests
 - \`docs/\`: Your project documentation
 - \`config/\`: Your application configuration
 
-## 🛠️ Your Project's Build Commands
+## 🛠️ Your Project's Build Commands,
 Configure these for YOUR application (not claude-flow):
 - \`npm run build\`: Build YOUR project
 - \`npm run test\`: Run YOUR project's test suite
@@ -132,7 +132,7 @@ Configure these for YOUR application (not claude-flow):
 - \`npm run typecheck\`: Type check YOUR TypeScript code
 - \`npm start\`: Start YOUR application
 
-## 🚀 Using Claude-Flow to Build Your Application
+## 🚀 Using Claude-Flow to Build Your Application,
 
 Claude-flow provides powerful AI orchestration tools to accelerate YOUR application development. Use these commands to build YOUR project:
 
@@ -259,7 +259,7 @@ Options for YOUR project:
 
 ## 🎨 Building Your Application Step by Step
 
-### 📐 Planning Your Application
+### 📐 Planning Your Application,
 Store YOUR project decisions and requirements:
 
 \`\`\`bash
@@ -275,7 +275,7 @@ Store YOUR project decisions and requirements:
 ./claude-flow sparc run researcher "Research best practices for multi-tenant SaaS applications"
 \`\`\`
 
-### 🏗️ Building Your Application Features
+### 🏗️ Building Your Application Features,
 Implement YOUR application step by step:
 
 \`\`\`bash
@@ -292,7 +292,7 @@ Implement YOUR application step by step:
 ./claude-flow sparc run designer "Improve UI/UX for mobile responsiveness"
 \`\`\`
 
-### 🚀 Deploying Your Application
+### 🚀 Deploying Your Application,
 Prepare YOUR application for production:
 
 \`\`\`bash
@@ -309,7 +309,7 @@ Prepare YOUR application for production:
 
 ## 🛠️ How Claude Code Helps Build YOUR Application
 
-### 🤖 AI-Powered Development Assistance
+### 🤖 AI-Powered Development Assistance,
 When you use claude-flow commands, Claude Code will help you:
 - **Write code** for YOUR application (not for claude-flow itself)
 - **Design architecture** for YOUR project requirements
@@ -318,11 +318,11 @@ When you use claude-flow commands, Claude Code will help you:
 - **Optimize performance** of YOUR application
 - **Document** YOUR project
 
-### 📋 Task Management for YOUR Project
+### 📋 Task Management for YOUR Project,
 Claude Code uses TodoWrite and TodoRead to manage YOUR development tasks:
 
 \`\`\`javascript
-// Example: Claude Code will create tasks for YOUR application development
+// Example: Claude Code will create tasks for YOUR application development,
 TodoWrite([
   {
     id: "create_user_model",
@@ -351,7 +351,7 @@ TodoWrite([
 ]);
 \`\`\`
 
-## 🎯 SPARC Modes: Specialized AI Assistants for Your Project
+## 🎯 SPARC Modes: Specialized AI Assistants for Your Project,
 
 Each SPARC mode is a specialized AI assistant that helps with different aspects of YOUR application development:
 
@@ -373,7 +373,7 @@ Each SPARC mode is a specialized AI assistant that helps with different aspects 
 - **documenter**: Writes documentation for YOUR project
 - **innovator**: Suggests innovative features for YOUR application
 
-## 🐝 Swarm Mode: Multiple AI Agents for Complex Features
+## 🐝 Swarm Mode: Multiple AI Agents for Complex Features,
 
 Use swarm mode when building complex features that benefit from multiple specialized agents:
 
@@ -391,7 +391,7 @@ Use swarm mode when building complex features that benefit from multiple special
   --strategy testing --parallel --max-agents 6
 \`\`\`
 
-## 💻 Code Style for YOUR Project
+## 💻 Code Style for YOUR Project,
 
 When Claude Code writes code for YOUR application, it will follow these best practices:
 - Modern ES6+ JavaScript/TypeScript

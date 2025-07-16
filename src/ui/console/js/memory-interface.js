@@ -298,7 +298,7 @@ class MemoryInterface {
             this.updateKeyValueList();
             this.updateAnalytics();
         } catch (error) {
-            console.error('Failed to load memory data:', error);
+            console.error('Failed to load memory data:', _error);
             this.showError('Failed to load memory data');
         }
     }
@@ -394,7 +394,7 @@ class MemoryInterface {
         for (const [key, value] of this.memoryData) {
             const parts = key.split('.');
             let current = namespaces;
-            let path = '';
+            let _path = '';
             
             for (let i = 0; i < parts.length - 1; i++) {
                 const part = parts[i];
@@ -610,7 +610,7 @@ class MemoryInterface {
             await navigator.clipboard.writeText(text);
             this.showSuccess('Key copied to clipboard');
         } catch (error) {
-            console.error('Failed to copy to clipboard:', error);
+            console.error('Failed to copy to clipboard:', _error);
             this.showError('Failed to copy to clipboard');
         }
     }
@@ -648,7 +648,7 @@ class MemoryInterface {
             this.closeModal();
             await this.notifyCoordination(`Saved key: ${key}`);
         } catch (error) {
-            console.error('Failed to save key-value:', error);
+            console.error('Failed to save key-value:', _error);
             this.showError('Failed to save key-value pair');
         }
     }
@@ -659,7 +659,7 @@ class MemoryInterface {
             this.showSuccess(`Backup created: ${backup.id}`);
             await this.notifyCoordination(`Created backup: ${backup.id}`);
         } catch (error) {
-            console.error('Failed to create backup:', error);
+            console.error('Failed to create backup:', _error);
             this.showError('Failed to create backup');
         }
     }
@@ -671,7 +671,7 @@ class MemoryInterface {
             await this.loadMemoryData();
             await this.notifyCoordination(`Optimized memory: ${result.savedBytes} bytes saved`);
         } catch (error) {
-            console.error('Failed to optimize memory:', error);
+            console.error('Failed to optimize memory:', _error);
             this.showError('Failed to optimize memory');
         }
     }
@@ -741,7 +741,7 @@ class MemoryInterface {
                 body: JSON.stringify({ message, timestamp: Date.now() })
             });
         } catch (error) {
-            console.error('Failed to notify coordination:', error);
+            console.error('Failed to notify coordination:', _error);
         }
     }
 

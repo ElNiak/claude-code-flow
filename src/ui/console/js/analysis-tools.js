@@ -51,11 +51,11 @@ class AnalysisTools {
             };
 
             this.ws.onerror = (error) => {
-                console.error('Analysis WebSocket error:', error);
+                console.error('Analysis WebSocket error:', _error);
                 this.updateConnectionStatus('error');
             };
         } catch (error) {
-            console.error('Failed to setup WebSocket:', error);
+            console.error('Failed to setup WebSocket:', _error);
             this.updateConnectionStatus('error');
         }
     }
@@ -523,7 +523,7 @@ class AnalysisTools {
                     console.warn('Unknown tool:', toolName);
             }
         } catch (error) {
-            console.error(`Error executing tool ${toolName}:`, error);
+            console.error(`Error executing tool ${toolName}:`, _error);
             this.showError(`Failed to execute ${toolName}: ${error.message}`);
         } finally {
             if (button) {
@@ -620,7 +620,7 @@ class AnalysisTools {
             }
             return await response.json();
         } catch (error) {
-            console.error('Fetch error:', error);
+            console.error('Fetch error:', _error);
             // Return mock data for development
             return this.getMockData(endpoint);
         }
@@ -877,7 +877,7 @@ class AnalysisTools {
                 console.warn('Failed to notify swarm');
             }
         } catch (error) {
-            console.error('Error notifying swarm:', error);
+            console.error('Error notifying swarm:', _error);
         }
     }
 

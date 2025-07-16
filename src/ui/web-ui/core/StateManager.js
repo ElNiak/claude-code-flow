@@ -39,7 +39,7 @@ export class StateManager {
       console.log('💾 State Manager initialized');
       
     } catch (error) {
-      console.error('❌ Failed to initialize State Manager:', error);
+      console.error('❌ Failed to initialize State Manager:', _error);
       throw error;
     }
   }
@@ -63,7 +63,7 @@ export class StateManager {
       if (!persistedData && typeof process !== 'undefined') {
         try {
           const fs = await import('fs');
-          const path = await import('path');
+          const _path = await import('path');
           const stateFile = path.join(process.cwd(), '.claude-flow-state.json');
           
           if (fs.existsSync(stateFile)) {
@@ -83,7 +83,7 @@ export class StateManager {
       }
 
     } catch (error) {
-      console.warn('Could not load persisted state:', error);
+      console.warn('Could not load persisted state:', _error);
       this.initializeDefaultState();
     }
   }
@@ -170,7 +170,7 @@ export class StateManager {
       if (typeof process !== 'undefined') {
         try {
           const fs = await import('fs');
-          const path = await import('path');
+          const _path = await import('path');
           const stateFile = path.join(process.cwd(), '.claude-flow-state.json');
           
           fs.writeFileSync(stateFile, JSON.stringify(stateData, null, 2));
@@ -182,7 +182,7 @@ export class StateManager {
       this.eventBus.emit('state:persisted', { timestamp: Date.now() });
 
     } catch (error) {
-      console.error('Failed to persist state:', error);
+      console.error('Failed to persist state:', _error);
       this.eventBus.emit('state:error', { error: error.message });
     }
   }
@@ -386,7 +386,7 @@ export class StateManager {
       this.eventBus.emit('state:imported', { timestamp: Date.now() });
       console.log('💾 State imported successfully');
     } catch (error) {
-      console.error('Failed to import state:', error);
+      console.error('Failed to import state:', _error);
       throw error;
     }
   }

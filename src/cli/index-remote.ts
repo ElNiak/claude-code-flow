@@ -1,5 +1,5 @@
-#!/usr/bin/env -S deno run --allow-all
-import { getErrorMessage } from '../utils/error-handler.js';
+#!/usr/bin/env -S deno run --allow-all,
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * Claude-Flow CLI entry point - Remote execution friendly version
  * This version can be run directly from GitHub
@@ -7,7 +7,7 @@ import { getErrorMessage } from '../utils/error-handler.js';
 
 const VERSION = '1.0.71';
 
-// Simple color functions
+// Simple color functions,
 const chalk = {
   red: (text: string) => `\x1b[31m${text}\x1b[0m`,
   green: (text: string) => `\x1b[32m${text}\x1b[0m`,
@@ -19,39 +19,39 @@ const chalk = {
 
 function printHelp() {
   console.log(`
-🧠 Claude-Flow v${VERSION} - Advanced AI Agent Orchestration System
+🧠 Claude-Flow v${VERSION} - Advanced AI Agent Orchestration System,
 
 USAGE:
-  claude-flow [COMMAND] [OPTIONS]
+  claude-flow [COMMAND] [OPTIONS],
 
 COMMANDS:
-  init                  Initialize Claude Code integration files
-  start                 Start the orchestration system
+  init                  Initialize Claude Code integration files,
+  start                 Start the orchestration system,
   agent                 Manage agents (spawn, list, terminate, info)
   task                  Manage tasks (create, list, status, cancel, workflow)
   memory               Manage memory (query, export, import, stats, cleanup)
   mcp                  Manage MCP server (status, tools, start, stop)
   config               Manage configuration (show, get, set, init, validate)
-  status               Show system status
-  monitor              Monitor system in real-time
-  session              Manage terminal sessions
-  workflow             Execute workflow files
-  claude               Spawn Claude instances with specific configurations
-  version              Show version information
-  help                 Show this help message
+  status               Show system status,
+  monitor              Monitor system in real-time,
+  session              Manage terminal sessions,
+  workflow             Execute workflow files,
+  claude               Spawn Claude instances with specific configurations,
+  version              Show version information,
+  help                 Show this help message,
 
 OPTIONS:
   -c, --config <path>   Path to configuration file
   -v, --verbose         Enable verbose logging
-  --help                Show help for any command
+  --help                Show help for any command,
 
 EXAMPLES:
-  claude-flow init                    # Initialize Claude Code integration
-  claude-flow start                   # Start orchestration system
-  claude-flow agent spawn researcher  # Spawn a research agent
+  claude-flow init                    # Initialize Claude Code integration,
+  claude-flow start                   # Start orchestration system,
+  claude-flow agent spawn researcher  # Spawn a research agent,
   claude-flow task create research "Analyze authentication patterns"
   claude-flow memory store key "value"
-  claude-flow status                  # Check system status
+  claude-flow status                  # Check system status,
 
 For more info: https://github.com/ruvnet/claude-code-flow
 `);
@@ -72,7 +72,7 @@ function printWarning(message: string) {
 async function main() {
   const args = Deno.args;
   const command = args[0] || 'help';
-  const subArgs = args.slice(1);
+  const _subArgs = args.slice(1);
 
   switch (command) {
     case '--help':
@@ -130,7 +130,8 @@ async function main() {
   }
 }
 
-if (import.meta.main) {
+// Check if this module is being run directly
+if (process.argv[1] && process.argv[1].endsWith('index-remote.js') || process.argv[1].endsWith('index-remote.ts')) {
   main().catch((error) => {
     printError(`Error: ${(error instanceof Error ? error.message : String(error))}`);
     process.exit(1);

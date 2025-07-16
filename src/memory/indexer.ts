@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * Memory indexer for fast querying
  */
@@ -58,7 +58,7 @@ export class MemoryIndexer {
   private sessionIndex = new SimpleIndex<string>();
   private typeIndex = new SimpleIndex<string>();
   private tagIndex = new SimpleIndex<string>();
-  private timeIndex = new Map<string, number>(); // id -> timestamp
+  private timeIndex = new Map<string, number>(); // id -> timestamp,
 
   constructor(private logger: ILogger) {}
 
@@ -87,10 +87,10 @@ export class MemoryIndexer {
    * Adds an entry to the index
    */
   addEntry(entry: MemoryEntry): void {
-    // Store entry
+    // Store entry,
     this.entries.set(entry.id, entry);
 
-    // Update indexes
+    // Update indexes,
     this.agentIndex.add(entry.agentId, entry.id);
     this.sessionIndex.add(entry.sessionId, entry.id);
     this.typeIndex.add(entry.type, entry.id);
@@ -122,7 +122,7 @@ export class MemoryIndexer {
       return;
     }
 
-    // Remove from indexes
+    // Remove from indexes,
     this.agentIndex.remove(entry.agentId, id);
     this.sessionIndex.remove(entry.sessionId, id);
     this.typeIndex.remove(entry.type, id);
@@ -141,7 +141,7 @@ export class MemoryIndexer {
   search(query: MemoryQuery): MemoryEntry[] {
     let resultIds: Set<string> | undefined;
 
-    // Apply index-based filters
+    // Apply index-based filters,
     if (query.agentId) {
       resultIds = this.intersectSets(resultIds, this.agentIndex.get(query.agentId));
     }
@@ -160,12 +160,12 @@ export class MemoryIndexer {
       resultIds = this.intersectSets(resultIds, unionSet);
     }
 
-    // If no filters applied, get all entries
+    // If no filters applied, get all entries,
     if (!resultIds) {
       resultIds = new Set(this.entries.keys());
     }
 
-    // Convert IDs to entries
+    // Convert IDs to entries,
     const results: MemoryEntry[] = [];
     for (const id of resultIds) {
       const entry = this.entries.get(id);

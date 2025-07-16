@@ -1,4 +1,4 @@
-// Task system types
+// Task system types,
 import type { TaskEngine } from './engine.js';
 import type { TaskCoordinator } from './coordination.js';
 
@@ -46,7 +46,7 @@ export interface TaskCommandContext {
   logger?: any;
 }
 
-// Enhanced task metadata interface
+// Enhanced task metadata interface,
 export interface TaskMetadata extends Record<string, unknown> {
   retryCount?: number;
   todoId?: string;

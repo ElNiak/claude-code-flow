@@ -8,7 +8,7 @@ import type { ILogger } from '../../core/logger.js';
 import type { IEventBus } from '../../core/event-bus.js';
 import type { DistributedMemorySystem } from '../../memory/distributed-memory.js';
 
-// Type definitions for architect analysis
+// Type definitions for architect analysis,
 interface ArchitectureIssue {
   category: string;
   severity: string;
@@ -33,7 +33,7 @@ interface ApiEndpoint {
   rateLimit: string;
 }
 
-interface MicroserviceComponent {
+interface _MicroserviceComponent {
   service: string;
   purpose: string;
 }
@@ -53,7 +53,7 @@ interface DatabaseComponent {
   size: string;
 }
 
-interface InfrastructureComponent {
+interface _InfrastructureComponent {
   name: string;
   type: string;
   purpose: string;
@@ -126,8 +126,8 @@ export class ArchitectAgent extends BaseAgent {
         'cost-calculator'
       ],
       maxConcurrentTasks: 2,
-      maxMemoryUsage: 1024 * 1024 * 1024, // 1GB
-      maxExecutionTime: 2400000, // 40 minutes
+      maxMemoryUsage: 1024 * 1024 * 1024, // 1GB,
+      maxExecutionTime: 2400000, // 40 minutes,
       reliability: 0.95,
       speed: 0.70,
       quality: 0.98
@@ -254,7 +254,7 @@ export class ArchitectAgent extends BaseAgent {
       timestamp: new Date()
     };
 
-    // Store design progress
+    // Store design progress,
     await this.memory.store(`design:${task.id}:progress`, {
       status: 'designing',
       startTime: new Date(),
@@ -265,7 +265,7 @@ export class ArchitectAgent extends BaseAgent {
       partition: 'tasks'
     });
 
-    // Simulate system design
+    // Simulate system design,
     await this.delay(5000);
     
     design.architecture.components = [
@@ -306,7 +306,7 @@ export class ArchitectAgent extends BaseAgent {
       monitoring: ['Prometheus', 'Grafana', 'Jaeger'] as string[]
     };
 
-    // Store final design
+    // Store final design,
     await this.memory.store(`design:${task.id}:results`, design, {
       type: 'design-results',
       tags: ['architecture', 'completed', this.id, style],
@@ -352,7 +352,7 @@ export class ArchitectAgent extends BaseAgent {
       timestamp: new Date()
     };
 
-    // Simulate architecture review
+    // Simulate architecture review,
     await this.delay(4000);
 
     review.scores = {
@@ -434,7 +434,7 @@ export class ArchitectAgent extends BaseAgent {
       timestamp: new Date()
     };
 
-    // Simulate API design
+    // Simulate API design,
     await this.delay(3000);
 
     apiDesign.endpoints = [
@@ -507,7 +507,7 @@ export class ArchitectAgent extends BaseAgent {
       timestamp: new Date()
     };
 
-    // Simulate cloud architecture design
+    // Simulate cloud architecture design,
     await this.delay(4500);
 
     cloudDesign.infrastructure.compute = [
@@ -516,7 +516,7 @@ export class ArchitectAgent extends BaseAgent {
       { service: 'EC2', purpose: 'Virtual machines' }
     ];
     
-    cloudDesign.cost.estimated = 2500; // monthly USD
+    cloudDesign.cost.estimated = 2500; // monthly USD,
 
     return cloudDesign;
   }
@@ -562,7 +562,7 @@ export class ArchitectAgent extends BaseAgent {
       timestamp: new Date()
     };
 
-    // Simulate microservices design
+    // Simulate microservices design,
     await this.delay(4000);
 
     microservicesDesign.services = [
@@ -632,7 +632,7 @@ export class ArchitectAgent extends BaseAgent {
       timestamp: new Date()
     };
 
-    // Simulate security design
+    // Simulate security design,
     await this.delay(3500);
 
     securityDesign.controls.preventive = [
@@ -694,7 +694,7 @@ export class ArchitectAgent extends BaseAgent {
       timestamp: new Date()
     };
 
-    // Simulate scalability design
+    // Simulate scalability design,
     await this.delay(3000);
 
     scalabilityDesign.strategies.horizontal = [
@@ -750,7 +750,7 @@ export class ArchitectAgent extends BaseAgent {
       timestamp: new Date()
     };
 
-    // Simulate database design
+    // Simulate database design,
     await this.delay(2500);
 
     databaseDesign.databases = [
@@ -776,7 +776,7 @@ export class ArchitectAgent extends BaseAgent {
       description: task.description
     });
 
-    // Default to system design
+    // Default to system design,
     return await this.designSystem(task);
   }
 

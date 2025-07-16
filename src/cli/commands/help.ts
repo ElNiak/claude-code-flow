@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../../utils/error-handler.js';
 /**
  * Comprehensive help system for Claude-Flow CLI
  */
@@ -15,7 +15,7 @@ export const helpCommand = new Command()
   .option('-e, --examples', 'Show examples for the topic')
   .option('--tutorial', 'Show tutorial for the topic')
   .option('--all', 'Show all available help topics')
-  .action(async (options: any, topic: string | undefined) => {
+  .action(async (topic: string | undefined, options: any) => {
     if (options.interactive) {
       await startInteractiveHelp();
     } else if (options.all) {
@@ -680,7 +680,7 @@ async function showTopicHelp(topicName: string, options: any): Promise<void> {
     console.log(chalk.red(`Help topic '${topicName}' not found.`));
     console.log();
     
-    // Suggest similar topics
+    // Suggest similar topics,
     const similar = HELP_TOPICS.filter(t => 
       t.name.includes(topicName) || 
       t.description.toLowerCase().includes(topicName.toLowerCase())
@@ -731,7 +731,7 @@ async function showTopicHelp(topicName: string, options: any): Promise<void> {
   }
   
   if (!options.examples && !options.tutorial) {
-    // Show both by default
+    // Show both by default,
     if (topic.tutorial) {
       console.log(chalk.yellow.bold('Overview:'));
       console.log('─'.repeat(20));
@@ -820,9 +820,7 @@ async function startInteractiveHelp(): Promise<void> {
     console.log();
     console.log(chalk.gray('Press Enter to continue...'));
     await new Promise(resolve => {
-      const stdin = Deno.stdin;
-      const buffer = new Uint8Array(1);
-      stdin.read(buffer).then(() => resolve(undefined));
+      process.stdin.once('data', () => resolve(undefined));
     });
     
     console.clear();

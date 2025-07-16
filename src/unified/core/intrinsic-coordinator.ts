@@ -25,7 +25,7 @@ import type {
 } from '../../swarm/types.js';
 import type { ILogger } from '../../core/logger.js';
 import type { IEventBus } from '../../core/event-bus.js';
-import { UnifiedAgent } from './unified-agent.js';
+import { UnifiedAgent } from './missing-unified-types.js';
 import { CoordinationMatrix } from './coordination-matrix.js';
 import { ExecutionEngine } from './execution-engine.js';
 
@@ -81,7 +81,7 @@ export interface IntrinsicCapabilities {
  * Unified coordination state containing all three paradigms
  */
 export interface UnifiedCoordinationState {
-  // Identity and metadata
+  // Identity and metadata,
   id: string;
   swarmId: SwarmId;
   timestamp: number;
@@ -91,23 +91,23 @@ export interface UnifiedCoordinationState {
   tasks: Map<string, TaskDefinition>;
   objectives: Map<string, SwarmObjective>;
   
-  // Coordination matrices
+  // Coordination matrices,
   coordinationMatrix: CoordinationMatrix;
   
-  // Execution state
+  // Execution state,
   activeExecutions: Map<string, ExecutionContext>;
   
   // Intrinsic capabilities (always active)
   capabilities: IntrinsicCapabilities;
   
-  // Dynamic coordination patterns
+  // Dynamic coordination patterns,
   currentPatterns: CoordinationPattern[];
   learnedPatterns: Map<string, CoordinationPattern>;
   
-  // Performance and metrics
+  // Performance and metrics,
   metrics: UnifiedMetrics;
   
-  // Configuration
+  // Configuration,
   config: UnifiedCoordinationConfig;
 }
 
@@ -259,22 +259,22 @@ export interface CoordinationSnapshot {
  * Unified metrics covering all paradigms
  */
 export interface UnifiedMetrics {
-  // SPARC metrics
+  // SPARC metrics,
   thinkingQuality: number;
   phaseCompletion: Record<string, number>;
   refinementRate: number;
   
-  // Swarm metrics
+  // Swarm metrics,
   coordinationEfficiency: number;
   taskThroughput: number;
   resourceUtilization: number;
   
-  // Hive metrics
+  // Hive metrics,
   collectiveIntelligence: number;
   emergentBehaviorCount: number;
   adaptationSuccess: number;
   
-  // Unified metrics
+  // Unified metrics,
   overallEffectiveness: number;
   patternLearningRate: number;
   holisticOptimization: number;
@@ -284,22 +284,22 @@ export interface UnifiedMetrics {
  * Configuration for unified coordination
  */
 export interface UnifiedCoordinationConfig {
-  // SPARC configuration
+  // SPARC configuration,
   enableStructuredThinking: boolean;
   phaseTimeouts: Record<string, number>;
   refinementThreshold: number;
   
-  // Swarm configuration
+  // Swarm configuration,
   maxAgents: number;
   defaultTopology: SwarmMode;
   loadBalanceThreshold: number;
   
-  // Hive configuration
+  // Hive configuration,
   learningRate: number;
   patternRetention: number;
   consensusThreshold: number;
   
-  // Unified configuration
+  // Unified configuration,
   coordinationMode: 'automatic' | 'guided' | 'manual';
   optimizationFrequency: number;
   performanceTargets: Record<string, number>;
@@ -427,16 +427,16 @@ export class IntrinsicCoordinator extends EventEmitter {
     this.logger.info('Initializing Intrinsic Coordinator...');
 
     try {
-      // Initialize coordination matrix
+      // Initialize coordination matrix,
       await this.state.coordinationMatrix.initialize();
       
-      // Initialize execution engine
+      // Initialize execution engine,
       await this.executionEngine.initialize();
       
-      // Set up event handlers
+      // Set up event handlers,
       this.setupEventHandlers();
       
-      // Start continuous coordination
+      // Start continuous coordination,
       this.startContinuousCoordination();
       
       this.initialized = true;
@@ -462,7 +462,7 @@ export class IntrinsicCoordinator extends EventEmitter {
   ): Promise<string> {
     const objectiveId = `obj-${Date.now()}`;
     
-    // Create full objective with defaults
+    // Create full objective with defaults,
     const fullObjective: SwarmObjective = {
       ...objective,
       id: objectiveId,
@@ -472,7 +472,7 @@ export class IntrinsicCoordinator extends EventEmitter {
         completedTasks: 0,
         failedTasks: 0,
         runningTasks: 0,
-        estimatedCompletion: new Date(Date.now() + 3600000), // 1 hour default
+        estimatedCompletion: new Date(Date.now() + 3600000), // 1 hour default,
         timeRemaining: 3600000,
         percentComplete: 0,
         averageQuality: 0,
@@ -507,7 +507,7 @@ export class IntrinsicCoordinator extends EventEmitter {
     
     this.logger.info('Starting unified coordination for objective', { objectiveId, name: objective.name });
 
-    // Start execution context
+    // Start execution context,
     const executionContext: ExecutionContext = {
       id: `exec-${Date.now()}`,
       type: 'thinking',
@@ -546,7 +546,7 @@ export class IntrinsicCoordinator extends EventEmitter {
 
     this.state.activeExecutions.set(executionContext.id, executionContext);
 
-    // Emit coordination event
+    // Emit coordination event,
     this.emit(CoordinationEvents.COORDINATION_UPDATED, {
       type: 'objective_created',
       objectiveId,
@@ -554,7 +554,7 @@ export class IntrinsicCoordinator extends EventEmitter {
       timestamp: Date.now()
     });
 
-    // Start the unified coordination process
+    // Start the unified coordination process,
     await this.executeUnifiedCoordination(executionContext, fullObjective);
 
     return objectiveId;
@@ -568,19 +568,19 @@ export class IntrinsicCoordinator extends EventEmitter {
     objective: SwarmObjective
   ): Promise<void> {
     try {
-      // Phase 1: SPARC Specification + Swarm Decomposition + Hive Analysis
+      // Phase 1: SPARC Specification + Swarm Decomposition + Hive Analysis,
       await this.executeSpecificationPhase(context, objective);
       
-      // Phase 2: SPARC Pseudocode + Swarm Planning + Hive Pattern Recognition
+      // Phase 2: SPARC Pseudocode + Swarm Planning + Hive Pattern Recognition,
       await this.executePseudocodePhase(context, objective);
       
-      // Phase 3: SPARC Architecture + Swarm Topology + Hive Emergence
+      // Phase 3: SPARC Architecture + Swarm Topology + Hive Emergence,
       await this.executeArchitecturePhase(context, objective);
       
-      // Phase 4: SPARC Refinement + Swarm Optimization + Hive Learning
+      // Phase 4: SPARC Refinement + Swarm Optimization + Hive Learning,
       await this.executeRefinementPhase(context, objective);
       
-      // Phase 5: SPARC Completion + Swarm Execution + Hive Monitoring
+      // Phase 5: SPARC Completion + Swarm Execution + Hive Monitoring,
       await this.executeCompletionPhase(context, objective);
       
     } catch (error) {
@@ -607,19 +607,19 @@ export class IntrinsicCoordinator extends EventEmitter {
       context: context.id 
     });
 
-    // SPARC: Structured specification
+    // SPARC: Structured specification,
     const sparcSpecification = await this.createStructuredSpecification(objective);
     context.sparcState.artifacts.set('specification', sparcSpecification);
 
-    // Swarm: Task decomposition
+    // Swarm: Task decomposition,
     const taskDecomposition = await this.decomposeIntoTasks(objective, sparcSpecification);
     context.swarmState.taskDistribution.set('initial', new Set(taskDecomposition.map(t => t.id.id)));
 
-    // Hive: Collective analysis
+    // Hive: Collective analysis,
     const collectiveAnalysis = await this.performCollectiveAnalysis(objective, sparcSpecification, taskDecomposition);
     context.hiveState.collectiveKnowledge.set('specification_analysis', collectiveAnalysis);
 
-    // Update metrics
+    // Update metrics,
     this.updatePhaseMetrics('specification', context);
     
     this.emit(CoordinationEvents.THINKING_COMPLETED, { 
@@ -651,16 +651,16 @@ export class IntrinsicCoordinator extends EventEmitter {
       context: context.id 
     });
 
-    // SPARC: Structured pseudocode
+    // SPARC: Structured pseudocode,
     const specification = context.sparcState.artifacts.get('specification');
     const pseudocode = await this.createStructuredPseudocode(specification);
     context.sparcState.artifacts.set('pseudocode', pseudocode);
 
-    // Swarm: Agent planning
+    // Swarm: Agent planning,
     const agentPlan = await this.planAgentCoordination(pseudocode);
     context.swarmState.activeConnections.set('plan', new Set(agentPlan.connections));
 
-    // Hive: Pattern recognition
+    // Hive: Pattern recognition,
     const patterns = await this.recognizePatterns(pseudocode, agentPlan);
     context.hiveState.emergentPatterns.push(...patterns);
 
@@ -695,16 +695,16 @@ export class IntrinsicCoordinator extends EventEmitter {
       context: context.id 
     });
 
-    // SPARC: System architecture
+    // SPARC: System architecture,
     const pseudocode = context.sparcState.artifacts.get('pseudocode');
     const architecture = await this.createSystemArchitecture(pseudocode);
     context.sparcState.artifacts.set('architecture', architecture);
 
-    // Swarm: Topology optimization
+    // Swarm: Topology optimization,
     const topology = await this.optimizeSwarmTopology(architecture, context.swarmState);
     context.swarmState.topology = topology;
 
-    // Hive: Emergence planning
+    // Hive: Emergence planning,
     const emergenceMap = await this.planEmergentBehaviors(architecture, topology);
     context.hiveState.holisticView.emergentProperties.set('architecture', emergenceMap);
 
@@ -739,16 +739,16 @@ export class IntrinsicCoordinator extends EventEmitter {
       context: context.id 
     });
 
-    // SPARC: Refinement analysis
+    // SPARC: Refinement analysis,
     const architecture = context.sparcState.artifacts.get('architecture');
     const refinements = await this.analyzeRefinements(architecture);
     context.sparcState.refinements.push(...refinements);
 
-    // Swarm: Coordination optimization
+    // Swarm: Coordination optimization,
     const optimizations = await this.optimizeCoordination(context.swarmState);
     context.swarmState.loadBalance = optimizations;
 
-    // Hive: Adaptive learning
+    // Hive: Adaptive learning,
     const adaptations = await this.performAdaptiveLearning(context.hiveState, refinements);
     context.hiveState.adaptationRules.push(...adaptations);
 
@@ -783,17 +783,17 @@ export class IntrinsicCoordinator extends EventEmitter {
       context: context.id 
     });
 
-    // SPARC: Final completion
+    // SPARC: Final completion,
     const completion = await this.executeCompletion(context);
     context.sparcState.artifacts.set('completion', completion);
 
-    // Swarm: Parallel execution
+    // Swarm: Parallel execution,
     const execution = await this.executeSwarmCoordination(context);
     
-    // Hive: Holistic monitoring
+    // Hive: Holistic monitoring,
     const monitoring = await this.executeHolisticMonitoring(context);
 
-    // Update final metrics
+    // Update final metrics,
     this.updatePhaseMetrics('completion', context);
     this.updateOverallMetrics(context);
     
@@ -807,7 +807,7 @@ export class IntrinsicCoordinator extends EventEmitter {
       }
     });
 
-    // Mark objective as completed
+    // Mark objective as completed,
     const obj = this.state.objectives.get(objective.id);
     if (obj) {
       obj.status = 'completed';
@@ -819,7 +819,7 @@ export class IntrinsicCoordinator extends EventEmitter {
    * Create structured specification (SPARC)
    */
   private async createStructuredSpecification(objective: SwarmObjective): Promise<any> {
-    // Implementation of structured specification creation
+    // Implementation of structured specification creation,
     return {
       purpose: objective.description,
       requirements: objective.requirements,
@@ -834,10 +834,10 @@ export class IntrinsicCoordinator extends EventEmitter {
    * Decompose into tasks (Swarm)
    */
   private async decomposeIntoTasks(objective: SwarmObjective, specification: any): Promise<TaskDefinition[]> {
-    // Implementation of task decomposition
+    // Implementation of task decomposition,
     const tasks: TaskDefinition[] = [];
     
-    // Create task IDs
+    // Create task IDs,
     const baseTaskId: TaskId = {
       id: `task-${Date.now()}`,
       swarmId: objective.id,
@@ -845,7 +845,7 @@ export class IntrinsicCoordinator extends EventEmitter {
       priority: 1
     };
 
-    // Decompose based on specification
+    // Decompose based on specification,
     for (let i = 0; i < specification.requirements.minAgents; i++) {
       const task: TaskDefinition = {
         id: { ...baseTaskId, id: `task-${Date.now()}-${i}`, sequence: i },
@@ -888,7 +888,7 @@ export class IntrinsicCoordinator extends EventEmitter {
     specification: any, 
     tasks: TaskDefinition[]
   ): Promise<any> {
-    // Implementation of collective intelligence analysis
+    // Implementation of collective intelligence analysis,
     return {
       complexity_assessment: this.assessComplexity(objective, specification, tasks),
       risk_analysis: this.analyzeRisks(objective, specification, tasks),
@@ -898,7 +898,7 @@ export class IntrinsicCoordinator extends EventEmitter {
     };
   }
 
-  // Helper methods for implementation details
+  // Helper methods for implementation details,
   private derivateSuccessCriteria(objective: SwarmObjective): string[] {
     return ['Objective completed successfully', 'Quality threshold met', 'Timeline maintained'];
   }
@@ -1012,7 +1012,7 @@ export class IntrinsicCoordinator extends EventEmitter {
    * Update overall coordination metrics
    */
   private updateOverallMetrics(context: ExecutionContext): void {
-    // Calculate overall effectiveness
+    // Calculate overall effectiveness,
     const phases = Object.keys(this.state.metrics.phaseCompletion);
     const avgCompletion = phases.reduce((sum, phase) => sum + this.state.metrics.phaseCompletion[phase], 0) / phases.length;
     
@@ -1059,7 +1059,7 @@ export class IntrinsicCoordinator extends EventEmitter {
    * Perform continuous optimization
    */
   private performContinuousOptimization(): void {
-    // Continuously optimize all three paradigms
+    // Continuously optimize all three paradigms,
     this.optimizeSPARCThinking();
     this.optimizeSwarmCoordination();
     this.optimizeHiveIntelligence();
@@ -1126,13 +1126,13 @@ export class IntrinsicCoordinator extends EventEmitter {
     this.logger.info('Shutting down Intrinsic Coordinator...');
 
     try {
-      // Shutdown execution engine
+      // Shutdown execution engine,
       await this.executionEngine.shutdown();
       
-      // Shutdown coordination matrix
+      // Shutdown coordination matrix,
       await this.state.coordinationMatrix.shutdown();
       
-      // Clear active executions
+      // Clear active executions,
       this.state.activeExecutions.clear();
       
       this.initialized = false;

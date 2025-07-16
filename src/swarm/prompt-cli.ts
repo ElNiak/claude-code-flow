@@ -1,5 +1,5 @@
-#!/usr/bin/env node
-import { getErrorMessage } from '../utils/error-handler.js';
+#!/usr/bin/env node,
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 
 import { Command } from 'commander';
 import * as path from 'path';
@@ -65,10 +65,10 @@ program
         };
       }
 
-      // Create progress bar
+      // Create progress bar,
       let progressBar: ReturnType<typeof createProgressBar> | null = null;
       
-      copyOptions.progressCallback = (progress) => {
+      (copyOptions as any).progressCallback = (progress: any) => {
         if (!progressBar) {
           progressBar = createProgressBar(progress.total);
         }
@@ -147,7 +147,7 @@ program
       if (stats.isFile()) {
         files.push(filePath);
       } else if (stats.isDirectory()) {
-        // Scan directory for prompt files
+        // Scan directory for prompt files,
         const scanDir = async (dir: string) => {
           const entries = await require('fs').promises.readdir(dir, { withFileTypes: true });
           
@@ -266,7 +266,7 @@ program
   .option('--delete', 'Delete files not present in source')
   .action(async (options) => {
     try {
-      // This would implement incremental sync functionality
+      // This would implement incremental sync functionality,
       console.log('Sync functionality not yet implemented');
       console.log('Options:', options);
     } catch (error) {
@@ -275,7 +275,7 @@ program
     }
   });
 
-// Handle uncaught errors
+// Handle uncaught errors,
 process.on('uncaughtException', (error) => {
   console.error('Uncaught exception:', error);
   process.exit(1);

@@ -1,10 +1,10 @@
-import { getErrorMessage } from '../../../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../../../utils/error-handler.js';
 import { promises as fs } from 'node:fs';
 /**
  * Unified start command implementation with robust service management
  */
 
-import { Command } from '@cliffy/command';
+import { Command } from 'commander';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 import { ProcessManager } from './process-manager.js';
@@ -13,28 +13,26 @@ import { SystemMonitor } from './system-monitor.js';
 import type { StartOptions } from './types.js';
 import { eventBus } from '../../../core/event-bus.js';
 import { logger } from '../../../core/logger.js';
-import { formatDuration } from '../../formatter.js';
+import { formatDuration as _formatDuration } from '../../formatter.js';
 
 export const startCommand = new Command()
   .description('Start the Claude-Flow orchestration system')
   .option('-d, --daemon', 'Run as daemon in background')
-  .option('-p, --port <port:number>', 'MCP server port', { default: 3000 })
-  .option('--mcp-transport <transport:string>', 'MCP transport type (stdio, http)', {
-    default: 'stdio',
-  })
+  .option('-p, --port <port>', 'MCP server port', '3000')
+  .option('--mcp-transport <transport:string>', 'MCP transport type (stdio, http)', 'stdio')
   .option('-u, --ui', 'Launch interactive process management UI')
   .option('-v, --verbose', 'Enable verbose logging')
   .option('--auto-start', 'Automatically start all processes')
   .option('--config <path:string>', 'Configuration file path')
   .option('--force', 'Force start even if already running')
   .option('--health-check', 'Perform health checks before starting')
-  .option('--timeout <seconds:number>', 'Startup timeout in seconds', { default: 60 })
+  .option('--timeout <seconds>', 'Startup timeout in seconds', '60')
   .action(async (options: StartOptions) => {
     console.log(chalk.cyan('🧠 Claude-Flow Orchestration System'));
     console.log(chalk.gray('─'.repeat(60)));
 
     try {
-      // Check if already running
+      // Check if already running,
       if (!options.force && await isSystemRunning()) {
         console.log(chalk.yellow('⚠ Claude-Flow is already running'));
         const { shouldContinue } = await inquirer.prompt([{
@@ -52,13 +50,13 @@ export const startCommand = new Command()
         await stopExistingInstance();
       }
 
-      // Perform pre-flight checks
+      // Perform pre-flight checks,
       if (options.healthCheck) {
         console.log(chalk.blue('Running pre-flight health checks...'));
         await performHealthChecks();
       }
 
-      // Initialize process manager with timeout
+      // Initialize process manager with timeout,
       const processManager = new ProcessManager();
       console.log(chalk.blue('Initializing system components...'));
       const initPromise = processManager.initialize(options.config);
@@ -68,14 +66,14 @@ export const startCommand = new Command()
       
       await Promise.race([initPromise, timeoutPromise]);
 
-      // Initialize system monitor with enhanced monitoring
+      // Initialize system monitor with enhanced monitoring,
       const systemMonitor = new SystemMonitor(processManager);
       systemMonitor.start();
       
-      // Setup system event handlers
+      // Setup system event handlers,
       setupSystemEventHandlers(processManager, systemMonitor, options);
 
-      // Override MCP settings from CLI options
+      // Override MCP settings from CLI options,
       if (options.port) {
         const mcpProcess = processManager.getProcess('mcp-server');
         if (mcpProcess) {
@@ -83,7 +81,7 @@ export const startCommand = new Command()
         }
       }
       
-      // Configure transport settings
+      // Configure transport settings,
       if (options.mcpTransport) {
         const mcpProcess = processManager.getProcess('mcp-server');
         if (mcpProcess) {
@@ -91,23 +89,24 @@ export const startCommand = new Command()
         }
       }
 
-      // Setup event listeners for logging
+      // Setup event listeners for logging,
       if (options.verbose) {
         setupVerboseLogging(systemMonitor);
       }
 
-      // Launch UI mode
+      // Launch UI mode,
       if (options.ui) {
-        // Check if web server is available
+        // Check if web server is available,
         try {
-          const { ClaudeCodeWebServer } = await import('../../simple-commands/web-server.js');
+          // const { ClaudeCodeWebServer } = await import('../../simple-commands/web-server.js');
           
-          // Start the web server
+          // Start the web server,
           console.log(chalk.blue('Starting Web UI server...'));
-          const webServer = new ClaudeCodeWebServer(options.port);
-          await webServer.start();
+          // const webServer = new ClaudeCodeWebServer(options.port);
+          // await webServer.start();
+          throw new Error('Web UI server not available - ClaudeCodeWebServer not found');
           
-          // Open browser if possible
+          // Open browser if possible,
           const openCommand = process.platform === 'darwin' ? 'open' :
                             process.platform === 'win32' ? 'start' :
                             'xdg-open';
@@ -119,14 +118,14 @@ export const startCommand = new Command()
             // Browser opening failed, that's okay
           }
           
-          // Keep process running
+          // Keep process running,
           console.log(chalk.green('✨ Web UI is running at:'), chalk.cyan(`http://localhost:${options.port}/console`));
           console.log(chalk.gray('Press Ctrl+C to stop'));
           
-          // Handle shutdown
+          // Handle shutdown,
           const shutdownWebUI = async () => {
             console.log('\n' + chalk.yellow('Shutting down Web UI...'));
-            await webServer.stop();
+            // await webServer.stop();
             systemMonitor.stop();
             await processManager.stopAll();
             console.log(chalk.green('✓ Shutdown complete'));
@@ -136,36 +135,36 @@ export const startCommand = new Command()
           Deno.addSignalListener('SIGINT', shutdownWebUI);
           Deno.addSignalListener('SIGTERM', shutdownWebUI);
           
-          // Keep process alive
+          // Keep process alive,
           await new Promise<void>(() => {});
         } catch (webError) {
-          // Fall back to TUI if web server is not available
+          // Fall back to TUI if web server is not available,
           console.log(chalk.yellow('Web UI not available, falling back to Terminal UI'));
           const ui = new ProcessUI(processManager);
           await ui.start();
           
-          // Cleanup on exit
+          // Cleanup on exit,
           systemMonitor.stop();
           await processManager.stopAll();
           console.log(chalk.green.bold('✓'), 'Shutdown complete');
           process.exit(0);
         }
       } 
-      // Daemon mode
+      // Daemon mode,
       else if (options.daemon) {
         console.log(chalk.yellow('Starting in daemon mode...'));
         
-        // Auto-start all processes
+        // Auto-start all processes,
         if (options.autoStart) {
           console.log(chalk.blue('Starting all system processes...'));
           await startWithProgress(processManager, 'all');
         } else {
-          // Start only core processes
+          // Start only core processes,
           console.log(chalk.blue('Starting core processes...'));
           await startWithProgress(processManager, 'core');
         }
 
-        // Create PID file with metadata
+        // Create PID file with metadata,
         const pid = Deno.pid;
         const pidData = {
           pid,
@@ -176,14 +175,14 @@ export const startCommand = new Command()
         await fs.writeFile('.claude-flow.pid', JSON.stringify(pidData, null, 2));
         console.log(chalk.gray(`Process ID: ${pid}`));
         
-        // Wait for services to be fully ready
+        // Wait for services to be fully ready,
         await waitForSystemReady(processManager);
         
         console.log(chalk.green.bold('✓'), 'Daemon started successfully');
         console.log(chalk.gray('Use "claude-flow status" to check system status'));
         console.log(chalk.gray('Use "claude-flow monitor" for real-time monitoring'));
         
-        // Keep process running
+        // Keep process running,
         await new Promise<void>(() => {});
       } 
       // Interactive mode (default)
@@ -191,7 +190,7 @@ export const startCommand = new Command()
         console.log(chalk.cyan('Starting in interactive mode...'));
         console.log();
 
-        // Show available options
+        // Show available options,
         console.log(chalk.white.bold('Quick Actions:'));
         console.log('  [1] Start all processes');
         console.log('  [2] Start core processes only');
@@ -201,7 +200,7 @@ export const startCommand = new Command()
         console.log();
         console.log(chalk.gray('Press a key to select an option...'));
 
-        // Handle user input
+        // Handle user input,
         const decoder = new TextDecoder();
         while (true) {
           const buf = new Uint8Array(1);
@@ -246,12 +245,12 @@ export const startCommand = new Command()
               break;
           }
 
-          // Redraw menu
+          // Redraw menu,
           console.clear();
           console.log(chalk.cyan('🧠 Claude-Flow Interactive Mode'));
           console.log(chalk.gray('─'.repeat(60)));
           
-          // Show current status
+          // Show current status,
           const stats = processManager.getSystemStats();
           console.log(chalk.white('System Status:'), 
             chalk.green(`${stats.runningProcesses}/${stats.totalProcesses} processes running`));
@@ -273,7 +272,7 @@ export const startCommand = new Command()
         console.error((error as Error).stack);
       }
       
-      // Cleanup on failure
+      // Cleanup on failure,
       console.log(chalk.yellow('Performing cleanup...'));
       try {
         await cleanupOnFailure();
@@ -285,14 +284,14 @@ export const startCommand = new Command()
     }
   });
 
-// Enhanced helper functions
+// Enhanced helper functions,
 
 async function isSystemRunning(): Promise<boolean> {
   try {
     const pidData = await fs.readFile('.claude-flow.pid', 'utf-8');
     const data = JSON.parse(pidData);
     
-    // Check if process is still running
+    // Check if process is still running,
     try {
       Deno.kill(data.pid, 'SIGTERM');
       return false; // Process was killed, so it was running
@@ -312,10 +311,10 @@ async function stopExistingInstance(): Promise<void> {
     console.log(chalk.yellow('Stopping existing instance...'));
     Deno.kill(data.pid, 'SIGTERM');
     
-    // Wait for graceful shutdown
+    // Wait for graceful shutdown,
     await new Promise(resolve => setTimeout(resolve, 2000));
     
-    // Force kill if still running
+    // Force kill if still running,
     try {
       Deno.kill(data.pid, 'SIGKILL');
     } catch {
@@ -350,7 +349,7 @@ async function performHealthChecks(): Promise<void> {
 }
 
 async function checkDiskSpace(): Promise<void> {
-  // Basic disk space check - would need platform-specific implementation
+  // Basic disk space check - would need platform-specific implementation,
   const stats = await fs.stat('.');
   if (!stats.isDirectory) {
     throw new Error('Current directory is not accessible');
@@ -358,15 +357,15 @@ async function checkDiskSpace(): Promise<void> {
 }
 
 async function checkMemoryAvailable(): Promise<void> {
-  // Memory check - would integrate with system memory monitoring
+  // Memory check - would integrate with system memory monitoring,
   const memoryInfo = Deno.memoryUsage();
-  if (memoryInfo.heapUsed > 500 * 1024 * 1024) { // 500MB threshold
+  if (memoryInfo.heapUsed > 500 * 1024 * 1024) { // 500MB threshold,
     throw new Error('High memory usage detected');
   }
 }
 
 async function checkNetworkConnectivity(): Promise<void> {
-  // Basic network check
+  // Basic network check,
   try {
     const response = await fetch('https://httpbin.org/status/200', {
       method: 'GET',
@@ -381,7 +380,7 @@ async function checkNetworkConnectivity(): Promise<void> {
 }
 
 async function checkDependencies(): Promise<void> {
-  // Check for required directories and files
+  // Check for required directories and files,
   const requiredDirs = ['.claude-flow', 'memory', 'logs'];
   for (const dir of requiredDirs) {
     try {
@@ -397,7 +396,7 @@ function setupSystemEventHandlers(
   systemMonitor: SystemMonitor, 
   options: StartOptions
 ): void {
-  // Handle graceful shutdown signals
+  // Handle graceful shutdown signals,
   const shutdownHandler = async () => {
     console.log('\n' + chalk.yellow('Received shutdown signal, shutting down gracefully...'));
     systemMonitor.stop();
@@ -410,12 +409,12 @@ function setupSystemEventHandlers(
   Deno.addSignalListener('SIGINT', shutdownHandler);
   Deno.addSignalListener('SIGTERM', shutdownHandler);
   
-  // Setup verbose logging if requested
+  // Setup verbose logging if requested,
   if (options.verbose) {
     setupVerboseLogging(systemMonitor);
   }
   
-  // Monitor for critical errors
+  // Monitor for critical errors,
   processManager.on('processError', (event: any) => {
     console.error(chalk.red(`Process error in ${event.processId}:`), event.error);
     if (event.processId === 'orchestrator') {
@@ -445,7 +444,7 @@ async function startWithProgress(processManager: ProcessManager, mode: 'all' | '
       }
     }
     
-    // Brief delay between starts
+    // Brief delay between starts,
     if (i < processes.length - 1) {
       await new Promise(resolve => setTimeout(resolve, 500));
     }
@@ -455,8 +454,8 @@ async function startWithProgress(processManager: ProcessManager, mode: 'all' | '
 async function waitForSystemReady(processManager: ProcessManager): Promise<void> {
   console.log(chalk.blue('Waiting for system to be ready...'));
   
-  const maxWait = 30000; // 30 seconds
-  const checkInterval = 1000; // 1 second
+  const maxWait = 30000; // 30 seconds,
+  const checkInterval = 1000; // 1 second,
   let waited = 0;
   
   while (waited < maxWait) {
@@ -492,10 +491,10 @@ async function cleanupOnShutdown(): Promise<void> {
 }
 
 function setupVerboseLogging(monitor: SystemMonitor): void {
-  // Enhanced verbose logging
+  // Enhanced verbose logging,
   console.log(chalk.gray('Verbose logging enabled'));
   
-  // Periodically print system health
+  // Periodically print system health,
   setInterval(() => {
     console.log();
     console.log(chalk.cyan('--- System Health Report ---'));
@@ -503,7 +502,7 @@ function setupVerboseLogging(monitor: SystemMonitor): void {
     console.log(chalk.cyan('--- End Report ---'));
   }, 30000);
   
-  // Log critical events
+  // Log critical events,
   eventBus.on('process:started', (data: any) => {
     console.log(chalk.green(`[VERBOSE] Process started: ${data.processId}`));
   });

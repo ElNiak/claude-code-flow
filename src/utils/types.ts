@@ -2,7 +2,7 @@
  * Core type definitions for Claude-Flow
  */
 
-// Logging configuration interface
+// Logging configuration interface,
 export interface LoggingConfig {
   level: 'debug' | 'info' | 'warn' | 'error';
   format: 'text' | 'json';
@@ -16,7 +16,7 @@ export interface LoggingConfig {
   enableContext?: boolean;
 }
 
-// Import orchestrator metrics type
+// Import orchestrator metrics type,
 export interface OrchestratorMetrics {
   uptime: number;
   totalAgents: number;
@@ -40,7 +40,7 @@ export interface OrchestratorMetrics {
   timestamp: Date;
 }
 
-// Agent-related types
+// Agent-related types,
 export interface AgentProfile {
   id: string;
   name: string;
@@ -66,7 +66,7 @@ export interface AgentSession {
   memoryBankId: string;
 }
 
-// Task-related types
+// Task-related types,
 export interface Task {
   id: string;
   type: string;
@@ -93,7 +93,7 @@ export type TaskStatus =
   | 'failed'
   | 'cancelled';
 
-// Memory-related types
+// Memory-related types,
 export interface MemoryEntry {
   id: string;
   agentId: string;
@@ -121,16 +121,16 @@ export interface MemoryQuery {
   namespace?: string;
 }
 
-// Event-related types
+// Event-related types,
 export enum SystemEvents {
-  // Agent events
+  // Agent events,
   AGENT_SPAWNED = 'agent:spawned',
   AGENT_TERMINATED = 'agent:terminated',
   AGENT_ERROR = 'agent:error',
   AGENT_IDLE = 'agent:idle',
   AGENT_ACTIVE = 'agent:active',
 
-  // Task events
+  // Task events,
   TASK_CREATED = 'task:created',
   TASK_ASSIGNED = 'task:assigned',
   TASK_STARTED = 'task:started',
@@ -138,19 +138,19 @@ export enum SystemEvents {
   TASK_FAILED = 'task:failed',
   TASK_CANCELLED = 'task:cancelled',
 
-  // Memory events
+  // Memory events,
   MEMORY_CREATED = 'memory:created',
   MEMORY_UPDATED = 'memory:updated',
   MEMORY_DELETED = 'memory:deleted',
   MEMORY_SYNCED = 'memory:synced',
 
-  // System events
+  // System events,
   SYSTEM_READY = 'system:ready',
   SYSTEM_SHUTDOWN = 'system:shutdown',
   SYSTEM_ERROR = 'system:error',
   SYSTEM_HEALTHCHECK = 'system:healthcheck',
 
-  // Coordination events
+  // Coordination events,
   RESOURCE_ACQUIRED = 'resource:acquired',
   RESOURCE_RELEASED = 'resource:released',
   DEADLOCK_DETECTED = 'deadlock:detected',
@@ -192,7 +192,7 @@ export interface EventMap extends Record<string, unknown> {
   'metrics:collected': OrchestratorMetrics;
 }
 
-// Configuration types
+// Configuration types,
 export interface Config {
   orchestrator: OrchestratorConfig;
   terminal: TerminalConfig;
@@ -268,7 +268,7 @@ export interface LoggingConfig {
   maxFiles?: number;
 }
 
-// Health and monitoring types
+// Health and monitoring types,
 export interface HealthStatus {
   status: 'healthy' | 'degraded' | 'unhealthy';
   components: Record<string, ComponentHealth>;
@@ -283,7 +283,7 @@ export interface ComponentHealth {
   metrics?: Record<string, number>;
 }
 
-// Message passing types
+// Message passing types,
 export interface Message {
   id: string;
   type: string;
@@ -293,7 +293,7 @@ export interface Message {
   expiry?: Date;
 }
 
-// Resource management types
+// Resource management types,
 export interface Resource {
   id: string;
   type: string;
@@ -304,7 +304,7 @@ export interface Resource {
   metadata?: Record<string, unknown>;
 }
 
-// MCP types - Full protocol compliance
+// MCP types - Full protocol compliance,
 export interface MCPProtocolVersion {
   major: number;
   minor: number;
@@ -471,7 +471,7 @@ export interface MCPMetrics {
   lastReset: Date;
 }
 
-// Interface declarations for dependency injection
+// Interface declarations for dependency injection,
 export interface ILogger {
   debug(message: string, meta?: unknown): void;
   info(message: string, meta?: unknown): void;
@@ -487,7 +487,7 @@ export interface IEventBus {
   once(event: string, handler: (data: unknown) => void): void;
 }
 
-// Terminal types
+// Terminal types,
 export interface Terminal {
   id: string;
   pid?: number;
@@ -509,7 +509,7 @@ export interface MCPContext {
   logger: ILogger;
 }
 
-// Additional configuration interfaces
+// Additional configuration interfaces,
 export interface CredentialsConfig {
   apiKey?: string;
   token?: string;

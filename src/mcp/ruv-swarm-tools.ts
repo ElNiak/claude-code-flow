@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * ruv-swarm MCP tools wrapper for Claude Code integration
  * 
@@ -15,7 +15,7 @@ import { join } from 'path';
 export interface RuvSwarmToolContext extends MCPContext {
   workingDirectory?: string;
   swarmId?: string;
-  sessionId?: string;
+  // sessionId is inherited as required from MCPContext
 }
 
 /**
@@ -50,7 +50,7 @@ async function executeRuvSwarmCommand(
     
     const result = await execAsync(fullCommand, { cwd: workDir });
     
-    // Parse JSON response if possible
+    // Parse JSON response if possible,
     let data;
     try {
       data = JSON.parse(result.stdout);
@@ -561,12 +561,19 @@ export async function initializeRuvSwarmIntegration(
 ): Promise<RuvSwarmResponse> {
   const context: RuvSwarmToolContext = {
     workingDirectory,
-    sessionId: `claude-flow-${Date.now()}`
+    sessionId: `claude-flow-${Date.now()}`,
+    logger: logger || {
+      error: (msg: string) => console.error(msg),
+      warn: (msg: string) => console.warn(msg),
+      info: (msg: string) => console.info(msg),
+      debug: (msg: string) => console.debug(msg),
+      configure: async () => {}
+    }
   };
   
   logger?.info('Initializing ruv-swarm integration', { workingDirectory });
   
-  // Check if ruv-swarm is available
+  // Check if ruv-swarm is available,
   const available = await isRuvSwarmAvailable(logger);
   if (!available) {
     return {
@@ -575,7 +582,7 @@ export async function initializeRuvSwarmIntegration(
     };
   }
   
-  // Get capabilities
+  // Get capabilities,
   const capabilities = await getRuvSwarmCapabilities(logger);
   
   logger?.info('ruv-swarm integration initialized', { capabilities });

@@ -24,7 +24,7 @@ describe('Code Mode Batch Integration Tests', () => {
       ];
 
       const codeGeneration = await harness.executeBatch(codeTemplates, async (template) => {
-        let code = '';
+        let _code = '';
         
         if (template.type === 'repository') {
           code = `import { Repository } from './base-repository';
@@ -61,7 +61,7 @@ export const ${template.name} = async (
 };`;
         }
         
-        const path = `src/${template.type}s/${template.name}.ts`;
+        const _path = `src/${template.type}s/${template.name}.ts`;
         await harness.mockWriteFile(path, code);
         
         return {
@@ -442,7 +442,7 @@ function doSomething() {
       const sequentialStart = Date.now();
       await harness.executeBatch(components, async (comp) => {
         await harness.simulateDelay(30); // Simulate generation time
-        const code = `export const ${comp.name} = (props) => { return <div>{props.name}</div>; };`;
+        const _code = `export const ${comp.name} = (props) => { return <div>{props.name}</div>; };`;
         return { component: comp.name, generated: true, size: code.length };
       });
       const sequentialTime = Date.now() - sequentialStart;
@@ -452,7 +452,7 @@ function doSomething() {
       const parallelStart = Date.now();
       await harness.executeBatch(components, async (comp) => {
         await harness.simulateDelay(30);
-        const code = `export const ${comp.name} = (props) => { return <div>{props.name}</div>; };`;
+        const _code = `export const ${comp.name} = (props) => { return <div>{props.name}</div>; };`;
         return { component: comp.name, generated: true, size: code.length };
       });
       const parallelTime = Date.now() - parallelStart;

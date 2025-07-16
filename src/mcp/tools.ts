@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * Enhanced Tool registry for MCP with capability negotiation and discovery
  */
@@ -62,17 +62,17 @@ export class ToolRegistry extends EventEmitter {
       throw new MCPError(`Tool already registered: ${tool.name}`);
     }
 
-    // Validate tool schema
+    // Validate tool schema,
     this.validateTool(tool);
 
-    // Register tool
+    // Register tool,
     this.tools.set(tool.name, tool);
 
-    // Register capability if provided
+    // Register capability if provided,
     if (capability) {
       this.registerCapability(tool.name, capability);
     } else {
-      // Create default capability
+      // Create default capability,
       const defaultCapability: ToolCapability = {
         name: tool.name,
         version: '1.0.0',
@@ -84,7 +84,7 @@ export class ToolRegistry extends EventEmitter {
       this.registerCapability(tool.name, defaultCapability);
     }
 
-    // Initialize metrics
+    // Initialize metrics,
     this.metrics.set(tool.name, {
       name: tool.name,
       totalInvocations: 0,
@@ -149,16 +149,16 @@ export class ToolRegistry extends EventEmitter {
     this.logger.debug('Executing tool', { name, input });
 
     try {
-      // Validate input against schema
+      // Validate input against schema,
       this.validateInput(tool, input);
 
-      // Check tool capabilities and permissions
+      // Check tool capabilities and permissions,
       await this.checkToolCapabilities(name, context);
 
-      // Execute tool handler
+      // Execute tool handler,
       const result = await tool.handler(input, context);
 
-      // Update success metrics
+      // Update success metrics,
       if (metrics) {
         const executionTime = Date.now() - startTime;
         metrics.totalInvocations++;
@@ -173,7 +173,7 @@ export class ToolRegistry extends EventEmitter {
       
       return result;
     } catch (error) {
-      // Update failure metrics
+      // Update failure metrics,
       if (metrics) {
         const executionTime = Date.now() - startTime;
         metrics.totalInvocations++;
@@ -219,7 +219,7 @@ export class ToolRegistry extends EventEmitter {
    * Validates input against tool schema
    */
   private validateInput(tool: MCPTool, input: unknown): void {
-    // Simple validation - in production, use a JSON Schema validator
+    // Simple validation - in production, use a JSON Schema validator,
     const schema = tool.inputSchema as any;
 
     if (schema.type === 'object' && schema.properties) {
@@ -229,7 +229,7 @@ export class ToolRegistry extends EventEmitter {
 
       const inputObj = input as Record<string, unknown>;
 
-      // Check required properties
+      // Check required properties,
       if (schema.required && Array.isArray(schema.required)) {
         for (const prop of schema.required) {
           if (!(prop in inputObj)) {
@@ -238,7 +238,7 @@ export class ToolRegistry extends EventEmitter {
         }
       }
 
-      // Check property types
+      // Check property types,
       for (const [prop, propSchema] of Object.entries(schema.properties)) {
         if (prop in inputObj) {
           const value = inputObj[prop];
@@ -299,7 +299,7 @@ export class ToolRegistry extends EventEmitter {
   private extractTags(tool: MCPTool): string[] {
     const tags: string[] = [];
     
-    // Extract from description
+    // Extract from description,
     if (tool.description.toLowerCase().includes('file')) tags.push('filesystem');
     if (tool.description.toLowerCase().includes('search')) tags.push('search');
     if (tool.description.toLowerCase().includes('memory')) tags.push('memory');
@@ -318,7 +318,7 @@ export class ToolRegistry extends EventEmitter {
       return; // No capability checks needed
     }
 
-    // Check if tool is deprecated
+    // Check if tool is deprecated,
     if (capability.deprecated) {
       this.logger.warn('Using deprecated tool', { 
         name: toolName, 
@@ -326,7 +326,7 @@ export class ToolRegistry extends EventEmitter {
       });
     }
 
-    // Check required permissions
+    // Check required permissions,
     if (capability.requiredPermissions && context?.permissions) {
       const hasAllPermissions = capability.requiredPermissions.every(
         permission => context.permissions.includes(permission)
@@ -339,7 +339,7 @@ export class ToolRegistry extends EventEmitter {
       }
     }
 
-    // Check protocol version compatibility
+    // Check protocol version compatibility,
     if (context?.protocolVersion) {
       const isCompatible = capability.supportedProtocolVersions.some(
         version => this.isProtocolVersionCompatible(context.protocolVersion, version)
@@ -378,22 +378,22 @@ export class ToolRegistry extends EventEmitter {
       const capability = this.capabilities.get(name);
       if (!capability) continue;
 
-      // Filter by category
+      // Filter by category,
       if (query.category && capability.category !== query.category) {
         continue;
       }
 
-      // Filter by tags
+      // Filter by tags,
       if (query.tags && !query.tags.some(tag => capability.tags.includes(tag))) {
         continue;
       }
 
-      // Filter by capabilities
+      // Filter by capabilities,
       if (query.capabilities && !query.capabilities.every(cap => capability.tags.includes(cap))) {
         continue;
       }
 
-      // Filter by protocol version
+      // Filter by protocol version,
       if (query.protocolVersion) {
         const isCompatible = capability.supportedProtocolVersions.some(
           version => this.isProtocolVersionCompatible(query.protocolVersion!, version)
@@ -401,12 +401,12 @@ export class ToolRegistry extends EventEmitter {
         if (!isCompatible) continue;
       }
 
-      // Filter deprecated tools
+      // Filter deprecated tools,
       if (!query.includeDeprecated && capability.deprecated) {
         continue;
       }
 
-      // Filter by permissions
+      // Filter by permissions,
       if (query.permissions && capability.requiredPermissions) {
         const hasAllPermissions = capability.requiredPermissions.every(
           permission => query.permissions!.includes(permission)
@@ -508,7 +508,7 @@ export class ToolRegistry extends EventEmitter {
       averageExecutionTime: 0,
     };
 
-    // Count by category
+    // Count by category,
     for (const capability of this.capabilities.values()) {
       stats.toolsByCategory[capability.category] = (stats.toolsByCategory[capability.category] || 0) + 1;
       
@@ -517,7 +517,7 @@ export class ToolRegistry extends EventEmitter {
       }
     }
 
-    // Calculate execution stats
+    // Calculate execution stats,
     let totalExecutionTime = 0;
     let totalSuccessful = 0;
     

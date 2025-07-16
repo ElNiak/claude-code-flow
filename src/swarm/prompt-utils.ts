@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { logger } from '../core/logger.js';
@@ -74,7 +74,7 @@ export class PromptConfigManager {
       const configData = await fs.readFile(this.configPath, 'utf-8');
       const userConfig = JSON.parse(configData) as Partial<PromptConfig>;
       
-      // Merge with defaults
+      // Merge with defaults,
       this.config = this.mergeConfig(DEFAULT_CONFIG, userConfig);
       logger.info(`Loaded config from ${this.configPath}`);
     } catch (error) {
@@ -155,7 +155,7 @@ export class PromptPathResolver {
     }
   }
 
-  // Discover prompt directories automatically
+  // Discover prompt directories automatically,
   async discoverPromptDirectories(): Promise<string[]> {
     const candidates = [
       '.roo',
@@ -221,12 +221,12 @@ export class PromptValidator {
     try {
       const content = await fs.readFile(filePath, 'utf-8');
       
-      // Check for empty files
+      // Check for empty files,
       if (content.trim().length === 0) {
         issues.push('File is empty');
       }
       
-      // Check for common prompt markers
+      // Check for common prompt markers,
       const hasPromptMarkers = [
         '# ', '## ', '### ',  // Markdown headers
         'You are', 'Your task', 'Please',  // Common prompt starters
@@ -238,7 +238,7 @@ export class PromptValidator {
         issues.push('File may not contain valid prompt content');
       }
       
-      // Extract metadata from front matter
+      // Extract metadata from front matter,
       const frontMatterMatch = content.match(/^---\n([\s\S]*?\n)---/);
       if (frontMatterMatch) {
         try {
@@ -250,7 +250,7 @@ export class PromptValidator {
       
       // Check file size (warn if too large)
       const stats = await fs.stat(filePath);
-      if (stats.size > 100 * 1024) { // 100KB
+      if (stats.size > 100 * 1024) { // 100KB,
         issues.push('File is unusually large for a prompt');
       }
       
@@ -269,7 +269,7 @@ export class PromptValidator {
   }
 
   private static parseFrontMatter(frontMatter: string): any {
-    // Simple YAML-like parser for basic key-value pairs
+    // Simple YAML-like parser for basic key-value pairs,
     const metadata: any = {};
     const lines = frontMatter.split('\n');
     
@@ -306,7 +306,7 @@ export function createProgressBar(total: number): {
   };
 }
 
-// Utility function to format file sizes
+// Utility function to format file sizes,
 export function formatFileSize(bytes: number): string {
   const units = ['B', 'KB', 'MB', 'GB'];
   let size = bytes;
@@ -320,7 +320,7 @@ export function formatFileSize(bytes: number): string {
   return `${size.toFixed(1)} ${units[unitIndex]}`;
 }
 
-// Utility function to format duration
+// Utility function to format duration,
 export function formatDuration(ms: number): string {
   if (ms < 1000) return `${ms}ms`;
   if (ms < 60000) return `${(ms / 1000).toFixed(1)}s`;

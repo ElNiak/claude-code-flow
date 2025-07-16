@@ -9,7 +9,7 @@ import SwarmWebUIIntegration from '../../cli/simple-commands/swarm-webui-integra
 import EnhancedWebUI from './EnhancedWebUI.js';
 
 // Enhanced color utilities with more options
-const colors = {
+const _colors = {
   cyan: (text) => `\x1b[36m${text}\x1b[0m`,
   gray: (text) => `\x1b[90m${text}\x1b[0m`,
   white: (text) => `\x1b[37m${text}\x1b[0m`,
@@ -142,7 +142,7 @@ export class EnhancedProcessUI {
       
     } catch (error) {
       this.addLog('warning', 'Enhanced UI fallback mode enabled');
-      console.warn('Enhanced UI initialization warning:', error);
+      console.warn('Enhanced UI initialization warning:', _error);
     }
     
     // Initialize swarm (this will create mock data)
@@ -1112,10 +1112,10 @@ export class EnhancedProcessUI {
       // Execute through enhanced UI if available
       let result;
       if (this.enhancedWebUI) {
-        result = await this.enhancedWebUI.executeTool(toolName, params);
+        result = await this.enhancedWebUI.executeTool(toolName, _params);
       } else {
         // Fallback execution
-        result = await this.mockToolExecution(toolName, params);
+        result = await this.mockToolExecution(toolName, _params);
       }
       
       const duration = Date.now() - startTime;
@@ -1142,7 +1142,7 @@ export class EnhancedProcessUI {
   }
   
   // Mock tool execution for fallback
-  async mockToolExecution(toolName, params) {
+  async mockToolExecution(toolName, _params) {
     // Simulate execution delay
     await new Promise(resolve => setTimeout(resolve, 100 + Math.random() * 500));
     

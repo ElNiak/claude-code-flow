@@ -6,7 +6,7 @@
  * @param {string} tools - Comma-separated list of available tools
  * @returns {string} Enhanced task prompt
  */
-export function createEnhancedTask(task, flags, instanceId, tools) {
+export function createEnhancedTask(task, _flags, instanceId, tools) {
   let enhancedTask = `# Claude-Flow Enhanced Task
 
 ## Your Task

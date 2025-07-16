@@ -1,8 +1,8 @@
-import { getErrorMessage } from '../../utils/error-handler.js';
-import { success, error, warning, info } from "../cli-core.js";
+import { getErrorMessage as _getErrorMessage } from '../../utils/error-handler.js';
+import { success, _error, warning, info } from "../cli-core.js";
 import type { CommandContext } from "../cli-core.js";
 import chalk from "chalk";
-const { blue, yellow, green, magenta, cyan } = chalk;
+const { blue, yellow, green, cyan } = chalk;
 
 interface SparcMode {
   slug: string;
@@ -82,14 +82,14 @@ async function listSparcModes(ctx: CommandContext): Promise<void> {
       info("Use --verbose for detailed descriptions");
     }
   } catch (err) {
-    error(`Failed to list SPARC modes: ${(err as Error).message}`);
+    _error(`Failed to list SPARC modes: ${_getErrorMessage(err)}`);
   }
 }
 
 async function showModeInfo(ctx: CommandContext): Promise<void> {
   const modeSlug = ctx.args[1];
   if (!modeSlug) {
-    error("Usage: sparc info <mode-slug>");
+    _error("Usage: sparc info <mode-slug>");
     return;
   }
 
@@ -98,7 +98,7 @@ async function showModeInfo(ctx: CommandContext): Promise<void> {
     const mode = config.customModes.find(m => m.slug === modeSlug);
 
     if (!mode) {
-      error(`Mode not found: ${modeSlug}`);
+      _error(`Mode not found: ${modeSlug}`);
       console.log("Available modes:");
       for (const m of config.customModes) {
         console.log(`  ${m.slug} - ${m.name}`);
@@ -121,7 +121,7 @@ async function showModeInfo(ctx: CommandContext): Promise<void> {
     console.log(mode.source);
 
   } catch (err) {
-    error(`Failed to show mode info: ${(err as Error).message}`);
+    _error(`Failed to show mode info: ${_getErrorMessage(err)}`);
   }
 }
 
@@ -130,7 +130,7 @@ async function runSparcMode(ctx: CommandContext): Promise<void> {
   const taskDescription = ctx.args.slice(2).join(" ");
 
   if (!modeSlug || !taskDescription) {
-    error("Usage: sparc run <mode-slug> <task-description>");
+    _error("Usage: sparc run <mode-slug> <task-description>");
     return;
   }
 
@@ -139,15 +139,15 @@ async function runSparcMode(ctx: CommandContext): Promise<void> {
     const mode = config.customModes.find(m => m.slug === modeSlug);
 
     if (!mode) {
-      error(`Mode not found: ${modeSlug}`);
+      _error(`Mode not found: ${modeSlug}`);
       return;
     }
 
-    // Build the enhanced task prompt using SPARC methodology
+    // Build the enhanced task prompt using SPARC methodology,
     const enhancedTask = buildSparcPrompt(mode, taskDescription, ctx.flags);
     const instanceId = `sparc-${modeSlug}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
-    // Build tools based on mode groups
+    // Build tools based on mode groups,
     const tools = buildToolsFromGroups(mode.groups);
 
     if (ctx.flags.dryRun || ctx.flags["dry-run"]) {
@@ -169,11 +169,11 @@ async function runSparcMode(ctx: CommandContext): Promise<void> {
     console.log(`📋 Task: ${taskDescription}`);
     console.log();
 
-    // Execute Claude with SPARC configuration
+    // Execute Claude with SPARC configuration,
     await executeClaudeWithSparc(enhancedTask, tools, instanceId, ctx.flags);
 
   } catch (err) {
-    error(`Failed to run SPARC mode: ${(err as Error).message}`);
+    _error(`Failed to run SPARC mode: ${_getErrorMessage(err)}`);
   }
 }
 
@@ -181,14 +181,14 @@ async function runTddFlow(ctx: CommandContext): Promise<void> {
   const taskDescription = ctx.args.slice(1).join(" ");
 
   if (!taskDescription) {
-    error("Usage: sparc tdd <task-description>");
+    _error("Usage: sparc tdd <task-description>");
     return;
   }
 
   try {
     const config = await loadSparcConfig();
 
-    // Build TDD workflow using SPARC methodology
+    // Build TDD workflow using SPARC methodology,
     const workflow = [
       { mode: "spec-pseudocode", phase: "Specification", description: `Create detailed spec and pseudocode for: ${taskDescription}` },
       { mode: "tdd", phase: "Red", description: `Write failing tests for: ${taskDescription}` },
@@ -234,19 +234,21 @@ async function runTddFlow(ctx: CommandContext): Promise<void> {
 
       await executeClaudeWithSparc(enhancedTask, tools, instanceId, ctx.flags);
 
-      // Store phase completion in memory for next step
+      // Store phase completion in memory for next step,
       if (ctx.flags.sequential !== false) {
         console.log("Phase completed. Press Enter to continue to next phase, or Ctrl+C to stop...");
-        await new Promise<void>(async (resolve) => {
-          const readline = await import("readline");
-          const rl = readline.createInterface({
-            input: process.stdin,
-            output: process.stdout
-          });
-          rl.question("", () => {
-            rl.close();
-            resolve();
-          });
+        await new Promise<void>((resolve) => {
+          (async () => {
+            const readline = await import("readline");
+            const rl = readline.createInterface({
+              input: process.stdin,
+              output: process.stdout
+            });
+            rl.question("", () => {
+              rl.close();
+              resolve();
+            });
+          })();
         });
       }
     }
@@ -254,7 +256,7 @@ async function runTddFlow(ctx: CommandContext): Promise<void> {
     success("SPARC TDD Workflow completed!");
 
   } catch (err) {
-    error(`Failed to run TDD flow: ${(err as Error).message}`);
+    _error(`Failed to run TDD flow: ${_getErrorMessage(err)}`);
   }
 }
 
@@ -262,7 +264,7 @@ async function runSparcWorkflow(ctx: CommandContext): Promise<void> {
   const workflowFile = ctx.args[1];
 
   if (!workflowFile) {
-    error("Usage: sparc workflow <workflow-file.json>");
+    _error("Usage: sparc workflow <workflow-file.json>");
     return;
   }
 
@@ -272,7 +274,7 @@ async function runSparcWorkflow(ctx: CommandContext): Promise<void> {
     const workflow = JSON.parse(workflowContent);
 
     if (!workflow.steps || !Array.isArray(workflow.steps)) {
-      error("Invalid workflow file: missing 'steps' array");
+      _error("Invalid workflow file: missing 'steps' array");
       return;
     }
 
@@ -336,7 +338,7 @@ async function runSparcWorkflow(ctx: CommandContext): Promise<void> {
     success("SPARC workflow completed!");
 
   } catch (err) {
-    error(`Failed to run workflow: ${(err as Error).message}`);
+    _error(`Failed to run workflow: ${_getErrorMessage(err)}`);
   }
 }
 
@@ -354,7 +356,7 @@ ${taskDescription}
 ## Mode-Specific Instructions
 ${mode.customInstructions}
 
-## SPARC Development Environment
+## SPARC Development Environment,
 
 You are working within the SPARC (Specification, Pseudocode, Architecture, Refinement, Completion) methodology using claude-flow orchestration features.
 
@@ -376,30 +378,30 @@ ${flags.workflowStep ? `
 - Store this step's output: \`npx claude-flow memory store step_${flags.workflowStep}_output "<results>"\`
 ` : ''}
 
-### Best Practices
-1. **Modular Development**: Keep all files under 500 lines
-2. **Environment Safety**: Never hardcode secrets or environment values
-3. **Memory Usage**: Store key findings and decisions in memory for future reference
+### Best Practices,
+1. **Modular Development**: Keep all files under 500 lines,
+2. **Environment Safety**: Never hardcode secrets or environment values,
+3. **Memory Usage**: Store key findings and decisions in memory for future reference,
 4. **Tool Integration**: Use \`new_task\` for subtasks and \`attempt_completion\` when finished
 
 ### Memory Commands Examples
 \`\`\`bash
-# Store your progress
+# Store your progress,
 npx claude-flow memory store ${memoryNamespace}_progress "Current status and findings"
 
-# Check for previous work
+# Check for previous work,
 npx claude-flow memory query ${memoryNamespace}
 
-# Store phase-specific results
+# Store phase-specific results,
 npx claude-flow memory store ${memoryNamespace}_${flags.tddPhase || 'results'} "Phase output and decisions"
 \`\`\`
 
-### Integration with Other SPARC Modes
+### Integration with Other SPARC Modes,
 When working with other SPARC modes, use memory to:
 - Share findings with spec-pseudocode mode
 - Pass requirements to architect mode  
 - Coordinate with code and tdd modes
-- Communicate results to integration mode
+- Communicate results to integration mode,
 
 Now proceed with your task following the SPARC methodology and your specific role instructions.`;
 }
@@ -415,14 +417,14 @@ function buildToolsFromGroups(groups: string[]): string {
 
   const tools = new Set<string>();
   
-  // Always include basic tools
+  // Always include basic tools,
   tools.add("View");
   tools.add("Edit");
   tools.add("Bash");
 
   for (const group of groups) {
     if (Array.isArray(group)) {
-      // Handle nested group definitions
+      // Handle nested group definitions,
       const groupName = group[0];
       if (toolMappings[groupName]) {
         toolMappings[groupName].forEach(tool => tools.add(tool));
@@ -478,10 +480,10 @@ async function executeClaudeWithSparc(
     if ((status as any).success) {
       success(`SPARC instance ${instanceId} completed successfully`);
     } else {
-      error(`SPARC instance ${instanceId} exited with code ${(status as any).code}`);
+      _error(`SPARC instance ${instanceId} exited with code ${(status as any).code}`);
     }
   } catch (err) {
-    error(`Failed to execute Claude: ${(err as Error).message}`);
+    _error(`Failed to execute Claude: ${_getErrorMessage(err)}`);
   }
 }
 

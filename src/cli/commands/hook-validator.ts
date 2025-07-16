@@ -23,7 +23,7 @@ export function validateHookParams(
     warnings: []
   };
 
-  // Common validations
+  // Common validations,
   if (params.metadata && typeof params.metadata === 'string') {
     try {
       JSON.parse(params.metadata);
@@ -33,7 +33,7 @@ export function validateHookParams(
     }
   }
 
-  // Hook-specific validations
+  // Hook-specific validations,
   switch (hookType) {
     case 'pre-task':
       if (params.complexity && !['low', 'medium', 'high'].includes(params.complexity)) {
@@ -148,7 +148,7 @@ export function validateHookParams(
       break;
   }
 
-  // Add warnings for deprecated or unusual usage
+  // Add warnings for deprecated or unusual usage,
   if (hookType === 'session-start' && params.loadPrevious && !params.sessionId) {
     result.warnings.push('--load-previous without --session-id may load unexpected data');
   }
@@ -171,17 +171,17 @@ export function sanitizeHookParams(params: Record<string, any>): Record<string, 
       continue;
     }
 
-    // Sanitize file paths
+    // Sanitize file paths,
     if (['file', 'saveTo', 'target'].includes(key) && typeof value === 'string') {
-      // Remove potentially dangerous characters
+      // Remove potentially dangerous characters,
       sanitized[key] = value.replace(/[<>"|?*]/g, '');
     }
-    // Sanitize commands
+    // Sanitize commands,
     else if (key === 'command' && typeof value === 'string') {
-      // Basic command injection prevention
+      // Basic command injection prevention,
       sanitized[key] = value.replace(/[;&|`$()]/g, '');
     }
-    // Keep other values as-is
+    // Keep other values as-is,
     else {
       sanitized[key] = value;
     }

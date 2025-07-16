@@ -1,4 +1,3 @@
-import { getErrorMessage } from '../../utils/error-handler.js';
 /**
  * Task management commands
  */
@@ -7,6 +6,7 @@ import { Command } from 'commander';
 import { promises as fs } from 'node:fs';
 import chalk from 'chalk';
 import { generateId } from '../../utils/helpers.js';
+import { getErrorMessage } from '../../utils/error-handler.js';
 import type { Task } from '../../utils/types.js';
 export const taskCommand = new Command()
   .name('task')

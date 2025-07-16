@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * Memory manager interface and implementation
  * Enhanced with intrinsic agent coordination and unified system integration
@@ -27,7 +27,7 @@ export interface IMemoryManager {
   getHealthStatus(): Promise<{ healthy: boolean; error?: string; metrics?: Record<string, number> }>;
   performMaintenance(): Promise<void>;
   
-  // Intrinsic agent coordination methods
+  // Intrinsic agent coordination methods,
   storeAgentCoordination(sessionId: string, agentId: string, coordinationData: any): Promise<void>;
   retrieveAgentCoordination(sessionId: string, agentId?: string): Promise<MemoryEntry[]>;
   syncAgentMemory(sessionId: string, agentIds: string[]): Promise<void>;
@@ -62,16 +62,16 @@ export class MemoryManager implements IMemoryManager {
     private eventBus: IEventBus,
     private logger: ILogger,
   ) {
-    // Initialize backend based on configuration
+    // Initialize backend based on configuration,
     this.backend = this.createBackend();
     
-    // Initialize cache
+    // Initialize cache,
     this.cache = new MemoryCache(
-      this.config.cacheSizeMB * 1024 * 1024, // Convert MB to bytes
+      this.config.cacheSizeMB * 1024 * 1024, // Convert MB to bytes,
       this.logger,
     );
 
-    // Initialize indexer
+    // Initialize indexer,
     this.indexer = new MemoryIndexer(this.logger);
   }
 
@@ -83,14 +83,14 @@ export class MemoryManager implements IMemoryManager {
     this.logger.info('Initializing memory manager...');
 
     try {
-      // Initialize backend
+      // Initialize backend,
       await this.backend.initialize();
 
-      // Initialize indexer with existing entries
+      // Initialize indexer with existing entries,
       const allEntries = await this.backend.getAllEntries();
       await this.indexer.buildIndex(allEntries);
 
-      // Start sync interval
+      // Start sync interval,
       this.startSyncInterval();
 
       this.initialized = true;
@@ -109,19 +109,19 @@ export class MemoryManager implements IMemoryManager {
     this.logger.info('Shutting down memory manager...');
 
     try {
-      // Stop sync interval
+      // Stop sync interval,
       if (this.syncInterval) {
         clearInterval(this.syncInterval);
       }
 
-      // Flush cache
+      // Flush cache,
       await this.flushCache();
 
-      // Close all banks
+      // Close all banks,
       const bankIds = Array.from(this.banks.keys());
       await Promise.all(bankIds.map(id => this.closeBank(id)));
 
-      // Shutdown backend
+      // Shutdown backend,
       await this.backend.shutdown();
 
       this.initialized = false;
@@ -158,7 +158,7 @@ export class MemoryManager implements IMemoryManager {
       throw new MemoryError(`Memory bank not found: ${bankId}`);
     }
 
-    // Flush any cached entries for this bank
+    // Flush any cached entries for this bank,
     const bankEntries = this.cache.getByPrefix(`${bank.agentId}:`);
     for (const entry of bankEntries) {
       await this.backend.store(entry);
@@ -181,10 +181,10 @@ export class MemoryManager implements IMemoryManager {
     });
 
     try {
-      // Add to cache
+      // Add to cache,
       this.cache.set(entry.id, entry);
 
-      // Add to index
+      // Add to index,
       this.indexer.addEntry(entry);
 
       // Store in backend (async, don't wait)
@@ -195,14 +195,14 @@ export class MemoryManager implements IMemoryManager {
         });
       });
 
-      // Update bank stats
+      // Update bank stats,
       const bank = Array.from(this.banks.values()).find(b => b.agentId === entry.agentId);
       if (bank) {
         bank.entryCount++;
         bank.lastAccessed = new Date();
       }
 
-      // Emit event
+      // Emit event,
       this.eventBus.emit('memory:created', { entry });
     } catch (error) {
       this.logger.error('Failed to store memory entry', error);
@@ -215,16 +215,16 @@ export class MemoryManager implements IMemoryManager {
       throw new MemoryError('Memory manager not initialized');
     }
 
-    // Check cache first
+    // Check cache first,
     const cached = this.cache.get(id);
     if (cached) {
       return cached;
     }
 
-    // Retrieve from backend
+    // Retrieve from backend,
     const entry = await this.backend.retrieve(id);
     if (entry) {
-      // Add to cache
+      // Add to cache,
       this.cache.set(id, entry);
     }
 
@@ -239,10 +239,10 @@ export class MemoryManager implements IMemoryManager {
     this.logger.debug('Querying memory', query);
 
     try {
-      // Use index for fast querying
+      // Use index for fast querying,
       let results = this.indexer.search(query);
 
-      // Apply additional filters if needed
+      // Apply additional filters if needed,
       if (query.search) {
         results = results.filter(entry => 
           entry.content.toLowerCase().includes(query.search!.toLowerCase()) ||
@@ -250,7 +250,7 @@ export class MemoryManager implements IMemoryManager {
         );
       }
 
-      // Apply time range filter
+      // Apply time range filter,
       if (query.startTime || query.endTime) {
         results = results.filter(entry => {
           const timestamp = entry.timestamp.getTime();
@@ -264,7 +264,7 @@ export class MemoryManager implements IMemoryManager {
         });
       }
 
-      // Apply pagination
+      // Apply pagination,
       const start = query.offset || 0;
       const limit = query.limit || 100;
       results = results.slice(start, start + limit);
@@ -286,25 +286,25 @@ export class MemoryManager implements IMemoryManager {
       throw new MemoryError(`Memory entry not found: ${id}`);
     }
 
-    // Create updated entry
+    // Create updated entry,
     const updated: MemoryEntry = {
       ...existing,
       ...updates,
-      id: existing.id, // Ensure ID doesn't change
+      id: existing.id, // Ensure ID doesn't change,
       version: existing.version + 1,
       timestamp: new Date(),
     };
 
-    // Update in cache
+    // Update in cache,
     this.cache.set(id, updated);
 
-    // Update in index
+    // Update in index,
     this.indexer.updateEntry(updated);
 
-    // Update in backend
+    // Update in backend,
     await this.backend.update(id, updated);
 
-    // Emit event
+    // Emit event,
     this.eventBus.emit('memory:updated', { 
       entry: updated,
       previousVersion: existing.version,
@@ -316,16 +316,16 @@ export class MemoryManager implements IMemoryManager {
       throw new MemoryError('Memory manager not initialized');
     }
 
-    // Remove from cache
+    // Remove from cache,
     this.cache.delete(id);
 
-    // Remove from index
+    // Remove from index,
     this.indexer.removeEntry(id);
 
-    // Delete from backend
+    // Delete from backend,
     await this.backend.delete(id);
 
-    // Emit event
+    // Emit event,
     this.eventBus.emit('memory:deleted', { entryId: id });
   }
 
@@ -368,7 +368,7 @@ export class MemoryManager implements IMemoryManager {
     this.logger.debug('Performing memory manager maintenance');
 
     try {
-      // Clean up old entries based on retention policy
+      // Clean up old entries based on retention policy,
       if (this.config.retentionDays > 0) {
         const cutoffDate = new Date();
         cutoffDate.setDate(cutoffDate.getDate() - this.config.retentionDays);
@@ -384,15 +384,15 @@ export class MemoryManager implements IMemoryManager {
         this.logger.info(`Cleaned up ${oldEntries.length} old memory entries`);
       }
 
-      // Perform cache maintenance
+      // Perform cache maintenance,
       this.cache.performMaintenance();
 
-      // Perform backend maintenance
+      // Perform backend maintenance,
       if (this.backend.performMaintenance) {
         await this.backend.performMaintenance();
       }
 
-      // Update bank statistics
+      // Update bank statistics,
       for (const bank of this.banks.values()) {
         const entries = await this.query({ agentId: bank.agentId });
         bank.entryCount = entries.length;
@@ -418,7 +418,7 @@ export class MemoryManager implements IMemoryManager {
           this.logger,
         );
       case 'hybrid':
-        // Use SQLite for structured data and Markdown for human-readable backup
+        // Use SQLite for structured data and Markdown for human-readable backup,
         return new HybridBackend(
           new SQLiteBackend(
             this.config.sqlitePath || './claude-flow.db',
@@ -442,7 +442,7 @@ export class MemoryManager implements IMemoryManager {
       } catch (error) {
         this.logger.error('Cache sync error', error);
       }
-    }, this.config.syncInterval);
+    }, this.config.syncInterval) as any;
   }
 
   private async syncCache(): Promise<void> {
@@ -463,7 +463,7 @@ export class MemoryManager implements IMemoryManager {
     await Promise.all(promises);
     this.cache.markClean(dirtyEntries.map(e => e.id));
 
-    // Emit sync event
+    // Emit sync event,
     this.eventBus.emit('memory:synced', { entries: dirtyEntries });
   }
 
@@ -485,7 +485,7 @@ export class MemoryManager implements IMemoryManager {
     await Promise.all(promises);
   }
 
-  // Intrinsic agent coordination implementation
+  // Intrinsic agent coordination implementation,
   async storeAgentCoordination(sessionId: string, agentId: string, coordinationData: any): Promise<void> {
     if (!this.initialized) {
       throw new MemoryError('Memory manager not initialized');
@@ -493,8 +493,11 @@ export class MemoryManager implements IMemoryManager {
 
     const entry: MemoryEntry = {
       id: `agent-coord-${sessionId}-${agentId}-${Date.now()}`,
-      type: 'agent-coordination',
-      content: coordinationData,
+      agentId,
+      sessionId,
+      type: 'decision',
+      content: JSON.stringify(coordinationData),
+      context: {},
       metadata: {
         sessionId,
         agentId,
@@ -502,7 +505,8 @@ export class MemoryManager implements IMemoryManager {
         coordinationType: 'agent-data'
       },
       tags: ['coordination', 'agent', sessionId, agentId],
-      timestamp: Date.now()
+      timestamp: new Date(),
+      version: 1
     };
 
     await this.store(entry);
@@ -515,7 +519,7 @@ export class MemoryManager implements IMemoryManager {
     }
 
     const query: MemoryQuery = {
-      type: 'agent-coordination',
+      type: 'decision',
       sessionId,
       limit: 100
     };
@@ -541,28 +545,32 @@ export class MemoryManager implements IMemoryManager {
 
     this.logger.info('Syncing agent memory', { sessionId, agentCount: agentIds.length });
 
-    // Create sync event
+    // Create sync event,
     const syncEntry: MemoryEntry = {
       id: `memory-sync-${sessionId}-${Date.now()}`,
-      type: 'memory-sync',
-      content: {
+      agentId: 'coordinator',
+      sessionId,
+      type: 'insight',
+      content: JSON.stringify({
         sessionId,
         agentIds,
         syncTime: Date.now(),
         syncType: 'intrinsic-coordination'
-      },
+      }),
+      context: {},
       metadata: {
         sessionId,
         intrinsicSync: true,
         agentCount: agentIds.length
       },
       tags: ['sync', 'coordination', sessionId, ...agentIds],
-      timestamp: Date.now()
+      timestamp: new Date(),
+      version: 1
     };
 
     await this.store(syncEntry);
 
-    // Store individual agent sync records
+    // Store individual agent sync records,
     for (const agentId of agentIds) {
       await this.storeAgentCoordination(sessionId, agentId, {
         action: 'memory-sync',
@@ -581,20 +589,24 @@ export class MemoryManager implements IMemoryManager {
 
     const hookEntry: MemoryEntry = {
       id: `hook-${hookType}-${sessionId}-${Date.now()}`,
-      type: 'coordination-hook',
-      content: {
+      agentId: 'coordinator',
+      sessionId,
+      type: 'artifact',
+      content: JSON.stringify({
         hookType,
         sessionId,
         data,
         executedAt: Date.now()
-      },
+      }),
+      context: {},
       metadata: {
         sessionId,
         hookType,
         intrinsicHook: true
       },
       tags: ['hook', 'coordination', hookType, sessionId],
-      timestamp: Date.now()
+      timestamp: new Date(),
+      version: 1
     };
 
     await this.store(hookEntry);
@@ -606,21 +618,21 @@ export class MemoryManager implements IMemoryManager {
       throw new MemoryError('Memory manager not initialized');
     }
 
-    // Get all coordination entries for session
+    // Get all coordination entries for session,
     const coordinationEntries = await this.query({
-      type: 'agent-coordination',
+      type: 'decision',
       sessionId,
       limit: 1000
     });
 
-    // Get sync entries
+    // Get sync entries,
     const syncEntries = await this.query({
-      type: 'memory-sync', 
+      type: 'insight', 
       sessionId,
       limit: 10
     });
 
-    // Count unique agents
+    // Count unique agents,
     const uniqueAgents = new Set();
     coordinationEntries.forEach(entry => {
       if (entry.metadata?.agentId) {
@@ -628,10 +640,10 @@ export class MemoryManager implements IMemoryManager {
       }
     });
 
-    // Find last sync
+    // Find last sync,
     let lastSync = new Date(0);
     if (syncEntries.length > 0) {
-      const lastSyncEntry = syncEntries[0]; // Should be sorted by timestamp desc
+      const lastSyncEntry = syncEntries[0]; // Should be sorted by timestamp desc,
       lastSync = new Date(lastSyncEntry.timestamp);
     }
 
@@ -671,7 +683,7 @@ class HybridBackend implements IMemoryBackend {
   }
 
   async store(entry: MemoryEntry): Promise<void> {
-    // Store in both backends
+    // Store in both backends,
     await Promise.all([
       this.primary.store(entry),
       this.secondary.store(entry).catch(error => {
@@ -681,13 +693,13 @@ class HybridBackend implements IMemoryBackend {
   }
 
   async retrieve(id: string): Promise<MemoryEntry | undefined> {
-    // Try primary first
+    // Try primary first,
     const entry = await this.primary.retrieve(id);
     if (entry) {
       return entry;
     }
 
-    // Fall back to secondary
+    // Fall back to secondary,
     return await this.secondary.retrieve(id);
   }
 

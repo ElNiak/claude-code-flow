@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * Rollback Manager - Handles rollback operations and backup management
  */
@@ -9,7 +9,7 @@ import * as crypto from 'crypto';
 import type { MigrationBackup, BackupFile } from './types.js';
 import { logger } from './logger.js';
 import * as chalk from 'chalk';
-import * as inquirer from 'inquirer';
+import inquirer from 'inquirer';
 
 export class RollbackManager {
   private projectPath: string;
@@ -40,7 +40,7 @@ export class RollbackManager {
       }
     };
 
-    // Backup critical files and directories
+    // Backup critical files and directories,
     const backupTargets = [
       '.claude',
       'CLAUDE.md',
@@ -65,11 +65,11 @@ export class RollbackManager {
       }
     }
 
-    // Save backup manifest
+    // Save backup manifest,
     const manifestPath = path.join(backupPath, 'backup-manifest.json');
     await fs.writeJson(manifestPath, backup, { spaces: 2 });
 
-    // Update backup index
+    // Update backup index,
     await this.updateBackupIndex(backup);
 
     logger.success(`Backup created with ${backup.files.length} files`);
@@ -146,21 +146,22 @@ export class RollbackManager {
     let selectedBackup: MigrationBackup;
 
     if (backupId) {
-      selectedBackup = backups.find(b => b.metadata.backupId === backupId);
-      if (!selectedBackup) {
+      const foundBackup = backups.find(b => b.metadata.backupId === backupId);
+      if (!foundBackup) {
         throw new Error(`Backup not found: ${backupId}`);
       }
+      selectedBackup = foundBackup;
     } else if (interactive) {
       selectedBackup = await this.selectBackupInteractively(backups);
     } else {
       selectedBackup = backups[0]; // Most recent
     }
 
-    logger.info(`Rolling back to backup from ${selectedBackup.timestamp.toISOString()}...`);
+    logger.info(`Rolling back to backup from ${selectedBackup!.timestamp.toISOString()}...`);
 
-    // Confirm rollback
+    // Confirm rollback,
     if (interactive) {
-      const confirm = await inquirer.prompt([{
+      const confirm = await (inquirer as any).prompt([{
         type: 'confirm',
         name: 'proceed',
         message: `Are you sure you want to rollback? This will overwrite current files.`,
@@ -173,18 +174,18 @@ export class RollbackManager {
       }
     }
 
-    // Create pre-rollback backup
+    // Create pre-rollback backup,
     const preRollbackBackup = await this.createBackup({
       type: 'pre-rollback',
-      rollingBackTo: selectedBackup.metadata.backupId
+      rollingBackTo: selectedBackup!.metadata.backupId
     });
 
     try {
-      // Restore files
-      await this.restoreFiles(selectedBackup);
+      // Restore files,
+      await this.restoreFiles(selectedBackup!);
       
-      // Validate restoration
-      await this.validateRestore(selectedBackup);
+      // Validate restoration,
+      await this.validateRestore(selectedBackup!);
       
       logger.success('Rollback completed successfully');
       
@@ -207,10 +208,10 @@ export class RollbackManager {
     const choices = backups.map(backup => ({
       name: `${backup.timestamp.toLocaleString()} - ${backup.files.length} files (${backup.metadata.type || 'migration'})`,
       value: backup,
-      short: backup.metadata.backupId
+      short: backup.metadata.backupId || 'unknown'
     }));
 
-    const answer = await inquirer.prompt([{
+    const answer = await (inquirer as any).prompt([{
       type: 'list',
       name: 'backup',
       message: 'Select backup to rollback to:',
@@ -232,7 +233,7 @@ export class RollbackManager {
       await fs.ensureDir(path.dirname(targetPath));
       await fs.writeFile(targetPath, file.content);
       
-      // Restore permissions if available
+      // Restore permissions if available,
       if (file.permissions) {
         try {
           await fs.chmod(targetPath, parseInt(file.permissions, 8));
@@ -283,12 +284,12 @@ export class RollbackManager {
 
     const backupsToDelete = backups
       .filter((backup, index) => {
-        // Keep the most recent maxBackups
+        // Keep the most recent maxBackups,
         if (index < maxBackups) {
           return false;
         }
         
-        // Delete old backups
+        // Delete old backups,
         return backup.timestamp < cutoffDate;
       });
 
@@ -299,9 +300,9 @@ export class RollbackManager {
     logger.info(`Cleaning up ${backupsToDelete.length} old backups...`);
 
     for (const backup of backupsToDelete) {
-      const backupPath = path.join(this.backupDir, backup.metadata.backupId);
+      const backupPath = path.join(this.backupDir, backup.metadata.backupId || 'unknown');
       await fs.remove(backupPath);
-      logger.debug(`Removed backup: ${backup.metadata.backupId}`);
+      logger.debug(`Removed backup: ${backup.metadata.backupId || 'unknown'}`);
     }
 
     logger.success(`Cleanup completed, removed ${backupsToDelete.length} backups`);
@@ -318,7 +319,7 @@ export class RollbackManager {
       throw new Error(`Backup not found: ${backupId}`);
     }
 
-    const backupPath = path.join(this.backupDir, backup.metadata.backupId);
+    const backupPath = path.join(this.backupDir, backup.metadata.backupId || 'unknown');
     await fs.copy(backupPath, exportPath);
     
     logger.success(`Backup exported to ${exportPath}`);
@@ -332,7 +333,7 @@ export class RollbackManager {
     }
 
     const backup = await fs.readJson(manifestPath);
-    const backupPath = path.join(this.backupDir, backup.metadata.backupId);
+    const backupPath = path.join(this.backupDir, backup.metadata.backupId || 'unknown');
 
     await fs.copy(importPath, backupPath);
     await this.updateBackupIndex(backup);
@@ -349,7 +350,8 @@ export class RollbackManager {
       index = await fs.readJson(indexPath);
     }
 
-    index[backup.metadata.backupId] = {
+    const backupId = backup.metadata.backupId || `backup_${Date.now()}`;
+    index[backupId] = {
       timestamp: backup.timestamp,
       version: backup.version,
       fileCount: backup.files.length,
@@ -374,7 +376,8 @@ export class RollbackManager {
       const type = backup.metadata.type || 'migration';
       const fileCount = backup.files.length;
       
-      console.log(`\n${isRecent ? chalk.green('●') : chalk.gray('○')} ${chalk.bold(backup.metadata.backupId)}`);
+      const backupId = backup.metadata.backupId || 'Unknown';
+      console.log(`\n${isRecent ? chalk.green('●') : chalk.gray('○')} ${chalk.bold(backupId)}`);
       console.log(`  ${chalk.gray('Date:')} ${date}`);
       console.log(`  ${chalk.gray('Type:')} ${type}`);
       console.log(`  ${chalk.gray('Files:')} ${fileCount}`);

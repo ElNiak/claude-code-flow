@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env node,
 import { getErrorMessage } from '../utils/error-handler.js';
 /**
  * Unified MCP Tools - Integration between Claude Code, ruv-swarm, and intrinsic agents
@@ -14,8 +14,8 @@ export interface UnifiedToolContext extends MCPContext {
   resourceManager?: any;
   messageBus?: any;
   monitor?: any;
-  workingDirectory: string;
-  sessionId: string;
+  workingDirectory?: string;
+  // sessionId is already required in MCPContext
 }
 
 export function createUnifiedTools(logger: ILogger): MCPTool[] {
@@ -71,7 +71,7 @@ export function createUnifiedTools(logger: ILogger): MCPTool[] {
         },
         required: ['task']
       },
-      handler: async (input: any, context?: UnifiedToolContext) => {
+      handler: async (input: any, context?: MCPContext) => {
         try {
           logger.info('Starting unified work coordination', { task: input.task });
           
@@ -86,7 +86,7 @@ export function createUnifiedTools(logger: ILogger): MCPTool[] {
             sessionId = `work-${Date.now()}`
           } = input;
           
-          // Check ruv-swarm availability
+          // Check ruv-swarm availability,
           let ruvSwarmAvailable = false;
           if (ruvSwarm) {
             try {
@@ -98,7 +98,7 @@ export function createUnifiedTools(logger: ILogger): MCPTool[] {
             }
           }
           
-          // Initialize coordination based on available systems
+          // Initialize coordination based on available systems,
           const coordinationPlan = await createCoordinationPlan({
             task,
             agents,
@@ -110,7 +110,7 @@ export function createUnifiedTools(logger: ILogger): MCPTool[] {
             sessionId
           });
           
-          // Execute coordination
+          // Execute coordination,
           const result = await executeUnifiedCoordination(coordinationPlan, context);
           
           logger.info('Unified work coordination completed', { 
@@ -175,7 +175,7 @@ export function createUnifiedTools(logger: ILogger): MCPTool[] {
         },
         required: ['type']
       },
-      handler: async (input: any, context?: UnifiedToolContext) => {
+      handler: async (input: any, context?: MCPContext) => {
         try {
           const {
             type,
@@ -246,7 +246,7 @@ export function createUnifiedTools(logger: ILogger): MCPTool[] {
         },
         required: ['sessionId']
       },
-      handler: async (input: any, context?: UnifiedToolContext) => {
+      handler: async (input: any, context?: MCPContext) => {
         try {
           const { sessionId, action = 'coordinate', data, agentIds } = input;
           
@@ -293,7 +293,7 @@ export function createUnifiedTools(logger: ILogger): MCPTool[] {
           }
         }
       },
-      handler: async (input: any, context?: UnifiedToolContext) => {
+      handler: async (input: any, context?: MCPContext) => {
         try {
           const { sessionId, detailed = false } = input;
           
@@ -343,7 +343,7 @@ export function createUnifiedTools(logger: ILogger): MCPTool[] {
           }
         }
       },
-      handler: async (input: any, context?: UnifiedToolContext) => {
+      handler: async (input: any, context?: MCPContext) => {
         try {
           const {
             checkRuvSwarm = true,
@@ -378,7 +378,7 @@ export function createUnifiedTools(logger: ILogger): MCPTool[] {
 function determineOptimalAgentCount(task: string): number {
   const taskLower = task.toLowerCase();
   
-  // Complex indicators
+  // Complex indicators,
   const complexIndicators = ['api', 'database', 'auth', 'authentication', 'microservice', 'distributed', 'full-stack'];
   const mediumIndicators = ['frontend', 'backend', 'ui', 'interface', 'integration', 'testing'];
   const simpleIndicators = ['script', 'utility', 'helper', 'simple', 'basic'];
@@ -397,10 +397,10 @@ function determineOptimalAgentCount(task: string): number {
     if (taskLower.includes(indicator)) complexity += 1;
   }
   
-  // Return agent count based on complexity
-  if (complexity >= 8) return 10; // Very complex
-  if (complexity >= 5) return 7;  // Complex
-  if (complexity >= 3) return 5;  // Medium
+  // Return agent count based on complexity,
+  if (complexity >= 8) return 10; // Very complex,
+  if (complexity >= 5) return 7;  // Complex,
+  if (complexity >= 3) return 5;  // Medium,
   return 3; // Simple
 }
 
@@ -444,7 +444,7 @@ function analyzeTaskComponents(task: string): any[] {
     });
   }
 
-  // Default component if none specific identified
+  // Default component if none specific identified,
   if (components.length === 0) {
     components.push({
       type: 'General Implementation',
@@ -464,10 +464,10 @@ async function executeUnifiedCoordination(plan: any, context?: UnifiedToolContex
     agentCount: plan.agents,
     executionTime: Date.now(),
     coordinationMethod: plan.ruvSwarmAvailable ? 'ruv-swarm' : 'intrinsic',
-    details: []
+    details: [] as any[]
   };
 
-  // Simulate coordination execution
+  // Simulate coordination execution,
   for (const component of plan.components) {
     results.details.push({
       component: component.type,
@@ -529,7 +529,7 @@ async function getCoordinationStatus(config: any): Promise<any> {
   };
   
   if (detailed) {
-    status['details'] = {
+    (status as any)['details'] = {
       agents: [],
       components: [],
       memoryEntries: 0,
@@ -565,7 +565,7 @@ async function performSystemHealthCheck(config: any): Promise<any> {
 }
 
 function getDefaultCapabilities(agentType: string): string[] {
-  const capabilities = {
+  const capabilities: Record<string, string[]> = {
     coordinator: ['orchestration', 'task-management', 'agent-coordination'],
     analyst: ['data-analysis', 'requirement-analysis', 'problem-solving'],
     coder: ['programming', 'implementation', 'code-review'],

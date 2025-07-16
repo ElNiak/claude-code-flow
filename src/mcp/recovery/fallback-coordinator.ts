@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../../utils/error-handler.js';
 /**
  * Fallback Coordinator for MCP
  * Manages graceful degradation to CLI when MCP connection fails
@@ -47,7 +47,7 @@ export class FallbackCoordinator extends EventEmitter {
   private readonly defaultConfig: FallbackConfig = {
     enableFallback: true,
     maxQueueSize: 100,
-    queueTimeout: 300000, // 5 minutes
+    queueTimeout: 300000, // 5 minutes,
     cliPath: 'npx ruv-swarm',
     fallbackNotificationInterval: 30000, // 30 seconds
   };
@@ -74,7 +74,7 @@ export class FallbackCoordinator extends EventEmitter {
    */
   async isMCPAvailable(): Promise<boolean> {
     try {
-      // Try to execute a simple MCP command
+      // Try to execute a simple MCP command,
       const { stdout } = await execAsync(`${this.config.cliPath} status --json`);
       const status = JSON.parse(stdout);
       return status.connected === true;
@@ -98,7 +98,7 @@ export class FallbackCoordinator extends EventEmitter {
     this.state.isFallbackActive = true;
     this.state.lastFallbackActivation = new Date();
     
-    // Start notification timer
+    // Start notification timer,
     this.startNotificationTimer();
     
     this.emit('fallbackEnabled', this.state);
@@ -116,12 +116,12 @@ export class FallbackCoordinator extends EventEmitter {
     
     this.state.isFallbackActive = false;
     
-    // Stop notification timer
+    // Stop notification timer,
     this.stopNotificationTimer();
     
     this.emit('fallbackDisabled', this.state);
     
-    // Process any queued operations
+    // Process any queued operations,
     if (this.operationQueue.length > 0) {
       this.processQueue().catch(error => {
         this.logger.error('Error processing queue after fallback disabled', error);
@@ -162,7 +162,7 @@ export class FallbackCoordinator extends EventEmitter {
 
     this.emit('operationQueued', queuedOp);
 
-    // If in fallback mode, try to execute via CLI
+    // If in fallback mode, try to execute via CLI,
     if (this.state.isFallbackActive && !this.processingQueue) {
       this.executeViaCliFallback(queuedOp).catch(error => {
         this.logger.error('CLI fallback execution failed', { operation: queuedOp, error });
@@ -190,11 +190,11 @@ export class FallbackCoordinator extends EventEmitter {
       failed: 0,
     };
 
-    // Process operations in order
+    // Process operations in order,
     while (this.operationQueue.length > 0) {
       const operation = this.operationQueue.shift()!;
       
-      // Check if operation has expired
+      // Check if operation has expired,
       if (this.isOperationExpired(operation)) {
         this.logger.warn('Operation expired', { id: operation.id });
         results.failed++;
@@ -213,7 +213,7 @@ export class FallbackCoordinator extends EventEmitter {
         results.failed++;
         this.state.failedOperations++;
 
-        // Re-queue if retryable
+        // Re-queue if retryable,
         if (operation.retryable) {
           this.operationQueue.push(operation);
         }
@@ -260,7 +260,7 @@ export class FallbackCoordinator extends EventEmitter {
     });
 
     try {
-      // Map MCP operations to CLI commands
+      // Map MCP operations to CLI commands,
       const cliCommand = this.mapOperationToCli(operation);
       
       if (!cliCommand) {
@@ -289,7 +289,7 @@ export class FallbackCoordinator extends EventEmitter {
       this.state.failedOperations++;
       this.emit('fallbackExecutionFailed', { operation, error });
 
-      // Re-queue if retryable
+      // Re-queue if retryable,
       if (operation.retryable) {
         this.queueOperation(operation);
       }
@@ -298,18 +298,18 @@ export class FallbackCoordinator extends EventEmitter {
 
   private async replayOperation(operation: FallbackOperation): Promise<void> {
     // This would typically use the MCP client to replay the operation
-    // For now, we'll log it
+    // For now, we'll log it,
     this.logger.info('Replaying operation', {
       id: operation.id,
       method: operation.method,
     });
 
-    // Emit event for handling by the MCP client
+    // Emit event for handling by the MCP client,
     this.emit('replayOperation', operation);
   }
 
   private mapOperationToCli(operation: FallbackOperation): string | null {
-    // Map common MCP operations to CLI commands
+    // Map common MCP operations to CLI commands,
     const mappings: Record<string, (params: any) => string> = {
       // Tool operations
       'tools/list': () => `${this.config.cliPath} tools list`,

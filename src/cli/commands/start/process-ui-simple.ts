@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../../../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../../../utils/error-handler.js';
 /**
  * Simplified Process UI without keypress dependency
  * Uses basic stdin reading for compatibility
@@ -35,21 +35,21 @@ export class ProcessUI {
   async start(): Promise<void> {
     this.running = true;
     
-    // Clear screen
+    // Clear screen,
     console.clear();
 
-    // Initial render
+    // Initial render,
     this.render();
 
-    // Simple input loop
+    // Simple input loop,
     const decoder = new TextDecoder();
     const encoder = new TextEncoder();
     
     while (this.running) {
-      // Show prompt
+      // Show prompt,
       await Deno.stdout.write(encoder.encode('\nCommand: '));
       
-      // Read single character
+      // Read single character,
       const buf = new Uint8Array(1024);
       const n = await Deno.stdin.read(buf);
       if (n === null) break;
@@ -116,11 +116,11 @@ export class ProcessUI {
     const processes = this.processManager.getAllProcesses();
     const stats = this.processManager.getSystemStats();
 
-    // Header
+    // Header,
     console.log(chalk.cyan.bold('🧠 Claude-Flow Process Manager'));
     console.log(chalk.gray('─'.repeat(60)));
     
-    // System stats
+    // System stats,
     console.log(chalk.white('System Status:'), 
       chalk.green(`${stats.runningProcesses}/${stats.totalProcesses} running`));
     
@@ -130,7 +130,7 @@ export class ProcessUI {
     
     console.log();
 
-    // Process list
+    // Process list,
     console.log(chalk.white.bold('Processes:'));
     console.log(chalk.gray('─'.repeat(60)));
     
@@ -146,7 +146,7 @@ export class ProcessUI {
       }
     });
 
-    // Footer
+    // Footer,
     console.log(chalk.gray('─'.repeat(60)));
     console.log(chalk.gray('Commands: [1-9] Select process [a] Start All [z] Stop All'));
     console.log(chalk.gray('[r] Refresh [h] Help [q] Quit'));

@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * Request router for MCP
  */
@@ -28,20 +28,20 @@ export class RequestRouter {
     this.totalRequests++;
 
     try {
-      // Parse method to determine handler
+      // Parse method to determine handler,
       const { method, params } = request;
 
-      // Handle built-in methods
+      // Handle built-in methods,
       if (method.startsWith('rpc.')) {
         return await this.handleRPCMethod(method, params);
       }
 
-      // Handle tool invocations
+      // Handle tool invocations,
       if (method.startsWith('tools.')) {
         return await this.handleToolMethod(method, params);
       }
 
-      // Try to execute as a tool directly
+      // Try to execute as a tool directly,
       const tool = this.toolRegistry.getTool(method);
       if (tool) {
         const result = await this.toolRegistry.executeTool(method, params);
@@ -49,7 +49,7 @@ export class RequestRouter {
         return result;
       }
 
-      // Method not found
+      // Method not found,
       throw new MCPMethodNotFoundError(method);
     } catch (error) {
       this.failedRequests++;
@@ -123,7 +123,7 @@ export class RequestRouter {
       'tools.describe': 'Describe a specific tool',
     };
 
-    // Add all registered tools
+    // Add all registered tools,
     for (const tool of this.toolRegistry.listTools()) {
       methods[tool.name] = tool.description;
     }
@@ -141,7 +141,7 @@ export class RequestRouter {
 
     const { method } = params as { method: string };
 
-    // Check if it's a tool
+    // Check if it's a tool,
     const tool = this.toolRegistry.getTool(method);
     if (tool) {
       return {
@@ -151,7 +151,7 @@ export class RequestRouter {
       };
     }
 
-    // Check built-in methods
+    // Check built-in methods,
     const builtInMethods: Record<string, unknown> = {
       'rpc.discover': {
         description: 'Discover all available methods',

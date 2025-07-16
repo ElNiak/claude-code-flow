@@ -1,4 +1,4 @@
-// Task command creators
+// Task command creators,
 import type { TaskCommandContext } from './types.js';
 
 export function createTaskCreateCommand(context: TaskCommandContext) {
@@ -91,11 +91,11 @@ export function createTaskWorkflowCommand(context: TaskCommandContext) {
             return { success: true, workflowId: workflowToExecute.id };
           case 'list':
             context.logger?.info('Workflow list requested');
-            return { workflows: [] }; // Would need additional implementation
+            return { workflows: [] }; // Would need additional implementation,
           case 'get':
             const [workflowId] = args;
             context.logger?.info('Workflow details requested', { workflowId });
-            return { workflowId }; // Would need additional implementation
+            return { workflowId }; // Would need additional implementation,
           default:
             throw new Error(`Unknown workflow action: ${action}`);
         }

@@ -74,8 +74,8 @@ export class MemoryToolsPanel extends EventEmitter {
       this.emit('initialized');
       
     } catch (error) {
-      console.error('Failed to initialize memory tools panel:', error);
-      this.emit('error', error);
+      console.error('Failed to initialize memory tools panel:', _error);
+      this.emit('error', _error);
     }
   }
 
@@ -603,7 +603,7 @@ export class MemoryToolsPanel extends EventEmitter {
       await this.loadCacheStats();
       
     } catch (error) {
-      console.error('Failed to load initial memory data:', error);
+      console.error('Failed to load initial memory data:', _error);
     }
   }
 
@@ -636,7 +636,7 @@ export class MemoryToolsPanel extends EventEmitter {
     } catch (error) {
       this.updateStatus('Tool execution failed', 'error');
       this.emit('tool_error', { toolId, error });
-      console.error(`Memory tool execution failed (${toolId}):`, error);
+      console.error(`Memory tool execution failed (${toolId}):`, _error);
     } finally {
       this.activeOperations.delete(toolId);
     }
@@ -769,11 +769,11 @@ export class MemoryToolsPanel extends EventEmitter {
     
     // Try MCP tools
     try {
-      const mcpResponse = await this.callMCPTool(toolId, params);
+      const mcpResponse = await this.callMCPTool(toolId, _params);
       return mcpResponse;
     } catch (error) {
-      console.warn(`MCP failed for ${toolId}, using mock data:`, error);
-      return this.getMockResponse(toolId, params);
+      console.warn(`MCP failed for ${toolId}, using mock data:`, _error);
+      return this.getMockResponse(toolId, _params);
     }
   }
 
@@ -803,7 +803,7 @@ export class MemoryToolsPanel extends EventEmitter {
   /**
    * Get mock response for testing
    */
-  getMockResponse(toolId, params) {
+  getMockResponse(toolId, _params) {
     const timestamp = new Date().toISOString();
     
     switch (toolId) {
@@ -924,7 +924,7 @@ export class MemoryToolsPanel extends EventEmitter {
         });
       }
     } catch (error) {
-      console.warn('Failed to send coordination notification:', error);
+      console.warn('Failed to send coordination notification:', _error);
     }
   }
 
@@ -1028,7 +1028,7 @@ export class MemoryToolsPanel extends EventEmitter {
       const result = await this.callMemoryTool('memory_analytics');
       this.handleMemoryStatus(result);
     } catch (error) {
-      console.error('Failed to check memory status:', error);
+      console.error('Failed to check memory status:', _error);
     }
   }
 
@@ -1056,7 +1056,7 @@ export class MemoryToolsPanel extends EventEmitter {
         this.updateMemoryMetrics(result.analytics);
       }
     } catch (error) {
-      console.error('Failed to load memory metrics:', error);
+      console.error('Failed to load memory metrics:', _error);
     }
   }
 
@@ -1115,7 +1115,7 @@ export class MemoryToolsPanel extends EventEmitter {
       
       this.renderBackupList(backups);
     } catch (error) {
-      console.error('Failed to load backup list:', error);
+      console.error('Failed to load backup list:', _error);
     }
   }
 
@@ -1181,7 +1181,7 @@ export class MemoryToolsPanel extends EventEmitter {
           break;
       }
     } catch (error) {
-      console.error(`Failed to ${action} backup:`, error);
+      console.error(`Failed to ${action} backup:`, _error);
       this.updateStatus(`Backup ${action} failed`, 'error');
     }
   }
@@ -1200,7 +1200,7 @@ export class MemoryToolsPanel extends EventEmitter {
         });
       }
     } catch (error) {
-      console.error('Failed to load cache stats:', error);
+      console.error('Failed to load cache stats:', _error);
     }
   }
 
@@ -1238,7 +1238,7 @@ export class MemoryToolsPanel extends EventEmitter {
         await this.loadBackupList();
       }
     } catch (error) {
-      console.error('Failed to create backup:', error);
+      console.error('Failed to create backup:', _error);
       this.updateStatus('Backup creation failed', 'error');
     }
   }
@@ -1262,7 +1262,7 @@ export class MemoryToolsPanel extends EventEmitter {
           await this.loadCacheStats();
         }
       } catch (error) {
-        console.error('Failed to clear cache:', error);
+        console.error('Failed to clear cache:', _error);
         this.updateStatus('Cache clear failed', 'error');
       }
     }
@@ -1278,7 +1278,7 @@ export class MemoryToolsPanel extends EventEmitter {
         await this.loadCacheStats();
       }
     } catch (error) {
-      console.error('Failed to optimize cache:', error);
+      console.error('Failed to optimize cache:', _error);
       this.updateStatus('Cache optimization failed', 'error');
     }
   }
@@ -1294,7 +1294,7 @@ export class MemoryToolsPanel extends EventEmitter {
           this.updateStatus(`Namespace ${name} created`, 'success');
         }
       } catch (error) {
-        console.error('Failed to create namespace:', error);
+        console.error('Failed to create namespace:', _error);
         this.updateStatus('Namespace creation failed', 'error');
       }
     }
@@ -1310,7 +1310,7 @@ export class MemoryToolsPanel extends EventEmitter {
           this.updateStatus('Namespaces cleaned up', 'success');
         }
       } catch (error) {
-        console.error('Failed to cleanup namespaces:', error);
+        console.error('Failed to cleanup namespaces:', _error);
         this.updateStatus('Namespace cleanup failed', 'error');
       }
     }
@@ -1326,7 +1326,7 @@ export class MemoryToolsPanel extends EventEmitter {
           this.updateStatus('Backup restored successfully', 'success');
         }
       } catch (error) {
-        console.error('Failed to restore backup:', error);
+        console.error('Failed to restore backup:', _error);
         this.updateStatus('Backup restore failed', 'error');
       }
     }
@@ -1448,7 +1448,7 @@ export class MemoryToolsPanel extends EventEmitter {
       
       this.updateStatus('Data exported successfully', 'success');
     } catch (error) {
-      console.error('Failed to export data:', error);
+      console.error('Failed to export data:', _error);
       this.updateStatus('Export failed', 'error');
     }
   }

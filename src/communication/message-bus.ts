@@ -222,23 +222,23 @@ export class MessageBus extends EventEmitter {
   private eventBus: IEventBus;
   private config: MessageBusConfig;
 
-  // Core messaging components
+  // Core messaging components,
   private channels = new Map<string, MessageChannel>();
   private queues = new Map<string, MessageQueue>();
   private subscriptions = new Map<string, TopicSubscription>();
   private routingRules = new Map<string, RoutingRule>();
 
-  // Message tracking
+  // Message tracking,
   private messageStore = new Map<string, Message>();
   private deliveryReceipts = new Map<string, DeliveryReceipt>();
   private acknowledgments = new Map<string, MessageAcknowledgment>();
 
-  // Routing and delivery
+  // Routing and delivery,
   private router: MessageRouter;
   private deliveryManager: DeliveryManager;
   private retryManager: RetryManager;
 
-  // Performance monitoring
+  // Performance monitoring,
   private metrics: MessageBusMetrics;
   private metricsInterval?: NodeJS.Timeout;
 
@@ -257,9 +257,9 @@ export class MessageBus extends EventEmitter {
       enableReliability: true,
       enableOrdering: false,
       enableFiltering: true,
-      maxMessageSize: 1024 * 1024, // 1MB
+      maxMessageSize: 1024 * 1024, // 1MB,
       maxQueueSize: 10000,
-      messageRetention: 86400000, // 24 hours
+      messageRetention: 86400000, // 24 hours,
       acknowledgmentTimeout: 30000,
       retryAttempts: 3,
       backoffMultiplier: 2,
@@ -311,15 +311,15 @@ export class MessageBus extends EventEmitter {
       reliability: this.config.enableReliability
     });
 
-    // Initialize components
+    // Initialize components,
     await this.router.initialize();
     await this.deliveryManager.initialize();
     await this.retryManager.initialize();
 
-    // Create default channels
+    // Create default channels,
     await this.createDefaultChannels();
 
-    // Start metrics collection
+    // Start metrics collection,
     if (this.config.metricsEnabled) {
       this.startMetricsCollection();
     }
@@ -330,17 +330,17 @@ export class MessageBus extends EventEmitter {
   async shutdown(): Promise<void> {
     this.logger.info('Shutting down message bus');
 
-    // Stop metrics collection
+    // Stop metrics collection,
     if (this.metricsInterval) {
       clearInterval(this.metricsInterval);
     }
 
-    // Shutdown components
+    // Shutdown components,
     await this.retryManager.shutdown();
     await this.deliveryManager.shutdown();
     await this.router.shutdown();
 
-    // Persist any remaining messages if enabled
+    // Persist any remaining messages if enabled,
     if (this.config.enablePersistence) {
       await this.persistMessages();
     }
@@ -384,7 +384,7 @@ export class MessageBus extends EventEmitter {
         size: this.calculateSize(content),
         contentType: this.detectContentType(content),
         encoding: 'utf-8',
-        route: [sender.id]
+        route: [typeof sender === 'string' ? sender : sender.id]
       },
       timestamp: now,
       expiresAt: options.ttl ? new Date(now.getTime() + options.ttl) : undefined,
@@ -392,15 +392,15 @@ export class MessageBus extends EventEmitter {
       reliability: options.reliability || 'best-effort'
     };
 
-    // Validate message
+    // Validate message,
     this.validateMessage(message);
 
-    // Store message if persistence is enabled
+    // Store message if persistence is enabled,
     if (this.config.enablePersistence) {
       this.messageStore.set(messageId, message);
     }
 
-    // Route and deliver message
+    // Route and deliver message,
     await this.routeMessage(message, options.channel);
 
     this.metrics.recordMessageSent(message);
@@ -408,8 +408,8 @@ export class MessageBus extends EventEmitter {
     this.logger.debug('Message sent', {
       messageId,
       type,
-      sender: sender.id,
-      receivers: receiversArray.map(r => r.id),
+      sender: typeof sender === 'string' ? sender : sender.id,
+      receivers: receiversArray.map(r => typeof r === 'string' ? r : r.id),
       size: message.metadata.size
     });
 
@@ -437,10 +437,11 @@ export class MessageBus extends EventEmitter {
       throw new Error('No broadcast channel available');
     }
 
-    // Get all participants as receivers
-    let receivers = channel.participants.filter(p => p.id !== sender.id);
+    // Get all participants as receivers,
+    const senderId = typeof sender === 'string' ? sender : sender.id;
+    let receivers = channel.participants.filter(p => (typeof p === 'string' ? p : p.id) !== senderId);
 
-    // Apply filter if provided
+    // Apply filter if provided,
     if (options.filter) {
       receivers = await this.filterReceivers(receivers, options.filter, { type, content });
     }
@@ -526,7 +527,7 @@ export class MessageBus extends EventEmitter {
 
     this.emit('message:acknowledged', { messageId, agentId });
 
-    // Check if all receivers have acknowledged
+    // Check if all receivers have acknowledged,
     this.checkAllAcknowledgments(message);
   }
 
@@ -587,17 +588,17 @@ export class MessageBus extends EventEmitter {
       throw new Error(`Channel ${channelId} not found`);
     }
 
-    // Check access permissions
+    // Check access permissions,
     if (!this.canJoinChannel(channel, agentId)) {
       throw new Error(`Agent ${agentId.id} not allowed to join channel ${channelId}`);
     }
 
-    // Check capacity
+    // Check capacity,
     if (channel.participants.length >= channel.config.maxParticipants) {
       throw new Error(`Channel ${channelId} is at capacity`);
     }
 
-    // Add participant if not already present
+    // Add participant if not already present,
     if (!channel.participants.some(p => p.id === agentId.id)) {
       channel.participants.push(agentId);
       channel.statistics.participantCount = channel.participants.length;
@@ -618,7 +619,7 @@ export class MessageBus extends EventEmitter {
       throw new Error(`Channel ${channelId} not found`);
     }
 
-    // Remove participant
+    // Remove participant,
     channel.participants = channel.participants.filter(p => p.id !== agentId.id);
     channel.statistics.participantCount = channel.participants.length;
 
@@ -684,7 +685,7 @@ export class MessageBus extends EventEmitter {
       throw new Error(`Queue ${queueId} not found`);
     }
 
-    // Check queue capacity
+    // Check queue capacity,
     if (queue.messages.length >= queue.config.maxSize) {
       if (queue.config.deadLetterQueue) {
         await this.sendToDeadLetterQueue(queue.config.deadLetterQueue, message, 'queue_full');
@@ -694,7 +695,7 @@ export class MessageBus extends EventEmitter {
       }
     }
 
-    // Insert message based on queue type
+    // Insert message based on queue type,
     this.insertMessageInQueue(queue, message);
 
     queue.statistics.depth = queue.messages.length;
@@ -708,7 +709,7 @@ export class MessageBus extends EventEmitter {
 
     this.emit('message:enqueued', { queueId, message });
 
-    // Process queue for delivery
+    // Process queue for delivery,
     await this.processQueue(queue);
   }
 
@@ -723,14 +724,14 @@ export class MessageBus extends EventEmitter {
       throw new Error(`Subscriber ${subscriberId} not found in queue ${queueId}`);
     }
 
-    // Find next eligible message
+    // Find next eligible message,
     let message: Message | null = null;
     let messageIndex = -1;
 
     for (let i = 0; i < queue.messages.length; i++) {
       const msg = queue.messages[i];
       
-      // Check if message matches subscriber filter
+      // Check if message matches subscriber filter,
       if (subscriber.filter && !this.matchesFilter(msg, subscriber.filter)) {
         continue;
       }
@@ -768,13 +769,13 @@ export class MessageBus extends EventEmitter {
   // === ROUTING AND DELIVERY ===
 
   private async routeMessage(message: Message, preferredChannel?: string): Promise<void> {
-    // Apply routing rules
+    // Apply routing rules,
     const route = await this.router.calculateRoute(message, preferredChannel);
     
-    // Update message route
+    // Update message route,
     message.metadata.route = [...(message.metadata.route || []), ...route.hops];
 
-    // Deliver to targets
+    // Deliver to targets,
     for (const target of route.targets) {
       await this.deliverMessage(message, target);
     }
@@ -788,7 +789,7 @@ export class MessageBus extends EventEmitter {
     } catch (error) {
       this.metrics.recordDeliveryFailure(message);
       
-      // Handle delivery failure based on reliability level
+      // Handle delivery failure based on reliability level,
       if (message.reliability !== 'best-effort') {
         await this.retryManager.scheduleRetry(message, target, error);
       }
@@ -814,12 +815,12 @@ export class MessageBus extends EventEmitter {
   private async processContent(content: any): Promise<any> {
     let processed = content;
 
-    // Compress if enabled
+    // Compress if enabled,
     if (this.config.compressionEnabled) {
       processed = await this.compress(processed);
     }
 
-    // Encrypt if enabled
+    // Encrypt if enabled,
     if (this.config.encryptionEnabled) {
       processed = await this.encrypt(processed);
     }
@@ -843,14 +844,14 @@ export class MessageBus extends EventEmitter {
     filter: MessageFilter,
     context: any
   ): Promise<AgentId[]> {
-    // Placeholder for receiver filtering logic
+    // Placeholder for receiver filtering logic,
     return receivers;
   }
 
   private canJoinChannel(channel: MessageChannel, agentId: AgentId): boolean {
     const acl = channel.config.accessControl;
     
-    // Check banned list
+    // Check banned list,
     if (acl.bannedAgents.some(banned => banned.id === agentId.id)) {
       return false;
     }
@@ -945,10 +946,10 @@ export class MessageBus extends EventEmitter {
   }
 
   private async processQueue(queue: MessageQueue): Promise<void> {
-    // Process messages for subscribers
+    // Process messages for subscribers,
     for (const subscriber of queue.subscribers) {
       if (subscriber.prefetchCount > 0) {
-        // Deliver up to prefetch count
+        // Deliver up to prefetch count,
         for (let i = 0; i < subscriber.prefetchCount; i++) {
           const message = await this.dequeueMessage(queue.id, subscriber.id);
           if (!message) break;
@@ -961,13 +962,13 @@ export class MessageBus extends EventEmitter {
 
   private async deliverMessageToSubscriber(message: Message, subscriber: QueueSubscriber): Promise<void> {
     try {
-      // Deliver message to subscriber
+      // Deliver message to subscriber,
       this.emit('message:delivered', {
         message,
         subscriber: subscriber.agent
       });
 
-      // Handle acknowledgment if required
+      // Handle acknowledgment if required,
       if (subscriber.ackMode === 'auto') {
         await this.acknowledgeMessage(message.id, subscriber.agent);
       }
@@ -990,7 +991,7 @@ export class MessageBus extends EventEmitter {
     if (receivedAcks === requiredAcks) {
       this.emit('message:fully-acknowledged', { message });
       
-      // Clean up acknowledgments
+      // Clean up acknowledgments,
       message.receivers.forEach(receiver => {
         this.acknowledgments.delete(`${message.id}:${receiver.id}`);
       });
@@ -998,21 +999,21 @@ export class MessageBus extends EventEmitter {
   }
 
   private async createDefaultChannels(): Promise<void> {
-    // System broadcast channel
+    // System broadcast channel,
     await this.createChannel('system-broadcast', 'broadcast', {
       persistent: true,
       reliable: true,
       maxParticipants: 10000
     });
 
-    // Agent coordination channel
+    // Agent coordination channel,
     await this.createChannel('agent-coordination', 'multicast', {
       persistent: true,
       reliable: true,
       ordered: true
     });
 
-    // Task distribution channel
+    // Task distribution channel,
     await this.createChannel('task-distribution', 'topic', {
       persistent: true,
       reliable: false
@@ -1057,47 +1058,47 @@ export class MessageBus extends EventEmitter {
   }
 
   private updateMetrics(): void {
-    // Update channel statistics
+    // Update channel statistics,
     for (const channel of this.channels.values()) {
       // Calculate throughput, latency, etc.
       this.updateChannelStatistics(channel);
     }
 
-    // Update queue statistics
+    // Update queue statistics,
     for (const queue of this.queues.values()) {
       this.updateQueueStatistics(queue);
     }
 
-    // Emit metrics event
+    // Emit metrics event,
     this.emit('metrics:updated', { metrics: this.getMetrics() });
   }
 
   private updateChannelStatistics(channel: MessageChannel): void {
-    // Placeholder for channel statistics calculation
+    // Placeholder for channel statistics calculation,
     channel.statistics.lastActivity = new Date();
   }
 
   private updateQueueStatistics(queue: MessageQueue): void {
-    // Placeholder for queue statistics calculation
+    // Placeholder for queue statistics calculation,
     queue.statistics.depth = queue.messages.length;
   }
 
-  private handleAgentConnected(agentId: AgentId): void {
+  private handleAgentConnected(agentId: AgentId | { id: string }): void {
     this.logger.info('Agent connected to message bus', { agentId: agentId.id });
     this.emit('agent:connected', { agentId });
   }
 
-  private handleAgentDisconnected(agentId: AgentId): void {
+  private handleAgentDisconnected(agentId: AgentId | { id: string }): void {
     this.logger.info('Agent disconnected from message bus', { agentId: agentId.id });
     
-    // Remove from all channels
+    // Remove from all channels,
     for (const channel of this.channels.values()) {
-      channel.participants = channel.participants.filter(p => p.id !== agentId.id);
+      channel.participants = channel.participants.filter(p => (typeof p === 'string' ? p : p.id) !== agentId.id);
     }
 
-    // Remove subscriptions
+    // Remove subscriptions,
     for (const [subId, subscription] of this.subscriptions) {
-      if (subscription.subscriber.id === agentId.id) {
+      if ((typeof subscription.subscriber === 'string' ? subscription.subscriber : subscription.subscriber.id) === agentId.id) {
         this.subscriptions.delete(subId);
       }
     }
@@ -1119,7 +1120,7 @@ export class MessageBus extends EventEmitter {
       target: data.target
     });
 
-    // Send to dead letter queue if configured
+    // Send to dead letter queue if configured,
     this.sendToDeadLetterQueue('system-dlq', data.message, 'retry_exhausted');
   }
 
@@ -1141,17 +1142,17 @@ export class MessageBus extends EventEmitter {
   }
 
   private async compress(content: any): Promise<any> {
-    // Placeholder for compression
+    // Placeholder for compression,
     return content;
   }
 
   private async encrypt(content: any): Promise<any> {
-    // Placeholder for encryption
+    // Placeholder for encryption,
     return content;
   }
 
   private async persistMessages(): Promise<void> {
-    // Placeholder for message persistence
+    // Placeholder for message persistence,
     this.logger.info('Persisting messages', { count: this.messageStore.size });
   }
 
@@ -1263,7 +1264,7 @@ class MessageRouter {
     const targets: DeliveryTarget[] = [];
     const hops: string[] = [];
 
-    // Simple routing - direct to receivers
+    // Simple routing - direct to receivers,
     for (const receiver of message.receivers) {
       targets.push({
         type: 'agent',
@@ -1294,14 +1295,14 @@ class DeliveryManager extends EventEmitter {
   }
 
   async deliver(message: Message, target: DeliveryTarget): Promise<void> {
-    // Simulate delivery
+    // Simulate delivery,
     this.logger.debug('Delivering message', {
       messageId: message.id,
       target: target.id,
       type: target.type
     });
 
-    // Emit delivery success
+    // Emit delivery success,
     this.emit('delivery:success', { message, target });
   }
 }
@@ -1359,23 +1360,23 @@ class RetryManager extends EventEmitter {
 
     for (const entry of toRetry) {
       if (entry.attempts >= this.config.retryAttempts) {
-        // Remove from retry queue and emit exhausted event
+        // Remove from retry queue and emit exhausted event,
         this.retryQueue = this.retryQueue.filter(r => r !== entry);
         this.emit('retry:exhausted', entry);
       } else {
-        // Retry delivery
+        // Retry delivery,
         try {
-          // Simulate retry delivery
+          // Simulate retry delivery,
           this.logger.debug('Retrying message delivery', {
             messageId: entry.message.id,
             attempt: entry.attempts
           });
           
-          // Remove from retry queue on success
+          // Remove from retry queue on success,
           this.retryQueue = this.retryQueue.filter(r => r !== entry);
           
         } catch (error) {
-          // Keep in retry queue for next attempt
+          // Keep in retry queue for next attempt,
           this.logger.warn('Retry attempt failed', {
             messageId: entry.message.id,
             attempt: entry.attempts,
@@ -1387,7 +1388,7 @@ class RetryManager extends EventEmitter {
   }
 
   private calculateDelay(attempts: number): number {
-    const baseDelay = 1000; // 1 second
+    const baseDelay = 1000; // 1 second,
     return Math.min(
       baseDelay * Math.pow(this.config.backoffMultiplier, attempts - 1),
       30000 // Max 30 seconds
@@ -1412,7 +1413,7 @@ class MessageBusMetrics {
     const latency = Date.now() - message.timestamp.getTime();
     this.deliveryLatencies.push(latency);
     
-    // Keep only last 1000 latencies
+    // Keep only last 1000 latencies,
     if (this.deliveryLatencies.length > 1000) {
       this.deliveryLatencies.shift();
     }

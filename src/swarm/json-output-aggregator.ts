@@ -85,7 +85,7 @@ export class SwarmJsonOutputAggregator extends EventEmitter {
   private endTime?: Date;
   private configuration: Record<string, any>;
   
-  // Data collection
+  // Data collection,
   private agents: Map<string, AgentOutputData> = new Map();
   private tasks: Map<string, TaskOutputData> = new Map();
   private outputs: string[] = [];
@@ -113,9 +113,9 @@ export class SwarmJsonOutputAggregator extends EventEmitter {
     });
   }
 
-  // Agent tracking methods
+  // Agent tracking methods,
   addAgent(agent: AgentState): void {
-    // Handle null/undefined agent IDs gracefully
+    // Handle null/undefined agent IDs gracefully,
     if (!agent || !agent.id) {
       this.logger.warn('Attempted to add agent with null/undefined ID, skipping');
       return;
@@ -166,9 +166,9 @@ export class SwarmJsonOutputAggregator extends EventEmitter {
     this.errors.push(`[${agentId}] ${error}`);
   }
 
-  // Task tracking methods
+  // Task tracking methods,
   addTask(task: TaskDefinition): void {
-    // Handle null/undefined task IDs gracefully
+    // Handle null/undefined task IDs gracefully,
     if (!task || !task.id) {
       this.logger.warn('Attempted to add task with null/undefined ID, skipping');
       return;
@@ -208,7 +208,7 @@ export class SwarmJsonOutputAggregator extends EventEmitter {
       task.output = result.output;
       task.artifacts = result.artifacts;
       
-      // Update agent completion count
+      // Update agent completion count,
       if (task.assignedAgent) {
         const agent = this.agents.get(task.assignedAgent);
         if (agent) {
@@ -218,7 +218,7 @@ export class SwarmJsonOutputAggregator extends EventEmitter {
     }
   }
 
-  // Global tracking methods
+  // Global tracking methods,
   addInsight(insight: string): void {
     this.insights.push(insight);
     this.logger.debug('Insight added', { insight });
@@ -233,12 +233,12 @@ export class SwarmJsonOutputAggregator extends EventEmitter {
     Object.assign(this.metrics, updates);
   }
 
-  // Finalization and output
+  // Finalization and output,
   finalize(status: 'completed' | 'failed' | 'timeout' | 'cancelled' = 'completed'): SwarmOutputAggregate {
     this.endTime = new Date();
     const duration = this.endTime.getTime() - this.startTime.getTime();
 
-    // Calculate summary statistics
+    // Calculate summary statistics,
     const totalTasks = this.tasks.size;
     const completedTasks = Array.from(this.tasks.values())
       .filter(task => task.status === 'completed').length;
@@ -246,9 +246,9 @@ export class SwarmJsonOutputAggregator extends EventEmitter {
       .filter(task => task.status === 'failed').length;
     const successRate = totalTasks > 0 ? completedTasks / totalTasks : 0;
 
-    // Finalize agent data
+    // Finalize agent data,
     this.agents.forEach(agent => {
-      if (!agent.endTime) {
+      if (!agent.endTime && this.endTime) {
         agent.endTime = this.endTime.toISOString();
         agent.duration = Date.now() - new Date(agent.startTime).getTime();
       }
@@ -307,7 +307,7 @@ export class SwarmJsonOutputAggregator extends EventEmitter {
     return JSON.stringify(aggregate, this.circularReplacer(), 2);
   }
 
-  // Handle circular references in JSON serialization
+  // Handle circular references in JSON serialization,
   private circularReplacer(): (key: string, value: any) => any {
     const seen = new WeakSet();
     return (key: string, value: any) => {
@@ -323,18 +323,18 @@ export class SwarmJsonOutputAggregator extends EventEmitter {
 
   private initializeMetrics(): SwarmMetrics {
     return {
-      // Performance metrics
+      // Performance metrics,
       throughput: 0,
       latency: 0,
       efficiency: 0,
       reliability: 0,
       
-      // Quality metrics
+      // Quality metrics,
       averageQuality: 0,
       defectRate: 0,
       reworkRate: 0,
       
-      // Resource metrics
+      // Resource metrics,
       resourceUtilization: {
         cpu: 0,
         memory: 0,
@@ -343,12 +343,12 @@ export class SwarmJsonOutputAggregator extends EventEmitter {
       },
       costEfficiency: 0,
       
-      // Agent metrics
+      // Agent metrics,
       agentUtilization: 0,
       agentSatisfaction: 0,
       collaborationEffectiveness: 0,
       
-      // Timeline metrics
+      // Timeline metrics,
       scheduleVariance: 0,
       deadlineAdherence: 0
     };

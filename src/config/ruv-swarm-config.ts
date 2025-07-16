@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * ruv-swarm configuration management for Claude Code integration
  * 
@@ -15,7 +15,7 @@ import { deepMerge } from '../utils/helpers.js';
  * ruv-swarm integration configuration
  */
 export interface RuvSwarmConfig {
-  // Core swarm settings
+  // Core swarm settings,
   swarm: {
     defaultTopology: 'mesh' | 'hierarchical' | 'ring' | 'star';
     maxAgents: number;
@@ -24,7 +24,7 @@ export interface RuvSwarmConfig {
     enableHooks: boolean;
   };
   
-  // Agent configuration
+  // Agent configuration,
   agents: {
     defaultCapabilities: string[];
     spawnTimeout: number;
@@ -32,7 +32,7 @@ export interface RuvSwarmConfig {
     maxRetries: number;
   };
   
-  // Task orchestration
+  // Task orchestration,
   tasks: {
     defaultStrategy: 'parallel' | 'sequential' | 'adaptive';
     defaultPriority: 'low' | 'medium' | 'high' | 'critical';
@@ -40,7 +40,7 @@ export interface RuvSwarmConfig {
     enableMonitoring: boolean;
   };
   
-  // Memory and persistence
+  // Memory and persistence,
   memory: {
     enablePersistence: boolean;
     compressionLevel: number;
@@ -48,7 +48,7 @@ export interface RuvSwarmConfig {
     maxSize: number;
   };
   
-  // Neural capabilities
+  // Neural capabilities,
   neural: {
     enableTraining: boolean;
     patterns: string[];
@@ -56,7 +56,7 @@ export interface RuvSwarmConfig {
     trainingIterations: number;
   };
   
-  // Performance monitoring
+  // Performance monitoring,
   monitoring: {
     enableMetrics: boolean;
     metricsInterval: number;
@@ -68,7 +68,7 @@ export interface RuvSwarmConfig {
     };
   };
   
-  // Integration settings
+  // Integration settings,
   integration: {
     enableMCPTools: boolean;
     enableCLICommands: boolean;
@@ -100,14 +100,14 @@ export const defaultRuvSwarmConfig: RuvSwarmConfig = {
   tasks: {
     defaultStrategy: 'adaptive',
     defaultPriority: 'medium',
-    timeout: 300000, // 5 minutes
+    timeout: 300000, // 5 minutes,
     enableMonitoring: true
   },
   
   memory: {
     enablePersistence: true,
     compressionLevel: 6,
-    ttl: 86400000, // 24 hours
+    ttl: 86400000, // 24 hours,
     maxSize: 100 * 1024 * 1024 // 100MB
   },
   
@@ -161,15 +161,15 @@ export class RuvSwarmConfigManager {
         const configData = readFileSync(this.configPath, 'utf-8');
         const userConfig = JSON.parse(configData) as Partial<RuvSwarmConfig>;
         
-        // Merge with defaults
-        const mergedConfig = deepMerge(defaultRuvSwarmConfig, userConfig);
+        // Merge with defaults,
+        const mergedConfig = deepMerge(defaultRuvSwarmConfig as unknown as Record<string, unknown>, userConfig as unknown as Record<string, unknown>) as unknown as RuvSwarmConfig;
         
         this.logger.debug('Loaded ruv-swarm config from file', { 
           path: this.configPath,
           config: mergedConfig 
         });
         
-        return mergedConfig;
+        return mergedConfig as unknown as RuvSwarmConfig;
       }
     } catch (error) {
       this.logger.warn('Failed to load ruv-swarm config, using defaults', { 
@@ -188,7 +188,7 @@ export class RuvSwarmConfigManager {
     try {
       const configDir = join(this.configPath, '..');
       
-      // Ensure config directory exists
+      // Ensure config directory exists,
       if (!existsSync(configDir)) {
         const fs = require('fs');
         fs.mkdirSync(configDir, { recursive: true });
@@ -215,7 +215,7 @@ export class RuvSwarmConfigManager {
    * Update configuration
    */
   updateConfig(updates: Partial<RuvSwarmConfig>): void {
-    this.config = deepMerge(this.config, updates);
+    this.config = deepMerge(this.config as unknown as Record<string, unknown>, updates as unknown as Record<string, unknown>) as unknown as RuvSwarmConfig;
     this.saveConfig();
     
     this.logger.info('Updated ruv-swarm config', { updates });
@@ -279,12 +279,12 @@ export class RuvSwarmConfigManager {
   validateConfig(): { valid: boolean; errors: string[] } {
     const errors: string[] = [];
     
-    // Validate swarm settings
+    // Validate swarm settings,
     if (this.config.swarm.maxAgents < 1 || this.config.swarm.maxAgents > 100) {
       errors.push('swarm.maxAgents must be between 1 and 100');
     }
     
-    // Validate agent settings
+    // Validate agent settings,
     if (this.config.agents.spawnTimeout < 1000) {
       errors.push('agents.spawnTimeout must be at least 1000ms');
     }
@@ -293,13 +293,13 @@ export class RuvSwarmConfigManager {
       errors.push('agents.heartbeatInterval must be at least 1000ms');
     }
     
-    // Validate task settings
+    // Validate task settings,
     if (this.config.tasks.timeout < 10000) {
       errors.push('tasks.timeout must be at least 10000ms');
     }
     
-    // Validate memory settings
-    if (this.config.memory.maxSize < 1024 * 1024) { // 1MB minimum
+    // Validate memory settings,
+    if (this.config.memory.maxSize < 1024 * 1024) { // 1MB minimum,
       errors.push('memory.maxSize must be at least 1MB');
     }
     
@@ -307,7 +307,7 @@ export class RuvSwarmConfigManager {
       errors.push('memory.compressionLevel must be between 0 and 9');
     }
     
-    // Validate neural settings
+    // Validate neural settings,
     if (this.config.neural.learningRate <= 0 || this.config.neural.learningRate > 1) {
       errors.push('neural.learningRate must be between 0 and 1');
     }
@@ -316,7 +316,7 @@ export class RuvSwarmConfigManager {
       errors.push('neural.trainingIterations must be at least 1');
     }
     
-    // Validate monitoring settings
+    // Validate monitoring settings,
     const { alertThresholds } = this.config.monitoring;
     if (alertThresholds.cpu < 0 || alertThresholds.cpu > 100) {
       errors.push('monitoring.alertThresholds.cpu must be between 0 and 100');
@@ -342,7 +342,7 @@ export class RuvSwarmConfigManager {
   getCommandArgs(): string[] {
     const args: string[] = [];
     
-    // Add swarm configuration
+    // Add swarm configuration,
     args.push('--topology', this.config.swarm.defaultTopology);
     args.push('--max-agents', String(this.config.swarm.maxAgents));
     args.push('--strategy', this.config.swarm.defaultStrategy);
@@ -351,7 +351,7 @@ export class RuvSwarmConfigManager {
       args.push('--enable-hooks');
     }
     
-    // Add task configuration
+    // Add task configuration,
     args.push('--task-strategy', this.config.tasks.defaultStrategy);
     args.push('--task-priority', this.config.tasks.defaultPriority);
     args.push('--task-timeout', String(this.config.tasks.timeout));
@@ -360,14 +360,14 @@ export class RuvSwarmConfigManager {
       args.push('--enable-monitoring');
     }
     
-    // Add memory configuration
+    // Add memory configuration,
     if (this.config.memory.enablePersistence) {
       args.push('--enable-persistence');
       args.push('--compression-level', String(this.config.memory.compressionLevel));
       args.push('--memory-ttl', String(this.config.memory.ttl));
     }
     
-    // Add neural configuration
+    // Add neural configuration,
     if (this.config.neural.enableTraining) {
       args.push('--enable-training');
       args.push('--learning-rate', String(this.config.neural.learningRate));

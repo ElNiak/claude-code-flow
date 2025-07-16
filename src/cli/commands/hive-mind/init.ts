@@ -27,11 +27,11 @@ export const initCommand = new Command('init')
     const spinner = ora('Initializing Hive Mind...').start();
     
     try {
-      // Initialize database
+      // Initialize database,
       const db = await DatabaseManager.getInstance();
       await db.initialize();
       
-      // Create Hive Mind configuration
+      // Create Hive Mind configuration,
       const config: HiveMindConfig = {
         name: options.name,
         topology: options.topology as SwarmTopology,
@@ -43,7 +43,7 @@ export const initCommand = new Command('init')
         createdAt: new Date(),
       };
       
-      // Initialize Hive Mind
+      // Initialize Hive Mind,
       const hiveMind = new HiveMind(config);
       const swarmId = await hiveMind.initialize();
       

@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * MCP (Model Context Protocol) server implementation
  */
@@ -95,32 +95,32 @@ export class MCPServer implements IMCPServer {
     private config: MCPConfig,
     private eventBus: IEventBus,
     private logger: ILogger,
-    private orchestrator?: any, // Reference to orchestrator instance
-    private swarmCoordinator?: any, // Reference to swarm coordinator instance
-    private agentManager?: any, // Reference to agent manager instance
-    private resourceManager?: any, // Reference to resource manager instance
-    private messagebus?: any, // Reference to message bus instance
+    private orchestrator?: any, // Reference to orchestrator instance,
+    private swarmCoordinator?: any, // Reference to swarm coordinator instance,
+    private agentManager?: any, // Reference to agent manager instance,
+    private resourceManager?: any, // Reference to resource manager instance,
+    private messagebus?: any, // Reference to message bus instance,
     private monitor?: any, // Reference to real-time monitor instance
   ) {
-    // Initialize transport
+    // Initialize transport,
     this.transport = this.createTransport();
     
-    // Initialize tool registry
+    // Initialize tool registry,
     this.toolRegistry = new ToolRegistry(logger);
     
-    // Initialize session manager
+    // Initialize session manager,
     this.sessionManager = new SessionManager(config, logger);
     
-    // Initialize auth manager
+    // Initialize auth manager,
     this.authManager = new AuthManager(config.auth || { enabled: false, method: 'token' }, logger);
     
-    // Initialize load balancer if enabled
+    // Initialize load balancer if enabled,
     if (config.loadBalancer?.enabled) {
       this.loadBalancer = new LoadBalancer(config.loadBalancer, logger);
       this.requestQueue = new RequestQueue(1000, 30000, logger);
     }
     
-    // Initialize request router
+    // Initialize request router,
     this.router = new RequestRouter(this.toolRegistry, logger);
   }
 
@@ -132,15 +132,15 @@ export class MCPServer implements IMCPServer {
     this.logger.info('Starting MCP server', { transport: this.config.transport });
 
     try {
-      // Set up request handler
+      // Set up request handler,
       this.transport.onRequest(async (request) => {
         return await this.handleRequest(request);
       });
 
-      // Start transport
+      // Start transport,
       await this.transport.start();
 
-      // Register built-in tools
+      // Register built-in tools,
       this.registerBuiltInTools();
 
       this.running = true;
@@ -159,15 +159,15 @@ export class MCPServer implements IMCPServer {
     this.logger.info('Stopping MCP server');
 
     try {
-      // Stop transport
+      // Stop transport,
       await this.transport.stop();
 
-      // Clean up session manager
+      // Clean up session manager,
       if (this.sessionManager && 'destroy' in this.sessionManager) {
         (this.sessionManager as any).destroy();
       }
 
-      // Clean up all sessions
+      // Clean up all sessions,
       for (const session of this.sessionManager.getActiveSessions()) {
         this.sessionManager.removeSession(session.id);
       }
@@ -244,8 +244,8 @@ export class MCPServer implements IMCPServer {
       failedRequests: routerMetrics.failedRequests,
       averageResponseTime: lbMetrics?.averageResponseTime || 0,
       activeSessions: sessionMetrics.active,
-      toolInvocations: {}, // TODO: Implement tool-specific metrics
-      errors: {}, // TODO: Implement error categorization
+      toolInvocations: {}, // TODO: Implement tool-specific metrics,
+      errors: {}, // TODO: Implement error categorization,
       lastReset: lbMetrics?.lastReset || new Date(),
     };
   }
@@ -272,15 +272,15 @@ export class MCPServer implements IMCPServer {
     });
 
     try {
-      // Handle initialization request separately
+      // Handle initialization request separately,
       if (request.method === 'initialize') {
         return await this.handleInitialize(request);
       }
 
-      // Get or create session
+      // Get or create session,
       const session = this.getOrCreateSession();
       
-      // Check if session is initialized for non-initialize requests
+      // Check if session is initialized for non-initialize requests,
       if (!session.isInitialized) {
         return {
           jsonrpc: '2.0',
@@ -292,10 +292,10 @@ export class MCPServer implements IMCPServer {
         };
       }
 
-      // Update session activity
+      // Update session activity,
       this.sessionManager.updateActivity(session.id);
 
-      // Check load balancer constraints
+      // Check load balancer constraints,
       if (this.loadBalancer) {
         const allowed = await this.loadBalancer.shouldAllowRequest(session, request);
         if (!allowed) {
@@ -310,11 +310,11 @@ export class MCPServer implements IMCPServer {
         }
       }
 
-      // Record request start
+      // Record request start,
       const requestMetrics = this.loadBalancer?.recordRequestStart(session, request);
 
       try {
-        // Process request through router
+        // Process request through router,
         const result = await this.router.route(request);
         
         const response: MCPResponse = {
@@ -323,14 +323,14 @@ export class MCPServer implements IMCPServer {
           result,
         };
 
-        // Record success
+        // Record success,
         if (requestMetrics) {
           this.loadBalancer?.recordRequestEnd(requestMetrics, response);
         }
 
         return response;
       } catch (error) {
-        // Record failure
+        // Record failure,
         if (requestMetrics) {
           this.loadBalancer?.recordRequestEnd(requestMetrics, undefined, error as Error);
         }
@@ -366,14 +366,14 @@ export class MCPServer implements IMCPServer {
         };
       }
 
-      // Create session
+      // Create session,
       const session = this.sessionManager.createSession(this.config.transport);
       this.currentSession = session;
 
-      // Initialize session
+      // Initialize session,
       this.sessionManager.initializeSession(session.id, params);
 
-      // Prepare response
+      // Prepare response,
       const result: MCPInitializeResult = {
         protocolVersion: this.supportedProtocolVersion,
         capabilities: this.serverCapabilities,
@@ -407,7 +407,7 @@ export class MCPServer implements IMCPServer {
       return this.currentSession;
     }
 
-    // For stdio transport, create a default session
+    // For stdio transport, create a default session,
     const session = this.sessionManager.createSession(this.config.transport);
     this.currentSession = session;
     return session;
@@ -432,7 +432,7 @@ export class MCPServer implements IMCPServer {
   }
 
   private registerBuiltInTools(): void {
-    // System information tool
+    // System information tool,
     this.registerTool({
       name: 'system/info',
       description: 'Get system information',
@@ -451,7 +451,7 @@ export class MCPServer implements IMCPServer {
       },
     });
 
-    // Health check tool
+    // Health check tool,
     this.registerTool({
       name: 'system/health',
       description: 'Get system health status',
@@ -464,7 +464,7 @@ export class MCPServer implements IMCPServer {
       },
     });
 
-    // List tools
+    // List tools,
     this.registerTool({
       name: 'tools/list',
       description: 'List all available tools',
@@ -477,7 +477,7 @@ export class MCPServer implements IMCPServer {
       },
     });
 
-    // Tool schema
+    // Tool schema,
     this.registerTool({
       name: 'tools/schema',
       description: 'Get schema for a specific tool',
@@ -501,12 +501,12 @@ export class MCPServer implements IMCPServer {
       },
     });
 
-    // Register Claude-Flow specific tools if orchestrator is available
+    // Register Claude-Flow specific tools if orchestrator is available,
     if (this.orchestrator) {
       const claudeFlowTools = createClaudeFlowTools(this.logger);
       
       for (const tool of claudeFlowTools) {
-        // Wrap the handler to inject orchestrator context
+        // Wrap the handler to inject orchestrator context,
         const originalHandler = tool.handler;
         tool.handler = async (input: unknown, context?: MCPContext) => {
           const claudeFlowContext: ClaudeFlowToolContext = {
@@ -525,12 +525,12 @@ export class MCPServer implements IMCPServer {
       this.logger.warn('Orchestrator not available - Claude-Flow tools not registered');
     }
 
-    // Register Swarm-specific tools if swarm components are available
+    // Register Swarm-specific tools if swarm components are available,
     if (this.swarmCoordinator || this.agentManager || this.resourceManager) {
       const swarmTools = createSwarmTools(this.logger);
       
       for (const tool of swarmTools) {
-        // Wrap the handler to inject swarm context
+        // Wrap the handler to inject swarm context,
         const originalHandler = tool.handler;
         tool.handler = async (input: unknown, context?: MCPContext) => {
           const swarmContext: SwarmToolContext = {
@@ -553,10 +553,10 @@ export class MCPServer implements IMCPServer {
       this.logger.warn('Swarm components not available - Swarm tools not registered');
     }
 
-    // Register ruv-swarm MCP tools if available
+    // Register ruv-swarm MCP tools if available,
     this.registerRuvSwarmTools();
     
-    // Register unified coordination tools
+    // Register unified coordination tools,
     this.registerUnifiedTools();
   }
 
@@ -565,7 +565,7 @@ export class MCPServer implements IMCPServer {
    */
   private async registerRuvSwarmTools(): Promise<void> {
     try {
-      // Check if ruv-swarm is available
+      // Check if ruv-swarm is available,
       const available = await isRuvSwarmAvailable(this.logger);
       
       if (!available) {
@@ -573,7 +573,7 @@ export class MCPServer implements IMCPServer {
         return;
       }
 
-      // Initialize ruv-swarm integration
+      // Initialize ruv-swarm integration,
       const workingDirectory = process.cwd();
       const integration = await initializeRuvSwarmIntegration(workingDirectory, this.logger);
       
@@ -582,18 +582,18 @@ export class MCPServer implements IMCPServer {
         return;
       }
 
-      // Create ruv-swarm tools
+      // Create ruv-swarm tools,
       const ruvSwarmTools = createRuvSwarmTools(this.logger);
       
       for (const tool of ruvSwarmTools) {
-        // Wrap the handler to inject ruv-swarm context
+        // Wrap the handler to inject ruv-swarm context,
         const originalHandler = tool.handler;
         tool.handler = async (input: unknown, context?: MCPContext) => {
           const ruvSwarmContext: RuvSwarmToolContext = {
-            ...context,
+            sessionId: context?.sessionId || `mcp-session-${Date.now()}`,
             workingDirectory,
-            sessionId: `mcp-session-${Date.now()}`,
-            swarmId: process.env.CLAUDE_SWARM_ID || `mcp-swarm-${Date.now()}`
+            swarmId: process.env.CLAUDE_SWARM_ID || `mcp-swarm-${Date.now()}`,
+            logger: this.logger
           };
           
           return await originalHandler(input, ruvSwarmContext);
@@ -619,15 +619,15 @@ export class MCPServer implements IMCPServer {
     try {
       this.logger.info('Registering unified coordination tools...');
       
-      // Create unified tools
+      // Create unified tools,
       const unifiedTools = createUnifiedTools(this.logger);
       
       for (const tool of unifiedTools) {
-        // Wrap the handler to inject unified context
+        // Wrap the handler to inject unified context,
         const originalHandler = tool.handler;
         tool.handler = async (input: unknown, context?: MCPContext) => {
           const unifiedContext: UnifiedToolContext = {
-            ...context,
+            sessionId: context?.sessionId || `unified-session-${Date.now()}`,
             orchestrator: this.orchestrator,
             swarmCoordinator: this.swarmCoordinator,
             agentManager: this.agentManager,
@@ -635,7 +635,7 @@ export class MCPServer implements IMCPServer {
             messageBus: this.messagebus,
             monitor: this.monitor,
             workingDirectory: process.cwd(),
-            sessionId: `unified-session-${Date.now()}`
+            logger: this.logger
           };
           
           return await originalHandler(input, unifiedContext);
@@ -654,7 +654,7 @@ export class MCPServer implements IMCPServer {
     }
   }
 
-  private errorToMCPError(error): MCPError {
+  private errorToMCPError(error: unknown): MCPError {
     if (error instanceof MCPMethodNotFoundError) {
       return {
         code: -32601,
@@ -683,5 +683,56 @@ export class MCPServer implements IMCPServer {
       message: 'Internal error',
       data: error,
     };
+  }
+}
+
+/**
+ * Function to run the MCP server
+ */
+export async function runMCPServer(): Promise<void> {
+  // Default configuration for standalone server
+  const config: MCPConfig = {
+    transport: 'stdio',
+    auth: { enabled: false, method: 'token' }
+  };
+
+  // Create basic logger
+  const logger: ILogger = {
+    info: (message: string, data?: any) => console.error(`[INFO] ${message}`, data || ''),
+    warn: (message: string, data?: any) => console.error(`[WARN] ${message}`, data || ''),
+    error: (message: string, data?: any) => console.error(`[ERROR] ${message}`, data || ''),
+    debug: (message: string, data?: any) => console.error(`[DEBUG] ${message}`, data || ''),
+    configure: async () => {}
+  };
+
+  // Create event bus
+  const eventBus: IEventBus = {
+    emit: () => {},
+    on: () => {},
+    off: () => {},
+    once: () => {}
+  };
+
+  try {
+    const server = new MCPServer(config, eventBus, logger);
+    await server.start();
+    
+    // Handle graceful shutdown
+    process.on('SIGINT', async () => {
+      logger.info('Received SIGINT, shutting down gracefully');
+      await server.stop();
+      process.exit(0);
+    });
+
+    process.on('SIGTERM', async () => {
+      logger.info('Received SIGTERM, shutting down gracefully');
+      await server.stop();
+      process.exit(0);
+    });
+
+    logger.info('MCP server is running');
+  } catch (error) {
+    logger.error('Failed to start MCP server', error);
+    process.exit(1);
   }
 }

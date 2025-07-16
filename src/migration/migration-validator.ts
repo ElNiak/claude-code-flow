@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * Migration Validator - Validates successful migration
  */
@@ -37,22 +37,22 @@ export class MigrationValidator {
       warnings: []
     };
 
-    // Check file structure
+    // Check file structure,
     await this.validateFileStructure(projectPath, result);
     
-    // Check command files
+    // Check command files,
     await this.validateCommandFiles(projectPath, result);
     
-    // Check configuration files
+    // Check configuration files,
     await this.validateConfiguration(projectPath, result);
     
-    // Check file integrity
+    // Check file integrity,
     await this.validateFileIntegrity(projectPath, result);
     
-    // Check functionality
+    // Check functionality,
     await this.validateFunctionality(projectPath, result);
     
-    // Overall validation
+    // Overall validation,
     result.valid = result.errors.length === 0;
 
     return result;
@@ -64,21 +64,21 @@ export class MigrationValidator {
       passed: true
     };
 
-    // Check .claude directory exists
+    // Check .claude directory exists,
     const claudePath = path.join(projectPath, '.claude');
     if (!await fs.pathExists(claudePath)) {
       check.passed = false;
       result.errors.push('.claude directory not found');
     }
 
-    // Check commands directory
+    // Check commands directory,
     const commandsPath = path.join(claudePath, 'commands');
     if (!await fs.pathExists(commandsPath)) {
       check.passed = false;
       result.errors.push('.claude/commands directory not found');
     }
 
-    // Check required files
+    // Check required files,
     for (const file of this.requiredFiles) {
       const filePath = path.join(projectPath, file);
       if (!await fs.pathExists(filePath)) {
@@ -110,7 +110,7 @@ export class MigrationValidator {
           check.passed = false;
           result.errors.push(`Command file missing: ${command}.md`);
         } else {
-          // Validate file content
+          // Validate file content,
           const filePath = hasMainFile ? commandFile : sparcCommandFile;
           await this.validateCommandFileContent(filePath, command, result);
         }
@@ -127,9 +127,9 @@ export class MigrationValidator {
     try {
       const content = await fs.readFile(filePath, 'utf-8');
       
-      // Check for minimum content requirements
+      // Check for minimum content requirements,
       const hasDescription = content.includes('description') || content.includes('Description');
-      const hasInstructions = content.length > 100; // Minimum content length
+      const hasInstructions = content.length > 100; // Minimum content length,
       
       if (!hasDescription) {
         result.warnings.push(`Command ${command} may be missing description`);
@@ -139,7 +139,7 @@ export class MigrationValidator {
         result.warnings.push(`Command ${command} may have insufficient content`);
       }
       
-      // Check for optimization indicators
+      // Check for optimization indicators,
       const hasOptimizedContent = content.includes('optimization') || 
                                   content.includes('performance') ||
                                   content.includes('efficient');
@@ -159,17 +159,17 @@ export class MigrationValidator {
       passed: true
     };
 
-    // Check CLAUDE.md
+    // Check CLAUDE.md,
     const claudeMdPath = path.join(projectPath, 'CLAUDE.md');
     if (await fs.pathExists(claudeMdPath)) {
       const content = await fs.readFile(claudeMdPath, 'utf-8');
       
-      // Check for SPARC configuration
+      // Check for SPARC configuration,
       if (!content.includes('SPARC')) {
         result.warnings.push('CLAUDE.md may not include SPARC configuration');
       }
       
-      // Check for key sections
+      // Check for key sections,
       const requiredSections = [
         'Project Overview',
         'SPARC Development',
@@ -185,7 +185,7 @@ export class MigrationValidator {
       result.warnings.push('CLAUDE.md not found');
     }
 
-    // Check .roomodes
+    // Check .roomodes,
     const roomodesPath = path.join(projectPath, '.roomodes');
     if (await fs.pathExists(roomodesPath)) {
       try {
@@ -212,7 +212,7 @@ export class MigrationValidator {
       passed: true
     };
 
-    // Check for corrupted files
+    // Check for corrupted files,
     const claudePath = path.join(projectPath, '.claude');
     if (await fs.pathExists(claudePath)) {
       const files = await glob('**/*.md', { cwd: claudePath });
@@ -221,13 +221,13 @@ export class MigrationValidator {
         try {
           const content = await fs.readFile(path.join(claudePath, file), 'utf-8');
           
-          // Basic integrity checks
+          // Basic integrity checks,
           if (content.length === 0) {
             result.errors.push(`Empty file: ${file}`);
             check.passed = false;
           }
           
-          // Check for binary data in text files
+          // Check for binary data in text files,
           if (content.includes('\0')) {
             result.errors.push(`Corrupted text file: ${file}`);
             check.passed = false;
@@ -249,11 +249,11 @@ export class MigrationValidator {
       passed: true
     };
 
-    // Check directory permissions
+    // Check directory permissions,
     const claudePath = path.join(projectPath, '.claude');
     if (await fs.pathExists(claudePath)) {
       try {
-        // Test write permissions
+        // Test write permissions,
         const testFile = path.join(claudePath, '.test-write');
         await fs.writeFile(testFile, 'test');
         await fs.remove(testFile);
@@ -262,13 +262,13 @@ export class MigrationValidator {
       }
     }
 
-    // Check for potential conflicts
+    // Check for potential conflicts,
     const packageJsonPath = path.join(projectPath, 'package.json');
     if (await fs.pathExists(packageJsonPath)) {
       try {
         const packageJson = await fs.readJson(packageJsonPath);
         
-        // Check for script conflicts
+        // Check for script conflicts,
         const scripts = packageJson.scripts || {};
         const conflictingScripts = Object.keys(scripts).filter(script => 
           script.startsWith('claude-flow') || script.startsWith('sparc')
@@ -292,7 +292,7 @@ export class MigrationValidator {
     
     console.log(`\n${chalk.bold('Overall Status:')} ${validation.valid ? chalk.green('✓ Valid') : chalk.red('✗ Invalid')}`);
     
-    // Show checks
+    // Show checks,
     console.log(chalk.bold('\n📋 Validation Checks:'));
     validation.checks.forEach(check => {
       const status = check.passed ? chalk.green('✓') : chalk.red('✗');
@@ -302,7 +302,7 @@ export class MigrationValidator {
       }
     });
     
-    // Show errors
+    // Show errors,
     if (validation.errors.length > 0) {
       console.log(chalk.bold('\n❌ Errors:'));
       validation.errors.forEach(error => {
@@ -310,7 +310,7 @@ export class MigrationValidator {
       });
     }
     
-    // Show warnings
+    // Show warnings,
     if (validation.warnings.length > 0) {
       console.log(chalk.bold('\n⚠️  Warnings:'));
       validation.warnings.forEach(warning => {

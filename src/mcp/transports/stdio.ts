@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../../utils/error-handler.js';
 /**
  * Standard I/O transport for MCP
  */
@@ -32,14 +32,14 @@ export class StdioTransport implements ITransport {
     this.logger.info('Starting stdio transport');
 
     try {
-      // Create readline interface for stdin
+      // Create readline interface for stdin,
       this.readline = createInterface({
         input: stdin,
         output: stdout,
         terminal: false,
       });
 
-      // Set up line handler
+      // Set up line handler,
       this.readline.on('line', (line: string) => {
         this.processMessage(line.trim()).catch((error) => {
           this.logger.error('Error processing message', { line, error });
@@ -116,7 +116,7 @@ export class StdioTransport implements ITransport {
     } catch (error) {
       this.logger.error('Failed to parse message', { line, error });
       
-      // Send error response if we can extract an ID
+      // Send error response if we can extract an ID,
       let id = 'unknown';
       try {
         const parsed = JSON.parse(line);
@@ -140,12 +140,12 @@ export class StdioTransport implements ITransport {
 
     this.messageCount++;
 
-    // Check if this is a notification (no id field) or a request
+    // Check if this is a notification (no id field) or a request,
     if (message.id === undefined) {
-      // This is a notification
+      // This is a notification,
       await this.handleNotification(message as MCPNotification);
     } else {
-      // This is a request
+      // This is a request,
       await this.handleRequest(message as MCPRequest);
     }
   }
@@ -219,12 +219,12 @@ export class StdioTransport implements ITransport {
   }
 
   async sendRequest(request: MCPRequest): Promise<MCPResponse> {
-    // Send request to stdout
+    // Send request to stdout,
     const json = JSON.stringify(request);
     stdout.write(json + '\n');
     
     // In STDIO transport, responses are handled asynchronously
-    // This would need a proper request/response correlation mechanism
+    // This would need a proper request/response correlation mechanism,
     throw new Error('STDIO transport sendRequest requires request/response correlation');
   }
 

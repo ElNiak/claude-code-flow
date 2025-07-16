@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * Utility helper functions for Claude-Flow
  */
@@ -223,7 +223,7 @@ export function deepMerge<T extends Record<string, unknown>>(
   target: T,
   ...sources: Partial<T>[]
 ): T {
-  // Create a deep clone of the target to avoid mutation
+  // Create a deep clone of the target to avoid mutation,
   const result = deepClone(target);
   
   if (!sources.length) return result;
@@ -311,7 +311,7 @@ export function formatBytes(bytes: number, decimals = 2): string {
   const dm = decimals < 0 ? 0 : decimals;
   const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
 
-  // Handle negative numbers
+  // Handle negative numbers,
   const absBytes = Math.abs(bytes);
   const i = Math.floor(Math.log(absBytes) / Math.log(k));
 
@@ -541,7 +541,7 @@ export function greeting(name?: string, options?: {
     ...options
   };
 
-  // Determine time-based greeting
+  // Determine time-based greeting,
   const getTimeGreeting = (): string => {
     const hour = new Date().getHours();
     if (hour < 12) return 'Good morning';
@@ -550,7 +550,7 @@ export function greeting(name?: string, options?: {
     return 'Good night';
   };
 
-  // Get greeting by locale
+  // Get greeting by locale,
   const getLocaleGreeting = (): string => {
     const greetings: Record<string, { informal: string; formal: string }> = {
       en: { informal: 'Hello', formal: 'Greetings' },
@@ -567,7 +567,7 @@ export function greeting(name?: string, options?: {
     return opts.formal ? localeGreeting.formal : localeGreeting.informal;
   };
 
-  // Build the greeting
+  // Build the greeting,
   let greetingText = opts.timeOfDay ? getTimeGreeting() : getLocaleGreeting();
   
   if (name) {

@@ -611,7 +611,7 @@ export class TerminalEmulator {
       try {
         callback(data);
       } catch (error) {
-        console.error('Error in terminal event listener:', error);
+        console.error('Error in terminal event listener:', _error);
       }
     });
   }

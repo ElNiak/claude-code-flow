@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * Circuit breaker pattern for fault tolerance
  */
@@ -7,9 +7,9 @@ import type { ILogger } from '../core/logger.js';
 import type { IEventBus } from '../core/event-bus.js';
 
 export interface CircuitBreakerConfig {
-  failureThreshold: number; // Number of failures before opening
-  successThreshold: number; // Number of successes before closing
-  timeout: number; // Time in ms before attempting to close
+  failureThreshold: number; // Number of failures before opening,
+  successThreshold: number; // Number of successes before closing,
+  timeout: number; // Time in ms before attempting to close,
   halfOpenLimit: number; // Max requests in half-open state
 }
 
@@ -57,24 +57,24 @@ export class CircuitBreaker {
   async execute<T>(fn: () => Promise<T>): Promise<T> {
     this.totalRequests++;
 
-    // Check if we should execute
+    // Check if we should execute,
     if (!this.canExecute()) {
       this.rejectedRequests++;
-      const error = new Error(`Circuit breaker '${this.name}' is OPEN`);
+      const _error = new Error(`Circuit breaker '${this.name}' is OPEN`);
       this.logStateChange('Request rejected');
-      throw error;
+      throw _error;
     }
 
     try {
-      // Execute the function
+      // Execute the function,
       const result = await fn();
       
-      // Record success
+      // Record success,
       this.onSuccess();
       
       return result;
     } catch (error) {
-      // Record failure
+      // Record failure,
       this.onFailure();
       
       throw error;
@@ -90,7 +90,7 @@ export class CircuitBreaker {
         return true;
         
       case CircuitState.OPEN:
-        // Check if we should transition to half-open
+        // Check if we should transition to half-open,
         if (this.nextAttempt && new Date() >= this.nextAttempt) {
           this.transitionTo(CircuitState.HALF_OPEN);
           return true;
@@ -98,7 +98,7 @@ export class CircuitBreaker {
         return false;
         
       case CircuitState.HALF_OPEN:
-        // Allow limited requests in half-open state
+        // Allow limited requests in half-open state,
         return this.halfOpenRequests < this.config.halfOpenLimit;
         
       default:
@@ -114,21 +114,21 @@ export class CircuitBreaker {
     
     switch (this.state) {
       case CircuitState.CLOSED:
-        this.failures = 0; // Reset failure count
+        this.failures = 0; // Reset failure count,
         break;
         
       case CircuitState.HALF_OPEN:
         this.successes++;
         this.halfOpenRequests++;
         
-        // Check if we should close the circuit
+        // Check if we should close the circuit,
         if (this.successes >= this.config.successThreshold) {
           this.transitionTo(CircuitState.CLOSED);
         }
         break;
         
       case CircuitState.OPEN:
-        // Shouldn't happen, but handle gracefully
+        // Shouldn't happen, but handle gracefully,
         this.transitionTo(CircuitState.HALF_OPEN);
         break;
     }
@@ -144,19 +144,19 @@ export class CircuitBreaker {
       case CircuitState.CLOSED:
         this.failures++;
         
-        // Check if we should open the circuit
+        // Check if we should open the circuit,
         if (this.failures >= this.config.failureThreshold) {
           this.transitionTo(CircuitState.OPEN);
         }
         break;
         
       case CircuitState.HALF_OPEN:
-        // Single failure in half-open state reopens the circuit
+        // Single failure in half-open state reopens the circuit,
         this.transitionTo(CircuitState.OPEN);
         break;
         
       case CircuitState.OPEN:
-        // Already open, update next attempt time
+        // Already open, update next attempt time,
         this.nextAttempt = new Date(Date.now() + this.config.timeout);
         break;
     }
@@ -176,7 +176,7 @@ export class CircuitBreaker {
       successes: this.successes,
     });
 
-    // Reset counters based on new state
+    // Reset counters based on new state,
     switch (newState) {
       case CircuitState.CLOSED:
         this.failures = 0;
@@ -198,7 +198,7 @@ export class CircuitBreaker {
         break;
     }
 
-    // Emit state change event
+    // Emit state change event,
     if (this.eventBus) {
       this.eventBus.emit('circuitbreaker:state-change', {
         name: this.name,

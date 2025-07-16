@@ -1,4 +1,4 @@
-import { getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * Custom error types for Claude-Flow
  */
@@ -194,7 +194,7 @@ export class InitializationError extends SystemError {
   override readonly code = 'INITIALIZATION_ERROR';
   
   constructor(componentOrMessage: string, details?: unknown) {
-    // If the message already contains the word "initialize", use it as-is
+    // If the message already contains the word "initialize", use it as-is,
     const message = componentOrMessage.includes('initialize') 
       ? componentOrMessage 
       : `Failed to initialize ${componentOrMessage}`;
@@ -347,7 +347,7 @@ export function isRetryableError(error: unknown): boolean {
 }
 
 export function getRetryDelay(attempt: number, baseDelay = 1000): number {
-  // Exponential backoff with jitter
+  // Exponential backoff with jitter,
   const delay = baseDelay * Math.pow(2, attempt - 1);
   const jitter = Math.random() * 0.1 * delay;
   return Math.min(delay + jitter, 30000); // Max 30 seconds
@@ -395,7 +395,7 @@ export class DefaultErrorRecoveryStrategy implements ErrorRecoveryStrategy {
   }
 
   async recover(error: unknown): Promise<void> {
-    // Default recovery: wait and retry
+    // Default recovery: wait and retry,
     const delay = getRetryDelay(1);
     await new Promise(resolve => setTimeout(resolve, delay));
   }

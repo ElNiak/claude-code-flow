@@ -1,5 +1,5 @@
-#!/usr/bin/env node
-import { getErrorMessage } from '../utils/error-handler.js';
+#!/usr/bin/env node,
+import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
 /**
  * Claude-Flow CLI - Main entry point for Node.js
  */
@@ -12,7 +12,7 @@ import { dirname } from "node:path";
 async function main() {
   const cli = new CLI("claude-flow", "Advanced AI Agent Orchestration System");
   
-  // Setup all commands
+  // Setup all commands,
   setupCommands(cli);
   
   // Run the CLI (args default to process.argv.slice(2) in Node.js version)

@@ -35,6 +35,7 @@ The solution uses per-process cache isolation:
 ### Implementation
 
 The fix is simple and efficient:
+
 - Each NPX command runs with `NPM_CONFIG_CACHE` set to a unique directory
 - No locks or synchronization needed
 - Cache directories are cleaned up automatically on process exit
@@ -58,17 +59,20 @@ Both tests should pass with no ENOTEMPTY errors.
 If you're using an older version without this fix, you can manually implement the same approach:
 
 1. **Use isolated cache directories**:
+
    ```bash
-   NPM_CONFIG_CACHE=/tmp/claude-flow-cache-$$ npx --y claude-flow@alpha init --force
+   NPM_CONFIG_CACHE=/tmp/claude-flow-cache-$$ npx --y claude-flow init --force
    ```
 
 2. **Install globally to avoid NPX**:
+
    ```bash
-   npm install -g claude-flow@alpha
+   npm install -g claude-flow
    claude-flow init --force
    ```
 
 3. **Run operations sequentially**:
+
    ```bash
    # In batch operations, disable parallelism
    claude-flow batch init --parallel=false
@@ -77,6 +81,7 @@ If you're using an older version without this fix, you can manually implement th
 ## Implementation Details
 
 The fix is implemented in:
+
 - `/src/utils/npx-isolated-cache.js` - Core isolation utility
 - `/src/cli/simple-commands/init/index.js` - Uses `getIsolatedNpxEnv()` for NPX commands
 - `/src/cli/simple-commands/init/batch-init.js` - Batch operations automatically get isolation
