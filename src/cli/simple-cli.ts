@@ -1,4 +1,4 @@
-#!/usr/bin/env -S deno run --allow-all,
+#!/usr/bin/env node
 import { getErrorMessage as _getErrorMessage } from "../utils/error-handler.js";
 
 /**
@@ -2279,6 +2279,12 @@ ${flags.mode === "full" || !flags.mode ? `Full-stack development covering all as
 			break;
 		}
 
+		case "mcp": {
+			const { mcpCommand } = await import("./simple-commands/mcp.js");
+			await mcpCommand(args.slice(1), flags);
+			break;
+		}
+
 		default: {
 			printError(`Unknown command: ${command}`);
 			console.log('Run "claude-flow help" for available commands');
@@ -3579,10 +3585,11 @@ For more information about SPARC methodology, see: https://github.com/ruvnet/cla
 `;
 }
 
+// Check if this file is being run directly (not imported)
 if (
 	globalThis.Deno
 		? (import.meta as any).main
-		: typeof require !== "undefined" && require.main === module
+		: import.meta.url === `file://${process.argv[1]}`
 ) {
 	await main();
 }

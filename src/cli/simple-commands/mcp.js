@@ -69,7 +69,10 @@ async function startMcpServer(subArgs, flags) {
 
 			const __filename = fileURLToPath(import.meta.url);
 			const __dirname = path.dirname(__filename);
-			const mcpServerPath = path.join(__dirname, "../../mcp/mcp-server.js");
+			const mcpServerPath = path.join(
+				__dirname,
+				"../../mcp/mcp-server-complete.js"
+			);
 
 			// Start the MCP server process
 			const serverProcess = spawn("node", [mcpServerPath], {

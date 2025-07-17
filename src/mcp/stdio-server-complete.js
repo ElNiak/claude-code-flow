@@ -7,8 +7,61 @@
 
 import { ClaudeFlowMCPServer } from "./mcp-server-complete.js";
 
-// Create and start the stdio server
-const server = new ClaudeFlowMCPServer();
+// Create and start the stdio server using legacy working implementation
+async function startMCPServer() {
+	const server = new ClaudeFlowMCPServer();
+
+	console.error(
+		`[${new Date().toISOString()}] INFO [claude-flow-mcp-stdio] Server starting on stdio`
+	);
+	console.error(
+		`[${new Date().toISOString()}] INFO [claude-flow-mcp-stdio] Session: ${server.sessionId}`
+	);
+	console.error(
+		`[${new Date().toISOString()}] INFO [claude-flow-mcp-stdio] Tools available: ${Object.keys(server.tools).length}`
+	);
+	console.error(
+		`[${new Date().toISOString()}] INFO [claude-flow-mcp-stdio] Ready for MCP communication`
+	);
+
+	// Handle stdin messages using legacy approach
+	let buffer = "";
+
+	process.stdin.on("data", async (chunk) => {
+		buffer += chunk.toString();
+
+		// Process complete JSON messages
+		const lines = buffer.split("\n");
+		buffer = lines.pop() || ""; // Keep incomplete line in buffer
+
+		for (const line of lines) {
+			if (line.trim()) {
+				try {
+					const message = JSON.parse(line);
+					const response = await server.handleMessage(message);
+					if (response) {
+						console.log(JSON.stringify(response));
+					}
+				} catch (error) {
+					console.error(
+						`[${new Date().toISOString()}] ERROR [claude-flow-mcp-stdio] Failed to parse message:`,
+						error.message
+					);
+				}
+			}
+		}
+	});
+
+	process.stdin.on("end", () => {
+		console.error(
+			`[${new Date().toISOString()}] INFO [claude-flow-mcp-stdio] Connection closed`
+		);
+		process.exit(0);
+	});
+}
+
+// Start the server
+startMCPServer().catch(console.error);
 
 console.error(
 	`[${new Date().toISOString()}] INFO [claude-flow-mcp-stdio] Server starting on stdio`

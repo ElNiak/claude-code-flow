@@ -34,7 +34,6 @@ class ClaudeFlowMCPServer {
 		this.agents = new Map();
 		this.tools = this.initializeTools();
 		this.resources = this.initializeResources();
-		this.resourcesManager = new MCPResourcesManager(this);
 
 		// Setup stdio communication
 		this.setupStdioProtocol();
@@ -86,15 +85,15 @@ class ClaudeFlowMCPServer {
 
 			switch (method) {
 				case "initialize":
-					return this.handleInitialize(id, _params);
+					return this.handleInitialize(id, params);
 				case "tools/list":
 					return this.handleToolsList(id);
 				case "tools/call":
-					return this.handleToolCall(id, _params);
+					return this.handleToolCall(id, params);
 				case "resources/list":
 					return this.handleResourcesList(id);
 				case "resources/read":
-					return this.handleResourceRead(id, _params);
+					return this.handleResourceRead(id, params);
 				case "notifications/initialized":
 					return null; // No response needed
 				default:
@@ -184,7 +183,12 @@ class ClaudeFlowMCPServer {
 	}
 
 	handleResourcesList(id) {
-		const resourceList = this.resourcesManager.getResourceList();
+		const resourceList = Object.values(this.resources).map((resource) => ({
+			uri: resource.uri,
+			name: resource.name,
+			description: resource.description,
+			mimeType: resource.mimeType,
+		}));
 
 		return {
 			jsonrpc: "2.0",
@@ -199,7 +203,24 @@ class ClaudeFlowMCPServer {
 		const { uri } = params;
 
 		try {
-			const resourceData = await this.resourcesManager.readResource(uri);
+			const resource = Object.values(this.resources).find((r) => r.uri === uri);
+			if (!resource) {
+				throw new Error(`Resource not found: ${uri}`);
+			}
+
+			let content = {};
+			if (uri === "claude-flow://swarm/status") {
+				content = Array.from(this.swarms.values());
+			} else if (uri === "claude-flow://memory/store") {
+				content = Object.fromEntries(this.memoryStore);
+			} else if (uri === "claude-flow://performance/metrics") {
+				content = {
+					swarms: this.swarms.size,
+					agents: this.agents.size,
+					memory_entries: this.memoryStore.size,
+					timestamp: new Date().toISOString(),
+				};
+			}
 
 			return {
 				jsonrpc: "2.0",
@@ -207,9 +228,9 @@ class ClaudeFlowMCPServer {
 				result: {
 					contents: [
 						{
-							uri: resourceData.uri,
-							mimeType: resourceData.mimeType,
-							text: JSON.stringify(resourceData.content, null, 2),
+							uri: resource.uri,
+							mimeType: resource.mimeType,
+							text: JSON.stringify(content, null, 2),
 						},
 					],
 				},
@@ -844,11 +865,6 @@ class ClaudeFlowMCPServer {
 			components: health,
 			timestamp: new Date().toISOString(),
 		};
-	}
-
-	async readResource(uri) {
-		// Delegate to resources manager
-		return await this.resourcesManager.readResource(uri);
 	}
 
 	estimateTaskDuration(task) {
