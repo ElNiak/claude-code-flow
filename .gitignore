@@ -181,3 +181,4 @@ unified-work-prompt-*.txt
 *-analysis-*.log
 # Serena cache files
 .serena/cache/
+*.tgz

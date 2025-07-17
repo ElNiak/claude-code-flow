@@ -69,10 +69,30 @@ async function startMcpServer(subArgs, flags) {
 
 			const __filename = fileURLToPath(import.meta.url);
 			const __dirname = path.dirname(__filename);
-			const mcpServerPath = path.join(
-				__dirname,
-				"../../mcp/mcp-server-complete.js"
-			);
+
+			// Try multiple possible paths for MCP server
+			const possiblePaths = [
+				path.join(__dirname, "../../mcp/mcp-server-complete.js"), // Development
+				path.join(__dirname, "../../../src/mcp/mcp-server-complete.js"), // Global npm install
+				path.join(__dirname, "../../src/mcp/mcp-server-complete.js"), // Local npm install
+				path.join(process.cwd(), "src/mcp/mcp-server-complete.js"), // Current working directory
+			];
+
+			let mcpServerPath = null;
+			const fs = await import("fs");
+
+			for (const testPath of possiblePaths) {
+				if (fs.existsSync(testPath)) {
+					mcpServerPath = testPath;
+					break;
+				}
+			}
+
+			if (!mcpServerPath) {
+				throw new Error(
+					"MCP server file not found. Tried paths: " + possiblePaths.join(", ")
+				);
+			}
 
 			// Start the MCP server process
 			const serverProcess = spawn("node", [mcpServerPath], {
