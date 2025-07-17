@@ -9,35 +9,35 @@ from .base_strategy import BaseStrategy
 
 class ResearchStrategy(BaseStrategy):
     """Strategy for research and information gathering tasks."""
-    
+
     def __init__(self):
         """Initialize the research strategy."""
         super().__init__()
         self.claude_flow_client = None
         self._research_depth = 0
         self._sources_consulted = 0
-    
+
     @property
     def name(self) -> str:
         """Strategy name."""
         return "research"
-    
+
     @property
     def description(self) -> str:
         """Strategy description."""
         return "Research and information gathering"
-    
+
     async def execute(self, task: Task) -> Result:
         """Execute a research task.
-        
+
         Args:
             task: Research task to execute
-            
+
         Returns:
             Research result
         """
         start_time = datetime.now()
-        
+
         try:
             # Execute research through claude-flow swarm
             if self.claude_flow_client:
@@ -47,7 +47,7 @@ class ResearchStrategy(BaseStrategy):
                     mode=task.mode.value if hasattr(task.mode, 'value') else task.mode,
                     **task.parameters
                 )
-                
+
                 # Process swarm result
                 if swarm_result.get("status") == "success":
                     execution_time = (datetime.now() - start_time).total_seconds()
@@ -73,7 +73,7 @@ class ResearchStrategy(BaseStrategy):
                     execution_time = (datetime.now() - start_time).total_seconds()
                     result = Result(
                         task_id=task.id,
-                        agent_id="research-agent", 
+                        agent_id="research-agent",
                         status=ResultStatus.FAILURE,
                         output={},
                         performance_metrics=PerformanceMetrics(
@@ -106,16 +106,16 @@ class ResearchStrategy(BaseStrategy):
                     started_at=start_time,
                     completed_at=datetime.now()
                 )
-            
+
             # Update strategy metrics
             self._research_depth += 1
             self._sources_consulted += len(result.output.get("sources", []))
-            
+
             # Record execution
             self._record_execution(task, result)
-            
+
             return result
-            
+
         except Exception as e:
             execution_time = (datetime.now() - start_time).total_seconds()
             return Result(
@@ -132,10 +132,10 @@ class ResearchStrategy(BaseStrategy):
                 started_at=start_time,
                 completed_at=datetime.now()
             )
-    
+
     def get_metrics(self) -> Dict[str, Any]:
         """Get research strategy metrics.
-        
+
         Returns:
             Dictionary of metrics
         """

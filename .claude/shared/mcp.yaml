@@ -164,22 +164,22 @@ Task_Creation_Protocol:
     Requirement: "MANDATORY - Read this entire mcp.yaml file before ANY task creation"
     Purpose: "Understand available MCP servers, capabilities, and optimal usage patterns"
     Validation: "Confirm understanding of all three MCP servers and their coordination patterns"
-    
+
   STEP_2_ANALYZE_TASK_TYPE:
     Action: "Identify your task category from the Coordination_Patterns section"
     Options: ["High_Performance_Tasks", "Code_Refactoring", "Research_Tasks", "Development_Workflows", "Library_Integration", "Standards_Research"]
     Requirement: "Match your task to the appropriate pattern for optimal MCP server selection"
-    
+
   STEP_3_SELECT_MCP_SERVERS:
     Primary: "Always include Claude_Flow_MCP for coordination"
     Secondary: "Add Serena_MCP for code operations, Context7 for research/documentation"
     Validation: "Verify server selection matches the recommended pattern for your task type"
-    
+
   STEP_4_PLAN_WORKFLOW:
     Action: "Reference the specific workflow pattern for your task type"
     Requirement: "Follow the documented tool sequence for optimal efficiency"
     Memory: "Plan to use Claude Flow memory for cross-session persistence"
-    
+
   STEP_5_VALIDATE_EFFICIENCY:
     Check: "Review Token Efficiency Guidelines for your selected servers"
     Avoid: "Sequential operations when parallel is possible"
@@ -200,37 +200,37 @@ Coordination_Patterns:
     MCP_Servers: ["Claude_Flow_MCP"]
     Pattern: "swarm_init(hierarchical) → agent_spawn(8+) → neural_train → parallel_execute"
     Best_For: "Large codebases | Complex analysis | Multi-step workflows"
-    
+
   Code_Refactoring:
     MCP_Servers: ["Serena_MCP", "Claude_Flow_MCP"]
     Pattern: "serena:get_symbols_overview → serena:find_symbol → claude-flow:memory_usage → serena:replace_symbol_body"
     Best_For: "Precise code changes | Structure preservation | Symbol-aware editing"
-    
+
   Research_Tasks:
     MCP_Servers: ["Claude_Flow_MCP", "Context7", "Perplexity_MCP"]
     Pattern: "perplexity:search → context7:resolve-library-id → context7:get-library-docs → claude-flow:swarm_init(mesh) → claude-flow:agent_spawn(researcher,analyst) → claude-flow:memory_usage"
     Best_For: "Information gathering | Current research | Library research | Standards compliance | Real-time data"
-    
+
   Development_Workflows:
     MCP_Servers: ["Claude_Flow_MCP", "Serena_MCP", "Context7", "Sequential_Thinking_MCP"]
     Pattern: "sequential-thinking:break-down-problem → context7:resolve-library-id → context7:get-library-docs → serena:get_symbols_overview → claude-flow:swarm_init → claude-flow:github_integration → serena:create_text_file"
     Best_For: "Feature development | Code generation | Project setup | Standards-compliant implementation | Structured problem solving"
-    
+
   Library_Integration:
     MCP_Servers: ["Context7", "Claude_Flow_MCP", "Serena_MCP", "Perplexity_MCP"]
     Pattern: "perplexity:search → context7:resolve-library-id → context7:get-library-docs → context7:get-examples → claude-flow:memory_usage → serena:create_text_file → context7:validate-implementation"
     Best_For: "API integration | Framework adoption | Official standards compliance | Documentation-driven development | Current best practices"
-    
+
   Standards_Research:
     MCP_Servers: ["Context7", "Claude_Flow_MCP", "Perplexity_MCP"]
     Pattern: "perplexity:search → context7:get-specification → context7:get-rfc-docs → context7:get-best-practices → claude-flow:swarm_init → claude-flow:agent_spawn(researcher,analyst) → claude-flow:memory_persist"
     Best_For: "Technical specifications | RFC compliance | Industry standards | Research documentation | Current standards"
-    
+
   Complex_Problem_Solving:
     MCP_Servers: ["Sequential_Thinking_MCP", "Claude_Flow_MCP", "Perplexity_MCP"]
     Pattern: "sequential-thinking:break-down-problem → sequential-thinking:analyze-complexity → perplexity:search → claude-flow:swarm_init → claude-flow:agent_spawn(analyst,coordinator) → sequential-thinking:revise-thoughts"
     Best_For: "Multi-step analysis | Complex decision making | Strategic planning | Reflective reasoning | Problem decomposition"
-    
+
   Current_Information_Research:
     MCP_Servers: ["Perplexity_MCP", "Claude_Flow_MCP", "Sequential_Thinking_MCP"]
     Pattern: "perplexity:search → perplexity:fact-check → sequential-thinking:analyze-complexity → claude-flow:memory_usage → sequential-thinking:compare-options"
@@ -270,31 +270,31 @@ Hook_Integration:
 
 # Server Reliability & Performance
 
-Claude_Flow_MCP:
+Claude_Flow_MCP_Performance:
   Reliability: "High | Self-healing | Fault-tolerant coordination"
   Performance: "Optimized for >10 concurrent agents | WASM SIMD acceleration"
   Scaling: "Auto-scaling based on workload | Dynamic topology optimization"
   Learning: "Continuous neural pattern training | Adaptive strategy selection"
 
-Serena_MCP:
+Serena_MCP_Performance:
   Reliability: "High | Language server integration | AST validation"
   Performance: "Low latency symbol operations | Efficient structure analysis"
   Accuracy: "Symbol-precise | Structure-aware | Language-specific intelligence"
   Integration: "IDE-compatible | LSP protocol support | Multi-language"
 
-Context7:
+Context7_Performance:
   Reliability: "High | Official source validation | Version-specific accuracy"
   Performance: "Efficient documentation retrieval | Smart caching | Low latency"
   Accuracy: "Authoritative sources | Official standards | Version-specific documentation"
   Integration: "Universal library support | Standards compliance | Research methodology"
 
-Perplexity_MCP:
+Perplexity_MCP_Performance:
   Reliability: "High | Real-time web access | Sonar API integration"
   Performance: "Fast web searches | Efficient result synthesis | API-optimized"
   Accuracy: "Current information | Real-time validation | Multi-source synthesis"
   Integration: "Web-wide search | Real-time monitoring | Current event tracking"
 
-Sequential_Thinking_MCP:
+Sequential_Thinking_MCP_Performance:
   Reliability: "High | Structured reasoning | MIT licensed | Official MCP"
   Performance: "Low overhead | Efficient reasoning chains | Optimized logic flow"
   Accuracy: "Structured analysis | Reflective reasoning | Systematic problem solving"
@@ -306,19 +306,19 @@ Optimal_Usage:
   Claude_Flow_MCP:
     Efficient: "Batch operations | Parallel execution | Memory reuse | Neural predictions"
     Avoid: "Sequential agent spawning | Repeated initialization | Memory fragmentation"
-  
+
   Serena_MCP:
     Efficient: "Symbol-targeted operations | Structure-aware queries | Precise editing"
     Avoid: "Full file reads when symbol access sufficient | Repeated overview calls"
-    
+
   Context7:
     Efficient: "Library ID resolution first | Documentation caching | Version-specific queries"
     Avoid: "Repeated library resolution | Vague documentation requests | Non-specific version queries"
-    
+
   Perplexity_MCP:
     Efficient: "Specific search queries | Targeted fact-checking | Current information focus"
     Avoid: "Vague search terms | Repeated searches for same information | Outdated query context"
-    
+
   Sequential_Thinking_MCP:
     Efficient: "Problem decomposition first | Structured reasoning chains | Thought revision cycles"
     Avoid: "Unstructured analysis | Skipping problem breakdown | Ignoring reasoning dependencies"
@@ -338,25 +338,25 @@ Fault_Tolerance:
     - "Automatic topology optimization on performance degradation"
     - "Memory backup and restore for state recovery"
     - "Neural pattern fallback for unknown scenarios"
-  
+
   Serena_MCP:
     - "Language server restart on analysis failures"
     - "Fallback to text-based operations when symbol resolution fails"
     - "Structure validation before modification operations"
     - "Safe command execution with validation checks"
-    
+
   Context7:
     - "Graceful degradation when documentation unavailable"
     - "Version fallback for unsupported library versions"
     - "Alternative source routing for missing documentation"
     - "Smart caching to reduce API dependency"
-    
+
   Perplexity_MCP:
     - "API key validation and error handling"
     - "Rate limit management and retry logic"
     - "Fallback to cached search results when API unavailable"
     - "Graceful degradation to basic web search capabilities"
-    
+
   Sequential_Thinking_MCP:
     - "Reasoning chain validation and error correction"
     - "Thought revision when logic inconsistencies detected"
@@ -378,7 +378,7 @@ Recovery_Patterns:
 
 Task_Type_to_MCP_Mapping:
   "Code Analysis/Refactoring": ["Serena_MCP", "Claude_Flow_MCP", "Sequential_Thinking_MCP"]
-  "Library Integration": ["Context7", "Claude_Flow_MCP", "Serena_MCP", "Perplexity_MCP"] 
+  "Library Integration": ["Context7", "Claude_Flow_MCP", "Serena_MCP", "Perplexity_MCP"]
   "Research/Documentation": ["Context7", "Claude_Flow_MCP", "Perplexity_MCP"]
   "Performance Optimization": ["Claude_Flow_MCP", "Sequential_Thinking_MCP"]
   "Multi-step Development": ["Sequential_Thinking_MCP", "Context7", "Serena_MCP", "Claude_Flow_MCP"]

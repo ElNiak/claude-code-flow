@@ -53,43 +53,43 @@
      this.settingsPanel = null;
      this.isVisible = false;
 +    this.initialized = false;
-     
+
      // Default settings
      this.defaults = {
 @@ -43,6 +44,7 @@ export class SettingsManager {
      this.settings = { ...this.defaults, ...this.settings };
-     
+
      this.setupEventListeners();
 +    this.cleanup = [];
    }
-   
+
    /**
 @@ -50,7 +52,14 @@ export class SettingsManager {
     */
    init() {
 +    if (this.initialized) return;
-+    
++
      this.settingsPanel = document.getElementById('settingsPanel');
 +    if (!this.settingsPanel) {
 +      console.error('Settings panel not found in DOM');
 +      return;
 +    }
-+    
++
      this.setupSettingsPanel();
      this.applySettings();
 +    this.initialized = true;
    }
-   
+
    /**
 @@ -78,16 +87,21 @@ export class SettingsManager {
      this.setupActionButtons();
-     
+
      // Click outside to close
 -    document.addEventListener('click', (event) => {
 +    const clickHandler = (event) => {
 +      const settingsToggle = document.getElementById('settingsToggle');
-       if (this.isVisible && 
-           !this.settingsPanel.contains(event.target) && 
+       if (this.isVisible &&
+           !this.settingsPanel.contains(event.target) &&
 -          !document.getElementById('settingsToggle').contains(event.target)) {
 +          settingsToggle && !settingsToggle.contains(event.target)) {
          this.hide();
@@ -98,7 +98,7 @@
 +    };
 +    document.addEventListener('click', clickHandler);
 +    this.cleanup.push(() => document.removeEventListener('click', clickHandler));
-     
+
      // ESC key to close
 -    document.addEventListener('keydown', (event) => {
 +    const keyHandler = (event) => {
@@ -110,24 +110,24 @@
 +    document.addEventListener('keydown', keyHandler);
 +    this.cleanup.push(() => document.removeEventListener('keydown', keyHandler));
    }
-   
+
    /**
 @@ -136,6 +150,11 @@ export class SettingsManager {
      this.bindSetting('defaultMode', 'change');
      this.bindSetting('swarmStrategy', 'change');
      this.bindSetting('coordinationMode', 'change');
-+    
++
 +    // Advanced settings
 +    this.bindSetting('reconnectAttempts', 'change');
-+    this.bindSetting('heartbeatInterval', 'change'); 
++    this.bindSetting('heartbeatInterval', 'change');
 +    this.bindSetting('commandTimeout', 'change');
    }
-   
+
    /**
 @@ -161,18 +180,50 @@ export class SettingsManager {
        });
      }
-     
+
 -    // Add reset button
 -    const resetButton = document.createElement('button');
 -    resetButton.className = 'reset-settings';
@@ -139,11 +139,11 @@
 +    const exportBtn = document.getElementById('exportSettingsBtn');
 +    const importBtn = document.getElementById('importSettingsBtn');
 +    const importFile = document.getElementById('importSettingsFile');
-+    
++
 +    if (exportBtn) {
 +      exportBtn.addEventListener('click', () => this.exportSettings());
 +    }
-+    
++
 +    if (importBtn && importFile) {
 +      importBtn.addEventListener('click', () => importFile.click());
 +      importFile.addEventListener('change', async (e) => {
@@ -159,7 +159,7 @@
 +        }
 +      });
 +    }
-+    
++
 +    // Add reset button if not exists
 +    if (!document.querySelector('.reset-settings')) {
 +      const resetButton = document.createElement('button');
@@ -170,14 +170,14 @@
 +          this.resetToDefaults();
 +        }
 +      });
-+      
++
 +      const settingsContent = document.querySelector('.settings-content');
 +      if (settingsContent) {
 +        settingsContent.appendChild(resetButton);
        }
 -    });
 +    }
-     
+
 -    const settingsContent = document.querySelector('.settings-content');
 -    if (settingsContent) {
 -      settingsContent.appendChild(resetButton);
@@ -187,11 +187,11 @@
 +      disconnectButton.disabled = true;
      }
    }
-   
+
 @@ -204,7 +255,17 @@ export class SettingsManager {
          newValue = element.value;
        }
-       
+
 -      this.set(settingName, newValue);
 +      // Validate before saving
 +      if (this.validateSetting(settingName, newValue)) {
@@ -204,7 +204,7 @@
 +        element.value = oldValue;
 +        console.warn(`Invalid value for ${settingName}: ${newValue}`);
 +      }
-       
+
        if (callback) {
          callback(newValue);
 @@ -259,7 +320,13 @@ export class SettingsManager {
@@ -216,13 +216,13 @@
 +      console.error(`Invalid value for setting ${key}:`, value);
 +      return false;
 +    }
-+    
++
      this.settings[key] = value;
      this.saveSettings();
      this.emit('setting_changed', { key, value });
 +    return true;
    }
-   
+
    /**
 @@ -416,6 +483,9 @@ export class SettingsManager {
     */
@@ -235,22 +235,22 @@
        lineHeight: (v) => v >= 1.0 && v <= 2.0,
        maxLines: (v) => v >= 100 && v <= 10000,
 @@ -425,7 +495,10 @@ export class SettingsManager {
-       swarmStrategy: (v) => ['development', 'research', 'analysis', 'testing', 
+       swarmStrategy: (v) => ['development', 'research', 'analysis', 'testing',
                             'optimization', 'maintenance'].includes(v),
-       coordinationMode: (v) => ['centralized', 'hierarchical', 'distributed', 
+       coordinationMode: (v) => ['centralized', 'hierarchical', 'distributed',
 -                              'mesh', 'hybrid'].includes(v)
 +                              'mesh', 'hybrid'].includes(v),
 +      reconnectAttempts: (v) => v >= 0 && v <= 10,
 +      heartbeatInterval: (v) => v >= 10000 && v <= 60000,
 +      commandTimeout: (v) => v >= 5000 && v <= 120000
      };
-     
+
      const validator = validators[key];
 @@ -569,4 +642,15 @@ export class SettingsManager {
        commandTimeout: this.get('commandTimeout')
      };
    }
-+  
++
 +  /**
 +   * Cleanup method to prevent memory leaks
 +   */

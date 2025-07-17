@@ -4,15 +4,15 @@
 The project claims "87 Advanced MCP Tools" in marketing materials but analysis shows only ~25 functional tools, with ~60+ generating simulated responses. This creates a significant credibility gap.
 
 ## 🔍 Problem Location
-**File**: `src/mcp/mcp-server.js` (entire file)  
-**Documentation**: README.md, CHANGELOG.md, CLI help text  
+**File**: `src/mcp/mcp-server.js` (entire file)
+**Documentation**: README.md, CHANGELOG.md, CLI help text
 **Package.json**: Description claiming "87 Advanced MCP Tools"
 
 ## 🚨 Specific Evidence
 
 ### Tool Count Inconsistencies
 - **README.md**: Claims "87 Advanced MCP Tools"
-- **CLI Help**: Claims "27 MCP tools" 
+- **CLI Help**: Claims "27 MCP tools"
 - **Actual Analysis**: ~25 functional, ~60+ simulated
 
 ### Simulated Tools Examples
@@ -65,14 +65,14 @@ case 'github_repo_analyze':
   if (!args.token) {
     throw new Error('GitHub token required for repo analysis');
   }
-  
+
   const octokit = new Octokit({ auth: args.token });
   const [repo, languages, commits] = await Promise.all([
     octokit.repos.get({ owner: args.owner, repo: args.repo }),
     octokit.repos.listLanguages({ owner: args.owner, repo: args.repo }),
     octokit.repos.listCommits({ owner: args.owner, repo: args.repo, per_page: 10 })
   ]);
-  
+
   return {
     success: true,
     repository: repo.data,
@@ -109,11 +109,11 @@ const toolRegistry = {
   // Fully functional tools
   memory_usage: { status: 'functional', category: 'core' },
   swarm_init: { status: 'functional', category: 'coordination' },
-  
+
   // Simulation/Demo tools
   neural_train: { status: 'simulation', category: 'demo' },
   github_repo_analyze: { status: 'planned', category: 'integration' },
-  
+
   // Experimental tools
   pattern_recognize: { status: 'experimental', category: 'analysis' }
 };
@@ -187,7 +187,7 @@ const TOOL_TIERS = {
   },
   extended: {
     tools: ['performance_report', 'pattern_analyze'],
-    guarantee: 'best_effort',  
+    guarantee: 'best_effort',
     count: 25
   },
   preview: {
@@ -222,8 +222,8 @@ case 'neural_train':
 ## 🎯 Recommended Approach
 **Solution 2 + 4 Combination**: Implement honest categorization with tiered system
 
-**Phase 1**: Add tool metadata and categorization (immediate)  
-**Phase 2**: Implement tiered access and clear disclaimers  
+**Phase 1**: Add tool metadata and categorization (immediate)
+**Phase 2**: Implement tiered access and clear disclaimers
 **Phase 3**: Gradually migrate preview tools to extended/core
 
 ## 🚀 Implementation Priority

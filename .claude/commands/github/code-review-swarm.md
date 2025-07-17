@@ -61,12 +61,12 @@ review:
     - architecture
     - accessibility
     - i18n
-  
+
   thresholds:
     security: block
     performance: warn
     style: suggest
-    
+
   rules:
     security:
       - no-eval
@@ -222,7 +222,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          
+
       - name: Run Review Swarm
         uses: ruvnet/review-swarm-action@v1
         with:
@@ -274,7 +274,7 @@ npx ruv-swarm github review-comment \
 
 **Severity**: 🔴 Critical / 🟡 High / 🟢 Low
 
-**Description**: 
+**Description**:
 [Clear explanation of the security issue]
 
 **Impact**:
@@ -371,7 +371,7 @@ npx ruv-swarm github review-train \
 class CustomReviewAgent {
   async review(pr) {
     const issues = [];
-    
+
     // Custom logic here
     if (await this.checkCustomRule(pr)) {
       issues.push({
@@ -380,7 +380,7 @@ class CustomReviewAgent {
         suggestion: 'Fix suggestion'
       });
     }
-    
+
     return issues;
   }
 }

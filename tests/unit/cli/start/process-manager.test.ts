@@ -2,10 +2,9 @@
  * Comprehensive test suite for ProcessManager
  */
 
-import { describe, it, beforeEach, afterEach, expect } from "../test.utils.ts";
-import { describe, it, beforeEach, afterEach, expect } from "../test.utils.ts";
 import { ProcessManager } from '../../../../src/cli/commands/start/process-manager.ts';
 import { ProcessStatus, ProcessType } from '../../../../src/cli/commands/start/types.ts';
+import { afterEach, afterEach, beforeEach, beforeEach, describe, describe, expect, expect, it, it } from "../test.utils.ts";
 
 describe('ProcessManager', () => {
   let processManager: ProcessManager;
@@ -18,7 +17,7 @@ describe('ProcessManager', () => {
     it('should initialize with all process definitions', () => {
       const processes = processManager.getAllProcesses();
       expect(processes.length).toBe(6);
-      
+
       const processIds = processes.map(p => p.id);
       expect(processIds.includes('event-bus')).toBe(true);
       expect(processIds.includes('orchestrator')).toBe(true);
@@ -86,7 +85,7 @@ describe('ProcessManager', () => {
 
     it('should update process status to STARTING then RUNNING', async () => {
       const processId = 'event-bus';
-      
+
       // Listen for status changes
       const statusChanges: ProcessStatus[] = [];
       processManager.on('statusChanged', ({ status }) => {
@@ -95,7 +94,7 @@ describe('ProcessManager', () => {
 
       await processManager.initialize();
       await processManager.startProcess(processId);
-      
+
       const process = processManager.getProcess(processId);
       expect(process?.status).toBe(ProcessStatus.RUNNING);
       expect(statusChanges.includes(ProcessStatus.STARTING)).toBe(true);
@@ -106,7 +105,7 @@ describe('ProcessManager', () => {
       const processId = 'event-bus';
       await processManager.initialize();
       await processManager.startProcess(processId);
-      
+
       const process = processManager.getProcess(processId);
       expect(process?.startTime).toBeDefined();
       expect(typeof process?.startTime).toBe('number');
@@ -116,7 +115,7 @@ describe('ProcessManager', () => {
       const processId = 'event-bus';
       await processManager.initialize();
       await processManager.startProcess(processId);
-      
+
       await assertRejects(
         () => processManager.startProcess(processId),
         Error,
@@ -127,14 +126,14 @@ describe('ProcessManager', () => {
     it('should emit processStarted event', async () => {
       const processId = 'event-bus';
       let eventData: any = null;
-      
+
       processManager.on('processStarted', (data) => {
         eventData = data;
       });
-      
+
       await processManager.initialize();
       await processManager.startProcess(processId);
-      
+
       expect(eventData).toBeDefined();
       expect(eventData.processId).toBe(processId);
       expect(eventData.process).toBeDefined();
@@ -143,20 +142,20 @@ describe('ProcessManager', () => {
     it('should handle process start errors', async () => {
       const processId = 'orchestrator'; // This requires other components
       let errorEvent: any = null;
-      
+
       processManager.on('processError', (data) => {
         errorEvent = data;
       });
-      
+
       await processManager.initialize();
-      
+
       // Should fail because required components are not initialized
       await assertRejects(
         () => processManager.startProcess(processId),
         Error,
         'Required components not initialized'
       );
-      
+
       expect(errorEvent).toBeDefined();
       expect(errorEvent.processId).toBe(processId);
     });
@@ -183,9 +182,9 @@ describe('ProcessManager', () => {
       const processId = 'event-bus';
       await processManager.initialize();
       await processManager.startProcess(processId);
-      
+
       await processManager.stopProcess(processId);
-      
+
       const process = processManager.getProcess(processId);
       expect(process?.status).toBe(ProcessStatus.STOPPED);
     });
@@ -193,15 +192,15 @@ describe('ProcessManager', () => {
     it('should emit processStopped event', async () => {
       const processId = 'event-bus';
       let stoppedEvent: any = null;
-      
+
       processManager.on('processStopped', (data) => {
         stoppedEvent = data;
       });
-      
+
       await processManager.initialize();
       await processManager.startProcess(processId);
       await processManager.stopProcess(processId);
-      
+
       expect(stoppedEvent).toBeDefined();
       expect(stoppedEvent.processId).toBe(processId);
     });
@@ -212,14 +211,14 @@ describe('ProcessManager', () => {
       const processId = 'event-bus';
       await processManager.initialize();
       await processManager.startProcess(processId);
-      
+
       const firstStartTime = processManager.getProcess(processId)?.startTime;
-      
+
       // Wait a bit to ensure different start times
       await new Promise(resolve => setTimeout(resolve, 100));
-      
+
       await processManager.restartProcess(processId);
-      
+
       const process = processManager.getProcess(processId);
       expect(process?.status).toBe(ProcessStatus.RUNNING);
       expect(process?.startTime).toBeDefined();
@@ -231,14 +230,14 @@ describe('ProcessManager', () => {
   describe('startAll', () => {
     it('should start all processes in correct order', async () => {
       await processManager.initialize();
-      
+
       const startedProcesses: string[] = [];
       processManager.on('processStarted', ({ processId }) => {
         startedProcesses.push(processId);
       });
-      
+
       await processManager.startAll();
-      
+
       // Check order matches dependency order
       const expectedOrder = [
         'event-bus',
@@ -248,7 +247,7 @@ describe('ProcessManager', () => {
         'mcp-server',
         'orchestrator'
       ];
-      
+
       expect(startedProcesses.slice(0).toBe(5), expectedOrder.slice(0, 5));
       // Orchestrator might fail due to missing dependencies, that's ok
     });
@@ -256,7 +255,7 @@ describe('ProcessManager', () => {
     it('should update system stats after starting all', async () => {
       await processManager.initialize();
       await processManager.startAll();
-      
+
       const stats = processManager.getSystemStats();
       expect(stats.runningProcesses >= 5).toBe(true); // At least core processes
     });
@@ -265,18 +264,18 @@ describe('ProcessManager', () => {
   describe('stopAll', () => {
     it('should stop all processes in reverse order', async () => {
       await processManager.initialize();
-      
+
       // Start some processes
       await processManager.startProcess('event-bus');
       await processManager.startProcess('memory-manager');
-      
+
       const stoppedProcesses: string[] = [];
       processManager.on('processStopped', ({ processId }) => {
         stoppedProcesses.push(processId);
       });
-      
+
       await processManager.stopAll();
-      
+
       // Should stop in reverse order
       expect(stoppedProcesses[0]).toBe('memory-manager');
       expect(stoppedProcesses[1]).toBe('event-bus');
@@ -286,7 +285,7 @@ describe('ProcessManager', () => {
       await processManager.initialize();
       // No processes running
       await processManager.stopAll(); // Should not throw
-      
+
       const stats = processManager.getSystemStats();
       expect(stats.runningProcesses).toBe(0);
     });
@@ -306,7 +305,7 @@ describe('ProcessManager', () => {
       processManager.on('initialized', () => {
         initialized = true;
       });
-      
+
       await processManager.initialize();
       expect(initialized).toBe(true);
     });
@@ -315,17 +314,17 @@ describe('ProcessManager', () => {
       // Create a new manager with invalid config path
       const manager = new ProcessManager();
       let errorEmitted = false;
-      
+
       manager.on('error', () => {
         errorEmitted = true;
       });
-      
+
       try {
         await manager.initialize('/invalid/path/to/config.json');
       } catch {
         // Expected to throw
       }
-      
+
       expect(errorEmitted).toBe(true);
     });
   });
@@ -334,13 +333,13 @@ describe('ProcessManager', () => {
     it('should track last error in metrics', async () => {
       const processId = 'orchestrator';
       await processManager.initialize();
-      
+
       try {
         await processManager.startProcess(processId);
       } catch {
         // Expected to fail
       }
-      
+
       const process = processManager.getProcess(processId);
       expect(process?.metrics?.lastError).toBeDefined();
       expect(process?.metrics?.lastError).toBe('Required components not initialized');

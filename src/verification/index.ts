@@ -3,21 +3,19 @@
  * Exports all verification functionality for code, todos, and task validation
  */
 
-export {
-  VerificationService,
-  createVerificationService,
-  quickVerify,
-  
-  // Types
-  type VerificationConfig,
-  type VerificationResult,
-  type TodoItem,
-  type TodoVerificationResult,
-  type WorkflowStep,
-  type WorkflowVerificationResult,
-  type VerificationStats,
-  type HealthCheckResult
-} from './verification-service.js';
-
 // Re-export as default for convenience
-export { VerificationService as default } from './verification-service.js';
+export {
+	createVerificationService,
+	type HealthCheckResult,
+	quickVerify,
+	type TodoItem,
+	type TodoVerificationResult,
+	// Types
+	type VerificationConfig,
+	type VerificationResult,
+	VerificationService,
+	VerificationService as default,
+	type VerificationStats,
+	type WorkflowStep,
+	type WorkflowVerificationResult,
+} from "./verification-service.js";

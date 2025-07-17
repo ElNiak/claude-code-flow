@@ -1,68 +1,73 @@
-import { getErrorMessage as _getErrorMessage } from '../../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from "../../utils/error-handler.js";
 // init/directory-structure.ts - Directory structure creation,
 export async function createDirectoryStructure(): Promise<void> {
-  const fs = await import('fs/promises');
-  const _path = await import('path');
-  
-  // Define directory structure,
-  const directories = [
-    '.claude',
-    '.claude/commands',
-    '.claude/commands/swarm',
-    '.claude/commands/sparc',
-    '.claude/logs',
-    '.claude/memory',
-    '.claude/configs',
-    'memory',
-    'memory/agents',
-    'memory/sessions',
-    'coordination',
-    'coordination/memory_bank',
-    'coordination/subtasks',
-    'coordination/orchestration',
-    'reports'
-  ];
-  
-  // Create directories,
-  for (const dir of directories) {
-    try {
-      await fs.mkdir(dir, { recursive: true });
-      console.log(`  ✅ Created ${dir}/ directory`);
-    } catch (error: unknown) {
-      if ((error as any).code !== 'EEXIST') {
-        throw error;
-      }
-    }
-  }
-  
-  // Create README files for key directories,
-  const readmeFiles = {
-    'memory/agents/README.md': createAgentsReadme(),
-    'memory/sessions/README.md': createSessionsReadme(),
-    'coordination/README.md': createCoordinationReadme(),
-    'reports/README.md': createReportsReadme()
-  };
-  
-  for (const [filePath, content] of Object.entries(readmeFiles)) {
-    await fs.writeFile(filePath, content);
-    console.log(`  ✅ Created ${filePath}`);
-  }
-  
-  // Create initial persistence database,
-  const initialData = {
-    agents: [],
-    tasks: [],
-    swarms: [],
-    lastUpdated: Date.now(),
-    version: "1.0.71"
-  };
-  
-  await fs.writeFile('memory/claude-flow-data.json', JSON.stringify(initialData, null, 2));
-  console.log('  ✅ Created memory/claude-flow-data.json (persistence database)');
+	const fs = await import("fs/promises");
+	const _path = await import("path");
+
+	// Define directory structure,
+	const directories = [
+		".claude",
+		".claude/commands",
+		".claude/commands/swarm",
+		".claude/commands/sparc",
+		".claude/logs",
+		".claude/memory",
+		".claude/configs",
+		"memory",
+		"memory/agents",
+		"memory/sessions",
+		"coordination",
+		"coordination/memory_bank",
+		"coordination/subtasks",
+		"coordination/orchestration",
+		"reports",
+	];
+
+	// Create directories,
+	for (const dir of directories) {
+		try {
+			await fs.mkdir(dir, { recursive: true });
+			console.log(`  ✅ Created ${dir}/ directory`);
+		} catch (error: unknown) {
+			if ((error as any).code !== "EEXIST") {
+				throw error;
+			}
+		}
+	}
+
+	// Create README files for key directories,
+	const readmeFiles = {
+		"memory/agents/README.md": createAgentsReadme(),
+		"memory/sessions/README.md": createSessionsReadme(),
+		"coordination/README.md": createCoordinationReadme(),
+		"reports/README.md": createReportsReadme(),
+	};
+
+	for (const [filePath, content] of Object.entries(readmeFiles)) {
+		await fs.writeFile(filePath, content);
+		console.log(`  ✅ Created ${filePath}`);
+	}
+
+	// Create initial persistence database,
+	const initialData = {
+		agents: [],
+		tasks: [],
+		swarms: [],
+		lastUpdated: Date.now(),
+		version: "1.0.71",
+	};
+
+	await fs.writeFile(
+		"memory/claude-flow-data.json",
+		JSON.stringify(initialData, null, 2)
+	);
+	console.log(
+		"  ✅ Created memory/claude-flow-data.json (persistence database)"
+	);
 }
 
 function createAgentsReadme(): string {
-  return `# Agents Directory,
+	return `# Agents Directory,
 
 This directory stores persistent information about AI agents created and managed by Claude-Flow.
 
@@ -85,7 +90,7 @@ Agents are automatically managed by the Claude-Flow orchestration system. You ca
 }
 
 function createSessionsReadme(): string {
-  return `# Sessions Directory,
+	return `# Sessions Directory,
 
 This directory stores information about Claude-Flow orchestration sessions.
 
@@ -108,7 +113,7 @@ Sessions are managed automatically during orchestration:
 }
 
 function createCoordinationReadme(): string {
-  return `# Coordination Directory,
+	return `# Coordination Directory,
 
 This directory manages task coordination and orchestration data.
 
@@ -129,7 +134,7 @@ Access coordination data through the Claude-Flow API or CLI commands.
 }
 
 function createReportsReadme(): string {
-  return `# Reports Directory,
+	return `# Reports Directory,
 
 This directory stores output reports from swarm operations and orchestration tasks.
 

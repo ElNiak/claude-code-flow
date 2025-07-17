@@ -1,0 +1,469 @@
+{
+	"dependency_architecture": {
+		"overview": "Complete dependency mapping across all system components",
+		"dependency_types": {
+			"runtime_dependencies": "Required for system execution",
+			"build_dependencies": "Required for development and building",
+			"integration_dependencies": "Required for external system integration",
+			"internal_dependencies": "Dependencies between system components"
+		}
+	},
+	"external_dependencies": {
+		"runtime_core": {
+			"node_js": {
+				"version": ">=20.0.0",
+				"purpose": "Primary runtime environment",
+				"criticality": "critical",
+				"alternatives": "None - core dependency",
+				"integration_points": [
+					"All system components",
+					"CLI execution",
+					"MCP server",
+					"Agent spawning"
+				]
+			},
+			"npm": {
+				"version": ">=9.0.0",
+				"purpose": "Package management and distribution",
+				"criticality": "critical",
+				"alternatives": "yarn, pnpm (with configuration changes)",
+				"integration_points": [
+					"Installation",
+					"Dependency management",
+					"Script execution"
+				]
+			}
+		},
+		"core_libraries": {
+			"ruv_swarm": {
+				"version": "^1.0.14",
+				"purpose": "Core swarm coordination functionality",
+				"criticality": "critical",
+				"source": "External package",
+				"integration_points": [
+					"Swarm coordination",
+					"Agent management",
+					"Task orchestration"
+				],
+				"features_used": [
+					"Swarm initialization",
+					"Agent spawning",
+					"Coordination strategies"
+				]
+			},
+			"better_sqlite3": {
+				"version": "^12.2.0",
+				"purpose": "High-performance SQLite database operations",
+				"criticality": "critical",
+				"alternatives": "sqlite3 (with performance degradation)",
+				"integration_points": [
+					"Memory management",
+					"Persistence layer",
+					"Cross-agent coordination"
+				],
+				"features_used": [
+					"Database operations",
+					"Transaction management",
+					"Query optimization"
+				]
+			},
+			"modelcontextprotocol_sdk": {
+				"version": "^1.0.4",
+				"purpose": "Model Context Protocol implementation",
+				"criticality": "critical",
+				"source": "Anthropic/Claude integration",
+				"integration_points": [
+					"Claude Code integration",
+					"MCP tools",
+					"Tool registry"
+				],
+				"features_used": [
+					"Protocol handling",
+					"Tool registration",
+					"Message routing"
+				]
+			}
+		},
+		"ui_and_interaction": {
+			"blessed": {
+				"version": "^0.1.81",
+				"purpose": "Terminal UI framework",
+				"criticality": "high",
+				"alternatives": "ink, react-blessed",
+				"integration_points": [
+					"Terminal interfaces",
+					"Interactive dashboards",
+					"Progress displays"
+				],
+				"features_used": [
+					"Terminal widgets",
+					"Event handling",
+					"Screen management"
+				]
+			},
+			"chalk": {
+				"version": "^4.1.2",
+				"purpose": "Terminal string styling",
+				"criticality": "medium",
+				"alternatives": "colors, kleur",
+				"integration_points": [
+					"CLI output",
+					"Error messages",
+					"Status displays"
+				],
+				"features_used": [
+					"Color formatting",
+					"Text styling",
+					"Console enhancement"
+				]
+			},
+			"cli_table3": {
+				"version": "^0.6.3",
+				"purpose": "Table formatting for CLI output",
+				"criticality": "low",
+				"alternatives": "table, console.table",
+				"integration_points": [
+					"Status displays",
+					"Data presentation",
+					"Report formatting"
+				],
+				"features_used": ["Table rendering", "Data formatting", "Alignment"]
+			},
+			"inquirer": {
+				"version": "^9.2.12",
+				"purpose": "Interactive command line prompts",
+				"criticality": "medium",
+				"alternatives": "prompts, enquirer",
+				"integration_points": [
+					"Interactive setup",
+					"Configuration wizards",
+					"User input"
+				],
+				"features_used": ["Prompt types", "Validation", "Interactive flows"]
+			}
+		},
+		"system_integration": {
+			"commander": {
+				"version": "^11.1.0",
+				"purpose": "Command line interface framework",
+				"criticality": "high",
+				"alternatives": "yargs, cliffy",
+				"integration_points": [
+					"CLI command parsing",
+					"Argument validation",
+					"Help generation"
+				],
+				"features_used": ["Command definition", "Option parsing", "Help system"]
+			},
+			"node_pty": {
+				"version": "^1.0.0",
+				"purpose": "Terminal process spawning and management",
+				"criticality": "high",
+				"alternatives": "child_process (with limitations)",
+				"integration_points": [
+					"Terminal management",
+					"Agent execution",
+					"Command execution"
+				],
+				"features_used": [
+					"Pseudo-terminal creation",
+					"Process management",
+					"Terminal I/O"
+				]
+			},
+			"ws": {
+				"version": "^8.18.3",
+				"purpose": "WebSocket implementation for real-time communication",
+				"criticality": "medium",
+				"alternatives": "socket.io, uws",
+				"integration_points": [
+					"Real-time monitoring",
+					"Agent communication",
+					"Status updates"
+				],
+				"features_used": [
+					"WebSocket server",
+					"Message broadcasting",
+					"Connection management"
+				]
+			}
+		},
+		"utilities": {
+			"fs_extra": {
+				"version": "^11.2.0",
+				"purpose": "Enhanced file system operations",
+				"criticality": "medium",
+				"alternatives": "fs (native) with custom utilities",
+				"integration_points": [
+					"File operations",
+					"Directory management",
+					"Template copying"
+				],
+				"features_used": [
+					"Recursive operations",
+					"JSON handling",
+					"Path utilities"
+				]
+			},
+			"glob": {
+				"version": "^11.0.3",
+				"purpose": "File pattern matching",
+				"criticality": "medium",
+				"alternatives": "minimatch with custom globbing",
+				"integration_points": [
+					"File discovery",
+					"Pattern matching",
+					"Project analysis"
+				],
+				"features_used": [
+					"Pattern matching",
+					"File listing",
+					"Directory traversal"
+				]
+			},
+			"nanoid": {
+				"version": "^5.0.4",
+				"purpose": "Unique ID generation",
+				"criticality": "low",
+				"alternatives": "uuid, crypto.randomUUID",
+				"integration_points": ["Agent IDs", "Session IDs", "Task IDs"],
+				"features_used": [
+					"ID generation",
+					"Collision avoidance",
+					"URL-safe IDs"
+				]
+			}
+		},
+		"development_tools": {
+			"tsx": {
+				"version": "Optional runtime dependency",
+				"purpose": "TypeScript execution in development",
+				"criticality": "medium",
+				"alternatives": "ts-node, direct compilation",
+				"integration_points": [
+					"Development execution",
+					"TypeScript files",
+					"Hot reloading"
+				],
+				"features_used": [
+					"TypeScript execution",
+					"ESM support",
+					"Fast compilation"
+				]
+			},
+			"typescript": {
+				"version": "^5.3.3",
+				"purpose": "TypeScript compiler and type checking",
+				"criticality": "high",
+				"dev_only": true,
+				"integration_points": [
+					"Source compilation",
+					"Type checking",
+					"Development tooling"
+				],
+				"features_used": [
+					"Compilation",
+					"Type checking",
+					"Declaration generation"
+				]
+			}
+		}
+	},
+	"internal_dependencies": {
+		"component_hierarchy": {
+			"cli_layer": {
+				"depends_on": ["core", "orchestrator", "mcp", "swarm"],
+				"provides": ["User interface", "Command handling", "Input validation"],
+				"critical_paths": [
+					"CLI → Orchestrator → Component execution",
+					"CLI → MCP server → Tool execution"
+				]
+			},
+			"mcp_layer": {
+				"depends_on": ["core", "orchestrator", "swarm", "memory"],
+				"provides": [
+					"Claude Code integration",
+					"Tool registry",
+					"Protocol handling"
+				],
+				"critical_paths": [
+					"MCP tools → Orchestrator → Swarm coordination",
+					"MCP tools → Memory system → Persistence"
+				]
+			},
+			"swarm_layer": {
+				"depends_on": ["core", "memory", "terminal", "coordination"],
+				"provides": [
+					"Agent coordination",
+					"Task distribution",
+					"Execution management"
+				],
+				"critical_paths": [
+					"Swarm → Agent spawning → Terminal management",
+					"Swarm → Coordination → Memory persistence"
+				]
+			},
+			"core_layer": {
+				"depends_on": ["External dependencies only"],
+				"provides": ["Logging", "Configuration", "Event bus", "Persistence"],
+				"critical_paths": [
+					"Configuration → All components",
+					"Event bus → Component communication",
+					"Persistence → Data storage"
+				]
+			}
+		},
+		"circular_dependencies": {
+			"orchestrator_cli": {
+				"description": "CLI needs orchestrator, orchestrator may need CLI for command execution",
+				"resolution": "Dependency injection and interface segregation",
+				"risk_level": "medium",
+				"mitigation": "Event-driven communication, clear interface boundaries"
+			},
+			"memory_coordination": {
+				"description": "Memory system stores coordination data, coordination uses memory for decisions",
+				"resolution": "Layered architecture with clear data flow",
+				"risk_level": "low",
+				"mitigation": "Read-only memory access for coordination decisions"
+			},
+			"agent_swarm": {
+				"description": "Agents are managed by swarm, agents may create sub-swarms",
+				"resolution": "Hierarchical management with clear ownership",
+				"risk_level": "medium",
+				"mitigation": "Parent-child relationships, resource limits"
+			}
+		}
+	},
+	"dependency_risks": {
+		"single_points_of_failure": {
+			"sqlite_database": {
+				"description": "All persistence depends on SQLite",
+				"impact": "Complete memory/coordination loss",
+				"mitigation": [
+					"Backup strategies",
+					"Graceful degradation",
+					"Alternative storage"
+				],
+				"priority": "high"
+			},
+			"ruv_swarm": {
+				"description": "Core swarm functionality depends on external package",
+				"impact": "Loss of coordination capabilities",
+				"mitigation": [
+					"Version pinning",
+					"Fork preparation",
+					"Fallback coordination"
+				],
+				"priority": "high"
+			},
+			"node_runtime": {
+				"description": "Everything depends on Node.js runtime",
+				"impact": "Complete system failure",
+				"mitigation": [
+					"Version compatibility testing",
+					"Runtime monitoring",
+					"Upgrade planning"
+				],
+				"priority": "critical"
+			}
+		},
+		"version_compatibility": {
+			"node_versions": {
+				"supported": ">=20.0.0",
+				"tested": ["20.x", "21.x", "22.x"],
+				"issues": "Legacy Node.js versions lack required features",
+				"mitigation": "Runtime version checking, clear requirements"
+			},
+			"package_updates": {
+				"strategy": "Conservative updates with testing",
+				"risk_areas": ["ruv-swarm", "better-sqlite3", "MCP SDK"],
+				"testing": "Comprehensive integration testing before updates"
+			}
+		},
+		"security_dependencies": {
+			"native_modules": {
+				"modules": ["better-sqlite3", "node-pty"],
+				"risks": [
+					"Compilation issues",
+					"Platform compatibility",
+					"Security vulnerabilities"
+				],
+				"mitigation": [
+					"Platform testing",
+					"Security scanning",
+					"Alternative preparations"
+				]
+			},
+			"external_packages": {
+				"monitoring": "Automated security scanning",
+				"update_policy": "Security updates within 24 hours",
+				"verification": "Package integrity checking"
+			}
+		}
+	},
+	"optimization_opportunities": {
+		"dependency_reduction": {
+			"opportunities": [
+				"Replace chalk with native console styling",
+				"Replace inquirer with custom prompts",
+				"Consolidate table formatting libraries"
+			],
+			"benefits": "Reduced bundle size, fewer security vectors",
+			"effort": "Medium - requires custom implementations"
+		},
+		"performance_optimization": {
+			"lazy_loading": {
+				"description": "Load heavy dependencies only when needed",
+				"targets": ["blessed UI", "WebSocket server", "Terminal management"],
+				"benefits": "Faster startup, reduced memory usage"
+			},
+			"caching_strategies": {
+				"description": "Cache expensive operations and dependencies",
+				"targets": [
+					"Configuration loading",
+					"Template parsing",
+					"Pattern compilation"
+				],
+				"benefits": "Improved response times, reduced CPU usage"
+			}
+		},
+		"modularity_improvements": {
+			"plugin_architecture": {
+				"description": "Make components more modular and pluggable",
+				"benefits": "Easier testing, reduced coupling, extensibility",
+				"implementation": "Interface-based design, dependency injection"
+			},
+			"optional_features": {
+				"description": "Make advanced features optional dependencies",
+				"targets": ["Web UI", "Advanced monitoring", "Enterprise features"],
+				"benefits": "Reduced core footprint, flexible deployment"
+			}
+		}
+	},
+	"dependency_management": {
+		"update_strategy": {
+			"security_updates": "Immediate for critical vulnerabilities",
+			"feature_updates": "Quarterly review and testing",
+			"major_updates": "Annual review with migration planning"
+		},
+		"compatibility_matrix": {
+			"node_js": {
+				"20.x": "Fully supported",
+				"21.x": "Supported with testing",
+				"22.x": "Compatible with potential issues",
+				"19.x": "Not supported - missing features"
+			},
+			"operating_systems": {
+				"linux": "Primary platform - fully supported",
+				"macos": "Supported with native module compilation",
+				"windows": "Supported with limitations in terminal features"
+			}
+		},
+		"fallback_strategies": {
+			"database_fallback": "In-memory storage with persistence loss warning",
+			"terminal_fallback": "Basic command execution without PTY features",
+			"ui_fallback": "Plain text output instead of rich UI",
+			"coordination_fallback": "Single-agent mode without swarm coordination"
+		}
+	}
+}

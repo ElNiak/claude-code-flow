@@ -37,8 +37,8 @@ TodoWrite([
     priority: "high",
     mode: "batch-executor",
     batchOptimized: true,
-    
-    
+
+
     tools: ["Task","Bash","Read","Write","TodoWrite","Memory"]
   }
 ]);
@@ -47,7 +47,7 @@ TodoWrite([
 Task("Batch executor Agent", "Execute specialized batch-executor task", {
   mode: "batch-executor",
   batchOptimized: true,
-  
+
   memoryIntegration: true
 });
 ```

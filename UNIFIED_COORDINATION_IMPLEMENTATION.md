@@ -81,7 +81,7 @@ interface IntrinsicCapabilities {
 ### 2. Unified Execution Phases
 Each task execution simultaneously progresses through:
 
-1. **Preparation Phase**: 
+1. **Preparation Phase**:
    - SPARC: Initialize thinking structure
    - Swarm: Identify collaborators
    - Hive: Connect to collective intelligence
@@ -130,7 +130,7 @@ The system continuously calculates synergy between paradigms:
 calculateSynergy(positions: number[]): number {
   const mean = positions.reduce((sum, pos) => sum + pos, 0) / positions.length;
   const variance = positions.reduce((sum, pos) => sum + Math.pow(pos - mean, 2), 0) / positions.length;
-  
+
   // High mean and low variance = high synergy
   return mean * (1 - Math.sqrt(variance));
 }

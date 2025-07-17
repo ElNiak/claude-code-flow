@@ -1,8 +1,12 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const authController = require('../controllers/auth.controller');
-const { protect, verifyEmailToken, verifyResetToken } = require('../middleware/auth');
-const { authValidators, validate } = require('../validators/auth.validator');
+const authController = require("../controllers/auth.controller");
+const {
+	protect,
+	verifyEmailToken,
+	verifyResetToken,
+} = require("../middleware/auth");
+const { authValidators, validate } = require("../validators/auth.validator");
 
 /**
  * @swagger
@@ -71,7 +75,11 @@ const { authValidators, validate } = require('../validators/auth.validator');
  *       400:
  *         description: Validation error or user already exists
  */
-router.post('/register', validate(authValidators.register), authController.register);
+router.post(
+	"/register",
+	validate(authValidators.register),
+	authController.register,
+);
 
 /**
  * @swagger
@@ -104,7 +112,7 @@ router.post('/register', validate(authValidators.register), authController.regis
  *       401:
  *         description: Invalid credentials
  */
-router.post('/login', validate(authValidators.login), authController.login);
+router.post("/login", validate(authValidators.login), authController.login);
 
 /**
  * @swagger
@@ -118,7 +126,7 @@ router.post('/login', validate(authValidators.login), authController.login);
  *       200:
  *         description: Logout successful
  */
-router.post('/logout', protect, authController.logout);
+router.post("/logout", protect, authController.logout);
 
 /**
  * @swagger
@@ -150,7 +158,11 @@ router.post('/logout', protect, authController.logout);
  *                 refreshToken:
  *                   type: string
  */
-router.post('/refresh', validate(authValidators.refreshToken), authController.refreshToken);
+router.post(
+	"/refresh",
+	validate(authValidators.refreshToken),
+	authController.refreshToken,
+);
 
 /**
  * @swagger
@@ -174,7 +186,11 @@ router.post('/refresh', validate(authValidators.refreshToken), authController.re
  *       200:
  *         description: Password reset email sent
  */
-router.post('/forgot-password', validate(authValidators.forgotPassword), authController.forgotPassword);
+router.post(
+	"/forgot-password",
+	validate(authValidators.forgotPassword),
+	authController.forgotPassword,
+);
 
 /**
  * @swagger
@@ -201,7 +217,11 @@ router.post('/forgot-password', validate(authValidators.forgotPassword), authCon
  *       200:
  *         description: Password reset successful
  */
-router.post('/reset-password', validate(authValidators.resetPassword), authController.resetPassword);
+router.post(
+	"/reset-password",
+	validate(authValidators.resetPassword),
+	authController.resetPassword,
+);
 
 /**
  * @swagger
@@ -222,7 +242,11 @@ router.post('/reset-password', validate(authValidators.resetPassword), authContr
  *       400:
  *         description: Invalid or expired token
  */
-router.get('/verify-email/:token', validate(authValidators.verifyEmail), authController.verifyEmail);
+router.get(
+	"/verify-email/:token",
+	validate(authValidators.verifyEmail),
+	authController.verifyEmail,
+);
 
 /**
  * @swagger
@@ -238,7 +262,7 @@ router.get('/verify-email/:token', validate(authValidators.verifyEmail), authCon
  *       400:
  *         description: Email already verified
  */
-router.post('/resend-verification', protect, authController.resendVerification);
+router.post("/resend-verification", protect, authController.resendVerification);
 
 /**
  * @swagger
@@ -264,7 +288,7 @@ router.post('/resend-verification', protect, authController.resendVerification);
  *                     user:
  *                       $ref: '#/components/schemas/User'
  */
-router.get('/me', protect, authController.getMe);
+router.get("/me", protect, authController.getMe);
 
 /**
  * @swagger
@@ -287,6 +311,6 @@ router.get('/me', protect, authController.getMe);
  *       200:
  *         description: Password strength analysis
  */
-router.post('/check-password', authController.checkPasswordStrength);
+router.post("/check-password", authController.checkPasswordStrength);
 
 module.exports = router;

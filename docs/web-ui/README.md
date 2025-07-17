@@ -168,6 +168,6 @@ Claude Flow is licensed under the MIT License. See [LICENSE](../../LICENSE) for 
 
 ---
 
-**Version**: 2.0.0  
-**Last Updated**: 2025-07-06  
+**Version**: 2.0.0
+**Last Updated**: 2025-07-06
 **Status**: Active Development

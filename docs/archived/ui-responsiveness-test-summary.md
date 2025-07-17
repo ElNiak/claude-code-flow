@@ -73,7 +73,7 @@
 ## Performance Testing
 
 - **Initial Load Time**: 171ms
-- **Panel Switching**: 266ms  
+- **Panel Switching**: 266ms
 - **Memory Usage**: 17MB
 - **Animation Performance**: 60 FPS
 

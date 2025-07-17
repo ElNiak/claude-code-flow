@@ -4,206 +4,215 @@
  */
 
 class InMemoryStore {
-  constructor(options = {}) {
-    this.options = options;
-    this.data = new Map(); // namespace -> Map(key -> entry)
-    this.isInitialized = false;
-    this.cleanupInterval = null;
-  }
+	constructor(options = {}) {
+		this.options = options;
+		this.data = new Map(); // namespace -> Map(key -> entry)
+		this.isInitialized = false;
+		this.cleanupInterval = null;
+	}
 
-  async initialize() {
-    if (this.isInitialized) return;
+	async initialize() {
+		if (this.isInitialized) return;
 
-    // Initialize default namespace
-    this.data.set('default', new Map());
-    
-    // Start cleanup interval for expired entries
-    this.cleanupInterval = setInterval(() => {
-      this.cleanup().catch(err => 
-        console.error(`[${new Date().toISOString()}] ERROR [in-memory-store] Cleanup failed:`, err)
-      );
-    }, 60000); // Run cleanup every minute
+		// Initialize default namespace
+		this.data.set("default", new Map());
 
-    this.isInitialized = true;
-    console.error(`[${new Date().toISOString()}] INFO [in-memory-store] Initialized in-memory store`);
-  }
+		// Start cleanup interval for expired entries
+		this.cleanupInterval = setInterval(() => {
+			this.cleanup().catch((err) =>
+				console.error(
+					`[${new Date().toISOString()}] ERROR [in-memory-store] Cleanup failed:`,
+					err
+				)
+			);
+		}, 60000); // Run cleanup every minute
 
-  _getNamespaceMap(namespace) {
-    if (!this.data.has(namespace)) {
-      this.data.set(namespace, new Map());
-    }
-    return this.data.get(namespace);
-  }
+		this.isInitialized = true;
+		console.error(
+			`[${new Date().toISOString()}] INFO [in-memory-store] Initialized in-memory store`
+		);
+	}
 
-  async store(key, value, options = {}) {
-    await this.initialize();
-    
-    const namespace = options.namespace || 'default';
-    const namespaceMap = this._getNamespaceMap(namespace);
-    
-    const now = Date.now();
-    const ttl = options.ttl || null;
-    const expiresAt = ttl ? now + (ttl * 1000) : null;
-    const valueStr = typeof value === 'string' ? value : JSON.stringify(value);
-    
-    const entry = {
-      key,
-      value: valueStr,
-      namespace,
-      metadata: options.metadata || null,
-      createdAt: namespaceMap.has(key) ? namespaceMap.get(key).createdAt : now,
-      updatedAt: now,
-      accessedAt: now,
-      accessCount: namespaceMap.has(key) ? namespaceMap.get(key).accessCount + 1 : 1,
-      ttl,
-      expiresAt
-    };
+	_getNamespaceMap(namespace) {
+		if (!this.data.has(namespace)) {
+			this.data.set(namespace, new Map());
+		}
+		return this.data.get(namespace);
+	}
 
-    namespaceMap.set(key, entry);
+	async store(key, value, options = {}) {
+		await this.initialize();
 
-    return {
-      success: true,
-      id: `${namespace}:${key}`,
-      size: valueStr.length
-    };
-  }
+		const namespace = options.namespace || "default";
+		const namespaceMap = this._getNamespaceMap(namespace);
 
-  async retrieve(key, options = {}) {
-    await this.initialize();
-    
-    const namespace = options.namespace || 'default';
-    const namespaceMap = this._getNamespaceMap(namespace);
-    
-    const entry = namespaceMap.get(key);
-    
-    if (!entry) {
-      return null;
-    }
+		const now = Date.now();
+		const ttl = options.ttl || null;
+		const expiresAt = ttl ? now + ttl * 1000 : null;
+		const valueStr = typeof value === "string" ? value : JSON.stringify(value);
 
-    // Check if expired
-    if (entry.expiresAt && entry.expiresAt < Date.now()) {
-      namespaceMap.delete(key);
-      return null;
-    }
+		const entry = {
+			key,
+			value: valueStr,
+			namespace,
+			metadata: options.metadata || null,
+			createdAt: namespaceMap.has(key) ? namespaceMap.get(key).createdAt : now,
+			updatedAt: now,
+			accessedAt: now,
+			accessCount: namespaceMap.has(key)
+				? namespaceMap.get(key).accessCount + 1
+				: 1,
+			ttl,
+			expiresAt,
+		};
 
-    // Update access stats
-    entry.accessedAt = Date.now();
-    entry.accessCount++;
+		namespaceMap.set(key, entry);
 
-    // Try to parse as JSON, fall back to raw string
-    try {
-      return JSON.parse(entry.value);
-    } catch {
-      return entry.value;
-    }
-  }
+		return {
+			success: true,
+			id: `${namespace}:${key}`,
+			size: valueStr.length,
+		};
+	}
 
-  async list(options = {}) {
-    await this.initialize();
-    
-    const namespace = options.namespace || 'default';
-    const limit = options.limit || 100;
-    const namespaceMap = this._getNamespaceMap(namespace);
-    
-    const entries = Array.from(namespaceMap.values())
-      .filter(entry => !entry.expiresAt || entry.expiresAt > Date.now())
-      .sort((a, b) => b.updatedAt - a.updatedAt)
-      .slice(0, limit);
+	async retrieve(key, options = {}) {
+		await this.initialize();
 
-    return entries.map(entry => ({
-      key: entry.key,
-      value: this._tryParseJson(entry.value),
-      namespace: entry.namespace,
-      metadata: entry.metadata,
-      createdAt: new Date(entry.createdAt),
-      updatedAt: new Date(entry.updatedAt),
-      accessCount: entry.accessCount
-    }));
-  }
+		const namespace = options.namespace || "default";
+		const namespaceMap = this._getNamespaceMap(namespace);
 
-  async delete(key, options = {}) {
-    await this.initialize();
-    
-    const namespace = options.namespace || 'default';
-    const namespaceMap = this._getNamespaceMap(namespace);
-    
-    return namespaceMap.delete(key);
-  }
+		const entry = namespaceMap.get(key);
 
-  async search(pattern, options = {}) {
-    await this.initialize();
-    
-    const namespace = options.namespace || 'default';
-    const limit = options.limit || 50;
-    const namespaceMap = this._getNamespaceMap(namespace);
-    
-    const searchLower = pattern.toLowerCase();
-    const results = [];
+		if (!entry) {
+			return null;
+		}
 
-    for (const [key, entry] of namespaceMap.entries()) {
-      // Skip expired entries
-      if (entry.expiresAt && entry.expiresAt < Date.now()) {
-        continue;
-      }
+		// Check if expired
+		if (entry.expiresAt && entry.expiresAt < Date.now()) {
+			namespaceMap.delete(key);
+			return null;
+		}
 
-      // Search in key and value
-      if (key.toLowerCase().includes(searchLower) || 
-          entry.value.toLowerCase().includes(searchLower)) {
-        results.push({
-          key: entry.key,
-          value: this._tryParseJson(entry.value),
-          namespace: entry.namespace,
-          score: entry.accessCount,
-          updatedAt: new Date(entry.updatedAt)
-        });
-      }
+		// Update access stats
+		entry.accessedAt = Date.now();
+		entry.accessCount++;
 
-      if (results.length >= limit) {
-        break;
-      }
-    }
+		// Try to parse as JSON, fall back to raw string
+		try {
+			return JSON.parse(entry.value);
+		} catch {
+			return entry.value;
+		}
+	}
 
-    // Sort by score (access count) and updated time
-    return results.sort((a, b) => {
-      if (a.score !== b.score) return b.score - a.score;
-      return b.updatedAt - a.updatedAt;
-    });
-  }
+	async list(options = {}) {
+		await this.initialize();
 
-  async cleanup() {
-    await this.initialize();
-    
-    let cleaned = 0;
-    const now = Date.now();
+		const namespace = options.namespace || "default";
+		const limit = options.limit || 100;
+		const namespaceMap = this._getNamespaceMap(namespace);
 
-    for (const [namespace, namespaceMap] of this.data.entries()) {
-      for (const [key, entry] of namespaceMap.entries()) {
-        if (entry.expiresAt && entry.expiresAt <= now) {
-          namespaceMap.delete(key);
-          cleaned++;
-        }
-      }
-    }
+		const entries = Array.from(namespaceMap.values())
+			.filter((entry) => !entry.expiresAt || entry.expiresAt > Date.now())
+			.sort((a, b) => b.updatedAt - a.updatedAt)
+			.slice(0, limit);
 
-    return cleaned;
-  }
+		return entries.map((entry) => ({
+			key: entry.key,
+			value: this._tryParseJson(entry.value),
+			namespace: entry.namespace,
+			metadata: entry.metadata,
+			createdAt: new Date(entry.createdAt),
+			updatedAt: new Date(entry.updatedAt),
+			accessCount: entry.accessCount,
+		}));
+	}
 
-  _tryParseJson(value) {
-    try {
-      return JSON.parse(value);
-    } catch {
-      return value;
-    }
-  }
+	async delete(key, options = {}) {
+		await this.initialize();
 
-  close() {
-    if (this.cleanupInterval) {
-      clearInterval(this.cleanupInterval);
-      this.cleanupInterval = null;
-    }
-    this.data.clear();
-    this.isInitialized = false;
-  }
+		const namespace = options.namespace || "default";
+		const namespaceMap = this._getNamespaceMap(namespace);
+
+		return namespaceMap.delete(key);
+	}
+
+	async search(pattern, options = {}) {
+		await this.initialize();
+
+		const namespace = options.namespace || "default";
+		const limit = options.limit || 50;
+		const namespaceMap = this._getNamespaceMap(namespace);
+
+		const searchLower = pattern.toLowerCase();
+		const results = [];
+
+		for (const [key, entry] of namespaceMap.entries()) {
+			// Skip expired entries
+			if (entry.expiresAt && entry.expiresAt < Date.now()) {
+				continue;
+			}
+
+			// Search in key and value
+			if (
+				key.toLowerCase().includes(searchLower) ||
+				entry.value.toLowerCase().includes(searchLower)
+			) {
+				results.push({
+					key: entry.key,
+					value: this._tryParseJson(entry.value),
+					namespace: entry.namespace,
+					score: entry.accessCount,
+					updatedAt: new Date(entry.updatedAt),
+				});
+			}
+
+			if (results.length >= limit) {
+				break;
+			}
+		}
+
+		// Sort by score (access count) and updated time
+		return results.sort((a, b) => {
+			if (a.score !== b.score) return b.score - a.score;
+			return b.updatedAt - a.updatedAt;
+		});
+	}
+
+	async cleanup() {
+		await this.initialize();
+
+		let cleaned = 0;
+		const now = Date.now();
+
+		for (const [namespace, namespaceMap] of this.data.entries()) {
+			for (const [key, entry] of namespaceMap.entries()) {
+				if (entry.expiresAt && entry.expiresAt <= now) {
+					namespaceMap.delete(key);
+					cleaned++;
+				}
+			}
+		}
+
+		return cleaned;
+	}
+
+	_tryParseJson(value) {
+		try {
+			return JSON.parse(value);
+		} catch {
+			return value;
+		}
+	}
+
+	close() {
+		if (this.cleanupInterval) {
+			clearInterval(this.cleanupInterval);
+			this.cleanupInterval = null;
+		}
+		this.data.clear();
+		this.isInitialized = false;
+	}
 }
 
 export { InMemoryStore };

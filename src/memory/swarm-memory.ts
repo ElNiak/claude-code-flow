@@ -1,643 +1,702 @@
-import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
-import { EventEmitter } from 'node:events';
-import { Logger } from '../core/logger.js';
-import { MemoryManager as _MemoryManager } from './manager.js';
-import { EventBus } from '../core/event-bus.js';
-import { generateId } from '../utils/helpers.js';
-import * as fs from 'node:fs/promises';
-import * as path from 'node:path';
+/**
+ * SwarmMemory - MCP-specific memory persistence extending SharedMemory
+ * Provides swarm-specific features like agent coordination, task tracking, and neural patterns
+ *
+ * @module swarm-memory
+ */
 
-export interface SwarmMemoryEntry {
-  id: string;
-  agentId: string;
-  type: 'knowledge' | 'result' | 'state' | 'communication' | 'error';
-  content: any;
-  timestamp: Date;
-  metadata: {
-    taskId?: string;
-    objectiveId?: string;
-    tags?: string[];
-    priority?: number;
-    shareLevel?: 'private' | 'team' | 'public';
-    // Support for shared memory entries
-    originalId?: string;
-    sharedFrom?: string;
-    sharedTo?: string;
-    sharedAt?: Date;
-    [key: string]: any; // Allow additional properties
-  };
+import path from "path";
+import type { AgentId } from "../swarm/types.js";
+import type { IEventBus, ILogger } from "../utils/types.js";
+import { SharedMemory } from "./shared-memory.js";
+
+/**
+ * Swarm-specific namespaces
+ */
+const SWARM_NAMESPACES = {
+	AGENTS: "swarm:agents",
+	TASKS: "swarm:tasks",
+	COMMUNICATIONS: "swarm:communications",
+	CONSENSUS: "swarm:consensus",
+	PATTERNS: "swarm:patterns",
+	METRICS: "swarm:metrics",
+	COORDINATION: "swarm:coordination",
+};
+
+/**
+ * SwarmMemory class - Extends SharedMemory with MCP features
+ */
+export class SwarmMemory extends SharedMemory {
+	public swarmId: string;
+	public mcpMode: boolean;
+	public agentCache: Map<string, any>;
+	public taskCache: Map<string, any>;
+	public patternCache: Map<string, any>;
+
+	constructor(options: any = {}) {
+		// Default to .swarm directory for MCP
+		super({
+			directory: options.directory || ".swarm",
+			filename: options.filename || "swarm-memory.db",
+			...options,
+		});
+
+		this.swarmId = options.swarmId || "default";
+		this.mcpMode = options.mcpMode !== false;
+
+		// Additional swarm-specific caches
+		this.agentCache = new Map();
+		this.taskCache = new Map();
+		this.patternCache = new Map();
+	}
+
+	/**
+	 * Initialize with swarm-specific setup
+	 */
+	override async initialize() {
+		await super.initialize();
+
+		// Initialize swarm-specific namespaces
+		await this._initializeSwarmNamespaces();
+
+		// Load active agents and tasks into cache
+		await this._loadSwarmState();
+
+		this.emit("swarm:initialized", { swarmId: this.swarmId });
+	}
+
+	/**
+	 * Store agent information
+	 */
+	async storeAgent(agentId: string, agentData: any) {
+		const key = `agent:${agentId}`;
+		const enrichedData = {
+			...agentData,
+			swarmId: this.swarmId,
+			lastUpdated: new Date().toISOString(),
+		};
+
+		await super.store(key, enrichedData, {
+			namespace: SWARM_NAMESPACES.AGENTS,
+			tags: ["agent", agentData.type, agentData.status],
+			metadata: {
+				swarmId: this.swarmId,
+				agentType: agentData.type,
+			},
+		});
+
+		// Update agent cache
+		this.agentCache.set(agentId, enrichedData);
+
+		this.emit("swarm:agentStored", { agentId, type: agentData.type });
+
+		return { agentId, stored: true };
+	}
+
+	/**
+	 * Retrieve agent information
+	 */
+	async getAgent(agentId: string) {
+		// Check cache first
+		if (this.agentCache.has(agentId)) {
+			return this.agentCache.get(agentId);
+		}
+
+		const key = `agent:${agentId}`;
+		const agent = await this.retrieve(key, SWARM_NAMESPACES.AGENTS);
+
+		if (agent) {
+			this.agentCache.set(agentId, agent);
+		}
+
+		return agent;
+	}
+
+	/**
+	 * List all agents in swarm
+	 */
+	async listAgents(filter: any = {}) {
+		const agents = await super.list(SWARM_NAMESPACES.AGENTS, {
+			limit: filter.limit || 100,
+		});
+
+		return agents
+			.map((entry: any) => entry.value)
+			.filter((agent: any) => {
+				if (filter.type && agent.type !== filter.type) return false;
+				if (filter.status && agent.status !== filter.status) return false;
+				if (filter.swarmId && agent.swarmId !== filter.swarmId) return false;
+				return true;
+			});
+	}
+
+	/**
+	 * Store task information
+	 */
+	async storeTask(taskId: string, taskData: any) {
+		const key = `task:${taskId}`;
+		const enrichedData = {
+			...taskData,
+			swarmId: this.swarmId,
+			createdAt: taskData.createdAt || new Date().toISOString(),
+			updatedAt: new Date().toISOString(),
+		};
+
+		await super.store(key, enrichedData, {
+			namespace: SWARM_NAMESPACES.TASKS,
+			tags: ["task", taskData.status, taskData.priority],
+			metadata: {
+				swarmId: this.swarmId,
+				assignedAgents: taskData.assignedAgents || [],
+			},
+		});
+
+		// Update task cache
+		this.taskCache.set(taskId, enrichedData);
+
+		this.emit("swarm:taskStored", { taskId, status: taskData.status });
+
+		return { taskId, stored: true };
+	}
+
+	/**
+	 * Update task status
+	 */
+	async updateTaskStatus(taskId: string, status: string, result: any = null) {
+		const task = await this.getTask(taskId);
+		if (!task) {
+			throw new Error(`Task ${taskId} not found`);
+		}
+
+		task.status = status;
+		task.updatedAt = new Date().toISOString();
+
+		if (result) {
+			task.result = result;
+		}
+
+		if (status === "completed") {
+			task.completedAt = new Date().toISOString();
+		}
+
+		await this.storeTask(taskId, task);
+
+		this.emit("swarm:taskStatusUpdated", { taskId, status });
+
+		return { taskId, status, updated: true };
+	}
+
+	/**
+	 * Get task information
+	 */
+	async getTask(taskId: string) {
+		// Check cache first
+		if (this.taskCache.has(taskId)) {
+			return this.taskCache.get(taskId);
+		}
+
+		const key = `task:${taskId}`;
+		const task = await this.retrieve(key, SWARM_NAMESPACES.TASKS);
+
+		if (task) {
+			this.taskCache.set(taskId, task);
+		}
+
+		return task;
+	}
+
+	/**
+	 * Store inter-agent communication
+	 */
+	async storeCommunication(fromAgent: string, toAgent: string, message: any) {
+		const commId = `comm:${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+		const communication = {
+			id: commId,
+			fromAgent,
+			toAgent,
+			message,
+			swarmId: this.swarmId,
+			timestamp: new Date().toISOString(),
+		};
+
+		await super.store(commId, communication, {
+			namespace: SWARM_NAMESPACES.COMMUNICATIONS,
+			ttl: 86400, // 24 hours
+			tags: ["communication", message.type],
+			metadata: {
+				fromAgent,
+				toAgent,
+				messageType: message.type,
+			},
+		});
+
+		this.emit("swarm:communication", {
+			fromAgent,
+			toAgent,
+			type: message.type,
+		});
+
+		return { id: commId, stored: true };
+	}
+
+	/**
+	 * Store consensus decision
+	 */
+	async storeConsensus(consensusId: string, decision: any) {
+		const key = `consensus:${consensusId}`;
+		const consensusData = {
+			...decision,
+			swarmId: this.swarmId,
+			timestamp: new Date().toISOString(),
+		};
+
+		await super.store(key, consensusData, {
+			namespace: SWARM_NAMESPACES.CONSENSUS,
+			tags: ["consensus", decision.status],
+			metadata: {
+				swarmId: this.swarmId,
+				taskId: decision.taskId,
+				threshold: decision.threshold,
+			},
+		});
+
+		this.emit("swarm:consensus", { consensusId, status: decision.status });
+
+		return { consensusId, stored: true };
+	}
+
+	/**
+	 * Store neural pattern
+	 */
+	async storePattern(patternId: string, pattern: any) {
+		const key = `pattern:${patternId}`;
+		const patternData = {
+			...pattern,
+			swarmId: this.swarmId,
+			createdAt: new Date().toISOString(),
+			usageCount: 0,
+			successRate: 0,
+		};
+
+		await super.store(key, patternData, {
+			namespace: SWARM_NAMESPACES.PATTERNS,
+			tags: ["pattern", pattern.type],
+			metadata: {
+				swarmId: this.swarmId,
+				patternType: pattern.type,
+				confidence: pattern.confidence || 0,
+			},
+		});
+
+		// Cache frequently used patterns
+		if (pattern.type === "coordination" || pattern.type === "optimization") {
+			this.patternCache.set(patternId, patternData);
+		}
+
+		this.emit("swarm:patternStored", { patternId, type: pattern.type });
+
+		return { patternId, stored: true };
+	}
+
+	/**
+	 * Update pattern usage and success metrics
+	 */
+	async updatePatternMetrics(patternId: string, success: boolean = true) {
+		const pattern = await this.getPattern(patternId);
+		if (!pattern) {
+			throw new Error(`Pattern ${patternId} not found`);
+		}
+
+		pattern.usageCount++;
+		pattern.lastUsedAt = new Date().toISOString();
+
+		// Update success rate with exponential moving average
+		const alpha = 0.1; // Smoothing factor
+		const currentSuccess = success ? 1 : 0;
+		pattern.successRate =
+			alpha * currentSuccess + (1 - alpha) * (pattern.successRate || 0);
+
+		await this.storePattern(patternId, pattern);
+
+		return {
+			patternId,
+			usageCount: pattern.usageCount,
+			successRate: pattern.successRate,
+		};
+	}
+
+	/**
+	 * Get pattern
+	 */
+	async getPattern(patternId: string) {
+		// Check cache first
+		if (this.patternCache.has(patternId)) {
+			return this.patternCache.get(patternId);
+		}
+
+		const key = `pattern:${patternId}`;
+		return await this.retrieve(key, SWARM_NAMESPACES.PATTERNS);
+	}
+
+	/**
+	 * Find best patterns for a given context
+	 */
+	async findBestPatterns(context: any, limit: number = 5) {
+		const patterns = await this.search({
+			namespace: SWARM_NAMESPACES.PATTERNS,
+			tags: context.tags,
+			limit: 100,
+		});
+
+		// Score patterns based on success rate and relevance
+		const scored = patterns.map((entry: any) => {
+			const pattern = entry.value;
+			const score =
+				pattern.successRate * 0.7 +
+				(pattern.confidence || 0) * 0.2 +
+				(pattern.usageCount > 0 ? 0.1 : 0);
+
+			return { ...pattern, score };
+		});
+
+		// Sort by score and return top patterns
+		return scored.sort((a: any, b: any) => b.score - a.score).slice(0, limit);
+	}
+
+	/**
+	 * Store coordination state
+	 */
+	async storeCoordination(key: string, state: any) {
+		await super.store(key, state, {
+			namespace: SWARM_NAMESPACES.COORDINATION,
+			ttl: 3600, // 1 hour
+			metadata: {
+				swarmId: this.swarmId,
+				timestamp: new Date().toISOString(),
+			},
+		});
+
+		return { key, stored: true };
+	}
+
+	/**
+	 * Get coordination state
+	 */
+	async getCoordination(key: string) {
+		return await this.retrieve(key, SWARM_NAMESPACES.COORDINATION);
+	}
+
+	/**
+	 * Store performance metrics
+	 */
+	async storeMetrics(metricsId: string, metrics: any) {
+		const key = `metrics:${metricsId}`;
+		await super.store(key, metrics, {
+			namespace: SWARM_NAMESPACES.METRICS,
+			ttl: 86400 * 7, // 7 days
+			tags: ["metrics", metrics.type],
+			metadata: {
+				swarmId: this.swarmId,
+				agentId: metrics.agentId,
+				timestamp: new Date().toISOString(),
+			},
+		});
+
+		this.emit("swarm:metricsStored", { metricsId, type: metrics.type });
+
+		return { metricsId, stored: true };
+	}
+
+	/**
+	 * Get swarm statistics
+	 */
+	async getSwarmStats() {
+		const baseStats = await this.getStats();
+
+		// Add swarm-specific stats
+		const agentCount = await this._countNamespace(SWARM_NAMESPACES.AGENTS);
+		const taskCount = await this._countNamespace(SWARM_NAMESPACES.TASKS);
+		const patternCount = await this._countNamespace(SWARM_NAMESPACES.PATTERNS);
+
+		// Get active agents
+		const activeAgents = Array.from(this.agentCache.values()).filter(
+			(agent) => agent.status === "active" || agent.status === "busy"
+		).length;
+
+		// Get task statistics
+		const tasks = Array.from(this.taskCache.values());
+		const taskStats = {
+			total: tasks.length,
+			pending: tasks.filter((t) => t.status === "pending").length,
+			inProgress: tasks.filter((t) => t.status === "in_progress").length,
+			completed: tasks.filter((t) => t.status === "completed").length,
+			failed: tasks.filter((t) => t.status === "failed").length,
+		};
+
+		return {
+			...baseStats,
+			swarm: {
+				swarmId: this.swarmId,
+				agents: {
+					total: agentCount,
+					active: activeAgents,
+					cached: this.agentCache.size,
+				},
+				tasks: taskStats,
+				patterns: {
+					total: patternCount,
+					cached: this.patternCache.size,
+				},
+				namespaces: Object.values(SWARM_NAMESPACES),
+			},
+		};
+	}
+
+	/**
+	 * Clean up old swarm data
+	 */
+	async cleanupSwarmData(options: any = {}) {
+		const {
+			maxAge = 86400 * 7, // 7 days
+			keepPatterns = true,
+			keepConsensus = true,
+		} = options;
+
+		const cutoffTime = Date.now() - maxAge * 1000;
+		let cleaned = 0;
+
+		// Clean old communications
+		const comms = await this.list(SWARM_NAMESPACES.COMMUNICATIONS);
+		for (const comm of comms) {
+			if (new Date(comm.value.timestamp).getTime() < cutoffTime) {
+				await this.delete(comm.key, SWARM_NAMESPACES.COMMUNICATIONS);
+				cleaned++;
+			}
+		}
+
+		// Clean completed tasks
+		const tasks = await this.list(SWARM_NAMESPACES.TASKS);
+		for (const task of tasks) {
+			if (
+				task.value.status === "completed" &&
+				new Date(task.value.completedAt).getTime() < cutoffTime
+			) {
+				await this.delete(task.key, SWARM_NAMESPACES.TASKS);
+				this.taskCache.delete(task.value.id);
+				cleaned++;
+			}
+		}
+
+		// Clean old metrics
+		const metrics = await this.list(SWARM_NAMESPACES.METRICS);
+		for (const metric of metrics) {
+			if (new Date(metric.createdAt).getTime() < cutoffTime) {
+				await this.delete(metric.key, SWARM_NAMESPACES.METRICS);
+				cleaned++;
+			}
+		}
+
+		this.emit("swarm:cleanup", { cleaned, maxAge });
+
+		return { cleaned };
+	}
+
+	/**
+	 * Export swarm state
+	 */
+	async exportSwarmState() {
+		const agents = await this.listAgents();
+		const tasks = Array.from(this.taskCache.values());
+		const patterns = await this.list(SWARM_NAMESPACES.PATTERNS);
+
+		return {
+			swarmId: this.swarmId,
+			exportedAt: new Date().toISOString(),
+			agents: agents,
+			tasks: tasks,
+			patterns: patterns.map((p: any) => p.value),
+			statistics: await this.getSwarmStats(),
+		};
+	}
+
+	/**
+	 * Import swarm state
+	 */
+	async importSwarmState(state: any) {
+		const imported = {
+			agents: 0,
+			tasks: 0,
+			patterns: 0,
+		};
+
+		// Import agents
+		if (state.agents) {
+			for (const agent of state.agents) {
+				await this.storeAgent(agent.id, agent);
+				imported.agents++;
+			}
+		}
+
+		// Import tasks
+		if (state.tasks) {
+			for (const task of state.tasks) {
+				await this.storeTask(task.id, task);
+				imported.tasks++;
+			}
+		}
+
+		// Import patterns
+		if (state.patterns) {
+			for (const pattern of state.patterns) {
+				await this.storePattern(pattern.id, pattern);
+				imported.patterns++;
+			}
+		}
+
+		this.emit("swarm:imported", imported);
+
+		return imported;
+	}
+
+	/**
+	 * Private helper methods
+	 */
+
+	async _initializeSwarmNamespaces() {
+		// Create swarm metadata
+		await super.store(
+			"swarm:metadata",
+			{
+				swarmId: this.swarmId,
+				createdAt: new Date().toISOString(),
+				version: "1.0.0",
+				namespaces: Object.values(SWARM_NAMESPACES),
+			},
+			{
+				namespace: "swarm:system",
+			}
+		);
+	}
+
+	async _loadSwarmState() {
+		// Load active agents
+		const agents = await this.list(SWARM_NAMESPACES.AGENTS, { limit: 100 });
+		for (const entry of agents) {
+			if (entry.value.status === "active" || entry.value.status === "busy") {
+				this.agentCache.set(entry.value.id, entry.value);
+			}
+		}
+
+		// Load in-progress tasks
+		const tasks = await this.search({
+			namespace: SWARM_NAMESPACES.TASKS,
+			tags: ["in_progress"],
+			limit: 100,
+		});
+		for (const entry of tasks) {
+			this.taskCache.set(entry.value.id, entry.value);
+		}
+
+		// Load high-confidence patterns
+		const patterns = await this.list(SWARM_NAMESPACES.PATTERNS, { limit: 50 });
+		for (const entry of patterns) {
+			if (entry.value.confidence > 0.7 || entry.value.successRate > 0.8) {
+				this.patternCache.set(entry.value.id, entry.value);
+			}
+		}
+	}
+
+	async _countNamespace(namespace: string) {
+		const stats = await this.getStats();
+		return (stats.namespaces as any)[namespace]?.count || 0;
+	}
+
+	/**
+	 * Interface methods for MemoryCoordinator compatibility
+	 */
+
+	// Store with MemoryEntry and context interface
+	override async store(entry: any, context?: any): Promise<any> {
+		const options = {
+			namespace: context?.namespace || "default",
+			tags: entry?.tags || [],
+			ttl: context?.ttl,
+			metadata: {
+				...context?.metadata,
+				agentId: context?.agentId,
+				sessionId: context?.sessionId,
+				swarmId: context?.swarmId || this.swarmId,
+			},
+		};
+
+		return await super.store(
+			entry.key || entry.id,
+			entry.value || entry,
+			options
+		);
+	}
+
+	// Retrieve with context interface
+	override async retrieve(id: string, context?: any): Promise<any> {
+		const namespace = context?.namespace || "default";
+		return await super.retrieve(id, namespace);
+	}
+
+	// Query with MemoryQuery and context interface
+	async query(query: any, context?: any): Promise<any[]> {
+		const searchOptions = {
+			namespace: query?.namespace || context?.namespace || "default",
+			tags: query?.tags,
+			limit: query?.limit,
+		};
+
+		const results = await super.search(searchOptions);
+		return results.map((result: any) => result.value);
+	}
+
+	// Synchronize interface
+	async synchronize(namespace?: string): Promise<any> {
+		// Basic synchronization - can be enhanced
+		return {
+			synchronized: true,
+			namespace,
+			timestamp: new Date().toISOString(),
+		};
+	}
+
+	// Health status interface
+	async getHealthStatus(): Promise<any> {
+		const stats = await this.getSwarmStats();
+		return {
+			healthy: true,
+			agents: stats.swarm?.agents || {},
+			tasks: stats.swarm?.tasks || {},
+			patterns: stats.swarm?.patterns || {},
+			lastSync: new Date().toISOString(),
+		};
+	}
+
+	// Shutdown method for cleanup
+	async shutdown(): Promise<void> {
+		// Clear caches
+		this.agentCache.clear();
+		this.taskCache.clear();
+		this.patternCache.clear();
+
+		// Call parent shutdown if available
+		// Note: SharedMemory may not have a shutdown method, so we handle it gracefully
+		const parentShutdown = (this as any).__proto__.__proto__.shutdown;
+		if (typeof parentShutdown === "function") {
+			await parentShutdown.call(this);
+		}
+	}
 }
 
-export interface SwarmMemoryQuery {
-  agentId?: string;
-  type?: SwarmMemoryEntry['type'];
-  taskId?: string;
-  objectiveId?: string;
-  tags?: string[];
-  since?: Date;
-  before?: Date;
-  limit?: number;
-  shareLevel?: SwarmMemoryEntry['metadata']['shareLevel'];
+// Export factory function for easy creation
+export function createSwarmMemory(options: any = {}): SwarmMemory {
+	return new SwarmMemory(options);
 }
 
-export interface SwarmKnowledgeBase {
-  id: string;
-  name: string;
-  description: string;
-  entries: SwarmMemoryEntry[];
-  metadata: {
-    domain: string;
-    expertise: string[];
-    contributors: string[];
-    lastUpdated: Date;
-  };
-}
-
-export interface SwarmMemoryConfig {
-  namespace: string;
-  enableDistribution: boolean;
-  enableReplication: boolean;
-  syncInterval: number;
-  maxEntries: number;
-  compressionThreshold: number;
-  enableKnowledgeBase: boolean;
-  enableCrossAgentSharing: boolean;
-  persistencePath: string;
-}
-
-export class SwarmMemoryManager extends EventEmitter {
-  private logger: Logger;
-  private config: SwarmMemoryConfig;
-  private baseMemory: _MemoryManager;
-  private entries: Map<string, SwarmMemoryEntry>;
-  private knowledgeBases: Map<string, SwarmKnowledgeBase>;
-  private agentMemories: Map<string, Set<string>>; // agentId -> set of entry IDs,
-  private syncTimer?: NodeJS.Timeout;
-  private isInitialized: boolean = false;
-
-  constructor(config: Partial<SwarmMemoryConfig> = {}) {
-    super();
-    this.logger = new Logger();
-    this.config = {
-      namespace: 'swarm',
-      enableDistribution: true,
-      enableReplication: true,
-      syncInterval: 10000, // 10 seconds,
-      maxEntries: 10000,
-      compressionThreshold: 1000,
-      enableKnowledgeBase: true,
-      enableCrossAgentSharing: true,
-      persistencePath: './swarm-memory',
-      ...config
-    };
-
-    this.entries = new Map();
-    this.knowledgeBases = new Map();
-    this.agentMemories = new Map();
-
-    const eventBus = EventBus.getInstance();
-    this.baseMemory = new _MemoryManager({
-      backend: 'sqlite',
-      cacheSizeMB: 50,
-      syncInterval: 5000,
-      conflictResolution: 'last-write',
-      retentionDays: 30
-    }, eventBus, this.logger);
-  }
-
-  async initialize(): Promise<void> {
-    if (this.isInitialized) return;
-
-    this.logger.info('Initializing swarm memory manager...');
-
-    // Initialize base memory,
-    await this.baseMemory.initialize();
-
-    // Create persistence directory,
-    await fs.mkdir(this.config.persistencePath, { recursive: true });
-
-    // Load existing memory,
-    await this.loadMemoryState();
-
-    // Start sync timer,
-    if (this.config.syncInterval > 0) {
-      this.syncTimer = setInterval(() => {
-        this.syncMemoryState();
-      }, this.config.syncInterval);
-    }
-
-    this.isInitialized = true;
-    this.emit('memory:initialized');
-  }
-
-  async shutdown(): Promise<void> {
-    if (!this.isInitialized) return;
-
-    this.logger.info('Shutting down swarm memory manager...');
-
-    // Stop sync timer,
-    if (this.syncTimer) {
-      clearInterval(this.syncTimer);
-      this.syncTimer = undefined;
-    }
-
-    // Save final state,
-    await this.saveMemoryState();
-
-    this.isInitialized = false;
-    this.emit('memory:shutdown');
-  }
-
-  async remember(
-    agentId: string,
-    type: SwarmMemoryEntry['type'],
-    content: any,
-    metadata: Partial<SwarmMemoryEntry['metadata']> = {}
-  ): Promise<string> {
-    const entryId = generateId('mem');
-    const entry: SwarmMemoryEntry = {
-      id: entryId,
-      agentId,
-      type,
-      content,
-      timestamp: new Date(),
-      metadata: {
-        shareLevel: 'team',
-        priority: 1,
-        ...metadata
-      }
-    };
-
-    this.entries.set(entryId, entry);
-
-    // Associate with agent,
-    if (!this.agentMemories.has(agentId)) {
-      this.agentMemories.set(agentId, new Set());
-    }
-    this.agentMemories.get(agentId)!.add(entryId);
-
-    // Store in base memory for persistence,
-    await this.baseMemory.store({
-      id: entryId,
-      agentId,
-      sessionId: this.config.namespace,
-      type: 'artifact',
-      content: JSON.stringify(entry),
-      context: {
-        type: 'swarm-memory',
-        entryType: type,
-        shareLevel: entry.metadata.shareLevel
-      },
-      timestamp: entry.timestamp,
-      tags: entry.metadata.tags || [],
-      version: 1
-    });
-
-    this.logger.debug(`Agent ${agentId} remembered: ${type} - ${entryId}`);
-    this.emit('memory:added', entry);
-
-    // Update knowledge base if applicable,
-    if (type === 'knowledge' && this.config.enableKnowledgeBase) {
-      await this.updateKnowledgeBase(entry);
-    }
-
-    // Check for memory limits,
-    await this.enforceMemoryLimits();
-
-    return entryId;
-  }
-
-  async recall(query: SwarmMemoryQuery): Promise<SwarmMemoryEntry[]> {
-    let results = Array.from(this.entries.values());
-
-    // Apply filters,
-    if (query.agentId) {
-      results = results.filter(e => e.agentId === query.agentId);
-    }
-
-    if (query.type) {
-      results = results.filter(e => e.type === query.type);
-    }
-
-    if (query.taskId) {
-      results = results.filter(e => e.metadata.taskId === query.taskId);
-    }
-
-    if (query.objectiveId) {
-      results = results.filter(e => e.metadata.objectiveId === query.objectiveId);
-    }
-
-    if (query.tags && query.tags.length > 0) {
-      results = results.filter(e => 
-        e.metadata.tags && 
-        query.tags!.some(tag => e.metadata.tags!.includes(tag))
-      );
-    }
-
-    if (query.since) {
-      results = results.filter(e => e.timestamp >= query.since!);
-    }
-
-    if (query.before) {
-      results = results.filter(e => e.timestamp <= query.before!);
-    }
-
-    if (query.shareLevel) {
-      results = results.filter(e => e.metadata.shareLevel === query.shareLevel);
-    }
-
-    // Sort by timestamp (newest first)
-    results.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
-
-    // Apply limit,
-    if (query.limit) {
-      results = results.slice(0, query.limit);
-    }
-
-    this.logger.debug(`Recalled ${results.length} memories for query`);
-    return results;
-  }
-
-  async shareMemory(entryId: string, targetAgentId: string): Promise<void> {
-    const entry = this.entries.get(entryId);
-    if (!entry) {
-      throw new Error('Memory entry not found');
-    }
-
-    if (!this.config.enableCrossAgentSharing) {
-      throw new Error('Cross-agent sharing is disabled');
-    }
-
-    // Check share level permissions,
-    if (entry.metadata.shareLevel === 'private') {
-      throw new Error('Memory entry is private and cannot be shared');
-    }
-
-    // Create a shared copy for the target agent,
-    const sharedEntry: SwarmMemoryEntry = {
-      ...entry,
-      id: generateId('mem'),
-      metadata: {
-        ...entry.metadata,
-        originalId: entryId,
-        sharedFrom: entry.agentId,
-        sharedTo: targetAgentId,
-        sharedAt: new Date()
-      }
-    };
-
-    this.entries.set(sharedEntry.id, sharedEntry);
-
-    // Associate with target agent,
-    if (!this.agentMemories.has(targetAgentId)) {
-      this.agentMemories.set(targetAgentId, new Set());
-    }
-    this.agentMemories.get(targetAgentId)!.add(sharedEntry.id);
-
-    this.logger.info(`Shared memory ${entryId} from ${entry.agentId} to ${targetAgentId}`);
-    this.emit('memory:shared', { original: entry, shared: sharedEntry });
-  }
-
-  async broadcastMemory(entryId: string, agentIds?: string[]): Promise<void> {
-    const entry = this.entries.get(entryId);
-    if (!entry) {
-      throw new Error('Memory entry not found');
-    }
-
-    if (entry.metadata.shareLevel === 'private') {
-      throw new Error('Cannot broadcast private memory');
-    }
-
-    const targets = agentIds || Array.from(this.agentMemories.keys())
-      .filter(id => id !== entry.agentId);
-
-    for (const targetId of targets) {
-      try {
-        await this.shareMemory(entryId, targetId);
-      } catch (error) {
-        this.logger.warn(`Failed to share memory to ${targetId}:`, error);
-      }
-    }
-
-    this.logger.info(`Broadcasted memory ${entryId} to ${targets.length} agents`);
-  }
-
-  async createKnowledgeBase(
-    name: string,
-    description: string,
-    domain: string,
-    expertise: string[]
-  ): Promise<string> {
-    const kbId = generateId('kb');
-    const knowledgeBase: SwarmKnowledgeBase = {
-      id: kbId,
-      name,
-      description,
-      entries: [],
-      metadata: {
-        domain,
-        expertise,
-        contributors: [],
-        lastUpdated: new Date()
-      }
-    };
-
-    this.knowledgeBases.set(kbId, knowledgeBase);
-
-    this.logger.info(`Created knowledge base: ${name} (${kbId})`);
-    this.emit('knowledgebase:created', knowledgeBase);
-
-    return kbId;
-  }
-
-  async updateKnowledgeBase(entry: SwarmMemoryEntry): Promise<void> {
-    if (!this.config.enableKnowledgeBase) return;
-
-    // Find relevant knowledge bases,
-    const relevantKBs = Array.from(this.knowledgeBases.values())
-      .filter(kb => {
-        // Simple matching based on tags and content,
-        const tags = entry.metadata.tags || [];
-        return tags.some(tag => 
-          kb.metadata.expertise.some(exp => 
-            exp.toLowerCase().includes(tag.toLowerCase()) ||
-            tag.toLowerCase().includes(exp.toLowerCase())
-          )
-        );
-      });
-
-    for (const kb of relevantKBs) {
-      // Add entry to knowledge base,
-      kb.entries.push(entry);
-      kb.metadata.lastUpdated = new Date();
-
-      // Add contributor,
-      if (!kb.metadata.contributors.includes(entry.agentId)) {
-        kb.metadata.contributors.push(entry.agentId);
-      }
-
-      this.logger.debug(`Updated knowledge base ${kb.id} with entry ${entry.id}`);
-    }
-  }
-
-  async searchKnowledge(
-    query: string,
-    domain?: string,
-    expertise?: string[]
-  ): Promise<SwarmMemoryEntry[]> {
-    const allEntries: SwarmMemoryEntry[] = [];
-
-    // Search in knowledge bases,
-    for (const kb of this.knowledgeBases.values()) {
-      if (domain && kb.metadata.domain !== domain) continue;
-      
-      if (expertise && !expertise.some(exp => kb.metadata.expertise.includes(exp))) {
-        continue;
-      }
-
-      allEntries.push(...kb.entries);
-    }
-
-    // Simple text search (in real implementation, use better search)
-    const queryLower = query.toLowerCase();
-    const results = allEntries.filter(entry => {
-      const contentStr = JSON.stringify(entry.content).toLowerCase();
-      return contentStr.includes(queryLower);
-    });
-
-    return results.slice(0, 50); // Limit results
-  }
-
-  async getAgentMemorySnapshot(agentId: string): Promise<{
-    totalEntries: number;
-    recentEntries: SwarmMemoryEntry[];
-    knowledgeContributions: number;
-    sharedEntries: number;
-  }> {
-    const agentEntryIds = this.agentMemories.get(agentId) || new Set();
-    const agentEntries = Array.from(agentEntryIds)
-      .map(id => this.entries.get(id))
-      .filter(Boolean) as SwarmMemoryEntry[];
-
-    const recentEntries = agentEntries
-      .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
-      .slice(0, 10);
-
-    const knowledgeContributions = agentEntries
-      .filter(e => e.type === 'knowledge').length;
-
-    const sharedEntries = agentEntries
-      .filter(e => e.metadata.shareLevel === 'public' || e.metadata.shareLevel === 'team').length;
-
-    return {
-      totalEntries: agentEntries.length,
-      recentEntries,
-      knowledgeContributions,
-      sharedEntries
-    };
-  }
-
-  private async loadMemoryState(): Promise<void> {
-    try {
-      // Load entries,
-      const entriesFile = path.join(this.config.persistencePath, 'entries.json');
-      try {
-        const entriesData = await fs.readFile(entriesFile, 'utf-8');
-        const entriesArray = JSON.parse(entriesData);
-        
-        for (const entry of entriesArray) {
-          this.entries.set(entry.id, {
-            ...entry,
-            timestamp: new Date(entry.timestamp)
-          });
-
-          // Rebuild agent memory associations,
-          if (!this.agentMemories.has(entry.agentId)) {
-            this.agentMemories.set(entry.agentId, new Set());
-          }
-          this.agentMemories.get(entry.agentId)!.add(entry.id);
-        }
-
-        this.logger.info(`Loaded ${entriesArray.length} memory entries`);
-      } catch (error) {
-        this.logger.warn('No existing memory entries found');
-      }
-
-      // Load knowledge bases,
-      const kbFile = path.join(this.config.persistencePath, 'knowledge-bases.json');
-      try {
-        const kbData = await fs.readFile(kbFile, 'utf-8');
-        const kbArray = JSON.parse(kbData);
-        
-        for (const kb of kbArray) {
-          this.knowledgeBases.set(kb.id, {
-            ...kb,
-            metadata: {
-              ...kb.metadata,
-              lastUpdated: new Date(kb.metadata.lastUpdated)
-            },
-            entries: kb.entries.map((e: any) => ({
-              ...e,
-              timestamp: new Date(e.timestamp)
-            }))
-          });
-        }
-
-        this.logger.info(`Loaded ${kbArray.length} knowledge bases`);
-      } catch (error) {
-        this.logger.warn('No existing knowledge bases found');
-      }
-
-    } catch (error) {
-      this.logger.error('Error loading memory state:', error);
-    }
-  }
-
-  private async saveMemoryState(): Promise<void> {
-    try {
-      // Save entries,
-      const entriesArray = Array.from(this.entries.values());
-      const entriesFile = path.join(this.config.persistencePath, 'entries.json');
-      await fs.writeFile(entriesFile, JSON.stringify(entriesArray, null, 2));
-
-      // Save knowledge bases,
-      const kbArray = Array.from(this.knowledgeBases.values());
-      const kbFile = path.join(this.config.persistencePath, 'knowledge-bases.json');
-      await fs.writeFile(kbFile, JSON.stringify(kbArray, null, 2));
-
-      this.logger.debug('Saved memory state to disk');
-    } catch (error) {
-      this.logger.error('Error saving memory state:', error);
-    }
-  }
-
-  private async syncMemoryState(): Promise<void> {
-    try {
-      await this.saveMemoryState();
-      this.emit('memory:synced');
-    } catch (error) {
-      this.logger.error('Error syncing memory state:', error);
-    }
-  }
-
-  private async enforceMemoryLimits(): Promise<void> {
-    if (this.entries.size <= this.config.maxEntries) return;
-
-    this.logger.info('Enforcing memory limits...');
-
-    // Remove oldest entries that are not marked as important,
-    const entries = Array.from(this.entries.values())
-      .filter(e => (e.metadata.priority || 1) <= 1) // Only remove low priority
-      .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
-
-    const toRemove = entries.slice(0, this.entries.size - this.config.maxEntries);
-
-    for (const entry of toRemove) {
-      this.entries.delete(entry.id);
-      
-      // Remove from agent memory,
-      const agentEntries = this.agentMemories.get(entry.agentId);
-      if (agentEntries) {
-        agentEntries.delete(entry.id);
-      }
-
-      this.logger.debug(`Removed old memory entry: ${entry.id}`);
-    }
-
-    this.emit('memory:cleaned', toRemove.length);
-  }
-
-  // Public API methods,
-  getMemoryStats(): {
-    totalEntries: number;
-    entriesByType: Record<string, number>;
-    entriesByAgent: Record<string, number>;
-    knowledgeBases: number;
-    memoryUsage: number;
-  } {
-    const entries = Array.from(this.entries.values());
-    const entriesByType: Record<string, number> = {};
-    const entriesByAgent: Record<string, number> = {};
-
-    for (const entry of entries) {
-      entriesByType[entry.type] = (entriesByType[entry.type] || 0) + 1;
-      entriesByAgent[entry.agentId] = (entriesByAgent[entry.agentId] || 0) + 1;
-    }
-
-    // Rough memory usage calculation,
-    const memoryUsage = JSON.stringify(entries).length;
-
-    return {
-      totalEntries: entries.length,
-      entriesByType,
-      entriesByAgent,
-      knowledgeBases: this.knowledgeBases.size,
-      memoryUsage
-    };
-  }
-
-  async exportMemory(agentId?: string): Promise<any> {
-    const entries = agentId 
-      ? await this.recall({ agentId })
-      : Array.from(this.entries.values());
-
-    return {
-      entries,
-      knowledgeBases: agentId 
-        ? Array.from(this.knowledgeBases.values()).filter(kb => 
-            kb.metadata.contributors.includes(agentId)
-          )
-        : Array.from(this.knowledgeBases.values()),
-      exportedAt: new Date(),
-      stats: this.getMemoryStats()
-    };
-  }
-
-  async clearMemory(agentId?: string): Promise<void> {
-    if (agentId) {
-      // Clear specific agent's memory,
-      const entryIds = this.agentMemories.get(agentId) || new Set();
-      for (const entryId of entryIds) {
-        this.entries.delete(entryId);
-      }
-      this.agentMemories.delete(agentId);
-      this.logger.info(`Cleared memory for agent ${agentId}`);
-    } else {
-      // Clear all memory,
-      this.entries.clear();
-      this.agentMemories.clear();
-      this.knowledgeBases.clear();
-      this.logger.info('Cleared all swarm memory');
-    }
-
-    this.emit('memory:cleared', { agentId });
-  }
-
-  // Compatibility methods for hive.ts,
-  async store(key: string, value: any): Promise<void> {
-    // Extract namespace and actual key from the path,
-    const parts = key.split('/');
-    const type = parts[0] as SwarmMemoryEntry['type'] || 'state';
-    const agentId = parts[1] || 'system';
-    
-    await this.remember(agentId, type, value, {
-      tags: [parts[0], parts[1]].filter(Boolean),
-      shareLevel: 'team'
-    });
-  }
-
-  async search(pattern: string, limit: number = 10): Promise<any[]> {
-    // Simple pattern matching on stored keys/content,
-    const results: any[] = [];
-    
-    for (const entry of this.entries.values()) {
-      const entryString = JSON.stringify(entry);
-      if (entryString.includes(pattern.replace('*', ''))) {
-        results.push(entry.content);
-        if (results.length >= limit) break;
-      }
-    }
-    
-    return results;
-  }
-}
+// Export for backwards compatibility
+export { SwarmMemory as SwarmMemoryManager };
+export default SwarmMemory;

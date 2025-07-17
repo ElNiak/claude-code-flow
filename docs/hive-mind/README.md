@@ -7,7 +7,7 @@ The **Hive Mind System** is Claude Flow's advanced collective intelligence platf
 The Hive Mind System transforms individual AI agents into a unified collective intelligence that can:
 
 - **🧠 Share Knowledge**: Persistent cross-session memory and learning
-- **👑 Queen Coordination**: Hierarchical leadership with autonomous decision-making  
+- **👑 Queen Coordination**: Hierarchical leadership with autonomous decision-making
 - **🐝 Swarm Intelligence**: Emergent behaviors from agent interactions
 - **🔄 Self-Healing**: Automatic recovery and adaptation
 - **📊 Collective Analytics**: Real-time performance monitoring and optimization

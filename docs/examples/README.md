@@ -169,9 +169,9 @@ export class ClaudeFlowExtension {
     });
 
     await this.claudeFlow.start();
-    
+
     // Register commands
-    vscode.commands.registerCommand('claude-flow.analyzeCode', 
+    vscode.commands.registerCommand('claude-flow.analyzeCode',
       () => this.analyzeCurrentFile());
   }
 
@@ -223,7 +223,7 @@ app.post('/api/analyze', async (req, res) => {
     });
 
     const result = await claudeFlow.waitForCompletion(task.id);
-    
+
     res.json({
       success: true,
       taskId: task.id,
@@ -291,7 +291,7 @@ import { ClaudeFlow } from 'claude-flow';
 
 async function processBatch(items: any[]) {
   const claudeFlow = new ClaudeFlow();
-  
+
   // Create batch task
   const batchTask = await claudeFlow.createBatch({
     template: {
@@ -346,7 +346,7 @@ class MultiTenantClaudeFlow {
           }
         }
       });
-      
+
       await instance.start();
       this.instances.set(tenantId, instance);
     }
@@ -377,7 +377,7 @@ class DistributedClaudeFlow {
   async distributeTask(task: Task): Promise<TaskResult> {
     // Find best node for task
     const node = await this.selectOptimalNode(task);
-    
+
     // Execute on selected node
     return await node.executeTask(task);
   }
@@ -461,7 +461,7 @@ describe('Full Workflow Integration', () => {
     // Verify results
     expect(workflow.status).toBe('completed');
     expect(workflow.results).toHaveLength(3);
-    
+
     await claudeFlow.stop();
   });
 });
@@ -511,7 +511,7 @@ class ResourceManagedClaudeFlow {
 
   async acquireResource(type: string): Promise<Resource> {
     const poolKey = `${type}_pool`;
-    
+
     if (!this.resourcePool.has(poolKey)) {
       this.resourcePool.set(poolKey, await this.createResource(type));
     }

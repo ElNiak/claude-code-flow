@@ -4,7 +4,7 @@
 
 The `work` command causes console flickering due to:
 - Multiple concurrent progress indicators
-- Real-time swarm coordination updates  
+- Real-time swarm coordination updates
 - Agent status messages competing for terminal space
 - MCP tool status updates
 - Memory operations and hooks firing frequently
@@ -32,7 +32,7 @@ tail -f ./build.log
 npx claude-flow work "complex task" --log-file ./work.log --quiet
 ```
 
-#### Silent Mode  
+#### Silent Mode
 ```bash
 # Only errors in console, everything in file
 npx claude-flow work "deployment" --log-file ./deploy.log --silent
@@ -161,7 +161,7 @@ npx claude-flow work "deploy backend" --log-file ./logs/backend-deploy.log
 # Terminal 1: Run command
 npx claude-flow work "complex task" --log-file ./progress.log --silent
 
-# Terminal 2: Monitor progress  
+# Terminal 2: Monitor progress
 tail -f ./progress.log | grep --color=auto -E "(✅|❌|🚀|📊)"
 ```
 

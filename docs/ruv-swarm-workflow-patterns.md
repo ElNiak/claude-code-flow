@@ -13,18 +13,18 @@ This document outlines proven workflow patterns for using ruv-swarm coordination
 ```javascript
 // Step 1: Initialize rapid prototype swarm
 [BatchTool]:
-  mcp__claude-flow__swarm_init({ 
-    topology: "star", 
-    maxAgents: 4, 
+  mcp__claude-flow__swarm_init({
+    topology: "star",
+    maxAgents: 4,
     strategy: "development",
-    mode: "rapid-prototype" 
+    mode: "rapid-prototype"
   })
-  
+
   mcp__claude-flow__agent_spawn({ type: "architect", name: "Prototype Designer" })
   mcp__claude-flow__agent_spawn({ type: "coder", name: "Full-Stack Developer" })
   mcp__claude-flow__agent_spawn({ type: "tester", name: "Quick Tester" })
   mcp__claude-flow__agent_spawn({ type: "coordinator", name: "Prototype Manager" })
-  
+
   TodoWrite({ todos: [
     { id: "mvp_design", content: "Design minimal viable prototype", status: "in_progress", priority: "high" },
     { id: "core_features", content: "Implement core functionality", status: "pending", priority: "high" },
@@ -49,29 +49,29 @@ This document outlines proven workflow patterns for using ruv-swarm coordination
 ```javascript
 // Step 1: Enterprise swarm initialization
 [BatchTool]:
-  mcp__claude-flow__swarm_init({ 
-    topology: "hierarchical", 
-    maxAgents: 12, 
+  mcp__claude-flow__swarm_init({
+    topology: "hierarchical",
+    maxAgents: 12,
     strategy: "development",
     compliance: "enterprise",
-    security: "strict" 
+    security: "strict"
   })
-  
+
   // Leadership tier
   mcp__claude-flow__agent_spawn({ type: "architect", name: "Solution Architect" })
   mcp__claude-flow__agent_spawn({ type: "coordinator", name: "Tech Lead" })
-  
+
   // Development tiers
   mcp__claude-flow__agent_spawn({ type: "coder", name: "Backend Lead" })
   mcp__claude-flow__agent_spawn({ type: "coder", name: "Frontend Lead" })
   mcp__claude-flow__agent_spawn({ type: "coder", name: "API Developer" })
   mcp__claude-flow__agent_spawn({ type: "coder", name: "Database Developer" })
-  
+
   // Quality tiers
   mcp__claude-flow__agent_spawn({ type: "tester", name: "QA Lead" })
   mcp__claude-flow__agent_spawn({ type: "tester", name: "Security Tester" })
   mcp__claude-flow__agent_spawn({ type: "reviewer", name: "Code Reviewer" })
-  
+
   // Operations tier
   mcp__claude-flow__agent_spawn({ type: "analyst", name: "DevOps Engineer" })
   mcp__claude-flow__agent_spawn({ type: "documenter", name: "Technical Writer" })
@@ -87,37 +87,37 @@ This document outlines proven workflow patterns for using ruv-swarm coordination
 ```javascript
 // Step 1: Microservices mesh coordination
 [BatchTool]:
-  mcp__claude-flow__swarm_init({ 
-    topology: "mesh", 
-    maxAgents: 18, 
+  mcp__claude-flow__swarm_init({
+    topology: "mesh",
+    maxAgents: 18,
     strategy: "development",
     architecture: "microservices",
-    communication: "async-messaging" 
+    communication: "async-messaging"
   })
-  
+
   // Service teams (per service: architect, coder, tester)
   // User Service Team
   mcp__claude-flow__agent_spawn({ type: "architect", name: "User Service Architect" })
   mcp__claude-flow__agent_spawn({ type: "coder", name: "User Service Developer" })
   mcp__claude-flow__agent_spawn({ type: "tester", name: "User Service Tester" })
-  
+
   // Payment Service Team
   mcp__claude-flow__agent_spawn({ type: "architect", name: "Payment Service Architect" })
   mcp__claude-flow__agent_spawn({ type: "coder", name: "Payment Service Developer" })
   mcp__claude-flow__agent_spawn({ type: "tester", name: "Payment Service Tester" })
-  
+
   // Order Service Team
   mcp__claude-flow__agent_spawn({ type: "architect", name: "Order Service Architect" })
   mcp__claude-flow__agent_spawn({ type: "coder", name: "Order Service Developer" })
   mcp__claude-flow__agent_spawn({ type: "tester", name: "Order Service Tester" })
-  
+
   // Cross-cutting concerns
   mcp__claude-flow__agent_spawn({ type: "architect", name: "API Gateway Architect" })
   mcp__claude-flow__agent_spawn({ type: "coder", name: "Gateway Developer" })
   mcp__claude-flow__agent_spawn({ type: "tester", name: "Integration Tester" })
   mcp__claude-flow__agent_spawn({ type: "monitor", name: "Service Monitor" })
   mcp__claude-flow__agent_spawn({ type: "coordinator", name: "Microservices Coordinator" })
-  
+
   // Store service boundaries and dependencies
   mcp__claude-flow__memory_usage({
     action: "store",
@@ -144,20 +144,20 @@ This document outlines proven workflow patterns for using ruv-swarm coordination
 
 ```javascript
 [BatchTool]:
-  mcp__claude-flow__swarm_init({ 
-    topology: "mesh", 
-    maxAgents: 6, 
+  mcp__claude-flow__swarm_init({
+    topology: "mesh",
+    maxAgents: 6,
     strategy: "research",
-    methodology: "systematic-review" 
+    methodology: "systematic-review"
   })
-  
+
   mcp__claude-flow__agent_spawn({ type: "researcher", name: "Literature Searcher" })
   mcp__claude-flow__agent_spawn({ type: "researcher", name: "Paper Analyzer" })
   mcp__claude-flow__agent_spawn({ type: "analyst", name: "Data Synthesizer" })
   mcp__claude-flow__agent_spawn({ type: "reviewer", name: "Quality Assessor" })
   mcp__claude-flow__agent_spawn({ type: "documenter", name: "Report Writer" })
   mcp__claude-flow__agent_spawn({ type: "coordinator", name: "Research Lead" })
-  
+
   // Define research phases
   TodoWrite({ todos: [
     { id: "search_strategy", content: "Define search terms and databases", status: "in_progress", priority: "high" },
@@ -177,13 +177,13 @@ This document outlines proven workflow patterns for using ruv-swarm coordination
 
 ```javascript
 [BatchTool]:
-  mcp__claude-flow__swarm_init({ 
-    topology: "star", 
-    maxAgents: 7, 
+  mcp__claude-flow__swarm_init({
+    topology: "star",
+    maxAgents: 7,
     strategy: "research",
-    focus: "market-analysis" 
+    focus: "market-analysis"
   })
-  
+
   mcp__claude-flow__agent_spawn({ type: "researcher", name: "Market Researcher" })
   mcp__claude-flow__agent_spawn({ type: "researcher", name: "Competitor Analyst" })
   mcp__claude-flow__agent_spawn({ type: "analyst", name: "Trend Analyzer" })
@@ -203,27 +203,27 @@ This document outlines proven workflow patterns for using ruv-swarm coordination
 
 ```javascript
 [BatchTool]:
-  mcp__claude-flow__swarm_init({ 
-    topology: "hierarchical", 
-    maxAgents: 8, 
+  mcp__claude-flow__swarm_init({
+    topology: "hierarchical",
+    maxAgents: 8,
     strategy: "testing",
-    coverage: "comprehensive" 
+    coverage: "comprehensive"
   })
-  
+
   // Test management tier
   mcp__claude-flow__agent_spawn({ type: "coordinator", name: "Test Manager" })
   mcp__claude-flow__agent_spawn({ type: "architect", name: "Test Architect" })
-  
+
   // Test implementation tier
   mcp__claude-flow__agent_spawn({ type: "tester", name: "Unit Test Developer" })
   mcp__claude-flow__agent_spawn({ type: "tester", name: "Integration Test Developer" })
   mcp__claude-flow__agent_spawn({ type: "tester", name: "E2E Test Developer" })
   mcp__claude-flow__agent_spawn({ type: "tester", name: "Performance Test Developer" })
-  
+
   // Quality assurance tier
   mcp__claude-flow__agent_spawn({ type: "reviewer", name: "Test Reviewer" })
   mcp__claude-flow__agent_spawn({ type: "monitor", name: "Coverage Analyst" })
-  
+
   // Test strategy definition
   mcp__claude-flow__memory_usage({
     action: "store",
@@ -232,7 +232,7 @@ This document outlines proven workflow patterns for using ruv-swarm coordination
       layers: ["unit", "integration", "e2e", "performance"],
       targets: {
         unit: "80%",
-        integration: "60%", 
+        integration: "60%",
         e2e: "40%",
         performance: "critical-paths"
       },
@@ -249,13 +249,13 @@ This document outlines proven workflow patterns for using ruv-swarm coordination
 
 ```javascript
 [BatchTool]:
-  mcp__claude-flow__swarm_init({ 
-    topology: "ring", 
-    maxAgents: 5, 
+  mcp__claude-flow__swarm_init({
+    topology: "ring",
+    maxAgents: 5,
     strategy: "debugging",
-    priority: "critical" 
+    priority: "critical"
   })
-  
+
   mcp__claude-flow__agent_spawn({ type: "debugger", name: "Bug Investigator" })
   mcp__claude-flow__agent_spawn({ type: "analyst", name: "Root Cause Analyzer" })
   mcp__claude-flow__agent_spawn({ type: "coder", name: "Fix Implementer" })
@@ -273,26 +273,26 @@ This document outlines proven workflow patterns for using ruv-swarm coordination
 
 ```javascript
 [BatchTool]:
-  mcp__claude-flow__swarm_init({ 
-    topology: "hierarchical", 
-    maxAgents: 10, 
+  mcp__claude-flow__swarm_init({
+    topology: "hierarchical",
+    maxAgents: 10,
     strategy: "deployment",
-    automation: "full-cicd" 
+    automation: "full-cicd"
   })
-  
+
   // Pipeline design tier
   mcp__claude-flow__agent_spawn({ type: "architect", name: "Pipeline Architect" })
   mcp__claude-flow__agent_spawn({ type: "coordinator", name: "DevOps Lead" })
-  
+
   // Build and test tier
   mcp__claude-flow__agent_spawn({ type: "coder", name: "Build Engineer" })
   mcp__claude-flow__agent_spawn({ type: "tester", name: "Pipeline Tester" })
   mcp__claude-flow__agent_spawn({ type: "analyst", name: "Quality Gate Analyst" })
-  
+
   // Deployment tier
   mcp__claude-flow__agent_spawn({ type: "coder", name: "Deployment Engineer" })
   mcp__claude-flow__agent_spawn({ type: "monitor", name: "Deployment Monitor" })
-  
+
   // Operations tier
   mcp__claude-flow__agent_spawn({ type: "analyst", name: "Infrastructure Analyst" })
   mcp__claude-flow__agent_spawn({ type: "monitor", name: "Performance Monitor" })
@@ -307,13 +307,13 @@ This document outlines proven workflow patterns for using ruv-swarm coordination
 
 ```javascript
 [BatchTool]:
-  mcp__claude-flow__swarm_init({ 
-    topology: "star", 
-    maxAgents: 6, 
+  mcp__claude-flow__swarm_init({
+    topology: "star",
+    maxAgents: 6,
     strategy: "deployment",
-    pattern: "blue-green" 
+    pattern: "blue-green"
   })
-  
+
   mcp__claude-flow__agent_spawn({ type: "coordinator", name: "Deployment Controller" })
   mcp__claude-flow__agent_spawn({ type: "coder", name: "Environment Manager" })
   mcp__claude-flow__agent_spawn({ type: "tester", name: "Smoke Test Engineer" })
@@ -332,13 +332,13 @@ This document outlines proven workflow patterns for using ruv-swarm coordination
 
 ```javascript
 [BatchTool]:
-  mcp__claude-flow__swarm_init({ 
-    topology: "mesh", 
-    maxAgents: 8, 
+  mcp__claude-flow__swarm_init({
+    topology: "mesh",
+    maxAgents: 8,
     strategy: "maintenance",
-    focus: "technical-debt" 
+    focus: "technical-debt"
   })
-  
+
   mcp__claude-flow__agent_spawn({ type: "analyst", name: "Debt Analyzer" })
   mcp__claude-flow__agent_spawn({ type: "architect", name: "Refactoring Architect" })
   mcp__claude-flow__agent_spawn({ type: "coder", name: "Refactoring Developer" })
@@ -357,26 +357,26 @@ This document outlines proven workflow patterns for using ruv-swarm coordination
 
 ```javascript
 [BatchTool]:
-  mcp__claude-flow__swarm_init({ 
-    topology: "hierarchical", 
-    maxAgents: 9, 
+  mcp__claude-flow__swarm_init({
+    topology: "hierarchical",
+    maxAgents: 9,
     strategy: "security",
-    compliance: "enterprise" 
+    compliance: "enterprise"
   })
-  
+
   // Security leadership
   mcp__claude-flow__agent_spawn({ type: "coordinator", name: "Security Lead" })
   mcp__claude-flow__agent_spawn({ type: "analyst", name: "Threat Modeler" })
-  
+
   // Code security tier
   mcp__claude-flow__agent_spawn({ type: "reviewer", name: "Security Code Reviewer" })
   mcp__claude-flow__agent_spawn({ type: "tester", name: "Penetration Tester" })
   mcp__claude-flow__agent_spawn({ type: "analyst", name: "Vulnerability Scanner" })
-  
+
   // Infrastructure security tier
   mcp__claude-flow__agent_spawn({ type: "analyst", name: "Infrastructure Auditor" })
   mcp__claude-flow__agent_spawn({ type: "coder", name: "Security Engineer" })
-  
+
   // Compliance tier
   mcp__claude-flow__agent_spawn({ type: "documenter", name: "Compliance Documenter" })
   mcp__claude-flow__agent_spawn({ type: "monitor", name: "Security Monitor" })
@@ -392,13 +392,13 @@ This document outlines proven workflow patterns for using ruv-swarm coordination
 
 ```javascript
 [BatchTool]:
-  mcp__claude-flow__swarm_init({ 
-    topology: "star", 
-    maxAgents: 8, 
+  mcp__claude-flow__swarm_init({
+    topology: "star",
+    maxAgents: 8,
     strategy: "analysis",
-    domain: "machine-learning" 
+    domain: "machine-learning"
   })
-  
+
   mcp__claude-flow__agent_spawn({ type: "coordinator", name: "ML Lead" })
   mcp__claude-flow__agent_spawn({ type: "analyst", name: "Data Scientist" })
   mcp__claude-flow__agent_spawn({ type: "coder", name: "ML Engineer" })
@@ -413,7 +413,7 @@ This document outlines proven workflow patterns for using ruv-swarm coordination
 
 ### By Project Size:
 - **Small (1-5 developers)**: Star topology, 3-5 agents
-- **Medium (5-15 developers)**: Hierarchical topology, 6-10 agents  
+- **Medium (5-15 developers)**: Hierarchical topology, 6-10 agents
 - **Large (15+ developers)**: Mesh topology, 10-20 agents
 
 ### By Project Type:
@@ -438,7 +438,7 @@ This document outlines proven workflow patterns for using ruv-swarm coordination
 
 ```javascript
 // Define custom hybrid topology
-mcp__claude-flow__swarm_init({ 
+mcp__claude-flow__swarm_init({
   topology: "hybrid",
   customStructure: {
     core: ["architect", "coordinator"],
@@ -460,8 +460,8 @@ mcp__claude-flow__swarm_init({
 
 ```javascript
 // Auto-scale agents based on workload
-mcp__claude-flow__agent_spawn({ 
-  type: "auto-scaler", 
+mcp__claude-flow__agent_spawn({
+  type: "auto-scaler",
   name: "Workload Manager",
   config: {
     minAgents: 4,

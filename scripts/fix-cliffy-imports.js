@@ -5,16 +5,16 @@
  * This allows using Deno's Cliffy modules in Node.js
  */
 
-import { promises as fs } from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import { promises as fs } from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Create Cliffy compatibility modules
 const cliffyModules = {
-  '@cliffy/command': `
+	"@cliffy/command": `
 export class Command {
   constructor() {
     this._name = '';
@@ -79,7 +79,7 @@ export class Command {
   }
 }
 `,
-  '@cliffy/table': `
+	"@cliffy/table": `
 export class Table {
   constructor() {
     this._headers = [];
@@ -148,7 +148,7 @@ export class Table {
   }
 }
 `,
-  '@cliffy/ansi/colors': `
+	"@cliffy/ansi/colors": `
 const colorize = (code) => (text) => \`\\x1b[\${code}m\${text}\\x1b[0m\`;
 
 export const red = colorize('31');
@@ -180,7 +180,7 @@ export const colors = {
   bgRed, bgGreen, bgYellow, bgBlue, bgMagenta, bgCyan, bgWhite
 };
 `,
-  '@cliffy/prompt': `
+	"@cliffy/prompt": `
 export const prompt = async (questions) => {
   const answers = {};
   for (const q of questions) {
@@ -257,50 +257,50 @@ export class Number {
     return number(this.options);
   }
 }
-`
+`,
 };
 
 async function createCliffyModules() {
-  const nodeModulesDir = path.join(__dirname, '..', 'node_modules');
-  const cliffyDir = path.join(nodeModulesDir, '@cliffy');
+	const nodeModulesDir = path.join(__dirname, "..", "node_modules");
+	const cliffyDir = path.join(nodeModulesDir, "@cliffy");
 
-  // Create @cliffy directory
-  await fs.mkdir(cliffyDir, { recursive: true });
+	// Create @cliffy directory
+	await fs.mkdir(cliffyDir, { recursive: true });
 
-  // Create each module
-  for (const [modulePath, content] of Object.entries(cliffyModules)) {
-    const parts = modulePath.split('/');
-    const moduleName = parts[1];
-    const subPath = parts[2];
+	// Create each module
+	for (const [modulePath, content] of Object.entries(cliffyModules)) {
+		const parts = modulePath.split("/");
+		const moduleName = parts[1];
+		const subPath = parts[2];
 
-    const moduleDir = path.join(cliffyDir, moduleName);
-    await fs.mkdir(moduleDir, { recursive: true });
+		const moduleDir = path.join(cliffyDir, moduleName);
+		await fs.mkdir(moduleDir, { recursive: true });
 
-    if (subPath) {
-      // Create subdirectory for nested modules
-      const fullPath = path.join(moduleDir, subPath + '.js');
-      const dirPath = path.dirname(fullPath);
-      await fs.mkdir(dirPath, { recursive: true });
-      await fs.writeFile(fullPath, content.trim());
-    } else {
-      // Create main module file
-      await fs.writeFile(path.join(moduleDir, 'index.js'), content.trim());
-    }
+		if (subPath) {
+			// Create subdirectory for nested modules
+			const fullPath = path.join(moduleDir, subPath + ".js");
+			const dirPath = path.dirname(fullPath);
+			await fs.mkdir(dirPath, { recursive: true });
+			await fs.writeFile(fullPath, content.trim());
+		} else {
+			// Create main module file
+			await fs.writeFile(path.join(moduleDir, "index.js"), content.trim());
+		}
 
-    // Create package.json for the module
-    const packageJson = {
-      name: modulePath,
-      version: '0.22.2',
-      main: subPath ? `${subPath}.js` : 'index.js',
-      type: 'module'
-    };
-    await fs.writeFile(
-      path.join(moduleDir, 'package.json'),
-      JSON.stringify(packageJson, null, 2)
-    );
-  }
+		// Create package.json for the module
+		const packageJson = {
+			name: modulePath,
+			version: "0.22.2",
+			main: subPath ? `${subPath}.js` : "index.js",
+			type: "module",
+		};
+		await fs.writeFile(
+			path.join(moduleDir, "package.json"),
+			JSON.stringify(packageJson, null, 2),
+		);
+	}
 
-  console.log('✅ Created Cliffy compatibility modules');
+	console.log("✅ Created Cliffy compatibility modules");
 }
 
 // Run the script

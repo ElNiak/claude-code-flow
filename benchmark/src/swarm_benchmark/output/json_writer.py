@@ -10,30 +10,30 @@ from ..core.models import Benchmark, Result
 
 class JSONWriter:
     """Writes benchmark results to JSON files."""
-    
+
     def __init__(self):
         """Initialize the JSON writer."""
         pass
-    
+
     async def save_benchmark(self, benchmark: Benchmark, output_dir: Path) -> Path:
         """Save benchmark to JSON file.
-        
+
         Args:
             benchmark: Benchmark to save
             output_dir: Output directory
-            
+
         Returns:
             Path to saved file
         """
         output_file = output_dir / f"{benchmark.name}_{benchmark.id}.json"
-        
+
         benchmark_data = self._benchmark_to_dict(benchmark)
-        
+
         with open(output_file, 'w', encoding='utf-8') as f:
             json.dump(benchmark_data, f, indent=2, default=self._json_serializer)
-        
+
         return output_file
-    
+
     def _benchmark_to_dict(self, benchmark: Benchmark) -> Dict[str, Any]:
         """Convert benchmark to dictionary."""
         return {
@@ -52,7 +52,7 @@ class JSONWriter:
             "error_log": benchmark.error_log,
             "metadata": benchmark.metadata
         }
-    
+
     def _config_to_dict(self, config) -> Dict[str, Any]:
         """Convert config to dictionary."""
         return {
@@ -74,7 +74,7 @@ class JSONWriter:
             "output_directory": config.output_directory,
             "verbose": config.verbose
         }
-    
+
     def _task_to_dict(self, task) -> Dict[str, Any]:
         """Convert task to dictionary."""
         return {
@@ -97,7 +97,7 @@ class JSONWriter:
             "subtasks": task.subtasks,
             "dependencies": task.dependencies
         }
-    
+
     def _result_to_dict(self, result: Result) -> Dict[str, Any]:
         """Convert result to dictionary."""
         return {
@@ -143,7 +143,7 @@ class JSONWriter:
             "completed_at": result.completed_at.isoformat() if result.completed_at else None,
             "duration": result.duration()
         }
-    
+
     def _metrics_to_dict(self, metrics) -> Dict[str, Any]:
         """Convert metrics to dictionary."""
         return {
@@ -163,7 +163,7 @@ class JSONWriter:
             "total_cpu_time": metrics.total_cpu_time,
             "network_overhead": metrics.network_overhead
         }
-    
+
     def _json_serializer(self, obj):
         """JSON serializer for datetime and other objects."""
         if isinstance(obj, datetime):

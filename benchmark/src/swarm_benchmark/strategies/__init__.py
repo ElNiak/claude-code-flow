@@ -23,27 +23,27 @@ STRATEGY_REGISTRY = {
 
 def create_strategy(strategy_name: str) -> BaseStrategy:
     """Create a strategy instance by name.
-    
+
     Args:
         strategy_name: Name of the strategy to create
-        
+
     Returns:
         Strategy instance
-        
+
     Raises:
         ValueError: If strategy name is not recognized
     """
     if strategy_name not in STRATEGY_REGISTRY:
         available = ", ".join(STRATEGY_REGISTRY.keys())
         raise ValueError(f"Unknown strategy '{strategy_name}'. Available: {available}")
-    
+
     strategy_class = STRATEGY_REGISTRY[strategy_name]
     return strategy_class()
 
 
 def get_available_strategies() -> list[str]:
     """Get list of available strategy names.
-    
+
     Returns:
         List of strategy names
     """
@@ -53,7 +53,7 @@ def get_available_strategies() -> list[str]:
 __all__ = [
     "BaseStrategy",
     "AutoStrategy",
-    "ResearchStrategy", 
+    "ResearchStrategy",
     "DevelopmentStrategy",
     "AnalysisStrategy",
     "TestingStrategy",

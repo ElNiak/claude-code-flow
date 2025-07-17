@@ -95,7 +95,7 @@ for service in user-service auth-service api-gateway; do
 done
 ```
 
-### Scenario 1.3: Startup - MVP Development 
+### Scenario 1.3: Startup - MVP Development
 
 **Context:** Startup team building an MVP quickly
 
@@ -242,7 +242,7 @@ cd teams/frontend-squad
 ./claude-flow config set focus "react,typescript,testing"
 ./claude-flow sparc run architect "component library architecture"
 
-# Backend squad  
+# Backend squad
 cd teams/backend-squad
 ./claude-flow config set focus "nodejs,postgresql,api-design"
 ./claude-flow sparc run architect "microservices with GraphQL"
@@ -482,7 +482,7 @@ cd regions/us-east
 ./claude-flow config set timezone "America/New_York"
 
 # EU West
-cd regions/eu-west  
+cd regions/eu-west
 ./claude-flow config set region.gdpr true
 ./claude-flow config set timezone "Europe/London"
 

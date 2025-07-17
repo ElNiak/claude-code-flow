@@ -26,7 +26,7 @@ ALTER TABLE tasks ADD COLUMN progress INTEGER DEFAULT 0;
 ### 2. Test Data Creation
 Added 21 test tasks across all 6 swarms with various statuses:
 - 8 completed tasks
-- 7 in_progress tasks  
+- 7 in_progress tasks
 - 5 pending tasks
 - 1 failed task
 
@@ -46,7 +46,7 @@ Added 21 test tasks across all 6 swarms with various statuses:
 ## Task Distribution by Swarm
 ```
 swarm-1751809107830-3nog8f59c: 9 tasks
-swarm-1751810437305-fe3fm63c7: 5 tasks  
+swarm-1751810437305-fe3fm63c7: 5 tasks
 swarm-1751813191460-pm96g3iif: 5 tasks
 swarm-1751813407576-hkb84z9z5: 1 task
 swarm-1751813427626-dpqhjb0s2: 1 task

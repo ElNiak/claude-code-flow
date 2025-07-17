@@ -233,7 +233,7 @@ Track operation success rates and response times.
 ```javascript
 // Get performance metrics
 const metrics = mcpTools.performanceMetrics;
-console.log('Success Rate:', 
+console.log('Success Rate:',
     (metrics.successfulOperations / metrics.totalOperations * 100).toFixed(1) + '%'
 );
 console.log('Average Response Time:', metrics.averageResponseTime.toFixed(0) + 'ms');

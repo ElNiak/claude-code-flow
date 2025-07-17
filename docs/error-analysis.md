@@ -12,7 +12,7 @@ The TypeScript compilation is failing because ES modules require explicit file e
    ```typescript
    // ❌ Current (incorrect)
    export { TaskEngine } from './engine';
-   
+
    // ✅ Should be
    export { TaskEngine } from './engine.js';
    ```
@@ -21,8 +21,8 @@ The TypeScript compilation is failing because ES modules require explicit file e
    ```typescript
    // ❌ Current
    import { TaskCoordinator } from './coordination';
-   
-   // ✅ Should be  
+
+   // ✅ Should be
    import { TaskCoordinator } from './coordination.js';
    ```
 

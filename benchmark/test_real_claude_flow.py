@@ -18,16 +18,16 @@ class RealClaudeFlowBenchmark:
     def __init__(self):
         self.claude_flow_path = Path(__file__).parent.parent / "claude-flow"
         self.results = []
-        
+
     def run_command(self, command, description):
         """Execute a claude-flow command and measure performance"""
         print(f"\n{'='*60}")
         print(f"Running: {description}")
         print(f"Command: {' '.join(command)}")
         print(f"{'='*60}")
-        
+
         start_time = time.time()
-        
+
         try:
             # Run the command
             result = subprocess.run(
@@ -36,10 +36,10 @@ class RealClaudeFlowBenchmark:
                 text=True,
                 timeout=30  # 30 second timeout
             )
-            
+
             end_time = time.time()
             duration = end_time - start_time
-            
+
             # Prepare result
             benchmark_result = {
                 "description": description,
@@ -50,20 +50,20 @@ class RealClaudeFlowBenchmark:
                 "stderr": result.stderr,
                 "return_code": result.returncode
             }
-            
+
             self.results.append(benchmark_result)
-            
+
             # Print summary
             status = "✅ SUCCESS" if result.returncode == 0 else "❌ FAILED"
             print(f"{status} - Duration: {duration:.2f}s")
-            
+
             if result.stdout:
                 print(f"\nOutput:\n{result.stdout[:500]}...")
             if result.stderr:
                 print(f"\nErrors:\n{result.stderr[:500]}...")
-                
+
             return benchmark_result
-            
+
         except subprocess.TimeoutExpired:
             print("❌ TIMEOUT - Command took too long")
             return {
@@ -82,66 +82,66 @@ class RealClaudeFlowBenchmark:
                 "success": False,
                 "error": str(e)
             }
-    
+
     def test_basic_commands(self):
         """Test basic claude-flow commands"""
         print("\n🧪 Testing Basic Claude-Flow Commands")
-        
+
         # Test 1: Version check
         self.run_command(
             [str(self.claude_flow_path), "--version"],
             "Version Check"
         )
-        
+
         # Test 2: Help command
         self.run_command(
             [str(self.claude_flow_path), "--help"],
             "Help Command"
         )
-        
+
         # Test 3: Status command
         self.run_command(
             [str(self.claude_flow_path), "status", "--non-interactive"],
             "Status Command (Non-Interactive)"
         )
-    
+
     def test_sparc_commands(self):
         """Test SPARC mode commands"""
         print("\n🧪 Testing SPARC Mode Commands")
-        
+
         # Test 1: SPARC list
         self.run_command(
             [str(self.claude_flow_path), "sparc", "list", "--non-interactive"],
             "SPARC List Modes"
         )
-        
+
         # Test 2: SPARC coder mode
         self.run_command(
-            [str(self.claude_flow_path), "sparc", "coder", 
+            [str(self.claude_flow_path), "sparc", "coder",
              "Create a simple hello world function", "--non-interactive"],
             "SPARC Coder Mode"
         )
-        
+
         # Test 3: SPARC researcher mode
         self.run_command(
             [str(self.claude_flow_path), "sparc", "researcher",
              "Research best practices for Python testing", "--non-interactive"],
             "SPARC Researcher Mode"
         )
-    
+
     def test_swarm_commands(self):
         """Test Swarm commands"""
         print("\n🧪 Testing Swarm Commands")
-        
+
         # Test 1: Simple swarm with auto strategy
         self.run_command(
             [str(self.claude_flow_path), "swarm",
-             "Create a basic calculator", 
+             "Create a basic calculator",
              "--strategy", "auto",
              "--non-interactive"],
             "Swarm Auto Strategy"
         )
-        
+
         # Test 2: Research swarm
         self.run_command(
             [str(self.claude_flow_path), "swarm",
@@ -151,7 +151,7 @@ class RealClaudeFlowBenchmark:
              "--non-interactive"],
             "Swarm Research Strategy (Distributed)"
         )
-        
+
         # Test 3: Development swarm
         self.run_command(
             [str(self.claude_flow_path), "swarm",
@@ -161,30 +161,30 @@ class RealClaudeFlowBenchmark:
              "--non-interactive"],
             "Swarm Development Strategy (Hierarchical)"
         )
-    
+
     def generate_report(self):
         """Generate benchmark report"""
         print("\n" + "="*60)
         print("📊 BENCHMARK SUMMARY REPORT")
         print("="*60)
-        
+
         total_tests = len(self.results)
         successful_tests = sum(1 for r in self.results if r.get("success", False))
         failed_tests = total_tests - successful_tests
-        
+
         print(f"\n✅ Successful Tests: {successful_tests}/{total_tests}")
         print(f"❌ Failed Tests: {failed_tests}/{total_tests}")
-        
+
         if self.results:
             avg_duration = sum(r.get("duration", 0) for r in self.results) / len(self.results)
             print(f"⏱️  Average Duration: {avg_duration:.2f}s")
-        
+
         print("\n📋 Test Results:")
         for result in self.results:
             status = "✅" if result.get("success", False) else "❌"
             duration = result.get("duration", 0)
             print(f"  {status} {result['description']}: {duration:.2f}s")
-        
+
         # Save results to JSON
         output_file = Path(__file__).parent / "real_benchmark_results.json"
         with open(output_file, "w") as f:
@@ -198,18 +198,18 @@ class RealClaudeFlowBenchmark:
                 },
                 "results": self.results
             }, f, indent=2)
-        
+
         print(f"\n💾 Results saved to: {output_file}")
-    
+
     def run_all_tests(self):
         """Run all benchmark tests"""
         print("🚀 Starting Real Claude-Flow Benchmark Tests")
         print(f"Using: {self.claude_flow_path}")
-        
+
         self.test_basic_commands()
         self.test_sparc_commands()
         self.test_swarm_commands()
-        
+
         self.generate_report()
 
 

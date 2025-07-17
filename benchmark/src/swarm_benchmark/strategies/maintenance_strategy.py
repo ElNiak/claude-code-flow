@@ -9,30 +9,30 @@ from .base_strategy import BaseStrategy
 
 class MaintenanceStrategy(BaseStrategy):
     """Strategy for system maintenance tasks."""
-    
+
     def __init__(self):
         """Initialize the maintenance strategy."""
         super().__init__()
         self.claude_flow_client = None
-    
+
     @property
     def name(self) -> str:
         """Strategy name."""
         return "maintenance"
-    
+
     @property
     def description(self) -> str:
         """Strategy description."""
         return "System maintenance"
-    
+
     async def execute(self, task: Task) -> Result:
         """Execute a maintenance task."""
         start_time = datetime.now()
-        
+
         # Simulate maintenance execution
         await asyncio.sleep(0.14)
         execution_time = (datetime.now() - start_time).total_seconds()
-        
+
         result = Result(
             task_id=task.id,
             agent_id="maintenance-agent",
@@ -50,10 +50,10 @@ class MaintenanceStrategy(BaseStrategy):
             started_at=start_time,
             completed_at=datetime.now()
         )
-        
+
         self._record_execution(task, result)
         return result
-    
+
     def get_metrics(self) -> Dict[str, Any]:
         """Get maintenance strategy metrics."""
         return {

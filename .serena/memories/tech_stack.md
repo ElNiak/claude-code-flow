@@ -6,7 +6,7 @@
 - **Testing**: Jest with node modules
 - **Module System**: ES modules (type: "module" in package.json)
 - **Target**: Node.js 20+, ES2022
-- **Key Dependencies**: 
+- **Key Dependencies**:
   - @modelcontextprotocol/sdk
   - better-sqlite3 (database)
   - commander (CLI)

@@ -1,0 +1,204 @@
+{
+	"agent_system_architecture": {
+		"timestamp": "2025-07-13T19:20:00Z",
+		"analysis_scope": "Current agent command implementation and automatic selection capabilities",
+
+		"current_agent_command_structure": {
+			"primary_commands": {
+				"agent.ts": {
+					"description": "Comprehensive agent management with advanced features",
+					"capabilities": [
+						"Interactive agent creation with templates",
+						"Agent pool management and scaling",
+						"Health monitoring and auto-restart",
+						"Resource tracking and limits",
+						"Agent clustering and load balancing"
+					],
+					"customization_options": [
+						"Template selection (researcher, coder, analyst)",
+						"Autonomy level (0-1)",
+						"Max concurrent tasks",
+						"Memory limits",
+						"Timeout thresholds",
+						"Interactive configuration wizard"
+					],
+					"subcommands": [
+						"spawn - Create and start agents",
+						"list - Display agents with status",
+						"info - Detailed agent information",
+						"terminate - Safe agent shutdown",
+						"pool - Agent pool management",
+						"health - Health monitoring"
+					]
+				},
+				"agent-simple.ts": {
+					"description": "Simplified agent management interface",
+					"capabilities": [
+						"Basic agent spawning",
+						"Simple listing and status",
+						"Lightweight operations"
+					],
+					"focus": "Streamlined operations without advanced features"
+				}
+			},
+
+			"agent_types_system": {
+				"file": "src/constants/agent-types.ts",
+				"defined_types": [
+					"coordinator",
+					"researcher",
+					"coder",
+					"analyst",
+					"architect",
+					"tester",
+					"reviewer",
+					"optimizer",
+					"documenter",
+					"monitor",
+					"specialist"
+				],
+				"validation": "Runtime type checking with isValidAgentType()",
+				"extensibility": "Const object allows easy addition of new types"
+			},
+
+			"agent_management_layer": {
+				"agent_manager": {
+					"file": "src/agents/agent-manager.ts",
+					"responsibilities": [
+						"Agent lifecycle management",
+						"Health monitoring and auto-restart",
+						"Resource allocation and limits",
+						"Process spawning and management",
+						"Template-based agent creation"
+					],
+					"features": [
+						"Agent pools with auto-scaling",
+						"Performance metrics tracking",
+						"Error handling and recovery",
+						"Deadlock detection",
+						"Cluster management"
+					]
+				},
+				"agent_registry": {
+					"file": "src/agents/agent-registry.ts",
+					"responsibilities": [
+						"Persistent agent storage",
+						"Agent discovery and querying",
+						"Capability-based searches",
+						"Agent selection algorithms"
+					],
+					"key_methods": [
+						"findBestAgent() - Intelligent agent selection",
+						"searchByCapabilities() - Capability matching",
+						"queryAgents() - Advanced filtering"
+					]
+				}
+			}
+		},
+
+		"automatic_agent_selection_mechanisms": {
+			"existing_selection_systems": {
+				"swarm_coordinator": {
+					"file": "src/swarm/coordinator.ts",
+					"method": "selectAgentForTask()",
+					"logic": "Filters available agents by capability and selects based on strategy"
+				},
+				"auto_strategy": {
+					"file": "src/swarm/strategies/auto.ts",
+					"method": "selectAgentForTask()",
+					"features": [
+						"ML-inspired heuristics",
+						"Performance history consideration",
+						"Agent scoring algorithms",
+						"Predictive scheduling"
+					]
+				},
+				"research_strategy": {
+					"file": "src/swarm/strategies/research.ts",
+					"method": "selectAgentForTask()",
+					"specialization": "Research-specific agent selection based on capabilities"
+				},
+				"advanced_scheduler": {
+					"file": "src/coordination/advanced-scheduler.ts",
+					"strategies": [
+						"CapabilitySchedulingStrategy",
+						"LoadBalancingStrategy",
+						"RoundRobinStrategy",
+						"AdaptiveSchedulingStrategy"
+					]
+				}
+			},
+
+			"agent_registry_selection": {
+				"findBestAgent": {
+					"parameters": [
+						"taskType: string",
+						"requiredCapabilities: string[]",
+						"preferredAgent?: string"
+					],
+					"scoring_factors": [
+						"Health score (0-40 points)",
+						"Success rate (0-30 points)",
+						"Availability (0-20 points)",
+						"Capability match (0-10 points)"
+					],
+					"filters": [
+						"Health threshold (default 0.5)",
+						"Status must be 'idle'",
+						"Workload < 0.8",
+						"Has required capabilities"
+					]
+				}
+			}
+		},
+
+		"integration_with_other_systems": {
+			"swarm_coordination": {
+				"connection": "SwarmCoordinator calls agent selection methods",
+				"delegation": "Strategy pattern allows different selection algorithms",
+				"coordination": "Agent assignments coordinate with task execution"
+			},
+			"hive_mind_system": {
+				"file": "src/cli/commands/hive.ts",
+				"agent_spawning": "spawnHiveAgents() creates specialized agent types",
+				"consensus": "Agents vote on task assignments and decomposition",
+				"topologies": "Different topologies create different agent configurations"
+			},
+			"memory_system": {
+				"coordination_data": "Agent registry stores coordination data",
+				"performance_history": "Tracks agent performance for selection",
+				"persistent_state": "Agent states persisted across sessions"
+			}
+		},
+
+		"current_customization_capabilities": {
+			"template_system": {
+				"predefined_templates": [
+					"researcher - Research and analysis focused",
+					"coder - Development and implementation",
+					"analyst - Data analysis and metrics"
+				],
+				"template_properties": [
+					"name, type, capabilities",
+					"config (autonomy, concurrency, timeouts)",
+					"environment (runtime, directories, tools)",
+					"startup scripts and dependencies"
+				]
+			},
+			"interactive_configuration": {
+				"wizard_flow": [
+					"Template selection",
+					"Agent naming",
+					"Autonomy level setting",
+					"Concurrency limits",
+					"Memory allocation"
+				],
+				"validation": "Input validation for all parameters"
+			},
+			"configuration_files": {
+				"json_config": "Support for loading agent config from JSON files",
+				"override_system": "Command line options override template defaults"
+			}
+		}
+	}
+}

@@ -42,65 +42,65 @@ log_error() {
 # Function to check if required dependencies are available
 check_dependencies() {
     log "Checking dependencies..."
-    
+
     # Check for Node.js
     if ! command -v node &> /dev/null; then
         log_error "Node.js is not installed"
         exit 1
     fi
-    
+
     # Check for npm
     if ! command -v npm &> /dev/null; then
         log_error "npm is not installed"
         exit 1
     fi
-    
+
     # Check for jest or test runner
     if ! npm list jest &> /dev/null && ! npm list --global jest &> /dev/null; then
         log_warning "Jest not found in local or global npm packages"
     fi
-    
+
     log_success "All dependencies are available"
 }
 
 # Function to run pre-validation setup
 setup_test_environment() {
     log "Setting up test environment..."
-    
+
     cd "$PROJECT_ROOT"
-    
+
     # Install dependencies if needed
     if [ ! -d "node_modules" ]; then
         log "Installing npm dependencies..."
         npm install
     fi
-    
+
     # Create test data directory
     mkdir -p "$RESULTS_DIR/baseline"
     mkdir -p "$RESULTS_DIR/optimization"
     mkdir -p "$RESULTS_DIR/regression"
-    
+
     # Clear old test results
     find "$RESULTS_DIR" -name "*.tmp" -delete 2>/dev/null || true
-    
+
     log_success "Test environment setup complete"
 }
 
 # Function to run baseline performance measurements
 run_baseline_measurements() {
     log "Running baseline performance measurements..."
-    
+
     cd "$PROJECT_ROOT"
-    
+
     # Store baseline timestamp
     echo "{\"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%S.%3NZ)\", \"type\": \"baseline\"}" > "$RESULTS_DIR/baseline/timestamp.json"
-    
+
     # Measure current CLI performance
     log "Measuring CLI performance baseline..."
     {
         echo "{"
         echo "  \"cli_performance\": {"
-        
+
         # Help command timing
         start_time=$(node -e "console.log(Date.now())")
         # Simulate CLI help command (replace with actual command)
@@ -108,7 +108,7 @@ run_baseline_measurements() {
         end_time=$(node -e "console.log(Date.now())")
         help_duration=$((end_time - start_time))
         echo "    \"help_command_ms\": $help_duration,"
-        
+
         # Status command timing
         start_time=$(node -e "console.log(Date.now())")
         # Simulate CLI status command (replace with actual command)
@@ -116,11 +116,11 @@ run_baseline_measurements() {
         end_time=$(node -e "console.log(Date.now())")
         status_duration=$((end_time - start_time))
         echo "    \"status_command_ms\": $status_duration"
-        
+
         echo "  }"
         echo "}"
     } > "$RESULTS_DIR/baseline/cli_performance.json"
-    
+
     # Measure database performance baseline
     log "Measuring database performance baseline..."
     {
@@ -132,7 +132,7 @@ run_baseline_measurements() {
         echo "  }"
         echo "}"
     } > "$RESULTS_DIR/baseline/database_performance.json"
-    
+
     # Measure memory usage baseline
     log "Measuring memory usage baseline..."
     node -e "
@@ -148,23 +148,23 @@ run_baseline_measurements() {
         };
         console.log(JSON.stringify(baseline, null, 2));
     " > "$RESULTS_DIR/baseline/memory_usage.json"
-    
+
     log_success "Baseline measurements complete"
 }
 
 # Function to run performance validation tests
 run_performance_validation() {
     log "Running performance validation tests..."
-    
+
     cd "$PROJECT_ROOT"
-    
+
     # Store validation timestamp
     echo "{\"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%S.%3NZ)\", \"type\": \"performance_validation\"}" > "$RESULTS_DIR/optimization/timestamp.json"
-    
+
     # Run TypeScript/Jest tests if available
     if [ -f "tests/optimization/performance-validation.test.ts" ]; then
         log "Executing performance validation test suite..."
-        
+
         # Try to run with jest
         if command -v npx &> /dev/null; then
             if npx jest tests/optimization/performance-validation.test.ts --json --outputFile="$RESULTS_DIR/optimization/jest-results.json" 2>&1 | tee -a "$LOG_FILE"; then
@@ -198,23 +198,23 @@ run_performance_validation() {
             echo "}"
         } > "$RESULTS_DIR/optimization/performance_results.json"
     fi
-    
+
     log_success "Performance validation phase complete"
 }
 
 # Function to run regression tests
 run_regression_tests() {
     log "Running regression validation tests..."
-    
+
     cd "$PROJECT_ROOT"
-    
+
     # Store regression timestamp
     echo "{\"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%S.%3NZ)\", \"type\": \"regression_validation\"}" > "$RESULTS_DIR/regression/timestamp.json"
-    
+
     # Run regression test suite if available
     if [ -f "tests/optimization/regression-validation.test.ts" ]; then
         log "Executing regression validation test suite..."
-        
+
         if command -v npx &> /dev/null; then
             if npx jest tests/optimization/regression-validation.test.ts --json --outputFile="$RESULTS_DIR/regression/jest-results.json" 2>&1 | tee -a "$LOG_FILE"; then
                 log_success "Regression validation tests completed"
@@ -227,7 +227,7 @@ run_regression_tests() {
     else
         log_warning "Regression validation test file not found, creating placeholder results..."
     fi
-    
+
     # Create regression summary
     {
         echo "{"
@@ -247,19 +247,19 @@ run_regression_tests() {
         echo "  }"
         echo "}"
     } > "$RESULTS_DIR/regression/regression_summary.json"
-    
+
     log_success "Regression validation phase complete"
 }
 
 # Function to run load testing
 run_load_testing() {
     log "Running load testing scenarios..."
-    
+
     cd "$PROJECT_ROOT"
-    
+
     # Store load test timestamp
     echo "{\"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%S.%3NZ)\", \"type\": \"load_testing\"}" > "$RESULTS_DIR/optimization/load_test_timestamp.json"
-    
+
     # Simulate load testing scenarios
     log "Simulating concurrent agent spawning load test..."
     {
@@ -294,18 +294,18 @@ run_load_testing() {
         echo "  }"
         echo "}"
     } > "$RESULTS_DIR/optimization/load_test_results.json"
-    
+
     log_success "Load testing scenarios complete"
 }
 
 # Function to generate comprehensive report
 generate_comprehensive_report() {
     log "Generating comprehensive optimization validation report..."
-    
+
     cd "$PROJECT_ROOT"
-    
+
     local report_file="$RESULTS_DIR/comprehensive_optimization_report_$TIMESTAMP.json"
-    
+
     # Combine all test results
     {
         echo "{"
@@ -320,7 +320,7 @@ generate_comprehensive_report() {
         echo "      \"node_version\": \"$(node --version 2>/dev/null || echo 'unknown')\""
         echo "    }"
         echo "  },"
-        
+
         # Include baseline data
         echo "  \"baseline_measurements\": {"
         if [ -f "$RESULTS_DIR/baseline/cli_performance.json" ]; then
@@ -331,7 +331,7 @@ generate_comprehensive_report() {
         fi
         echo "    \"database_performance\": { \"baseline_established\": true }"
         echo "  },"
-        
+
         # Include optimization results
         echo "  \"optimization_validation\": {"
         if [ -f "$RESULTS_DIR/optimization/performance_results.json" ]; then
@@ -342,7 +342,7 @@ generate_comprehensive_report() {
         fi
         echo "    \"validation_status\": \"COMPLETED\""
         echo "  },"
-        
+
         # Include regression results
         echo "  \"regression_validation\": {"
         if [ -f "$RESULTS_DIR/regression/regression_summary.json" ]; then
@@ -350,7 +350,7 @@ generate_comprehensive_report() {
         fi
         echo "    \"validation_status\": \"COMPLETED\""
         echo "  },"
-        
+
         # Generate summary
         echo "  \"executive_summary\": {"
         echo "    \"optimization_targets\": {"
@@ -383,52 +383,52 @@ generate_comprehensive_report() {
         echo "  }"
         echo "}"
     } > "$report_file"
-    
+
     # Create symlink to latest report
     ln -sf "$(basename "$report_file")" "$RESULTS_DIR/latest_optimization_report.json"
-    
+
     log_success "Comprehensive report generated: $report_file"
 }
 
 # Function to check performance against targets
 validate_performance_targets() {
     log "Validating performance against optimization targets..."
-    
+
     local validation_passed=true
-    
+
     # Check CLI initialization target (70% improvement from 1034ms baseline)
     local cli_target=310  # 70% improvement target
     local cli_current=300  # Simulated current performance
-    
+
     if [ $cli_current -le $cli_target ]; then
         log_success "CLI initialization target met: ${cli_current}ms ≤ ${cli_target}ms"
     else
         log_error "CLI initialization target missed: ${cli_current}ms > ${cli_target}ms"
         validation_passed=false
     fi
-    
+
     # Check database query target (25% improvement from 5ms baseline)
     local db_target=4  # 25% improvement target (rounded)
     local db_current=3  # Simulated current performance
-    
+
     if [ $db_current -le $db_target ]; then
         log_success "Database query target met: ${db_current}ms ≤ ${db_target}ms"
     else
         log_error "Database query target missed: ${db_current}ms > ${db_target}ms"
         validation_passed=false
     fi
-    
+
     # Check agent spawn time target (<50ms)
     local agent_target=50
     local agent_current=45  # Simulated current performance
-    
+
     if [ $agent_current -le $agent_target ]; then
         log_success "Agent spawn time target met: ${agent_current}ms ≤ ${agent_target}ms"
     else
         log_error "Agent spawn time target missed: ${agent_current}ms > ${agent_target}ms"
         validation_passed=false
     fi
-    
+
     if [ "$validation_passed" = true ]; then
         log_success "All optimization targets met or exceeded!"
         return 0
@@ -448,41 +448,41 @@ cleanup() {
 # Main execution
 main() {
     local start_time=$(date +%s)
-    
+
     echo "=========================================="
     echo "  Hive Mind Optimization Validation Suite"
     echo "=========================================="
     echo ""
     log "Starting optimization validation at $(date)"
-    
+
     # Check dependencies
     check_dependencies
-    
+
     # Setup test environment
     setup_test_environment
-    
+
     # Run test phases
     run_baseline_measurements
     run_performance_validation
     run_regression_tests
     run_load_testing
-    
+
     # Validate against targets
     if validate_performance_targets; then
         validation_status="PASSED"
     else
         validation_status="FAILED"
     fi
-    
+
     # Generate comprehensive report
     generate_comprehensive_report
-    
+
     # Cleanup
     cleanup
-    
+
     local end_time=$(date +%s)
     local duration=$((end_time - start_time))
-    
+
     echo ""
     echo "=========================================="
     echo "  Optimization Validation Complete"
@@ -490,7 +490,7 @@ main() {
     log "Validation completed in ${duration} seconds"
     log "Final status: $validation_status"
     log "Results available in: $RESULTS_DIR"
-    
+
     if [ "$validation_status" = "PASSED" ]; then
         log_success "All optimization targets met! Ready for deployment."
         exit 0

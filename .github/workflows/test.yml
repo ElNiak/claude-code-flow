@@ -9,7 +9,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+
     strategy:
       matrix:
         node-version: [18.x, 20.x, 21.x]
@@ -58,7 +58,7 @@ jobs:
 
   test-deno:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -73,7 +73,7 @@ jobs:
 
   test-windows:
     runs-on: windows-latest
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -92,7 +92,7 @@ jobs:
 
   test-macos:
     runs-on: macos-latest
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -112,7 +112,7 @@ jobs:
   e2e-test:
     runs-on: ubuntu-latest
     needs: [test]
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -152,7 +152,7 @@ jobs:
   docker-test:
     runs-on: ubuntu-latest
     needs: [test]
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -172,7 +172,7 @@ jobs:
   benchmark:
     runs-on: ubuntu-latest
     needs: [test]
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -196,17 +196,17 @@ jobs:
         node -e "
           const { execSync } = require('child_process');
           const initialMemory = process.memoryUsage().heapUsed;
-          
+
           // Run CLI commands multiple times
           for (let i = 0; i < 10; i++) {
             execSync('node src/cli/simple-cli.js --help', { stdio: 'ignore' });
           }
-          
+
           const finalMemory = process.memoryUsage().heapUsed;
           const increase = (finalMemory - initialMemory) / 1024 / 1024;
-          
+
           console.log(\`Memory increase: \${increase.toFixed(2)}MB\`);
-          
+
           if (increase > 100) {
             console.error('Memory usage too high!');
             process.exit(1);
@@ -215,7 +215,7 @@ jobs:
 
   security:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -238,7 +238,7 @@ jobs:
 
   code-quality:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -269,7 +269,7 @@ jobs:
   coverage-report:
     runs-on: ubuntu-latest
     needs: [test]
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -296,15 +296,15 @@ jobs:
             branches: 75,
             statements: 80
           };
-          
+
           let failed = false;
-          
+
           Object.keys(thresholds).forEach(key => {
             const actual = coverage.total[key].pct;
             const threshold = thresholds[key];
-            
+
             console.log(\`\${key}: \${actual}% (threshold: \${threshold}%)\`);
-            
+
             if (actual < threshold) {
               console.error(\`❌ \${key} coverage below threshold\`);
               failed = true;
@@ -312,7 +312,7 @@ jobs:
               console.log(\`✅ \${key} coverage meets threshold\`);
             }
           });
-          
+
           if (failed) {
             console.error('Coverage thresholds not met');
             process.exit(1);

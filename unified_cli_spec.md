@@ -30,7 +30,7 @@ repoctl <domain> <action> [options]
 
 Where:
 - `repoctl` is the unified CLI name (repository control)
-- `<domain>` groups related functionality 
+- `<domain>` groups related functionality
 - `<action>` specifies the operation
 - `[options]` provide configuration
 
@@ -47,7 +47,7 @@ repoctl build package [--target all|docker|binary]
 
 **Consolidates**: Multiple build, test, lint, typecheck commands
 
-#### 2. Deploy Domain  
+#### 2. Deploy Domain
 ```bash
 repoctl deploy preview [--branch main] [--monitor]
 repoctl deploy production [--strategy blue-green|rolling]
@@ -209,26 +209,26 @@ domains:
   build:
     defaultTarget: "development"
     parallel: true
-    
+
   deploy:
     environments:
       - name: "staging"
         url: "https://staging.example.com"
-      - name: "production" 
+      - name: "production"
         url: "https://example.com"
-        
+
   agent:
     defaultType: "coder"
     maxConcurrent: 5
-    
+
   swarm:
     defaultStrategy: "development"
     defaultMode: "hierarchical"
-    
+
   memory:
     backend: "sqlite"
     location: ".repoctl/memory.db"
-    
+
   github:
     repository: "user/repo"
     defaultBranch: "main"
@@ -274,7 +274,7 @@ repoctl preset apply web-app
 - Config domain (foundation for others)
 - Help system (user onboarding)
 
-### Phase 2: Orchestration Domains (Month 2)  
+### Phase 2: Orchestration Domains (Month 2)
 - Agent domain
 - Swarm domain
 - Monitor domain

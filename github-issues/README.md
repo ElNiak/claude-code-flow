@@ -45,8 +45,8 @@ This directory contains comprehensive GitHub issues addressing the significant g
 // Smoking gun: Neural training simulation
 case 'neural_train':
   const finalAccuracy = baseAccuracy + (Math.random() * 0.05 - 0.025); // FAKE!
-  
-// Performance metrics simulation  
+
+// Performance metrics simulation
 metrics: {
   tasks_executed: Math.floor(Math.random() * 200) + 50,    // FAKE!
   success_rate: Math.random() * 0.2 + 0.8,                // FAKE!
@@ -55,7 +55,7 @@ metrics: {
 // Resource monitoring placeholders
 return {
   memory: 0,    // Monitoring not available
-  cpu: 0,       // Monitoring not available  
+  cpu: 0,       // Monitoring not available
 };
 ```
 

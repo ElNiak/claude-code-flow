@@ -2,62 +2,56 @@
  * Coordination system exports
  */
 
-// Core coordination components,
-export { CoordinationManager, type ICoordinationManager } from './manager.js';
-export { TaskScheduler } from './scheduler.js';
-export { ResourceManager } from './resources.js';
-export { MessageRouter } from './messaging.js';
-
 // Advanced scheduling,
-export { 
-  AdvancedTaskScheduler,
-  type SchedulingStrategy,
-  type SchedulingContext,
-  CapabilitySchedulingStrategy,
-  RoundRobinSchedulingStrategy,
-  LeastLoadedSchedulingStrategy,
-  AffinitySchedulingStrategy,
-} from './advanced-scheduler.js';
-
-// Work stealing,
 export {
-  WorkStealingCoordinator,
-  type WorkStealingConfig,
-  type AgentWorkload,
-} from './work-stealing.js';
-
-// Dependency management,
-export {
-  DependencyGraph,
-  type DependencyNode,
-  type DependencyPath,
-} from './dependency-graph.js';
-
+	AdvancedTaskScheduler,
+	AffinitySchedulingStrategy,
+	CapabilitySchedulingStrategy,
+	LeastLoadedSchedulingStrategy,
+	RoundRobinSchedulingStrategy,
+	type SchedulingContext,
+	type SchedulingStrategy,
+} from "./advanced-scheduler.js";
 // Circuit breakers,
 export {
-  CircuitBreaker,
-  CircuitBreakerManager,
-  CircuitState,
-  type CircuitBreakerConfig,
-  type CircuitBreakerMetrics,
-} from './circuit-breaker.js';
-
+	CircuitBreaker,
+	type CircuitBreakerConfig,
+	CircuitBreakerManager,
+	type CircuitBreakerMetrics,
+	CircuitState,
+} from "./circuit-breaker.js";
 // Conflict resolution,
 export {
-  ConflictResolver,
-  PriorityResolutionStrategy,
-  TimestampResolutionStrategy,
-  VotingResolutionStrategy,
-  OptimisticLockManager,
-  type ResourceConflict,
-  type TaskConflict,
-  type ConflictResolution,
-  type ConflictResolutionStrategy,
-} from './conflict-resolution.js';
-
+	type ConflictResolution,
+	type ConflictResolutionStrategy,
+	ConflictResolver,
+	OptimisticLockManager,
+	PriorityResolutionStrategy,
+	type ResourceConflict,
+	type TaskConflict,
+	TimestampResolutionStrategy,
+	VotingResolutionStrategy,
+} from "./conflict-resolution.js";
+// Dependency management,
+export {
+	DependencyGraph,
+	type DependencyNode,
+	type DependencyPath,
+} from "./dependency-graph.js";
+// Core coordination components,
+export { CoordinationManager, type ICoordinationManager } from "./manager.js";
+export { MessageRouter } from "./messaging.js";
 // Metrics and monitoring,
 export {
-  CoordinationMetricsCollector,
-  type CoordinationMetrics,
-  type MetricsSample,
-} from './metrics.js';
+	type CoordinationMetrics,
+	CoordinationMetricsCollector,
+	type MetricsSample,
+} from "./metrics.js";
+export { ResourceManager } from "./resources.js";
+export { TaskScheduler } from "./scheduler.js";
+// Work stealing,
+export {
+	type AgentWorkload,
+	type WorkStealingConfig,
+	WorkStealingCoordinator,
+} from "./work-stealing.js";

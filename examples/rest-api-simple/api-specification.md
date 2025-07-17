@@ -2,8 +2,8 @@
 
 ## API Overview
 
-**Base URL**: `http://localhost:3000/api/v1`  
-**Content-Type**: `application/json`  
+**Base URL**: `http://localhost:3000/api/v1`
+**Content-Type**: `application/json`
 **API Version**: 1.0.0
 
 ## Data Models
@@ -37,8 +37,8 @@ interface ErrorResponse {
 
 ### 1. Health Check
 
-**Endpoint**: `GET /health`  
-**Description**: Check if the API is running and healthy  
+**Endpoint**: `GET /health`
+**Description**: Check if the API is running and healthy
 **Authentication**: None
 
 #### Response
@@ -59,8 +59,8 @@ interface ErrorResponse {
 
 ### 2. List All Tasks
 
-**Endpoint**: `GET /api/v1/tasks`  
-**Description**: Retrieve all tasks  
+**Endpoint**: `GET /api/v1/tasks`
+**Description**: Retrieve all tasks
 **Authentication**: None
 
 #### Query Parameters
@@ -98,8 +98,8 @@ interface ErrorResponse {
 
 ### 3. Get Single Task
 
-**Endpoint**: `GET /api/v1/tasks/:id`  
-**Description**: Retrieve a specific task by ID  
+**Endpoint**: `GET /api/v1/tasks/:id`
+**Description**: Retrieve a specific task by ID
 **Authentication**: None
 
 #### Path Parameters
@@ -129,8 +129,8 @@ interface ErrorResponse {
 
 ### 4. Create Task
 
-**Endpoint**: `POST /api/v1/tasks`  
-**Description**: Create a new task  
+**Endpoint**: `POST /api/v1/tasks`
+**Description**: Create a new task
 **Authentication**: None
 
 #### Request Body
@@ -170,8 +170,8 @@ interface ErrorResponse {
 
 ### 5. Update Task
 
-**Endpoint**: `PUT /api/v1/tasks/:id`  
-**Description**: Update an existing task  
+**Endpoint**: `PUT /api/v1/tasks/:id`
+**Description**: Update an existing task
 **Authentication**: None
 
 #### Path Parameters
@@ -217,8 +217,8 @@ interface ErrorResponse {
 
 ### 6. Delete Task
 
-**Endpoint**: `DELETE /api/v1/tasks/:id`  
-**Description**: Delete a task  
+**Endpoint**: `DELETE /api/v1/tasks/:id`
+**Description**: Delete a task
 **Authentication**: None
 
 #### Path Parameters

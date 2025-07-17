@@ -226,7 +226,7 @@ interface AgentStats {
 #### Fix File Operations
 ```typescript
 // Fix writeFileSync options
-fs.writeFileSync(filePath, content, { 
+fs.writeFileSync(filePath, content, {
   encoding: 'utf8',
   flag: 'w' // Remove 'append' property
 });

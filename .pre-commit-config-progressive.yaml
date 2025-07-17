@@ -1,0 +1,184 @@
+# .pre-commit-config.yaml — Progressive Configuration for Claude Flow
+# Balances current reality with future enterprise goals
+# Phases with the STEP_BY_STEP_MERGER_IMPLEMENTATION_PLAN.md
+
+# PHASE CONTROL: Set environment variable PRECOMMIT_PHASE=1|2|3
+# Phase 1: Gentle cleanup (current state) - DEFAULT
+# Phase 2: Structure enforcement (merger weeks 3-4)
+# Phase 3: Enterprise grade (merger weeks 5-6)
+
+default_language_version:
+  node: v23.11.0
+
+repos:
+  # =================================================================
+  # PHASE 1: ESSENTIAL QUALITY (Always Active)
+  # =================================================================
+  # Works with current messy structure, doesn't break workflow
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.7.0
+    hooks:
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-added-large-files
+        args: ['--maxkb=5000']  # Generous limit for current state
+      - id: check-json
+      - id: check-yaml
+      - id: check-merge-conflict
+      - id: mixed-line-ending
+        args: ['--fix=lf']
+
+  # Basic TypeScript/JavaScript quality (warnings OK)
+  - repo: https://github.com/biomejs/pre-commit
+    rev: v0.5.0
+    hooks:
+      - id: biome-check
+        name: Biome Format + Lint (Warnings OK)
+        args: [--staged, --apply, --no-errors-on-warn]
+        types_or: [js, jsx, ts, tsx, json]
+
+  # TypeScript checking (errors only, warnings OK)
+  - repo: local
+    hooks:
+      - id: typescript-check
+        name: TypeScript Check (Errors Only)
+        entry: npx tsc --noEmit --skipLibCheck
+        language: system
+        types: [ts, tsx]
+        exclude: node_modules/
+
+  # Conventional commits (already working)
+  - repo: local
+    hooks:
+      - id: commitlint
+        name: Conventional Commits
+        entry: npx --no-install commitlint --edit $1
+        language: system
+        stages: [commit-msg]
+
+  # =================================================================
+  # SECURITY ESSENTIALS (Always Active)
+  # =================================================================
+  # Critical security checks that don't break workflow
+
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.4.0
+    hooks:
+      - id: detect-secrets
+        name: Detect Secrets
+        args: ['--baseline', '.secrets.baseline']
+        exclude: package-lock.json
+
+  # =================================================================
+  # DOCKER VALIDATION (Always Active)
+  # =================================================================
+  # Project has multiple Dockerfiles, validate them
+
+  - repo: https://github.com/hadolint/hadolint
+    rev: v2.12.0
+    hooks:
+      - id: hadolint-docker
+        name: Dockerfile Linting
+
+  # =================================================================
+  # REPOSITORY CLEANUP HELPERS (Always Active)
+  # =================================================================
+  # Use existing scripts to help with cleanup
+
+  - repo: local
+    hooks:
+      - id: file-organization-helper
+        name: File Organization Suggestions
+        entry: node scripts/file-organization-helper.js
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      - id: directory-structure-check
+        name: Directory Structure Validation
+        entry: node scripts/validate-cleanup.js --gentle
+        language: system
+        pass_filenames: false
+
+      - id: dependency-analysis-helper
+        name: Dependency Analysis Helper
+        entry: node scripts/analyze-file-dependencies.js
+        language: system
+        files: \.(md|json|ts|js)$
+        args: ['--batch', '--quick']
+
+  # =================================================================
+  # PHASE 2: STRUCTURE ENFORCEMENT (Weeks 3-4 of Merger)
+  # =================================================================
+  # Activated with: export PRECOMMIT_PHASE=2
+
+  - repo: local
+    hooks:
+      - id: enforce-docs-structure
+        name: Enforce docs/ Structure
+        entry: bash -c 'if [ "${PRECOMMIT_PHASE:-1}" -ge "2" ]; then node scripts/enforce-docs-structure.js "$@"; else echo "Phase 2+ only - skipping"; fi'
+        language: system
+        files: \.(md)$
+
+      - id: enforce-analysis-structure
+        name: Enforce analysis/ Structure
+        entry: bash -c 'if [ "${PRECOMMIT_PHASE:-1}" -ge "2" ]; then node scripts/enforce-analysis-structure.js "$@"; else echo "Phase 2+ only - skipping"; fi'
+        language: system
+        files: \.(json)$
+
+      - id: block-root-clutter
+        name: Block New Root-Level Clutter
+        entry: bash -c 'if [ "${PRECOMMIT_PHASE:-1}" -ge "2" ]; then node scripts/block-root-clutter.js "$@"; else echo "Phase 2+ only - skipping"; fi'
+        language: system
+        files: '^[^/]+\.(md|json)$'
+
+  # =================================================================
+  # PHASE 3: ENTERPRISE GRADE (Weeks 5-6 of Merger)
+  # =================================================================
+  # Activated with: export PRECOMMIT_PHASE=3
+
+  - repo: local
+    hooks:
+      - id: test-coverage-enforcement
+        name: Test Coverage Enforcement
+        entry: bash -c 'if [ "${PRECOMMIT_PHASE:-1}" -ge "3" ]; then npm run test:coverage -- --passWithNoTests --coverageThreshold="{\"global\":{\"lines\":70,\"functions\":70,\"branches\":65,\"statements\":70}}"; else echo "Phase 3 only - skipping"; fi'
+        language: system
+        pass_filenames: false
+
+      - id: performance-regression-check
+        name: Performance Regression Check
+        entry: bash -c 'if [ "${PRECOMMIT_PHASE:-1}" -ge "3" ]; then node scripts/check-performance-regression.js; else echo "Phase 3 only - skipping"; fi'
+        language: system
+        pass_filenames: false
+
+      - id: security-audit-strict
+        name: Security Audit (Strict)
+        entry: bash -c 'if [ "${PRECOMMIT_PHASE:-1}" -ge "3" ]; then npm audit --audit-level=high; else echo "Phase 3 only - skipping"; fi'
+        language: system
+        pass_filenames: false
+
+      - id: documentation-completeness
+        name: Documentation Completeness
+        entry: bash -c 'if [ "${PRECOMMIT_PHASE:-1}" -ge "3" ]; then node scripts/check-documentation-completeness.js; else echo "Phase 3 only - skipping"; fi'
+        language: system
+        pass_filenames: false
+
+  # =================================================================
+  # MERGER IMPLEMENTATION SUPPORT (Always Active)
+  # =================================================================
+  # Supports the 6-week merger implementation plan
+
+  - repo: local
+    hooks:
+      - id: merger-compatibility-check
+        name: Merger Compatibility Check
+        entry: node scripts/check-merger-compatibility.js
+        language: system
+        files: src/.*\.(ts|js)$
+
+      - id: legacy-code-tracker
+        name: Legacy Code Tracker
+        entry: bash -c 'grep -r "TODO.*REMOVE\|DEPRECATED\|LEGACY" src/ || true'
+        language: system
+        pass_filenames: false

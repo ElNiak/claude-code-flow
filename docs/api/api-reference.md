@@ -41,7 +41,7 @@ npx claude-flow@2.0.0 swarm "build REST API" --strategy development --parallel
 
 ### Performance Benchmarks (NPX)
 - **Swarm Init**: 5.2ms average ✅
-- **Agent Spawn**: 3.4ms average ✅  
+- **Agent Spawn**: 3.4ms average ✅
 - **Task Orchestration**: 6ms ✅
 - **Memory Usage**: 8.2MB/11.6MB ✅
 - **Neural Processing**: 20.2ms average, 50 ops/sec ✅
@@ -151,7 +151,7 @@ claude-flow agent spawn <type> [name] [options]
 
 **Agent Types:**
 - `researcher` - Research and information gathering
-- `coder` - Code development and implementation  
+- `coder` - Code development and implementation
 - `analyst` - Analysis and optimization
 - `architect` - System design and architecture
 - `tester` - Testing and quality assurance
@@ -518,8 +518,8 @@ npx claude-flow@2.0.0 init --sparc
 
 ---
 
-*Last Updated: 2025-01-05*  
-*Version: 2.0.0*  
+*Last Updated: 2025-01-05*
+*Version: 2.0.0*
 *Status: NPX Production Ready | Local Build In Progress*
 claude-flow stop [options]
 ```

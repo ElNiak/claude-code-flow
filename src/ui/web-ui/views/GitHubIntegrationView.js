@@ -4,95 +4,96 @@
  */
 
 export default class GitHubIntegrationView {
-  constructor(container, eventBus, viewConfig) {
-    this.container = container;
-    this.eventBus = eventBus;
-    this.viewConfig = viewConfig;
-    this.componentLibrary = null;
-    this.repositories = new Map();
-    this.pullRequests = new Map();
-    this.issues = new Map();
-    this.currentTab = 'overview';
-    this.isInitialized = false;
-    
-    // GitHub tools
-    this.githubTools = {
-      repo_analyze: 'github_repo_analyze',
-      pr_manage: 'github_pr_manage',
-      issue_track: 'github_issue_track',
-      release_coord: 'github_release_coord',
-      workflow_auto: 'github_workflow_auto',
-      code_review: 'github_code_review',
-      sync_coord: 'github_sync_coord',
-      metrics: 'github_metrics'
-    };
-  }
+	constructor(container, eventBus, viewConfig) {
+		this.container = container;
+		this.eventBus = eventBus;
+		this.viewConfig = viewConfig;
+		this.componentLibrary = null;
+		this.repositories = new Map();
+		this.pullRequests = new Map();
+		this.issues = new Map();
+		this.currentTab = "overview";
+		this.isInitialized = false;
 
-  /**
-   * Initialize the GitHub integration view
-   */
-  async initialize() {
-    if (this.isInitialized) return;
+		// GitHub tools
+		this.githubTools = {
+			repo_analyze: "github_repo_analyze",
+			pr_manage: "github_pr_manage",
+			issue_track: "github_issue_track",
+			release_coord: "github_release_coord",
+			workflow_auto: "github_workflow_auto",
+			code_review: "github_code_review",
+			sync_coord: "github_sync_coord",
+			metrics: "github_metrics",
+		};
+	}
 
-    // Get component library from event bus
-    this.eventBus.emit('component-library:get', (library) => {
-      this.componentLibrary = library;
-    });
+	/**
+	 * Initialize the GitHub integration view
+	 */
+	async initialize() {
+		if (this.isInitialized) return;
 
-    // Setup event handlers
-    this.setupEventHandlers();
+		// Get component library from event bus
+		this.eventBus.emit("component-library:get", (library) => {
+			this.componentLibrary = library;
+		});
 
-    this.isInitialized = true;
-  }
+		// Setup event handlers
+		this.setupEventHandlers();
 
-  /**
-   * Render the view with given parameters
-   */
-  async render(params = {}) {
-    if (!this.isInitialized) {
-      await this.initialize();
-    }
+		this.isInitialized = true;
+	}
 
-    // Clear container
-    if (this.container) {
-      this.container.innerHTML = '';
-      this.createGitHubInterface();
-    } else {
-      // Terminal mode
-      this.renderTerminalMode(params);
-    }
-  }
+	/**
+	 * Render the view with given parameters
+	 */
+	async render(params = {}) {
+		if (!this.isInitialized) {
+			await this.initialize();
+		}
 
-  /**
-   * Create GitHub interface for browser
-   */
-  createGitHubInterface() {
-    // Create tab container
-    const tabs = [
-      { label: '🏠 Overview', content: this.createOverviewTab() },
-      { label: '📁 Repositories', content: this.createRepositoriesTab() },
-      { label: '🔄 Pull Requests', content: this.createPullRequestsTab() },
-      { label: '📋 Issues', content: this.createIssuesTab() },
-      { label: '🚀 Releases', content: this.createReleasesTab() },
-      { label: '🤖 Automation', content: this.createAutomationTab() },
-      { label: '📊 Analytics', content: this.createAnalyticsTab() },
-      { label: '🔍 Code Review', content: this.createCodeReviewTab() }
-    ];
+		// Clear container
+		if (this.container) {
+			this.container.innerHTML = "";
+			this.createGitHubInterface();
+		} else {
+			// Terminal mode
+			this.renderTerminalMode(params);
+		}
+	}
 
-    if (this.componentLibrary) {
-      const tabContainer = this.componentLibrary.getComponent('TabContainer')(tabs);
-      this.container.appendChild(tabContainer.element);
-    } else {
-      // Fallback without component library
-      this.createFallbackInterface();
-    }
-  }
+	/**
+	 * Create GitHub interface for browser
+	 */
+	createGitHubInterface() {
+		// Create tab container
+		const tabs = [
+			{ label: "🏠 Overview", content: this.createOverviewTab() },
+			{ label: "📁 Repositories", content: this.createRepositoriesTab() },
+			{ label: "🔄 Pull Requests", content: this.createPullRequestsTab() },
+			{ label: "📋 Issues", content: this.createIssuesTab() },
+			{ label: "🚀 Releases", content: this.createReleasesTab() },
+			{ label: "🤖 Automation", content: this.createAutomationTab() },
+			{ label: "📊 Analytics", content: this.createAnalyticsTab() },
+			{ label: "🔍 Code Review", content: this.createCodeReviewTab() },
+		];
 
-  /**
-   * Create overview tab content
-   */
-  createOverviewTab() {
-    return `
+		if (this.componentLibrary) {
+			const tabContainer =
+				this.componentLibrary.getComponent("TabContainer")(tabs);
+			this.container.appendChild(tabContainer.element);
+		} else {
+			// Fallback without component library
+			this.createFallbackInterface();
+		}
+	}
+
+	/**
+	 * Create overview tab content
+	 */
+	createOverviewTab() {
+		return `
       <div class="github-overview">
         <div class="stats-grid">
           <div id="repos-stat" class="stat-card">
@@ -124,7 +125,7 @@ export default class GitHubIntegrationView {
             </div>
           </div>
         </div>
-        
+
         <div class="github-tools">
           <h3>🔧 Quick Actions</h3>
           <div class="tool-buttons">
@@ -154,17 +155,17 @@ export default class GitHubIntegrationView {
         </div>
       </div>
     `;
-  }
+	}
 
-  /**
-   * Create repositories tab content
-   */
-  createRepositoriesTab() {
-    return `
+	/**
+	 * Create repositories tab content
+	 */
+	createRepositoriesTab() {
+		return `
       <div class="github-repositories">
         <div class="repo-management">
           <h3>📁 Repository Management</h3>
-          
+
           <div class="repo-actions">
             <button onclick="window.githubView.browseRepositories()" class="github-btn primary">
               🔍 Browse Repositories
@@ -176,12 +177,12 @@ export default class GitHubIntegrationView {
               🔄 Sync Repos
             </button>
           </div>
-          
+
           <div class="repo-search">
             <input type="text" id="repo-search" placeholder="Search repositories..." class="search-input">
           </div>
         </div>
-        
+
         <div class="repo-analysis">
           <h3>📊 Repository Analysis</h3>
           <div class="analysis-form">
@@ -201,12 +202,12 @@ export default class GitHubIntegrationView {
               📊 Analyze
             </button>
           </div>
-          
+
           <div id="analysis-results" class="analysis-display">
             <!-- Analysis results will appear here -->
           </div>
         </div>
-        
+
         <div class="repo-list">
           <h3>📋 Repository List</h3>
           <div id="repositories-list" class="repo-grid">
@@ -215,17 +216,17 @@ export default class GitHubIntegrationView {
         </div>
       </div>
     `;
-  }
+	}
 
-  /**
-   * Create pull requests tab content
-   */
-  createPullRequestsTab() {
-    return `
+	/**
+	 * Create pull requests tab content
+	 */
+	createPullRequestsTab() {
+		return `
       <div class="github-pull-requests">
         <div class="pr-management">
           <h3>🔄 Pull Request Management</h3>
-          
+
           <div class="pr-actions">
             <button onclick="window.githubView.createPullRequest()" class="github-btn primary">
               ➕ Create PR
@@ -238,7 +239,7 @@ export default class GitHubIntegrationView {
             </button>
           </div>
         </div>
-        
+
         <div class="pr-dashboard">
           <h3>📊 PR Dashboard</h3>
           <div class="pr-filters">
@@ -252,12 +253,12 @@ export default class GitHubIntegrationView {
               <option value="">All Repositories</option>
             </select>
           </div>
-          
+
           <div id="pr-list" class="pr-list">
             <!-- PR cards will be populated here -->
           </div>
         </div>
-        
+
         <div class="pr-actions-panel">
           <h3>⚡ PR Actions</h3>
           <div class="form-group">
@@ -282,17 +283,17 @@ export default class GitHubIntegrationView {
         </div>
       </div>
     `;
-  }
+	}
 
-  /**
-   * Create issues tab content
-   */
-  createIssuesTab() {
-    return `
+	/**
+	 * Create issues tab content
+	 */
+	createIssuesTab() {
+		return `
       <div class="github-issues">
         <div class="issue-tracking">
           <h3>📋 Issue Tracking & Triage</h3>
-          
+
           <div class="issue-actions">
             <button onclick="window.githubView.createIssue()" class="github-btn primary">
               ➕ Create Issue
@@ -305,7 +306,7 @@ export default class GitHubIntegrationView {
             </button>
           </div>
         </div>
-        
+
         <div class="issue-dashboard">
           <h3>📊 Issue Dashboard</h3>
           <div class="issue-stats">
@@ -322,7 +323,7 @@ export default class GitHubIntegrationView {
               <span id="closed-issues" class="stat-value">0</span>
             </div>
           </div>
-          
+
           <div class="issue-filters">
             <input type="text" id="issue-search" placeholder="Search issues..." class="search-input">
             <select id="issue-filter-label">
@@ -332,12 +333,12 @@ export default class GitHubIntegrationView {
               <option value="documentation">Documentation</option>
             </select>
           </div>
-          
+
           <div id="issue-list" class="issue-list">
             <!-- Issue cards will be populated here -->
           </div>
         </div>
-        
+
         <div class="issue-triage">
           <h3>🏷️ Issue Triage</h3>
           <div class="triage-form">
@@ -360,17 +361,17 @@ export default class GitHubIntegrationView {
         </div>
       </div>
     `;
-  }
+	}
 
-  /**
-   * Create releases tab content
-   */
-  createReleasesTab() {
-    return `
+	/**
+	 * Create releases tab content
+	 */
+	createReleasesTab() {
+		return `
       <div class="github-releases">
         <div class="release-coordination">
           <h3>🚀 Release Coordination</h3>
-          
+
           <div class="release-actions">
             <button onclick="window.githubView.createRelease()" class="github-btn primary">
               🚀 Create Release
@@ -383,7 +384,7 @@ export default class GitHubIntegrationView {
             </button>
           </div>
         </div>
-        
+
         <div class="release-planning">
           <h3>📅 Release Planning</h3>
           <div class="release-form">
@@ -408,7 +409,7 @@ export default class GitHubIntegrationView {
             </button>
           </div>
         </div>
-        
+
         <div class="release-history">
           <h3>📋 Release History</h3>
           <div id="release-list" class="release-list">
@@ -417,17 +418,17 @@ export default class GitHubIntegrationView {
         </div>
       </div>
     `;
-  }
+	}
 
-  /**
-   * Create automation tab content
-   */
-  createAutomationTab() {
-    return `
+	/**
+	 * Create automation tab content
+	 */
+	createAutomationTab() {
+		return `
       <div class="github-automation">
         <div class="workflow-automation">
           <h3>🤖 Workflow Automation</h3>
-          
+
           <div class="automation-actions">
             <button onclick="window.githubView.createWorkflow()" class="github-btn primary">
               ➕ Create Workflow
@@ -440,7 +441,7 @@ export default class GitHubIntegrationView {
             </button>
           </div>
         </div>
-        
+
         <div class="workflow-builder">
           <h3>🔧 Workflow Builder</h3>
           <div class="workflow-form">
@@ -470,7 +471,7 @@ export default class GitHubIntegrationView {
             </button>
           </div>
         </div>
-        
+
         <div class="automation-templates">
           <h3>📋 Automation Templates</h3>
           <div class="template-grid">
@@ -493,17 +494,17 @@ export default class GitHubIntegrationView {
         </div>
       </div>
     `;
-  }
+	}
 
-  /**
-   * Create analytics tab content
-   */
-  createAnalyticsTab() {
-    return `
+	/**
+	 * Create analytics tab content
+	 */
+	createAnalyticsTab() {
+		return `
       <div class="github-analytics">
         <div class="metrics-overview">
           <h3>📊 Repository Metrics</h3>
-          
+
           <div class="metrics-actions">
             <button onclick="window.githubView.fetchMetrics()" class="github-btn primary">
               📊 Fetch Metrics
@@ -516,7 +517,7 @@ export default class GitHubIntegrationView {
             </button>
           </div>
         </div>
-        
+
         <div class="metrics-dashboard">
           <h3>📈 Metrics Dashboard</h3>
           <div class="metrics-grid">
@@ -530,7 +531,7 @@ export default class GitHubIntegrationView {
                 <span>This Week: <span id="week-commits">0</span></span>
               </div>
             </div>
-            
+
             <div class="metric-card">
               <h4>🔄 Pull Requests</h4>
               <div id="pr-chart" class="chart-container">
@@ -541,7 +542,7 @@ export default class GitHubIntegrationView {
                 <span>Avg Time: <span id="avg-pr-time">--</span></span>
               </div>
             </div>
-            
+
             <div class="metric-card">
               <h4>📋 Issues</h4>
               <div id="issues-chart" class="chart-container">
@@ -552,7 +553,7 @@ export default class GitHubIntegrationView {
                 <span>Avg Time: <span id="avg-issue-time">--</span></span>
               </div>
             </div>
-            
+
             <div class="metric-card">
               <h4>👥 Contributors</h4>
               <div id="contributors-chart" class="chart-container">
@@ -565,7 +566,7 @@ export default class GitHubIntegrationView {
             </div>
           </div>
         </div>
-        
+
         <div class="custom-metrics">
           <h3>🎯 Custom Metrics</h3>
           <div class="custom-form">
@@ -598,17 +599,17 @@ export default class GitHubIntegrationView {
         </div>
       </div>
     `;
-  }
+	}
 
-  /**
-   * Create code review tab content
-   */
-  createCodeReviewTab() {
-    return `
+	/**
+	 * Create code review tab content
+	 */
+	createCodeReviewTab() {
+		return `
       <div class="github-code-review">
         <div class="review-automation">
           <h3>🔍 Automated Code Review</h3>
-          
+
           <div class="review-actions">
             <button onclick="window.githubView.startCodeReview()" class="github-btn primary">
               🔍 Start Review
@@ -621,7 +622,7 @@ export default class GitHubIntegrationView {
             </button>
           </div>
         </div>
-        
+
         <div class="review-configuration">
           <h3>⚙️ Review Configuration</h3>
           <div class="config-form">
@@ -651,18 +652,18 @@ export default class GitHubIntegrationView {
             </button>
           </div>
         </div>
-        
+
         <div class="review-results">
           <h3>📊 Review Results</h3>
           <div id="review-summary" class="review-summary">
             <!-- Review summary will appear here -->
           </div>
-          
+
           <div id="review-findings" class="review-findings">
             <!-- Review findings will be listed here -->
           </div>
         </div>
-        
+
         <div class="review-rules">
           <h3>📋 Review Rules</h3>
           <div class="rules-list">
@@ -686,17 +687,17 @@ export default class GitHubIntegrationView {
         </div>
       </div>
     `;
-  }
+	}
 
-  /**
-   * Create fallback interface without component library
-   */
-  createFallbackInterface() {
-    this.container.innerHTML = `
+	/**
+	 * Create fallback interface without component library
+	 */
+	createFallbackInterface() {
+		this.container.innerHTML = `
       <div class="github-fallback">
         <h2>🐙 GitHub Integration</h2>
         <p>Complete GitHub operations interface with 8 integrated tools</p>
-        
+
         <div class="tool-sections">
           <div class="tool-section">
             <h3>📁 Repository Management</h3>
@@ -704,520 +705,535 @@ export default class GitHubIntegrationView {
             <button onclick="window.githubView.quickAction('github_sync_coord')">Sync Repositories</button>
             <button onclick="window.githubView.quickAction('github_metrics')">View Metrics</button>
           </div>
-          
+
           <div class="tool-section">
             <h3>🔄 PR & Issues</h3>
             <button onclick="window.githubView.quickAction('github_pr_manage')">Manage PRs</button>
             <button onclick="window.githubView.quickAction('github_issue_track')">Track Issues</button>
             <button onclick="window.githubView.quickAction('github_code_review')">Code Review</button>
           </div>
-          
+
           <div class="tool-section">
             <h3>🚀 Automation</h3>
             <button onclick="window.githubView.quickAction('github_workflow_auto')">Workflow Automation</button>
             <button onclick="window.githubView.quickAction('github_release_coord')">Release Coordination</button>
           </div>
         </div>
-        
+
         <div id="github-output" class="output-area">
           <h3>📊 Output</h3>
           <pre id="output-content">Ready for GitHub operations...</pre>
         </div>
       </div>
     `;
-  }
+	}
 
-  /**
-   * Render terminal mode
-   */
-  renderTerminalMode(params) {
-    console.log('\n🐙 GitHub Integration Operations');
-    console.log('═'.repeat(50));
-    console.log('Available Tools (8):');
-    console.log('  📊 github_repo_analyze   - Repository analysis');
-    console.log('  🔄 github_pr_manage      - PR management');
-    console.log('  📋 github_issue_track    - Issue tracking');
-    console.log('  🚀 github_release_coord  - Release coordination');
-    console.log('  🤖 github_workflow_auto  - Workflow automation');
-    console.log('  🔍 github_code_review    - Code reviews');
-    console.log('  🔄 github_sync_coord     - Multi-repo sync');
-    console.log('  📊 github_metrics        - Repository metrics');
-    console.log('═'.repeat(50));
-    
-    if (params.tool) {
-      console.log(`\n🔧 Executing: ${params.tool}`);
-      this.quickAction(params.tool, _params);
-    }
-  }
+	/**
+	 * Render terminal mode
+	 */
+	renderTerminalMode(params) {
+		console.log("\n🐙 GitHub Integration Operations");
+		console.log("═".repeat(50));
+		console.log("Available Tools (8):");
+		console.log("  📊 github_repo_analyze   - Repository analysis");
+		console.log("  🔄 github_pr_manage      - PR management");
+		console.log("  📋 github_issue_track    - Issue tracking");
+		console.log("  🚀 github_release_coord  - Release coordination");
+		console.log("  🤖 github_workflow_auto  - Workflow automation");
+		console.log("  🔍 github_code_review    - Code reviews");
+		console.log("  🔄 github_sync_coord     - Multi-repo sync");
+		console.log("  📊 github_metrics        - Repository metrics");
+		console.log("═".repeat(50));
 
-  /**
-   * Quick action handler
-   */
-  async quickAction(toolName, params = {}) {
-    try {
-      console.log(`🔧 Executing ${toolName}...`);
-      
-      // Emit tool execution event
-      this.eventBus.emit('tool:execute', {
-        tool: toolName,
-        params: params,
-        source: 'github-view'
-      });
-      
-      // Handle specific tool actions
-      switch (toolName) {
-        case 'github_repo_analyze':
-          await this.handleRepoAnalysis(params);
-          break;
-        case 'github_pr_manage':
-          await this.handlePRManagement(params);
-          break;
-        case 'github_issue_track':
-          await this.handleIssueTracking(params);
-          break;
-        case 'github_code_review':
-          await this.handleCodeReview(params);
-          break;
-        default:
-          console.log(`Tool ${toolName} executed`);
-      }
-      
-    } catch (error) {
-      console.error(`❌ Error executing ${toolName}:`, _error);
-    }
-  }
+		if (params.tool) {
+			console.log(`\n🔧 Executing: ${params.tool}`);
+			this.quickAction(params.tool, _params);
+		}
+	}
 
-  /**
-   * Handle repository analysis
-   */
-  async handleRepoAnalysis(params) {
-    const analysisParams = {
-      repo: params.repo || 'owner/repo',
-      analysis_type: params.analysis_type || 'code_quality'
-    };
-    
-    console.log('📊 Analyzing repository with parameters:', analysisParams);
-    
-    // Update UI if in browser mode
-    if (this.container) {
-      const resultsEl = document.getElementById('analysis-results');
-      if (resultsEl) {
-        resultsEl.innerHTML = '<div class="analysis-running">Analysis in progress...</div>';
-      }
-    }
-  }
+	/**
+	 * Quick action handler
+	 */
+	async quickAction(toolName, params = {}) {
+		try {
+			console.log(`🔧 Executing ${toolName}...`);
 
-  /**
-   * Handle PR management
-   */
-  async handlePRManagement(params) {
-    const prParams = {
-      repo: params.repo || 'owner/repo',
-      action: params.action || 'review',
-      pr_number: params.pr_number
-    };
-    
-    console.log('🔄 Managing PR with parameters:', prParams);
-    
-    // Update UI if in browser mode
-    if (this.container) {
-      this.updatePRList();
-    }
-  }
+			// Emit tool execution event
+			this.eventBus.emit("tool:execute", {
+				tool: toolName,
+				params: params,
+				source: "github-view",
+			});
 
-  /**
-   * Handle issue tracking
-   */
-  async handleIssueTracking(params) {
-    const issueParams = {
-      repo: params.repo || 'owner/repo',
-      action: params.action || 'track'
-    };
-    
-    console.log('📋 Tracking issues with parameters:', issueParams);
-    
-    // Update UI if in browser mode
-    if (this.container) {
-      this.updateIssueList();
-    }
-  }
+			// Handle specific tool actions
+			switch (toolName) {
+				case "github_repo_analyze":
+					await this.handleRepoAnalysis(params);
+					break;
+				case "github_pr_manage":
+					await this.handlePRManagement(params);
+					break;
+				case "github_issue_track":
+					await this.handleIssueTracking(params);
+					break;
+				case "github_code_review":
+					await this.handleCodeReview(params);
+					break;
+				default:
+					console.log(`Tool ${toolName} executed`);
+			}
+		} catch (error) {
+			console.error(`❌ Error executing ${toolName}:`, _error);
+		}
+	}
 
-  /**
-   * Handle code review
-   */
-  async handleCodeReview(params) {
-    const reviewParams = {
-      repo: params.repo || 'owner/repo',
-      pr: params.pr || 1,
-      type: params.type || 'full'
-    };
-    
-    console.log('🔍 Running code review with parameters:', reviewParams);
-    
-    // Update UI if in browser mode
-    if (this.container) {
-      const summaryEl = document.getElementById('review-summary');
-      if (summaryEl) {
-        summaryEl.innerHTML = '<div class="review-running">Code review in progress...</div>';
-      }
-    }
-  }
+	/**
+	 * Handle repository analysis
+	 */
+	async handleRepoAnalysis(params) {
+		const analysisParams = {
+			repo: params.repo || "owner/repo",
+			analysis_type: params.analysis_type || "code_quality",
+		};
 
-  /**
-   * Repository analysis functions
-   */
-  async analyzeRepository() {
-    const repo = document.getElementById('analyze-repo')?.value || prompt('Enter repository (owner/repo):');
-    if (!repo) return;
-    
-    this.quickAction('github_repo_analyze', { repo });
-  }
+		console.log("📊 Analyzing repository with parameters:", analysisParams);
 
-  async runRepoAnalysis() {
-    const repo = document.getElementById('analyze-repo')?.value;
-    const analysisType = document.getElementById('analysis-type')?.value;
-    
-    if (!repo) {
-      alert('Please enter a repository');
-      return;
-    }
-    
-    this.quickAction('github_repo_analyze', { repo, analysis_type: analysisType });
-  }
+		// Update UI if in browser mode
+		if (this.container) {
+			const resultsEl = document.getElementById("analysis-results");
+			if (resultsEl) {
+				resultsEl.innerHTML =
+					'<div class="analysis-running">Analysis in progress...</div>';
+			}
+		}
+	}
 
-  /**
-   * PR management functions
-   */
-  async createPullRequest() {
-    const repo = prompt('Enter repository (owner/repo):');
-    if (!repo) return;
-    
-    console.log('🔄 Creating pull request for:', repo);
-    this.eventBus.emit('tool:execute', {
-      tool: 'github_pr_create',
-      params: { repo },
-      source: 'github-view'
-    });
-  }
+	/**
+	 * Handle PR management
+	 */
+	async handlePRManagement(params) {
+		const prParams = {
+			repo: params.repo || "owner/repo",
+			action: params.action || "review",
+			pr_number: params.pr_number,
+		};
 
-  async executePRAction() {
-    const repo = document.getElementById('pr-repo')?.value;
-    const prNumber = document.getElementById('pr-number')?.value;
-    const action = document.getElementById('pr-action')?.value;
-    
-    if (!repo || !prNumber) {
-      alert('Please enter repository and PR number');
-      return;
-    }
-    
-    this.quickAction('github_pr_manage', { repo, pr_number: prNumber, action });
-  }
+		console.log("🔄 Managing PR with parameters:", prParams);
 
-  /**
-   * Issue tracking functions
-   */
-  async trackIssues() {
-    const repo = prompt('Enter repository (owner/repo):');
-    if (!repo) return;
-    
-    this.quickAction('github_issue_track', { repo, action: 'track' });
-  }
+		// Update UI if in browser mode
+		if (this.container) {
+			this.updatePRList();
+		}
+	}
 
-  async runTriage() {
-    const repo = document.getElementById('triage-repo')?.value;
-    const action = document.getElementById('triage-action')?.value;
-    
-    if (!repo) {
-      alert('Please enter a repository');
-      return;
-    }
-    
-    this.quickAction('github_issue_track', { repo, action });
-  }
+	/**
+	 * Handle issue tracking
+	 */
+	async handleIssueTracking(params) {
+		const issueParams = {
+			repo: params.repo || "owner/repo",
+			action: params.action || "track",
+		};
 
-  /**
-   * Metrics functions
-   */
-  async checkMetrics() {
-    const repo = prompt('Enter repository (owner/repo):');
-    if (!repo) return;
-    
-    this.quickAction('github_metrics', { repo });
-  }
+		console.log("📋 Tracking issues with parameters:", issueParams);
 
-  async fetchMetrics() {
-    const repo = document.getElementById('metrics-repo')?.value || prompt('Enter repository (owner/repo):');
-    if (!repo) return;
-    
-    this.quickAction('github_metrics', { repo });
-  }
+		// Update UI if in browser mode
+		if (this.container) {
+			this.updateIssueList();
+		}
+	}
 
-  /**
-   * Code review functions
-   */
-  async startCodeReview() {
-    const repo = document.getElementById('review-repo')?.value || prompt('Enter repository (owner/repo):');
-    const pr = document.getElementById('review-pr')?.value || prompt('Enter PR number:');
-    
-    if (!repo || !pr) return;
-    
-    this.quickAction('github_code_review', { repo, pr });
-  }
+	/**
+	 * Handle code review
+	 */
+	async handleCodeReview(params) {
+		const reviewParams = {
+			repo: params.repo || "owner/repo",
+			pr: params.pr || 1,
+			type: params.type || "full",
+		};
 
-  async runCodeReview() {
-    const repo = document.getElementById('review-repo')?.value;
-    const pr = document.getElementById('review-pr')?.value;
-    const reviewType = document.getElementById('review-type')?.value;
-    
-    if (!repo || !pr) {
-      alert('Please enter repository and PR number');
-      return;
-    }
-    
-    this.quickAction('github_code_review', { repo, pr, type: reviewType });
-  }
+		console.log("🔍 Running code review with parameters:", reviewParams);
 
-  /**
-   * Setup event handlers
-   */
-  setupEventHandlers() {
-    // Listen for tool results
-    this.eventBus.on('tool:executed', (data) => {
-      if (data.source === 'github-view') {
-        this.handleToolResult(data);
-      }
-    });
-    
-    // Listen for real-time updates
-    this.eventBus.on('ui:real-time:update', () => {
-      this.updateStats();
-    });
-    
-    // Listen for repository updates
-    this.eventBus.on('github:repo:updated', (data) => {
-      this.updateRepositoryList(data);
-    });
-    
-    // Listen for PR updates
-    this.eventBus.on('github:pr:updated', (data) => {
-      this.updatePRList(data);
-    });
-    
-    // Listen for issue updates
-    this.eventBus.on('github:issue:updated', (data) => {
-      this.updateIssueList(data);
-    });
-    
-    // Make this view instance globally accessible for button handlers
-    if (typeof window !== 'undefined') {
-      window.githubView = this;
-    }
-  }
+		// Update UI if in browser mode
+		if (this.container) {
+			const summaryEl = document.getElementById("review-summary");
+			if (summaryEl) {
+				summaryEl.innerHTML =
+					'<div class="review-running">Code review in progress...</div>';
+			}
+		}
+	}
 
-  /**
-   * Handle tool execution results
-   */
-  handleToolResult(data) {
-    console.log(`✅ Tool ${data.tool} completed:`, data.result);
-    
-    // Update UI based on result
-    if (this.container) {
-      this.updateUIWithResult(data.tool, data.result);
-    }
-  }
+	/**
+	 * Repository analysis functions
+	 */
+	async analyzeRepository() {
+		const repo =
+			document.getElementById("analyze-repo")?.value ||
+			prompt("Enter repository (owner/repo):");
+		if (!repo) return;
 
-  /**
-   * Update UI with tool results
-   */
-  updateUIWithResult(toolName, result) {
-    switch (toolName) {
-      case 'github_repo_analyze':
-        this.updateAnalysisResults(result);
-        break;
-      case 'github_pr_manage':
-        this.updatePRResults(result);
-        break;
-      case 'github_issue_track':
-        this.updateIssueResults(result);
-        break;
-      case 'github_code_review':
-        this.updateReviewResults(result);
-        break;
-      case 'github_metrics':
-        this.updateMetricsResults(result);
-        break;
-    }
-  }
+		this.quickAction("github_repo_analyze", { repo });
+	}
 
-  /**
-   * Update analysis results
-   */
-  updateAnalysisResults(result) {
-    const resultsEl = document.getElementById('analysis-results');
-    if (resultsEl) {
-      resultsEl.innerHTML = `
+	async runRepoAnalysis() {
+		const repo = document.getElementById("analyze-repo")?.value;
+		const analysisType = document.getElementById("analysis-type")?.value;
+
+		if (!repo) {
+			alert("Please enter a repository");
+			return;
+		}
+
+		this.quickAction("github_repo_analyze", {
+			repo,
+			analysis_type: analysisType,
+		});
+	}
+
+	/**
+	 * PR management functions
+	 */
+	async createPullRequest() {
+		const repo = prompt("Enter repository (owner/repo):");
+		if (!repo) return;
+
+		console.log("🔄 Creating pull request for:", repo);
+		this.eventBus.emit("tool:execute", {
+			tool: "github_pr_create",
+			params: { repo },
+			source: "github-view",
+		});
+	}
+
+	async executePRAction() {
+		const repo = document.getElementById("pr-repo")?.value;
+		const prNumber = document.getElementById("pr-number")?.value;
+		const action = document.getElementById("pr-action")?.value;
+
+		if (!repo || !prNumber) {
+			alert("Please enter repository and PR number");
+			return;
+		}
+
+		this.quickAction("github_pr_manage", { repo, pr_number: prNumber, action });
+	}
+
+	/**
+	 * Issue tracking functions
+	 */
+	async trackIssues() {
+		const repo = prompt("Enter repository (owner/repo):");
+		if (!repo) return;
+
+		this.quickAction("github_issue_track", { repo, action: "track" });
+	}
+
+	async runTriage() {
+		const repo = document.getElementById("triage-repo")?.value;
+		const action = document.getElementById("triage-action")?.value;
+
+		if (!repo) {
+			alert("Please enter a repository");
+			return;
+		}
+
+		this.quickAction("github_issue_track", { repo, action });
+	}
+
+	/**
+	 * Metrics functions
+	 */
+	async checkMetrics() {
+		const repo = prompt("Enter repository (owner/repo):");
+		if (!repo) return;
+
+		this.quickAction("github_metrics", { repo });
+	}
+
+	async fetchMetrics() {
+		const repo =
+			document.getElementById("metrics-repo")?.value ||
+			prompt("Enter repository (owner/repo):");
+		if (!repo) return;
+
+		this.quickAction("github_metrics", { repo });
+	}
+
+	/**
+	 * Code review functions
+	 */
+	async startCodeReview() {
+		const repo =
+			document.getElementById("review-repo")?.value ||
+			prompt("Enter repository (owner/repo):");
+		const pr =
+			document.getElementById("review-pr")?.value || prompt("Enter PR number:");
+
+		if (!repo || !pr) return;
+
+		this.quickAction("github_code_review", { repo, pr });
+	}
+
+	async runCodeReview() {
+		const repo = document.getElementById("review-repo")?.value;
+		const pr = document.getElementById("review-pr")?.value;
+		const reviewType = document.getElementById("review-type")?.value;
+
+		if (!repo || !pr) {
+			alert("Please enter repository and PR number");
+			return;
+		}
+
+		this.quickAction("github_code_review", { repo, pr, type: reviewType });
+	}
+
+	/**
+	 * Setup event handlers
+	 */
+	setupEventHandlers() {
+		// Listen for tool results
+		this.eventBus.on("tool:executed", (data) => {
+			if (data.source === "github-view") {
+				this.handleToolResult(data);
+			}
+		});
+
+		// Listen for real-time updates
+		this.eventBus.on("ui:real-time:update", () => {
+			this.updateStats();
+		});
+
+		// Listen for repository updates
+		this.eventBus.on("github:repo:updated", (data) => {
+			this.updateRepositoryList(data);
+		});
+
+		// Listen for PR updates
+		this.eventBus.on("github:pr:updated", (data) => {
+			this.updatePRList(data);
+		});
+
+		// Listen for issue updates
+		this.eventBus.on("github:issue:updated", (data) => {
+			this.updateIssueList(data);
+		});
+
+		// Make this view instance globally accessible for button handlers
+		if (typeof window !== "undefined") {
+			window.githubView = this;
+		}
+	}
+
+	/**
+	 * Handle tool execution results
+	 */
+	handleToolResult(data) {
+		console.log(`✅ Tool ${data.tool} completed:`, data.result);
+
+		// Update UI based on result
+		if (this.container) {
+			this.updateUIWithResult(data.tool, data.result);
+		}
+	}
+
+	/**
+	 * Update UI with tool results
+	 */
+	updateUIWithResult(toolName, result) {
+		switch (toolName) {
+			case "github_repo_analyze":
+				this.updateAnalysisResults(result);
+				break;
+			case "github_pr_manage":
+				this.updatePRResults(result);
+				break;
+			case "github_issue_track":
+				this.updateIssueResults(result);
+				break;
+			case "github_code_review":
+				this.updateReviewResults(result);
+				break;
+			case "github_metrics":
+				this.updateMetricsResults(result);
+				break;
+		}
+	}
+
+	/**
+	 * Update analysis results
+	 */
+	updateAnalysisResults(result) {
+		const resultsEl = document.getElementById("analysis-results");
+		if (resultsEl) {
+			resultsEl.innerHTML = `
         <div class="analysis-complete">
           <h4>📊 Analysis Complete</h4>
           <div class="analysis-scores">
             <div class="score-item">
               <span class="score-label">Code Quality:</span>
-              <span class="score-value">${result.code_quality || 'N/A'}</span>
+              <span class="score-value">${result.code_quality || "N/A"}</span>
             </div>
             <div class="score-item">
               <span class="score-label">Security:</span>
-              <span class="score-value">${result.security || 'N/A'}</span>
+              <span class="score-value">${result.security || "N/A"}</span>
             </div>
             <div class="score-item">
               <span class="score-label">Performance:</span>
-              <span class="score-value">${result.performance || 'N/A'}</span>
+              <span class="score-value">${result.performance || "N/A"}</span>
             </div>
           </div>
-          <div class="analysis-details">${result.details || ''}</div>
+          <div class="analysis-details">${result.details || ""}</div>
         </div>
       `;
-    }
-  }
+		}
+	}
 
-  /**
-   * Update statistics
-   */
-  updateStats() {
-    // Update repository count
-    const reposStatEl = document.getElementById('repos-stat');
-    if (reposStatEl) {
-      const valueEl = reposStatEl.querySelector('.stat-value');
-      if (valueEl) valueEl.textContent = this.repositories.size;
-    }
-    
-    // Update PR count
-    const prsStatEl = document.getElementById('prs-stat');
-    if (prsStatEl) {
-      const valueEl = prsStatEl.querySelector('.stat-value');
-      if (valueEl) valueEl.textContent = this.pullRequests.size;
-    }
-    
-    // Update issue count
-    const issuesStatEl = document.getElementById('issues-stat');
-    if (issuesStatEl) {
-      const valueEl = issuesStatEl.querySelector('.stat-value');
-      if (valueEl) valueEl.textContent = this.issues.size;
-    }
-  }
+	/**
+	 * Update statistics
+	 */
+	updateStats() {
+		// Update repository count
+		const reposStatEl = document.getElementById("repos-stat");
+		if (reposStatEl) {
+			const valueEl = reposStatEl.querySelector(".stat-value");
+			if (valueEl) valueEl.textContent = this.repositories.size;
+		}
 
-  /**
-   * Update repository list
-   */
-  updateRepositoryList(data) {
-    const listEl = document.getElementById('repositories-list');
-    if (listEl) {
-      // Update repository cards
-      console.log('Updating repository list:', data);
-    }
-  }
+		// Update PR count
+		const prsStatEl = document.getElementById("prs-stat");
+		if (prsStatEl) {
+			const valueEl = prsStatEl.querySelector(".stat-value");
+			if (valueEl) valueEl.textContent = this.pullRequests.size;
+		}
 
-  /**
-   * Update PR list
-   */
-  updatePRList(data) {
-    const listEl = document.getElementById('pr-list');
-    if (listEl) {
-      // Update PR cards
-      console.log('Updating PR list:', data);
-    }
-  }
+		// Update issue count
+		const issuesStatEl = document.getElementById("issues-stat");
+		if (issuesStatEl) {
+			const valueEl = issuesStatEl.querySelector(".stat-value");
+			if (valueEl) valueEl.textContent = this.issues.size;
+		}
+	}
 
-  /**
-   * Update issue list
-   */
-  updateIssueList(data) {
-    const listEl = document.getElementById('issue-list');
-    if (listEl) {
-      // Update issue cards
-      console.log('Updating issue list:', data);
-    }
-  }
+	/**
+	 * Update repository list
+	 */
+	updateRepositoryList(data) {
+		const listEl = document.getElementById("repositories-list");
+		if (listEl) {
+			// Update repository cards
+			console.log("Updating repository list:", data);
+		}
+	}
 
-  /**
-   * Update review results
-   */
-  updateReviewResults(result) {
-    const summaryEl = document.getElementById('review-summary');
-    if (summaryEl) {
-      summaryEl.innerHTML = `
+	/**
+	 * Update PR list
+	 */
+	updatePRList(data) {
+		const listEl = document.getElementById("pr-list");
+		if (listEl) {
+			// Update PR cards
+			console.log("Updating PR list:", data);
+		}
+	}
+
+	/**
+	 * Update issue list
+	 */
+	updateIssueList(data) {
+		const listEl = document.getElementById("issue-list");
+		if (listEl) {
+			// Update issue cards
+			console.log("Updating issue list:", data);
+		}
+	}
+
+	/**
+	 * Update review results
+	 */
+	updateReviewResults(result) {
+		const summaryEl = document.getElementById("review-summary");
+		if (summaryEl) {
+			summaryEl.innerHTML = `
         <div class="review-complete">
           <h4>🔍 Review Complete</h4>
-          <div class="review-score">Overall Score: ${result.score || 'N/A'}</div>
+          <div class="review-score">Overall Score: ${result.score || "N/A"}</div>
           <div class="review-stats">
             <span>Issues Found: ${result.issues || 0}</span>
             <span>Suggestions: ${result.suggestions || 0}</span>
           </div>
         </div>
       `;
-    }
-    
-    const findingsEl = document.getElementById('review-findings');
-    if (findingsEl && result.findings) {
-      findingsEl.innerHTML = result.findings.map(finding => `
+		}
+
+		const findingsEl = document.getElementById("review-findings");
+		if (findingsEl && result.findings) {
+			findingsEl.innerHTML = result.findings
+				.map(
+					(finding) => `
         <div class="finding-item">
           <span class="finding-type">${finding.type}</span>
           <span class="finding-desc">${finding.description}</span>
         </div>
-      `).join('');
-    }
-  }
+      `
+				)
+				.join("");
+		}
+	}
 
-  /**
-   * Update metrics results
-   */
-  updateMetricsResults(result) {
-    // Update metric values
-    if (result.commits) {
-      const commitsEl = document.getElementById('total-commits');
-      if (commitsEl) commitsEl.textContent = result.commits.total || 0;
-    }
-    
-    if (result.pull_requests) {
-      const mergedEl = document.getElementById('merged-prs');
-      if (mergedEl) mergedEl.textContent = result.pull_requests.merged || 0;
-    }
-    
-    if (result.issues) {
-      const resolvedEl = document.getElementById('resolved-issues');
-      if (resolvedEl) resolvedEl.textContent = result.issues.resolved || 0;
-    }
-  }
+	/**
+	 * Update metrics results
+	 */
+	updateMetricsResults(result) {
+		// Update metric values
+		if (result.commits) {
+			const commitsEl = document.getElementById("total-commits");
+			if (commitsEl) commitsEl.textContent = result.commits.total || 0;
+		}
 
-  /**
-   * Destroy view and cleanup
-   */
-  destroy() {
-    // Clear any intervals or timeouts
-    // Remove event listeners
-    // Clean up resources
-    console.log('🐙 GitHub Integration View destroyed');
-  }
+		if (result.pull_requests) {
+			const mergedEl = document.getElementById("merged-prs");
+			if (mergedEl) mergedEl.textContent = result.pull_requests.merged || 0;
+		}
+
+		if (result.issues) {
+			const resolvedEl = document.getElementById("resolved-issues");
+			if (resolvedEl) resolvedEl.textContent = result.issues.resolved || 0;
+		}
+	}
+
+	/**
+	 * Destroy view and cleanup
+	 */
+	destroy() {
+		// Clear any intervals or timeouts
+		// Remove event listeners
+		// Clean up resources
+		console.log("🐙 GitHub Integration View destroyed");
+	}
 }
 
 // Make view accessible globally for button handlers
-if (typeof window !== 'undefined') {
-  window.githubView = null;
+if (typeof window !== "undefined") {
+	window.githubView = null;
 }
 
 // Add GitHub-specific styles
-if (typeof document !== 'undefined') {
-  const githubStyles = document.createElement('style');
-  githubStyles.textContent = `
+if (typeof document !== "undefined") {
+	const githubStyles = document.createElement("style");
+	githubStyles.textContent = `
     .github-overview {
       padding: 20px;
     }
-    
+
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 16px;
       margin-bottom: 24px;
     }
-    
+
     .stat-card {
       display: flex;
       align-items: center;
@@ -1226,33 +1242,33 @@ if (typeof document !== 'undefined') {
       border-radius: 8px;
       border: 1px solid #444;
     }
-    
+
     .stat-icon {
       font-size: 24px;
       margin-right: 12px;
     }
-    
+
     .stat-value {
       font-size: 24px;
       font-weight: bold;
       color: #00d4ff;
     }
-    
+
     .stat-label {
       color: #888;
       font-size: 14px;
     }
-    
+
     .github-tools {
       margin: 24px 0;
     }
-    
+
     .tool-buttons {
       display: flex;
       gap: 12px;
       flex-wrap: wrap;
     }
-    
+
     .github-btn {
       padding: 10px 16px;
       border: none;
@@ -1261,36 +1277,36 @@ if (typeof document !== 'undefined') {
       font-weight: 500;
       transition: all 0.2s ease;
     }
-    
+
     .github-btn.primary {
       background: #00d4ff;
       color: #000;
     }
-    
+
     .github-btn.primary:hover {
       background: #00b8e6;
     }
-    
+
     .github-btn.secondary {
       background: #444;
       color: #fff;
     }
-    
+
     .github-btn.secondary:hover {
       background: #555;
     }
-    
+
     .form-group {
       margin-bottom: 16px;
     }
-    
+
     .form-group label {
       display: block;
       margin-bottom: 4px;
       color: #fff;
       font-weight: 500;
     }
-    
+
     .form-group input,
     .form-group select,
     .form-group textarea {
@@ -1301,12 +1317,12 @@ if (typeof document !== 'undefined') {
       border-radius: 4px;
       color: #fff;
     }
-    
+
     .form-group textarea {
       height: 100px;
       resize: vertical;
     }
-    
+
     .search-input {
       width: 100%;
       padding: 8px 12px;
@@ -1316,7 +1332,7 @@ if (typeof document !== 'undefined') {
       color: #fff;
       margin: 16px 0;
     }
-    
+
     .repo-grid,
     .pr-list,
     .issue-list,
@@ -1325,43 +1341,43 @@ if (typeof document !== 'undefined') {
       gap: 16px;
       margin-top: 16px;
     }
-    
+
     .template-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
       gap: 16px;
     }
-    
+
     .template-card {
       background: #2a2a2a;
       border: 1px solid #444;
       border-radius: 8px;
       padding: 16px;
     }
-    
+
     .template-card h4 {
       margin: 0 0 8px 0;
       color: #00d4ff;
     }
-    
+
     .template-card p {
       margin: 0 0 12px 0;
       color: #888;
       font-size: 14px;
     }
-    
+
     .metric-card {
       background: #2a2a2a;
       border: 1px solid #444;
       border-radius: 8px;
       padding: 16px;
     }
-    
+
     .metric-card h4 {
       margin: 0 0 12px 0;
       color: #fff;
     }
-    
+
     .chart-container {
       height: 150px;
       background: #1a1a1a;
@@ -1372,29 +1388,29 @@ if (typeof document !== 'undefined') {
       justify-content: center;
       color: #666;
     }
-    
+
     .metric-stats {
       display: flex;
       justify-content: space-between;
       font-size: 14px;
     }
-    
+
     .metric-stats span {
       color: #888;
     }
-    
+
     .metric-stats span span {
       color: #00d4ff;
       font-weight: bold;
     }
-    
+
     .pr-filters,
     .issue-filters {
       display: flex;
       gap: 12px;
       margin-bottom: 16px;
     }
-    
+
     .pr-filters select,
     .issue-filters select {
       flex: 1;
@@ -1404,30 +1420,30 @@ if (typeof document !== 'undefined') {
       border-radius: 4px;
       color: #fff;
     }
-    
+
     .issue-stats {
       display: flex;
       gap: 24px;
       margin: 16px 0;
     }
-    
+
     .issue-stat {
       display: flex;
       flex-direction: column;
       align-items: center;
     }
-    
+
     .issue-stat .stat-label {
       font-size: 14px;
       color: #888;
     }
-    
+
     .issue-stat .stat-value {
       font-size: 24px;
       font-weight: bold;
       color: #00d4ff;
     }
-    
+
     .analysis-display,
     .review-summary,
     .review-findings {
@@ -1437,34 +1453,34 @@ if (typeof document !== 'undefined') {
       padding: 16px;
       margin-top: 16px;
     }
-    
+
     .analysis-scores,
     .review-stats {
       display: flex;
       gap: 24px;
       margin: 12px 0;
     }
-    
+
     .score-item {
       display: flex;
       gap: 8px;
     }
-    
+
     .score-label {
       color: #888;
     }
-    
+
     .score-value {
       color: #00d4ff;
       font-weight: bold;
     }
-    
+
     .rules-list {
       display: flex;
       flex-direction: column;
       gap: 8px;
     }
-    
+
     .rule-item {
       display: flex;
       align-items: center;
@@ -1473,11 +1489,11 @@ if (typeof document !== 'undefined') {
       background: #2a2a2a;
       border-radius: 4px;
     }
-    
+
     .rule-item input[type="checkbox"] {
       width: auto;
     }
-    
+
     .finding-item {
       display: flex;
       gap: 12px;
@@ -1486,7 +1502,7 @@ if (typeof document !== 'undefined') {
       border-radius: 4px;
       margin-bottom: 8px;
     }
-    
+
     .finding-type {
       padding: 2px 8px;
       background: #444;
@@ -1494,33 +1510,33 @@ if (typeof document !== 'undefined') {
       font-size: 12px;
       font-weight: bold;
     }
-    
+
     .finding-desc {
       flex: 1;
       color: #ccc;
     }
-    
+
     .activity-list {
       max-height: 200px;
       overflow-y: auto;
     }
-    
+
     .activity-item {
       display: flex;
       gap: 12px;
       padding: 8px;
       border-bottom: 1px solid #333;
     }
-    
+
     .activity-time {
       color: #666;
       font-size: 12px;
     }
-    
+
     .activity-desc {
       color: #ccc;
       flex: 1;
     }
   `;
-  document.head.appendChild(githubStyles);
+	document.head.appendChild(githubStyles);
 }

@@ -131,13 +131,13 @@ const migrationScript = new FileMigrationScript({
 export class FileGeneratorService {
   // Unified API for all file generation
   async generateFile(fileName: string, content: any, options: FileGenerationOptions): Promise<FileGenerationResult>
-  
+
   // Batch generation for efficiency
   async generateBatch(files: FileGenerationRequest[]): Promise<FileGenerationResult>
-  
+
   // Cleanup and maintenance
   async cleanup(options: CleanupOptions): Promise<CleanupResult>
-  
+
   // Integration with existing systems
   async generateTaskFiles(task: WorkflowTask, outputs: any): Promise<FileGenerationResult>
   async generateMemoryFiles(sessionId: string, entries: MemoryEntry[]): Promise<FileGenerationResult>

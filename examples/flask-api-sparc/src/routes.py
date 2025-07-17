@@ -11,7 +11,7 @@ product_service = ProductService()
 def get_users():
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 10, type=int)
-    
+
     users = User.query.paginate(page=page, per_page=per_page)
     return jsonify({
         'users': [u.to_dict() for u in users.items],
@@ -28,15 +28,15 @@ def get_user(user_id):
 @api_bp.route('/users', methods=['POST'])
 def create_user():
     data = request.get_json()
-    
+
     # Validation
     if not data.get('username') or not data.get('email'):
         return jsonify({'error': 'Username and email required'}), 400
-    
+
     # Check if user exists
     if User.query.filter_by(username=data['username']).first():
         return jsonify({'error': 'Username already exists'}), 409
-    
+
     user = user_service.create_user(data)
     return jsonify(user.to_dict()), 201
 
@@ -44,7 +44,7 @@ def create_user():
 def update_user(user_id):
     user = User.query.get_or_404(user_id)
     data = request.get_json()
-    
+
     user = user_service.update_user(user, data)
     return jsonify(user.to_dict())
 

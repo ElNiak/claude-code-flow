@@ -246,12 +246,12 @@ Checking environment...
   > Web Application
 
   [?] Project Types Explained:
-  
+
   Web Application: Best for full-stack apps with UI and backend
   - Includes frontend and backend developers
   - QA engineer for testing
   - Architect for system design
-  
+
   API Service: Optimized for API-only projects
   - Focus on backend developers
   - API testing specialist

@@ -4,13 +4,13 @@
  */
 
 export class MCPToolsRegistry {
-  constructor() {
-    this.tools = this.initializeAllTools();
-    this.categories = this.getToolCategories();
-  }
+	constructor() {
+		this.tools = this.initializeAllTools();
+		this.categories = this.getToolCategories();
+	}
 
-  initializeAllTools() {
-    return {
+	initializeAllTools() {
+		return {
       // 🐝 Swarm Coordination Tools (12)
       swarm_init: {,
         name: "swarm_init",
@@ -24,18 +24,18 @@ export class MCPToolsRegistry {
               enum: ["hierarchical", "mesh", "ring", "star"],
               description: "Swarm coordination topology"},
             maxAgents: { ,
-              type: "number", 
+              type: "number",
               default: 8,
               minimum: 1,
               maximum: 50,
               description: "Maximum number of agents in swarm"},
             strategy: { ,
-              type: "string", 
+              type: "string",
               default: "auto",
               enum: ["auto", "performance", "balanced", "resource-efficient"],
               description: "Coordination strategy"}},
           required: ["topology"]}},
-      
+
       agent_spawn: {,
         name: "agent_spawn",
         description: "Create specialized AI agents",
@@ -51,12 +51,12 @@ export class MCPToolsRegistry {
               description: "Type of agent to spawn"},
             name: { type: "string", description: "Custom name for the agent" },
             capabilities: { ,
-              type: "array", 
+              type: "array",
               items: { type: "string" },
               description: "Specific capabilities for the agent"},
             swarmId: { type: "string", description: "ID of swarm to join" }},
           required: ["type"]}},
-      
+
       task_orchestrate: {,
         name: "task_orchestrate",
         description: "Orchestrate complex task workflows",
@@ -76,11 +76,11 @@ export class MCPToolsRegistry {
               default: "medium",
               description: "Task priority level"},
             dependencies: { ,
-              type: "array", 
+              type: "array",
               items: { type: "string" },
               description: "Task dependencies"}},
           required: ["task"]}},
-      
+
       swarm_status: {,
         name: "swarm_status",
         description: "Monitor swarm health and performance",
@@ -89,7 +89,7 @@ export class MCPToolsRegistry {
           type: "object",
           properties: {,
             swarmId: { type: "string", description: "Specific swarm ID to check" }}}},
-      
+
       agent_list: {,
         name: "agent_list",
         description: "List active agents & capabilities",
@@ -98,7 +98,7 @@ export class MCPToolsRegistry {
           type: "object",
           properties: {,
             swarmId: { type: "string", description: "Filter by swarm ID" }}}},
-      
+
       agent_metrics: {,
         name: "agent_metrics",
         description: "Agent performance metrics",
@@ -107,7 +107,7 @@ export class MCPToolsRegistry {
           type: "object",
           properties: {,
             agentId: { type: "string", description: "Specific agent ID" }}}},
-      
+
       swarm_monitor: {,
         name: "swarm_monitor",
         description: "Real-time swarm monitoring",
@@ -117,7 +117,7 @@ export class MCPToolsRegistry {
           properties: {,
             swarmId: { type: "string", description: "Swarm to monitor" },
             interval: { type: "number", default: 5000, description: "Monitor interval in ms" }}}},
-      
+
       topology_optimize: {,
         name: "topology_optimize",
         description: "Auto-optimize swarm topology",
@@ -126,7 +126,7 @@ export class MCPToolsRegistry {
           type: "object",
           properties: {,
             swarmId: { type: "string", description: "Swarm to optimize" }}}},
-      
+
       load_balance: {,
         name: "load_balance",
         description: "Distribute tasks efficiently",
@@ -136,7 +136,7 @@ export class MCPToolsRegistry {
           properties: {,
             swarmId: { type: "string", description: "Target swarm" },
             tasks: { type: "array", items: { type: "object" }, description: "Tasks to distribute" }}}},
-      
+
       coordination_sync: {,
         name: "coordination_sync",
         description: "Sync agent coordination",
@@ -145,7 +145,7 @@ export class MCPToolsRegistry {
           type: "object",
           properties: {,
             swarmId: { type: "string", description: "Swarm to sync" }}}},
-      
+
       swarm_scale: {,
         name: "swarm_scale",
         description: "Auto-scale agent count",
@@ -155,7 +155,7 @@ export class MCPToolsRegistry {
           properties: {,
             swarmId: { type: "string", description: "Target swarm" },
             targetSize: { type: "number", minimum: 1, maximum: 50, description: "Target agent count" }}}},
-      
+
       swarm_destroy: {,
         name: "swarm_destroy",
         description: "Gracefully shutdown swarm",
@@ -175,7 +175,7 @@ export class MCPToolsRegistry {
           type: "object",
           properties: {,
             modelId: { type: "string", description: "Model to check" }}}},
-      
+
       neural_train: {,
         name: "neural_train",
         description: "Train neural patterns with WASM SIMD acceleration",
@@ -190,7 +190,7 @@ export class MCPToolsRegistry {
             training_data: { type: "string", description: "Training data source" },
             epochs: { type: "number", default: 50, minimum: 1, maximum: 1000, description: "Training epochs" }},
           required: ["pattern_type", "training_data"]}},
-      
+
       neural_patterns: {,
         name: "neural_patterns",
         description: "Analyze cognitive patterns",
@@ -206,7 +206,7 @@ export class MCPToolsRegistry {
             outcome: { type: "string", description: "Operation outcome" },
             metadata: { type: "object", description: "Additional metadata" }},
           required: ["action"]}},
-      
+
       neural_predict: {,
         name: "neural_predict",
         description: "Make AI predictions",
@@ -235,7 +235,7 @@ export class MCPToolsRegistry {
             namespace: { type: "string", default: "default", description: "Memory namespace" },
             ttl: { type: "number", description: "Time to live in milliseconds" }},
           required: ["action"]}},
-      
+
       memory_search: {,
         name: "memory_search",
         description: "Search memory with patterns",
@@ -266,7 +266,7 @@ export class MCPToolsRegistry {
               enum: ["summary", "detailed", "json"],
               default: "summary",
               description: "Report format"}}}},
-      
+
       bottleneck_analyze: {,
         name: "bottleneck_analyze",
         description: "Identify performance bottlenecks",
@@ -276,7 +276,7 @@ export class MCPToolsRegistry {
           properties: {,
             component: { type: "string", description: "Component to analyze" },
             metrics: { type: "array", items: { type: "string" }, description: "Metrics to analyze" }}}},
-      
+
       token_usage: {,
         name: "token_usage",
         description: "Analyze token consumption",
@@ -299,7 +299,7 @@ export class MCPToolsRegistry {
             steps: { type: "array", items: { type: "object" }, description: "Workflow steps" },
             triggers: { type: "array", items: { type: "object" }, description: "Workflow triggers" }},
           required: ["name", "steps"]}},
-      
+
       sparc_mode: {,
         name: "sparc_mode",
         description: "Run SPARC development modes",
@@ -329,7 +329,7 @@ export class MCPToolsRegistry {
               enum: ["code_quality", "performance", "security"],
               description: "Type of analysis"}},
           required: ["repo"]}},
-      
+
       github_pr_manage: {,
         name: "github_pr_manage",
         description: "Pull request management",
@@ -357,7 +357,7 @@ export class MCPToolsRegistry {
             capabilities: { type: "array", items: { type: "string" }, description: "Agent capabilities" },
             resources: { type: "object", description: "Resource requirements" }},
           required: ["agent_type"]}},
-      
+
       daa_capability_match: {,
         name: "daa_capability_match",
         description: "Match capabilities to tasks",
@@ -380,7 +380,7 @@ export class MCPToolsRegistry {
             command: { type: "string", description: "Command to execute" },
             args: { type: "array", items: { type: "string" }, description: "Command arguments" }},
           required: ["command"]}},
-      
+
       config_manage: {,
         name: "config_manage",
         description: "Configuration management",
@@ -391,7 +391,7 @@ export class MCPToolsRegistry {
             action: { type: "string", enum: ["get", "set", "list", "reset"], description: "Config action" },
             config: { type: "object", description: "Configuration data" }},
           required: ["action"]}},
-      
+
       features_detect: {,
         name: "features_detect",
         description: "Feature detection",
@@ -400,7 +400,7 @@ export class MCPToolsRegistry {
           type: "object",
           properties: {,
             component: { type: "string", description: "Component to detect features for" }}}},
-      
+
       security_scan: {,
         name: "security_scan",
         description: "Security scanning",
@@ -411,7 +411,7 @@ export class MCPToolsRegistry {
             target: { type: "string", description: "Target to scan" },
             depth: { type: "string", enum: ["basic", "detailed", "comprehensive"], description: "Scan depth" }},
           required: ["target"]}},
-      
+
       health_check: {,
         name: "health_check",
         description: "System health monitoring",
@@ -432,12 +432,12 @@ export class MCPToolsRegistry {
             symbol_name: { type: "string", description: "Symbol name to search for" },
             project_path: { type: "string", default: process.cwd(), description: "Project path to search in" },
             file_types: { ,
-              type: "array", 
-              items: { type: "string" }, 
+              type: "array",
+              items: { type: "string" },
               default: ["js", "ts", "jsx", "tsx"],
               description: "File types to include in search"}},
           required: ["symbol_name"]}},
-      
+
       serena_symbols_overview: {,
         name: "serena_symbols_overview",
         description: "Get project symbols overview using Serena analysis",
@@ -447,7 +447,7 @@ export class MCPToolsRegistry {
           properties: {,
             project_path: { type: "string", default: process.cwd(), description: "Project path to analyze" },
             include_dependencies: { type: "boolean", default: false, description: "Include node_modules analysis" }}}},
-      
+
       serena_read_file: {,
         name: "serena_read_file",
         description: "Read and analyze file with Serena semantic understanding",
@@ -457,77 +457,82 @@ export class MCPToolsRegistry {
           properties: {,
             file_path: { type: "string", description: "Path to file to read and analyze" },
             analysis_depth: { ,
-              type: "string", 
-              enum: ["basic", "detailed", "full"], 
+              type: "string",
+              enum: ["basic", "detailed", "full"],
               default: "basic",
               description: "Analysis depth"}},
           required: ["file_path"]}}};
-  }
+	}
 
-  getToolCategories() {
-    return {
-      swarm: "🐝 Swarm Coordination",
-      neural: "🧠 Neural Processing", 
-      memory: "💾 Memory & Persistence",
-      analysis: "📊 Analysis & Monitoring",
-      workflow: "🔄 Workflow & Automation",
-      github: "🐙 GitHub Integration",
-      daa: "🏗️ Dynamic Agent Architecture",
-      system: "🛠️ System & Utilities",
-      serena: "🔍 Serena Integration"};
-  }
+	getToolCategories() {
+		return {
+			swarm: "🐝 Swarm Coordination",
+			neural: "🧠 Neural Processing",
+			memory: "💾 Memory & Persistence",
+			analysis: "📊 Analysis & Monitoring",
+			workflow: "🔄 Workflow & Automation",
+			github: "🐙 GitHub Integration",
+			daa: "🏗️ Dynamic Agent Architecture",
+			system: "🛠️ System & Utilities",
+			serena: "🔍 Serena Integration",
+		};
+	}
 
-  getToolsByCategory(category) {
-    return Object.values(this.tools).filter(tool => tool.category === category);
-  }
+	getToolsByCategory(category) {
+		return Object.values(this.tools).filter(
+			(tool) => tool.category === category
+		);
+	}
 
-  getTool(name) {
-    return this.tools[name];
-  }
+	getTool(name) {
+		return this.tools[name];
+	}
 
-  getAllTools() {
-    return this.tools;
-  }
+	getAllTools() {
+		return this.tools;
+	}
 
-  validateToolInput(toolName, input) {
-    const _tool = this.getTool(toolName);
-    if (!tool) {
-      throw new Error(`Unknown tool: ${toolName}`);
-    }
-    
-    // Basic validation - could be enhanced with JSON schema validator
-    const _schema = tool.inputSchema;
-    if (schema.required) {
-      for (const required of schema.required) {
-        if (!(required in input)) {
-          throw new Error(`Missing required parameter: ${required}`);
-        }
-      }
-    }
-    
-    return true;
-  }
+	validateToolInput(toolName, input) {
+		const _tool = this.getTool(toolName);
+		if (!tool) {
+			throw new Error(`Unknown tool: ${toolName}`);
+		}
 
-  getToolCount() {
-    return Object.keys(this.tools).length;
-  }
+		// Basic validation - could be enhanced with JSON schema validator
+		const _schema = tool.inputSchema;
+		if (schema.required) {
+			for (const required of schema.required) {
+				if (!(required in input)) {
+					throw new Error(`Missing required parameter: ${required}`);
+				}
+			}
+		}
 
-  getToolsInfo() {
-    const _categories = {};
-    Object.values(this.tools).forEach(tool => {
-      if (!categories[tool.category]) {
-        categories[tool.category] = [];
-      }
-      categories[tool.category].push({
-        name: tool.name,
-        description: tool.description});
-    });
-    
-    return {
-      total: this.getToolCount(),
-      categories,
-      categoryLabels: this.categories};
-  }
+		return true;
+	}
+
+	getToolCount() {
+		return Object.keys(this.tools).length;
+	}
+
+	getToolsInfo() {
+		const _categories = {};
+		Object.values(this.tools).forEach((tool) => {
+			if (!categories[tool.category]) {
+				categories[tool.category] = [];
+			}
+			categories[tool.category].push({
+				name: tool.name,
+				description: tool.description,
+			});
+		});
+
+		return {
+			total: this.getToolCount(),
+			categories,
+			categoryLabels: this.categories,
+		};
+	}
 }
 
 export default MCPToolsRegistry;

@@ -1,13 +1,13 @@
-import { describe, test, expect, beforeAll, afterAll } from '@jest/globals';
-import { WorkCommand } from '../../src/unified/work/work-command.js';
-import { TaskAnalyzer } from '../../src/unified/work/task-analyzer.js';
-import type { WorkOptions, TaskInput, TaskAnalysis } from '../../src/unified/work/types.js';
+import { afterAll, beforeAll, describe, expect, test } from '@jest/globals';
 import * as fs from 'fs/promises';
 import * as path from 'path';
+import { TaskAnalyzer } from '../../src/unified/work/task-analyzer.js';
+import type { TaskAnalysis, TaskInput, WorkOptions } from '../../src/unified/work/types.js';
+import { WorkCommand } from '../../src/unified/work/work-command.js';
 
 /**
  * Prompt Engineering Validation Test Suite
- * 
+ *
  * Validates the quality, accuracy, and effectiveness of AI prompt generation
  * for Claude Code coordination in the unified work command system.
  */
@@ -19,7 +19,7 @@ describe('Prompt Engineering Validation', () => {
   beforeAll(async () => {
     testOutputDir = path.join(__dirname, 'prompt-test-output', `run-${Date.now()}`);
     await fs.mkdir(testOutputDir, { recursive: true });
-    
+
     workCommand = new WorkCommand();
     taskAnalyzer = new TaskAnalyzer();
   });
@@ -70,15 +70,15 @@ describe('Prompt Engineering Validation', () => {
 
         // Validate task analysis
         expect(analysis.taskType).toBe(testCase.taskType);
-        
+
         // Check that expected elements are present in analysis or resources
         for (const element of testCase.expectedElements) {
-          const found = 
+          const found =
             analysis.suggestedTopology === element ||
             analysis.suggestedStrategy === element ||
             analysis.requiredResources.includes(element) ||
             analysis.keywords.includes(element);
-          
+
           expect(found).toBe(true, `Expected element '${element}' not found for task: ${testCase.task}`);
         }
       }
@@ -120,11 +120,11 @@ describe('Prompt Engineering Validation', () => {
         });
 
         expect(analysis.complexity).toBe(testCase.expectedComplexity);
-        
+
         if (testCase.maxAgents) {
           expect(analysis.suggestedAgents).toBeLessThanOrEqual(testCase.maxAgents);
         }
-        
+
         if (testCase.minAgents) {
           expect(analysis.suggestedAgents).toBeGreaterThanOrEqual(testCase.minAgents);
         }
@@ -154,18 +154,18 @@ describe('Prompt Engineering Validation', () => {
         // Validate MCP tool sequencing
         const mcpToolPattern = /mcp__claude-flow__(\w+)/g;
         const mcpTools = [...generatedPrompt.matchAll(mcpToolPattern)].map(match => match[1]);
-        
+
         // Should include core MCP tools in logical order
         expect(mcpTools).toContain('swarm_init');
         expect(mcpTools).toContain('agent_spawn');
         expect(mcpTools).toContain('task_orchestrate');
         expect(mcpTools).toContain('memory_usage');
-        
+
         // swarm_init should appear before agent_spawn
         const swarmInitIndex = generatedPrompt.indexOf('mcp__claude-flow__swarm_init');
         const agentSpawnIndex = generatedPrompt.indexOf('mcp__claude-flow__agent_spawn');
         expect(swarmInitIndex).toBeLessThan(agentSpawnIndex);
-        
+
       } finally {
         writeFileSpy.mockRestore();
       }
@@ -253,7 +253,7 @@ describe('Prompt Engineering Validation', () => {
 
       // Should identify key technologies and requirements
       const expectedKeywords = ['react', 'typescript', 'node', 'express', 'postgresql', 'auth', 'websockets', 'tests', 'docker', 'deployment'];
-      const foundKeywords = expectedKeywords.filter(keyword => 
+      const foundKeywords = expectedKeywords.filter(keyword =>
         analysis.keywords.some(k => k.includes(keyword) || keyword.includes(k))
       );
 
@@ -348,7 +348,7 @@ describe('Prompt Engineering Validation', () => {
       // Should handle technical jargon appropriately
       expect(analysis.taskType).toBe('development');
       expect(analysis.complexity).toMatch(/^(high|very_high)$/);
-      
+
       // Should identify authentication/security requirements
       expect(analysis.requiredResources).toContain('code_generation');
       expect(analysis.keywords.some(k => k.includes('oauth') || k.includes('auth'))).toBe(true);
@@ -396,7 +396,7 @@ describe('Prompt Engineering Validation', () => {
       expect(analysis.keywords).toContain('react');
       expect(analysis.keywords).toContain('upgrade');
       expect(analysis.keywords).toContain('migrate');
-      
+
       // Should understand this is a significant task requiring careful coordination
       expect(analysis.complexity).toMatch(/^(medium|high|very_high)$/);
       expect(analysis.suggestedAgents).toBeGreaterThan(2);
@@ -427,12 +427,12 @@ describe('Prompt Engineering Validation', () => {
 
           // Quality metrics
           const qualityMetrics = this.calculatePromptQuality(generatedPrompt);
-          
+
           expect(qualityMetrics.completeness).toBeGreaterThan(0.8);
           expect(qualityMetrics.clarity).toBeGreaterThan(0.7);
           expect(qualityMetrics.actionability).toBeGreaterThan(0.8);
           expect(qualityMetrics.technical_accuracy).toBeGreaterThan(0.9);
-          
+
         } finally {
           writeFileSpy.mockRestore();
         }
@@ -492,12 +492,12 @@ describe('Prompt Engineering Validation', () => {
 
         // Template integrity checks
         const templateIntegrity = this.validateTemplateIntegrity(generatedPrompt);
-        
+
         expect(templateIntegrity.hasRequiredSections).toBe(true);
         expect(templateIntegrity.hasProperFormatting).toBe(true);
         expect(templateIntegrity.hasValidVariables).toBe(true);
         expect(templateIntegrity.missingElements).toHaveLength(0);
-        
+
       } finally {
         writeFileSpy.mockRestore();
       }
@@ -507,12 +507,11 @@ describe('Prompt Engineering Validation', () => {
   /**
    * Calculate prompt quality metrics
    */
-  private calculatePromptQuality(prompt: string): {
+  private calculatePromptQuality(prompt: string):
     completeness: number;
     clarity: number;
     actionability: number;
-    technical_accuracy: number;
-  } {
+    technical_accuracy: number;{
     const requiredElements = [
       'UNIFIED WORK COMMAND',
       'MANDATORY PRE-TASK REQUIREMENT',
@@ -527,7 +526,7 @@ describe('Prompt Engineering Validation', () => {
     const completeness = presentElements.length / requiredElements.length;
 
     // Clarity: based on structure and readability
-    const hasHeaders = (prompt.match(/^[🔧🚨📋⚡🎯💡]/gm) || []).length > 5;
+    const hasHeaders = (prompt.match(/^[🔧🚨📋⚡🎯💡]/gmu) || []).length > 5;
     const hasExamples = prompt.includes('Example:') || prompt.includes('example');
     const clarity = (hasHeaders ? 0.5 : 0) + (hasExamples ? 0.5 : 0);
 
@@ -552,12 +551,11 @@ describe('Prompt Engineering Validation', () => {
   /**
    * Validate template integrity
    */
-  private validateTemplateIntegrity(prompt: string): {
+  private validateTemplateIntegrity(prompt: string):
     hasRequiredSections: boolean;
     hasProperFormatting: boolean;
     hasValidVariables: boolean;
-    missingElements: string[];
-  } {
+    missingElements: string[];{
     const requiredSections = [
       'UNIFIED WORK COMMAND',
       'COORDINATION HOOKS SYSTEM',

@@ -170,10 +170,10 @@ async def profile_task():
         parallel=True,
         max_agents=3
     )
-    
+
     engine = RealBenchmarkEngine(config)
     result = await engine.run_benchmark("Analyze system performance")
-    
+
     # Extract resource metrics
     if result['results']:
         metrics = result['results'][0]['resource_usage']

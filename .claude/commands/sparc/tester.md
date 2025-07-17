@@ -37,8 +37,8 @@ TodoWrite([
     priority: "high",
     mode: "tester",
     batchOptimized: true,
-    
-    
+
+
     tools: ["Read","Write","Edit","Bash","TodoWrite","Task"]
   }
 ]);
@@ -47,7 +47,7 @@ TodoWrite([
 Task("Tester Agent", "Execute specialized tester task", {
   mode: "tester",
   batchOptimized: true,
-  
+
   memoryIntegration: true
 });
 ```

@@ -16,11 +16,11 @@ npx tsc
 # Check if compilation was successful
 if [ $? -eq 0 ]; then
     echo "✅ TypeScript compilation completed successfully"
-    
+
     # Check if the compiled file exists
     if [ -f "dist/unified/work/tmux-manager.js" ]; then
         echo "✅ Compiled tmux-manager.js found"
-        
+
         # Check if retry logic is present
         if grep -q "maxAttempts" "dist/unified/work/tmux-manager.js"; then
             echo "✅ Retry logic successfully compiled"
@@ -30,7 +30,7 @@ if [ $? -eq 0 ]; then
     else
         echo "❌ Compiled tmux-manager.js not found"
     fi
-    
+
     echo ""
     echo "🎉 Compilation complete! You can now test the tmux integration:"
     echo "   npx claude-flow work \"test tmux integration\" --tmux --debug"

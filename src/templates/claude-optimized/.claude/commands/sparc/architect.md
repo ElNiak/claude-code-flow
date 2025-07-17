@@ -27,7 +27,7 @@ Create architecture mermaid diagrams, data flows, and integration points leverag
   - Create multiple diagram files simultaneously
   - Generate component specifications in parallel
   - Write interface definitions concurrently
-  
+
 - **Concurrent Analysis**: Leverage batchtools for:
   - Analyzing multiple service boundaries at once
   - Checking integration points across components in parallel

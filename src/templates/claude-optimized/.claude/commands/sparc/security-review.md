@@ -202,7 +202,7 @@ const securityGate = async (commit) => {
     () => validateSecurityPolicies(commit),
     () => runStaticAnalysis(commit)
   ]);
-  
+
   return results.every(r => r.passed);
 };
 
@@ -212,7 +212,7 @@ const weeklyAudit = async () => {
   const audits = await batchtools.map(services, async (service) => {
     return await comprehensiveSecurityAudit(service);
   }, { concurrency: 5 });
-  
+
   await generateSecurityReport(audits);
 };
 ```

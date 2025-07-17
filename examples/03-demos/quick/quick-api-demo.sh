@@ -17,7 +17,7 @@ if ../claude-flow swarm create "Build a TODO API with GET, POST, PUT, DELETE end
   --name todo-api-demo \
   --output ./output/todo-api \
   --verbose; then
-  
+
   echo ""
   echo "✅ API created successfully!"
   echo ""

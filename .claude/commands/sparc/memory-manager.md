@@ -36,8 +36,8 @@ TodoWrite([
     priority: "high",
     mode: "memory-manager",
     batchOptimized: true,
-    
-    
+
+
     tools: ["Memory","Read","Write","TodoWrite","TodoRead"]
   }
 ]);
@@ -46,7 +46,7 @@ TodoWrite([
 Task("Memory manager Agent", "Execute specialized memory-manager task", {
   mode: "memory-manager",
   batchOptimized: true,
-  
+
   memoryIntegration: true
 });
 ```

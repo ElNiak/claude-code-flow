@@ -180,10 +180,10 @@ RUN npx claude-flow@2.0.0 init
    ```bash
    # VS Code Terminal
    npx claude-flow@2.0.0 init --dry-run
-   
+
    # CI/CD (simulate)
    CI=true npx claude-flow@2.0.0 init --dry-run
-   
+
    # Docker (simulate)
    DOCKER_CONTAINER=true npx claude-flow@2.0.0 init --dry-run
    ```
@@ -320,7 +320,7 @@ CLAUDE_ENVIRONMENT=staging npx claude-flow@2.0.0 init
    ```bash
    # Test with dry-run
    npx claude-flow@2.0.0 init --dry-run
-   
+
    # Check what flags would be applied
    npx claude-flow@2.0.0 env-check
    ```
@@ -329,7 +329,7 @@ CLAUDE_ENVIRONMENT=staging npx claude-flow@2.0.0 init
    ```bash
    # Force interactive even in CI
    CI=true npx claude-flow@2.0.0 init --interactive
-   
+
    # Force non-interactive even with TTY
    npx claude-flow@2.0.0 init --non-interactive
    ```

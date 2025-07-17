@@ -132,7 +132,7 @@ node src/cli/simple-cli.js <command> [options]
 
 #### Code Coverage
 - **Main CLI entries**: 100% instrumented
-- **Core functions**: 100% instrumented  
+- **Core functions**: 100% instrumented
 - **Command handlers**: 85% instrumented
 - **Error handlers**: 100% instrumented
 

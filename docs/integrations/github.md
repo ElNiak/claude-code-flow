@@ -326,7 +326,7 @@ Review: 3 reviewers assigned
 
 # This spawns:
 # - Code Analyst
-# - Test Designer  
+# - Test Designer
 # - Documentation Writer
 # - Security Reviewer
 # - Performance Analyzer

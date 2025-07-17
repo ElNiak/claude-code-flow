@@ -46,12 +46,12 @@ interface ConnectionPool {
 ```typescript
 calculateCredibilityScore(source: ResearchSource): number {
   let score = 0.5; // Base score
-  
+
   // Domain authority (+0.3 for .edu, .gov, .org)
   // Recency (+0.2 for <30 days, +0.1 for <365 days)
   // Citations (+0.2 max based on citation count)
   // Content quality (+0.1 for length, +0.1 for author)
-  
+
   return Math.min(score, 1.0);
 }
 ```
@@ -154,18 +154,18 @@ The strategy decomposes research objectives into six optimized phases:
 ```typescript
 calculateResearchAgentScore(agent: AgentState, task: TaskDefinition): number {
   let score = 0;
-  
+
   // Capability matching (70% weight)
   if (agent.capabilities.research) score += 0.4;
   if (agent.capabilities.webSearch) score += 0.3;
   if (agent.capabilities.analysis) score += 0.2;
   if (agent.capabilities.documentation) score += 0.1;
-  
+
   // Performance metrics (30% weight)
   score += agent.metrics.successRate * 0.3;
   score += (1 - agent.workload) * 0.2;
   score += agent.capabilities.reliability * 0.2;
-  
+
   return Math.min(score, 1.0);
 }
 ```
@@ -349,7 +349,7 @@ The `executeAgentTask` function has been optimized for research-specific tools:
 ```typescript
 private determineToolsForTask(task: TaskDefinition, agent: AgentState): string[] {
   const tools: string[] = ['read_file', 'write_to_file', 'list_files'];
-  
+
   switch (task.type) {
     case 'research':
       tools.push('WebFetchTool', 'WebSearch');
@@ -361,7 +361,7 @@ private determineToolsForTask(task: TaskDefinition, agent: AgentState): string[]
       }
       break;
   }
-  
+
   return tools;
 }
 ```

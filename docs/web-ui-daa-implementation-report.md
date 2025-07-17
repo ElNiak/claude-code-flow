@@ -120,7 +120,7 @@ class DAAView {
   initialize()            // Setup event handlers
   render()                // Main render method
   createDAAInterface()    // Build tab structure
-  
+
   // Tab Creation Methods (9 total)
   createOverviewTab()
   createAgentManagementTab()
@@ -131,7 +131,7 @@ class DAAView {
   createConsensusTab()
   createFaultToleranceTab()
   createOptimizationTab()
-  
+
   // Tool Handlers (8 total)
   handleAgentCreate()
   handleCapabilityMatch()
@@ -141,7 +141,7 @@ class DAAView {
   handleConsensus()
   handleFaultTolerance()
   handleOptimization()
-  
+
   // UI Update Methods
   updateAgentsList()
   displayCapabilityMatches()

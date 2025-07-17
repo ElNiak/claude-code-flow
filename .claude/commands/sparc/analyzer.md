@@ -38,8 +38,8 @@ TodoWrite([
     priority: "high",
     mode: "analyzer",
     batchOptimized: true,
-    
-    
+
+
     tools: ["Read","Grep","Bash","Write","Memory","TodoWrite","Task"]
   }
 ]);
@@ -48,7 +48,7 @@ TodoWrite([
 Task("Analyzer Agent", "Execute specialized analyzer task", {
   mode: "analyzer",
   batchOptimized: true,
-  
+
   memoryIntegration: true
 });
 ```

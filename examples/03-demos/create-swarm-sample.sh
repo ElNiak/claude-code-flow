@@ -32,30 +32,30 @@ monitor_swarm() {
     local swarm_id="$1"
     local start_time=$(date +%s)
     local timeout=300  # 5 minutes timeout
-    
+
     echo "⏳ Monitoring swarm execution..."
     echo ""
-    
+
     while true; do
         current_time=$(date +%s)
         elapsed=$((current_time - start_time))
-        
+
         if [ $elapsed -gt $timeout ]; then
             echo "⏰ Timeout reached. Proceeding with manual completion..."
             break
         fi
-        
+
         # Check for swarm output
         if [ -d "/tmp/swarm/$swarm_id/work" ]; then
             echo "✅ Swarm work directory detected!"
             break
         fi
-        
+
         # Check swarm runs directory
         if [ -d "./swarm-runs/$swarm_id" ]; then
             echo "📊 Swarm run detected in swarm-runs directory"
         fi
-        
+
         sleep 5
     done
 }
@@ -96,10 +96,10 @@ echo ""
 # Create the note-taking application
 create_notes_app() {
     local app_dir="$1"
-    
+
     echo "📝 Creating Note-Taking CLI Application..."
     echo ""
-    
+
     # Create package.json
     cat > "$app_dir/package.json" << 'EOF'
 {
@@ -133,7 +133,7 @@ create_notes_app() {
 }
 EOF
     echo "   ✅ Created: package.json"
-    
+
     # Create main application
     cat > "$app_dir/notes.js" << 'EOF'
 #!/usr/bin/env node
@@ -141,7 +141,7 @@ EOF
 /**
  * Notes CLI Application
  * Created by Claude Flow Swarm
- * 
+ *
  * Agent contributions:
  * - Developer-1: Core note management logic
  * - Developer-2: CLI interface and commands
@@ -213,7 +213,7 @@ class NotesManager {
 
     searchNotes(query) {
         const lowercaseQuery = query.toLowerCase();
-        return this.notes.filter(note => 
+        return this.notes.filter(note =>
             note.title.toLowerCase().includes(lowercaseQuery) ||
             note.content.toLowerCase().includes(lowercaseQuery) ||
             note.tags.some(tag => tag.toLowerCase().includes(lowercaseQuery))
@@ -250,7 +250,7 @@ class NotesManager {
         const totalNotes = this.notes.length;
         const allTags = this.notes.flatMap(note => note.tags);
         const uniqueTags = [...new Set(allTags)];
-        const avgNoteLength = totalNotes > 0 
+        const avgNoteLength = totalNotes > 0
             ? Math.round(this.notes.reduce((sum, note) => sum + note.content.length, 0) / totalNotes)
             : 0;
 
@@ -298,7 +298,7 @@ program
     .option('-t, --tag <tag>', 'Filter by tag')
     .action((options) => {
         const notes = manager.listNotes(options.tag);
-        
+
         if (notes.length === 0) {
             console.log(chalk.yellow('No notes found.'));
             return;
@@ -324,7 +324,7 @@ program
     .description('Search notes by title, content, or tags')
     .action((query) => {
         const notes = manager.searchNotes(query);
-        
+
         if (notes.length === 0) {
             console.log(chalk.yellow(`No notes found matching "${query}".`));
             return;
@@ -415,13 +415,13 @@ export { NotesManager, Note };
 EOF
     chmod +x "$app_dir/notes.js"
     echo "   ✅ Created: notes.js (main application)"
-    
+
     # Create test suite
     cat > "$app_dir/notes.test.js" << 'EOF'
 /**
  * Test Suite for Notes CLI
  * Created by Swarm Agent: Tester-1
- * 
+ *
  * Comprehensive testing following TDD principles
  */
 
@@ -481,7 +481,7 @@ describe('Notes CLI Test Suite', () => {
         it('should filter notes by tag', () => {
             const workNotes = manager.listNotes('work');
             assert.strictEqual(workNotes.length, 2);
-            
+
             const personalNotes = manager.listNotes('personal');
             assert.strictEqual(personalNotes.length, 1);
         });
@@ -531,7 +531,7 @@ describe('Notes CLI Test Suite', () => {
             const note = manager.addNote('To Delete', 'Delete me', []);
             const noteId = note.id;
             const initialCount = manager.notes.length;
-            
+
             const deleted = manager.deleteNote(noteId);
             assert.ok(deleted);
             assert.strictEqual(deleted.id, noteId);
@@ -551,7 +551,7 @@ describe('Notes CLI Test Suite', () => {
                 title: 'Updated',
                 content: 'Updated content'
             });
-            
+
             assert.strictEqual(updated.title, 'Updated');
             assert.strictEqual(updated.content, 'Updated content');
             assert.notStrictEqual(updated.updatedAt, note.createdAt);
@@ -580,7 +580,7 @@ console.log('🧪 Test suite created by Swarm Agent: Tester-1');
 console.log('✨ Quality threshold: 0.9 - All tests must pass!');
 EOF
     echo "   ✅ Created: notes.test.js (comprehensive test suite)"
-    
+
     # Create README
     cat > "$app_dir/README.md" << 'EOF'
 # Notes CLI
@@ -772,7 +772,7 @@ Special thanks to the Claude Flow Swarm system and all participating agents:
 *Strategy: Development | Mode: Parallel | Quality: 0.9*
 EOF
     echo "   ✅ Created: README.md (comprehensive documentation)"
-    
+
     # Create .gitignore
     cat > "$app_dir/.gitignore" << 'EOF'
 node_modules/
@@ -783,7 +783,7 @@ coverage/
 .nyc_output/
 EOF
     echo "   ✅ Created: .gitignore"
-    
+
     # Create example notes file
     mkdir -p "$app_dir/.notes-cli"
     cat > "$app_dir/.notes-cli/notes.json" << 'EOF'

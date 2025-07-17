@@ -1,285 +1,300 @@
-import { getErrorMessage as _getErrorMessage } from '../../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from "../../utils/error-handler.js";
 /**
  * Markdown backend implementation for human-readable memory storage
  */
 
-import { promises as fs } from 'fs';
-import path from 'path';
-import type { IMemoryBackend } from './base.js';
-import type { MemoryEntry, MemoryQuery } from '../../utils/types.js';
-import type { ILogger } from '../../core/logger.js';
-import { MemoryBackendError } from '../../utils/errors.js';
+import { promises as fs } from "fs";
+import path from "path";
+import type { ILogger } from "../../core/logger.js";
+import { MemoryBackendError } from "../../utils/errors.js";
+import type { MemoryEntry, MemoryQuery } from "../../utils/types.js";
+import type { IMemoryBackend } from "./base.js";
 
 /**
  * Markdown-based memory backend
  */
 export class MarkdownBackend implements IMemoryBackend {
-  private entries = new Map<string, MemoryEntry>();
-  private indexPath: string;
+	private entries = new Map<string, MemoryEntry>();
+	private indexPath: string;
 
-  constructor(
-    private baseDir: string,
-    private logger: ILogger,
-  ) {
-    this.indexPath = path.join(this.baseDir, 'index.json');
-  }
+	constructor(
+		private baseDir: string,
+		private logger: ILogger
+	) {
+		this.indexPath = path.join(this.baseDir, "index.json");
+	}
 
-  async initialize(): Promise<void> {
-    this.logger.info('Initializing Markdown backend', { baseDir: this.baseDir });
+	async initialize(): Promise<void> {
+		this.logger.info("Initializing Markdown backend", {
+			baseDir: this.baseDir,
+		});
 
-    try {
-      // Ensure directories exist,
-      await fs.mkdir(this.baseDir, { recursive: true });
-      await fs.mkdir(path.join(this.baseDir, 'agents'), { recursive: true });
-      await fs.mkdir(path.join(this.baseDir, 'sessions'), { recursive: true });
+		try {
+			// Ensure directories exist,
+			await fs.mkdir(this.baseDir, { recursive: true });
+			await fs.mkdir(path.join(this.baseDir, "agents"), { recursive: true });
+			await fs.mkdir(path.join(this.baseDir, "sessions"), { recursive: true });
 
-      // Load index,
-      await this.loadIndex();
+			// Load index,
+			await this.loadIndex();
 
-      this.logger.info('Markdown backend initialized');
-    } catch (error) {
-      throw new MemoryBackendError('Failed to initialize Markdown backend', { error });
-    }
-  }
+			this.logger.info("Markdown backend initialized");
+		} catch (error) {
+			throw new MemoryBackendError("Failed to initialize Markdown backend", {
+				error,
+			});
+		}
+	}
 
-  async shutdown(): Promise<void> {
-    this.logger.info('Shutting down Markdown backend');
+	async shutdown(): Promise<void> {
+		this.logger.info("Shutting down Markdown backend");
 
-    // Save index before shutdown,
-    await this.saveIndex();
-    this.entries.clear();
-  }
+		// Save index before shutdown,
+		await this.saveIndex();
+		this.entries.clear();
+	}
 
-  async store(entry: MemoryEntry): Promise<void> {
-    try {
-      // Store in memory,
-      this.entries.set(entry.id, entry);
+	async store(entry: MemoryEntry): Promise<void> {
+		try {
+			// Store in memory,
+			this.entries.set(entry.id, entry);
 
-      // Write to markdown file,
-      await this.writeEntryToFile(entry);
+			// Write to markdown file,
+			await this.writeEntryToFile(entry);
 
-      // Update index,
-      await this.saveIndex();
-    } catch (error) {
-      throw new MemoryBackendError('Failed to store entry', { error });
-    }
-  }
+			// Update index,
+			await this.saveIndex();
+		} catch (error) {
+			throw new MemoryBackendError("Failed to store entry", { error });
+		}
+	}
 
-  async retrieve(id: string): Promise<MemoryEntry | undefined> {
-    return this.entries.get(id);
-  }
+	async retrieve(id: string): Promise<MemoryEntry | undefined> {
+		return this.entries.get(id);
+	}
 
-  async update(id: string, entry: MemoryEntry): Promise<void> {
-    if (!this.entries.has(id)) {
-      throw new MemoryBackendError(`Entry not found: ${id}`);
-    }
+	async update(id: string, entry: MemoryEntry): Promise<void> {
+		if (!this.entries.has(id)) {
+			throw new MemoryBackendError(`Entry not found: ${id}`);
+		}
 
-    await this.store(entry);
-  }
+		await this.store(entry);
+	}
 
-  async delete(id: string): Promise<void> {
-    const entry = this.entries.get(id);
-    if (!entry) {
-      return;
-    }
+	async delete(id: string): Promise<void> {
+		const entry = this.entries.get(id);
+		if (!entry) {
+			return;
+		}
 
-    try {
-      // Delete from memory,
-      this.entries.delete(id);
+		try {
+			// Delete from memory,
+			this.entries.delete(id);
 
-      // Delete file,
-      const filePath = this.getEntryFilePath(entry);
-      await fs.unlink(filePath);
+			// Delete file,
+			const filePath = this.getEntryFilePath(entry);
+			await fs.unlink(filePath);
 
-      // Update index,
-      await this.saveIndex();
-    } catch (error) {
-      throw new MemoryBackendError('Failed to delete entry', { error });
-    }
-  }
+			// Update index,
+			await this.saveIndex();
+		} catch (error) {
+			throw new MemoryBackendError("Failed to delete entry", { error });
+		}
+	}
 
-  async query(query: MemoryQuery): Promise<MemoryEntry[]> {
-    let results = Array.from(this.entries.values());
+	async query(query: MemoryQuery): Promise<MemoryEntry[]> {
+		let results = Array.from(this.entries.values());
 
-    // Apply filters,
-    if (query.agentId) {
-      results = results.filter(e => e.agentId === query.agentId);
-    }
+		// Apply filters,
+		if (query.agentId) {
+			results = results.filter((e) => e.agentId === query.agentId);
+		}
 
-    if (query.sessionId) {
-      results = results.filter(e => e.sessionId === query.sessionId);
-    }
+		if (query.sessionId) {
+			results = results.filter((e) => e.sessionId === query.sessionId);
+		}
 
-    if (query.type) {
-      results = results.filter(e => e.type === query.type);
-    }
+		if (query.type) {
+			results = results.filter((e) => e.type === query.type);
+		}
 
-    if (query.tags && query.tags.length > 0) {
-      results = results.filter(e => 
-        query.tags!.some(tag => e.tags.includes(tag)),
-      );
-    }
+		if (query.tags && query.tags.length > 0) {
+			results = results.filter((e) =>
+				query.tags!.some((tag) => e.tags.includes(tag))
+			);
+		}
 
-    if (query.startTime) {
-      results = results.filter(e => 
-        e.timestamp.getTime() >= query.startTime!.getTime(),
-      );
-    }
+		if (query.startTime) {
+			results = results.filter(
+				(e) => e.timestamp.getTime() >= query.startTime!.getTime()
+			);
+		}
 
-    if (query.endTime) {
-      results = results.filter(e => 
-        e.timestamp.getTime() <= query.endTime!.getTime(),
-      );
-    }
+		if (query.endTime) {
+			results = results.filter(
+				(e) => e.timestamp.getTime() <= query.endTime!.getTime()
+			);
+		}
 
-    if (query.search) {
-      const searchLower = query.search.toLowerCase();
-      results = results.filter(e => 
-        e.content.toLowerCase().includes(searchLower) ||
-        e.tags.some(tag => tag.toLowerCase().includes(searchLower)),
-      );
-    }
+		if (query.search) {
+			const searchLower = query.search.toLowerCase();
+			results = results.filter(
+				(e) =>
+					e.content.toLowerCase().includes(searchLower) ||
+					e.tags.some((tag) => tag.toLowerCase().includes(searchLower))
+			);
+		}
 
-    // Sort by timestamp (newest first)
-    results.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+		// Sort by timestamp (newest first)
+		results.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
 
-    // Apply pagination,
-    const start = query.offset || 0;
-    const limit = query.limit || results.length;
-    results = results.slice(start, start + limit);
+		// Apply pagination,
+		const start = query.offset || 0;
+		const limit = query.limit || results.length;
+		results = results.slice(start, start + limit);
 
-    return results;
-  }
+		return results;
+	}
 
-  async getAllEntries(): Promise<MemoryEntry[]> {
-    return Array.from(this.entries.values());
-  }
+	async getAllEntries(): Promise<MemoryEntry[]> {
+		return Array.from(this.entries.values());
+	}
 
-  async getHealthStatus(): Promise<{ 
-    healthy: boolean; 
-    error?: string; 
-    metrics?: Record<string, number>;
-  }> {
-    try {
-      // Check if directory is accessible,
-      await fs.stat(this.baseDir);
+	async getHealthStatus(): Promise<{
+		healthy: boolean;
+		error?: string;
+		metrics?: Record<string, number>;
+	}> {
+		try {
+			// Check if directory is accessible,
+			await fs.stat(this.baseDir);
 
-      const entryCount = this.entries.size;
-      let totalSizeBytes = 0;
+			const entryCount = this.entries.size;
+			let totalSizeBytes = 0;
 
-      // Calculate total size,
-      for (const entry of this.entries.values()) {
-        const filePath = this.getEntryFilePath(entry);
-        try {
-          const stat = await fs.stat(filePath);
-          totalSizeBytes += stat.size;
-        } catch {
-          // File might not exist yet
-        }
-      }
+			// Calculate total size,
+			for (const entry of this.entries.values()) {
+				const filePath = this.getEntryFilePath(entry);
+				try {
+					const stat = await fs.stat(filePath);
+					totalSizeBytes += stat.size;
+				} catch {
+					// File might not exist yet
+				}
+			}
 
-      return {
-        healthy: true,
-        metrics: {
-          entryCount,
-          totalSizeBytes,
-        },
-      };
-    } catch (error) {
-      return {
-        healthy: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      };
-    }
-  }
+			return {
+				healthy: true,
+				metrics: {
+					entryCount,
+					totalSizeBytes,
+				},
+			};
+		} catch (error) {
+			return {
+				healthy: false,
+				error: error instanceof Error ? error.message : "Unknown error",
+			};
+		}
+	}
 
-  private async loadIndex(): Promise<void> {
-    try {
-      const content = await fs.readFile(this.indexPath, 'utf-8');
-      const index = JSON.parse(content) as Record<string, MemoryEntry>;
+	private async loadIndex(): Promise<void> {
+		try {
+			const content = await fs.readFile(this.indexPath, "utf-8");
+			const index = JSON.parse(content) as Record<string, MemoryEntry>;
 
-      // Convert and validate entries,
-      for (const [id, entry] of Object.entries(index)) {
-        // Reconstruct dates,
-        entry.timestamp = new Date(entry.timestamp);
-        this.entries.set(id, entry);
-      }
+			// Convert and validate entries,
+			for (const [id, entry] of Object.entries(index)) {
+				// Reconstruct dates,
+				entry.timestamp = new Date(entry.timestamp);
+				this.entries.set(id, entry);
+			}
 
-      this.logger.info('Loaded memory index', { entries: this.entries.size });
-    } catch (error) {
-      if ((error as any).code !== 'ENOENT') {
-        this.logger.warn('Failed to load index', { error });
-      }
-      // Start with empty index if file doesn't exist
-    }
-  }
+			this.logger.info("Loaded memory index", { entries: this.entries.size });
+		} catch (error) {
+			if ((error as any).code !== "ENOENT") {
+				this.logger.warn("Failed to load index", { error });
+			}
+			// Start with empty index if file doesn't exist
+		}
+	}
 
-  private async saveIndex(): Promise<void> {
-    const index: Record<string, MemoryEntry> = {};
-    
-    for (const [id, entry] of this.entries) {
-      index[id] = entry;
-    }
+	private async saveIndex(): Promise<void> {
+		const index: Record<string, MemoryEntry> = {};
 
-    const content = JSON.stringify(index, null, 2);
-    await fs.writeFile(this.indexPath, content, 'utf-8');
-  }
+		for (const [id, entry] of this.entries) {
+			index[id] = entry;
+		}
 
-  private async writeEntryToFile(entry: MemoryEntry): Promise<void> {
-    const filePath = this.getEntryFilePath(entry);
-    const dirPath = path.dirname(filePath);
+		const content = JSON.stringify(index, null, 2);
+		await fs.writeFile(this.indexPath, content, "utf-8");
+	}
 
-    // Ensure directory exists,
-    await fs.mkdir(dirPath, { recursive: true });
+	private async writeEntryToFile(entry: MemoryEntry): Promise<void> {
+		const filePath = this.getEntryFilePath(entry);
+		const dirPath = path.dirname(filePath);
 
-    // Generate markdown content,
-    const content = this.entryToMarkdown(entry);
+		// Ensure directory exists,
+		await fs.mkdir(dirPath, { recursive: true });
 
-    // Write file,
-    await fs.writeFile(filePath, content, 'utf-8');
-  }
+		// Generate markdown content,
+		const content = this.entryToMarkdown(entry);
 
-  private getEntryFilePath(entry: MemoryEntry): string {
-    const date = entry.timestamp.toISOString().split('T')[0];
-    const time = entry.timestamp.toISOString().split('T')[1].replace(/:/g, '-').split('.')[0];
-    
-    return path.join(this.baseDir, 'agents', entry.agentId, date, `${time}_${entry.id}.md`);
-  }
+		// Write file,
+		await fs.writeFile(filePath, content, "utf-8");
+	}
 
-  private entryToMarkdown(entry: MemoryEntry): string {
-    const lines: string[] = [
-      `# Memory Entry: ${entry.id}`,
-      '',
-      `**Agent**: ${entry.agentId}`,
-      `**Session**: ${entry.sessionId}`,
-      `**Type**: ${entry.type}`,
-      `**Timestamp**: ${entry.timestamp.toISOString()}`,
-      `**Version**: ${entry.version}`,
-      '',
-    ];
+	private getEntryFilePath(entry: MemoryEntry): string {
+		const date = entry.timestamp.toISOString().split("T")[0];
+		const time = entry.timestamp
+			.toISOString()
+			.split("T")[1]
+			.replace(/:/g, "-")
+			.split(".")[0];
 
-    if (entry.parentId) {
-      lines.push(`**Parent**: ${entry.parentId}`, '');
-    }
+		return path.join(
+			this.baseDir,
+			"agents",
+			entry.agentId,
+			date,
+			`${time}_${entry.id}.md`
+		);
+	}
 
-    if (entry.tags.length > 0) {
-      lines.push(`**Tags**: ${entry.tags.join(', ')}`, '');
-    }
+	private entryToMarkdown(entry: MemoryEntry): string {
+		const lines: string[] = [
+			`# Memory Entry: ${entry.id}`,
+			"",
+			`**Agent**: ${entry.agentId}`,
+			`**Session**: ${entry.sessionId}`,
+			`**Type**: ${entry.type}`,
+			`**Timestamp**: ${entry.timestamp.toISOString()}`,
+			`**Version**: ${entry.version}`,
+			"",
+		];
 
-    lines.push('## Content', '', entry.content, '');
+		if (entry.parentId) {
+			lines.push(`**Parent**: ${entry.parentId}`, "");
+		}
 
-    if (Object.keys(entry.context).length > 0) {
-      lines.push('## Context', '', '```json');
-      lines.push(JSON.stringify(entry.context, null, 2));
-      lines.push('```', '');
-    }
+		if (entry.tags.length > 0) {
+			lines.push(`**Tags**: ${entry.tags.join(", ")}`, "");
+		}
 
-    if (entry.metadata && Object.keys(entry.metadata).length > 0) {
-      lines.push('## Metadata', '', '```json');
-      lines.push(JSON.stringify(entry.metadata, null, 2));
-      lines.push('```', '');
-    }
+		lines.push("## Content", "", entry.content, "");
 
-    return lines.join('\n');
-  }
+		if (Object.keys(entry.context).length > 0) {
+			lines.push("## Context", "", "```json");
+			lines.push(JSON.stringify(entry.context, null, 2));
+			lines.push("```", "");
+		}
+
+		if (entry.metadata && Object.keys(entry.metadata).length > 0) {
+			lines.push("## Metadata", "", "```json");
+			lines.push(JSON.stringify(entry.metadata, null, 2));
+			lines.push("```", "");
+		}
+
+		return lines.join("\n");
+	}
 }

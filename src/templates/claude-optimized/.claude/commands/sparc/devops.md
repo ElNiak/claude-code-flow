@@ -56,7 +56,7 @@ Start by running `uname` and system checks in parallel. You are responsible for 
 ```javascript
 // Deploy to multiple regions in parallel
 const regions = ['us-east-1', 'eu-west-1', 'ap-southeast-1'];
-await batchtools.parallel(regions.map(region => 
+await batchtools.parallel(regions.map(region =>
   () => deployImmutableImage(imageId, region)
 ));
 ```

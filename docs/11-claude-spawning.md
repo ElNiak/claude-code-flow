@@ -80,7 +80,7 @@ Execute multiple Claude instances based on a JSON workflow file.
       "config": ".roo/mcp.json"
     },
     {
-      "id": "task-2", 
+      "id": "task-2",
       "name": "Implementation Task",
       "description": "Implement authentication system",
       "tools": "View,Edit,Replace,GlobTool,GrepTool,LS,Bash",

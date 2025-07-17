@@ -13,12 +13,12 @@ The REST API project has a mismatch between implementation and specification:
 ```mermaid
 graph TD
     A[Current: Items API] -->|Refactor| B[Target: Tasks API v1]
-    
+
     subgraph "Current Implementation"
         A1[/api/items] --> A2[{id, name, description}]
         A1 --> A3[In-memory storage]
     end
-    
+
     subgraph "Target Implementation"
         B1[/api/v1/tasks] --> B2[{id, title, description, completed, createdAt, updatedAt}]
         B1 --> B3[Enhanced in-memory storage]
@@ -32,13 +32,13 @@ graph TD
 ```mermaid
 graph LR
     Client -->|Request| Router
-    
+
     Router -->|/api/v1/*| V1[API v1 Router]
     Router -->|/health| Health[Health Check]
     Router -->|/| Root[API Info]
-    
+
     V1 -->|/tasks| Tasks[Tasks Controller]
-    
+
     Tasks --> Validation[Request Validation]
     Validation --> Handler[Business Logic]
     Handler --> Storage[In-Memory Store]
@@ -75,10 +75,10 @@ sequenceDiagram
     participant Middleware
     participant Controller
     participant ErrorHandler
-    
+
     Client->>Middleware: Request
     Middleware->>Controller: Validated Request
-    
+
     alt Success
         Controller->>Client: 2xx Response
     else Validation Error
@@ -133,14 +133,14 @@ graph TD
     A[Test Suite] --> B[Unit Tests]
     A --> C[Integration Tests]
     A --> D[API Tests]
-    
+
     B --> B1[Storage Tests]
     B --> B2[Validation Tests]
     B --> B3[Utility Tests]
-    
+
     C --> C1[Middleware Tests]
     C --> C2[Error Handling Tests]
-    
+
     D --> D1[CRUD Operations]
     D --> D2[Query Parameters]
     D --> D3[Error Scenarios]
@@ -185,7 +185,7 @@ graph LR
     Dev[Development] -->|npm run dev| Nodemon[Nodemon Server]
     Test[Testing] -->|npm test| Jest[Jest Test Runner]
     Prod[Production] -->|npm start| Node[Node.js Server]
-    
+
     Node --> PM2[PM2 Process Manager]
     PM2 --> Cluster[Cluster Mode]
 ```

@@ -22,7 +22,7 @@
 // Core implementation in type-guards.ts
 export function getErrorMessage(error: unknown): string
 
-// Re-exported in error-handler.ts for compatibility  
+// Re-exported in error-handler.ts for compatibility
 export const getErrorMessage = getErrorMsg; // from type-guards
 
 // Also available in both .ts and .js versions
@@ -67,7 +67,7 @@ export interface WorkOptions {
 
 ### 🚨 Current Architecture Violations
 
-#### 1. **Duplicate Exports** 
+#### 1. **Duplicate Exports**
 - **Issue**: Multiple files exporting same symbols
 - **Examples**: `getErrorMessage` exported from multiple locations
 - **Fix Strategy**: Maintain single source of truth, use re-exports for compatibility
@@ -113,10 +113,10 @@ export interface WorkOptions {
 
 #### Priority 1: Syntax Errors
 1. Fix immediate compilation blockers
-2. Remove duplicate exports 
+2. Remove duplicate exports
 3. Correct import paths
 
-#### Priority 2: Architectural Alignment  
+#### Priority 2: Architectural Alignment
 1. Ensure utilities are imported from correct locations
 2. Standardize error handling patterns
 3. Maintain type system consistency

@@ -289,7 +289,7 @@ export async function loadConfig(): Promise<Config> {
     const defaults = await loadDefaultConfig();
     const environment = await loadEnvironmentConfig();
     const userConfig = await loadUserConfig();
-    
+
     return mergeConfigs(defaults, environment, userConfig);
 }
 ```
@@ -302,9 +302,9 @@ export async function loadConfig(): Promise<Config> {
 Deno.test("TerminalManager spawns terminal correctly", async () => {
     const mockEventBus = createMockEventBus();
     const manager = new TerminalManager(mockEventBus, defaultConfig);
-    
+
     const terminal = await manager.spawnTerminal(testProfile);
-    
+
     assertEquals(terminal.status, 'active');
     assertSpyCalls(mockEventBus.emit, 1);
 });
@@ -316,10 +316,10 @@ Deno.test("TerminalManager spawns terminal correctly", async () => {
 Deno.test("Orchestrator handles task assignment", async () => {
     const orchestrator = await createTestOrchestrator();
     await orchestrator.initialize();
-    
+
     const task = createTestTask();
     await orchestrator.assignTask(task);
-    
+
     const status = await orchestrator.getTaskStatus(task.id);
     assertEquals(status.state, 'assigned');
 });
@@ -330,7 +330,7 @@ Deno.test("Orchestrator handles task assignment", async () => {
 // Example E2E test
 Deno.test("CLI executes workflow successfully", async () => {
     const output = await runCLI(['workflow', 'test-workflow.yaml']);
-    
+
     assertStringIncludes(output, 'Workflow completed successfully');
     assertExists(await Deno.stat('./output/results.json'));
 });
@@ -343,7 +343,7 @@ Deno.test("CLI executes workflow successfully", async () => {
 // Load components only when needed
 export class LazyComponentLoader {
     private components = new Map<string, Promise<any>>();
-    
+
     async load<T>(name: string, loader: () => Promise<T>): Promise<T> {
         if (!this.components.has(name)) {
             this.components.set(name, loader());
@@ -359,17 +359,17 @@ export class LazyComponentLoader {
 export class ConnectionPool<T> {
     private available: T[] = [];
     private inUse = new Set<T>();
-    
+
     async acquire(): Promise<T> {
         if (this.available.length > 0) {
             const conn = this.available.pop()!;
             this.inUse.add(conn);
             return conn;
         }
-        
+
         return this.createNew();
     }
-    
+
     release(conn: T): void {
         this.inUse.delete(conn);
         this.available.push(conn);
@@ -383,23 +383,23 @@ export class ConnectionPool<T> {
 export class BatchProcessor<T> {
     private batch: T[] = [];
     private timer?: number;
-    
+
     add(item: T): void {
         this.batch.push(item);
-        
+
         if (this.batch.length >= this.batchSize) {
             this.flush();
         } else if (!this.timer) {
             this.timer = setTimeout(() => this.flush(), this.delay);
         }
     }
-    
+
     private async flush(): Promise<void> {
         if (this.batch.length === 0) return;
-        
+
         const items = this.batch.splice(0);
         await this.processBatch(items);
-        
+
         if (this.timer) {
             clearTimeout(this.timer);
             this.timer = undefined;
@@ -419,7 +419,7 @@ export class InputValidator {
         if (this.containsInjection(command)) {
             return { valid: false, error: 'Invalid characters in command' };
         }
-        
+
         // Validate against schema
         return this.validateAgainstSchema(command, commandSchema);
     }
@@ -435,7 +435,7 @@ export class Sandbox {
             new URL('./sandbox-worker.ts', import.meta.url).href,
             { type: 'module', deno: { permissions: { read: false, write: false } } }
         );
-        
+
         return new Promise((resolve, reject) => {
             worker.postMessage({ code });
             worker.onmessage = (e) => resolve(e.data);
@@ -459,7 +459,7 @@ export class AuditLogger {
             result: event.result,
             details: event.details
         };
-        
+
         await this.storage.append('audit.log', JSON.stringify(entry));
     }
 }

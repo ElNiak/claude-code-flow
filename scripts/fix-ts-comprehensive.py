@@ -11,12 +11,12 @@ def fix_file(filepath: str) -> bool:
     try:
         with open(filepath, 'r') as f:
             content = f.read()
-        
+
         original_content = content
-        
+
         # Fix 1: Remove duplicate .js extensions
         content = re.sub(r'\.js\.js', '.js', content)
-        
+
         # Fix 2: Fix incorrect constructor replacements
         content = re.sub(r'\$1\$2override \$3\(', 'constructor(', content)
         content = re.sub(r'constructor\(event: SwarmEvent\)', 'emitSwarmEvent(event: SwarmEvent)', content)
@@ -24,14 +24,14 @@ def fix_file(filepath: str) -> bool:
         content = re.sub(r'constructor\(type: EventType', 'onSwarmEvent(type: EventType', content)
         content = re.sub(r'constructor\(predicate:', 'filterEvents(predicate:', content)
         content = re.sub(r'constructor\(correlationId:', 'correlateEvents(correlationId:', content)
-        
+
         # Fix 3: Fix method signatures that should be methods, not constructors
         if 'extends BaseAgent' in content:
             # Fix executeTask method
             content = re.sub(r'constructor\(task: TaskDefinition\)', 'override async executeTask(task: TaskDefinition)', content)
             # Fix getAgentStatus method
             content = re.sub(r'constructor\(\): any {', 'override getAgentStatus(): any {', content)
-        
+
         if 'class ResearchStrategy' in content:
             # Fix decompose method
             content = re.sub(r'constructor\(objective: SwarmObjective\): Promise<{', 'override async decompose(objective: SwarmObjective): Promise<{', content)
@@ -44,7 +44,7 @@ def fix_file(filepath: str) -> bool:
             content = re.sub(r'constructor\(checkConnection', 'setTimeout(checkConnection', content)
             content = re.sub(r'constructor\(config\);', 'super(config);', content)
             content = re.sub(r'constructor\(config: Partial<SwarmConfig>', 'constructor(config: Partial<SwarmConfig>', content)
-        
+
         if 'class HttpTransport' in content:
             # Fix interface methods
             content = re.sub(r'constructor\(\): Promise<void> {', 'override async start(): Promise<void> {', content)
@@ -55,7 +55,7 @@ def fix_file(filepath: str) -> bool:
             # Fix other methods that got incorrectly replaced
             content = re.sub(r'constructor\(\): Promise<{', 'override async checkHealth(): Promise<{', content, count=1)
             content = re.sub(r'constructor\(\);', 'resolve();', content)
-            
+
             # Find and fix specific async methods
             lines = content.split('\n')
             for i, line in enumerate(lines):
@@ -68,7 +68,7 @@ def fix_file(filepath: str) -> bool:
                     elif 'disconnect' in lines[i+2].lower():
                         lines[i] = line.replace('constructor(): Promise<void>', 'override async disconnect(): Promise<void>')
             content = '\n'.join(lines)
-        
+
         # Fix 4: Add override modifiers to methods that need them
         if 'extends BaseAgent' in content or 'extends BaseStrategy' in content:
             # Find methods that likely need override
@@ -89,10 +89,10 @@ def fix_file(filepath: str) -> bool:
                         if name in ['getAgentStatus', 'getMetrics', 'onRequest', 'onNotification']:
                             lines[i] = re.sub(r'^(\s+)', r'\1override ', line)
             content = '\n'.join(lines)
-        
+
         # Fix 5: Fix array push operations on never[]
         content = re.sub(r'\(\(([a-zA-Z0-9_]+) as any\[\]\)\.push\(', r'(\1 as any[]).push(', content)
-        
+
         # Fix 6: Fix specific type imports
         if 'import type {' in content:
             # Check if types are used as values
@@ -109,7 +109,7 @@ def fix_file(filepath: str) -> bool:
                             content,
                             count=1
                         )
-        
+
         # Fix 7: Add missing imports for Node.js globals
         if '__dirname' in content and 'fileURLToPath' not in content:
             imports = [
@@ -126,7 +126,7 @@ def fix_file(filepath: str) -> bool:
                     break
             lines[insert_index:insert_index] = imports
             content = '\n'.join(lines)
-        
+
         if original_content != content:
             with open(filepath, 'w') as f:
                 f.write(content)
@@ -139,32 +139,32 @@ def fix_file(filepath: str) -> bool:
 def main():
     """Main function to fix TypeScript errors."""
     print("🔧 Starting comprehensive TypeScript fixes...")
-    
+
     # Find all TypeScript files
     ts_files = []
     for root, dirs, files in os.walk('src'):
         for file in files:
             if file.endswith('.ts'):
                 ts_files.append(os.path.join(root, file))
-    
+
     print(f"📝 Found {len(ts_files)} TypeScript files")
-    
+
     # Fix files
     fixed_count = 0
     for filepath in ts_files:
         if fix_file(filepath):
             fixed_count += 1
-    
+
     print(f"✅ Fixed {fixed_count} files")
-    
+
     # Run build to check remaining errors
     print("\n🔧 Running TypeScript build to check remaining errors...")
     result = subprocess.run(['npm', 'run', 'build:ts'], capture_output=True, text=True)
-    
+
     # Count errors
     error_count = len([line for line in result.stderr.split('\n') if 'error TS' in line])
     print(f"\n📊 Remaining errors: {error_count}")
-    
+
     # Show error summary
     if error_count > 0:
         error_types = {}
@@ -173,7 +173,7 @@ def main():
             if match:
                 code = f"TS{match.group(1)}"
                 error_types[code] = error_types.get(code, 0) + 1
-        
+
         print("\n📊 Error summary:")
         for code, count in sorted(error_types.items(), key=lambda x: x[1], reverse=True)[:10]:
             print(f"  {code}: {count} errors")

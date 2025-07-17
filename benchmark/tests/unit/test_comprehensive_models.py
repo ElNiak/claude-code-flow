@@ -11,11 +11,11 @@ from swarm_benchmark.core.models import (
 
 class TestTask(unittest.TestCase):
     """Test Task model."""
-    
+
     def test_task_creation_with_defaults(self):
         """Test task creation with default values."""
         task = Task(objective="Test objective")
-        
+
         self.assertIsNotNone(task.id)
         self.assertEqual(task.objective, "Test objective")
         self.assertEqual(task.strategy, StrategyType.AUTO)
@@ -25,28 +25,28 @@ class TestTask(unittest.TestCase):
         self.assertEqual(task.timeout, 3600)
         self.assertEqual(task.max_retries, 3)
         self.assertEqual(task.priority, 1)
-    
+
     def test_task_duration_calculation(self):
         """Test task duration calculation."""
         task = Task(objective="Test")
-        
+
         # No duration when not started
         self.assertIsNone(task.duration())
-        
+
         # Set start time
         start_time = datetime.now()
         task.started_at = start_time
-        
+
         # Still no duration without completion
         self.assertIsNone(task.duration())
-        
+
         # Set completion time
         end_time = start_time + timedelta(seconds=10)
         task.completed_at = end_time
-        
+
         # Should calculate duration
         self.assertAlmostEqual(task.duration(), 10.0, places=1)
-    
+
     def test_task_with_custom_values(self):
         """Test task creation with custom values."""
         task = Task(
@@ -58,7 +58,7 @@ class TestTask(unittest.TestCase):
             max_retries=5,
             priority=2
         )
-        
+
         self.assertEqual(task.objective, "Custom task")
         self.assertEqual(task.description, "Test description")
         self.assertEqual(task.strategy, StrategyType.RESEARCH)
@@ -70,11 +70,11 @@ class TestTask(unittest.TestCase):
 
 class TestAgent(unittest.TestCase):
     """Test Agent model."""
-    
+
     def test_agent_creation_with_defaults(self):
         """Test agent creation with default values."""
         agent = Agent()
-        
+
         self.assertIsNotNone(agent.id)
         self.assertEqual(agent.type, AgentType.SPECIALIST)
         self.assertEqual(agent.status, AgentStatus.IDLE)
@@ -84,37 +84,37 @@ class TestAgent(unittest.TestCase):
         self.assertEqual(agent.average_execution_time, 0.0)
         self.assertIsInstance(agent.created_at, datetime)
         self.assertIsInstance(agent.last_active, datetime)
-    
+
     def test_agent_performance_update(self):
         """Test agent performance update."""
         agent = Agent()
-        
+
         # Create performance metrics
         metrics1 = PerformanceMetrics(
             execution_time=10.0,
             success_rate=1.0
         )
-        
+
         agent.update_performance(metrics1)
-        
+
         self.assertEqual(agent.total_tasks_completed, 1)
         self.assertEqual(agent.total_tasks_failed, 0)
         self.assertEqual(agent.success_rate, 1.0)
         self.assertEqual(agent.average_execution_time, 10.0)
-        
+
         # Add a failed task
         metrics2 = PerformanceMetrics(
             execution_time=5.0,
             success_rate=0.0
         )
-        
+
         agent.update_performance(metrics2)
-        
+
         self.assertEqual(agent.total_tasks_completed, 1)
         self.assertEqual(agent.total_tasks_failed, 1)
         self.assertEqual(agent.success_rate, 0.5)
         self.assertEqual(agent.average_execution_time, 7.5)
-    
+
     def test_agent_with_custom_values(self):
         """Test agent creation with custom values."""
         agent = Agent(
@@ -122,7 +122,7 @@ class TestAgent(unittest.TestCase):
             type=AgentType.RESEARCHER,
             capabilities=["research", "analysis"]
         )
-        
+
         self.assertEqual(agent.name, "Test Agent")
         self.assertEqual(agent.type, AgentType.RESEARCHER)
         self.assertEqual(agent.capabilities, ["research", "analysis"])
@@ -130,11 +130,11 @@ class TestAgent(unittest.TestCase):
 
 class TestResult(unittest.TestCase):
     """Test Result model."""
-    
+
     def test_result_creation_with_defaults(self):
         """Test result creation with default values."""
         result = Result(task_id="task1", agent_id="agent1")
-        
+
         self.assertIsNotNone(result.id)
         self.assertEqual(result.task_id, "task1")
         self.assertEqual(result.agent_id, "agent1")
@@ -143,30 +143,30 @@ class TestResult(unittest.TestCase):
         self.assertIsInstance(result.quality_metrics, QualityMetrics)
         self.assertIsInstance(result.resource_usage, ResourceUsage)
         self.assertIsInstance(result.created_at, datetime)
-    
+
     def test_result_duration_calculation(self):
         """Test result duration calculation."""
         result = Result()
-        
+
         # No duration when not started
         self.assertIsNone(result.duration())
-        
+
         # Set start and end times
         start_time = datetime.now()
         result.started_at = start_time
         result.completed_at = start_time + timedelta(seconds=5)
-        
+
         # Should calculate duration
         self.assertAlmostEqual(result.duration(), 5.0, places=1)
 
 
 class TestBenchmarkMetrics(unittest.TestCase):
     """Test BenchmarkMetrics model."""
-    
+
     def test_metrics_update_from_results(self):
         """Test metrics update from results."""
         metrics = BenchmarkMetrics()
-        
+
         # Create sample results
         results = [
             Result(
@@ -188,9 +188,9 @@ class TestBenchmarkMetrics(unittest.TestCase):
                 resource_usage=ResourceUsage(peak_memory_mb=50.0)
             )
         ]
-        
+
         metrics.update_from_results(results)
-        
+
         self.assertEqual(metrics.total_tasks, 3)
         self.assertEqual(metrics.completed_tasks, 2)
         self.assertEqual(metrics.failed_tasks, 1)
@@ -203,11 +203,11 @@ class TestBenchmarkMetrics(unittest.TestCase):
 
 class TestBenchmark(unittest.TestCase):
     """Test Benchmark model."""
-    
+
     def test_benchmark_creation_with_defaults(self):
         """Test benchmark creation with default values."""
         benchmark = Benchmark()
-        
+
         self.assertIsNotNone(benchmark.id)
         self.assertEqual(benchmark.status, TaskStatus.PENDING)
         self.assertIsInstance(benchmark.config, BenchmarkConfig)
@@ -216,79 +216,79 @@ class TestBenchmark(unittest.TestCase):
         self.assertEqual(len(benchmark.tasks), 0)
         self.assertEqual(len(benchmark.agents), 0)
         self.assertEqual(len(benchmark.results), 0)
-    
+
     def test_benchmark_add_components(self):
         """Test adding components to benchmark."""
         benchmark = Benchmark()
-        
+
         # Add task
         task = Task(objective="Test task")
         benchmark.add_task(task)
         self.assertEqual(len(benchmark.tasks), 1)
         self.assertEqual(benchmark.tasks[0], task)
-        
+
         # Add agent
         agent = Agent(name="Test agent")
         benchmark.add_agent(agent)
         self.assertEqual(len(benchmark.agents), 1)
         self.assertEqual(benchmark.agents[0], agent)
-        
+
         # Add result
         result = Result(task_id=task.id, agent_id=agent.id)
         benchmark.add_result(result)
         self.assertEqual(len(benchmark.results), 1)
         self.assertEqual(benchmark.results[0], result)
-    
+
     def test_benchmark_get_by_id(self):
         """Test getting components by ID."""
         benchmark = Benchmark()
-        
+
         # Add components
         task = Task(objective="Test task")
         agent = Agent(name="Test agent")
         result = Result(task_id=task.id, agent_id=agent.id)
-        
+
         benchmark.add_task(task)
         benchmark.add_agent(agent)
         benchmark.add_result(result)
-        
+
         # Test retrieval
         self.assertEqual(benchmark.get_task_by_id(task.id), task)
         self.assertEqual(benchmark.get_agent_by_id(agent.id), agent)
         self.assertIsNone(benchmark.get_task_by_id("nonexistent"))
-        
+
         # Test getting results by IDs
         task_results = benchmark.get_results_by_task_id(task.id)
         agent_results = benchmark.get_results_by_agent_id(agent.id)
-        
+
         self.assertEqual(len(task_results), 1)
         self.assertEqual(len(agent_results), 1)
         self.assertEqual(task_results[0], result)
         self.assertEqual(agent_results[0], result)
-    
+
     def test_benchmark_duration_calculation(self):
         """Test benchmark duration calculation."""
         benchmark = Benchmark()
-        
+
         # No duration when not started
         self.assertIsNone(benchmark.duration())
-        
+
         # Set start and end times
         start_time = datetime.now()
         benchmark.started_at = start_time
         benchmark.completed_at = start_time + timedelta(minutes=5)
-        
+
         # Should calculate duration
         self.assertAlmostEqual(benchmark.duration(), 300.0, places=1)
 
 
 class TestBenchmarkConfig(unittest.TestCase):
     """Test BenchmarkConfig model."""
-    
+
     def test_config_creation_with_defaults(self):
         """Test config creation with default values."""
         config = BenchmarkConfig()
-        
+
         self.assertEqual(config.name, "benchmark")
         self.assertEqual(config.strategy, StrategyType.AUTO)
         self.assertEqual(config.mode, CoordinationMode.CENTRALIZED)
@@ -304,7 +304,7 @@ class TestBenchmarkConfig(unittest.TestCase):
         self.assertEqual(config.output_formats, ["json"])
         self.assertEqual(config.output_directory, "./reports")
         self.assertFalse(config.verbose)
-    
+
     def test_config_with_custom_values(self):
         """Test config creation with custom values."""
         config = BenchmarkConfig(
@@ -315,7 +315,7 @@ class TestBenchmarkConfig(unittest.TestCase):
             parallel=True,
             verbose=True
         )
-        
+
         self.assertEqual(config.name, "Custom Benchmark")
         self.assertEqual(config.strategy, StrategyType.DEVELOPMENT)
         self.assertEqual(config.mode, CoordinationMode.HIERARCHICAL)
@@ -326,7 +326,7 @@ class TestBenchmarkConfig(unittest.TestCase):
 
 class TestPerformanceMetrics(unittest.TestCase):
     """Test PerformanceMetrics model."""
-    
+
     def test_performance_metrics_creation(self):
         """Test performance metrics creation."""
         metrics = PerformanceMetrics(
@@ -337,7 +337,7 @@ class TestPerformanceMetrics(unittest.TestCase):
             error_rate=0.05,
             retry_count=1
         )
-        
+
         self.assertEqual(metrics.execution_time, 10.5)
         self.assertEqual(metrics.queue_time, 2.0)
         self.assertEqual(metrics.throughput, 5.0)
@@ -348,7 +348,7 @@ class TestPerformanceMetrics(unittest.TestCase):
 
 class TestQualityMetrics(unittest.TestCase):
     """Test QualityMetrics model."""
-    
+
     def test_quality_metrics_creation(self):
         """Test quality metrics creation."""
         metrics = QualityMetrics(
@@ -359,7 +359,7 @@ class TestQualityMetrics(unittest.TestCase):
             overall_quality=0.87,
             review_score=0.9
         )
-        
+
         self.assertEqual(metrics.accuracy_score, 0.9)
         self.assertEqual(metrics.completeness_score, 0.8)
         self.assertEqual(metrics.consistency_score, 0.95)
@@ -370,7 +370,7 @@ class TestQualityMetrics(unittest.TestCase):
 
 class TestResourceUsage(unittest.TestCase):
     """Test ResourceUsage model."""
-    
+
     def test_resource_usage_creation(self):
         """Test resource usage creation."""
         usage = ResourceUsage(
@@ -383,7 +383,7 @@ class TestResourceUsage(unittest.TestCase):
             peak_memory_mb=600.0,
             average_cpu_percent=20.0
         )
-        
+
         self.assertEqual(usage.cpu_percent, 25.5)
         self.assertEqual(usage.memory_mb, 512.0)
         self.assertEqual(usage.network_bytes_sent, 1024)

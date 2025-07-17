@@ -47,12 +47,12 @@ repositories:
     url: github.com/my-org/frontend
     role: ui
     agents: [coder, designer, tester]
-    
+
   - name: backend
     url: github.com/my-org/backend
     role: api
     agents: [architect, coder, tester]
-    
+
   - name: shared
     url: github.com/my-org/shared
     role: library
@@ -62,7 +62,7 @@ coordination:
   topology: hierarchical
   communication: webhook
   memory: redis://shared-memory
-  
+
 dependencies:
   - from: frontend
     to: [backend, shared]
@@ -171,7 +171,7 @@ type SwarmStatus {
 kafka:
   brokers: ['kafka1:9092', 'kafka2:9092']
   topics:
-    swarm-events: 
+    swarm-events:
       partitions: 10
       replication: 3
     swarm-memory:

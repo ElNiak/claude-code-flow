@@ -1,410 +1,409 @@
-const User = require('../models/User');
-const Token = require('../models/token.model');
-const authService = require('../services/auth.service');
-const ApiError = require('../utils/ApiError');
-const asyncHandler = require('../utils/asyncHandler');
-const logger = require('../utils/logger');
+const User = require("../models/User");
+const Token = require("../models/token.model");
+const authService = require("../services/auth.service");
+const ApiError = require("../utils/ApiError");
+const asyncHandler = require("../utils/asyncHandler");
+const logger = require("../utils/logger");
 
 const userController = {
-  /**
-   * @desc    Get all users (with pagination, filtering, and search)
-   * @route   GET /api/users
-   * @access  Private/Admin
-   */
-  getAllUsers: asyncHandler(async (req, res, next) => {
-    const {
-      page = 1,
-      limit = 20,
-      sort = '-createdAt',
-      role,
-      isActive,
-      isEmailVerified,
-      search,
-    } = req.query;
+	/**
+	 * @desc    Get all users (with pagination, filtering, and search)
+	 * @route   GET /api/users
+	 * @access  Private/Admin
+	 */
+	getAllUsers: asyncHandler(async (req, res, next) => {
+		const {
+			page = 1,
+			limit = 20,
+			sort = "-createdAt",
+			role,
+			isActive,
+			isEmailVerified,
+			search,
+		} = req.query;
 
-    // Build query
-    const query = {};
-    
-    if (role) query.role = role;
-    if (isActive !== undefined) query.isActive = isActive;
-    if (isEmailVerified !== undefined) query.isEmailVerified = isEmailVerified;
-    
-    if (search) {
-      query.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { email: { $regex: search, $options: 'i' } },
-      ];
-    }
+		// Build query
+		const query = {};
 
-    // Execute query with pagination
-    const startIndex = (page - 1) * limit;
-    const total = await User.countDocuments(query);
-    
-    const users = await User.find(query)
-      .sort(sort)
-      .limit(limit)
-      .skip(startIndex)
-      .select('-refreshTokens');
+		if (role) query.role = role;
+		if (isActive !== undefined) query.isActive = isActive;
+		if (isEmailVerified !== undefined) query.isEmailVerified = isEmailVerified;
 
-    // Pagination result
-    const pagination = {
-      current: parseInt(page),
-      pageSize: parseInt(limit),
-      total,
-      pages: Math.ceil(total / limit),
-    };
+		if (search) {
+			query.$or = [
+				{ name: { $regex: search, $options: "i" } },
+				{ email: { $regex: search, $options: "i" } },
+			];
+		}
 
-    // Add next and previous page info
-    if (startIndex + limit < total) {
-      pagination.next = {
-        page: page + 1,
-        limit,
-      };
-    }
+		// Execute query with pagination
+		const startIndex = (page - 1) * limit;
+		const total = await User.countDocuments(query);
 
-    if (startIndex > 0) {
-      pagination.prev = {
-        page: page - 1,
-        limit,
-      };
-    }
+		const users = await User.find(query)
+			.sort(sort)
+			.limit(limit)
+			.skip(startIndex)
+			.select("-refreshTokens");
 
-    res.status(200).json({
-      success: true,
-      count: users.length,
-      pagination,
-      data: users,
-    });
-  }),
+		// Pagination result
+		const pagination = {
+			current: parseInt(page),
+			pageSize: parseInt(limit),
+			total,
+			pages: Math.ceil(total / limit),
+		};
 
-  /**
-   * @desc    Get single user by ID
-   * @route   GET /api/users/:id
-   * @access  Private/Admin or User (own profile)
-   */
-  getUserById: asyncHandler(async (req, res, next) => {
-    const { id } = req.params;
+		// Add next and previous page info
+		if (startIndex + limit < total) {
+			pagination.next = {
+				page: page + 1,
+				limit,
+			};
+		}
 
-    // Check if user is accessing their own profile or is admin
-    if (req.user.role !== 'admin' && req.user._id.toString() !== id) {
-      throw new ApiError('Not authorized to access this resource', 403);
-    }
+		if (startIndex > 0) {
+			pagination.prev = {
+				page: page - 1,
+				limit,
+			};
+		}
 
-    const user = await User.findById(id).select('-refreshTokens');
+		res.status(200).json({
+			success: true,
+			count: users.length,
+			pagination,
+			data: users,
+		});
+	}),
 
-    if (!user) {
-      throw new ApiError('User not found', 404);
-    }
+	/**
+	 * @desc    Get single user by ID
+	 * @route   GET /api/users/:id
+	 * @access  Private/Admin or User (own profile)
+	 */
+	getUserById: asyncHandler(async (req, res, next) => {
+		const { id } = req.params;
 
-    res.status(200).json({
-      success: true,
-      data: user,
-    });
-  }),
+		// Check if user is accessing their own profile or is admin
+		if (req.user.role !== "admin" && req.user._id.toString() !== id) {
+			throw new ApiError("Not authorized to access this resource", 403);
+		}
 
-  /**
-   * @desc    Update user profile
-   * @route   PUT /api/users/:id
-   * @access  Private/Admin or User (own profile)
-   */
-  updateUser: asyncHandler(async (req, res, next) => {
-    const { id } = req.params;
-    const { name, phone, address, avatar } = req.body;
+		const user = await User.findById(id).select("-refreshTokens");
 
-    // Check if user is updating their own profile or is admin
-    if (req.user.role !== 'admin' && req.user._id.toString() !== id) {
-      throw new ApiError('Not authorized to update this resource', 403);
-    }
+		if (!user) {
+			throw new ApiError("User not found", 404);
+		}
 
-    // Fields that can be updated
-    const updateFields = {
-      name,
-      phone,
-      address,
-      avatar,
-    };
+		res.status(200).json({
+			success: true,
+			data: user,
+		});
+	}),
 
-    // Remove undefined fields
-    Object.keys(updateFields).forEach(key => {
-      if (updateFields[key] === undefined) {
-        delete updateFields[key];
-      }
-    });
+	/**
+	 * @desc    Update user profile
+	 * @route   PUT /api/users/:id
+	 * @access  Private/Admin or User (own profile)
+	 */
+	updateUser: asyncHandler(async (req, res, next) => {
+		const { id } = req.params;
+		const { name, phone, address, avatar } = req.body;
 
-    // Admin-only fields
-    if (req.user.role === 'admin' && req.body.role) {
-      updateFields.role = req.body.role;
-    }
+		// Check if user is updating their own profile or is admin
+		if (req.user.role !== "admin" && req.user._id.toString() !== id) {
+			throw new ApiError("Not authorized to update this resource", 403);
+		}
 
-    if (req.user.role === 'admin' && req.body.isActive !== undefined) {
-      updateFields.isActive = req.body.isActive;
-    }
+		// Fields that can be updated
+		const updateFields = {
+			name,
+			phone,
+			address,
+			avatar,
+		};
 
-    const user = await User.findByIdAndUpdate(
-      id,
-      updateFields,
-      {
-        new: true,
-        runValidators: true,
-      }
-    ).select('-refreshTokens');
+		// Remove undefined fields
+		Object.keys(updateFields).forEach((key) => {
+			if (updateFields[key] === undefined) {
+				delete updateFields[key];
+			}
+		});
 
-    if (!user) {
-      throw new ApiError('User not found', 404);
-    }
+		// Admin-only fields
+		if (req.user.role === "admin" && req.body.role) {
+			updateFields.role = req.body.role;
+		}
 
-    logger.info(`User profile updated: ${user.email}`);
+		if (req.user.role === "admin" && req.body.isActive !== undefined) {
+			updateFields.isActive = req.body.isActive;
+		}
 
-    res.status(200).json({
-      success: true,
-      message: 'Profile updated successfully',
-      data: user,
-    });
-  }),
+		const user = await User.findByIdAndUpdate(id, updateFields, {
+			new: true,
+			runValidators: true,
+		}).select("-refreshTokens");
 
-  /**
-   * @desc    Delete user
-   * @route   DELETE /api/users/:id
-   * @access  Private/Admin or User (own account)
-   */
-  deleteUser: asyncHandler(async (req, res, next) => {
-    const { id } = req.params;
+		if (!user) {
+			throw new ApiError("User not found", 404);
+		}
 
-    // Check if user is deleting their own account or is admin
-    if (req.user.role !== 'admin' && req.user._id.toString() !== id) {
-      throw new ApiError('Not authorized to delete this resource', 403);
-    }
+		logger.info(`User profile updated: ${user.email}`);
 
-    const user = await User.findById(id);
+		res.status(200).json({
+			success: true,
+			message: "Profile updated successfully",
+			data: user,
+		});
+	}),
 
-    if (!user) {
-      throw new ApiError('User not found', 404);
-    }
+	/**
+	 * @desc    Delete user
+	 * @route   DELETE /api/users/:id
+	 * @access  Private/Admin or User (own account)
+	 */
+	deleteUser: asyncHandler(async (req, res, next) => {
+		const { id } = req.params;
 
-    // Soft delete or hard delete based on configuration
-    if (process.env.SOFT_DELETE === 'true') {
-      user.isActive = false;
-      user.deletedAt = new Date();
-      await user.save();
-    } else {
-      // Remove all user tokens
-      await Token.removeUserTokens(user._id);
-      
-      // Delete user
-      await user.deleteOne();
-    }
+		// Check if user is deleting their own account or is admin
+		if (req.user.role !== "admin" && req.user._id.toString() !== id) {
+			throw new ApiError("Not authorized to delete this resource", 403);
+		}
 
-    // Blacklist current token if user is deleting their own account
-    if (req.user._id.toString() === id) {
-      await authService.blacklistToken(req.token);
-    }
+		const user = await User.findById(id);
 
-    logger.info(`User account deleted: ${user.email}`);
+		if (!user) {
+			throw new ApiError("User not found", 404);
+		}
 
-    res.status(200).json({
-      success: true,
-      message: 'User deleted successfully',
-    });
-  }),
+		// Soft delete or hard delete based on configuration
+		if (process.env.SOFT_DELETE === "true") {
+			user.isActive = false;
+			user.deletedAt = new Date();
+			await user.save();
+		} else {
+			// Remove all user tokens
+			await Token.removeUserTokens(user._id);
 
-  /**
-   * @desc    Change user password
-   * @route   PUT /api/users/change-password
-   * @access  Private
-   */
-  changePassword: asyncHandler(async (req, res, next) => {
-    const { currentPassword, newPassword } = req.body;
-    const userId = req.user._id;
+			// Delete user
+			await user.deleteOne();
+		}
 
-    // Get user with password field
-    const user = await User.findById(userId).select('+password');
+		// Blacklist current token if user is deleting their own account
+		if (req.user._id.toString() === id) {
+			await authService.blacklistToken(req.token);
+		}
 
-    // Check current password
-    const isMatch = await user.comparePassword(currentPassword);
-    if (!isMatch) {
-      throw new ApiError('Current password is incorrect', 401);
-    }
+		logger.info(`User account deleted: ${user.email}`);
 
-    // Update password
-    user.password = newPassword;
-    await user.save();
+		res.status(200).json({
+			success: true,
+			message: "User deleted successfully",
+		});
+	}),
 
-    // Generate new tokens (logout from other devices)
-    const accessToken = authService.generateAccessToken(user);
-    const deviceInfo = authService.extractDeviceInfo(req);
-    const refreshToken = await authService.generateRefreshToken(user._id, deviceInfo);
+	/**
+	 * @desc    Change user password
+	 * @route   PUT /api/users/change-password
+	 * @access  Private
+	 */
+	changePassword: asyncHandler(async (req, res, next) => {
+		const { currentPassword, newPassword } = req.body;
+		const userId = req.user._id;
 
-    // Remove all other refresh tokens
-    await Token.deleteMany({
-      user: userId,
-      type: 'refresh',
-      token: { $ne: refreshToken },
-    });
+		// Get user with password field
+		const user = await User.findById(userId).select("+password");
 
-    logger.info(`Password changed for: ${user.email}`);
+		// Check current password
+		const isMatch = await user.comparePassword(currentPassword);
+		if (!isMatch) {
+			throw new ApiError("Current password is incorrect", 401);
+		}
 
-    res.status(200).json({
-      success: true,
-      message: 'Password changed successfully',
-      data: {
-        accessToken,
-        refreshToken,
-      },
-    });
-  }),
+		// Update password
+		user.password = newPassword;
+		await user.save();
 
-  /**
-   * @desc    Update user email
-   * @route   PUT /api/users/change-email
-   * @access  Private
-   */
-  changeEmail: asyncHandler(async (req, res, next) => {
-    const { newEmail, password } = req.body;
-    const userId = req.user._id;
+		// Generate new tokens (logout from other devices)
+		const accessToken = authService.generateAccessToken(user);
+		const deviceInfo = authService.extractDeviceInfo(req);
+		const refreshToken = await authService.generateRefreshToken(
+			user._id,
+			deviceInfo,
+		);
 
-    // Check if new email already exists
-    const existingUser = await User.findOne({ email: newEmail });
-    if (existingUser) {
-      throw new ApiError('Email already in use', 400);
-    }
+		// Remove all other refresh tokens
+		await Token.deleteMany({
+			user: userId,
+			type: "refresh",
+			token: { $ne: refreshToken },
+		});
 
-    // Get user with password field
-    const user = await User.findById(userId).select('+password');
+		logger.info(`Password changed for: ${user.email}`);
 
-    // Verify password
-    const isMatch = await user.comparePassword(password);
-    if (!isMatch) {
-      throw new ApiError('Password is incorrect', 401);
-    }
+		res.status(200).json({
+			success: true,
+			message: "Password changed successfully",
+			data: {
+				accessToken,
+				refreshToken,
+			},
+		});
+	}),
 
-    // Update email
-    user.email = newEmail;
-    user.isEmailVerified = false;
-    await user.save();
+	/**
+	 * @desc    Update user email
+	 * @route   PUT /api/users/change-email
+	 * @access  Private
+	 */
+	changeEmail: asyncHandler(async (req, res, next) => {
+		const { newEmail, password } = req.body;
+		const userId = req.user._id;
 
-    // Send verification email to new address
-    if (process.env.ENABLE_EMAIL_VERIFICATION === 'true') {
-      const verificationToken = await Token.createEmailVerificationToken(user._id);
-      await authService.sendVerificationEmail(user, verificationToken.token);
-    }
+		// Check if new email already exists
+		const existingUser = await User.findOne({ email: newEmail });
+		if (existingUser) {
+			throw new ApiError("Email already in use", 400);
+		}
 
-    logger.info(`Email changed from ${req.user.email} to ${newEmail}`);
+		// Get user with password field
+		const user = await User.findById(userId).select("+password");
 
-    res.status(200).json({
-      success: true,
-      message: 'Email updated successfully. Please verify your new email address.',
-      data: {
-        email: newEmail,
-      },
-    });
-  }),
+		// Verify password
+		const isMatch = await user.comparePassword(password);
+		if (!isMatch) {
+			throw new ApiError("Password is incorrect", 401);
+		}
 
-  /**
-   * @desc    Get user statistics (Admin only)
-   * @route   GET /api/users/stats
-   * @access  Private/Admin
-   */
-  getUserStats: asyncHandler(async (req, res, next) => {
-    const stats = await User.aggregate([
-      {
-        $facet: {
-          totalUsers: [{ $count: 'count' }],
-          activeUsers: [
-            { $match: { isActive: true } },
-            { $count: 'count' },
-          ],
-          verifiedUsers: [
-            { $match: { isEmailVerified: true } },
-            { $count: 'count' },
-          ],
-          usersByRole: [
-            { $group: { _id: '$role', count: { $sum: 1 } } },
-          ],
-          recentSignups: [
-            {
-              $match: {
-                createdAt: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) },
-              },
-            },
-            { $count: 'count' },
-          ],
-          userGrowth: [
-            {
-              $group: {
-                _id: {
-                  year: { $year: '$createdAt' },
-                  month: { $month: '$createdAt' },
-                },
-                count: { $sum: 1 },
-              },
-            },
-            { $sort: { '_id.year': -1, '_id.month': -1 } },
-            { $limit: 12 },
-          ],
-        },
-      },
-    ]);
+		// Update email
+		user.email = newEmail;
+		user.isEmailVerified = false;
+		await user.save();
 
-    // Format the statistics
-    const formattedStats = {
-      totalUsers: stats[0].totalUsers[0]?.count || 0,
-      activeUsers: stats[0].activeUsers[0]?.count || 0,
-      verifiedUsers: stats[0].verifiedUsers[0]?.count || 0,
-      recentSignups: stats[0].recentSignups[0]?.count || 0,
-      usersByRole: stats[0].usersByRole.reduce((acc, item) => {
-        acc[item._id] = item.count;
-        return acc;
-      }, {}),
-      userGrowth: stats[0].userGrowth.map(item => ({
-        month: `${item._id.year}-${String(item._id.month).padStart(2, '0')}`,
-        count: item.count,
-      })),
-    };
+		// Send verification email to new address
+		if (process.env.ENABLE_EMAIL_VERIFICATION === "true") {
+			const verificationToken = await Token.createEmailVerificationToken(
+				user._id,
+			);
+			await authService.sendVerificationEmail(user, verificationToken.token);
+		}
 
-    res.status(200).json({
-      success: true,
-      data: formattedStats,
-    });
-  }),
+		logger.info(`Email changed from ${req.user.email} to ${newEmail}`);
 
-  /**
-   * @desc    Get user activity logs
-   * @route   GET /api/users/:id/activity
-   * @access  Private/Admin or User (own activity)
-   */
-  getUserActivity: asyncHandler(async (req, res, next) => {
-    const { id } = req.params;
-    const { page = 1, limit = 50 } = req.query;
+		res.status(200).json({
+			success: true,
+			message:
+				"Email updated successfully. Please verify your new email address.",
+			data: {
+				email: newEmail,
+			},
+		});
+	}),
 
-    // Check authorization
-    if (req.user.role !== 'admin' && req.user._id.toString() !== id) {
-      throw new ApiError('Not authorized to access this resource', 403);
-    }
+	/**
+	 * @desc    Get user statistics (Admin only)
+	 * @route   GET /api/users/stats
+	 * @access  Private/Admin
+	 */
+	getUserStats: asyncHandler(async (req, res, next) => {
+		const stats = await User.aggregate([
+			{
+				$facet: {
+					totalUsers: [{ $count: "count" }],
+					activeUsers: [{ $match: { isActive: true } }, { $count: "count" }],
+					verifiedUsers: [
+						{ $match: { isEmailVerified: true } },
+						{ $count: "count" },
+					],
+					usersByRole: [{ $group: { _id: "$role", count: { $sum: 1 } } }],
+					recentSignups: [
+						{
+							$match: {
+								createdAt: {
+									$gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+								},
+							},
+						},
+						{ $count: "count" },
+					],
+					userGrowth: [
+						{
+							$group: {
+								_id: {
+									year: { $year: "$createdAt" },
+									month: { $month: "$createdAt" },
+								},
+								count: { $sum: 1 },
+							},
+						},
+						{ $sort: { "_id.year": -1, "_id.month": -1 } },
+						{ $limit: 12 },
+					],
+				},
+			},
+		]);
 
-    // This is a placeholder - in a real application, you would have an Activity or Log model
-    // For now, we'll return login history from refresh tokens
-    const tokens = await Token.find({
-      user: id,
-      type: 'refresh',
-    })
-      .sort('-createdAt')
-      .limit(limit)
-      .skip((page - 1) * limit)
-      .select('createdAt deviceInfo used usedAt');
+		// Format the statistics
+		const formattedStats = {
+			totalUsers: stats[0].totalUsers[0]?.count || 0,
+			activeUsers: stats[0].activeUsers[0]?.count || 0,
+			verifiedUsers: stats[0].verifiedUsers[0]?.count || 0,
+			recentSignups: stats[0].recentSignups[0]?.count || 0,
+			usersByRole: stats[0].usersByRole.reduce((acc, item) => {
+				acc[item._id] = item.count;
+				return acc;
+			}, {}),
+			userGrowth: stats[0].userGrowth.map((item) => ({
+				month: `${item._id.year}-${String(item._id.month).padStart(2, "0")}`,
+				count: item.count,
+			})),
+		};
 
-    const activities = tokens.map(token => ({
-      type: 'login',
-      timestamp: token.createdAt,
-      device: token.deviceInfo,
-      status: token.used ? 'expired' : 'active',
-    }));
+		res.status(200).json({
+			success: true,
+			data: formattedStats,
+		});
+	}),
 
-    res.status(200).json({
-      success: true,
-      count: activities.length,
-      data: activities,
-    });
-  }),
+	/**
+	 * @desc    Get user activity logs
+	 * @route   GET /api/users/:id/activity
+	 * @access  Private/Admin or User (own activity)
+	 */
+	getUserActivity: asyncHandler(async (req, res, next) => {
+		const { id } = req.params;
+		const { page = 1, limit = 50 } = req.query;
+
+		// Check authorization
+		if (req.user.role !== "admin" && req.user._id.toString() !== id) {
+			throw new ApiError("Not authorized to access this resource", 403);
+		}
+
+		// This is a placeholder - in a real application, you would have an Activity or Log model
+		// For now, we'll return login history from refresh tokens
+		const tokens = await Token.find({
+			user: id,
+			type: "refresh",
+		})
+			.sort("-createdAt")
+			.limit(limit)
+			.skip((page - 1) * limit)
+			.select("createdAt deviceInfo used usedAt");
+
+		const activities = tokens.map((token) => ({
+			type: "login",
+			timestamp: token.createdAt,
+			device: token.deviceInfo,
+			status: token.used ? "expired" : "active",
+		}));
+
+		res.status(200).json({
+			success: true,
+			count: activities.length,
+			data: activities,
+		});
+	}),
 };
 
 module.exports = userController;

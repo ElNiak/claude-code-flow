@@ -487,14 +487,14 @@ class DatabaseQueryTool:
         self.name = "database-query"
         self.version = "1.2.0"
         self.logger = logging.getLogger(__name__)
-        
+
         # Security: Define allowed connection aliases
         self.allowed_connections = {
             "production-readonly": "postgresql://readonly:${RO_PASS}@prod-db:5432/app",
             "staging": "postgresql://user:${STAGING_PASS}@staging-db:5432/app",
             "development": "postgresql://dev:${DEV_PASS}@localhost:5432/app_dev"
         }
-        
+
         # Security: Define blocked query patterns
         self.blocked_patterns = [
             r"DROP\s+",
@@ -507,7 +507,7 @@ class DatabaseQueryTool:
             r"GRANT\s+",
             r"REVOKE\s+"
         ]
-    
+
     def validate_query(self, query: str, read_only: bool = True) -> bool:
         """Validate query for security compliance"""
         if read_only:
@@ -515,18 +515,18 @@ class DatabaseQueryTool:
                 if re.search(pattern, query, re.IGNORECASE):
                     raise ValueError(f"Query contains blocked pattern: {pattern}")
         return True
-    
+
     def get_connection_string(self, connection: str) -> str:
         """Get connection string from alias or validate direct connection"""
         if connection in self.allowed_connections:
             return self.allowed_connections[connection]
-        
+
         # For direct connection strings, validate format
         if connection.startswith(('postgresql://', 'postgres://')):
             return connection
-        
+
         raise ValueError(f"Invalid connection: {connection}")
-    
+
     def execute_query(self, params: Dict[str, Any]) -> Dict[str, Any]:
         """Execute database query with security and performance monitoring"""
         try:
@@ -536,14 +536,14 @@ class DatabaseQueryTool:
             query_params = params.get("parameters", {})
             timeout = params.get("timeout", 30)
             read_only = params.get("read_only", True)
-            
+
             # Security validation
             self.validate_query(query, read_only)
             connection_string = self.get_connection_string(connection_alias)
-            
+
             # Performance monitoring
             start_time = time.time()
-            
+
             # Execute query
             with psycopg2.connect(
                 connection_string,
@@ -552,10 +552,10 @@ class DatabaseQueryTool:
             ) as conn:
                 if read_only:
                     conn.set_session(readonly=True)
-                
+
                 with conn.cursor() as cursor:
                     cursor.execute(query, query_params)
-                    
+
                     if cursor.description:
                         # SELECT query - fetch results
                         rows = cursor.fetchall()
@@ -567,9 +567,9 @@ class DatabaseQueryTool:
                         result_rows = []
                         columns = []
                         row_count = cursor.rowcount
-            
+
             execution_time = (time.time() - start_time) * 1000
-            
+
             result = {
                 "success": True,
                 "rows": result_rows,
@@ -582,7 +582,7 @@ class DatabaseQueryTool:
                     "timestamp": time.time()
                 }
             }
-            
+
             # Audit logging
             self.logger.info(f"Query executed successfully", extra={
                 "connection": connection_alias,
@@ -590,9 +590,9 @@ class DatabaseQueryTool:
                 "executionTime": execution_time,
                 "queryHash": hash(query)
             })
-            
+
             return result
-            
+
         except psycopg2.Error as e:
             error_result = {
                 "success": False,
@@ -602,14 +602,14 @@ class DatabaseQueryTool:
                 "rowCount": 0,
                 "executionTime": 0
             }
-            
+
             self.logger.error(f"Database error: {e}", extra={
                 "connection": connection_alias,
                 "error": str(e)
             })
-            
+
             return error_result
-            
+
         except Exception as e:
             error_result = {
                 "success": False,
@@ -618,24 +618,24 @@ class DatabaseQueryTool:
                 "rowCount": 0,
                 "executionTime": 0
             }
-            
+
             self.logger.error(f"Tool error: {e}")
             return error_result
 
 def main():
     """Main entry point for MCP tool"""
     tool = DatabaseQueryTool()
-    
+
     try:
         # Read input from stdin
         input_data = json.loads(sys.stdin.read())
-        
+
         # Execute tool
         result = tool.execute_query(input_data)
-        
+
         # Output result
         print(json.dumps(result, indent=2))
-        
+
     except json.JSONDecodeError as e:
         error_output = {
             "success": False,
@@ -645,7 +645,7 @@ def main():
         }
         print(json.dumps(error_output))
         sys.exit(1)
-        
+
     except Exception as e:
         error_output = {
             "success": False,
@@ -813,10 +813,10 @@ class APITestingTool {
 
     evaluateAssertion(response, assertion) {
         const { path, operator, expected } = assertion;
-        
+
         // Extract value from response using path
         const actual = this.getValueByPath(response.data, path);
-        
+
         // Evaluate assertion
         switch (operator) {
             case 'equals':
@@ -839,7 +839,7 @@ class APITestingTool {
 
 async function main() {
     const tool = new APITestingTool();
-    
+
     try {
         // Read input from stdin
         const input = await new Promise((resolve, reject) => {
@@ -856,10 +856,10 @@ async function main() {
 
         // Execute tool
         const result = await tool.executeTest(input);
-        
+
         // Output result
         console.log(JSON.stringify(result, null, 2));
-        
+
     } catch (error) {
         const errorOutput = {
             success: false,
@@ -1020,7 +1020,7 @@ claude-flow mcp invoke internal-api-gateway:billing get_usage \
         "priority": 1
       },
       {
-        "name": "production-cluster", 
+        "name": "production-cluster",
         "endpoint": "https://prod-mcp.company.com:3000",
         "auth": "mutual-tls",
         "tools": ["prod-*", "monitoring-*"],

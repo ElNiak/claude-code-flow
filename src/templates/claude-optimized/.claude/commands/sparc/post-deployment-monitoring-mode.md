@@ -238,7 +238,7 @@ const continuousMonitoring = async () => {
       () => checkAllEndpoints(),
       () => validateAllSLAs()
     ]);
-    
+
     await processSnapshot(snapshot);
     await sleep(60000); // 1 minute interval
   }
@@ -252,7 +252,7 @@ const capacityPlanning = async () => {
     { collect: 'peak_patterns', period: '7d' },
     { collect: 'resource_limits', current: true }
   ]);
-  
+
   return await predictCapacityNeeds(data);
 };
 
@@ -265,7 +265,7 @@ const healthScore = async () => {
     () => calculateUserSatisfactionScore(),
     () => calculateSecurityScore()
   ]);
-  
+
   return aggregateHealthScore(dimensions);
 };
 ```

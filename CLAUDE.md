@@ -5,7 +5,7 @@
 **BEFORE creating ANY tasks, subtasks, or coordination plans, you MUST:**
 
 1. **READ** the MCP documentation at `.claude/shared/mcp.yaml` completely
-2. **UNDERSTAND** the available MCP servers and their capabilities  
+2. **UNDERSTAND** the available MCP servers and their capabilities
 3. **IDENTIFY** the optimal coordination patterns for this task type
 4. **PLAN** your MCP tool usage based on the efficiency guidelines
 5. **REFERENCE** the appropriate workflows and integration patterns
@@ -17,7 +17,7 @@ This is the authoritative guide for MCP tool selection and prevents suboptimal c
 **Available MCP Servers:**
 
 - **Claude_Flow_MCP**: Advanced swarm coordination, neural optimization & intelligent task orchestration
-- **Serena_MCP**: Semantic code analysis & intelligent symbol-level editing  
+- **Serena_MCP**: Semantic code analysis & intelligent symbol-level editing
 - **Context7**: Official library documentation & code examples | Research standards
 
 **Task Planning Protocol:**
@@ -36,7 +36,7 @@ This is the authoritative guide for MCP tool selection and prevents suboptimal c
 **MANDATORY RULE**: Once swarm is initialized with memory, ALL subsequent operations MUST be parallel:
 
 1. **TodoWrite** → Always batch 5-10+ todos in ONE call
-2. **Task spawning** → Spawn ALL agents in ONE message  
+2. **Task spawning** → Spawn ALL agents in ONE message
 3. **File operations** → Batch ALL reads/writes together
 4. **NEVER** operate sequentially after swarm init
 
@@ -214,17 +214,17 @@ If you need to do X operations, they should be in 1 message, not X messages
   mcp__claude-flow__agent_spawn { type: "analyst" }
   mcp__claude-flow__agent_spawn { type: "tester" }
   mcp__claude-flow__agent_spawn { type: "coordinator" }
-  
+
   // Claude Code execution - ALL in parallel
   Task("You are researcher agent. MUST coordinate via hooks...")
   Task("You are coder agent. MUST coordinate via hooks...")
   Task("You are analyst agent. MUST coordinate via hooks...")
   Task("You are tester agent. MUST coordinate via hooks...")
   TodoWrite { todos: [5-10 todos with all priorities and statuses] }
-  
+
   // File operations in parallel
   Bash "mkdir -p app/{src,tests,docs}"
-  Write "app/package.json" 
+  Write "app/package.json"
   Write "app/README.md"
   Write "app/src/index.js"
 ```
@@ -446,7 +446,7 @@ ruv-swarm includes powerful hooks that automate coordination:
 - **Optimize topology** based on task complexity analysis
 - **Cache searches** for improved performance
 
-### Post-Operation Hooks  
+### Post-Operation Hooks
 
 - **Auto-format code** using language-specific formatters
 - **Train neural patterns** from successful operations
@@ -464,7 +464,7 @@ ruv-swarm includes powerful hooks that automate coordination:
 ### Advanced Features (New!)
 
 - **🚀 Automatic Topology Selection** - Optimal swarm structure for each task
-- **⚡ Parallel Execution** - 2.8-4.4x speed improvements  
+- **⚡ Parallel Execution** - 2.8-4.4x speed improvements
 - **🧠 Neural Training** - Continuous learning from operations
 - **📊 Bottleneck Analysis** - Real-time performance optimization
 - **🤖 Smart Auto-Spawning** - Zero manual agent management
@@ -513,7 +513,7 @@ See `.claude/commands/` for detailed documentation on all features.
 1. **Check CLI Arguments First**: If user runs `npx claude-flow --agents 5`, use 5 agents
 2. **Auto-Decide if No Args**: Without CLI args, analyze task complexity:
    - Simple tasks (1-3 components): 3-4 agents
-   - Medium tasks (4-6 components): 5-7 agents  
+   - Medium tasks (4-6 components): 5-7 agents
    - Complex tasks (7+ components): 8-12 agents
 3. **Agent Type Distribution**: Balance agent types based on task:
    - Always include 1 coordinator
@@ -609,7 +609,7 @@ Message 1: [BatchTool]
   // MCP coordination setup
   - mcp__claude-flow__swarm_init
   - mcp__claude-flow__agent_spawn (researcher)
-  - mcp__claude-flow__agent_spawn (coder)  
+  - mcp__claude-flow__agent_spawn (coder)
   - mcp__claude-flow__agent_spawn (analyst)
   - mcp__claude-flow__agent_spawn (tester)
   - mcp__claude-flow__agent_spawn (coordinator)
@@ -620,7 +620,7 @@ Message 2: [BatchTool - Claude Code execution]
   - Task("You are coder agent. MANDATORY: Run hooks pre-task, post-edit, post-task. Task: Implement REST endpoints")
   - Task("You are analyst agent. MANDATORY: Run hooks pre-task, post-edit, post-task. Task: Analyze performance")
   - Task("You are tester agent. MANDATORY: Run hooks pre-task, post-edit, post-task. Task: Write comprehensive tests")
-  
+
   // TodoWrite with ALL todos batched
   - TodoWrite { todos: [
       {id: "research", content: "Research API patterns", status: "in_progress", priority: "high"},
@@ -630,7 +630,7 @@ Message 2: [BatchTool - Claude Code execution]
       {id: "docs", content: "Create API documentation", status: "pending", priority: "low"},
       {id: "deploy", content: "Setup deployment", status: "pending", priority: "medium"}
     ]}
-  
+
   // File operations in parallel
   - Write "api/package.json"
   - Write "api/server.js"
@@ -646,12 +646,12 @@ When given ANY complex task with swarms:
 STEP 1: IMMEDIATE PARALLEL SPAWN (Single Message!)
 [BatchTool]:
   // IMPORTANT: Check CLI args for agent count, otherwise auto-decide based on task complexity
-  - mcp__claude-flow__swarm_init { 
-      topology: "hierarchical", 
+  - mcp__claude-flow__swarm_init {
+      topology: "hierarchical",
       maxAgents: CLI_ARGS.agents || AUTO_DECIDE(task_complexity), // Use CLI args or auto-decide
-      strategy: "parallel" 
+      strategy: "parallel"
     }
-  
+
   // Spawn agents based on maxAgents count and task requirements
   // If CLI specifies 3 agents, spawn 3. If no args, auto-decide optimal count (3-12)
   - mcp__claude-flow__agent_spawn { type: "architect", name: "System Designer" }
@@ -718,7 +718,7 @@ Dependencies: ↳ X deps | Actionable: ▶
   mcp__claude-flow__agent_spawn { type: "analyst", name: "DB Designer" }
   mcp__claude-flow__agent_spawn { type: "tester", name: "Test Engineer" }
   mcp__claude-flow__agent_spawn { type: "coordinator", name: "Lead" }
-  
+
   // Update ALL todos at once - NEVER split todos!
   TodoWrite { todos: [
     { id: "design", content: "Design API architecture", status: "in_progress", priority: "high" },
@@ -730,10 +730,10 @@ Dependencies: ↳ X deps | Actionable: ▶
     { id: "deploy", content: "Setup deployment pipeline", status: "pending", priority: "medium" },
     { id: "monitor", content: "Add monitoring", status: "pending", priority: "medium" }
   ]}
-  
+
   // Start orchestration
   mcp__claude-flow__task_orchestrate { task: "Build REST API", strategy: "parallel" }
-  
+
   // Store initial memory
   mcp__claude-flow__memory_usage { action: "store", key: "project/init", value: { started: Date.now() } }
 
@@ -742,7 +742,7 @@ Dependencies: ↳ X deps | Actionable: ▶
   Bash("mkdir -p test-app/{src,tests,docs,config}")
   Bash("mkdir -p test-app/src/{models,routes,middleware,services}")
   Bash("mkdir -p test-app/tests/{unit,integration}")
-  
+
   // Write ALL base files at once
   Write("test-app/package.json", packageJsonContent)
   Write("test-app/.env.example", envContent)
@@ -755,7 +755,7 @@ Dependencies: ↳ X deps | Actionable: ▶
   Read("test-app/package.json")
   Read("test-app/src/server.js")
   Read("test-app/.env.example")
-  
+
   // Run multiple commands
   Bash("cd test-app && npm install")
   Bash("cd test-app && npm run lint")

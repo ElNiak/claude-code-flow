@@ -9,7 +9,7 @@ from .base_strategy import BaseStrategy
 
 class DevelopmentStrategy(BaseStrategy):
     """Strategy for software development and coding tasks."""
-    
+
     def __init__(self):
         """Initialize the development strategy."""
         super().__init__()
@@ -17,28 +17,28 @@ class DevelopmentStrategy(BaseStrategy):
         self._code_quality = 0.0
         self._test_coverage = 0.0
         self._lines_of_code = 0
-    
+
     @property
     def name(self) -> str:
         """Strategy name."""
         return "development"
-    
+
     @property
     def description(self) -> str:
         """Strategy description."""
         return "Software development and coding"
-    
+
     async def execute(self, task: Task) -> Result:
         """Execute a development task.
-        
+
         Args:
             task: Development task to execute
-            
+
         Returns:
             Development result
         """
         start_time = datetime.now()
-        
+
         try:
             # Execute development through claude-flow swarm
             if self.claude_flow_client:
@@ -48,12 +48,12 @@ class DevelopmentStrategy(BaseStrategy):
                     mode=task.mode.value if hasattr(task.mode, 'value') else task.mode,
                     **task.parameters
                 )
-                
+
                 # Process swarm result
                 if swarm_result.get("status") == "success":
                     execution_time = (datetime.now() - start_time).total_seconds()
                     metrics = swarm_result.get("metrics", {})
-                    
+
                     result = Result(
                         task_id=task.id,
                         agent_id="development-agent",
@@ -78,7 +78,7 @@ class DevelopmentStrategy(BaseStrategy):
                     execution_time = (datetime.now() - start_time).total_seconds()
                     result = Result(
                         task_id=task.id,
-                        agent_id="development-agent", 
+                        agent_id="development-agent",
                         status=ResultStatus.FAILURE,
                         output={},
                         performance_metrics=PerformanceMetrics(
@@ -94,7 +94,7 @@ class DevelopmentStrategy(BaseStrategy):
                 # Simulate development execution for testing
                 await asyncio.sleep(0.2)  # Simulate longer work
                 execution_time = (datetime.now() - start_time).total_seconds()
-                
+
                 result = Result(
                     task_id=task.id,
                     agent_id="development-agent",
@@ -114,7 +114,7 @@ class DevelopmentStrategy(BaseStrategy):
                     started_at=start_time,
                     completed_at=datetime.now()
                 )
-            
+
             # Update strategy metrics
             output = result.output
             self._lines_of_code += output.get("lines_of_code", 0)
@@ -122,12 +122,12 @@ class DevelopmentStrategy(BaseStrategy):
                 self._test_coverage = (self._test_coverage + output["test_coverage"]) / 2
             if output.get("code_quality"):
                 self._code_quality = (self._code_quality + output["code_quality"]) / 2
-            
+
             # Record execution
             self._record_execution(task, result)
-            
+
             return result
-            
+
         except Exception as e:
             execution_time = (datetime.now() - start_time).total_seconds()
             return Result(
@@ -144,10 +144,10 @@ class DevelopmentStrategy(BaseStrategy):
                 started_at=start_time,
                 completed_at=datetime.now()
             )
-    
+
     def get_metrics(self) -> Dict[str, Any]:
         """Get development strategy metrics.
-        
+
         Returns:
             Dictionary of metrics
         """

@@ -3,7 +3,7 @@
 Claude Flow is an advanced AI agent coordination platform with intelligent task distribution and persistent memory. It's a Node.js/TypeScript project that provides:
 
 - Multi-agent coordination and orchestration
-- Intelligent task distribution and management  
+- Intelligent task distribution and management
 - Persistent memory across sessions
 - MCP (Model Context Protocol) integration
 - SPARC methodology implementation

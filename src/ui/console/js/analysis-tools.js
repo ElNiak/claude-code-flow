@@ -1,7 +1,7 @@
 /**
  * Analysis & Monitoring Tools for Claude Flow Web UI
  * Agent 2 - Analysis & Monitoring Tools Developer
- * 
+ *
  * Features:
  * - 13 analysis and monitoring tools
  * - Real-time dashboards and visualizations
@@ -11,319 +11,342 @@
  */
 
 class AnalysisTools {
-    constructor() {
-        this.ws = null;
-        this.charts = {};
-        this.currentTab = 'metrics';
-        this.isConnected = false;
-        this.metricsCache = new Map();
-        this.updateInterval = null;
-        this.init();
-    }
+	constructor() {
+		this.ws = null;
+		this.charts = {};
+		this.currentTab = "metrics";
+		this.isConnected = false;
+		this.metricsCache = new Map();
+		this.updateInterval = null;
+		this.init();
+	}
 
-    init() {
-        this.setupWebSocket();
-        this.setupEventListeners();
-        this.initializeCharts();
-        this.startRealTimeUpdates();
-    }
+	init() {
+		this.setupWebSocket();
+		this.setupEventListeners();
+		this.initializeCharts();
+		this.startRealTimeUpdates();
+	}
 
-    setupWebSocket() {
-        try {
-            this.ws = new WebSocket('ws://localhost:3000/analysis');
-            
-            this.ws.onopen = () => {
-                this.isConnected = true;
-                console.log('Analysis WebSocket connected');
-                this.updateConnectionStatus('connected');
-            };
+	setupWebSocket() {
+		try {
+			this.ws = new WebSocket("ws://localhost:3000/analysis");
 
-            this.ws.onmessage = (event) => {
-                const data = JSON.parse(event.data);
-                this.handleWebSocketData(data);
-            };
+			this.ws.onopen = () => {
+				this.isConnected = true;
+				console.log("Analysis WebSocket connected");
+				this.updateConnectionStatus("connected");
+			};
 
-            this.ws.onclose = () => {
-                this.isConnected = false;
-                console.log('Analysis WebSocket disconnected');
-                this.updateConnectionStatus('disconnected');
-                setTimeout(() => this.setupWebSocket(), 5000);
-            };
+			this.ws.onmessage = (event) => {
+				const data = JSON.parse(event.data);
+				this.handleWebSocketData(data);
+			};
 
-            this.ws.onerror = (error) => {
-                console.error('Analysis WebSocket error:', _error);
-                this.updateConnectionStatus('error');
-            };
-        } catch (error) {
-            console.error('Failed to setup WebSocket:', _error);
-            this.updateConnectionStatus('error');
-        }
-    }
+			this.ws.onclose = () => {
+				this.isConnected = false;
+				console.log("Analysis WebSocket disconnected");
+				this.updateConnectionStatus("disconnected");
+				setTimeout(() => this.setupWebSocket(), 5000);
+			};
 
-    setupEventListeners() {
-        // Tab switching
-        document.querySelectorAll('.analysis-tab').forEach(tab => {
-            tab.addEventListener('click', (e) => {
-                this.switchTab(e.target.dataset.tab);
-            });
-        });
+			this.ws.onerror = (error) => {
+				console.error("Analysis WebSocket error:", _error);
+				this.updateConnectionStatus("error");
+			};
+		} catch (error) {
+			console.error("Failed to setup WebSocket:", _error);
+			this.updateConnectionStatus("error");
+		}
+	}
 
-        // Export buttons
-        document.querySelectorAll('.export-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const format = e.target.dataset.format;
-                const type = e.target.dataset.type;
-                this.exportData(type, format);
-            });
-        });
+	setupEventListeners() {
+		// Tab switching
+		document.querySelectorAll(".analysis-tab").forEach((tab) => {
+			tab.addEventListener("click", (e) => {
+				this.switchTab(e.target.dataset.tab);
+			});
+		});
 
-        // Tool buttons
-        document.querySelectorAll('.tool-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const tool = e.target.dataset.tool;
-                this.executeTool(tool);
-            });
-        });
+		// Export buttons
+		document.querySelectorAll(".export-btn").forEach((btn) => {
+			btn.addEventListener("click", (e) => {
+				const format = e.target.dataset.format;
+				const type = e.target.dataset.type;
+				this.exportData(type, format);
+			});
+		});
 
-        // Refresh buttons
-        document.querySelectorAll('.refresh-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const section = e.target.dataset.section;
-                this.refreshSection(section);
-            });
-        });
-    }
+		// Tool buttons
+		document.querySelectorAll(".tool-btn").forEach((btn) => {
+			btn.addEventListener("click", (e) => {
+				const tool = e.target.dataset.tool;
+				this.executeTool(tool);
+			});
+		});
 
-    initializeCharts() {
-        // Performance metrics chart
-        this.charts.performance = new Chart(document.getElementById('performance-chart'), {
-            type: 'line',
-            data: {
-                labels: [],
-                datasets: [{
-                    label: 'Response Time (ms)',
-                    data: [],
-                    borderColor: '#3b82f6',
-                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                    tension: 0.4
-                }, {
-                    label: 'Throughput (req/s)',
-                    data: [],
-                    borderColor: '#10b981',
-                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                    tension: 0.4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'top'
-                    }
-                },
-                scales: {
-                    x: {
-                        display: true,
-                        title: {
-                            display: true,
-                            text: 'Time'
-                        }
-                    },
-                    y: {
-                        display: true,
-                        title: {
-                            display: true,
-                            text: 'Value'
-                        }
-                    }
-                }
-            }
-        });
+		// Refresh buttons
+		document.querySelectorAll(".refresh-btn").forEach((btn) => {
+			btn.addEventListener("click", (e) => {
+				const section = e.target.dataset.section;
+				this.refreshSection(section);
+			});
+		});
+	}
 
-        // Token usage chart
-        this.charts.tokenUsage = new Chart(document.getElementById('token-usage-chart'), {
-            type: 'doughnut',
-            data: {
-                labels: ['Input Tokens', 'Output Tokens', 'Cached Tokens'],
-                datasets: [{
-                    data: [0, 0, 0],
-                    backgroundColor: ['#3b82f6', '#10b981', '#f59e0b'],
-                    borderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom'
-                    }
-                }
-            }
-        });
+	initializeCharts() {
+		// Performance metrics chart
+		this.charts.performance = new Chart(
+			document.getElementById("performance-chart"),
+			{
+				type: "line",
+				data: {
+					labels: [],
+					datasets: [
+						{
+							label: "Response Time (ms)",
+							data: [],
+							borderColor: "#3b82f6",
+							backgroundColor: "rgba(59, 130, 246, 0.1)",
+							tension: 0.4,
+						},
+						{
+							label: "Throughput (req/s)",
+							data: [],
+							borderColor: "#10b981",
+							backgroundColor: "rgba(16, 185, 129, 0.1)",
+							tension: 0.4,
+						},
+					],
+				},
+				options: {
+					responsive: true,
+					maintainAspectRatio: false,
+					plugins: {
+						legend: {
+							position: "top",
+						},
+					},
+					scales: {
+						x: {
+							display: true,
+							title: {
+								display: true,
+								text: "Time",
+							},
+						},
+						y: {
+							display: true,
+							title: {
+								display: true,
+								text: "Value",
+							},
+						},
+					},
+				},
+			}
+		);
 
-        // System health chart
-        this.charts.systemHealth = new Chart(document.getElementById('system-health-chart'), {
-            type: 'radar',
-            data: {
-                labels: ['CPU', 'Memory', 'Disk', 'Network', 'API', 'Database'],
-                datasets: [{
-                    label: 'Health Score',
-                    data: [100, 100, 100, 100, 100, 100],
-                    borderColor: '#10b981',
-                    backgroundColor: 'rgba(16, 185, 129, 0.2)',
-                    pointBackgroundColor: '#10b981',
-                    pointBorderColor: '#fff',
-                    pointHoverBackgroundColor: '#fff',
-                    pointHoverBorderColor: '#10b981'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    r: {
-                        beginAtZero: true,
-                        max: 100
-                    }
-                }
-            }
-        });
+		// Token usage chart
+		this.charts.tokenUsage = new Chart(
+			document.getElementById("token-usage-chart"),
+			{
+				type: "doughnut",
+				data: {
+					labels: ["Input Tokens", "Output Tokens", "Cached Tokens"],
+					datasets: [
+						{
+							data: [0, 0, 0],
+							backgroundColor: ["#3b82f6", "#10b981", "#f59e0b"],
+							borderWidth: 2,
+						},
+					],
+				},
+				options: {
+					responsive: true,
+					maintainAspectRatio: false,
+					plugins: {
+						legend: {
+							position: "bottom",
+						},
+					},
+				},
+			}
+		);
 
-        // Load monitoring chart
-        this.charts.loadMonitor = new Chart(document.getElementById('load-monitor-chart'), {
-            type: 'bar',
-            data: {
-                labels: ['1m', '5m', '15m', '30m', '1h', '24h'],
-                datasets: [{
-                    label: 'Average Load',
-                    data: [0, 0, 0, 0, 0, 0],
-                    backgroundColor: 'rgba(59, 130, 246, 0.7)',
-                    borderColor: '#3b82f6',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'top'
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-    }
+		// System health chart
+		this.charts.systemHealth = new Chart(
+			document.getElementById("system-health-chart"),
+			{
+				type: "radar",
+				data: {
+					labels: ["CPU", "Memory", "Disk", "Network", "API", "Database"],
+					datasets: [
+						{
+							label: "Health Score",
+							data: [100, 100, 100, 100, 100, 100],
+							borderColor: "#10b981",
+							backgroundColor: "rgba(16, 185, 129, 0.2)",
+							pointBackgroundColor: "#10b981",
+							pointBorderColor: "#fff",
+							pointHoverBackgroundColor: "#fff",
+							pointHoverBorderColor: "#10b981",
+						},
+					],
+				},
+				options: {
+					responsive: true,
+					maintainAspectRatio: false,
+					scales: {
+						r: {
+							beginAtZero: true,
+							max: 100,
+						},
+					},
+				},
+			}
+		);
 
-    startRealTimeUpdates() {
-        this.updateInterval = setInterval(() => {
-            if (this.isConnected) {
-                this.requestMetricsUpdate();
-            }
-        }, 5000);
-    }
+		// Load monitoring chart
+		this.charts.loadMonitor = new Chart(
+			document.getElementById("load-monitor-chart"),
+			{
+				type: "bar",
+				data: {
+					labels: ["1m", "5m", "15m", "30m", "1h", "24h"],
+					datasets: [
+						{
+							label: "Average Load",
+							data: [0, 0, 0, 0, 0, 0],
+							backgroundColor: "rgba(59, 130, 246, 0.7)",
+							borderColor: "#3b82f6",
+							borderWidth: 1,
+						},
+					],
+				},
+				options: {
+					responsive: true,
+					maintainAspectRatio: false,
+					plugins: {
+						legend: {
+							position: "top",
+						},
+					},
+					scales: {
+						y: {
+							beginAtZero: true,
+						},
+					},
+				},
+			}
+		);
+	}
 
-    requestMetricsUpdate() {
-        if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-            this.ws.send(JSON.stringify({
-                type: 'request_metrics',
-                timestamp: Date.now()
-            }));
-        }
-    }
+	startRealTimeUpdates() {
+		this.updateInterval = setInterval(() => {
+			if (this.isConnected) {
+				this.requestMetricsUpdate();
+			}
+		}, 5000);
+	}
 
-    handleWebSocketData(data) {
-        switch (data.type) {
-            case 'metrics_update':
-                this.updateMetrics(data.payload);
-                break;
-            case 'alert':
-                this.handleAlert(data.payload);
-                break;
-            case 'health_status':
-                this.updateHealthStatus(data.payload);
-                break;
-            default:
-                console.log('Unknown WebSocket message type:', data.type);
-        }
-    }
+	requestMetricsUpdate() {
+		if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+			this.ws.send(
+				JSON.stringify({
+					type: "request_metrics",
+					timestamp: Date.now(),
+				})
+			);
+		}
+	}
 
-    updateMetrics(metrics) {
-        this.metricsCache.set('latest', metrics);
-        
-        // Update performance chart
-        if (this.charts.performance && metrics.performance) {
-            const chart = this.charts.performance;
-            const now = new Date().toLocaleTimeString();
-            
-            chart.data.labels.push(now);
-            chart.data.datasets[0].data.push(metrics.performance.responseTime);
-            chart.data.datasets[1].data.push(metrics.performance.throughput);
-            
-            // Keep only last 20 data points
-            if (chart.data.labels.length > 20) {
-                chart.data.labels.shift();
-                chart.data.datasets[0].data.shift();
-                chart.data.datasets[1].data.shift();
-            }
-            
-            chart.update('none');
-        }
+	handleWebSocketData(data) {
+		switch (data.type) {
+			case "metrics_update":
+				this.updateMetrics(data.payload);
+				break;
+			case "alert":
+				this.handleAlert(data.payload);
+				break;
+			case "health_status":
+				this.updateHealthStatus(data.payload);
+				break;
+			default:
+				console.log("Unknown WebSocket message type:", data.type);
+		}
+	}
 
-        // Update token usage chart
-        if (this.charts.tokenUsage && metrics.tokens) {
-            const chart = this.charts.tokenUsage;
-            chart.data.datasets[0].data = [
-                metrics.tokens.input,
-                metrics.tokens.output,
-                metrics.tokens.cached
-            ];
-            chart.update('none');
-        }
+	updateMetrics(metrics) {
+		this.metricsCache.set("latest", metrics);
 
-        // Update system health chart
-        if (this.charts.systemHealth && metrics.health) {
-            const chart = this.charts.systemHealth;
-            chart.data.datasets[0].data = [
-                metrics.health.cpu,
-                metrics.health.memory,
-                metrics.health.disk,
-                metrics.health.network,
-                metrics.health.api,
-                metrics.health.database
-            ];
-            chart.update('none');
-        }
+		// Update performance chart
+		if (this.charts.performance && metrics.performance) {
+			const chart = this.charts.performance;
+			const now = new Date().toLocaleTimeString();
 
-        // Update load monitor chart
-        if (this.charts.loadMonitor && metrics.load) {
-            const chart = this.charts.loadMonitor;
-            chart.data.datasets[0].data = [
-                metrics.load.oneMin,
-                metrics.load.fiveMin,
-                metrics.load.fifteenMin,
-                metrics.load.thirtyMin,
-                metrics.load.oneHour,
-                metrics.load.twentyFourHour
-            ];
-            chart.update('none');
-        }
+			chart.data.labels.push(now);
+			chart.data.datasets[0].data.push(metrics.performance.responseTime);
+			chart.data.datasets[1].data.push(metrics.performance.throughput);
 
-        // Update metric displays
-        this.updateMetricDisplays(metrics);
-    }
+			// Keep only last 20 data points
+			if (chart.data.labels.length > 20) {
+				chart.data.labels.shift();
+				chart.data.datasets[0].data.shift();
+				chart.data.datasets[1].data.shift();
+			}
 
-    updateMetricDisplays(metrics) {
-        // Performance metrics
-        const perfSection = document.getElementById('performance-metrics');
-        if (perfSection && metrics.performance) {
-            perfSection.innerHTML = `
+			chart.update("none");
+		}
+
+		// Update token usage chart
+		if (this.charts.tokenUsage && metrics.tokens) {
+			const chart = this.charts.tokenUsage;
+			chart.data.datasets[0].data = [
+				metrics.tokens.input,
+				metrics.tokens.output,
+				metrics.tokens.cached,
+			];
+			chart.update("none");
+		}
+
+		// Update system health chart
+		if (this.charts.systemHealth && metrics.health) {
+			const chart = this.charts.systemHealth;
+			chart.data.datasets[0].data = [
+				metrics.health.cpu,
+				metrics.health.memory,
+				metrics.health.disk,
+				metrics.health.network,
+				metrics.health.api,
+				metrics.health.database,
+			];
+			chart.update("none");
+		}
+
+		// Update load monitor chart
+		if (this.charts.loadMonitor && metrics.load) {
+			const chart = this.charts.loadMonitor;
+			chart.data.datasets[0].data = [
+				metrics.load.oneMin,
+				metrics.load.fiveMin,
+				metrics.load.fifteenMin,
+				metrics.load.thirtyMin,
+				metrics.load.oneHour,
+				metrics.load.twentyFourHour,
+			];
+			chart.update("none");
+		}
+
+		// Update metric displays
+		this.updateMetricDisplays(metrics);
+	}
+
+	updateMetricDisplays(metrics) {
+		// Performance metrics
+		const perfSection = document.getElementById("performance-metrics");
+		if (perfSection && metrics.performance) {
+			perfSection.innerHTML = `
                 <div class="metric-card">
                     <div class="metric-label">Response Time</div>
                     <div class="metric-value">${metrics.performance.responseTime}ms</div>
@@ -341,13 +364,14 @@ class AnalysisTools {
                     <div class="metric-value">${metrics.performance.uptime}</div>
                 </div>
             `;
-        }
+		}
 
-        // Token usage metrics
-        const tokenSection = document.getElementById('token-metrics');
-        if (tokenSection && metrics.tokens) {
-            const total = metrics.tokens.input + metrics.tokens.output + metrics.tokens.cached;
-            tokenSection.innerHTML = `
+		// Token usage metrics
+		const tokenSection = document.getElementById("token-metrics");
+		if (tokenSection && metrics.tokens) {
+			const total =
+				metrics.tokens.input + metrics.tokens.output + metrics.tokens.cached;
+			tokenSection.innerHTML = `
                 <div class="metric-card">
                     <div class="metric-label">Total Tokens</div>
                     <div class="metric-value">${total.toLocaleString()}</div>
@@ -365,17 +389,22 @@ class AnalysisTools {
                     <div class="metric-value">${((metrics.tokens.cached / total) * 100).toFixed(1)}%</div>
                 </div>
             `;
-        }
+		}
 
-        // System health status
-        const healthSection = document.getElementById('health-status');
-        if (healthSection && metrics.health) {
-            const overallHealth = Math.round(
-                (metrics.health.cpu + metrics.health.memory + metrics.health.disk + 
-                 metrics.health.network + metrics.health.api + metrics.health.database) / 6
-            );
-            
-            healthSection.innerHTML = `
+		// System health status
+		const healthSection = document.getElementById("health-status");
+		if (healthSection && metrics.health) {
+			const overallHealth = Math.round(
+				(metrics.health.cpu +
+					metrics.health.memory +
+					metrics.health.disk +
+					metrics.health.network +
+					metrics.health.api +
+					metrics.health.database) /
+					6
+			);
+
+			healthSection.innerHTML = `
                 <div class="health-overview">
                     <div class="health-score ${this.getHealthClass(overallHealth)}">
                         ${overallHealth}%
@@ -409,22 +438,22 @@ class AnalysisTools {
                     </div>
                 </div>
             `;
-        }
-    }
+		}
+	}
 
-    getHealthClass(score) {
-        if (score >= 90) return 'health-excellent';
-        if (score >= 70) return 'health-good';
-        if (score >= 50) return 'health-warning';
-        return 'health-critical';
-    }
+	getHealthClass(score) {
+		if (score >= 90) return "health-excellent";
+		if (score >= 70) return "health-good";
+		if (score >= 50) return "health-warning";
+		return "health-critical";
+	}
 
-    handleAlert(alert) {
-        const alertsContainer = document.getElementById('alerts-container');
-        if (alertsContainer) {
-            const alertElement = document.createElement('div');
-            alertElement.className = `alert alert-${alert.severity}`;
-            alertElement.innerHTML = `
+	handleAlert(alert) {
+		const alertsContainer = document.getElementById("alerts-container");
+		if (alertsContainer) {
+			const alertElement = document.createElement("div");
+			alertElement.className = `alert alert-${alert.severity}`;
+			alertElement.innerHTML = `
                 <div class="alert-header">
                     <span class="alert-title">${alert.title}</span>
                     <span class="alert-timestamp">${new Date(alert.timestamp).toLocaleTimeString()}</span>
@@ -432,244 +461,264 @@ class AnalysisTools {
                 <div class="alert-message">${alert.message}</div>
                 <button class="alert-dismiss" onclick="this.parentElement.remove()">×</button>
             `;
-            alertsContainer.insertBefore(alertElement, alertsContainer.firstChild);
-            
-            // Auto-dismiss after 10 seconds for info alerts
-            if (alert.severity === 'info') {
-                setTimeout(() => {
-                    if (alertElement.parentElement) {
-                        alertElement.remove();
-                    }
-                }, 10000);
-            }
-        }
-    }
+			alertsContainer.insertBefore(alertElement, alertsContainer.firstChild);
 
-    switchTab(tabName) {
-        this.currentTab = tabName;
-        
-        // Update tab buttons
-        document.querySelectorAll('.analysis-tab').forEach(tab => {
-            tab.classList.remove('active');
-        });
-        document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
-        
-        // Update content panels
-        document.querySelectorAll('.analysis-panel').forEach(panel => {
-            panel.classList.remove('active');
-        });
-        document.getElementById(`${tabName}-panel`).classList.add('active');
-        
-        // Refresh charts when switching tabs
-        setTimeout(() => {
-            Object.values(this.charts).forEach(chart => {
-                if (chart && chart.resize) {
-                    chart.resize();
-                }
-            });
-        }, 100);
-    }
+			// Auto-dismiss after 10 seconds for info alerts
+			if (alert.severity === "info") {
+				setTimeout(() => {
+					if (alertElement.parentElement) {
+						alertElement.remove();
+					}
+				}, 10000);
+			}
+		}
+	}
 
-    // Tool execution methods
-    async executeTool(toolName) {
-        const button = document.querySelector(`[data-tool="${toolName}"]`);
-        if (button) {
-            button.classList.add('loading');
-            button.disabled = true;
-        }
+	switchTab(tabName) {
+		this.currentTab = tabName;
 
-        try {
-            switch (toolName) {
-                case 'performance_report':
-                    await this.performanceReport();
-                    break;
-                case 'bottleneck_analyze':
-                    await this.bottleneckAnalyze();
-                    break;
-                case 'token_usage':
-                    await this.tokenUsage();
-                    break;
-                case 'benchmark_run':
-                    await this.benchmarkRun();
-                    break;
-                case 'metrics_collect':
-                    await this.metricsCollect();
-                    break;
-                case 'trend_analysis':
-                    await this.trendAnalysis();
-                    break;
-                case 'cost_analysis':
-                    await this.costAnalysis();
-                    break;
-                case 'quality_assess':
-                    await this.qualityAssess();
-                    break;
-                case 'error_analysis':
-                    await this.errorAnalysis();
-                    break;
-                case 'usage_stats':
-                    await this.usageStats();
-                    break;
-                case 'health_check':
-                    await this.healthCheck();
-                    break;
-                case 'load_monitor':
-                    await this.loadMonitor();
-                    break;
-                case 'capacity_plan':
-                    await this.capacityPlan();
-                    break;
-                default:
-                    console.warn('Unknown tool:', toolName);
-            }
-        } catch (error) {
-            console.error(`Error executing tool ${toolName}:`, _error);
-            this.showError(`Failed to execute ${toolName}: ${error.message}`);
-        } finally {
-            if (button) {
-                button.classList.remove('loading');
-                button.disabled = false;
-            }
-        }
-    }
+		// Update tab buttons
+		document.querySelectorAll(".analysis-tab").forEach((tab) => {
+			tab.classList.remove("active");
+		});
+		document.querySelector(`[data-tab="${tabName}"]`).classList.add("active");
 
-    // Tool implementations
-    async performanceReport() {
-        const report = await this.fetchAnalysisData('/api/analysis/performance-report');
-        this.displayReport('performance-report-output', report);
-        await this.notifyToolCompletion('performance_report');
-    }
+		// Update content panels
+		document.querySelectorAll(".analysis-panel").forEach((panel) => {
+			panel.classList.remove("active");
+		});
+		document.getElementById(`${tabName}-panel`).classList.add("active");
 
-    async bottleneckAnalyze() {
-        const analysis = await this.fetchAnalysisData('/api/analysis/bottleneck-analyze');
-        this.displayAnalysis('bottleneck-analysis-output', analysis);
-        await this.notifyToolCompletion('bottleneck_analyze');
-    }
+		// Refresh charts when switching tabs
+		setTimeout(() => {
+			Object.values(this.charts).forEach((chart) => {
+				if (chart && chart.resize) {
+					chart.resize();
+				}
+			});
+		}, 100);
+	}
 
-    async tokenUsage() {
-        const usage = await this.fetchAnalysisData('/api/analysis/token-usage');
-        this.displayUsage('token-usage-output', usage);
-        await this.notifyToolCompletion('token_usage');
-    }
+	// Tool execution methods
+	async executeTool(toolName) {
+		const button = document.querySelector(`[data-tool="${toolName}"]`);
+		if (button) {
+			button.classList.add("loading");
+			button.disabled = true;
+		}
 
-    async benchmarkRun() {
-        const benchmark = await this.fetchAnalysisData('/api/analysis/benchmark-run');
-        this.displayBenchmark('benchmark-output', benchmark);
-        await this.notifyToolCompletion('benchmark_run');
-    }
+		try {
+			switch (toolName) {
+				case "performance_report":
+					await this.performanceReport();
+					break;
+				case "bottleneck_analyze":
+					await this.bottleneckAnalyze();
+					break;
+				case "token_usage":
+					await this.tokenUsage();
+					break;
+				case "benchmark_run":
+					await this.benchmarkRun();
+					break;
+				case "metrics_collect":
+					await this.metricsCollect();
+					break;
+				case "trend_analysis":
+					await this.trendAnalysis();
+					break;
+				case "cost_analysis":
+					await this.costAnalysis();
+					break;
+				case "quality_assess":
+					await this.qualityAssess();
+					break;
+				case "error_analysis":
+					await this.errorAnalysis();
+					break;
+				case "usage_stats":
+					await this.usageStats();
+					break;
+				case "health_check":
+					await this.healthCheck();
+					break;
+				case "load_monitor":
+					await this.loadMonitor();
+					break;
+				case "capacity_plan":
+					await this.capacityPlan();
+					break;
+				default:
+					console.warn("Unknown tool:", toolName);
+			}
+		} catch (error) {
+			console.error(`Error executing tool ${toolName}:`, _error);
+			this.showError(`Failed to execute ${toolName}: ${error.message}`);
+		} finally {
+			if (button) {
+				button.classList.remove("loading");
+				button.disabled = false;
+			}
+		}
+	}
 
-    async metricsCollect() {
-        const metrics = await this.fetchAnalysisData('/api/analysis/metrics-collect');
-        this.displayMetrics('metrics-output', metrics);
-        await this.notifyToolCompletion('metrics_collect');
-    }
+	// Tool implementations
+	async performanceReport() {
+		const report = await this.fetchAnalysisData(
+			"/api/analysis/performance-report"
+		);
+		this.displayReport("performance-report-output", report);
+		await this.notifyToolCompletion("performance_report");
+	}
 
-    async trendAnalysis() {
-        const trends = await this.fetchAnalysisData('/api/analysis/trend-analysis');
-        this.displayTrends('trends-output', trends);
-        await this.notifyToolCompletion('trend_analysis');
-    }
+	async bottleneckAnalyze() {
+		const analysis = await this.fetchAnalysisData(
+			"/api/analysis/bottleneck-analyze"
+		);
+		this.displayAnalysis("bottleneck-analysis-output", analysis);
+		await this.notifyToolCompletion("bottleneck_analyze");
+	}
 
-    async costAnalysis() {
-        const costs = await this.fetchAnalysisData('/api/analysis/cost-analysis');
-        this.displayCosts('costs-output', costs);
-        await this.notifyToolCompletion('cost_analysis');
-    }
+	async tokenUsage() {
+		const usage = await this.fetchAnalysisData("/api/analysis/token-usage");
+		this.displayUsage("token-usage-output", usage);
+		await this.notifyToolCompletion("token_usage");
+	}
 
-    async qualityAssess() {
-        const quality = await this.fetchAnalysisData('/api/analysis/quality-assess');
-        this.displayQuality('quality-output', quality);
-        await this.notifyToolCompletion('quality_assess');
-    }
+	async benchmarkRun() {
+		const benchmark = await this.fetchAnalysisData(
+			"/api/analysis/benchmark-run"
+		);
+		this.displayBenchmark("benchmark-output", benchmark);
+		await this.notifyToolCompletion("benchmark_run");
+	}
 
-    async errorAnalysis() {
-        const errors = await this.fetchAnalysisData('/api/analysis/error-analysis');
-        this.displayErrors('errors-output', errors);
-        await this.notifyToolCompletion('error_analysis');
-    }
+	async metricsCollect() {
+		const metrics = await this.fetchAnalysisData(
+			"/api/analysis/metrics-collect"
+		);
+		this.displayMetrics("metrics-output", metrics);
+		await this.notifyToolCompletion("metrics_collect");
+	}
 
-    async usageStats() {
-        const stats = await this.fetchAnalysisData('/api/analysis/usage-stats');
-        this.displayStats('stats-output', stats);
-        await this.notifyToolCompletion('usage_stats');
-    }
+	async trendAnalysis() {
+		const trends = await this.fetchAnalysisData("/api/analysis/trend-analysis");
+		this.displayTrends("trends-output", trends);
+		await this.notifyToolCompletion("trend_analysis");
+	}
 
-    async healthCheck() {
-        const health = await this.fetchAnalysisData('/api/analysis/health-check');
-        this.displayHealth('health-output', health);
-        await this.notifyToolCompletion('health_check');
-    }
+	async costAnalysis() {
+		const costs = await this.fetchAnalysisData("/api/analysis/cost-analysis");
+		this.displayCosts("costs-output", costs);
+		await this.notifyToolCompletion("cost_analysis");
+	}
 
-    async loadMonitor() {
-        const load = await this.fetchAnalysisData('/api/analysis/load-monitor');
-        this.displayLoad('load-output', load);
-        await this.notifyToolCompletion('load_monitor');
-    }
+	async qualityAssess() {
+		const quality = await this.fetchAnalysisData(
+			"/api/analysis/quality-assess"
+		);
+		this.displayQuality("quality-output", quality);
+		await this.notifyToolCompletion("quality_assess");
+	}
 
-    async capacityPlan() {
-        const capacity = await this.fetchAnalysisData('/api/analysis/capacity-plan');
-        this.displayCapacity('capacity-output', capacity);
-        await this.notifyToolCompletion('capacity_plan');
-    }
+	async errorAnalysis() {
+		const errors = await this.fetchAnalysisData("/api/analysis/error-analysis");
+		this.displayErrors("errors-output", errors);
+		await this.notifyToolCompletion("error_analysis");
+	}
 
-    async fetchAnalysisData(endpoint) {
-        try {
-            const response = await fetch(endpoint);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return await response.json();
-        } catch (error) {
-            console.error('Fetch error:', _error);
-            // Return mock data for development
-            return this.getMockData(endpoint);
-        }
-    }
+	async usageStats() {
+		const stats = await this.fetchAnalysisData("/api/analysis/usage-stats");
+		this.displayStats("stats-output", stats);
+		await this.notifyToolCompletion("usage_stats");
+	}
 
-    getMockData(endpoint) {
-        const mockData = {
-            '/api/analysis/performance-report': {
-                summary: 'System performance is within acceptable ranges',
-                metrics: {
-                    averageResponseTime: 245,
-                    throughput: 1250,
-                    errorRate: 0.02,
-                    uptime: '99.8%'
-                },
-                recommendations: [
-                    'Consider caching frequently accessed data',
-                    'Optimize database queries for better performance',
-                    'Monitor memory usage during peak hours'
-                ]
-            },
-            '/api/analysis/bottleneck-analyze': {
-                bottlenecks: [
-                    { component: 'Database', severity: 'medium', impact: 'Response time +15%' },
-                    { component: 'API Gateway', severity: 'low', impact: 'Throughput -5%' }
-                ],
-                recommendations: [
-                    'Add database read replicas',
-                    'Implement connection pooling',
-                    'Optimize slow queries'
-                ]
-            },
-            '/api/analysis/token-usage': {
-                totalTokens: 2450000,
-                inputTokens: 1200000,
-                outputTokens: 950000,
-                cachedTokens: 300000,
-                cost: 245.50,
-                efficiency: 85.2
-            }
-        };
-        return mockData[endpoint] || { message: 'No data available' };
-    }
+	async healthCheck() {
+		const health = await this.fetchAnalysisData("/api/analysis/health-check");
+		this.displayHealth("health-output", health);
+		await this.notifyToolCompletion("health_check");
+	}
 
-    displayReport(containerId, report) {
-        const container = document.getElementById(containerId);
-        if (!container) return;
+	async loadMonitor() {
+		const load = await this.fetchAnalysisData("/api/analysis/load-monitor");
+		this.displayLoad("load-output", load);
+		await this.notifyToolCompletion("load_monitor");
+	}
 
-        container.innerHTML = `
+	async capacityPlan() {
+		const capacity = await this.fetchAnalysisData(
+			"/api/analysis/capacity-plan"
+		);
+		this.displayCapacity("capacity-output", capacity);
+		await this.notifyToolCompletion("capacity_plan");
+	}
+
+	async fetchAnalysisData(endpoint) {
+		try {
+			const response = await fetch(endpoint);
+			if (!response.ok) {
+				throw new Error(`HTTP error! status: ${response.status}`);
+			}
+			return await response.json();
+		} catch (error) {
+			console.error("Fetch error:", _error);
+			// Return mock data for development
+			return this.getMockData(endpoint);
+		}
+	}
+
+	getMockData(endpoint) {
+		const mockData = {
+			"/api/analysis/performance-report": {
+				summary: "System performance is within acceptable ranges",
+				metrics: {
+					averageResponseTime: 245,
+					throughput: 1250,
+					errorRate: 0.02,
+					uptime: "99.8%",
+				},
+				recommendations: [
+					"Consider caching frequently accessed data",
+					"Optimize database queries for better performance",
+					"Monitor memory usage during peak hours",
+				],
+			},
+			"/api/analysis/bottleneck-analyze": {
+				bottlenecks: [
+					{
+						component: "Database",
+						severity: "medium",
+						impact: "Response time +15%",
+					},
+					{
+						component: "API Gateway",
+						severity: "low",
+						impact: "Throughput -5%",
+					},
+				],
+				recommendations: [
+					"Add database read replicas",
+					"Implement connection pooling",
+					"Optimize slow queries",
+				],
+			},
+			"/api/analysis/token-usage": {
+				totalTokens: 2450000,
+				inputTokens: 1200000,
+				outputTokens: 950000,
+				cachedTokens: 300000,
+				cost: 245.5,
+				efficiency: 85.2,
+			},
+		};
+		return mockData[endpoint] || { message: "No data available" };
+	}
+
+	displayReport(containerId, report) {
+		const container = document.getElementById(containerId);
+		if (!container) return;
+
+		container.innerHTML = `
             <div class="report-summary">
                 <h3>Performance Report</h3>
                 <p>${report.summary}</p>
@@ -697,43 +746,47 @@ class AnalysisTools {
             <div class="report-recommendations">
                 <h4>Recommendations</h4>
                 <ul>
-                    ${report.recommendations.map(rec => `<li>${rec}</li>`).join('')}
+                    ${report.recommendations.map((rec) => `<li>${rec}</li>`).join("")}
                 </ul>
             </div>
         `;
-    }
+	}
 
-    displayAnalysis(containerId, analysis) {
-        const container = document.getElementById(containerId);
-        if (!container) return;
+	displayAnalysis(containerId, analysis) {
+		const container = document.getElementById(containerId);
+		if (!container) return;
 
-        container.innerHTML = `
+		container.innerHTML = `
             <div class="analysis-results">
                 <h3>Bottleneck Analysis</h3>
                 <div class="bottleneck-list">
-                    ${analysis.bottlenecks.map(bottleneck => `
+                    ${analysis.bottlenecks
+											.map(
+												(bottleneck) => `
                         <div class="bottleneck-item severity-${bottleneck.severity}">
                             <div class="bottleneck-component">${bottleneck.component}</div>
                             <div class="bottleneck-severity">${bottleneck.severity}</div>
                             <div class="bottleneck-impact">${bottleneck.impact}</div>
                         </div>
-                    `).join('')}
+                    `
+											)
+											.join("")}
                 </div>
                 <div class="analysis-recommendations">
                     <h4>Recommendations</h4>
                     <ul>
-                        ${analysis.recommendations.map(rec => `<li>${rec}</li>`).join('')}
+                        ${analysis.recommendations.map((rec) => `<li>${rec}</li>`).join("")}
                     </ul>
                 </div>
             </div>
         `;
-    }
+	}
 
-    displayUsage(containerId, usage) {
-        const container = document.getElementById(containerId);
-        if (!container) return;
+	displayUsage(containerId, usage) {
+		const container = document.getElementById(containerId);
+		if (!container) return;
 
-        container.innerHTML = `
+		container.innerHTML = `
             <div class="usage-overview">
                 <h3>Token Usage Analysis</h3>
                 <div class="usage-stats">
@@ -764,146 +817,149 @@ class AnalysisTools {
                 </div>
             </div>
         `;
-    }
+	}
 
-    exportData(type, format) {
-        const data = this.metricsCache.get('latest') || {};
-        const timestamp = new Date().toISOString().split('T')[0];
-        const filename = `${type}_${timestamp}.${format}`;
+	exportData(type, format) {
+		const data = this.metricsCache.get("latest") || {};
+		const timestamp = new Date().toISOString().split("T")[0];
+		const filename = `${type}_${timestamp}.${format}`;
 
-        if (format === 'json') {
-            this.downloadJSON(data, filename);
-        } else if (format === 'csv') {
-            this.downloadCSV(data, filename);
-        }
-    }
+		if (format === "json") {
+			this.downloadJSON(data, filename);
+		} else if (format === "csv") {
+			this.downloadCSV(data, filename);
+		}
+	}
 
-    downloadJSON(data, filename) {
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        a.click();
-        URL.revokeObjectURL(url);
-    }
+	downloadJSON(data, filename) {
+		const blob = new Blob([JSON.stringify(data, null, 2)], {
+			type: "application/json",
+		});
+		const url = URL.createObjectURL(blob);
+		const a = document.createElement("a");
+		a.href = url;
+		a.download = filename;
+		a.click();
+		URL.revokeObjectURL(url);
+	}
 
-    downloadCSV(data, filename) {
-        const csv = this.jsonToCSV(data);
-        const blob = new Blob([csv], { type: 'text/csv' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        a.click();
-        URL.revokeObjectURL(url);
-    }
+	downloadCSV(data, filename) {
+		const csv = this.jsonToCSV(data);
+		const blob = new Blob([csv], { type: "text/csv" });
+		const url = URL.createObjectURL(blob);
+		const a = document.createElement("a");
+		a.href = url;
+		a.download = filename;
+		a.click();
+		URL.revokeObjectURL(url);
+	}
 
-    jsonToCSV(json) {
-        const flatten = (obj, prefix = '') => {
-            const flattened = {};
-            for (const key in obj) {
-                if (typeof obj[key] === 'object' && obj[key] !== null) {
-                    Object.assign(flattened, flatten(obj[key], prefix + key + '.'));
-                } else {
-                    flattened[prefix + key] = obj[key];
-                }
-            }
-            return flattened;
-        };
+	jsonToCSV(json) {
+		const flatten = (obj, prefix = "") => {
+			const flattened = {};
+			for (const key in obj) {
+				if (typeof obj[key] === "object" && obj[key] !== null) {
+					Object.assign(flattened, flatten(obj[key], prefix + key + "."));
+				} else {
+					flattened[prefix + key] = obj[key];
+				}
+			}
+			return flattened;
+		};
 
-        const flattened = flatten(json);
-        const headers = Object.keys(flattened);
-        const values = Object.values(flattened);
-        
-        return [headers.join(','), values.join(',')].join('\n');
-    }
+		const flattened = flatten(json);
+		const headers = Object.keys(flattened);
+		const values = Object.values(flattened);
 
-    refreshSection(section) {
-        switch (section) {
-            case 'metrics':
-                this.requestMetricsUpdate();
-                break;
-            case 'charts':
-                Object.values(this.charts).forEach(chart => {
-                    if (chart && chart.update) {
-                        chart.update();
-                    }
-                });
-                break;
-            case 'alerts':
-                document.getElementById('alerts-container').innerHTML = '';
-                break;
-            default:
-                console.warn('Unknown section:', section);
-        }
-    }
+		return [headers.join(","), values.join(",")].join("\n");
+	}
 
-    updateConnectionStatus(status) {
-        const statusElement = document.getElementById('connection-status');
-        if (statusElement) {
-            statusElement.className = `connection-status ${status}`;
-            statusElement.textContent = status.charAt(0).toUpperCase() + status.slice(1);
-        }
-    }
+	refreshSection(section) {
+		switch (section) {
+			case "metrics":
+				this.requestMetricsUpdate();
+				break;
+			case "charts":
+				Object.values(this.charts).forEach((chart) => {
+					if (chart && chart.update) {
+						chart.update();
+					}
+				});
+				break;
+			case "alerts":
+				document.getElementById("alerts-container").innerHTML = "";
+				break;
+			default:
+				console.warn("Unknown section:", section);
+		}
+	}
 
-    showError(message) {
-        const errorElement = document.createElement('div');
-        errorElement.className = 'error-message';
-        errorElement.textContent = message;
-        document.body.appendChild(errorElement);
-        
-        setTimeout(() => {
-            errorElement.remove();
-        }, 5000);
-    }
+	updateConnectionStatus(status) {
+		const statusElement = document.getElementById("connection-status");
+		if (statusElement) {
+			statusElement.className = `connection-status ${status}`;
+			statusElement.textContent =
+				status.charAt(0).toUpperCase() + status.slice(1);
+		}
+	}
 
-    async notifyToolCompletion(toolName) {
-        try {
-            // Notify swarm of tool completion
-            const response = await fetch('/api/swarm/notify', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    message: `${toolName} completed`,
-                    timestamp: Date.now(),
-                    agent: 'analysis-tools'
-                })
-            });
-            
-            if (!response.ok) {
-                console.warn('Failed to notify swarm');
-            }
-        } catch (error) {
-            console.error('Error notifying swarm:', _error);
-        }
-    }
+	showError(message) {
+		const errorElement = document.createElement("div");
+		errorElement.className = "error-message";
+		errorElement.textContent = message;
+		document.body.appendChild(errorElement);
 
-    destroy() {
-        if (this.updateInterval) {
-            clearInterval(this.updateInterval);
-        }
-        
-        if (this.ws) {
-            this.ws.close();
-        }
-        
-        Object.values(this.charts).forEach(chart => {
-            if (chart && chart.destroy) {
-                chart.destroy();
-            }
-        });
-    }
+		setTimeout(() => {
+			errorElement.remove();
+		}, 5000);
+	}
+
+	async notifyToolCompletion(toolName) {
+		try {
+			// Notify swarm of tool completion
+			const response = await fetch("/api/swarm/notify", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					message: `${toolName} completed`,
+					timestamp: Date.now(),
+					agent: "analysis-tools",
+				}),
+			});
+
+			if (!response.ok) {
+				console.warn("Failed to notify swarm");
+			}
+		} catch (error) {
+			console.error("Error notifying swarm:", _error);
+		}
+	}
+
+	destroy() {
+		if (this.updateInterval) {
+			clearInterval(this.updateInterval);
+		}
+
+		if (this.ws) {
+			this.ws.close();
+		}
+
+		Object.values(this.charts).forEach((chart) => {
+			if (chart && chart.destroy) {
+				chart.destroy();
+			}
+		});
+	}
 }
 
 // Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-    window.analysisTools = new AnalysisTools();
+document.addEventListener("DOMContentLoaded", () => {
+	window.analysisTools = new AnalysisTools();
 });
 
 // Export for module use
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = AnalysisTools;
+if (typeof module !== "undefined" && module.exports) {
+	module.exports = AnalysisTools;
 }

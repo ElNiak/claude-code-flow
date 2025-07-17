@@ -103,7 +103,7 @@ Use arrow keys to navigate, Space to select, Enter to continue
 ⏱️ What's your timeline preference?
 
 1) ASAP      - Maximize speed, parallel execution
-2) Balanced  - Good mix of speed and thoroughness  
+2) Balanced  - Good mix of speed and thoroughness
 3) Thorough  - Focus on quality and completeness
 4) Learning  - Include detailed explanations
 
@@ -194,7 +194,7 @@ Once confirmed, you'll see real-time progress:
 [Spawning Agents]
 ✓ Architect-Prime    - System design specialist
 ✓ Coder-Alpha       - Backend implementation
-✓ Coder-Beta        - Authentication specialist  
+✓ Coder-Beta        - Authentication specialist
 ✓ Analyst-Core      - Database design
 ✓ Tester-Unit       - Quality assurance
 ✓ Documenter-Pro    - Documentation generation
@@ -305,7 +305,7 @@ Agent Performance
 
 Task Breakdown
 ├── Architecture Design      ✓ 1m 12s
-├── Database Schema         ✓ 2m 01s  
+├── Database Schema         ✓ 2m 01s
 ├── Project Setup           ✓ 0m 45s
 ├── Auth Implementation     ✓ 3m 45s
 ├── API Endpoints           ✓ 4m 23s
@@ -409,7 +409,7 @@ Result: Working prototype in ~15 minutes
 
 ```
 Task: Build scalable e-commerce API with payments
-Complexity: High  
+Complexity: High
 Features: Auth, Database, API, Tests, Docs
 Timeline: Thorough
 Tech: Node.js, PostgreSQL, Stripe

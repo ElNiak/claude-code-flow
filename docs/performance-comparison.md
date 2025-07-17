@@ -397,7 +397,7 @@ User: Create a user authentication function
 
 #### After (Optimized)
 ```
-System: You are a senior software architect focused on secure, production-ready code. 
+System: You are a senior software architect focused on secure, production-ready code.
 Create functions following these patterns:
 - Input validation and sanitization
 - Proper error handling with specific error types

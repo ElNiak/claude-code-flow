@@ -111,7 +111,7 @@ claude-flow agent spawn <type> [options]
 
 **Agent Types:**
 - `researcher` - Research and information gathering
-- `analyst` - Data analysis and pattern recognition  
+- `analyst` - Data analysis and pattern recognition
 - `implementer` - Code writing and implementation
 - `coordinator` - Task coordination and management
 - `custom` - User-defined agent type

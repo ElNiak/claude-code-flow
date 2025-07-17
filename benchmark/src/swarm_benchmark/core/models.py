@@ -127,7 +127,7 @@ class Task:
     parent_task_id: Optional[str] = None
     subtasks: List[str] = field(default_factory=list)
     dependencies: List[str] = field(default_factory=list)
-    
+
     def duration(self) -> Optional[float]:
         """Calculate task duration in seconds."""
         if self.started_at and self.completed_at:
@@ -151,21 +151,21 @@ class Agent:
     total_tasks_failed: int = 0
     average_execution_time: float = 0.0
     success_rate: float = 1.0
-    
+
     def update_performance(self, metrics: PerformanceMetrics) -> None:
         """Update agent performance metrics."""
         self.performance_history.append(metrics)
         self.last_active = datetime.now()
-        
+
         if metrics.success_rate > 0:
             self.total_tasks_completed += 1
         else:
             self.total_tasks_failed += 1
-            
+
         total_tasks = self.total_tasks_completed + self.total_tasks_failed
         if total_tasks > 0:
             self.success_rate = self.total_tasks_completed / total_tasks
-            
+
         # Calculate average execution time
         execution_times = [m.execution_time for m in self.performance_history if m.execution_time > 0]
         if execution_times:
@@ -189,7 +189,7 @@ class Result:
     created_at: datetime = field(default_factory=datetime.now)
     started_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
-    
+
     def duration(self) -> Optional[float]:
         """Calculate result duration in seconds."""
         if self.started_at and self.completed_at:
@@ -215,28 +215,28 @@ class BenchmarkMetrics:
     peak_memory_usage: float = 0.0
     total_cpu_time: float = 0.0
     network_overhead: float = 0.0
-    
+
     def update_from_results(self, results: List[Result]) -> None:
         """Update metrics from result list."""
         if not results:
             return
-            
+
         self.total_tasks = len(results)
         self.completed_tasks = len([r for r in results if r.status == ResultStatus.SUCCESS])
         self.failed_tasks = len([r for r in results if r.status in [ResultStatus.FAILURE, ResultStatus.ERROR]])
-        
+
         if self.total_tasks > 0:
             self.success_rate = self.completed_tasks / self.total_tasks
-            
+
         execution_times = [r.performance_metrics.execution_time for r in results if r.performance_metrics.execution_time > 0]
         if execution_times:
             self.average_execution_time = sum(execution_times) / len(execution_times)
             self.total_execution_time = sum(execution_times)
-            
+
         quality_scores = [r.quality_metrics.overall_quality for r in results if r.quality_metrics.overall_quality > 0]
         if quality_scores:
             self.quality_score = sum(quality_scores) / len(quality_scores)
-            
+
         # Resource utilization
         memory_usage = [r.resource_usage.peak_memory_mb for r in results if r.resource_usage.peak_memory_mb > 0]
         if memory_usage:
@@ -286,38 +286,38 @@ class Benchmark:
     completed_at: Optional[datetime] = None
     error_log: List[str] = field(default_factory=list)
     metadata: Dict[str, Any] = field(default_factory=dict)
-    
+
     def duration(self) -> Optional[float]:
         """Calculate benchmark duration in seconds."""
         if self.started_at and self.completed_at:
             return (self.completed_at - self.started_at).total_seconds()
         return None
-    
+
     def add_task(self, task: Task) -> None:
         """Add a task to the benchmark."""
         self.tasks.append(task)
-    
+
     def add_agent(self, agent: Agent) -> None:
         """Add an agent to the benchmark."""
         self.agents.append(agent)
-    
+
     def add_result(self, result: Result) -> None:
         """Add a result to the benchmark."""
         self.results.append(result)
         self.metrics.update_from_results(self.results)
-    
+
     def get_task_by_id(self, task_id: str) -> Optional[Task]:
         """Get task by ID."""
         return next((t for t in self.tasks if t.id == task_id), None)
-    
+
     def get_agent_by_id(self, agent_id: str) -> Optional[Agent]:
         """Get agent by ID."""
         return next((a for a in self.agents if a.id == agent_id), None)
-    
+
     def get_results_by_task_id(self, task_id: str) -> List[Result]:
         """Get all results for a specific task."""
         return [r for r in self.results if r.task_id == task_id]
-    
+
     def get_results_by_agent_id(self, agent_id: str) -> List[Result]:
         """Get all results for a specific agent."""
         return [r for r in self.results if r.agent_id == agent_id]

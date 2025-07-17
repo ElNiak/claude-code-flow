@@ -59,7 +59,7 @@ describe('TodoWrite Integration', () => {
       { content: 'Implement existing readFile() function', status: 'pending' },
       { content: 'Use nonexistent superAdvancedAI() method', status: 'pending' }
     ];
-    
+
     const validationResult = await validateTodoContent(todos);
     expect(validationResult.validTodos).toHaveLength(1);
     expect(validationResult.flaggedTodos).toHaveLength(1);
@@ -76,17 +76,17 @@ describe('TodoWrite Integration', () => {
 describe('Performance Impact', () => {
   it('should maintain minimal overhead during verification', async () => {
     const codeSnippets = generateLargeCodebase(1000); // 1000 code samples
-    
+
     const startTime = performance.now();
     const results = await Promise.all(
       codeSnippets.map(code => verificationEngine.verify(code))
     );
     const endTime = performance.now();
-    
+
     const executionTime = endTime - startTime;
     const baselineTime = await measureBaselineExecution(codeSnippets);
     const overhead = (executionTime - baselineTime) / baselineTime;
-    
+
     expect(overhead).toBeLessThan(0.1); // < 10% overhead
     expect(results.every(r => r !== null)).toBe(true);
   });

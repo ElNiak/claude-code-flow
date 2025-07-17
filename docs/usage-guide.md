@@ -143,7 +143,7 @@ npx claude-flow@2.0.0 agent spawn coder "API Developer" \
 
 # Multiple agents for different roles
 npx claude-flow@2.0.0 agent spawn architect "System Architect"
-npx claude-flow@2.0.0 agent spawn tester "QA Engineer" 
+npx claude-flow@2.0.0 agent spawn tester "QA Engineer"
 npx claude-flow@2.0.0 agent spawn reviewer "Code Reviewer"
 ```
 
@@ -254,7 +254,7 @@ npx claude-flow@2.0.0 status
 # Expected output:
 # ✅ Claude-Flow System Status:
 # 🟢 Orchestrator: Running
-# 🟢 MCP Server: Connected  
+# 🟢 MCP Server: Connected
 # 🟢 Memory Bank: Active (1.2GB)
 # 🟢 Swarm Intelligence: 3 agents active
 # 🟢 Neural Networks: 27 models loaded
@@ -279,7 +279,7 @@ npx claude-flow@2.0.0 mcp start --tools "swarm_init,agent_spawn,task_orchestrate
 
 #### Core Coordination (7 tools)
 - `swarm_init` - Initialize swarm coordination
-- `agent_spawn` - Spawn specialized agents  
+- `agent_spawn` - Spawn specialized agents
 - `task_orchestrate` - Task orchestration
 - `memory_usage` - Memory operations
 - `neural_status` - Neural network status
@@ -502,7 +502,7 @@ npx claude-flow@2.0.0 agent spawn coder "ML Engineer" \
 ```bash
 # Organize memory by domains
 npx claude-flow@2.0.0 memory store "db-config" '{"host":"localhost"}' --partition infrastructure
-npx claude-flow@2.0.0 memory store "api-keys" "secret-key" --partition security  
+npx claude-flow@2.0.0 memory store "api-keys" "secret-key" --partition security
 npx claude-flow@2.0.0 memory store "user-prefs" '{"theme":"dark"}' --partition application
 ```
 
@@ -549,6 +549,6 @@ npx claude-flow@2.0.0 swarm "implement critical payment processing" \
 
 ---
 
-*Last Updated: 2025-01-05*  
-*Version: 2.0.0*  
+*Last Updated: 2025-01-05*
+*Version: 2.0.0*
 *Status: Production Ready (NPX)*

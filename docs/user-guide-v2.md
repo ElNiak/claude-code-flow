@@ -725,25 +725,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Setup Claude Flow
         run: |
           npm install -g claude-flow@2.0.0
           claude-flow hive-mind init --ci-mode
-          
+
       - name: Analyze Repository
         run: |
           claude-flow mcp github-repo-analyze \
             --repo "${{ github.repository }}" \
             --analysis-type comprehensive
-            
+
       - name: Automated Code Review
         if: github.event_name == 'pull_request'
         run: |
           claude-flow mcp github-code-review \
             --repo "${{ github.repository }}" \
             --pr ${{ github.event.number }}
-            
+
       - name: Performance Optimization
         run: |
           claude-flow mcp task-orchestrate \

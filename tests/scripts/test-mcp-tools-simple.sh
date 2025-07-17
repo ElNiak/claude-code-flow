@@ -41,20 +41,20 @@ get_command() {
 test_tool() {
     local tool_name=$1
     local test_params=$2
-    
+
     log_info "Testing tool: $tool_name"
-    
+
     local cmd=$(get_command)
     local start_time=$(date +%s.%N)
-    
+
     # Test via JSON-RPC
     local test_message="{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"initialize\",\"params\":{\"protocolVersion\":\"2024-11-05\",\"capabilities\":{\"tools\":{},\"resources\":{}},\"clientInfo\":{\"name\":\"test\",\"version\":\"1.0.0\"}}}
 {\"jsonrpc\":\"2.0\",\"id\":2,\"method\":\"tools/call\",\"params\":{\"name\":\"$tool_name\",\"arguments\":$test_params}}"
-    
+
     local result=$(echo "$test_message" | timeout 10s $cmd mcp start --stdio 2>/dev/null | tail -1)
     local end_time=$(date +%s.%N)
     local duration=$(echo "$end_time - $start_time" | bc 2>/dev/null || echo "3.0")
-    
+
     # Validate result
     if echo "$result" | jq -e '.result.content[0].text' > /dev/null 2>&1; then
         local response=$(echo "$result" | jq -r '.result.content[0].text')

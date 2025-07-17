@@ -72,9 +72,9 @@ await launchTerminalUI();
 import { initializeEnhancedUI } from './ui/web-ui/index.js';
 
 // Enhance existing process UI
-const enhanced = await initializeEnhancedUI({ 
+const enhanced = await initializeEnhancedUI({
   mode: 'enhanced',
-  existingUI: existingProcessUI 
+  existingUI: existingProcessUI
 });
 ```
 
@@ -143,7 +143,7 @@ const result = await ui.executeMCPTool('neural_train', {
 ### Persistence
 
 - **Local Storage**: Browser environment
-- **File System**: Node.js environment  
+- **File System**: Node.js environment
 - **Auto-save**: Configurable intervals
 - **Import/Export**: State backup and restore
 

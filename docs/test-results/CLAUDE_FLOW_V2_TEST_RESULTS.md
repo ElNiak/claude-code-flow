@@ -94,7 +94,7 @@
 - **Count**: 149+ errors
 - **Impact**: Local build fails
 - **Affected Files**: Multiple files across agents, CLI, swarm, and task modules
-- **Common Issues**: 
+- **Common Issues**:
   - Missing type declarations
   - Type mismatches
   - Missing imports

@@ -31,7 +31,7 @@ agents:
     retries: 2
 
   - id: "data-analyst"
-    type: "analyst" 
+    type: "analyst"
     name: "Data Analysis Agent"
     config:
       model: "claude-3"
@@ -268,13 +268,13 @@ settings:
   retryPolicy: "exponential"
   failurePolicy: "continue"
   errorHandler: "log-and-notify"
-  
+
   monitoring:
     enabled: true
     interval: 5000
     metrics:
       - "progress"
-      - "performance" 
+      - "performance"
       - "errors"
       - "resource_usage"
     alerts:

@@ -37,8 +37,8 @@ TodoWrite([
     priority: "high",
     mode: "optimizer",
     batchOptimized: true,
-    
-    
+
+
     tools: ["Read","Edit","Bash","Grep","TodoWrite","Memory"]
   }
 ]);
@@ -47,7 +47,7 @@ TodoWrite([
 Task("Optimizer Agent", "Execute specialized optimizer task", {
   mode: "optimizer",
   batchOptimized: true,
-  
+
   memoryIntegration: true
 });
 ```

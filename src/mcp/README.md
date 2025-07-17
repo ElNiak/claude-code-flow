@@ -166,7 +166,7 @@ await integration.start();
 import { MCPIntegrationFactory } from './mcp/index.js';
 
 // Development setup
-const { server, lifecycleManager, performanceMonitor } = 
+const { server, lifecycleManager, performanceMonitor } =
   await MCPIntegrationFactory.createDevelopmentSetup(logger);
 
 await lifecycleManager.start();

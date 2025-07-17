@@ -9,7 +9,7 @@
  * @returns {number} Sum of a and b
  */
 export function add(a, b) {
-  return a + b;
+	return a + b;
 }
 
 /**
@@ -19,11 +19,11 @@ export function add(a, b) {
  * @returns {number} Difference of a and b
  */
 export function subtract(a, b) {
-  return a - b;
+	return a - b;
 }
 
 // Default export with both functions
 export default {
-  add,
-  subtract
+	add,
+	subtract,
 };

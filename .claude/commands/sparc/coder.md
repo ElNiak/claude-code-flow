@@ -38,8 +38,8 @@ TodoWrite([
     priority: "high",
     mode: "coder",
     batchOptimized: true,
-    
-    
+
+
     tools: ["Read","Write","Edit","Bash","Glob","Grep","TodoWrite"]
   }
 ]);
@@ -48,7 +48,7 @@ TodoWrite([
 Task("Coder Agent", "Execute specialized coder task", {
   mode: "coder",
   batchOptimized: true,
-  
+
   memoryIntegration: true
 });
 ```

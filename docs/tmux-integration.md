@@ -55,7 +55,7 @@ The system automatically creates a **3-pane layout**:
 - Where you interact with the command
 - **Title**: "Main Execution"
 
-#### **Top-Right: Status Monitor**  
+#### **Top-Right: Status Monitor**
 - Real-time session information
 - Progress tracking
 - System metrics
@@ -110,7 +110,7 @@ q               # Exit copy mode
 The live log tail automatically highlights important content:
 
 - 🔴 **ERROR** - Red highlighting for errors
-- 🟡 **WARN** - Yellow highlighting for warnings  
+- 🟡 **WARN** - Yellow highlighting for warnings
 - 🟢 **SUCCESS** - Green highlighting for success
 - 🔵 **INFO** - Blue highlighting for info
 - ✅ **Completed tasks** - Green checkmarks
@@ -195,7 +195,7 @@ which tmux
 ```bash
 # Use descriptive session names
 --tmux-session "project-feature-branch"
---tmux-session "env-deployment-type"  
+--tmux-session "env-deployment-type"
 --tmux-session "component-action"
 
 # Examples:
@@ -260,7 +260,7 @@ npx claude-flow work "analyze this project structure" --tmux --tmux-session "dem
 
 # You'll see:
 # 1. Tmux session created with 3 panes
-# 2. Live log tail in bottom pane  
+# 2. Live log tail in bottom pane
 # 3. Status updates in top-right
 # 4. Main execution in top-left
 

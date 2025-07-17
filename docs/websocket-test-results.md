@@ -44,7 +44,7 @@ All WebSocket connection fixes for issue #78 have been successfully verified.
 #### 4. Exponential Backoff ✅
 - Reconnection attempts follow exponential backoff pattern:
   - Attempt 1: ~2.2s delay
-  - Attempt 2: ~4.2s delay  
+  - Attempt 2: ~4.2s delay
   - Attempt 3: ~9.8s delay
   - Attempt 4: ~18.3s delay
 - Jitter correctly applied to prevent thundering herd

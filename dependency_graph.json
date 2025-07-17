@@ -1,0 +1,208 @@
+{
+	"analysis_date": "2025-07-13T06:01:00.000Z",
+	"dependency_analysis": {
+		"core_dependencies": {
+			"mcp_sdk": {
+				"dependents": [
+					"src/mcp/client.ts",
+					"src/mcp/server.ts",
+					"src/mcp/tools.ts",
+					"src/mcp/claude-flow-tools.ts",
+					"src/mcp/swarm-tools.ts"
+				],
+				"dependency_count": 15,
+				"critical": true,
+				"external": true
+			},
+			"ruv_swarm": {
+				"dependents": [
+					"src/swarm/executor.ts",
+					"src/swarm/coordinator.ts",
+					"src/cli/commands/ruv-swarm.ts",
+					"src/config/ruv-swarm-config.ts"
+				],
+				"dependency_count": 8,
+				"critical": true,
+				"external": true
+			},
+			"utils_helpers": {
+				"dependents": [
+					"src/swarm/executor.ts",
+					"src/swarm/strategies/auto.ts",
+					"src/swarm/strategies/research.ts",
+					"src/swarm/executor-v2.ts"
+				],
+				"dependency_count": 22,
+				"critical": true,
+				"internal": true
+			}
+		},
+		"internal_tool_relationships": {
+			"swarm_to_mcp": {
+				"connections": [
+					"swarm/claude-flow-executor.ts → mcp/claude-flow-tools.ts",
+					"swarm/coordinator.ts → mcp/swarm-tools.ts",
+					"swarm/memory.ts → mcp/server.ts"
+				],
+				"strength": "strong",
+				"bidirectional": true
+			},
+			"cli_to_swarm": {
+				"connections": [
+					"cli/commands/swarm.ts → swarm/executor.ts",
+					"cli/commands/task.ts → swarm/coordinator.ts",
+					"cli/commands/agent.ts → swarm/types.ts"
+				],
+				"strength": "strong",
+				"bidirectional": false
+			},
+			"memory_to_core": {
+				"connections": [
+					"memory/manager.ts → core/persistence.ts",
+					"memory/swarm-memory.ts → core/logger.ts",
+					"memory/cache.ts → utils/helpers.ts"
+				],
+				"strength": "moderate",
+				"bidirectional": false
+			},
+			"coordination_hub": {
+				"connections": [
+					"coordination/manager.ts → swarm/coordinator.ts",
+					"coordination/scheduler.ts → task/engine.ts",
+					"coordination/metrics.ts → monitoring/real-time-monitor.ts"
+				],
+				"strength": "moderate",
+				"bidirectional": true
+			}
+		},
+		"dependency_chains": {
+			"mcp_chain": [
+				"external: @modelcontextprotocol/sdk",
+				"mcp/server.ts",
+				"mcp/claude-flow-tools.ts",
+				"swarm/claude-flow-executor.ts",
+				"cli/commands/swarm.ts"
+			],
+			"swarm_chain": [
+				"external: ruv-swarm",
+				"swarm/executor.ts",
+				"swarm/coordinator.ts",
+				"cli/commands/task.ts"
+			],
+			"memory_chain": [
+				"external: better-sqlite3",
+				"memory/manager.ts",
+				"memory/swarm-memory.ts",
+				"swarm/coordinator.ts"
+			]
+		},
+		"circular_dependencies": {
+			"found": [
+				{
+					"cycle": [
+						"swarm/coordinator.ts",
+						"coordination/manager.ts",
+						"swarm/coordinator.ts"
+					],
+					"severity": "low",
+					"resolved": true
+				}
+			],
+			"potential_issues": []
+		},
+		"tool_isolation_analysis": {
+			"standalone_tools": [
+				"scripts/validate-examples.ts",
+				"scripts/check-links.ts",
+				"scripts/test-comprehensive.js",
+				"scripts/coverage-report.ts"
+			],
+			"highly_coupled_tools": [
+				"mcp/claude-flow-tools.ts",
+				"swarm/executor.ts",
+				"coordination/manager.ts",
+				"cli/commands/index.ts"
+			],
+			"bridge_tools": [
+				"utils/helpers.ts",
+				"utils/error-handler.ts",
+				"core/logger.ts",
+				"types/index.ts"
+			]
+		},
+		"external_dependency_usage": {
+			"critical_external": [
+				{
+					"name": "@modelcontextprotocol/sdk",
+					"used_by": 15,
+					"purpose": "MCP protocol implementation",
+					"risk": "medium"
+				},
+				{
+					"name": "ruv-swarm",
+					"used_by": 8,
+					"purpose": "Swarm orchestration engine",
+					"risk": "low"
+				},
+				{
+					"name": "better-sqlite3",
+					"used_by": 6,
+					"purpose": "SQLite database for memory",
+					"risk": "low"
+				}
+			],
+			"utility_external": [
+				{
+					"name": "chalk",
+					"used_by": 12,
+					"purpose": "CLI coloring",
+					"risk": "low"
+				},
+				{
+					"name": "commander",
+					"used_by": 8,
+					"purpose": "CLI argument parsing",
+					"risk": "low"
+				}
+			]
+		},
+		"tool_cross_references": {
+			"mcp_tools_refs": [
+				"swarm orchestration",
+				"memory management",
+				"task coordination",
+				"CLI commands"
+			],
+			"swarm_tools_refs": [
+				"MCP integration",
+				"coordination patterns",
+				"memory persistence",
+				"terminal management"
+			],
+			"memory_tools_refs": [
+				"swarm state",
+				"MCP sessions",
+				"task history",
+				"performance metrics"
+			]
+		}
+	},
+	"integration_points": {
+		"mcp_server_integration": {
+			"entry_points": ["src/mcp/server.ts", "src/mcp/claude-flow-tools.ts"],
+			"consumers": [
+				"claude-code CLI",
+				"external MCP clients",
+				"swarm coordinators"
+			]
+		},
+		"cli_integration": {
+			"entry_points": ["bin/claude-flow", "src/cli/main.ts"],
+			"consumers": ["terminal users", "CI/CD systems", "NPX installations"]
+		},
+		"api_integration": {
+			"entry_points": ["src/api endpoints", "src/mcp/router.ts"],
+			"consumers": ["web interfaces", "external tools", "monitoring systems"]
+		}
+	}
+}

@@ -135,8 +135,8 @@ CREATE INDEX IF NOT EXISTS idx_task_deps ON task_dependencies(task_id);
 
 -- Views for common queries
 CREATE VIEW IF NOT EXISTS active_sessions AS
-SELECT * FROM session_state 
-WHERE state = 'active' 
+SELECT * FROM session_state
+WHERE state = 'active'
 ORDER BY last_activity DESC;
 
 CREATE VIEW IF NOT EXISTS frequent_errors AS
@@ -146,7 +146,7 @@ WHERE occurrence_count > 1
 ORDER BY occurrence_count DESC;
 
 CREATE VIEW IF NOT EXISTS tool_effectiveness AS
-SELECT tool_name, 
+SELECT tool_name,
        COUNT(*) as usage_count,
        AVG(CASE WHEN success THEN 1 ELSE 0 END) * 100 as success_rate,
        AVG(execution_time_ms) as avg_time_ms

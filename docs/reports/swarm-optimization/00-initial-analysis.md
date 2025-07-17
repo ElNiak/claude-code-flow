@@ -1,8 +1,8 @@
 # Swarm Optimization Analysis - Initial Report
 
-**Date:** 2025-06-14  
-**Analyzer:** Claude Code Assistant  
-**Target:** SwarmCoordinator Implementation (`src/swarm/coordinator.ts`)  
+**Date:** 2025-06-14
+**Analyzer:** Claude Code Assistant
+**Target:** SwarmCoordinator Implementation (`src/swarm/coordinator.ts`)
 **Focus Areas:** Performance bottlenecks and optimization opportunities
 
 ## Executive Summary

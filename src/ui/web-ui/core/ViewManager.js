@@ -3,72 +3,72 @@
  * Handles all UI views, transitions, and state persistence
  */
 
-import { EventBus } from './EventBus.js';
+import { EventBus } from "./EventBus.js";
 
 export class ViewManager {
-  constructor(eventBus) {
-    this.eventBus = eventBus;
-    this.registeredViews = new Map();
-    this.loadedViews = new Map();
-    this.currentView = null;
-    this.viewStack = [];
-    this.viewStates = new Map();
-    this.isInitialized = false;
-    this.containerElement = null;
-    this.transitionDuration = 300;
-  }
+	constructor(eventBus) {
+		this.eventBus = eventBus;
+		this.registeredViews = new Map();
+		this.loadedViews = new Map();
+		this.currentView = null;
+		this.viewStack = [];
+		this.viewStates = new Map();
+		this.isInitialized = false;
+		this.containerElement = null;
+		this.transitionDuration = 300;
+	}
 
-  /**
-   * Initialize view manager
-   */
-  async initialize() {
-    try {
-      // Create main view container if in browser
-      if (typeof document !== 'undefined') {
-        this.setupDOMContainer();
-      }
+	/**
+	 * Initialize view manager
+	 */
+	async initialize() {
+		try {
+			// Create main view container if in browser
+			if (typeof document !== "undefined") {
+				this.setupDOMContainer();
+			}
 
-      // Setup event handlers
-      this.setupEventHandlers();
+			// Setup event handlers
+			this.setupEventHandlers();
 
-      this.isInitialized = true;
-      this.eventBus.emit('view-manager:initialized');
+			this.isInitialized = true;
+			this.eventBus.emit("view-manager:initialized");
 
-      console.log('🖼️ View Manager initialized');
+			console.log("🖼️ View Manager initialized");
+		} catch (error) {
+			console.error("❌ Failed to initialize View Manager:", _error);
+			throw error;
+		}
+	}
 
-    } catch (error) {
-      console.error('❌ Failed to initialize View Manager:', _error);
-      throw error;
-    }
-  }
+	/**
+	 * Setup DOM container for web environment
+	 */
+	setupDOMContainer() {
+		// Create main container
+		this.containerElement =
+			document.getElementById("claude-flow-ui") ||
+			document.createElement("div");
 
-  /**
-   * Setup DOM container for web environment
-   */
-  setupDOMContainer() {
-    // Create main container
-    this.containerElement = document.getElementById('claude-flow-ui') || 
-                           document.createElement('div');
-    
-    if (!this.containerElement.id) {
-      this.containerElement.id = 'claude-flow-ui';
-      this.containerElement.className = 'claude-flow-main-container';
-      document.body.appendChild(this.containerElement);
-    }
+		if (!this.containerElement.id) {
+			this.containerElement.id = "claude-flow-ui";
+			this.containerElement.className = "claude-flow-main-container";
+			document.body.appendChild(this.containerElement);
+		}
 
-    // Add CSS for transitions
-    this.addTransitionStyles();
-  }
+		// Add CSS for transitions
+		this.addTransitionStyles();
+	}
 
-  /**
-   * Add CSS styles for view transitions
-   */
-  addTransitionStyles() {
-    if (document.getElementById('claude-flow-styles')) return;
+	/**
+	 * Add CSS styles for view transitions
+	 */
+	addTransitionStyles() {
+		if (document.getElementById("claude-flow-styles")) return;
 
-    const styles = document.createElement('style');
-    styles.id = 'claude-flow-styles';
-    styles.textContent = `
+		const styles = document.createElement("style");
+		styles.id = "claude-flow-styles";
+		styles.textContent = `
       .claude-flow-main-container {
         width: 100%;
         height: 100vh;
@@ -154,467 +154,469 @@ export class ViewManager {
         .claude-flow-main-container {
           padding: 10px;
         }
-        
+
         .claude-flow-view {
           padding: 10px;
         }
-        
+
         .claude-flow-title {
           font-size: 20px;
         }
       }
     `;
-    
-    document.head.appendChild(styles);
-  }
 
-  /**
-   * Register a view configuration
-   */
-  async registerView(viewConfig) {
-    if (!viewConfig.id || !viewConfig.component) {
-      throw new Error('View config must have id and component');
-    }
+		document.head.appendChild(styles);
+	}
 
-    const config = {
-      id: viewConfig.id,
-      name: viewConfig.name || viewConfig.id,
-      icon: viewConfig.icon || '📄',
-      description: viewConfig.description || '',
-      component: viewConfig.component,
-      shortcut: viewConfig.shortcut,
-      toolCount: viewConfig.toolCount || 0,
-      lazy: viewConfig.lazy !== false, // Default to lazy loading
-      preload: viewConfig.preload || false,
-      permissions: viewConfig.permissions || [],
-      dependencies: viewConfig.dependencies || [],
-      metadata: viewConfig.metadata || {}
-    };
+	/**
+	 * Register a view configuration
+	 */
+	async registerView(viewConfig) {
+		if (!viewConfig.id || !viewConfig.component) {
+			throw new Error("View config must have id and component");
+		}
 
-    this.registeredViews.set(viewConfig.id, config);
+		const config = {
+			id: viewConfig.id,
+			name: viewConfig.name || viewConfig.id,
+			icon: viewConfig.icon || "📄",
+			description: viewConfig.description || "",
+			component: viewConfig.component,
+			shortcut: viewConfig.shortcut,
+			toolCount: viewConfig.toolCount || 0,
+			lazy: viewConfig.lazy !== false, // Default to lazy loading
+			preload: viewConfig.preload || false,
+			permissions: viewConfig.permissions || [],
+			dependencies: viewConfig.dependencies || [],
+			metadata: viewConfig.metadata || {},
+		};
 
-    // Preload if requested
-    if (config.preload) {
-      await this.preloadView(config.id);
-    }
+		this.registeredViews.set(viewConfig.id, config);
 
-    this.eventBus.emit('view:registered', { viewId: config.id, config });
+		// Preload if requested
+		if (config.preload) {
+			await this.preloadView(config.id);
+		}
 
-    console.log(`🖼️ Registered view: ${config.name} (${config.id})`);
-  }
+		this.eventBus.emit("view:registered", { viewId: config.id, config });
 
-  /**
-   * Load and display a view
-   */
-  async loadView(viewId, params = {}) {
-    if (!this.isInitialized) {
-      throw new Error('ViewManager not initialized');
-    }
+		console.log(`🖼️ Registered view: ${config.name} (${config.id})`);
+	}
 
-    const viewConfig = this.registeredViews.get(viewId);
-    if (!viewConfig) {
-      throw new Error(`View not registered: ${viewId}`);
-    }
+	/**
+	 * Load and display a view
+	 */
+	async loadView(viewId, params = {}) {
+		if (!this.isInitialized) {
+			throw new Error("ViewManager not initialized");
+		}
 
-    try {
-      this.eventBus.emit('view:loading', { viewId, params });
+		const viewConfig = this.registeredViews.get(viewId);
+		if (!viewConfig) {
+			throw new Error(`View not registered: ${viewId}`);
+		}
 
-      // Check dependencies
-      await this.checkDependencies(viewConfig);
+		try {
+			this.eventBus.emit("view:loading", { viewId, params });
 
-      // Load view component if not already loaded
-      if (!this.loadedViews.has(viewId)) {
-        await this.loadViewComponent(viewId, viewConfig);
-      }
+			// Check dependencies
+			await this.checkDependencies(viewConfig);
 
-      // Hide current view with transition
-      if (this.currentView && this.currentView !== viewId) {
-        await this.hideCurrentView();
-      }
+			// Load view component if not already loaded
+			if (!this.loadedViews.has(viewId)) {
+				await this.loadViewComponent(viewId, viewConfig);
+			}
 
-      // Show new view
-      await this.showView(viewId, _params);
+			// Hide current view with transition
+			if (this.currentView && this.currentView !== viewId) {
+				await this.hideCurrentView();
+			}
 
-      // Update state
-      this.currentView = viewId;
-      this.viewStates.set(viewId, {
-        params,
-        loadTime: Date.now(),
-        lastAccess: Date.now()
-      });
+			// Show new view
+			await this.showView(viewId, _params);
 
-      this.eventBus.emit('view:loaded', { viewId, params });
+			// Update state
+			this.currentView = viewId;
+			this.viewStates.set(viewId, {
+				params,
+				loadTime: Date.now(),
+				lastAccess: Date.now(),
+			});
 
-      console.log(`🖼️ Loaded view: ${viewConfig.name}`);
+			this.eventBus.emit("view:loaded", { viewId, params });
 
-    } catch (error) {
-      this.eventBus.emit('view:error', { viewId, error: error.message, params });
-      throw error;
-    }
-  }
+			console.log(`🖼️ Loaded view: ${viewConfig.name}`);
+		} catch (error) {
+			this.eventBus.emit("view:error", {
+				viewId,
+				error: error.message,
+				params,
+			});
+			throw error;
+		}
+	}
 
-  /**
-   * Load view component
-   */
-  async loadViewComponent(viewId, viewConfig) {
-    try {
-      let ViewComponent;
+	/**
+	 * Load view component
+	 */
+	async loadViewComponent(viewId, viewConfig) {
+		try {
+			let ViewComponent;
 
-      // Check if we're in a browser environment
-      if (typeof document !== 'undefined') {
-        // Browser environment - create DOM-based view
-        ViewComponent = await this.createDOMView(viewId, viewConfig);
-      } else {
-        // Node.js environment - create terminal-based view
-        ViewComponent = await this.createTerminalView(viewId, viewConfig);
-      }
+			// Check if we're in a browser environment
+			if (typeof document !== "undefined") {
+				// Browser environment - create DOM-based view
+				ViewComponent = await this.createDOMView(viewId, viewConfig);
+			} else {
+				// Node.js environment - create terminal-based view
+				ViewComponent = await this.createTerminalView(viewId, viewConfig);
+			}
 
-      this.loadedViews.set(viewId, {
-        component: ViewComponent,
-        config: viewConfig,
-        element: ViewComponent.element || null,
-        instance: ViewComponent.instance || null,
-        loadTime: Date.now()
-      });
+			this.loadedViews.set(viewId, {
+				component: ViewComponent,
+				config: viewConfig,
+				element: ViewComponent.element || null,
+				instance: ViewComponent.instance || null,
+				loadTime: Date.now(),
+			});
+		} catch (error) {
+			console.error(`❌ Failed to load view component ${viewId}:`, _error);
+			throw error;
+		}
+	}
 
-    } catch (error) {
-      console.error(`❌ Failed to load view component ${viewId}:`, _error);
-      throw error;
-    }
-  }
+	/**
+	 * Create DOM-based view for browser
+	 */
+	async createDOMView(viewId, viewConfig) {
+		const element = document.createElement("div");
+		element.className = "claude-flow-view hidden";
+		element.id = `view-${viewId}`;
 
-  /**
-   * Create DOM-based view for browser
-   */
-  async createDOMView(viewId, viewConfig) {
-    const element = document.createElement('div');
-    element.className = 'claude-flow-view hidden';
-    element.id = `view-${viewId}`;
+		// Create view header
+		const header = document.createElement("div");
+		header.className = "claude-flow-header";
 
-    // Create view header
-    const header = document.createElement('div');
-    header.className = 'claude-flow-header';
-    
-    const titleSection = document.createElement('div');
-    const title = document.createElement('h1');
-    title.className = 'claude-flow-title';
-    title.textContent = `${viewConfig.icon} ${viewConfig.name}`;
-    
-    const breadcrumb = document.createElement('div');
-    breadcrumb.className = 'claude-flow-breadcrumb';
-    breadcrumb.textContent = viewConfig.description;
-    
-    titleSection.appendChild(title);
-    titleSection.appendChild(breadcrumb);
-    header.appendChild(titleSection);
+		const titleSection = document.createElement("div");
+		const title = document.createElement("h1");
+		title.className = "claude-flow-title";
+		title.textContent = `${viewConfig.icon} ${viewConfig.name}`;
 
-    // Create view content
-    const content = document.createElement('div');
-    content.className = 'claude-flow-content';
-    content.id = `content-${viewId}`;
+		const breadcrumb = document.createElement("div");
+		breadcrumb.className = "claude-flow-breadcrumb";
+		breadcrumb.textContent = viewConfig.description;
 
-    element.appendChild(header);
-    element.appendChild(content);
-    this.containerElement.appendChild(element);
+		titleSection.appendChild(title);
+		titleSection.appendChild(breadcrumb);
+		header.appendChild(titleSection);
 
-    // Create view instance based on component type
-    let instance;
-    try {
-      // Try to dynamically import the view component
-      const module = await this.importViewComponent(viewConfig.component);
-      instance = new module.default(content, this.eventBus, viewConfig);
-    } catch (error) {
-      // Fallback to basic view
-      instance = this.createBasicView(content, viewConfig);
-    }
+		// Create view content
+		const content = document.createElement("div");
+		content.className = "claude-flow-content";
+		content.id = `content-${viewId}`;
 
-    return {
-      element,
-      instance,
-      render: (params) => instance.render(params),
-      destroy: () => instance.destroy?.()
-    };
-  }
+		element.appendChild(header);
+		element.appendChild(content);
+		this.containerElement.appendChild(element);
 
-  /**
-   * Create terminal-based view for Node.js
-   */
-  async createTerminalView(viewId, viewConfig) {
-    // For terminal environment, create a text-based view
-    let instance;
-    try {
-      const module = await this.importViewComponent(viewConfig.component);
-      instance = new module.default(null, this.eventBus, viewConfig);
-    } catch (error) {
-      instance = this.createBasicTerminalView(viewConfig);
-    }
+		// Create view instance based on component type
+		let instance;
+		try {
+			// Try to dynamically import the view component
+			const module = await this.importViewComponent(viewConfig.component);
+			instance = new module.default(content, this.eventBus, viewConfig);
+		} catch (error) {
+			// Fallback to basic view
+			instance = this.createBasicView(content, viewConfig);
+		}
 
-    return {
-      element: null,
-      instance,
-      render: (params) => instance.render(params),
-      destroy: () => instance.destroy?.()
-    };
-  }
+		return {
+			element,
+			instance,
+			render: (params) => instance.render(params),
+			destroy: () => instance.destroy?.(),
+		};
+	}
 
-  /**
-   * Import view component dynamically
-   */
-  async importViewComponent(componentName) {
-    try {
-      // Try to import from views directory
-      return await import(`../views/${componentName}.js`);
-    } catch (error) {
-      console.warn(`Could not import ${componentName}, using fallback`);
-      throw error;
-    }
-  }
+	/**
+	 * Create terminal-based view for Node.js
+	 */
+	async createTerminalView(viewId, viewConfig) {
+		// For terminal environment, create a text-based view
+		let instance;
+		try {
+			const module = await this.importViewComponent(viewConfig.component);
+			instance = new module.default(null, this.eventBus, viewConfig);
+		} catch (error) {
+			instance = this.createBasicTerminalView(viewConfig);
+		}
 
-  /**
-   * Create basic fallback view for browser
-   */
-  createBasicView(container, viewConfig) {
-    return {
-      render: (params) => {
-        container.innerHTML = `
+		return {
+			element: null,
+			instance,
+			render: (params) => instance.render(params),
+			destroy: () => instance.destroy?.(),
+		};
+	}
+
+	/**
+	 * Import view component dynamically
+	 */
+	async importViewComponent(componentName) {
+		try {
+			// Try to import from views directory
+			return await import(`../views/${componentName}.js`);
+		} catch (error) {
+			console.warn(`Could not import ${componentName}, using fallback`);
+			throw error;
+		}
+	}
+
+	/**
+	 * Create basic fallback view for browser
+	 */
+	createBasicView(container, viewConfig) {
+		return {
+			render: (params) => {
+				container.innerHTML = `
           <div class="claude-flow-loading">
             <div>
               <h2>${viewConfig.name}</h2>
               <p>${viewConfig.description}</p>
               <p>This view is under development.</p>
-              ${viewConfig.toolCount ? `<p>Will support ${viewConfig.toolCount} tools.</p>` : ''}
+              ${viewConfig.toolCount ? `<p>Will support ${viewConfig.toolCount} tools.</p>` : ""}
               <pre>${JSON.stringify(_params, null, 2)}</pre>
             </div>
           </div>
         `;
-      },
-      destroy: () => {
-        container.innerHTML = '';
-      }
-    };
-  }
+			},
+			destroy: () => {
+				container.innerHTML = "";
+			},
+		};
+	}
 
-  /**
-   * Create basic fallback view for terminal
-   */
-  createBasicTerminalView(viewConfig) {
-    return {
-      render: (params) => {
-        console.log(`\n📄 ${viewConfig.name}`);
-        console.log(`   ${viewConfig.description}`);
-        if (viewConfig.toolCount) {
-          console.log(`   Tools: ${viewConfig.toolCount}`);
-        }
-        console.log(`   Params:`, _params);
-        console.log(`   [This view is under development]\n`);
-      },
-      destroy: () => {}
-    };
-  }
+	/**
+	 * Create basic fallback view for terminal
+	 */
+	createBasicTerminalView(viewConfig) {
+		return {
+			render: (params) => {
+				console.log(`\n📄 ${viewConfig.name}`);
+				console.log(`   ${viewConfig.description}`);
+				if (viewConfig.toolCount) {
+					console.log(`   Tools: ${viewConfig.toolCount}`);
+				}
+				console.log(`   Params:`, _params);
+				console.log(`   [This view is under development]\n`);
+			},
+			destroy: () => {},
+		};
+	}
 
-  /**
-   * Show view with transition
-   */
-  async showView(viewId, _params) {
-    const loadedView = this.loadedViews.get(viewId);
-    if (!loadedView) {
-      throw new Error(`View not loaded: ${viewId}`);
-    }
+	/**
+	 * Show view with transition
+	 */
+	async showView(viewId, _params) {
+		const loadedView = this.loadedViews.get(viewId);
+		if (!loadedView) {
+			throw new Error(`View not loaded: ${viewId}`);
+		}
 
-    // Render view with parameters
-    await loadedView.component.render(params);
+		// Render view with parameters
+		await loadedView.component.render(params);
 
-    if (loadedView.element) {
-      // Browser environment - handle DOM transitions
-      loadedView.element.classList.remove('hidden');
-      loadedView.element.classList.add('entering');
+		if (loadedView.element) {
+			// Browser environment - handle DOM transitions
+			loadedView.element.classList.remove("hidden");
+			loadedView.element.classList.add("entering");
 
-      // Remove transition class after animation
-      setTimeout(() => {
-        if (loadedView.element) {
-          loadedView.element.classList.remove('entering');
-        }
-      }, this.transitionDuration);
-    }
+			// Remove transition class after animation
+			setTimeout(() => {
+				if (loadedView.element) {
+					loadedView.element.classList.remove("entering");
+				}
+			}, this.transitionDuration);
+		}
 
-    this.eventBus.emit('view:shown', { viewId, params });
-  }
+		this.eventBus.emit("view:shown", { viewId, params });
+	}
 
-  /**
-   * Hide current view with transition
-   */
-  async hideCurrentView() {
-    if (!this.currentView) return;
+	/**
+	 * Hide current view with transition
+	 */
+	async hideCurrentView() {
+		if (!this.currentView) return;
 
-    const loadedView = this.loadedViews.get(this.currentView);
-    if (loadedView?.element) {
-      loadedView.element.classList.add('exiting');
+		const loadedView = this.loadedViews.get(this.currentView);
+		if (loadedView?.element) {
+			loadedView.element.classList.add("exiting");
 
-      // Hide after transition
-      setTimeout(() => {
-        if (loadedView.element) {
-          loadedView.element.classList.remove('exiting');
-          loadedView.element.classList.add('hidden');
-        }
-      }, this.transitionDuration);
-    }
+			// Hide after transition
+			setTimeout(() => {
+				if (loadedView.element) {
+					loadedView.element.classList.remove("exiting");
+					loadedView.element.classList.add("hidden");
+				}
+			}, this.transitionDuration);
+		}
 
-    this.eventBus.emit('view:hidden', { viewId: this.currentView });
-  }
+		this.eventBus.emit("view:hidden", { viewId: this.currentView });
+	}
 
-  /**
-   * Refresh current view
-   */
-  async refreshView(viewId) {
-    const viewState = this.viewStates.get(viewId);
-    if (viewState) {
-      await this.loadView(viewId, viewState.params);
-    }
-  }
+	/**
+	 * Refresh current view
+	 */
+	async refreshView(viewId) {
+		const viewState = this.viewStates.get(viewId);
+		if (viewState) {
+			await this.loadView(viewId, viewState.params);
+		}
+	}
 
-  /**
-   * Preload a view
-   */
-  async preloadView(viewId) {
-    const viewConfig = this.registeredViews.get(viewId);
-    if (!viewConfig || this.loadedViews.has(viewId)) {
-      return;
-    }
+	/**
+	 * Preload a view
+	 */
+	async preloadView(viewId) {
+		const viewConfig = this.registeredViews.get(viewId);
+		if (!viewConfig || this.loadedViews.has(viewId)) {
+			return;
+		}
 
-    await this.loadViewComponent(viewId, viewConfig);
-    console.log(`🔄 Preloaded view: ${viewConfig.name}`);
-  }
+		await this.loadViewComponent(viewId, viewConfig);
+		console.log(`🔄 Preloaded view: ${viewConfig.name}`);
+	}
 
-  /**
-   * Check view dependencies
-   */
-  async checkDependencies(viewConfig) {
-    if (!viewConfig.dependencies || viewConfig.dependencies.length === 0) {
-      return;
-    }
+	/**
+	 * Check view dependencies
+	 */
+	async checkDependencies(viewConfig) {
+		if (!viewConfig.dependencies || viewConfig.dependencies.length === 0) {
+			return;
+		}
 
-    for (const dependency of viewConfig.dependencies) {
-      if (!this.loadedViews.has(dependency)) {
-        await this.preloadView(dependency);
-      }
-    }
-  }
+		for (const dependency of viewConfig.dependencies) {
+			if (!this.loadedViews.has(dependency)) {
+				await this.preloadView(dependency);
+			}
+		}
+	}
 
-  /**
-   * Unload a view
-   */
-  async unloadView(viewId) {
-    const loadedView = this.loadedViews.get(viewId);
-    if (!loadedView) return;
+	/**
+	 * Unload a view
+	 */
+	async unloadView(viewId) {
+		const loadedView = this.loadedViews.get(viewId);
+		if (!loadedView) return;
 
-    // Call destroy method if available
-    if (loadedView.component.destroy) {
-      await loadedView.component.destroy();
-    }
+		// Call destroy method if available
+		if (loadedView.component.destroy) {
+			await loadedView.component.destroy();
+		}
 
-    // Remove DOM element
-    if (loadedView.element) {
-      loadedView.element.remove();
-    }
+		// Remove DOM element
+		if (loadedView.element) {
+			loadedView.element.remove();
+		}
 
-    // Remove from loaded views
-    this.loadedViews.delete(viewId);
+		// Remove from loaded views
+		this.loadedViews.delete(viewId);
 
-    // Clear state
-    this.viewStates.delete(viewId);
+		// Clear state
+		this.viewStates.delete(viewId);
 
-    this.eventBus.emit('view:unloaded', { viewId });
-    console.log(`🗑️ Unloaded view: ${viewId}`);
-  }
+		this.eventBus.emit("view:unloaded", { viewId });
+		console.log(`🗑️ Unloaded view: ${viewId}`);
+	}
 
-  /**
-   * Get view configuration
-   */
-  getViewConfig(viewId) {
-    return this.registeredViews.get(viewId);
-  }
+	/**
+	 * Get view configuration
+	 */
+	getViewConfig(viewId) {
+		return this.registeredViews.get(viewId);
+	}
 
-  /**
-   * Get all registered views
-   */
-  getAllViews() {
-    return Array.from(this.registeredViews.values());
-  }
+	/**
+	 * Get all registered views
+	 */
+	getAllViews() {
+		return Array.from(this.registeredViews.values());
+	}
 
-  /**
-   * Get view count
-   */
-  getViewCount() {
-    return this.registeredViews.size;
-  }
+	/**
+	 * Get view count
+	 */
+	getViewCount() {
+		return this.registeredViews.size;
+	}
 
-  /**
-   * Check if view exists
-   */
-  hasView(viewId) {
-    return this.registeredViews.has(viewId);
-  }
+	/**
+	 * Check if view exists
+	 */
+	hasView(viewId) {
+		return this.registeredViews.has(viewId);
+	}
 
-  /**
-   * Get view state
-   */
-  getViewState(viewId) {
-    return this.viewStates.get(viewId);
-  }
+	/**
+	 * Get view state
+	 */
+	getViewState(viewId) {
+		return this.viewStates.get(viewId);
+	}
 
-  /**
-   * Set view state
-   */
-  setViewState(viewId, state) {
-    const existing = this.viewStates.get(viewId) || {};
-    this.viewStates.set(viewId, { ...existing, ...state });
-  }
+	/**
+	 * Set view state
+	 */
+	setViewState(viewId, state) {
+		const existing = this.viewStates.get(viewId) || {};
+		this.viewStates.set(viewId, { ...existing, ...state });
+	}
 
-  /**
-   * Setup event handlers
-   */
-  setupEventHandlers() {
-    this.eventBus.on('view:reload', async (data) => {
-      await this.refreshView(data.viewId);
-    });
+	/**
+	 * Setup event handlers
+	 */
+	setupEventHandlers() {
+		this.eventBus.on("view:reload", async (data) => {
+			await this.refreshView(data.viewId);
+		});
 
-    this.eventBus.on('view:unload', async (data) => {
-      await this.unloadView(data.viewId);
-    });
+		this.eventBus.on("view:unload", async (data) => {
+			await this.unloadView(data.viewId);
+		});
 
-    this.eventBus.on('view:preload', async (data) => {
-      await this.preloadView(data.viewId);
-    });
-  }
+		this.eventBus.on("view:preload", async (data) => {
+			await this.preloadView(data.viewId);
+		});
+	}
 
-  /**
-   * Get memory usage statistics
-   */
-  getMemoryStats() {
-    return {
-      registeredViews: this.registeredViews.size,
-      loadedViews: this.loadedViews.size,
-      viewStates: this.viewStates.size,
-      currentView: this.currentView
-    };
-  }
+	/**
+	 * Get memory usage statistics
+	 */
+	getMemoryStats() {
+		return {
+			registeredViews: this.registeredViews.size,
+			loadedViews: this.loadedViews.size,
+			viewStates: this.viewStates.size,
+			currentView: this.currentView,
+		};
+	}
 
-  /**
-   * Cleanup and shutdown
-   */
-  async shutdown() {
-    // Unload all views
-    for (const viewId of this.loadedViews.keys()) {
-      await this.unloadView(viewId);
-    }
+	/**
+	 * Cleanup and shutdown
+	 */
+	async shutdown() {
+		// Unload all views
+		for (const viewId of this.loadedViews.keys()) {
+			await this.unloadView(viewId);
+		}
 
-    // Clear all data
-    this.registeredViews.clear();
-    this.viewStates.clear();
-    this.currentView = null;
+		// Clear all data
+		this.registeredViews.clear();
+		this.viewStates.clear();
+		this.currentView = null;
 
-    this.eventBus.emit('view-manager:shutdown');
-  }
+		this.eventBus.emit("view-manager:shutdown");
+	}
 }
 
 export default ViewManager;

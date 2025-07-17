@@ -3,19 +3,19 @@
  * Tests complete workflows and system integration
  */
 
-import { describe, it, beforeEach, afterEach  } from "../test.utils.ts";
-import { assertEquals, assertExists, assertStringIncludes  } from "../test.utils.ts";
+import { afterEach, assertEquals, assertExists, assertStringIncludes, beforeEach, describe, it } from "../test.utils.ts";
+
 // FakeTime equivalent available in test.utils.ts
 
-import { 
-  AsyncTestUtils, 
-  PerformanceTestUtils,
-  MemoryTestUtils,
-  TestAssertions,
-  FileSystemTestUtils
-} from '../utils/test-utils.ts';
 import { getAllTestFixtures } from '../fixtures/generators.ts';
-import { setupTestEnv, cleanupTestEnv, TEST_CONFIG } from '../test.config.ts';
+import { cleanupTestEnv, setupTestEnv, TEST_CONFIG } from '../test.config.ts';
+import {
+  AsyncTestUtils,
+  FileSystemTestUtils,
+  MemoryTestUtils,
+  PerformanceTestUtils,
+  TestAssertions
+} from '../utils/test-utils.ts';
 
 describe('Full System Integration Tests', () => {
   let tempDir: string;
@@ -26,7 +26,7 @@ describe('Full System Integration Tests', () => {
     setupTestEnv();
     tempDir = await FileSystemTestUtils.createTempDir('e2e-test-');
     fakeTime = new FakeTime();
-    
+
     // Create test configuration
     const testConfig = {
       system: {
@@ -67,7 +67,7 @@ describe('Full System Integration Tests', () => {
       await systemProcess.status;
       systemProcess = null;
     }
-    
+
     fakeTime.restore();
     await FileSystemTestUtils.cleanup([tempDir]);
     await cleanupTestEnv();
@@ -91,27 +91,27 @@ describe('Full System Integration Tests', () => {
       });
 
       systemProcess = command.spawn();
-      
+
       // Wait for system to start
       let startupOutput = '';
       const decoder = new TextDecoder();
-      
+
       // Read initial output to confirm startup
       const reader = systemProcess.stdout.getReader();
-      
+
       const startupTimeout = setTimeout(() => {
         systemProcess?.kill();
       }, 15000); // 15 second timeout
-      
+
       try {
         while (true) {
           const { value, done } = await reader.read();
           if (done) break;
-          
+
           const chunk = decoder.decode(value);
           startupOutput += chunk;
-          
-          if (startupOutput.includes('Orchestrator started') || 
+
+          if (startupOutput.includes('Orchestrator started') ||
               startupOutput.includes('Server listening')) {
             clearTimeout(startupTimeout);
             break;
@@ -124,21 +124,21 @@ describe('Full System Integration Tests', () => {
 
       // Verify system started successfully
       assertStringIncludes(startupOutput, 'started');
-      
+
       console.log('System startup completed successfully');
     });
 
     it('should handle graceful shutdown', async () => {
       // This test would start the system and then test graceful shutdown
       // For now, we'll simulate the process
-      
+
       const shutdownTest = async () => {
         // Simulate system running
         await AsyncTestUtils.delay(100);
-        
+
         // Simulate shutdown signal
         const shutdownPromise = AsyncTestUtils.delay(200).then(() => 'shutdown complete');
-        
+
         return shutdownPromise;
       };
 
@@ -151,17 +151,17 @@ describe('Full System Integration Tests', () => {
       const componentFailureTest = async () => {
         const components = ['terminal', 'memory', 'coordination', 'mcp'];
         const results = [];
-        
+
         for (const component of components) {
           try {
             // Simulate component initialization
             await AsyncTestUtils.delay(50);
-            
+
             // Simulate occasional failure
             if (Math.random() < 0.3) {
               throw new Error(`${component} initialization failed`);
             }
-            
+
             results.push({ component, status: 'success' });
           } catch (error) {
             // Simulate recovery attempt
@@ -169,13 +169,13 @@ describe('Full System Integration Tests', () => {
             results.push({ component, status: 'recovered' });
           }
         }
-        
+
         return results;
       };
 
       const results = await componentFailureTest();
       expect(results.length).toBe(4);
-      
+
       // All components should eventually be running
       results.forEach(result => {
         expect(['success').toBe('recovered'].includes(result.status), true);
@@ -209,7 +209,7 @@ describe('Full System Integration Tests', () => {
         for (const task of workflow) {
           // Check dependencies
           const dependenciesMet = task.dependencies.every(dep => completedTasks.has(dep));
-          
+
           if (!dependenciesMet) {
             // In real system, this would wait for dependencies
             continue;
@@ -217,13 +217,13 @@ describe('Full System Integration Tests', () => {
 
           // Execute task
           await AsyncTestUtils.delay(50); // Simulate task execution time
-          
+
           executionLog.push({
             agent: task.agent,
             task: task.task,
             timestamp: Date.now(),
           });
-          
+
           completedTasks.add(task.task);
         }
 
@@ -231,14 +231,14 @@ describe('Full System Integration Tests', () => {
       };
 
       const executionLog = await workflowTest();
-      
+
       // Verify workflow executed correctly
       expect(executionLog.length >= 3).toBe(true); // At least some tasks completed
-      
+
       // Verify agent participation
       const agentsUsed = new Set(executionLog.map(entry => entry.agent));
       expect(agentsUsed.size >= 2).toBe(true); // Multiple agents participated
-      
+
       console.log(`Multi-agent workflow completed with ${executionLog.length} tasks`);
     });
 
@@ -260,13 +260,13 @@ describe('Full System Integration Tests', () => {
         // Simulate task assignment and failover
         for (const task of tasks) {
           let success = false;
-          
+
           for (const agent of agents) {
             if (agent.status === 'failed') continue;
-            
+
             task.assignedAgent = agent.id;
             task.attempts++;
-            
+
             // Simulate task execution with agent reliability
             if (Math.random() < agent.reliability) {
               task.completed = true;
@@ -281,7 +281,7 @@ describe('Full System Integration Tests', () => {
               }
             }
           }
-          
+
           if (!success) {
             console.log(`Task ${task.id} failed on all agents`);
           }
@@ -296,10 +296,10 @@ describe('Full System Integration Tests', () => {
       };
 
       const results = await failoverTest();
-      
+
       // Most tasks should complete despite agent failures
       TestAssertions.assertInRange(results.completedTasks / results.totalTasks, 0.8, 1.0);
-      
+
       console.log(`Failover test: ${results.completedTasks}/${results.totalTasks} tasks completed`);
       console.log(`Average attempts per task: ${results.averageAttempts.toFixed(2)}`);
     });
@@ -314,32 +314,32 @@ describe('Full System Integration Tests', () => {
 
         const executeWorkflow = async (workflow: any) => {
           const results = [];
-          
+
           for (const task of workflow.tasks) {
             await AsyncTestUtils.delay(Math.random() * 100); // Variable execution time
-            
+
             results.push({
               workflowId: workflow.id,
               taskId: task,
               timestamp: Date.now(),
             });
           }
-          
+
           return results;
         };
 
         // Execute workflows concurrently
         const promises = workflows.map(workflow => executeWorkflow(workflow));
         const results = await Promise.all(promises);
-        
+
         return results.flat();
       };
 
       const results = await concurrentWorkflowTest();
-      
+
       // All workflows should complete
       expect(results.length).toBe(8); // Total tasks across all workflows
-      
+
       // Verify each workflow completed
       const workflowResults = new Map();
       results.forEach(result => {
@@ -348,12 +348,12 @@ describe('Full System Integration Tests', () => {
         }
         workflowResults.get(result.workflowId).push(result);
       });
-      
+
       expect(workflowResults.size).toBe(3); // All 3 workflows
       expect(workflowResults.get('workflow-1').length).toBe(3);
       expect(workflowResults.get('workflow-2').length).toBe(3);
       expect(workflowResults.get('workflow-3').length).toBe(2);
-      
+
       console.log('Concurrent workflows completed successfully');
     });
   });
@@ -371,10 +371,10 @@ describe('Full System Integration Tests', () => {
         // Write data to persistence layer
         const dataFile = `${tempDir}/persistence-test.json`;
         await Deno.writeTextFile(dataFile, JSON.stringify(initialData, null, 2));
-        
+
         // Simulate system restart - verify data recovery
         const recoveredData = JSON.parse(await Deno.readTextFile(dataFile));
-        
+
         return {
           stored: Object.keys(initialData).length,
           recovered: Object.keys(recoveredData).length,
@@ -383,10 +383,10 @@ describe('Full System Integration Tests', () => {
       };
 
       const results = await persistenceTest();
-      
+
       expect(results.stored).toBe(results.recovered);
       expect(results.dataIntegrity).toBe(true);
-      
+
       console.log(`Persistence test: ${results.stored} entries stored and recovered`);
     });
 
@@ -394,12 +394,12 @@ describe('Full System Integration Tests', () => {
       const { result, memoryIncrease, leaked } = await MemoryTestUtils.checkMemoryLeak(async () => {
         const fixtures = getAllTestFixtures();
         const memoryOperations = [];
-        
+
         // Simulate heavy memory operations
         for (let i = 0; i < 100; i++) {
           const namespace = `namespace-${i % 5}`;
           const entries = fixtures.memory.small;
-          
+
           // Store entries
           for (const entry of entries) {
             memoryOperations.push({
@@ -409,7 +409,7 @@ describe('Full System Integration Tests', () => {
               value: entry.value,
             });
           }
-          
+
           // Retrieve some entries
           if (i % 10 === 0) {
             for (let j = 0; j < 5; j++) {
@@ -421,14 +421,14 @@ describe('Full System Integration Tests', () => {
             }
           }
         }
-        
+
         return memoryOperations.length;
       });
 
       expect(leaked).toBe(false);
       expect(typeof result).toBe('number');
       expect(result > 1000).toBe(true); // Many operations performed
-      
+
       console.log(`Memory operations completed: ${result} operations, memory increase: ${(memoryIncrease / 1024 / 1024).toFixed(2)}MB`);
     });
 
@@ -437,31 +437,31 @@ describe('Full System Integration Tests', () => {
         const agents = ['agent-1', 'agent-2', 'agent-3'];
         const sharedNamespace = 'shared-memory';
         const agentData = new Map();
-        
+
         // Initialize agent memory
         agents.forEach(agent => {
           agentData.set(agent, new Map());
         });
-        
+
         // Simulate concurrent memory operations
         const operations = [];
-        
+
         for (let i = 0; i < 50; i++) {
           const agent = agents[i % agents.length];
           const key = `shared-key-${Math.floor(i / 3)}`; // Some overlap between agents
           const value = { data: `value-from-${agent}-${i}`, timestamp: Date.now() };
-          
+
           operations.push({
             agent,
             operation: 'write',
             key,
             value,
           });
-          
+
           // Simulate write to shared memory
           agentData.get(agent)!.set(key, value);
         }
-        
+
         // Simulate memory synchronization
         const synchronizedData = new Map();
         agentData.forEach((data, agent) => {
@@ -470,7 +470,7 @@ describe('Full System Integration Tests', () => {
             synchronizedData.set(key, value);
           });
         });
-        
+
         return {
           totalOperations: operations.length,
           uniqueKeys: synchronizedData.size,
@@ -479,11 +479,11 @@ describe('Full System Integration Tests', () => {
       };
 
       const results = await synchronizationTest();
-      
+
       expect(results.totalOperations).toBe(50);
       expect(results.agentsParticipated).toBe(3);
       TestAssertions.assertInRange(results.uniqueKeys, 10, 20); // Overlap expected
-      
+
       console.log(`Memory synchronization: ${results.uniqueKeys} unique keys from ${results.totalOperations} operations`);
     });
   });
@@ -506,21 +506,21 @@ describe('Full System Integration Tests', () => {
 
         // Execute commands across sessions
         const results = [];
-        
+
         for (let i = 0; i < testCommands.length * 3; i++) {
           const session = sessions[i % sessions.length];
           const command = testCommands[i % testCommands.length];
-          
+
           // Simulate command execution
           try {
             const result = await executeCommand(command, session.workingDir);
-            
+
             session.commands.push({
               command,
               result,
               timestamp: Date.now(),
             });
-            
+
             results.push({
               sessionId: session.id,
               command,
@@ -544,11 +544,11 @@ describe('Full System Integration Tests', () => {
       };
 
       const results = await terminalTest();
-      
+
       expect(results.totalCommands).toBe(12); // 4 commands * 3 sessions
       expect(results.sessionsUsed).toBe(3);
       TestAssertions.assertInRange(results.successfulCommands / results.totalCommands, 0.8, 1.0);
-      
+
       console.log(`Terminal test: ${results.successfulCommands}/${results.totalCommands} commands successful across ${results.sessionsUsed} sessions`);
     });
 
@@ -561,18 +561,18 @@ describe('Full System Integration Tests', () => {
         ];
 
         const results = [];
-        
+
         for (const { command, expectedDuration, timeout } of commands) {
           const startTime = Date.now();
-          
+
           try {
             const result = await AsyncTestUtils.withTimeout(
               executeCommand(command, tempDir),
               timeout
             );
-            
+
             const actualDuration = Date.now() - startTime;
-            
+
             results.push({
               command,
               success: true,
@@ -582,7 +582,7 @@ describe('Full System Integration Tests', () => {
             });
           } catch (error) {
             const actualDuration = Date.now() - startTime;
-            
+
             results.push({
               command,
               success: false,
@@ -598,21 +598,21 @@ describe('Full System Integration Tests', () => {
       };
 
       const results = await timeoutTest();
-      
+
       expect(results.length).toBe(3);
-      
+
       // First command should succeed quickly
       expect(results[0].success).toBe(true);
       TestAssertions.assertInRange(results[0].actualDuration, 0, 500);
-      
+
       // Second command should succeed within timeout
       expect(results[1].success).toBe(true);
       TestAssertions.assertInRange(results[1].actualDuration, 1500, 3000);
-      
+
       // Third command should timeout
       expect(results[2].success).toBe(false);
       TestAssertions.assertInRange(results[2].actualDuration, 900, 1100);
-      
+
       console.log('Terminal timeout handling verified');
     });
   });
@@ -634,11 +634,11 @@ describe('Full System Integration Tests', () => {
         ];
 
         const responses = [];
-        
+
         for (const [index, request] of clientRequests.entries()) {
           // Simulate request processing
           let response;
-          
+
           switch (request.method) {
             case 'list_tools':
               response = { result: { tools: serverCapabilities.tools } };
@@ -659,7 +659,7 @@ describe('Full System Integration Tests', () => {
             default:
               response = { error: { code: -32601, message: 'Method not found' } };
           }
-          
+
           responses.push({
             id: index,
             request: request.method,
@@ -672,16 +672,16 @@ describe('Full System Integration Tests', () => {
       };
 
       const responses = await mcpTest();
-      
+
       expect(responses.length).toBe(4);
-      
+
       // Verify specific responses
       const listToolsResponse = responses.find(r => r.request === 'list_tools');
       expect(listToolsResponse?.response.result?.tools.length).toBe(3);
-      
+
       const calculatorResponse = responses.find(r => r.request === 'call_tool');
       assertStringIncludes(calculatorResponse?.response.result?.content[0].text, '5 + 3 = 8');
-      
+
       console.log('MCP protocol integration test completed successfully');
     });
 
@@ -700,23 +700,23 @@ describe('Full System Integration Tests', () => {
         }));
 
         const routedRequests = [];
-        
+
         // Simulate load balancing
         for (const request of requests) {
           // Find server with lowest load
-          const server = serverPool.reduce((min, current) => 
+          const server = serverPool.reduce((min, current) =>
             current.load < min.load ? current : min
           );
-          
+
           // Route request to server
           server.load++;
-          
+
           routedRequests.push({
             requestId: request.id,
             serverId: server.id,
             serverLoad: server.load,
           });
-          
+
           // Simulate request completion (reduce load)
           setTimeout(() => {
             server.load = Math.max(0, server.load - 1);
@@ -731,14 +731,14 @@ describe('Full System Integration Tests', () => {
       };
 
       const results = await poolingTest();
-      
+
       expect(results.totalRequests).toBe(results.routedRequests);
       expect(results.serverDistribution.length).toBe(3);
-      
+
       // Load should be distributed across servers
       const totalLoad = results.serverDistribution.reduce((sum, s) => sum + s.finalLoad, 0);
       TestAssertions.assertInRange(totalLoad, 0, 50);
-      
+
       console.log(`MCP load balancing: ${results.totalRequests} requests distributed across ${results.serverDistribution.length} servers`);
     });
   });
@@ -756,7 +756,7 @@ describe('Full System Integration Tests', () => {
 
           // Simulate task processing
           await AsyncTestUtils.delay(Math.random() * 20);
-          
+
           return taskData.payload.length;
         },
         {
@@ -770,7 +770,7 @@ describe('Full System Integration Tests', () => {
       TestAssertions.assertInRange(throughputTest.successfulRequests / throughputTest.totalRequests, 0.9, 1.0);
       TestAssertions.assertInRange(throughputTest.averageResponseTime, 0, 100);
       expect(throughputTest.errors.length < throughputTest.totalRequests * 0.05).toBe(true); // Less than 5% errors
-      
+
       console.log(`High throughput test: ${throughputTest.successfulRequests}/${throughputTest.totalRequests} successful (${throughputTest.requestsPerSecond.toFixed(1)} req/sec)`);
     });
 
@@ -778,7 +778,7 @@ describe('Full System Integration Tests', () => {
       const { leaked } = await MemoryTestUtils.checkMemoryLeak(async () => {
         // Simulate memory-intensive workload
         const workload = [];
-        
+
         for (let i = 0; i < 1000; i++) {
           const data = {
             id: i,
@@ -788,26 +788,26 @@ describe('Full System Integration Tests', () => {
               processed: false,
             },
           };
-          
+
           workload.push(data);
-          
+
           // Process some data
           if (i % 100 === 0) {
             workload.forEach(item => {
               item.metadata.processed = true;
               item.metadata.processedAt = Date.now();
             });
-            
+
             // Clean up processed items periodically
             workload.splice(0, 50);
           }
         }
-        
+
         return workload.length;
       }, { threshold: 100 * 1024 * 1024 }); // 100MB threshold
 
       expect(leaked).toBe(false);
-      
+
       console.log('Memory pressure test completed without leaks');
     });
 
@@ -868,15 +868,15 @@ describe('Full System Integration Tests', () => {
       };
 
       const results = await overloadTest();
-      
+
       expect(results.totalRequests).toBe(results.successfulRequests + results.rejectedRequests);
-      
+
       // System should have protected itself by rejecting excess requests
       expect(results.rejectedRequests > 0).toBe(true);
-      
+
       // But should have served a reasonable number of requests
       TestAssertions.assertInRange(results.successfulRequests / results.totalRequests, 0.3, 0.8);
-      
+
       console.log(`Overload protection: ${results.successfulRequests}/${results.totalRequests} requests served, ${results.rejectedRequests} rejected`);
     });
   });
@@ -899,13 +899,13 @@ describe('Full System Integration Tests', () => {
         ];
 
         const recoveryLog = [];
-        
+
         // Simulate cascading failures
         for (const scenario of failureScenarios) {
           const component = components.find(c => c.name === scenario.component);
           if (component) {
             component.status = 'failed';
-            
+
             recoveryLog.push({
               timestamp: Date.now(),
               event: 'component_failure',
@@ -917,7 +917,7 @@ describe('Full System Integration Tests', () => {
             setTimeout(async () => {
               // Recovery logic
               component.status = 'recovering';
-              
+
               recoveryLog.push({
                 timestamp: Date.now(),
                 event: 'recovery_started',
@@ -926,9 +926,9 @@ describe('Full System Integration Tests', () => {
 
               // Simulate recovery time
               await AsyncTestUtils.delay(scenario.duration * 0.5);
-              
+
               component.status = 'healthy';
-              
+
               recoveryLog.push({
                 timestamp: Date.now(),
                 event: 'recovery_completed',
@@ -949,11 +949,11 @@ describe('Full System Integration Tests', () => {
       };
 
       const results = await cascadingFailureTest();
-      
+
       // All components should eventually recover
       expect(results.recoveredComponents).toBe(5);
       expect(results.recoveryEvents >= 6).toBe(true); // At least 3 failures + 3 recoveries
-      
+
       console.log(`Cascading failure recovery: ${results.recoveredComponents}/5 components recovered`);
     });
 
@@ -984,7 +984,7 @@ describe('Full System Integration Tests', () => {
           });
 
           const healthyStores = dataStores.filter(s => s.status === 'healthy');
-          
+
           if (healthyStores.length === 0) {
             continue; // Skip operation if all stores are down
           }
@@ -999,7 +999,7 @@ describe('Full System Integration Tests', () => {
               // Verify consistency across healthy stores
               const values = healthyStores.map(s => s.data.get(operation.key));
               const allSame = values.every(v => v === values[0]);
-              
+
               if (!allSame) {
                 consistencyErrors++;
               } else {
@@ -1026,13 +1026,13 @@ describe('Full System Integration Tests', () => {
       };
 
       const results = await consistencyTest();
-      
+
       // Most operations should succeed
       TestAssertions.assertInRange(results.successfulOperations / results.totalOperations, 0.7, 1.0);
-      
+
       // Consistency errors should be minimal
       TestAssertions.assertInRange(results.consistencyErrors, 0, results.totalOperations * 0.1);
-      
+
       console.log(`Data consistency test: ${results.successfulOperations}/${results.totalOperations} operations, ${results.consistencyErrors} consistency errors`);
     });
   });
@@ -1044,7 +1044,7 @@ async function executeCommand(command: string, workingDir: string): Promise<stri
   const isWindowsCommand = command.startsWith('dir') || command.includes('\\');
   const shell = isWindowsCommand ? 'cmd' : 'sh';
   const shellFlag = isWindowsCommand ? '/c' : '-c';
-  
+
   try {
     const process = new Deno.Command(shell, {
       args: [shellFlag, command],
@@ -1052,14 +1052,14 @@ async function executeCommand(command: string, workingDir: string): Promise<stri
       stdout: 'piped',
       stderr: 'piped',
     });
-    
+
     const { code, stdout, stderr } = await process.output();
-    
+
     if (code !== 0) {
       const error = new TextDecoder().decode(stderr);
       throw new Error(`Command failed (exit code ${code}): ${error}`);
     }
-    
+
     return new TextDecoder().decode(stdout);
   } catch (error) {
     throw new Error(`Failed to execute command "${command}": ${error.message}`);
@@ -1068,13 +1068,13 @@ async function executeCommand(command: string, workingDir: string): Promise<stri
 
 function checkDataConsistency(dataStores: any[]): boolean {
   const healthyStores = dataStores.filter(s => s.status === 'healthy');
-  
+
   if (healthyStores.length < 2) {
     return true; // Can't check consistency with less than 2 stores
   }
-  
+
   const referenceStore = healthyStores[0];
-  
+
   for (const store of healthyStores.slice(1)) {
     for (const [key, value] of referenceStore.data.entries()) {
       if (store.data.get(key) !== value) {
@@ -1082,6 +1082,6 @@ function checkDataConsistency(dataStores: any[]): boolean {
       }
     }
   }
-  
+
   return true;
 }

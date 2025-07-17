@@ -256,7 +256,7 @@ Here's a complete workflow to demonstrate Claude-Flow's capabilities:
 ```bash
 # Spawn different types of agents
 claude-flow agent spawn researcher --name "Data Researcher"
-claude-flow agent spawn analyst --name "Data Analyst" 
+claude-flow agent spawn analyst --name "Data Analyst"
 claude-flow agent spawn coordinator --name "Project Manager"
 ```
 
@@ -279,7 +279,7 @@ Create `research-workflow.json`:
     },
     {
       "id": "analysis-phase",
-      "type": "analysis", 
+      "type": "analysis",
       "description": "Analyze research findings and identify key patterns",
       "dependencies": ["research-phase"],
       "assignTo": "analyst",
@@ -318,7 +318,7 @@ Now that you have Claude-Flow running, explore these advanced features:
 - [Memory System](./memory-system.md) - Advanced memory management
 - [Terminal Integration](./terminal-integration.md) - Terminal customization
 
-### 🤖 Agent Management  
+### 🤖 Agent Management
 - [Agent Management](./agent-management.md) - Advanced agent features
 - [Task Orchestration](./task-orchestration.md) - Complex workflows
 - [Examples](./examples/) - Real-world scenarios

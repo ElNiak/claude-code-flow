@@ -1,168 +1,168 @@
 {
-  "name": "deployment",
-  "description": "Optimized configuration for CI/CD, deployment, and monitoring workflows",
-  "version": "2.0.0",
-  "orchestrator": {
-    "maxConcurrentAgents": 6,
-    "taskQueueSize": 75,
-    "healthCheckInterval": 10000,
-    "shutdownTimeout": 60000
-  },
-  "terminal": {
-    "type": "native",
-    "poolSize": 8,
-    "recycleAfter": 5,
-    "healthCheckInterval": 20000,
-    "commandTimeout": 1800000
-  },
-  "memory": {
-    "backend": "sqlite",
-    "cacheSizeMB": 150,
-    "syncInterval": 2000,
-    "conflictResolution": "timestamp",
-    "retentionDays": 30
-  },
-  "coordination": {
-    "maxRetries": 10,
-    "retryDelay": 5000,
-    "deadlockDetection": true,
-    "resourceTimeout": 600000,
-    "messageTimeout": 30000
-  },
-  "mcp": {
-    "transport": "http",
-    "port": 3003,
-    "tlsEnabled": true
-  },
-  "logging": {
-    "level": "info",
-    "format": "json",
-    "destination": "file"
-  },
-  "ruvSwarm": {
-    "enabled": true,
-    "defaultTopology": "hierarchical",
-    "maxAgents": 6,
-    "defaultStrategy": "specialized",
-    "autoInit": true,
-    "enableHooks": true,
-    "enablePersistence": true,
-    "enableNeuralTraining": false,
-    "configPath": ".claude/ruv-swarm-config.json"
-  },
-  "agents": {
-    "preferredTypes": [
-      "deployer",
-      "tester",
-      "monitor",
-      "security",
-      "coordinator"
-    ],
-    "autoSpawn": {
-      "enabled": true,
-      "triggers": {
-        "fileTypes": {
-          "Dockerfile": ["deployer", "security"],
-          "docker-compose.yml": ["deployer", "coordinator"],
-          "*.yml": ["deployer", "tester"],
-          "*.yaml": ["deployer", "tester"],
-          ".github/workflows/*": ["deployer", "tester"],
-          "package.json": ["deployer", "tester"],
-          "*.tf": ["deployer", "security"]
-        },
-        "environments": {
-          "ci": ["tester", "deployer"],
-          "staging": ["deployer", "monitor"],
-          "production": ["deployer", "monitor", "security"]
-        }
-      }
-    }
-  },
-  "workflows": {
-    "cicdPipeline": {
-      "enabled": true,
-      "agents": ["tester", "deployer", "monitor", "security"],
-      "topology": "hierarchical",
-      "strategy": "specialized",
-      "parallel": false,
-      "sequential": true
-    },
-    "containerDeployment": {
-      "enabled": true,
-      "agents": ["deployer", "monitor", "security"],
-      "topology": "ring",
-      "strategy": "balanced",
-      "parallel": true
-    },
-    "infrastructureProvisioning": {
-      "enabled": true,
-      "agents": ["deployer", "security", "monitor"],
-      "topology": "hierarchical",
-      "strategy": "specialized",
-      "parallel": false
-    },
-    "securityValidation": {
-      "enabled": true,
-      "agents": ["security", "tester", "monitor"],
-      "topology": "ring",
-      "strategy": "specialized",
-      "parallel": true
-    },
-    "performanceMonitoring": {
-      "enabled": true,
-      "agents": ["monitor", "analyst", "alerter"],
-      "topology": "star",
-      "strategy": "adaptive",
-      "parallel": true
-    }
-  },
-  "smartDefaults": {
-    "autoDetectEnvironment": true,
-    "adaptToInfrastructure": true,
-    "learnFromDeployments": true,
-    "optimizeForReliability": true
-  },
-  "hooks": {
-    "preDeployment": {
-      "runTests": true,
-      "validateSecurity": true,
-      "checkDependencies": true,
-      "verifyEnvironment": true
-    },
-    "postDeployment": {
-      "runHealthChecks": true,
-      "setupMonitoring": true,
-      "notifyStakeholders": true,
-      "storeMetrics": true
-    },
-    "preInfrastructure": {
-      "validateTemplates": true,
-      "checkPermissions": true,
-      "estimateCosts": true
-    },
-    "postInfrastructure": {
-      "configureMonitoring": true,
-      "setupAlerts": true,
-      "documentResources": true
-    }
-  },
-  "performance": {
-    "enableCaching": false,
-    "parallelExecution": true,
-    "resourceOptimization": true,
-    "reliabilityFirst": true,
-    "auditTrail": true
-  },
-  "security": {
-    "scanContainers": true,
-    "validateSecrets": true,
-    "checkCompliance": true,
-    "auditAccess": true
-  },
-  "monitoring": {
-    "enableMetrics": true,
-    "enableLogs": true,
-    "enableTracing": true,
-    "enableAlerting": true
-  }
+	"name": "deployment",
+	"description": "Optimized configuration for CI/CD, deployment, and monitoring workflows",
+	"version": "2.0.0",
+	"orchestrator": {
+		"maxConcurrentAgents": 6,
+		"taskQueueSize": 75,
+		"healthCheckInterval": 10000,
+		"shutdownTimeout": 60000
+	},
+	"terminal": {
+		"type": "native",
+		"poolSize": 8,
+		"recycleAfter": 5,
+		"healthCheckInterval": 20000,
+		"commandTimeout": 1800000
+	},
+	"memory": {
+		"backend": "sqlite",
+		"cacheSizeMB": 150,
+		"syncInterval": 2000,
+		"conflictResolution": "timestamp",
+		"retentionDays": 30
+	},
+	"coordination": {
+		"maxRetries": 10,
+		"retryDelay": 5000,
+		"deadlockDetection": true,
+		"resourceTimeout": 600000,
+		"messageTimeout": 30000
+	},
+	"mcp": {
+		"transport": "http",
+		"port": 3003,
+		"tlsEnabled": true
+	},
+	"logging": {
+		"level": "info",
+		"format": "json",
+		"destination": "file"
+	},
+	"ruvSwarm": {
+		"enabled": true,
+		"defaultTopology": "hierarchical",
+		"maxAgents": 6,
+		"defaultStrategy": "specialized",
+		"autoInit": true,
+		"enableHooks": true,
+		"enablePersistence": true,
+		"enableNeuralTraining": false,
+		"configPath": ".claude/ruv-swarm-config.json"
+	},
+	"agents": {
+		"preferredTypes": [
+			"deployer",
+			"tester",
+			"monitor",
+			"security",
+			"coordinator"
+		],
+		"autoSpawn": {
+			"enabled": true,
+			"triggers": {
+				"fileTypes": {
+					"Dockerfile": ["deployer", "security"],
+					"docker-compose.yml": ["deployer", "coordinator"],
+					"*.yml": ["deployer", "tester"],
+					"*.yaml": ["deployer", "tester"],
+					".github/workflows/*": ["deployer", "tester"],
+					"package.json": ["deployer", "tester"],
+					"*.tf": ["deployer", "security"]
+				},
+				"environments": {
+					"ci": ["tester", "deployer"],
+					"staging": ["deployer", "monitor"],
+					"production": ["deployer", "monitor", "security"]
+				}
+			}
+		}
+	},
+	"workflows": {
+		"cicdPipeline": {
+			"enabled": true,
+			"agents": ["tester", "deployer", "monitor", "security"],
+			"topology": "hierarchical",
+			"strategy": "specialized",
+			"parallel": false,
+			"sequential": true
+		},
+		"containerDeployment": {
+			"enabled": true,
+			"agents": ["deployer", "monitor", "security"],
+			"topology": "ring",
+			"strategy": "balanced",
+			"parallel": true
+		},
+		"infrastructureProvisioning": {
+			"enabled": true,
+			"agents": ["deployer", "security", "monitor"],
+			"topology": "hierarchical",
+			"strategy": "specialized",
+			"parallel": false
+		},
+		"securityValidation": {
+			"enabled": true,
+			"agents": ["security", "tester", "monitor"],
+			"topology": "ring",
+			"strategy": "specialized",
+			"parallel": true
+		},
+		"performanceMonitoring": {
+			"enabled": true,
+			"agents": ["monitor", "analyst", "alerter"],
+			"topology": "star",
+			"strategy": "adaptive",
+			"parallel": true
+		}
+	},
+	"smartDefaults": {
+		"autoDetectEnvironment": true,
+		"adaptToInfrastructure": true,
+		"learnFromDeployments": true,
+		"optimizeForReliability": true
+	},
+	"hooks": {
+		"preDeployment": {
+			"runTests": true,
+			"validateSecurity": true,
+			"checkDependencies": true,
+			"verifyEnvironment": true
+		},
+		"postDeployment": {
+			"runHealthChecks": true,
+			"setupMonitoring": true,
+			"notifyStakeholders": true,
+			"storeMetrics": true
+		},
+		"preInfrastructure": {
+			"validateTemplates": true,
+			"checkPermissions": true,
+			"estimateCosts": true
+		},
+		"postInfrastructure": {
+			"configureMonitoring": true,
+			"setupAlerts": true,
+			"documentResources": true
+		}
+	},
+	"performance": {
+		"enableCaching": false,
+		"parallelExecution": true,
+		"resourceOptimization": true,
+		"reliabilityFirst": true,
+		"auditTrail": true
+	},
+	"security": {
+		"scanContainers": true,
+		"validateSecrets": true,
+		"checkCompliance": true,
+		"auditAccess": true
+	},
+	"monitoring": {
+		"enableMetrics": true,
+		"enableLogs": true,
+		"enableTracing": true,
+		"enableAlerting": true
+	}
 }

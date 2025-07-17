@@ -164,7 +164,7 @@ swarm-benchmark analyze <id> --quality-breakdown
 # - Completeness: 0.78 ⚠️  (Missing test cases)
 # - Consistency: 0.85 ✓
 # - Relevance: 0.90 ✅
-# 
+#
 # Recommendations:
 # 1. Increase max_retries for better completeness
 # 2. Enable review mode for consistency
@@ -200,8 +200,8 @@ swarm-benchmark analyze <id> --resource-timeline --export resources.csv
 ```python
 # Calculate resource efficiency
 resource_efficiency = (
-    (tasks_completed / total_tasks) * 
-    (1 - (avg_cpu_usage / 100)) * 
+    (tasks_completed / total_tasks) *
+    (1 - (avg_cpu_usage / 100)) *
     (1 - (avg_memory_usage / memory_limit))
 )
 ```
@@ -273,7 +273,7 @@ with open('benchmark_results.json') as f:
 execution_times = [r['execution_time'] for r in data['results']]
 mean_time = np.mean(execution_times)
 std_time = np.std(execution_times)
-ci_95 = stats.t.interval(0.95, len(execution_times)-1, 
+ci_95 = stats.t.interval(0.95, len(execution_times)-1,
                           mean_time, std_time/np.sqrt(len(execution_times)))
 
 print(f"Mean execution time: {mean_time:.3f}s")
@@ -335,13 +335,13 @@ import json
 def analyze_benchmark(benchmark_id):
     with open(f'reports/{benchmark_id}.json') as f:
         data = json.load(f)
-    
+
     # Extract metrics
     metrics = data['metrics']
-    
+
     # Create visualization
     fig, axes = plt.subplots(2, 2, figsize=(12, 10))
-    
+
     # Performance pie chart
     axes[0, 0].pie(
         [metrics['execution_time'], metrics['coordination_overhead'], metrics['queue_time']],
@@ -349,15 +349,15 @@ def analyze_benchmark(benchmark_id):
         autopct='%1.1f%%'
     )
     axes[0, 0].set_title('Time Distribution')
-    
+
     # Quality scores bar chart
     quality = data['quality_metrics']
     axes[0, 1].bar(quality.keys(), quality.values())
     axes[0, 1].set_title('Quality Scores')
-    
+
     # Resource usage over time
     # ... (additional visualizations)
-    
+
     plt.tight_layout()
     plt.savefig(f'analysis_{benchmark_id}.png')
 ```
@@ -506,7 +506,7 @@ import json
 def benchmark_to_dataframe(benchmark_file):
     with open(benchmark_file) as f:
         data = json.load(f)
-    
+
     # Flatten results
     records = []
     for result in data['results']:
@@ -519,7 +519,7 @@ def benchmark_to_dataframe(benchmark_file):
             'memory_usage': result['resource_usage']['memory_mb']
         }
         records.append(record)
-    
+
     return pd.DataFrame(records)
 
 # Analyze with pandas

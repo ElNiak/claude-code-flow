@@ -60,7 +60,7 @@ mcp__github__get_pull_request_files { owner: "ruvnet", repo: "ruv-FANN", pull_nu
 // Create coordinated reviews
 mcp__github__create_pull_request_review {
   owner: "ruvnet",
-  repo: "ruv-FANN", 
+  repo: "ruv-FANN",
   pull_number: 54,
   body: "Automated swarm review with comprehensive analysis",
   event: "APPROVE",
@@ -104,17 +104,17 @@ mcp__claude-flow__memory_usage {
   mcp__claude-flow__agent_spawn { type: "reviewer", name: "Senior Reviewer" }
   mcp__claude-flow__agent_spawn { type: "tester", name: "QA Engineer" }
   mcp__claude-flow__agent_spawn { type: "coordinator", name: "Merge Coordinator" }
-  
+
   // Create and manage PR
   mcp__github__create_pull_request { title: "...", head: "...", base: "main" }
   mcp__github__get_pull_request_files { pull_number: 54 }
   mcp__github__create_pull_request_review { event: "APPROVE", body: "..." }
-  
+
   // Execute tests and validation
   Bash("npm test")
   Bash("npm run lint")
   Bash("npm run build")
-  
+
   // Track progress
   TodoWrite { todos: [
     { id: "review", content: "Complete code review", status: "completed" },

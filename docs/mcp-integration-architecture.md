@@ -172,8 +172,8 @@ const batchTools = [
   { toolName: 'performance_report', parameters: { timeframe: '24h' } }
 ];
 
-const results = await toolFramework.executeToolsBatch(batchTools, { 
-  parallel: true 
+const results = await toolFramework.executeToolsBatch(batchTools, {
+  parallel: true
 });
 ```
 

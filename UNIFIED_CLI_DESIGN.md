@@ -104,7 +104,7 @@ interface WorkContext {
   projectType: 'web' | 'api' | 'mobile' | 'data' | 'ml' | 'unknown';
   technologies: string[];           // Detected from package.json, requirements.txt, etc.
   gitContext: GitInfo;             // Current branch, pending changes, etc.
-  
+
   // User preferences (learned over time)
   preferredTopology: string;
   commonAgentTypes: string[];
@@ -116,7 +116,7 @@ interface WorkContext {
 
 **Development Presets:**
 - `api` - REST API development
-- `web` - Web application development  
+- `web` - Web application development
 - `mobile` - Mobile app development
 - `ml` - Machine learning workflows
 - `data` - Data analysis and processing
@@ -147,16 +147,16 @@ class ConfigurationManager {
     new EnvironmentSource(),         // Environment variables
     new CLIArgumentsSource()         // Command line overrides
   ];
-  
+
   async loadConfiguration(preset?: string): Promise<WorkConfig> {
     const config = new WorkConfig();
-    
+
     // Load in priority order (later sources override earlier ones)
     for (const source of this.sources) {
       const partial = await source.load(preset);
       config.merge(partial);
     }
-    
+
     return config.validate();
   }
 }
@@ -172,30 +172,30 @@ interface WorkConfig {
   maxAgents: number;
   topology: 'hierarchical' | 'mesh' | 'ring' | 'star';
   executionMode: 'parallel' | 'sequential' | 'adaptive';
-  
+
   // Agent configuration
   agents: AgentConfig[];
   autoSpawn: boolean;
   agentSelection: 'auto' | 'manual' | 'learned';
-  
+
   // SPARC integration
   sparc: {
     enabled: boolean;
     modes: string[];
     autoMode: boolean;
   };
-  
+
   // Swarm configuration
   swarm: {
     strategy: string;
     coordination: 'centralized' | 'distributed';
     memory: MemoryConfig;
   };
-  
+
   // Output and UI
   outputFormat: 'interactive' | 'json' | 'quiet' | 'verbose';
   ui: 'terminal' | 'web' | 'headless';
-  
+
   // Integration
   github: GitHubConfig;
   hooks: HooksConfig;
@@ -211,22 +211,22 @@ class PresetSelector {
     if (!task) {
       return await this.interactiveSelection();
     }
-    
+
     // AI-powered task analysis
     const analysis = await this.analyzeTask(task);
-    
+
     // Match against preset patterns
     const candidates = this.matchPresets(analysis, context);
-    
+
     // Return best match or default
     return candidates[0]?.name || 'auto';
   }
-  
+
   private async analyzeTask(task: string): Promise<TaskAnalysis> {
     const keywords = this.extractKeywords(task);
     const intent = await this.classifyIntent(task);
     const complexity = this.estimateComplexity(task);
-    
+
     return { keywords, intent, complexity };
   }
 }
@@ -249,7 +249,7 @@ class PresetSelector {
 
 2. **Implement configuration system**
    - Configuration schema and validation
-   - Hierarchical loading mechanism  
+   - Hierarchical loading mechanism
    - Built-in preset definitions
 
 3. **Create workflow executor**
@@ -324,7 +324,7 @@ class LegacyCommandHandler {
 - **Flexible configuration**: Easy customization without code changes
 - **Better discoverability**: Preset system guides users to optimal workflows
 
-#### For Developers  
+#### For Developers
 - **Reduced maintenance**: Single command implementation
 - **Easier testing**: Standardized configuration patterns
 - **Better extensibility**: New workflows via configuration, not code
@@ -351,7 +351,7 @@ claude-flow work api "build auth" --max-agents 8 --topology mesh --output json
 ```json
 {
   "preset": "api",
-  "task": "build user authentication", 
+  "task": "build user authentication",
   "maxAgents": 8,
   "topology": "mesh",
   "outputFormat": "json",
@@ -404,7 +404,7 @@ claude-flow work --config custom-ml.json "train recommendation model"
   },
   "pipeline": [
     "data-preparation",
-    "feature-engineering", 
+    "feature-engineering",
     "model-training",
     "validation",
     "deployment"
@@ -465,7 +465,7 @@ interface MCPIntegration {
 
 2. **Development Phases:**
    - Phase 1: Core implementation (2 weeks)
-   - Phase 2: Preset library (2 weeks)  
+   - Phase 2: Preset library (2 weeks)
    - Phase 3: Advanced features (2 weeks)
 
 3. **Testing Strategy:**

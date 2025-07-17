@@ -2,8 +2,7 @@
  * End-to-end tests for the start command
  */
 
-import { describe, it, beforeEach, afterEach, expect } from "../test.utils.ts";
-import { describe, it, beforeEach, afterEach, expect } from "../test.utils.ts";
+import { afterEach, afterEach, beforeEach, beforeEach, describe, describe, expect, expect, it, it } from "../test.utils.ts";
 
 describe('Start Command E2E', () => {
   describe('JavaScript CLI', () => {
@@ -43,24 +42,24 @@ describe('Start Command E2E', () => {
     it('should manage process lifecycle', async () => {
       const testScript = `
         import { ProcessManager } from './src/cli/commands/start/process-manager.ts';
-        
+
         const manager = new ProcessManager();
         await manager.initialize();
-        
+
         // Test process lifecycle
         const processes = manager.getAllProcesses();
         console.log('PROCESSES:' + processes.length);
-        
+
         // Start a process
         await manager.startProcess('event-bus');
         const eventBus = manager.getProcess('event-bus');
         console.log('STATUS:' + eventBus?.status);
-        
+
         // Stop the process
         await manager.stopProcess('event-bus');
         const stopped = manager.getProcess('event-bus');
         console.log('STOPPED:' + stopped?.status);
-        
+
         // Get stats
         const stats = manager.getSystemStats();
         console.log('STATS:' + stats.totalProcesses);
@@ -95,14 +94,14 @@ describe('Start Command E2E', () => {
         import { SystemMonitor } from './src/cli/commands/start/system-monitor.ts';
         import { eventBus } from './src/core/event-bus.ts';
         import { SystemEvents } from './src/utils/types.ts';
-        
+
         const manager = new ProcessManager();
         const monitor = new SystemMonitor(manager);
-        
+
         // Emit some events
         eventBus.emit(SystemEvents.AGENT_SPAWNED, { agentId: 'test-1', profile: { type: 'test' } });
         eventBus.emit(SystemEvents.TASK_COMPLETED, { taskId: 'task-1' });
-        
+
         // Check events were tracked
         const events = monitor.getRecentEvents(10);
         console.log('EVENTS:' + events.length);
@@ -153,7 +152,7 @@ describe('Start Command E2E', () => {
       // Create test directories
       const testDir = await Deno.makeTempDir();
       const originalCwd = Deno.cwd();
-      
+
       try {
         Deno.chdir(testDir);
         await Deno.mkdir('memory', { recursive: true });

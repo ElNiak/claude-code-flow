@@ -16,13 +16,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Initialize Swarm
         uses: ruvnet/swarm-action@v1
         with:
           topology: mesh
           max-agents: 6
-          
+
       - name: Analyze Changes
         run: |
           npx ruv-swarm actions analyze \
@@ -64,13 +64,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Detect Languages
         id: detect
         run: |
           npx ruv-swarm actions detect-stack \
             --output json > stack.json
-            
+
       - name: Dynamic Build Matrix
         run: |
           npx ruv-swarm actions create-matrix \
@@ -168,7 +168,7 @@ jobs:
           npx ruv-swarm actions deploy-risk \
             --changes ${{ github.sha }} \
             --history 30d
-            
+
       - name: Choose Strategy
         run: |
           npx ruv-swarm actions deploy-strategy \
@@ -217,7 +217,7 @@ async function run() {
     topology: 'mesh',
     agents: ['analyzer', 'optimizer']
   });
-  
+
   await swarm.execute(core.getInput('task'));
 }
 ```
@@ -238,7 +238,7 @@ jobs:
             --detect-frameworks \
             --optimize-coverage)
           echo "matrix=${MATRIX}" >> $GITHUB_OUTPUT
-  
+
   test:
     needs: generate-matrix
     strategy:

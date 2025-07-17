@@ -47,7 +47,7 @@ terminal.show(); // Reveal terminal in UI
 ```typescript
 export function activate(context: vscode.ExtensionContext) {
     let terminals: Map<string, vscode.Terminal> = new Map();
-    
+
     // Create multiple terminals
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.createTerminals', () => {
@@ -59,7 +59,7 @@ export function activate(context: vscode.ExtensionContext) {
             terminals.set('build', buildTerminal);
             buildTerminal.show();
             buildTerminal.sendText('npm run build');
-            
+
             // Create test terminal
             const testTerminal = vscode.window.createTerminal({
                 name: 'Test',
@@ -67,7 +67,7 @@ export function activate(context: vscode.ExtensionContext) {
             });
             terminals.set('test', testTerminal);
             testTerminal.sendText('npm test');
-            
+
             // Create server terminal
             const serverTerminal = vscode.window.createTerminal({
                 name: 'Server',
@@ -77,7 +77,7 @@ export function activate(context: vscode.ExtensionContext) {
             serverTerminal.sendText('npm start');
         })
     );
-    
+
     // Send text to specific terminal
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.sendToTerminal', (terminalName: string, command: string) => {

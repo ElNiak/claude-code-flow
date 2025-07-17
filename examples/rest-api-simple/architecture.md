@@ -9,22 +9,22 @@ This is a minimalist REST API designed to demonstrate basic CRUD operations with
 ```mermaid
 graph TB
     Client[HTTP Client] --> API[Express Server]
-    
+
     subgraph "Express Application"
         API --> MW[Middleware Stack]
         MW --> Routes[Route Handlers]
         Routes --> Data[In-Memory Data Store]
     end
-    
+
     Routes --> Response[JSON Response]
     Response --> Client
-    
+
     subgraph "Middleware Components"
         MW --> JSON[JSON Parser]
         MW --> URL[URL Encoder]
         MW --> Error[Error Handler]
     end
-    
+
     subgraph "API Endpoints"
         Routes --> Health[GET /health]
         Routes --> List[GET /api/v1/tasks]
@@ -82,7 +82,7 @@ sequenceDiagram
     participant M as Middleware
     participant R as Route Handler
     participant D as Data Store
-    
+
     C->>S: HTTP Request
     S->>M: Process Request
     M->>R: Route to Handler
@@ -129,7 +129,7 @@ sequenceDiagram
 app.use((err, req, res, next) => {
   const status = err.status || 500;
   const message = err.message || 'Internal server error';
-  
+
   res.status(status).json({
     error: {
       message,

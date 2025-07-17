@@ -6,7 +6,7 @@
  * @returns {string} The greeting message
  */
 function greet(name) {
-  return `Hello, ${name}!`;
+	return `Hello, ${name}!`;
 }
 
 /**
@@ -16,10 +16,10 @@ function greet(name) {
  * @returns {string} The formal greeting
  */
 function greetFormal(title, lastName) {
-  return `Good day, ${title} ${lastName}.`;
+	return `Good day, ${title} ${lastName}.`;
 }
 
 module.exports = {
-  greet,
-  greetFormal
+	greet,
+	greetFormal,
 };

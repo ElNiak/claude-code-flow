@@ -300,7 +300,7 @@ tmux attach-session -t persistent-dev
 
 # The bottom pane will show live, color-coded logs:
 # - ERROR (red)
-# - SUCCESS (green)  
+# - SUCCESS (green)
 # - WARN (yellow)
 # - INFO (blue)
 ```

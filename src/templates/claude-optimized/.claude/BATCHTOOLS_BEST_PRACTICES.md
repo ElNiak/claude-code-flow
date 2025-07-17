@@ -94,13 +94,13 @@ async function batchProcess(items, processor, options = {}) {
   const { batchSize = 5 } = options;
   const results = [];
   const errors = [];
-  
+
   for (let i = 0; i < items.length; i += batchSize) {
     const batch = items.slice(i, i + batchSize);
     const batchResults = await Promise.allSettled(
       batch.map(item => processor(item))
     );
-    
+
     batchResults.forEach((result, index) => {
       if (result.status === 'fulfilled') {
         results.push(result.value);
@@ -112,7 +112,7 @@ async function batchProcess(items, processor, options = {}) {
       }
     });
   }
-  
+
   return { results, errors };
 }
 ```
@@ -121,17 +121,17 @@ async function batchProcess(items, processor, options = {}) {
 ```javascript
 async function pipeline(items, stages, options = {}) {
   let current = items;
-  
+
   for (const stage of stages) {
     const { results, errors } = await batchProcess(current, stage, options);
-    
+
     if (errors.length > 0) {
       console.warn(`Stage ${stage.name} had ${errors.length} errors`);
     }
-    
+
     current = results;
   }
-  
+
   return current;
 }
 ```
@@ -147,29 +147,29 @@ class BatchCircuitBreaker {
     this.state = 'closed';
     this.nextAttempt = Date.now();
   }
-  
+
   async execute(batch, processor) {
     if (this.state === 'open' && Date.now() < this.nextAttempt) {
       throw new Error('Circuit breaker is open');
     }
-    
+
     const results = await Promise.allSettled(
       batch.map(item => processor(item))
     );
-    
+
     const failures = results.filter(r => r.status === 'rejected').length;
     const successes = results.filter(r => r.status === 'fulfilled').length;
-    
+
     this.failures += failures;
     this.successes += successes;
-    
+
     const failureRate = this.failures / (this.failures + this.successes);
-    
+
     if (failureRate > this.threshold) {
       this.state = 'open';
       this.nextAttempt = Date.now() + this.resetTime;
     }
-    
+
     return results;
   }
 }
@@ -241,39 +241,39 @@ class DependencyGraph {
     this.nodes = new Map();
     this.edges = new Map();
   }
-  
+
   addTask(id, task, dependencies = []) {
     this.nodes.set(id, task);
     this.edges.set(id, dependencies);
   }
-  
+
   async execute() {
     const completed = new Set();
     const results = new Map();
-    
+
     while (completed.size < this.nodes.size) {
       const ready = [];
-      
+
       for (const [id, deps] of this.edges) {
         if (!completed.has(id) && deps.every(d => completed.has(d))) {
           ready.push(id);
         }
       }
-      
+
       if (ready.length === 0) {
         throw new Error('Circular dependency detected');
       }
-      
+
       const batchResults = await Promise.allSettled(
         ready.map(id => this.nodes.get(id)())
       );
-      
+
       ready.forEach((id, index) => {
         completed.add(id);
         results.set(id, batchResults[index]);
       });
     }
-    
+
     return results;
   }
 }
@@ -288,16 +288,16 @@ class ConcurrentStateManager {
     this.state = new Map();
     this.locks = new Map();
   }
-  
+
   async withLock(key, operation) {
     // Wait for existing lock
     while (this.locks.has(key)) {
       await new Promise(resolve => setTimeout(resolve, 10));
     }
-    
+
     // Acquire lock
     this.locks.set(key, true);
-    
+
     try {
       return await operation(this.state);
     } finally {
@@ -305,16 +305,16 @@ class ConcurrentStateManager {
       this.locks.delete(key);
     }
   }
-  
+
   async batchUpdate(updates) {
     const results = [];
-    
+
     for (const { key, operation } of updates) {
       results.push(
         this.withLock(key, state => operation(state))
       );
     }
-    
+
     return Promise.all(results);
   }
 }
@@ -341,30 +341,30 @@ class AdaptiveBatcher {
     this.batchSize = initialSize;
     this.performanceHistory = [];
   }
-  
+
   async processBatch(items, processor) {
     const startTime = Date.now();
     const batch = items.slice(0, this.batchSize);
-    
+
     const results = await Promise.allSettled(
       batch.map(item => processor(item))
     );
-    
+
     const duration = Date.now() - startTime;
     const throughput = batch.length / (duration / 1000);
-    
+
     this.performanceHistory.push({ size: this.batchSize, throughput });
     this.adjustBatchSize();
-    
+
     return results;
   }
-  
+
   adjustBatchSize() {
     if (this.performanceHistory.length < 3) return;
-    
+
     const recent = this.performanceHistory.slice(-3);
     const avgThroughput = recent.reduce((sum, r) => sum + r.throughput, 0) / 3;
-    
+
     // Increase if performance is good
     if (avgThroughput > this.batchSize * 0.8) {
       this.batchSize = Math.min(this.batchSize + 2, 20);
@@ -389,7 +389,7 @@ class ResourcePool {
     this.inUse = new Set();
     this.waiting = [];
   }
-  
+
   async acquire() {
     // Return available resource
     if (this.available.length > 0) {
@@ -397,23 +397,23 @@ class ResourcePool {
       this.inUse.add(resource);
       return resource;
     }
-    
+
     // Create new resource if under limit
     if (this.inUse.size < this.maxSize) {
       const resource = await this.factory();
       this.inUse.add(resource);
       return resource;
     }
-    
+
     // Wait for available resource
     return new Promise(resolve => {
       this.waiting.push(resolve);
     });
   }
-  
+
   release(resource) {
     this.inUse.delete(resource);
-    
+
     if (this.waiting.length > 0) {
       const resolve = this.waiting.shift();
       this.inUse.add(resource);
@@ -422,7 +422,7 @@ class ResourcePool {
       this.available.push(resource);
     }
   }
-  
+
   async withResource(operation) {
     const resource = await this.acquire();
     try {
@@ -443,17 +443,17 @@ class BatchCache {
     this.cache = new Map();
     this.maxSize = maxSize;
   }
-  
+
   getCacheKey(items) {
-    return items.map(item => 
+    return items.map(item =>
       typeof item === 'object' ? JSON.stringify(item) : item
     ).join('|');
   }
-  
+
   async batchProcess(items, processor, options = {}) {
     const { useCache = true, ttl = 300000 } = options;
     const cacheKey = this.getCacheKey(items);
-    
+
     // Check cache
     if (useCache && this.cache.has(cacheKey)) {
       const cached = this.cache.get(cacheKey);
@@ -461,26 +461,26 @@ class BatchCache {
         return cached.results;
       }
     }
-    
+
     // Process batch
     const results = await Promise.allSettled(
       items.map(item => processor(item))
     );
-    
+
     // Update cache
     if (useCache) {
       this.cache.set(cacheKey, {
         results,
         timestamp: Date.now()
       });
-      
+
       // Evict oldest if over limit
       if (this.cache.size > this.maxSize) {
         const firstKey = this.cache.keys().next().value;
         this.cache.delete(firstKey);
       }
     }
-    
+
     return results;
   }
 }
@@ -500,43 +500,43 @@ class BatchPerformanceMonitor {
       batchSizes: []
     };
   }
-  
+
   async monitorBatch(batch, processor) {
     const startTime = Date.now();
     const startMemory = process.memoryUsage().heapUsed;
-    
+
     const results = await Promise.allSettled(
       batch.map(item => processor(item))
     );
-    
+
     const duration = Date.now() - startTime;
     const memoryDelta = process.memoryUsage().heapUsed - startMemory;
-    
+
     // Update metrics
     this.metrics.totalOperations += batch.length;
     this.metrics.successfulOperations += results.filter(r => r.status === 'fulfilled').length;
     this.metrics.failedOperations += results.filter(r => r.status === 'rejected').length;
     this.metrics.totalDuration += duration;
     this.metrics.batchSizes.push(batch.length);
-    
+
     // Log if performance degrades
     const avgDuration = duration / batch.length;
     if (avgDuration > 1000) {
       console.warn(`Slow batch operation: ${avgDuration}ms per item`);
     }
-    
+
     if (memoryDelta > 50 * 1024 * 1024) {
       console.warn(`High memory usage in batch: ${(memoryDelta / 1024 / 1024).toFixed(2)}MB`);
     }
-    
+
     return results;
   }
-  
+
   getReport() {
     const avgBatchSize = this.metrics.batchSizes.reduce((a, b) => a + b, 0) / this.metrics.batchSizes.length;
     const successRate = this.metrics.successfulOperations / this.metrics.totalOperations;
     const avgDuration = this.metrics.totalDuration / this.metrics.totalOperations;
-    
+
     return {
       totalOperations: this.metrics.totalOperations,
       successRate: `${(successRate * 100).toFixed(2)}%`,
@@ -559,12 +559,12 @@ class FileLockManager {
   constructor() {
     this.locks = new Map();
   }
-  
+
   async withFileLock(filePath, operation, options = {}) {
     const { timeout = 30000, retryInterval = 100 } = options;
     const lockFile = `${filePath}.lock`;
     const startTime = Date.now();
-    
+
     // Try to acquire lock
     while (this.locks.has(filePath)) {
       if (Date.now() - startTime > timeout) {
@@ -572,17 +572,17 @@ class FileLockManager {
       }
       await new Promise(resolve => setTimeout(resolve, retryInterval));
     }
-    
+
     // Set lock
     this.locks.set(filePath, {
       pid: process.pid,
       timestamp: Date.now()
     });
-    
+
     try {
       // Write lock file
       await fs.writeFile(lockFile, JSON.stringify(this.locks.get(filePath)));
-      
+
       // Execute operation
       return await operation();
     } finally {
@@ -595,10 +595,10 @@ class FileLockManager {
       }
     }
   }
-  
+
   async batchFileOperation(files, operation) {
     return Promise.all(
-      files.map(file => 
+      files.map(file =>
         this.withFileLock(file, () => operation(file))
       )
     );
@@ -613,11 +613,11 @@ class FileLockManager {
 class AtomicBatchOperations {
   async atomicWrite(filePath, content) {
     const tempPath = `${filePath}.tmp.${process.pid}.${Date.now()}`;
-    
+
     try {
       // Write to temporary file
       await fs.writeFile(tempPath, content, { flag: 'wx' });
-      
+
       // Atomic rename
       await fs.rename(tempPath, filePath);
     } catch (error) {
@@ -628,10 +628,10 @@ class AtomicBatchOperations {
       throw error;
     }
   }
-  
+
   async atomicBatchWrite(fileContents) {
     const tempFiles = [];
-    
+
     try {
       // Write all temp files first
       for (const { path, content } of fileContents) {
@@ -639,7 +639,7 @@ class AtomicBatchOperations {
         tempFiles.push({ temp: tempPath, final: path });
         await fs.writeFile(tempPath, content, { flag: 'wx' });
       }
-      
+
       // Atomic rename all
       await Promise.all(
         tempFiles.map(({ temp, final }) => fs.rename(temp, final))
@@ -664,39 +664,39 @@ class SecureCredentialManager {
     this.credentials = new Map();
     this.accessLog = [];
   }
-  
+
   setCredential(key, value, options = {}) {
     const { expiresIn = 3600000 } = options; // 1 hour default
-    
+
     this.credentials.set(key, {
       value,
       expiresAt: Date.now() + expiresIn,
       accessed: 0
     });
-    
+
     // Schedule cleanup
     setTimeout(() => this.credentials.delete(key), expiresIn);
   }
-  
+
   getCredential(key, requester) {
     const cred = this.credentials.get(key);
-    
+
     if (!cred) {
       this.logAccess(key, requester, false);
       return null;
     }
-    
+
     if (Date.now() > cred.expiresAt) {
       this.credentials.delete(key);
       this.logAccess(key, requester, false);
       return null;
     }
-    
+
     cred.accessed++;
     this.logAccess(key, requester, true);
     return cred.value;
   }
-  
+
   logAccess(key, requester, success) {
     this.accessLog.push({
       timestamp: new Date().toISOString(),
@@ -704,22 +704,22 @@ class SecureCredentialManager {
       requester,
       success
     });
-    
+
     // Rotate log if too large
     if (this.accessLog.length > 1000) {
       this.accessLog = this.accessLog.slice(-500);
     }
   }
-  
+
   async batchOperationWithCredentials(operations, credentialKeys) {
     const requester = `batch-${Date.now()}`;
-    
+
     // Validate all credentials exist
     const missingCreds = credentialKeys.filter(key => !this.getCredential(key, requester));
     if (missingCreds.length > 0) {
       throw new Error(`Missing credentials: ${missingCreds.join(', ')}`);
     }
-    
+
     // Execute operations
     const results = await Promise.allSettled(
       operations.map((op, index) => {
@@ -727,11 +727,11 @@ class SecureCredentialManager {
           acc[key] = this.getCredential(key, requester);
           return acc;
         }, {});
-        
+
         return op(creds);
       })
     );
-    
+
     return results;
   }
 }
@@ -747,7 +747,7 @@ class BatchAuditLogger {
     this.buffer = [];
     this.flushInterval = setInterval(() => this.flush(), 5000);
   }
-  
+
   async logBatchOperation(operation, items, results) {
     const entry = {
       timestamp: new Date().toISOString(),
@@ -764,31 +764,31 @@ class BatchAuditLogger {
         error: f.error.message
       }))
     };
-    
+
     this.buffer.push(entry);
-    
+
     if (this.buffer.length >= 100) {
       await this.flush();
     }
   }
-  
+
   async flush() {
     if (this.buffer.length === 0) return;
-    
+
     const entries = this.buffer.splice(0, this.buffer.length);
     const logContent = entries.map(e => JSON.stringify(e)).join('\n') + '\n';
-    
+
     await fs.appendFile(this.logPath, logContent);
   }
-  
+
   async auditedBatchProcess(items, processor, metadata = {}) {
     const startTime = Date.now();
     const results = { success: [], failed: [] };
-    
+
     const batchResults = await Promise.allSettled(
       items.map(item => processor(item))
     );
-    
+
     batchResults.forEach((result, index) => {
       if (result.status === 'fulfilled') {
         results.success.push({ item: items[index], result: result.value });
@@ -796,14 +796,14 @@ class BatchAuditLogger {
         results.failed.push({ item: items[index], error: result.reason });
       }
     });
-    
+
     results.duration = Date.now() - startTime;
-    
+
     await this.logBatchOperation(processor, items, results);
-    
+
     return results;
   }
-  
+
   destroy() {
     clearInterval(this.flushInterval);
     this.flush();
@@ -823,10 +823,10 @@ class ProgressiveDegradation {
   constructor(strategies) {
     this.strategies = strategies; // Ordered from best to worst
   }
-  
+
   async execute(item) {
     let lastError;
-    
+
     for (const strategy of this.strategies) {
       try {
         return await strategy.execute(item);
@@ -835,10 +835,10 @@ class ProgressiveDegradation {
         console.warn(`Strategy ${strategy.name} failed, trying next...`);
       }
     }
-    
+
     throw new Error(`All strategies failed. Last error: ${lastError.message}`);
   }
-  
+
   async batchExecute(items) {
     return Promise.allSettled(
       items.map(item => this.execute(item))
@@ -884,28 +884,28 @@ class BatchRetryManager {
     this.maxDelay = options.maxDelay || 30000;
     this.jitter = options.jitter || 0.1;
   }
-  
+
   calculateDelay(attempt) {
     const exponentialDelay = Math.min(
       this.baseDelay * Math.pow(2, attempt),
       this.maxDelay
     );
-    
+
     const jitterRange = exponentialDelay * this.jitter;
     const jitter = (Math.random() - 0.5) * 2 * jitterRange;
-    
+
     return exponentialDelay + jitter;
   }
-  
+
   async retryOperation(operation, context = {}) {
     let lastError;
-    
+
     for (let attempt = 0; attempt <= this.maxRetries; attempt++) {
       try {
         return await operation();
       } catch (error) {
         lastError = error;
-        
+
         if (attempt < this.maxRetries) {
           const delay = this.calculateDelay(attempt);
           console.log(`Retry ${attempt + 1}/${this.maxRetries} after ${delay}ms`);
@@ -913,17 +913,17 @@ class BatchRetryManager {
         }
       }
     }
-    
+
     throw new Error(`Failed after ${this.maxRetries} retries: ${lastError.message}`);
   }
-  
+
   async batchRetry(items, processor) {
     const results = await Promise.allSettled(
-      items.map(item => 
+      items.map(item =>
         this.retryOperation(() => processor(item), { item })
       )
     );
-    
+
     return {
       successful: results.filter(r => r.status === 'fulfilled').map(r => r.value),
       failed: results.filter(r => r.status === 'rejected').map(r => r.reason)
@@ -941,7 +941,7 @@ class CheckpointBatchProcessor {
     this.checkpointPath = checkpointPath;
     this.processed = new Set();
   }
-  
+
   async loadCheckpoint() {
     try {
       const data = await fs.readFile(this.checkpointPath, 'utf8');
@@ -951,33 +951,33 @@ class CheckpointBatchProcessor {
       this.processed = new Set();
     }
   }
-  
+
   async saveCheckpoint() {
     await fs.writeFile(
       this.checkpointPath,
       JSON.stringify([...this.processed])
     );
   }
-  
+
   async processBatchWithCheckpoints(items, processor, options = {}) {
     const { batchSize = 10, saveInterval = 100 } = options;
-    
+
     await this.loadCheckpoint();
-    
+
     const remaining = items.filter(item => !this.processed.has(item.id));
     const results = { successful: [], failed: [] };
     let processedCount = 0;
-    
+
     for (let i = 0; i < remaining.length; i += batchSize) {
       const batch = remaining.slice(i, i + batchSize);
-      
+
       const batchResults = await Promise.allSettled(
         batch.map(item => processor(item))
       );
-      
+
       batchResults.forEach((result, index) => {
         const item = batch[index];
-        
+
         if (result.status === 'fulfilled') {
           results.successful.push({ item, result: result.value });
           this.processed.add(item.id);
@@ -986,26 +986,26 @@ class CheckpointBatchProcessor {
           results.failed.push({ item, error: result.reason });
         }
       });
-      
+
       // Save checkpoint periodically
       if (processedCount >= saveInterval) {
         await this.saveCheckpoint();
         processedCount = 0;
       }
     }
-    
+
     // Final checkpoint save
     await this.saveCheckpoint();
-    
+
     return results;
   }
-  
+
   async retry() {
     // Load checkpoint and find failed items
     await this.loadCheckpoint();
     const allItems = await this.getAllItems();
     const failed = allItems.filter(item => !this.processed.has(item.id));
-    
+
     return this.processBatchWithCheckpoints(failed, this.processor);
   }
 }
@@ -1020,21 +1020,21 @@ class BatchTransaction {
     this.operations = [];
     this.preparedOps = [];
   }
-  
+
   add(operation, rollback) {
     this.operations.push({ operation, rollback });
   }
-  
+
   async prepare() {
     this.preparedOps = [];
-    
+
     for (const { operation, rollback } of this.operations) {
       try {
         const prepared = await operation.prepare();
-        this.preparedOps.push({ 
-          operation, 
-          rollback, 
-          prepared 
+        this.preparedOps.push({
+          operation,
+          rollback,
+          prepared
         });
       } catch (error) {
         // Rollback any prepared operations
@@ -1042,21 +1042,21 @@ class BatchTransaction {
         throw new Error(`Prepare failed: ${error.message}`);
       }
     }
-    
+
     return true;
   }
-  
+
   async commit() {
     const results = [];
     let commitIndex = 0;
-    
+
     try {
       for (const { operation, prepared } of this.preparedOps) {
         const result = await operation.commit(prepared);
         results.push(result);
         commitIndex++;
       }
-      
+
       return results;
     } catch (error) {
       // Partial commit occurred, rollback committed operations
@@ -1064,29 +1064,29 @@ class BatchTransaction {
       throw new Error(`Commit failed at operation ${commitIndex}: ${error.message}`);
     }
   }
-  
+
   async rollback() {
     const rollbackResults = await Promise.allSettled(
-      this.preparedOps.map(({ rollback, prepared }) => 
+      this.preparedOps.map(({ rollback, prepared }) =>
         rollback(prepared)
       )
     );
-    
+
     const failed = rollbackResults.filter(r => r.status === 'rejected');
     if (failed.length > 0) {
       console.error(`${failed.length} rollback operations failed`);
     }
   }
-  
+
   async partialRollback(fromIndex) {
     const toRollback = this.preparedOps.slice(0, fromIndex);
     await Promise.allSettled(
-      toRollback.map(({ rollback, prepared }) => 
+      toRollback.map(({ rollback, prepared }) =>
         rollback(prepared)
       )
     );
   }
-  
+
   async execute() {
     try {
       await this.prepare();
@@ -1132,22 +1132,22 @@ await transaction.execute();
 ```javascript
 describe('BatchProcessor', () => {
   let processor;
-  
+
   beforeEach(() => {
     processor = new BatchProcessor();
   });
-  
+
   it('should process all items successfully', async () => {
     const items = [1, 2, 3, 4, 5];
     const mockProcessor = jest.fn().mockResolvedValue('processed');
-    
+
     const results = await processor.processBatch(items, mockProcessor);
-    
+
     expect(mockProcessor).toHaveBeenCalledTimes(5);
     expect(results.successful).toHaveLength(5);
     expect(results.failed).toHaveLength(0);
   });
-  
+
   it('should handle partial failures', async () => {
     const items = [1, 2, 3, 4, 5];
     const mockProcessor = jest.fn()
@@ -1156,27 +1156,27 @@ describe('BatchProcessor', () => {
       .mockResolvedValueOnce('success')
       .mockRejectedValueOnce(new Error('fail'))
       .mockResolvedValueOnce('success');
-    
+
     const results = await processor.processBatch(items, mockProcessor);
-    
+
     expect(results.successful).toHaveLength(3);
     expect(results.failed).toHaveLength(2);
   });
-  
+
   it('should respect batch size limits', async () => {
     const items = Array(100).fill(0).map((_, i) => i);
     const mockProcessor = jest.fn().mockResolvedValue('processed');
     const concurrentCalls = [];
-    
+
     mockProcessor.mockImplementation(async (item) => {
       const currentCalls = mockProcessor.mock.calls.length;
       concurrentCalls.push(currentCalls);
       await new Promise(resolve => setTimeout(resolve, 10));
       return 'processed';
     });
-    
+
     await processor.processBatch(items, mockProcessor, { batchSize: 5 });
-    
+
     // Check that no more than 5 operations run concurrently
     const maxConcurrent = Math.max(...concurrentCalls);
     expect(maxConcurrent).toBeLessThanOrEqual(5);
@@ -1190,38 +1190,38 @@ describe('Concurrent Operations', () => {
   it('should handle concurrent writes safely', async () => {
     const fileManager = new ConcurrentFileManager();
     const filePath = '/tmp/test-file.txt';
-    
+
     // Simulate concurrent writes
-    const writes = Array(10).fill(0).map((_, i) => 
+    const writes = Array(10).fill(0).map((_, i) =>
       fileManager.atomicWrite(filePath, `content-${i}`)
     );
-    
+
     await Promise.all(writes);
-    
+
     // Verify file exists and has valid content
     const content = await fs.readFile(filePath, 'utf8');
     expect(content).toMatch(/content-\d/);
-    
+
     // Verify no temp files left behind
     const tempFiles = await glob(`${filePath}.tmp.*`);
     expect(tempFiles).toHaveLength(0);
   });
-  
+
   it('should prevent data corruption with locks', async () => {
     const lockManager = new FileLockManager();
     const counter = { value: 0 };
-    
+
     // Concurrent increments
-    const operations = Array(100).fill(0).map(() => 
+    const operations = Array(100).fill(0).map(() =>
       lockManager.withLock('counter', async () => {
         const current = counter.value;
         await new Promise(resolve => setTimeout(resolve, 1));
         counter.value = current + 1;
       })
     );
-    
+
     await Promise.all(operations);
-    
+
     expect(counter.value).toBe(100);
   });
 });
@@ -1234,16 +1234,16 @@ describe('Concurrent Operations', () => {
 describe('Batch Processing Integration', () => {
   let testDir;
   let processor;
-  
+
   beforeEach(async () => {
     testDir = await fs.mkdtemp('/tmp/batch-test-');
     processor = new IntegratedBatchProcessor();
   });
-  
+
   afterEach(async () => {
     await fs.rm(testDir, { recursive: true });
   });
-  
+
   it('should process file batch end-to-end', async () => {
     // Setup test files
     const files = await Promise.all(
@@ -1253,27 +1253,27 @@ describe('Batch Processing Integration', () => {
         return path;
       })
     );
-    
+
     // Process batch
     const results = await processor.processFiles(files, {
       batchSize: 5,
       transform: content => content.toUpperCase()
     });
-    
+
     // Verify results
     expect(results.successful).toHaveLength(20);
-    
+
     // Verify files were transformed
     for (let i = 0; i < 20; i++) {
       const content = await fs.readFile(`${testDir}/file-${i}.txt`, 'utf8');
       expect(content).toBe(`CONTENT ${i}`);
     }
   });
-  
+
   it('should recover from partial failures', async () => {
     const checkpointPath = `${testDir}/checkpoint.json`;
     const processor = new CheckpointBatchProcessor(checkpointPath);
-    
+
     // Create files, some will fail
     const files = await Promise.all(
       Array(10).fill(0).map(async (_, i) => {
@@ -1288,7 +1288,7 @@ describe('Batch Processing Integration', () => {
         return { id: `file-${i}`, path };
       })
     );
-    
+
     // First run - will have failures
     const firstRun = await processor.processBatchWithCheckpoints(
       files,
@@ -1297,14 +1297,14 @@ describe('Batch Processing Integration', () => {
         return content.toUpperCase();
       }
     );
-    
+
     expect(firstRun.failed.length).toBeGreaterThan(0);
-    
+
     // Fix permissions
     for (let i = 0; i < 10; i += 3) {
       await fs.chmod(`${testDir}/file-${i}.txt`, 0o644);
     }
-    
+
     // Retry - should only process failed items
     const retry = await processor.retry();
     expect(retry.successful.length).toBe(firstRun.failed.length);
@@ -1320,54 +1320,54 @@ class BatchLoadTester {
   constructor() {
     this.metrics = [];
   }
-  
+
   async runLoadTest(config) {
-    const { 
-      itemCount, 
-      batchSizes, 
-      processor, 
+    const {
+      itemCount,
+      batchSizes,
+      processor,
       warmupRuns = 3,
-      testRuns = 10 
+      testRuns = 10
     } = config;
-    
+
     const items = Array(itemCount).fill(0).map((_, i) => ({
       id: i,
       data: `test-data-${i}`
     }));
-    
+
     const results = {};
-    
+
     for (const batchSize of batchSizes) {
       console.log(`Testing batch size: ${batchSize}`);
-      
+
       // Warmup runs
       for (let i = 0; i < warmupRuns; i++) {
         await this.runBatch(items, processor, batchSize);
       }
-      
+
       // Test runs
       const runMetrics = [];
       for (let i = 0; i < testRuns; i++) {
         const metrics = await this.runBatch(items, processor, batchSize);
         runMetrics.push(metrics);
       }
-      
+
       results[batchSize] = this.analyzeMetrics(runMetrics);
     }
-    
+
     return results;
   }
-  
+
   async runBatch(items, processor, batchSize) {
     const startTime = Date.now();
     const startMemory = process.memoryUsage();
-    
+
     const batchProcessor = new BatchProcessor({ batchSize });
     const results = await batchProcessor.processBatch(items, processor);
-    
+
     const endTime = Date.now();
     const endMemory = process.memoryUsage();
-    
+
     return {
       duration: endTime - startTime,
       throughput: items.length / ((endTime - startTime) / 1000),
@@ -1376,12 +1376,12 @@ class BatchLoadTester {
       batchSize
     };
   }
-  
+
   analyzeMetrics(metrics) {
     const durations = metrics.map(m => m.duration);
     const throughputs = metrics.map(m => m.throughput);
     const memoryDeltas = metrics.map(m => m.memoryDelta);
-    
+
     return {
       avgDuration: durations.reduce((a, b) => a + b) / durations.length,
       minDuration: Math.min(...durations),
@@ -1405,7 +1405,7 @@ const results = await tester.runLoadTest({
   }
 });
 
-console.log('Optimal batch size:', 
+console.log('Optimal batch size:',
   Object.entries(results)
     .sort(([,a], [,b]) => b.avgThroughput - a.avgThroughput)[0][0]
 );
@@ -1421,28 +1421,28 @@ class BatchDebugger {
     this.logLevel = options.logLevel || 'info';
     this.traces = [];
   }
-  
+
   async debugBatch(items, processor, options = {}) {
     const { batchSize = 5, breakOn = [] } = options;
     const results = { successful: [], failed: [] };
-    
+
     for (let i = 0; i < items.length; i += batchSize) {
       const batch = items.slice(i, i + batchSize);
       const batchId = `batch-${i / batchSize}`;
-      
+
       this.log('info', `Processing ${batchId} with ${batch.length} items`);
-      
+
       // Check for breakpoint
       if (this.enableBreakpoints && breakOn.includes(batchId)) {
         await this.breakpoint(batchId, batch);
       }
-      
+
       const batchResults = await this.processBatchWithTrace(
-        batch, 
-        processor, 
+        batch,
+        processor,
         batchId
       );
-      
+
       // Collect results
       batchResults.forEach((result, index) => {
         if (result.status === 'fulfilled') {
@@ -1456,10 +1456,10 @@ class BatchDebugger {
         }
       });
     }
-    
+
     return results;
   }
-  
+
   async processBatchWithTrace(batch, processor, batchId) {
     return Promise.allSettled(
       batch.map(async (item) => {
@@ -1469,16 +1469,16 @@ class BatchDebugger {
           startTime: Date.now(),
           steps: []
         };
-        
+
         try {
           const instrumentedProcessor = this.instrumentProcessor(processor, trace);
           const result = await instrumentedProcessor(item);
-          
+
           trace.endTime = Date.now();
           trace.duration = trace.endTime - trace.startTime;
           trace.status = 'success';
           trace.result = result;
-          
+
           this.traces.push(trace);
           return result;
         } catch (error) {
@@ -1489,14 +1489,14 @@ class BatchDebugger {
             message: error.message,
             stack: error.stack
           };
-          
+
           this.traces.push(trace);
           throw error;
         }
       })
     );
   }
-  
+
   instrumentProcessor(processor, trace) {
     return new Proxy(processor, {
       apply: async (target, thisArg, args) => {
@@ -1505,7 +1505,7 @@ class BatchDebugger {
           timestamp: Date.now(),
           args: args.map(arg => this.sanitizeForLog(arg))
         });
-        
+
         try {
           const result = await target.apply(thisArg, args);
           trace.steps.push({
@@ -1525,31 +1525,31 @@ class BatchDebugger {
       }
     });
   }
-  
+
   sanitizeForLog(value) {
     if (typeof value === 'object' && value !== null) {
       return JSON.stringify(value).substring(0, 100) + '...';
     }
     return value;
   }
-  
+
   async breakpoint(batchId, batch) {
     console.log(`\nBREAKPOINT: ${batchId}`);
     console.log('Batch items:', batch);
     console.log('Press any key to continue...');
-    
+
     await new Promise(resolve => {
       process.stdin.once('data', resolve);
     });
   }
-  
+
   log(level, message) {
     const levels = ['debug', 'info', 'warn', 'error'];
     if (levels.indexOf(level) >= levels.indexOf(this.logLevel)) {
       console.log(`[${level.toUpperCase()}] ${message}`);
     }
   }
-  
+
   getTraceReport() {
     const report = {
       totalTraces: this.traces.length,
@@ -1565,7 +1565,7 @@ class BatchDebugger {
           stepCount: t.steps.length
         }))
     };
-    
+
     return report;
   }
 }
@@ -1626,40 +1626,40 @@ class BatchDebugger {
 ```javascript
 /**
  * Processes multiple files in parallel batches with automatic retry and checkpointing.
- * 
+ *
  * @description
  * This function handles large-scale file processing with the following features:
  * - Automatic batching to prevent resource exhaustion
  * - Checkpoint/resume capability for long-running operations
  * - Exponential backoff retry for transient failures
  * - Comprehensive error reporting and audit logging
- * 
+ *
  * @param {Array<FileItem>} files - Array of file items to process
  * @param {ProcessorFunction} processor - Function to process each file
  * @param {BatchOptions} options - Configuration options
- * 
+ *
  * @param {number} [options.batchSize=10] - Number of files to process concurrently
  * @param {number} [options.maxRetries=3] - Maximum retry attempts per file
  * @param {string} [options.checkpointPath] - Path to store checkpoint data
  * @param {boolean} [options.continueOnError=true] - Whether to continue processing on errors
- * 
+ *
  * @returns {Promise<BatchResult>} Results including successful and failed operations
- * 
+ *
  * @example
  * const results = await batchProcessFiles(files, compressFile, {
  *   batchSize: 5,
  *   maxRetries: 3,
  *   checkpointPath: './checkpoint.json'
  * });
- * 
+ *
  * @throws {BatchProcessError} When all retries are exhausted
  * @throws {CheckpointError} When checkpoint operations fail
- * 
+ *
  * @performance
  * - Memory: O(batchSize) - Only holds active batch in memory
  * - Time: O(n/batchSize) - Processes in parallel batches
  * - Optimal batch size: 2 * CPU cores for CPU-bound, 10-20 for I/O-bound
- * 
+ *
  * @since 2.0.0
  */
 async function batchProcessFiles(files, processor, options = {}) {
@@ -1789,30 +1789,30 @@ npm run batch:retry -- --failed-items=./failed.json
 async function batchReadFiles(filePaths, options = {}) {
   const { batchSize = 5, encoding = 'utf8' } = options;
   const fileHandles = new Map();
-  
+
   try {
     const results = [];
-    
+
     for (let i = 0; i < filePaths.length; i += batchSize) {
       const batch = filePaths.slice(i, i + batchSize);
-      
+
       const batchResults = await Promise.allSettled(
         batch.map(async (filePath) => {
           const handle = await fs.open(filePath, 'r');
           fileHandles.set(filePath, handle);
-          
+
           const content = await handle.readFile({ encoding });
-          
+
           handle.close();
           fileHandles.delete(filePath);
-          
+
           return { filePath, content };
         })
       );
-      
+
       results.push(...batchResults);
     }
-    
+
     return results;
   } finally {
     // Ensure all handles are closed
@@ -1829,29 +1829,29 @@ async function batchReadFiles(filePaths, options = {}) {
 async function batchWriteFiles(fileWrites, options = {}) {
   const { batchSize = 3, atomic = true } = options;
   const tempFiles = [];
-  
+
   try {
     // Write to temp files first
     for (let i = 0; i < fileWrites.length; i += batchSize) {
       const batch = fileWrites.slice(i, i + batchSize);
-      
+
       await Promise.all(
         batch.map(async ({ path, content }) => {
           const tempPath = `${path}.tmp.${Date.now()}`;
           tempFiles.push({ temp: tempPath, final: path });
-          
+
           await fs.writeFile(tempPath, content, { flag: 'wx' });
         })
       );
     }
-    
+
     // Atomic rename all at once
     if (atomic) {
       await Promise.all(
         tempFiles.map(({ temp, final }) => fs.rename(temp, final))
       );
     }
-    
+
     return { success: true, count: fileWrites.length };
   } catch (error) {
     // Cleanup temp files on error
@@ -1869,46 +1869,46 @@ async function batchWriteFiles(fileWrites, options = {}) {
 ```javascript
 // Best Practice: Parallel search with result streaming
 async function batchGrep(pattern, directories, options = {}) {
-  const { 
-    batchSize = 10, 
-    filePattern = '*', 
-    maxResults = 1000 
+  const {
+    batchSize = 10,
+    filePattern = '*',
+    maxResults = 1000
   } = options;
-  
+
   const results = [];
   let resultCount = 0;
-  
+
   for (let i = 0; i < directories.length; i += batchSize) {
     const batch = directories.slice(i, i + batchSize);
-    
+
     const batchPromises = batch.map(async (dir) => {
       const files = await glob(`${dir}/**/${filePattern}`);
       const dirResults = [];
-      
+
       for (const file of files) {
         if (resultCount >= maxResults) break;
-        
+
         const matches = await grepFile(file, pattern);
         if (matches.length > 0) {
           dirResults.push({ file, matches });
           resultCount += matches.length;
         }
       }
-      
+
       return dirResults;
     });
-    
+
     const batchResults = await Promise.allSettled(batchPromises);
-    
+
     batchResults.forEach((result) => {
       if (result.status === 'fulfilled') {
         results.push(...result.value);
       }
     });
-    
+
     if (resultCount >= maxResults) break;
   }
-  
+
   return results;
 }
 ```
@@ -1925,19 +1925,19 @@ class BatchTaskManager {
     this.active = new Set();
     this.completed = new Map();
   }
-  
+
   addTask(task, priority = 0) {
     this.queue.push({ task, priority, id: Date.now() });
     this.queue.sort((a, b) => b.priority - a.priority);
     this.processQueue();
   }
-  
+
   async processQueue() {
     while (this.queue.length > 0 && this.active.size < this.concurrency) {
       const { task, id } = this.queue.shift();
-      
+
       this.active.add(id);
-      
+
       this.executeTask(task, id)
         .then(result => {
           this.completed.set(id, { status: 'success', result });
@@ -1951,28 +1951,28 @@ class BatchTaskManager {
         });
     }
   }
-  
+
   async executeTask(task, id) {
     const startTime = Date.now();
-    
+
     try {
       const result = await task();
       const duration = Date.now() - startTime;
-      
+
       console.log(`Task ${id} completed in ${duration}ms`);
-      
+
       return result;
     } catch (error) {
       console.error(`Task ${id} failed:`, error.message);
       throw error;
     }
   }
-  
+
   async waitForAll() {
     while (this.active.size > 0 || this.queue.length > 0) {
       await new Promise(resolve => setTimeout(resolve, 100));
     }
-    
+
     return this.completed;
   }
 }
@@ -1988,27 +1988,27 @@ class MemoryAwareBatchProcessor {
     this.memoryThreshold = options.memoryThreshold || 0.8; // 80% of available memory
     this.gcThreshold = options.gcThreshold || 100 * 1024 * 1024; // 100MB
   }
-  
+
   async processBatch(items, processor) {
     const results = [];
     let processedCount = 0;
     let lastGC = Date.now();
-    
+
     for (const item of items) {
       // Check memory before processing
       const memUsage = process.memoryUsage();
       const memPercent = memUsage.heapUsed / memUsage.heapTotal;
-      
+
       if (memPercent > this.memoryThreshold) {
         console.warn('Memory threshold reached, triggering GC');
         if (global.gc) {
           global.gc();
         }
-        
+
         // Wait for memory to be freed
         await new Promise(resolve => setTimeout(resolve, 100));
       }
-      
+
       // Process item
       try {
         const result = await processor(item);
@@ -2016,9 +2016,9 @@ class MemoryAwareBatchProcessor {
       } catch (error) {
         results.push({ status: 'error', error });
       }
-      
+
       processedCount++;
-      
+
       // Periodic garbage collection
       if (Date.now() - lastGC > 30000) { // Every 30 seconds
         if (global.gc && memUsage.heapUsed > this.gcThreshold) {
@@ -2026,13 +2026,13 @@ class MemoryAwareBatchProcessor {
           lastGC = Date.now();
         }
       }
-      
+
       // Yield to event loop periodically
       if (processedCount % 100 === 0) {
         await new Promise(resolve => setImmediate(resolve));
       }
     }
-    
+
     return results;
   }
 }

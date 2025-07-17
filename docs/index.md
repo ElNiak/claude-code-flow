@@ -151,7 +151,7 @@ claude-flow status --watch
 Claude-Flow supports multiple specialized agent types:
 
 - **🔬 Researcher**: Information gathering and analysis
-- **📊 Analyst**: Data analysis and pattern recognition  
+- **📊 Analyst**: Data analysis and pattern recognition
 - **⚡ Implementer**: Code development and execution
 - **🎯 Coordinator**: Project management and orchestration
 - **🛠 Custom**: User-defined specialized agents

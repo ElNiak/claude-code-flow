@@ -25,7 +25,7 @@ echo -e "${BLUE}===========================================${NC}"
 if ! command -v tmux &> /dev/null; then
     echo -e "${RED}❌ Error: tmux is not installed${NC}"
     echo -e "${YELLOW}💡 Installing tmux...${NC}"
-    
+
     if [[ "$OSTYPE" == "darwin"* ]]; then
         if command -v brew &> /dev/null; then
             brew install tmux
@@ -182,10 +182,10 @@ bind-key S send-keys 'npm start' Enter
 bind-key I send-keys 'npm install' Enter
 
 # Claude Flow specific bindings
-bind-key C-f send-keys 'npx claude-flow ' 
-bind-key C-w send-keys 'npx claude-flow work "' 
-bind-key C-s send-keys 'npx claude-flow sparc "' 
-bind-key C-h send-keys 'npx claude-flow hive "' 
+bind-key C-f send-keys 'npx claude-flow '
+bind-key C-w send-keys 'npx claude-flow work "'
+bind-key C-s send-keys 'npx claude-flow sparc "'
+bind-key C-h send-keys 'npx claude-flow hive "'
 
 # 📊 Logging and Monitoring
 # ========================

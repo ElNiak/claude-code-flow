@@ -100,7 +100,7 @@ interface SetupWizard {
       type: "multiselect",
       options: [
         "Neural Processing",
-        "Memory Persistence", 
+        "Memory Persistence",
         "GitHub Integration",
         "Performance Monitoring"
       ],
@@ -173,19 +173,19 @@ class ProgressIndicator {
   spinner(message: string): void {
     // Animated spinner: ⠋ ⠙ ⠹ ⠸ ⠼ ⠴ ⠦ ⠧ ⠇ ⠏
   }
-  
+
   progressBar(current: number, total: number, label: string): void {
     // [████████░░░░░░░░] 50% - Processing files
   }
-  
+
   multiProgress(tasks: Task[]): void {
     // Multiple parallel progress bars
   }
-  
+
   success(message: string): void {
     // ✅ Task completed successfully
   }
-  
+
   error(message: string, suggestion?: string): void {
     // ❌ Error: Command failed
     // 💡 Try: claude-flow status --verbose
@@ -205,7 +205,7 @@ $ claude-flow swarm orchestrate "complex task"
 🔄 Initializing swarm orchestration...
   ⠸ Spawning 4 agents... (2/4)
   ✓ Hierarchical topology established
-  
+
 📊 Task Analysis
   ├─ Complexity: High (estimated 45s)
   ├─ Agents assigned: 4
@@ -213,15 +213,15 @@ $ claude-flow swarm orchestrate "complex task"
 
 🚀 Executing task...
   [████████████░░░░░░░░] 60% - Agent 2: Analyzing requirements
-  
+
   Agent Status:
-  ├─ 🟢 architect: Designing system architecture... 
+  ├─ 🟢 architect: Designing system architecture...
   ├─ 🟢 coder: Implementing core logic...
   ├─ 🔄 analyst: Processing data models...
   └─ ⏸️  tester: Waiting for implementation...
-  
+
   Memory: 15.2MB | Tokens: 3,421 | Time: 27s
-  
+
 ✅ Task completed successfully!
 
 📋 Summary:
@@ -353,7 +353,7 @@ Try giving it a task:
 💡 Hint: Enable shell completion for faster command entry:
    claude-flow completion install
 
-💡 Performance tip: Your swarm has 8 agents but low task complexity. 
+💡 Performance tip: Your swarm has 8 agents but low task complexity.
    Consider using 3-4 agents for optimal performance.
 ```
 

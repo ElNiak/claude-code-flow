@@ -35,15 +35,15 @@ graph TB
     Pool --> Available[Available Terminals]
     Pool --> Active[Active Terminals]
     Pool --> Recycling[Recycling Queue]
-    
+
     Available --> T1[Terminal 1]
     Available --> T2[Terminal 2]
     Available --> T3[Terminal 3]
-    
+
     Active --> A1[Agent Session 1]
     Active --> A2[Agent Session 2]
     Active --> A3[Agent Session 3]
-    
+
     Recycling --> R1[Cleanup Process]
     Recycling --> R2[Health Check]
 ```
@@ -227,7 +227,7 @@ claude-flow terminal batch-restart \
     },
     {
       "name": "frontend-dev",
-      "shell": "bash", 
+      "shell": "bash",
       "workingDirectory": "/project/frontend",
       "environment": {
         "NODE_ENV": "development",
@@ -775,7 +775,7 @@ claude-flow terminal vscode-layout \
       {
         "name": "Frontend Development",
         "shell": "bash",
-        "cwd": "${workspaceFolder}/frontend", 
+        "cwd": "${workspaceFolder}/frontend",
         "env": {
           "NODE_ENV": "development"
         },

@@ -1,0 +1,313 @@
+{
+	"metadata": {
+		"analysis_date": "2025-07-13",
+		"total_command_files": 43,
+		"cli_version": "2.0.0-alpha.49",
+		"analysis_scope": "Complete CLI command structure analysis"
+	},
+	"command_hierarchy": {
+		"root_commands": {
+			"init": {
+				"file": "src/cli/commands/index.ts",
+				"description": "Initialize Claude Code integration files",
+				"options": [
+					"--force/-f: Overwrite existing files",
+					"--minimal/-m: Create minimal configuration files"
+				],
+				"subcommands": [],
+				"related_files": ["CLAUDE.md", "memory-bank.md", "coordination.md"]
+			},
+			"agent": {
+				"file": "src/cli/commands/agent.ts",
+				"description": "Manage AI agents in the workflow",
+				"subcommands": [
+					"create",
+					"list",
+					"spawn",
+					"info",
+					"terminate",
+					"metrics",
+					"pause",
+					"resume"
+				],
+				"options": [
+					"--name: Agent name",
+					"--type: Agent type (researcher, developer, analyst, etc.)",
+					"--template: Agent template",
+					"--autonomy: Autonomy level (0-1)",
+					"--interactive: Interactive mode"
+				]
+			},
+			"task": {
+				"file": "src/cli/commands/task.ts",
+				"description": "Create and manage tasks",
+				"subcommands": [
+					"create",
+					"list",
+					"status",
+					"cancel",
+					"assign",
+					"dependencies"
+				],
+				"options": [
+					"--priority: Task priority (1-10)",
+					"--dependencies: Task dependencies",
+					"--assign: Assign to specific agent",
+					"--timeout: Task timeout"
+				]
+			},
+			"claude": {
+				"file": "src/cli/commands/claude.ts",
+				"description": "Spawn Claude instances with specific configurations",
+				"subcommands": ["spawn", "list", "kill", "status"],
+				"options": [
+					"--research: Enable web research capabilities",
+					"--parallel: Enable parallel execution",
+					"--no-permissions: Skip permission prompts",
+					"--tools: Custom tool specification",
+					"--coverage: Test coverage target",
+					"--commit: Commit mode",
+					"--dry-run: Preview without execution"
+				]
+			},
+			"workflow": {
+				"file": "src/cli/commands/workflow.ts",
+				"description": "Build complex multi-step workflows",
+				"subcommands": [
+					"run",
+					"validate",
+					"template",
+					"list",
+					"stop",
+					"pause",
+					"resume"
+				],
+				"options": [
+					"--watch: Monitor progress",
+					"--strict: Strict validation",
+					"--output: Output file",
+					"--all: Show all workflows",
+					"--force: Force stop"
+				]
+			},
+			"swarm": {
+				"file": "src/cli/commands/swarm.ts",
+				"description": "Swarm coordination and management",
+				"subcommands": ["init", "spawn", "status", "monitor", "stop", "scale"],
+				"options": [
+					"--topology: Swarm topology (mesh, hierarchical, ring, star)",
+					"--max-agents: Maximum agent count",
+					"--strategy: Coordination strategy"
+				]
+			},
+			"memory": {
+				"file": "src/cli/commands/memory.ts",
+				"description": "Memory bank management",
+				"subcommands": [
+					"show",
+					"clear",
+					"import",
+					"export",
+					"backup",
+					"restore",
+					"search"
+				],
+				"options": [
+					"--key: Memory key",
+					"--format: Output format",
+					"--query: Search query"
+				]
+			},
+			"config": {
+				"file": "src/cli/commands/config.ts",
+				"description": "Configuration management",
+				"subcommands": ["init", "show", "set", "get", "reset", "profile"],
+				"options": [
+					"--template: Configuration template",
+					"--diff: Show differences",
+					"--global: Global configuration"
+				]
+			},
+			"start": {
+				"file": "src/cli/commands/start.ts",
+				"description": "Start various Claude-Flow services",
+				"subcommands": ["orchestrator", "ui", "monitor", "background"],
+				"options": [
+					"--port: Service port",
+					"--background: Run in background",
+					"--config: Config file path"
+				]
+			},
+			"status": {
+				"file": "src/cli/commands/status.ts",
+				"description": "Show system status and health",
+				"subcommands": ["system", "agents", "tasks", "memory", "performance"],
+				"options": [
+					"--detailed: Detailed status",
+					"--json: JSON output",
+					"--watch: Continuous monitoring"
+				]
+			},
+			"monitor": {
+				"file": "src/cli/commands/monitor.ts",
+				"description": "Real-time monitoring and metrics",
+				"subcommands": ["agents", "tasks", "performance", "resources"],
+				"options": [
+					"--interval: Update interval",
+					"--filter: Filter criteria",
+					"--export: Export metrics"
+				]
+			},
+			"session": {
+				"file": "src/cli/commands/session.ts",
+				"description": "Session management",
+				"subcommands": [
+					"list",
+					"create",
+					"delete",
+					"restore",
+					"export",
+					"import"
+				],
+				"options": [
+					"--name: Session name",
+					"--auto-save: Auto-save session",
+					"--compress: Compress session data"
+				]
+			},
+			"migrate": {
+				"file": "src/cli/commands/migrate.ts",
+				"description": "Migration and upgrade utilities",
+				"subcommands": ["up", "down", "status", "rollback", "validate"],
+				"options": [
+					"--version: Target version",
+					"--strategy: Migration strategy",
+					"--backup: Create backup",
+					"--force: Force migration"
+				]
+			},
+			"mcp": {
+				"file": "src/cli/commands/mcp.ts",
+				"description": "Model Context Protocol management",
+				"subcommands": ["start", "stop", "status", "tools", "config"],
+				"options": [
+					"--stdio: Use stdio transport",
+					"--port: TCP port",
+					"--tools: Available tools"
+				]
+			},
+			"enterprise": {
+				"file": "src/cli/commands/enterprise.ts",
+				"description": "Enterprise features and management",
+				"subcommands": [
+					"analytics",
+					"audit",
+					"security",
+					"deployment",
+					"project"
+				],
+				"options": [
+					"--environment: Target environment",
+					"--tenant: Tenant ID",
+					"--compliance: Compliance mode"
+				]
+			},
+			"sparc": {
+				"file": "src/cli/commands/sparc.ts",
+				"description": "SPARC mode execution",
+				"subcommands": ["run", "validate", "modes"],
+				"options": [
+					"--mode: SPARC mode",
+					"--recursive: Recursive execution",
+					"--output: Output format"
+				]
+			},
+			"hive": {
+				"file": "src/cli/commands/hive.ts",
+				"description": "Hive mind coordination",
+				"subcommands": ["init", "spawn", "status", "optimize", "wizard"],
+				"directory": "src/cli/commands/hive-mind/",
+				"specialized_commands": [
+					"init.ts",
+					"spawn.ts",
+					"status.ts",
+					"optimize-memory.ts",
+					"task.ts",
+					"wizard.ts"
+				]
+			},
+			"help": {
+				"file": "src/cli/commands/help.ts",
+				"description": "Interactive help system",
+				"subcommands": ["topics", "examples", "tutorials", "search"],
+				"categories": [
+					"basic",
+					"advanced",
+					"workflow",
+					"configuration",
+					"troubleshooting"
+				]
+			}
+		},
+		"hook_system": {
+			"file": "src/cli/commands/hook.ts",
+			"related_files": [
+				"src/cli/commands/hook-types.ts",
+				"src/cli/commands/hook-validator.ts"
+			],
+			"hook_types": [
+				"pre-task",
+				"post-task",
+				"pre-edit",
+				"post-edit",
+				"pre-bash",
+				"post-bash",
+				"pre-search",
+				"post-search",
+				"mcp-initialized",
+				"agent-spawned",
+				"task-orchestrated",
+				"neural-trained",
+				"session-end",
+				"session-restore",
+				"notify"
+			]
+		},
+		"command_overlaps": [
+			{
+				"commands": ["agent spawn", "claude spawn"],
+				"overlap_type": "functionality",
+				"description": "Both spawn AI instances but with different capabilities"
+			},
+			{
+				"commands": ["swarm init", "hive init"],
+				"overlap_type": "initialization",
+				"description": "Both initialize coordination systems"
+			},
+			{
+				"commands": ["status", "monitor"],
+				"overlap_type": "monitoring",
+				"description": "Both provide system monitoring but different interfaces"
+			},
+			{
+				"commands": ["workflow run", "sparc run"],
+				"overlap_type": "execution",
+				"description": "Both execute predefined workflows"
+			}
+		]
+	},
+	"complexity_analysis": {
+		"total_subcommands": 87,
+		"average_subcommands_per_command": 5.4,
+		"most_complex_commands": [
+			"agent (8 subcommands)",
+			"workflow (7 subcommands)",
+			"swarm (6 subcommands)",
+			"config (6 subcommands)"
+		],
+		"specialized_directories": [
+			"src/cli/commands/hive-mind/",
+			"src/cli/commands/start/"
+		]
+	}
+}

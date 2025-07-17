@@ -6,7 +6,7 @@ read_only: false
 web_dashboard:
   enabled: false
 
-# GUI log window configuration  
+# GUI log window configuration
 gui_log_window:
   enabled: false
 
@@ -14,7 +14,7 @@ gui_log_window:
 shell_commands:
   allow:
     - "npm"
-    - "node" 
+    - "node"
     - "git"
     - "ls"
     - "cat"

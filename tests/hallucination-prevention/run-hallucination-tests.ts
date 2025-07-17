@@ -5,363 +5,399 @@
  * Executes all validation tests and generates detailed reports
  */
 
-import { spawn } from 'child_process';
-import { writeFileSync, mkdirSync } from 'fs';
-import { join } from 'path';
+import { spawn } from "child_process";
+import { mkdirSync, writeFileSync } from "fs";
+import { join } from "path";
 
 interface TestResults {
-  suite: string;
-  passed: number;
-  failed: number;
-  skipped: number;
-  duration: number;
-  coverage?: number;
-  details: TestDetail[];
+	suite: string;
+	passed: number;
+	failed: number;
+	skipped: number;
+	duration: number;
+	coverage?: number;
+	details: TestDetail[];
 }
 
 interface TestDetail {
-  name: string;
-  status: 'passed' | 'failed' | 'skipped';
-  duration: number;
-  error?: string;
+	name: string;
+	status: "passed" | "failed" | "skipped";
+	duration: number;
+	error?: string;
 }
 
 interface ValidationMetrics {
-  accuracy: number;
-  precision: number;
-  recall: number;
-  f1Score: number;
-  falsePositiveRate: number;
-  falseNegativeRate: number;
-  overallScore: number;
+	accuracy: number;
+	precision: number;
+	recall: number;
+	f1Score: number;
+	falsePositiveRate: number;
+	falseNegativeRate: number;
+	overallScore: number;
 }
 
 class HallucinationTestRunner {
-  private results: TestResults[] = [];
-  private startTime = Date.now();
+	private results: TestResults[] = [];
+	private startTime = Date.now();
 
-  async runAllTests(): Promise<void> {
-    console.log('🧠 Starting Comprehensive Hallucination Prevention Test Suite');
-    console.log('=' .repeat(80));
+	async runAllTests(): Promise<void> {
+		console.log(
+			"🧠 Starting Comprehensive Hallucination Prevention Test Suite",
+		);
+		console.log("=".repeat(80));
 
-    try {
-      // Run test suites in parallel for efficiency
-      await Promise.all([
-        this.runUnitTests(),
-        this.runIntegrationTests(),
-        this.runPerformanceTests(),
-        this.runValidationFrameworkTests()
-      ]);
+		try {
+			// Run test suites in parallel for efficiency
+			await Promise.all([
+				this.runUnitTests(),
+				this.runIntegrationTests(),
+				this.runPerformanceTests(),
+				this.runValidationFrameworkTests(),
+			]);
 
-      await this.generateReport();
-      await this.checkBenchmarks();
-      
-    } catch (error) {
-      console.error('❌ Test execution failed:', error);
-      process.exit(1);
-    }
-  }
+			await this.generateReport();
+			await this.checkBenchmarks();
+		} catch (error) {
+			console.error("❌ Test execution failed:", error);
+			process.exit(1);
+		}
+	}
 
-  private async runUnitTests(): Promise<void> {
-    console.log('🔬 Running Unit Tests...');
-    
-    const testFiles = [
-      'tests/hallucination-prevention/unit/verification-engine.test.ts',
-      'tests/hallucination-prevention/unit/code-existence-verifier.test.ts',
-      'tests/hallucination-prevention/unit/capability-validator.test.ts',
-      'tests/hallucination-prevention/unit/reality-checker.test.ts'
-    ];
+	private async runUnitTests(): Promise<void> {
+		console.log("🔬 Running Unit Tests...");
 
-    const result = await this.runJestTests('Unit Tests', testFiles);
-    this.results.push(result);
-  }
+		const testFiles = [
+			"tests/hallucination-prevention/unit/verification-engine.test.ts",
+			"tests/hallucination-prevention/unit/code-existence-verifier.test.ts",
+			"tests/hallucination-prevention/unit/capability-validator.test.ts",
+			"tests/hallucination-prevention/unit/reality-checker.test.ts",
+		];
 
-  private async runIntegrationTests(): Promise<void> {
-    console.log('🔗 Running Integration Tests...');
-    
-    const testFiles = [
-      'tests/hallucination-prevention/integration/todowrite-integration.test.ts',
-      'tests/hallucination-prevention/integration/task-tool-integration.test.ts',
-      'tests/hallucination-prevention/integration/workflow-integration.test.ts'
-    ];
+		const result = await this.runJestTests("Unit Tests", testFiles);
+		this.results.push(result);
+	}
 
-    const result = await this.runJestTests('Integration Tests', testFiles);
-    this.results.push(result);
-  }
+	private async runIntegrationTests(): Promise<void> {
+		console.log("🔗 Running Integration Tests...");
 
-  private async runPerformanceTests(): Promise<void> {
-    console.log('⚡ Running Performance Tests...');
-    
-    const testFiles = [
-      'tests/hallucination-prevention/performance/verification-performance.test.ts',
-      'tests/hallucination-prevention/performance/load-testing.test.ts',
-      'tests/hallucination-prevention/performance/memory-usage.test.ts'
-    ];
+		const testFiles = [
+			"tests/hallucination-prevention/integration/todowrite-integration.test.ts",
+			"tests/hallucination-prevention/integration/task-tool-integration.test.ts",
+			"tests/hallucination-prevention/integration/workflow-integration.test.ts",
+		];
 
-    const result = await this.runJestTests('Performance Tests', testFiles);
-    this.results.push(result);
-  }
+		const result = await this.runJestTests("Integration Tests", testFiles);
+		this.results.push(result);
+	}
 
-  private async runValidationFrameworkTests(): Promise<void> {
-    console.log('✅ Running Validation Framework Tests...');
-    
-    const testFiles = [
-      'tests/hallucination-prevention/validation/validation-framework.test.ts'
-    ];
+	private async runPerformanceTests(): Promise<void> {
+		console.log("⚡ Running Performance Tests...");
 
-    const result = await this.runJestTests('Validation Framework', testFiles);
-    this.results.push(result);
-  }
+		const testFiles = [
+			"tests/hallucination-prevention/performance/verification-performance.test.ts",
+			"tests/hallucination-prevention/performance/load-testing.test.ts",
+			"tests/hallucination-prevention/performance/memory-usage.test.ts",
+		];
 
-  private async runJestTests(suiteName: string, testFiles: string[]): Promise<TestResults> {
-    return new Promise((resolve, reject) => {
-      const startTime = Date.now();
-      const args = [
-        '--testPathPattern=' + testFiles.join('|'),
-        '--json',
-        '--coverage',
-        '--verbose'
-      ];
+		const result = await this.runJestTests("Performance Tests", testFiles);
+		this.results.push(result);
+	}
 
-      const jestProcess = spawn('npx', ['jest', ...args], {
-        stdio: ['pipe', 'pipe', 'pipe']
-      });
+	private async runValidationFrameworkTests(): Promise<void> {
+		console.log("✅ Running Validation Framework Tests...");
 
-      let stdout = '';
-      let stderr = '';
+		const testFiles = [
+			"tests/hallucination-prevention/validation/validation-framework.test.ts",
+		];
 
-      jestProcess.stdout.on('data', (data) => {
-        stdout += data.toString();
-      });
+		const result = await this.runJestTests("Validation Framework", testFiles);
+		this.results.push(result);
+	}
 
-      jestProcess.stderr.on('data', (data) => {
-        stderr += data.toString();
-      });
+	private async runJestTests(
+		suiteName: string,
+		testFiles: string[],
+	): Promise<TestResults> {
+		return new Promise((resolve, reject) => {
+			const startTime = Date.now();
+			const args = [
+				"--testPathPattern=" + testFiles.join("|"),
+				"--json",
+				"--coverage",
+				"--verbose",
+			];
 
-      jestProcess.on('close', (code) => {
-        const duration = Date.now() - startTime;
-        
-        try {
-          // Parse Jest JSON output
-          const jestResults = JSON.parse(stdout);
-          
-          const result: TestResults = {
-            suite: suiteName,
-            passed: jestResults.numPassedTests || 0,
-            failed: jestResults.numFailedTests || 0,
-            skipped: jestResults.numPendingTests || 0,
-            duration,
-            coverage: jestResults.coverageMap ? this.calculateCoverage(jestResults.coverageMap) : undefined,
-            details: this.parseTestDetails(jestResults.testResults)
-          };
+			const jestProcess = spawn("npx", ["jest", ...args], {
+				stdio: ["pipe", "pipe", "pipe"],
+			});
 
-          console.log(`✅ ${suiteName}: ${result.passed} passed, ${result.failed} failed, ${result.skipped} skipped (${duration}ms)`);
-          resolve(result);
-          
-        } catch (parseError) {
-          console.error(`❌ Failed to parse ${suiteName} results:`, parseError);
-          console.error('stdout:', stdout);
-          console.error('stderr:', stderr);
-          
-          // Create a fallback result
-          const result: TestResults = {
-            suite: suiteName,
-            passed: 0,
-            failed: 1,
-            skipped: 0,
-            duration,
-            details: [{
-              name: 'Parse Error',
-              status: 'failed',
-              duration: 0,
-              error: parseError.message
-            }]
-          };
-          
-          resolve(result);
-        }
-      });
+			let stdout = "";
+			let stderr = "";
 
-      jestProcess.on('error', (error) => {
-        reject(error);
-      });
-    });
-  }
+			jestProcess.stdout.on("data", (data) => {
+				stdout += data.toString();
+			});
 
-  private calculateCoverage(coverageMap: any): number {
-    // Simple coverage calculation - can be enhanced
-    if (!coverageMap) return 0;
-    
-    let totalStatements = 0;
-    let coveredStatements = 0;
+			jestProcess.stderr.on("data", (data) => {
+				stderr += data.toString();
+			});
 
-    for (const file in coverageMap) {
-      const fileCoverage = coverageMap[file];
-      if (fileCoverage.s) {
-        for (const statement in fileCoverage.s) {
-          totalStatements++;
-          if (fileCoverage.s[statement] > 0) {
-            coveredStatements++;
-          }
-        }
-      }
-    }
+			jestProcess.on("close", (code) => {
+				const duration = Date.now() - startTime;
 
-    return totalStatements > 0 ? (coveredStatements / totalStatements) * 100 : 0;
-  }
+				try {
+					// Parse Jest JSON output
+					const jestResults = JSON.parse(stdout);
 
-  private parseTestDetails(testResults: any[]): TestDetail[] {
-    const details: TestDetail[] = [];
+					const result: TestResults = {
+						suite: suiteName,
+						passed: jestResults.numPassedTests || 0,
+						failed: jestResults.numFailedTests || 0,
+						skipped: jestResults.numPendingTests || 0,
+						duration,
+						coverage: jestResults.coverageMap
+							? this.calculateCoverage(jestResults.coverageMap)
+							: undefined,
+						details: this.parseTestDetails(jestResults.testResults),
+					};
 
-    for (const testResult of testResults) {
-      if (testResult.assertionResults) {
-        for (const assertion of testResult.assertionResults) {
-          details.push({
-            name: assertion.title || assertion.fullName,
-            status: assertion.status === 'passed' ? 'passed' : 
-                   assertion.status === 'pending' ? 'skipped' : 'failed',
-            duration: assertion.duration || 0,
-            error: assertion.failureMessages ? assertion.failureMessages.join('\n') : undefined
-          });
-        }
-      }
-    }
+					console.log(
+						`✅ ${suiteName}: ${result.passed} passed, ${result.failed} failed, ${result.skipped} skipped (${duration}ms)`,
+					);
+					resolve(result);
+				} catch (parseError) {
+					console.error(`❌ Failed to parse ${suiteName} results:`, parseError);
+					console.error("stdout:", stdout);
+					console.error("stderr:", stderr);
 
-    return details;
-  }
+					// Create a fallback result
+					const result: TestResults = {
+						suite: suiteName,
+						passed: 0,
+						failed: 1,
+						skipped: 0,
+						duration,
+						details: [
+							{
+								name: "Parse Error",
+								status: "failed",
+								duration: 0,
+								error: parseError.message,
+							},
+						],
+					};
 
-  private async generateReport(): Promise<void> {
-    console.log('\n📊 Generating Comprehensive Test Report...');
-    
-    const totalDuration = Date.now() - this.startTime;
-    const totalPassed = this.results.reduce((sum, r) => sum + r.passed, 0);
-    const totalFailed = this.results.reduce((sum, r) => sum + r.failed, 0);
-    const totalSkipped = this.results.reduce((sum, r) => sum + r.skipped, 0);
-    const totalTests = totalPassed + totalFailed + totalSkipped;
-    const overallSuccessRate = totalTests > 0 ? (totalPassed / totalTests) * 100 : 0;
-    const averageCoverage = this.calculateAverageCoverage();
+					resolve(result);
+				}
+			});
 
-    const report = {
-      timestamp: new Date().toISOString(),
-      summary: {
-        totalTests,
-        totalPassed,
-        totalFailed,
-        totalSkipped,
-        overallSuccessRate,
-        totalDuration,
-        averageCoverage
-      },
-      suites: this.results,
-      validationMetrics: await this.calculateValidationMetrics(),
-      benchmarkCompliance: await this.checkBenchmarkCompliance(),
-      recommendations: this.generateRecommendations()
-    };
+			jestProcess.on("error", (error) => {
+				reject(error);
+			});
+		});
+	}
 
-    // Ensure reports directory exists
-    const reportsDir = join(process.cwd(), 'reports', 'hallucination-prevention');
-    mkdirSync(reportsDir, { recursive: true });
+	private calculateCoverage(coverageMap: any): number {
+		// Simple coverage calculation - can be enhanced
+		if (!coverageMap) return 0;
 
-    // Write detailed JSON report
-    const jsonReportPath = join(reportsDir, `test-report-${Date.now()}.json`);
-    writeFileSync(jsonReportPath, JSON.stringify(report, null, 2));
+		let totalStatements = 0;
+		let coveredStatements = 0;
 
-    // Write human-readable HTML report
-    const htmlReport = this.generateHtmlReport(report);
-    const htmlReportPath = join(reportsDir, `test-report-${Date.now()}.html`);
-    writeFileSync(htmlReportPath, htmlReport);
+		for (const file in coverageMap) {
+			const fileCoverage = coverageMap[file];
+			if (fileCoverage.s) {
+				for (const statement in fileCoverage.s) {
+					totalStatements++;
+					if (fileCoverage.s[statement] > 0) {
+						coveredStatements++;
+					}
+				}
+			}
+		}
 
-    // Console summary
-    console.log('\n' + '='.repeat(80));
-    console.log('📋 TEST EXECUTION SUMMARY');
-    console.log('='.repeat(80));
-    console.log(`📊 Total Tests: ${totalTests}`);
-    console.log(`✅ Passed: ${totalPassed} (${(totalPassed/totalTests*100).toFixed(1)}%)`);
-    console.log(`❌ Failed: ${totalFailed} (${(totalFailed/totalTests*100).toFixed(1)}%)`);
-    console.log(`⏭️  Skipped: ${totalSkipped} (${(totalSkipped/totalTests*100).toFixed(1)}%)`);
-    console.log(`⏱️  Duration: ${(totalDuration/1000).toFixed(2)}s`);
-    console.log(`📈 Coverage: ${averageCoverage.toFixed(1)}%`);
-    console.log(`📄 Reports: ${jsonReportPath}, ${htmlReportPath}`);
-    
-    if (totalFailed > 0) {
-      console.log('\n❌ FAILED TESTS:');
-      for (const suite of this.results) {
-        const failedTests = suite.details.filter(d => d.status === 'failed');
-        if (failedTests.length > 0) {
-          console.log(`\n  ${suite.suite}:`);
-          for (const test of failedTests) {
-            console.log(`    - ${test.name}`);
-            if (test.error) {
-              console.log(`      Error: ${test.error.split('\n')[0]}`);
-            }
-          }
-        }
-      }
-    }
-  }
+		return totalStatements > 0
+			? (coveredStatements / totalStatements) * 100
+			: 0;
+	}
 
-  private calculateAverageCoverage(): number {
-    const coverageValues = this.results
-      .filter(r => r.coverage !== undefined)
-      .map(r => r.coverage!);
-    
-    return coverageValues.length > 0 
-      ? coverageValues.reduce((sum, c) => sum + c, 0) / coverageValues.length 
-      : 0;
-  }
+	private parseTestDetails(testResults: any[]): TestDetail[] {
+		const details: TestDetail[] = [];
 
-  private async calculateValidationMetrics(): Promise<ValidationMetrics> {
-    // This would typically analyze the test results to calculate actual validation metrics
-    // For now, returning mock metrics that would be calculated from test execution
-    return {
-      accuracy: 0.97,
-      precision: 0.95,
-      recall: 0.98,
-      f1Score: 0.965,
-      falsePositiveRate: 0.015,
-      falseNegativeRate: 0.003,
-      overallScore: 0.96
-    };
-  }
+		for (const testResult of testResults) {
+			if (testResult.assertionResults) {
+				for (const assertion of testResult.assertionResults) {
+					details.push({
+						name: assertion.title || assertion.fullName,
+						status:
+							assertion.status === "passed"
+								? "passed"
+								: assertion.status === "pending"
+									? "skipped"
+									: "failed",
+						duration: assertion.duration || 0,
+						error: assertion.failureMessages
+							? assertion.failureMessages.join("\n")
+							: undefined,
+					});
+				}
+			}
+		}
 
-  private async checkBenchmarkCompliance(): Promise<Record<string, boolean>> {
-    return {
-      falsePositiveRateUnder2Percent: true,
-      falseNegativeRateUnder0Point5Percent: true,
-      performanceUnder100ms: true,
-      coverageOver95Percent: true,
-      accuracyOver95Percent: true
-    };
-  }
+		return details;
+	}
 
-  private generateRecommendations(): string[] {
-    const recommendations: string[] = [];
+	private async generateReport(): Promise<void> {
+		console.log("\n📊 Generating Comprehensive Test Report...");
 
-    const totalFailed = this.results.reduce((sum, r) => sum + r.failed, 0);
-    const averageCoverage = this.calculateAverageCoverage();
+		const totalDuration = Date.now() - this.startTime;
+		const totalPassed = this.results.reduce((sum, r) => sum + r.passed, 0);
+		const totalFailed = this.results.reduce((sum, r) => sum + r.failed, 0);
+		const totalSkipped = this.results.reduce((sum, r) => sum + r.skipped, 0);
+		const totalTests = totalPassed + totalFailed + totalSkipped;
+		const overallSuccessRate =
+			totalTests > 0 ? (totalPassed / totalTests) * 100 : 0;
+		const averageCoverage = this.calculateAverageCoverage();
 
-    if (totalFailed > 0) {
-      recommendations.push('🔧 Address failing tests to improve system reliability');
-    }
+		const report = {
+			timestamp: new Date().toISOString(),
+			summary: {
+				totalTests,
+				totalPassed,
+				totalFailed,
+				totalSkipped,
+				overallSuccessRate,
+				totalDuration,
+				averageCoverage,
+			},
+			suites: this.results,
+			validationMetrics: await this.calculateValidationMetrics(),
+			benchmarkCompliance: await this.checkBenchmarkCompliance(),
+			recommendations: this.generateRecommendations(),
+		};
 
-    if (averageCoverage < 95) {
-      recommendations.push('📈 Increase test coverage to meet 95% benchmark');
-    }
+		// Ensure reports directory exists
+		const reportsDir = join(
+			process.cwd(),
+			"reports",
+			"hallucination-prevention",
+		);
+		mkdirSync(reportsDir, { recursive: true });
 
-    const performanceResults = this.results.find(r => r.suite === 'Performance Tests');
-    if (performanceResults && performanceResults.failed > 0) {
-      recommendations.push('⚡ Optimize verification performance to meet benchmarks');
-    }
+		// Write detailed JSON report
+		const jsonReportPath = join(reportsDir, `test-report-${Date.now()}.json`);
+		writeFileSync(jsonReportPath, JSON.stringify(report, null, 2));
 
-    if (recommendations.length === 0) {
-      recommendations.push('🎉 All benchmarks met! System is performing excellently');
-    }
+		// Write human-readable HTML report
+		const htmlReport = this.generateHtmlReport(report);
+		const htmlReportPath = join(reportsDir, `test-report-${Date.now()}.html`);
+		writeFileSync(htmlReportPath, htmlReport);
 
-    return recommendations;
-  }
+		// Console summary
+		console.log("\n" + "=".repeat(80));
+		console.log("📋 TEST EXECUTION SUMMARY");
+		console.log("=".repeat(80));
+		console.log(`📊 Total Tests: ${totalTests}`);
+		console.log(
+			`✅ Passed: ${totalPassed} (${((totalPassed / totalTests) * 100).toFixed(1)}%)`,
+		);
+		console.log(
+			`❌ Failed: ${totalFailed} (${((totalFailed / totalTests) * 100).toFixed(1)}%)`,
+		);
+		console.log(
+			`⏭️  Skipped: ${totalSkipped} (${((totalSkipped / totalTests) * 100).toFixed(1)}%)`,
+		);
+		console.log(`⏱️  Duration: ${(totalDuration / 1000).toFixed(2)}s`);
+		console.log(`📈 Coverage: ${averageCoverage.toFixed(1)}%`);
+		console.log(`📄 Reports: ${jsonReportPath}, ${htmlReportPath}`);
 
-  private generateHtmlReport(report: any): string {
-    return `
+		if (totalFailed > 0) {
+			console.log("\n❌ FAILED TESTS:");
+			for (const suite of this.results) {
+				const failedTests = suite.details.filter((d) => d.status === "failed");
+				if (failedTests.length > 0) {
+					console.log(`\n  ${suite.suite}:`);
+					for (const test of failedTests) {
+						console.log(`    - ${test.name}`);
+						if (test.error) {
+							console.log(`      Error: ${test.error.split("\n")[0]}`);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	private calculateAverageCoverage(): number {
+		const coverageValues = this.results
+			.filter((r) => r.coverage !== undefined)
+			.map((r) => r.coverage!);
+
+		return coverageValues.length > 0
+			? coverageValues.reduce((sum, c) => sum + c, 0) / coverageValues.length
+			: 0;
+	}
+
+	private async calculateValidationMetrics(): Promise<ValidationMetrics> {
+		// This would typically analyze the test results to calculate actual validation metrics
+		// For now, returning mock metrics that would be calculated from test execution
+		return {
+			accuracy: 0.97,
+			precision: 0.95,
+			recall: 0.98,
+			f1Score: 0.965,
+			falsePositiveRate: 0.015,
+			falseNegativeRate: 0.003,
+			overallScore: 0.96,
+		};
+	}
+
+	private async checkBenchmarkCompliance(): Promise<Record<string, boolean>> {
+		return {
+			falsePositiveRateUnder2Percent: true,
+			falseNegativeRateUnder0Point5Percent: true,
+			performanceUnder100ms: true,
+			coverageOver95Percent: true,
+			accuracyOver95Percent: true,
+		};
+	}
+
+	private generateRecommendations(): string[] {
+		const recommendations: string[] = [];
+
+		const totalFailed = this.results.reduce((sum, r) => sum + r.failed, 0);
+		const averageCoverage = this.calculateAverageCoverage();
+
+		if (totalFailed > 0) {
+			recommendations.push(
+				"🔧 Address failing tests to improve system reliability",
+			);
+		}
+
+		if (averageCoverage < 95) {
+			recommendations.push("📈 Increase test coverage to meet 95% benchmark");
+		}
+
+		const performanceResults = this.results.find(
+			(r) => r.suite === "Performance Tests",
+		);
+		if (performanceResults && performanceResults.failed > 0) {
+			recommendations.push(
+				"⚡ Optimize verification performance to meet benchmarks",
+			);
+		}
+
+		if (recommendations.length === 0) {
+			recommendations.push(
+				"🎉 All benchmarks met! System is performing excellently",
+			);
+		}
+
+		return recommendations;
+	}
+
+	private generateHtmlReport(report: any): string {
+		return `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -396,7 +432,7 @@ class HallucinationTestRunner {
         </div>
 
         <div class="summary">
-            <div class="metric ${report.summary.overallSuccessRate > 95 ? 'success' : report.summary.overallSuccessRate > 80 ? 'warning' : 'danger'}">
+            <div class="metric ${report.summary.overallSuccessRate > 95 ? "success" : report.summary.overallSuccessRate > 80 ? "warning" : "danger"}">
                 <h3>Overall Success Rate</h3>
                 <p style="font-size: 2em; margin: 10px 0;">${report.summary.overallSuccessRate.toFixed(1)}%</p>
             </div>
@@ -404,27 +440,27 @@ class HallucinationTestRunner {
                 <h3>Total Tests</h3>
                 <p style="font-size: 2em; margin: 10px 0;">${report.summary.totalTests}</p>
             </div>
-            <div class="metric ${report.summary.averageCoverage > 95 ? 'success' : 'warning'}">
+            <div class="metric ${report.summary.averageCoverage > 95 ? "success" : "warning"}">
                 <h3>Test Coverage</h3>
                 <p style="font-size: 2em; margin: 10px 0;">${report.summary.averageCoverage.toFixed(1)}%</p>
             </div>
             <div class="metric">
                 <h3>Execution Time</h3>
-                <p style="font-size: 2em; margin: 10px 0;">${(report.summary.totalDuration/1000).toFixed(1)}s</p>
+                <p style="font-size: 2em; margin: 10px 0;">${(report.summary.totalDuration / 1000).toFixed(1)}s</p>
             </div>
         </div>
 
         <h2>📊 Validation Metrics</h2>
         <div class="summary">
-            <div class="metric ${report.validationMetrics.accuracy > 0.95 ? 'success' : 'warning'}">
+            <div class="metric ${report.validationMetrics.accuracy > 0.95 ? "success" : "warning"}">
                 <h3>Accuracy</h3>
                 <p style="font-size: 1.5em; margin: 10px 0;">${(report.validationMetrics.accuracy * 100).toFixed(1)}%</p>
             </div>
-            <div class="metric ${report.validationMetrics.falsePositiveRate < 0.02 ? 'success' : 'danger'}">
+            <div class="metric ${report.validationMetrics.falsePositiveRate < 0.02 ? "success" : "danger"}">
                 <h3>False Positive Rate</h3>
                 <p style="font-size: 1.5em; margin: 10px 0;">${(report.validationMetrics.falsePositiveRate * 100).toFixed(2)}%</p>
             </div>
-            <div class="metric ${report.validationMetrics.falseNegativeRate < 0.005 ? 'success' : 'danger'}">
+            <div class="metric ${report.validationMetrics.falseNegativeRate < 0.005 ? "success" : "danger"}">
                 <h3>False Negative Rate</h3>
                 <p style="font-size: 1.5em; margin: 10px 0;">${(report.validationMetrics.falseNegativeRate * 100).toFixed(3)}%</p>
             </div>
@@ -435,29 +471,38 @@ class HallucinationTestRunner {
         </div>
 
         <h2>🧪 Test Suites</h2>
-        ${report.suites.map((suite: TestResults) => `
+        ${report.suites
+					.map(
+						(suite: TestResults) => `
             <div class="suite">
                 <div class="suite-header">
                     ${suite.suite} - ${suite.passed} passed, ${suite.failed} failed, ${suite.skipped} skipped (${suite.duration}ms)
-                    ${suite.coverage ? `- Coverage: ${suite.coverage.toFixed(1)}%` : ''}
+                    ${suite.coverage ? `- Coverage: ${suite.coverage.toFixed(1)}%` : ""}
                 </div>
                 <div class="suite-content">
-                    ${suite.details.slice(0, 10).map((detail: TestDetail) => `
+                    ${suite.details
+											.slice(0, 10)
+											.map(
+												(detail: TestDetail) => `
                         <div class="test-detail ${detail.status}">
-                            ${detail.status === 'passed' ? '✅' : detail.status === 'failed' ? '❌' : '⏭️'} 
+                            ${detail.status === "passed" ? "✅" : detail.status === "failed" ? "❌" : "⏭️"}
                             ${detail.name} (${detail.duration}ms)
-                            ${detail.error ? `<br><small>${detail.error.substring(0, 100)}...</small>` : ''}
+                            ${detail.error ? `<br><small>${detail.error.substring(0, 100)}...</small>` : ""}
                         </div>
-                    `).join('')}
-                    ${suite.details.length > 10 ? `<p><em>... and ${suite.details.length - 10} more tests</em></p>` : ''}
+                    `,
+											)
+											.join("")}
+                    ${suite.details.length > 10 ? `<p><em>... and ${suite.details.length - 10} more tests</em></p>` : ""}
                 </div>
             </div>
-        `).join('')}
+        `,
+					)
+					.join("")}
 
         <div class="recommendations">
             <h2>💡 Recommendations</h2>
             <ul>
-                ${report.recommendations.map((rec: string) => `<li>${rec}</li>`).join('')}
+                ${report.recommendations.map((rec: string) => `<li>${rec}</li>`).join("")}
             </ul>
         </div>
 
@@ -468,36 +513,46 @@ class HallucinationTestRunner {
 </body>
 </html>
     `;
-  }
+	}
 
-  private async checkBenchmarks(): Promise<void> {
-    console.log('\n🎯 Checking Benchmark Compliance...');
-    
-    const benchmarks = await this.checkBenchmarkCompliance();
-    const metrics = await this.calculateValidationMetrics();
+	private async checkBenchmarks(): Promise<void> {
+		console.log("\n🎯 Checking Benchmark Compliance...");
 
-    console.log(`False Positive Rate: ${(metrics.falsePositiveRate * 100).toFixed(2)}% ${benchmarks.falsePositiveRateUnder2Percent ? '✅' : '❌'} (Target: <2%)`);
-    console.log(`False Negative Rate: ${(metrics.falseNegativeRate * 100).toFixed(3)}% ${benchmarks.falseNegativeRateUnder0Point5Percent ? '✅' : '❌'} (Target: <0.5%)`);
-    console.log(`Accuracy: ${(metrics.accuracy * 100).toFixed(1)}% ${benchmarks.accuracyOver95Percent ? '✅' : '❌'} (Target: >95%)`);
-    console.log(`Coverage: ${this.calculateAverageCoverage().toFixed(1)}% ${benchmarks.coverageOver95Percent ? '✅' : '❌'} (Target: >95%)`);
+		const benchmarks = await this.checkBenchmarkCompliance();
+		const metrics = await this.calculateValidationMetrics();
 
-    const allBenchmarksMet = Object.values(benchmarks).every(Boolean);
-    
-    if (allBenchmarksMet) {
-      console.log('🎉 All benchmarks met! System is performing excellently.');
-    } else {
-      console.log('⚠️  Some benchmarks not met. Review recommendations in the report.');
-    }
-  }
+		console.log(
+			`False Positive Rate: ${(metrics.falsePositiveRate * 100).toFixed(2)}% ${benchmarks.falsePositiveRateUnder2Percent ? "✅" : "❌"} (Target: <2%)`,
+		);
+		console.log(
+			`False Negative Rate: ${(metrics.falseNegativeRate * 100).toFixed(3)}% ${benchmarks.falseNegativeRateUnder0Point5Percent ? "✅" : "❌"} (Target: <0.5%)`,
+		);
+		console.log(
+			`Accuracy: ${(metrics.accuracy * 100).toFixed(1)}% ${benchmarks.accuracyOver95Percent ? "✅" : "❌"} (Target: >95%)`,
+		);
+		console.log(
+			`Coverage: ${this.calculateAverageCoverage().toFixed(1)}% ${benchmarks.coverageOver95Percent ? "✅" : "❌"} (Target: >95%)`,
+		);
+
+		const allBenchmarksMet = Object.values(benchmarks).every(Boolean);
+
+		if (allBenchmarksMet) {
+			console.log("🎉 All benchmarks met! System is performing excellently.");
+		} else {
+			console.log(
+				"⚠️  Some benchmarks not met. Review recommendations in the report.",
+			);
+		}
+	}
 }
 
 // Run the tests if this file is executed directly
 if (require.main === module) {
-  const runner = new HallucinationTestRunner();
-  runner.runAllTests().catch(error => {
-    console.error('❌ Test runner failed:', error);
-    process.exit(1);
-  });
+	const runner = new HallucinationTestRunner();
+	runner.runAllTests().catch((error) => {
+		console.error("❌ Test runner failed:", error);
+		process.exit(1);
+	});
 }
 
 export { HallucinationTestRunner };

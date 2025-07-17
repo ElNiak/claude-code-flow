@@ -1,262 +1,282 @@
-import { assertEquals, assertExists, assertStringIncludes } from "@std/assert/mod.ts";
+import {
+	assertEquals,
+	assertExists,
+	assertStringIncludes,
+} from "@std/assert/mod.ts";
 import { ensureDir, exists } from "@std/fs/mod.ts";
 import { join } from "@std/path/mod.ts";
-import { beforeEach, afterEach, describe, it } from "@std/testing/bdd.ts";
+import { afterEach, beforeEach, describe, it } from "@std/testing/bdd.ts";
 import { initCommand } from "../../../../../src/cli/simple-commands/init/index.js";
 
 describe("Init Command Unit Tests", () => {
-  let testDir: string;
+	let testDir: string;
 
-  beforeEach(async () => {
-    // Create a temporary test directory
-    testDir = await Deno.makeTempDir({ prefix: "claude_flow_init_test_" });
-    // Store original working directory
-    Deno.env.set("ORIGINAL_CWD", Deno.cwd());
-    // Set PWD for init command
-    Deno.env.set("PWD", testDir);
-    // Change to test directory
-    Deno.chdir(testDir);
-  });
+	beforeEach(async () => {
+		// Create a temporary test directory
+		testDir = await Deno.makeTempDir({ prefix: "claude_flow_init_test_" });
+		// Store original working directory
+		Deno.env.set("ORIGINAL_CWD", Deno.cwd());
+		// Set PWD for init command
+		Deno.env.set("PWD", testDir);
+		// Change to test directory
+		Deno.chdir(testDir);
+	});
 
-  afterEach(async () => {
-    // Restore original working directory
-    const originalCwd = Deno.env.get("ORIGINAL_CWD");
-    if (originalCwd) {
-      Deno.chdir(originalCwd);
-    }
-    // Clean up test directory
-    try {
-      await Deno.remove(testDir, { recursive: true });
-    } catch {
-      // Ignore cleanup errors
-    }
-  });
+	afterEach(async () => {
+		// Restore original working directory
+		const originalCwd = Deno.env.get("ORIGINAL_CWD");
+		if (originalCwd) {
+			Deno.chdir(originalCwd);
+		}
+		// Clean up test directory
+		try {
+			await Deno.remove(testDir, { recursive: true });
+		} catch {
+			// Ignore cleanup errors
+		}
+	});
 
-  describe("Basic initialization", () => {
-    it("should create basic structure with no flags", async () => {
-      await initCommand([], {});
+	describe("Basic initialization", () => {
+		it("should create basic structure with no flags", async () => {
+			await initCommand([], {});
 
-      // Check basic files
-      expect(await exists(join(testDir, "CLAUDE.md").toBeDefined()));
-      expect(await exists(join(testDir, "memory-bank.md").toBeDefined()));
-      expect(await exists(join(testDir, "coordination.md").toBeDefined()));
+			// Check basic files
+			expect(await exists(join(testDir, "CLAUDE.md").toBeDefined()));
+			expect(await exists(join(testDir, "memory-bank.md").toBeDefined()));
+			expect(await exists(join(testDir, "coordination.md").toBeDefined()));
 
-      // Check directories
-      expect(await exists(join(testDir, "memory").toBeDefined()));
-      expect(await exists(join(testDir, "memory/agents").toBeDefined()));
-      expect(await exists(join(testDir, "memory/sessions").toBeDefined()));
-      expect(await exists(join(testDir, "coordination").toBeDefined()));
-      expect(await exists(join(testDir, ".claude").toBeDefined()));
-      expect(await exists(join(testDir, ".claude/commands").toBeDefined()));
-    });
+			// Check directories
+			expect(await exists(join(testDir, "memory").toBeDefined()));
+			expect(await exists(join(testDir, "memory/agents").toBeDefined()));
+			expect(await exists(join(testDir, "memory/sessions").toBeDefined()));
+			expect(await exists(join(testDir, "coordination").toBeDefined()));
+			expect(await exists(join(testDir, ".claude").toBeDefined()));
+			expect(await exists(join(testDir, ".claude/commands").toBeDefined()));
+		});
 
-    it("should create minimal structure with --minimal flag", async () => {
-      await initCommand(["--minimal"], {});
+		it("should create minimal structure with --minimal flag", async () => {
+			await initCommand(["--minimal"], {});
 
-      // Check files exist
-      expect(await exists(join(testDir, "CLAUDE.md").toBeDefined()));
-      expect(await exists(join(testDir, "memory-bank.md").toBeDefined()));
-      expect(await exists(join(testDir, "coordination.md").toBeDefined()));
+			// Check files exist
+			expect(await exists(join(testDir, "CLAUDE.md").toBeDefined()));
+			expect(await exists(join(testDir, "memory-bank.md").toBeDefined()));
+			expect(await exists(join(testDir, "coordination.md").toBeDefined()));
 
-      // Check content is minimal (smaller size)
-      const claudeMd = await Deno.readTextFile(join(testDir, "CLAUDE.md"));
-      const memoryBankMd = await Deno.readTextFile(join(testDir, "memory-bank.md"));
-      
-      // Minimal versions should be shorter
-      expect(claudeMd.includes("Minimal project configuration")).toBe(true);
-      expect(memoryBankMd.includes("Simple memory tracking")).toBe(true);
-    });
+			// Check content is minimal (smaller size)
+			const claudeMd = await Deno.readTextFile(join(testDir, "CLAUDE.md"));
+			const memoryBankMd = await Deno.readTextFile(
+				join(testDir, "memory-bank.md"),
+			);
 
-    it("should handle help flag correctly", async () => {
-      const originalLog = console.log;
-      const logs: string[] = [];
-      console.log = (...args: any[]) => logs.push(args.join(" "));
+			// Minimal versions should be shorter
+			expect(claudeMd.includes("Minimal project configuration")).toBe(true);
+			expect(memoryBankMd.includes("Simple memory tracking")).toBe(true);
+		});
 
-      await initCommand(["--help"], {});
+		it("should handle help flag correctly", async () => {
+			const originalLog = console.log;
+			const logs: string[] = [];
+			console.log = (...args: any[]) => logs.push(args.join(" "));
 
-      console.log = originalLog;
+			await initCommand(["--help"], {});
 
-      // Check that help was displayed
-      const helpOutput = logs.join("\n");
-      assertStringIncludes(helpOutput, "Initialize Claude Code integration");
-      assertStringIncludes(helpOutput, "--force");
-      assertStringIncludes(helpOutput, "--minimal");
-      assertStringIncludes(helpOutput, "--sparc");
-    });
-  });
+			console.log = originalLog;
 
-  describe("Force flag behavior", () => {
-    it("should fail when files exist without --force", async () => {
-      // Create existing file
-      await Deno.writeTextFile(join(testDir, "CLAUDE.md"), "existing content");
+			// Check that help was displayed
+			const helpOutput = logs.join("\n");
+			assertStringIncludes(helpOutput, "Initialize Claude Code integration");
+			assertStringIncludes(helpOutput, "--force");
+			assertStringIncludes(helpOutput, "--minimal");
+			assertStringIncludes(helpOutput, "--sparc");
+		});
+	});
 
-      const originalLog = console.log;
-      const logs: string[] = [];
-      console.log = (...args: any[]) => logs.push(args.join(" "));
+	describe("Force flag behavior", () => {
+		it("should fail when files exist without --force", async () => {
+			// Create existing file
+			await Deno.writeTextFile(join(testDir, "CLAUDE.md"), "existing content");
 
-      await initCommand([], {});
+			const originalLog = console.log;
+			const logs: string[] = [];
+			console.log = (...args: any[]) => logs.push(args.join(" "));
 
-      console.log = originalLog;
+			await initCommand([], {});
 
-      // Check warning was displayed
-      const output = logs.join("\n");
-      assertStringIncludes(output, "already exist");
-      assertStringIncludes(output, "Use --force to overwrite");
-    });
+			console.log = originalLog;
 
-    it("should overwrite files with --force flag", async () => {
-      // Create existing files
-      await Deno.writeTextFile(join(testDir, "CLAUDE.md"), "old content");
-      await Deno.writeTextFile(join(testDir, "memory-bank.md"), "old memory");
+			// Check warning was displayed
+			const output = logs.join("\n");
+			assertStringIncludes(output, "already exist");
+			assertStringIncludes(output, "Use --force to overwrite");
+		});
 
-      await initCommand(["--force"], {});
+		it("should overwrite files with --force flag", async () => {
+			// Create existing files
+			await Deno.writeTextFile(join(testDir, "CLAUDE.md"), "old content");
+			await Deno.writeTextFile(join(testDir, "memory-bank.md"), "old memory");
 
-      // Check files were overwritten
-      const claudeMd = await Deno.readTextFile(join(testDir, "CLAUDE.md"));
-      const memoryBankMd = await Deno.readTextFile(join(testDir, "memory-bank.md"));
+			await initCommand(["--force"], {});
 
-      // Should not contain old content
-      expect(claudeMd.includes("old content")).toBe(false);
-      expect(memoryBankMd.includes("old memory")).toBe(false);
+			// Check files were overwritten
+			const claudeMd = await Deno.readTextFile(join(testDir, "CLAUDE.md"));
+			const memoryBankMd = await Deno.readTextFile(
+				join(testDir, "memory-bank.md"),
+			);
 
-      // Should contain new content
-      assertStringIncludes(claudeMd, "Claude Code Configuration");
-      assertStringIncludes(memoryBankMd, "Memory Bank");
-    });
-  });
+			// Should not contain old content
+			expect(claudeMd.includes("old content")).toBe(false);
+			expect(memoryBankMd.includes("old memory")).toBe(false);
 
-  describe("SPARC flag behavior", () => {
-    it("should create SPARC-enhanced structure with --sparc flag", async () => {
-      await initCommand(["--sparc"], {});
+			// Should contain new content
+			assertStringIncludes(claudeMd, "Claude Code Configuration");
+			assertStringIncludes(memoryBankMd, "Memory Bank");
+		});
+	});
 
-      // Check SPARC-specific files
-      expect(await exists(join(testDir, "CLAUDE.md").toBeDefined()));
-      expect(await exists(join(testDir, ".claude/commands/sparc").toBeDefined()));
+	describe("SPARC flag behavior", () => {
+		it("should create SPARC-enhanced structure with --sparc flag", async () => {
+			await initCommand(["--sparc"], {});
 
-      // Check CLAUDE.md contains SPARC content
-      const claudeMd = await Deno.readTextFile(join(testDir, "CLAUDE.md"));
-      assertStringIncludes(claudeMd, "SPARC");
-      assertStringIncludes(claudeMd, "Test-Driven Development");
-    });
+			// Check SPARC-specific files
+			expect(await exists(join(testDir, "CLAUDE.md").toBeDefined()));
+			expect(
+				await exists(join(testDir, ".claude/commands/sparc").toBeDefined()),
+			);
 
-    it("should create SPARC structure manually when create-sparc fails", async () => {
-      // This will trigger manual creation since create-sparc won't exist
-      await initCommand(["--sparc", "--force"], {});
+			// Check CLAUDE.md contains SPARC content
+			const claudeMd = await Deno.readTextFile(join(testDir, "CLAUDE.md"));
+			assertStringIncludes(claudeMd, "SPARC");
+			assertStringIncludes(claudeMd, "Test-Driven Development");
+		});
 
-      // Check manual SPARC structure
-      expect(await exists(join(testDir, ".roo").toBeDefined()));
-      expect(await exists(join(testDir, ".roo/templates").toBeDefined()));
-      expect(await exists(join(testDir, ".roo/workflows").toBeDefined()));
-      expect(await exists(join(testDir, ".roomodes").toBeDefined()));
-    });
-  });
+		it("should create SPARC structure manually when create-sparc fails", async () => {
+			// This will trigger manual creation since create-sparc won't exist
+			await initCommand(["--sparc", "--force"], {});
 
-  describe("File content validation", () => {
-    it("should create valid JSON files", async () => {
-      await initCommand([], {});
+			// Check manual SPARC structure
+			expect(await exists(join(testDir, ".roo").toBeDefined()));
+			expect(await exists(join(testDir, ".roo/templates").toBeDefined()));
+			expect(await exists(join(testDir, ".roo/workflows").toBeDefined()));
+			expect(await exists(join(testDir, ".roomodes").toBeDefined()));
+		});
+	});
 
-      // Check claude-flow-data.json is valid JSON
-      const dataPath = join(testDir, "memory/claude-flow-data.json");
-      expect(await exists(dataPath).toBeDefined());
+	describe("File content validation", () => {
+		it("should create valid JSON files", async () => {
+			await initCommand([], {});
 
-      const data = JSON.parse(await Deno.readTextFile(dataPath));
-      expect(Array.isArray(data.agents)).toBe(true);
-      expect(Array.isArray(data.tasks)).toBe(true);
-      expect(typeof data.lastUpdated).toBe("number");
-    });
+			// Check claude-flow-data.json is valid JSON
+			const dataPath = join(testDir, "memory/claude-flow-data.json");
+			expect(await exists(dataPath).toBeDefined());
 
-    it("should create proper README files", async () => {
-      await initCommand([], {});
+			const data = JSON.parse(await Deno.readTextFile(dataPath));
+			expect(Array.isArray(data.agents)).toBe(true);
+			expect(Array.isArray(data.tasks)).toBe(true);
+			expect(typeof data.lastUpdated).toBe("number");
+		});
 
-      // Check README files
-      const agentsReadme = await Deno.readTextFile(join(testDir, "memory/agents/README.md"));
-      const sessionsReadme = await Deno.readTextFile(join(testDir, "memory/sessions/README.md"));
+		it("should create proper README files", async () => {
+			await initCommand([], {});
 
-      assertStringIncludes(agentsReadme, "# Agent Memory Storage");
-      assertStringIncludes(sessionsReadme, "# Session Memory Storage");
-    });
-  });
+			// Check README files
+			const agentsReadme = await Deno.readTextFile(
+				join(testDir, "memory/agents/README.md"),
+			);
+			const sessionsReadme = await Deno.readTextFile(
+				join(testDir, "memory/sessions/README.md"),
+			);
 
-  describe("Error handling", () => {
-    it("should handle directory creation errors gracefully", async () => {
-      // Create a file where a directory should be
-      await Deno.writeTextFile(join(testDir, "memory"), "not a directory");
+			assertStringIncludes(agentsReadme, "# Agent Memory Storage");
+			assertStringIncludes(sessionsReadme, "# Session Memory Storage");
+		});
+	});
 
-      const originalError = console.error;
-      const errors: string[] = [];
-      console.error = (...args: any[]) => errors.push(args.join(" "));
+	describe("Error handling", () => {
+		it("should handle directory creation errors gracefully", async () => {
+			// Create a file where a directory should be
+			await Deno.writeTextFile(join(testDir, "memory"), "not a directory");
 
-      try {
-        await initCommand([], {});
-      } catch {
-        // Expected to fail
-      }
+			const originalError = console.error;
+			const errors: string[] = [];
+			console.error = (...args: any[]) => errors.push(args.join(" "));
 
-      console.error = originalError;
+			try {
+				await initCommand([], {});
+			} catch {
+				// Expected to fail
+			}
 
-      // Should have attempted to create directory
-      expect(errors.length > 0).toBe(true);
-    });
+			console.error = originalError;
 
-    it("should continue when some operations fail", async () => {
-      // Make directory read-only (will fail on some operations)
-      await Deno.chmod(testDir, 0o555);
+			// Should have attempted to create directory
+			expect(errors.length > 0).toBe(true);
+		});
 
-      try {
-        await initCommand(["--force"], {});
-      } catch {
-        // Expected some operations to fail
-      }
+		it("should continue when some operations fail", async () => {
+			// Make directory read-only (will fail on some operations)
+			await Deno.chmod(testDir, 0o555);
 
-      // Restore permissions
-      await Deno.chmod(testDir, 0o755);
+			try {
+				await initCommand(["--force"], {});
+			} catch {
+				// Expected some operations to fail
+			}
 
-      // Should have created at least some files before failing
-      // (This test may vary based on OS permissions)
-    });
-  });
+			// Restore permissions
+			await Deno.chmod(testDir, 0o755);
 
-  describe("Flag combinations", () => {
-    it("should handle --sparc --minimal combination", async () => {
-      await initCommand(["--sparc", "--minimal"], {});
+			// Should have created at least some files before failing
+			// (This test may vary based on OS permissions)
+		});
+	});
 
-      // Should create SPARC structure
-      expect(await exists(join(testDir, ".claude/commands/sparc").toBeDefined()));
+	describe("Flag combinations", () => {
+		it("should handle --sparc --minimal combination", async () => {
+			await initCommand(["--sparc", "--minimal"], {});
 
-      // But with minimal content
-      const claudeMd = await Deno.readTextFile(join(testDir, "CLAUDE.md"));
-      assertStringIncludes(claudeMd, "SPARC");
-      
-      // Memory bank should be minimal
-      const memoryBankMd = await Deno.readTextFile(join(testDir, "memory-bank.md"));
-      assertStringIncludes(memoryBankMd, "Simple memory tracking");
-    });
+			// Should create SPARC structure
+			expect(
+				await exists(join(testDir, ".claude/commands/sparc").toBeDefined()),
+			);
 
-    it("should handle --sparc --force combination", async () => {
-      // Create existing files
-      await Deno.writeTextFile(join(testDir, "CLAUDE.md"), "old content");
-      await Deno.writeTextFile(join(testDir, ".roomodes"), "old roomodes");
+			// But with minimal content
+			const claudeMd = await Deno.readTextFile(join(testDir, "CLAUDE.md"));
+			assertStringIncludes(claudeMd, "SPARC");
 
-      await initCommand(["--sparc", "--force"], {});
+			// Memory bank should be minimal
+			const memoryBankMd = await Deno.readTextFile(
+				join(testDir, "memory-bank.md"),
+			);
+			assertStringIncludes(memoryBankMd, "Simple memory tracking");
+		});
 
-      // Should overwrite and create SPARC structure
-      const claudeMd = await Deno.readTextFile(join(testDir, "CLAUDE.md"));
-      assertStringIncludes(claudeMd, "SPARC");
-      expect(claudeMd.includes("old content")).toBe(false);
+		it("should handle --sparc --force combination", async () => {
+			// Create existing files
+			await Deno.writeTextFile(join(testDir, "CLAUDE.md"), "old content");
+			await Deno.writeTextFile(join(testDir, ".roomodes"), "old roomodes");
 
-      // Should preserve or recreate .roomodes
-      expect(await exists(join(testDir, ".roomodes").toBeDefined()));
-    });
+			await initCommand(["--sparc", "--force"], {});
 
-    it("should handle all flags together", async () => {
-      await initCommand(["--sparc", "--minimal", "--force"], {});
+			// Should overwrite and create SPARC structure
+			const claudeMd = await Deno.readTextFile(join(testDir, "CLAUDE.md"));
+			assertStringIncludes(claudeMd, "SPARC");
+			expect(claudeMd.includes("old content")).toBe(false);
 
-      // Should create minimal SPARC structure
-      expect(await exists(join(testDir, "CLAUDE.md").toBeDefined()));
-      expect(await exists(join(testDir, ".claude/commands/sparc").toBeDefined()));
+			// Should preserve or recreate .roomodes
+			expect(await exists(join(testDir, ".roomodes").toBeDefined()));
+		});
 
-      const claudeMd = await Deno.readTextFile(join(testDir, "CLAUDE.md"));
-      assertStringIncludes(claudeMd, "SPARC");
-    });
-  });
+		it("should handle all flags together", async () => {
+			await initCommand(["--sparc", "--minimal", "--force"], {});
+
+			// Should create minimal SPARC structure
+			expect(await exists(join(testDir, "CLAUDE.md").toBeDefined()));
+			expect(
+				await exists(join(testDir, ".claude/commands/sparc").toBeDefined()),
+			);
+
+			const claudeMd = await Deno.readTextFile(join(testDir, "CLAUDE.md"));
+			assertStringIncludes(claudeMd, "SPARC");
+		});
+	});
 });

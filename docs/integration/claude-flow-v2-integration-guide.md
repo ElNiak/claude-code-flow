@@ -526,7 +526,7 @@ export const customCoordinationTool: MCPTool = {
       topology: input.complexity === 'high' ? 'hierarchical' : 'mesh',
       maxAgents: input.agents_required
     });
-    
+
     return {
       swarm_id: swarm.id,
       topology: swarm.topology,

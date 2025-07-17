@@ -2,9 +2,9 @@
 
 ## Test Summary
 
-**Date:** 2025-07-06  
-**Test Suite:** Console Terminal Comprehensive Test  
-**URL:** http://localhost:3002/console/  
+**Date:** 2025-07-06
+**Test Suite:** Console Terminal Comprehensive Test
+**URL:** http://localhost:3002/console/
 
 ### Overall Results
 - **Total Tests:** 19

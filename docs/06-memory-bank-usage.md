@@ -150,7 +150,7 @@ claude-flow memory category update "machine-learning" \
         "values": ["linear-regression", "random-forest", "neural-network", "svm"]
       },
       "problem_type": {
-        "type": "enum", 
+        "type": "enum",
         "values": ["classification", "regression", "clustering", "reinforcement"]
       },
       "performance_metrics": {

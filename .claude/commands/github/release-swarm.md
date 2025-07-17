@@ -46,7 +46,7 @@ release:
   versioning:
     strategy: semantic
     breaking-keywords: ["BREAKING", "!"]
-    
+
   changelog:
     sections:
       - title: "🚀 Features"
@@ -55,30 +55,30 @@ release:
         labels: ["bug", "fix"]
       - title: "📚 Documentation"
         labels: ["docs", "documentation"]
-        
+
   artifacts:
     - name: npm-package
       build: npm run build
       publish: npm publish
-      
+
     - name: docker-image
       build: docker build -t app:$VERSION .
       publish: docker push app:$VERSION
-      
+
     - name: binaries
       build: ./scripts/build-binaries.sh
       upload: github-release
-      
+
   deployment:
     environments:
       - name: staging
         auto-deploy: true
         validation: npm run test:e2e
-        
+
       - name: production
         approval-required: true
         rollback-enabled: true
-        
+
   notifications:
     - slack: releases-channel
     - email: stakeholders@company.com
@@ -173,12 +173,12 @@ deployment:
       metrics:
         - error-rate < 0.1%
         - latency-p99 < 200ms
-        
+
     - name: partial
       percentage: 25
       duration: 4h
       validation: automated-tests
-      
+
     - name: full
       percentage: 100
       approval: required
@@ -221,20 +221,20 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          
+
       - name: Initialize Release Swarm
         run: |
           npx ruv-swarm github release-init \
             --tag ${{ github.ref_name }} \
             --spawn-agents "changelog,version,build,test,deploy"
-            
+
       - name: Generate Release Assets
         run: |
           npx ruv-swarm github release-assets \
             --changelog \
             --binaries \
             --documentation
-            
+
       - name: Publish Release
         run: |
           npx ruv-swarm github release-publish \

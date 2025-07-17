@@ -1,0 +1,17 @@
+language: typescript
+name: claude-code-flow
+root_dir: .
+
+files:
+  include:
+    - "src/**/*.ts"
+    - "src/**/*.js"
+    - "*.ts"
+    - "*.js"
+    - "*.json"
+  exclude:
+    - "node_modules/**"
+    - "dist/**"
+    - "coverage/**"
+    - "bin/**"
+    - ".git/**"

@@ -36,8 +36,8 @@ TodoWrite([
     priority: "high",
     mode: "documenter",
     batchOptimized: true,
-    
-    
+
+
     tools: ["Read","Write","Glob","Memory","TodoWrite"]
   }
 ]);
@@ -46,7 +46,7 @@ TodoWrite([
 Task("Documenter Agent", "Execute specialized documenter task", {
   mode: "documenter",
   batchOptimized: true,
-  
+
   memoryIntegration: true
 });
 ```

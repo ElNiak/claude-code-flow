@@ -94,7 +94,7 @@ async def test_research_strategy_with_distributed_mode():
     strategy = ResearchStrategy()
     mode = DistributedMode()
     task = create_research_task()
-    
+
     result = await mode.execute_with_strategy(strategy, task)
     assert result.status == ResultStatus.SUCCESS
     assert result.coordination_metrics["overhead"] < 0.1
@@ -105,13 +105,13 @@ async def test_research_strategy_with_distributed_mode():
 # tests/integration/test_output_integration.py
 def test_json_sqlite_consistency():
     results = create_test_results()
-    
+
     json_writer = JSONWriter()
     sqlite_manager = SQLiteManager()
-    
+
     json_data = json_writer.export(results)
     sqlite_manager.store(results)
-    
+
     sqlite_data = sqlite_manager.query_all()
     assert normalize_data(json_data) == normalize_data(sqlite_data)
 ```
@@ -125,11 +125,11 @@ Validate system performance under various conditions.
 async def test_high_task_volume():
     engine = BenchmarkEngine()
     tasks = create_test_tasks(1000)
-    
+
     start_time = time.time()
     results = await engine.execute_batch(tasks)
     execution_time = time.time() - start_time
-    
+
     assert len(results) == 1000
     assert execution_time < 60  # Should complete within 1 minute
     assert all(r.status == ResultStatus.SUCCESS for r in results)
@@ -143,7 +143,7 @@ def test_memory_usage_under_load():
         engine = BenchmarkEngine()
         tasks = create_memory_intensive_tasks(100)
         engine.execute_batch(tasks)
-    
+
     assert monitor.peak_memory < 1024 * 1024 * 1024  # < 1GB
 ```
 
@@ -162,10 +162,10 @@ def test_complete_benchmark_workflow():
         "--mode", "distributed",
         "--output", "json,sqlite"
     ], capture_output=True, text=True)
-    
+
     assert result.returncode == 0
     assert "Benchmark completed successfully" in result.stdout
-    
+
     # Verify outputs exist
     assert os.path.exists("reports/test-benchmark.json")
     assert os.path.exists("reports/test-benchmark.db")
@@ -202,7 +202,7 @@ Mock external dependencies for isolated testing.
 class MockClaudeFlowClient:
     def __init__(self):
         self.calls = []
-    
+
     async def execute_swarm(self, objective: str, **kwargs):
         self.calls.append(("execute_swarm", objective, kwargs))
         return MockResult(success=True, output="mock output")
@@ -277,7 +277,7 @@ jobs:
     strategy:
       matrix:
         python-version: [3.8, 3.9, 3.10, 3.11]
-    
+
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python
@@ -314,7 +314,7 @@ class TaskGenerator:
             strategy="auto",
             mode="centralized"
         )
-    
+
     @staticmethod
     def complex_workflow() -> List[Task]:
         return [

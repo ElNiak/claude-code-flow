@@ -362,18 +362,18 @@ echo "🚀 SPARC Batchtools Migration Utility"
 update_prompt() {
     local file=$1
     local mode=$(basename $file .md)
-    
+
     echo "Updating $mode mode..."
-    
+
     # Backup original
     cp $file $file.pre-batch
-    
+
     # Add batchtools sections if not present
     if ! grep -q "Batchtools" $file; then
         # Insert batchtools optimization section
         sed -i '/## Instructions/a\\n### Batchtools Optimization\nThis mode now supports parallel operations using batchtools for improved performance.\n' $file
     fi
-    
+
     echo "✅ Updated $mode"
 }
 
@@ -394,21 +394,21 @@ const path = require('path');
 
 async function convertWorkflowToBatch(workflowPath) {
     const workflow = JSON.parse(await fs.readFile(workflowPath, 'utf8'));
-    
+
     // Convert sequential tasks to parallel where possible
     if (workflow.tasks && Array.isArray(workflow.tasks)) {
         const parallelizableTasks = identifyParallelizableTasks(workflow.tasks);
-        
+
         workflow.batchTasks = parallelizableTasks.map(group => ({
             parallel: true,
             tasks: group
         }));
     }
-    
+
     // Save converted workflow
     const newPath = workflowPath.replace('.json', '.batch.json');
     await fs.writeFile(newPath, JSON.stringify(workflow, null, 2));
-    
+
     console.log(`✅ Converted: ${path.basename(newPath)}`);
 }
 
@@ -416,7 +416,7 @@ function identifyParallelizableTasks(tasks) {
     // Group tasks that can run in parallel
     const groups = [];
     let currentGroup = [];
-    
+
     tasks.forEach(task => {
         if (canRunInParallel(task, currentGroup)) {
             currentGroup.push(task);
@@ -427,11 +427,11 @@ function identifyParallelizableTasks(tasks) {
             currentGroup = [task];
         }
     });
-    
+
     if (currentGroup.length > 0) {
         groups.push(currentGroup);
     }
-    
+
     return groups;
 }
 
@@ -572,12 +572,12 @@ const tests = [
 
 tests.forEach(test => {
     console.log(`\n📊 Benchmarking: ${test.name}`);
-    
+
     // Old method
     console.time('Old Method');
     execSync(test.old, { stdio: 'ignore' });
     console.timeEnd('Old Method');
-    
+
     // New method
     console.time('New Method');
     execSync(test.new, { stdio: 'ignore' });
@@ -686,7 +686,7 @@ async function generateTestsBatch(features) {
         generateIntegrationTests(feature),
         generateE2ETests(feature)
     ]);
-    
+
     await Promise.all(testGenerators);
 }
 ```

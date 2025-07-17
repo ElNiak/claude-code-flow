@@ -194,7 +194,7 @@ TodoWrite([
     assignedAgent: "architect"
   },
   {
-    id: "frontend_development", 
+    id: "frontend_development",
     content: "Develop React components and user interface",
     status: "pending",
     priority: "medium",

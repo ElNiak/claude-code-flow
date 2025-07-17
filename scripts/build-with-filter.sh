@@ -29,7 +29,7 @@ BUILD_EXIT_CODE=$?
 if [ -f "bin/claude-flow" ]; then
     echo "✅ Binary created successfully!"
     chmod +x bin/claude-flow
-    
+
     # Test if it works
     if bin/claude-flow --version &>/dev/null; then
         echo "✅ Binary is functional!"
@@ -41,21 +41,21 @@ if [ -f "bin/claude-flow" ]; then
 else
     # Check for temporary files that might have been created
     TEMP_FILES=$(find bin -name "claude-flow.tmp*" -type f 2>/dev/null)
-    
+
     if [ -n "$TEMP_FILES" ]; then
         echo "📦 Found temporary build artifacts..."
-        
+
         for temp_file in $TEMP_FILES; do
             echo "  Checking: $temp_file"
-            
+
             # Check if it's a valid executable
             if file "$temp_file" | grep -q "executable"; then
                 echo "  ✅ Valid executable found!"
-                
+
                 # Move it to the final location
                 mv "$temp_file" bin/claude-flow
                 chmod +x bin/claude-flow
-                
+
                 if bin/claude-flow --version &>/dev/null; then
                     echo "✅ Build successful!"
                     echo "📍 Location: bin/claude-flow"

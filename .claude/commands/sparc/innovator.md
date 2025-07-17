@@ -37,8 +37,8 @@ TodoWrite([
     priority: "high",
     mode: "innovator",
     batchOptimized: true,
-    
-    
+
+
     tools: ["Read","Write","WebSearch","Memory","TodoWrite","Task"]
   }
 ]);
@@ -47,7 +47,7 @@ TodoWrite([
 Task("Innovator Agent", "Execute specialized innovator task", {
   mode: "innovator",
   batchOptimized: true,
-  
+
   memoryIntegration: true
 });
 ```

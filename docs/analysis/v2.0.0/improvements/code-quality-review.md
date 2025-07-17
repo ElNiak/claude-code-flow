@@ -115,7 +115,7 @@ error TS2339: Property 'cacheHits' does not exist on type 'StrategyMetrics'
 {
   "dependencies": {
     "@cliffy/command": "^1.0.0-rc.3",
-    "@cliffy/table": "^1.0.0-rc.3", 
+    "@cliffy/table": "^1.0.0-rc.3",
     "@cliffy/ansi": "^1.0.0-rc.3",
     "@cliffy/prompt": "^1.0.0-rc.3",
     "@modelcontextprotocol/sdk": "^0.5.0",
@@ -317,7 +317,7 @@ expectType<SwarmConfig>(config);
 
 ## Conclusion
 
-Claude Flow v2.0.0 contains significant code quality issues that must be addressed before production deployment. The 1,018 compilation errors represent fundamental problems with dependencies, type safety, and code organization. 
+Claude Flow v2.0.0 contains significant code quality issues that must be addressed before production deployment. The 1,018 compilation errors represent fundamental problems with dependencies, type safety, and code organization.
 
 **Immediate Actions Required**:
 1. Fix module dependencies to enable successful builds

@@ -17,11 +17,11 @@ def create_coordination_mode(mode_name: str) -> BaseCoordinationMode:
         "mesh": MeshMode,
         "hybrid": HybridMode,
     }
-    
+
     mode_class = modes.get(mode_name.lower())
     if not mode_class:
         raise ValueError(f"Unknown coordination mode: {mode_name}")
-    
+
     return mode_class()
 
 def get_available_modes() -> list[str]:
@@ -31,7 +31,7 @@ def get_available_modes() -> list[str]:
 __all__ = [
     "BaseCoordinationMode",
     "CentralizedMode",
-    "DistributedMode", 
+    "DistributedMode",
     "HierarchicalMode",
     "MeshMode",
     "HybridMode",

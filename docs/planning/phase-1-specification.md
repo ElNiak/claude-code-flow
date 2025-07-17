@@ -127,20 +127,20 @@ interface Orchestrator {
   // Lifecycle
   initialize(config: OrchestratorConfig): Promise<void>
   shutdown(graceful?: boolean): Promise<void>
-  
+
   // Agent Management
   spawnAgent(profile: AgentProfile): Promise<AgentHandle>
   terminateAgent(agentId: string): Promise<void>
   listAgents(): Promise<AgentInfo[]>
-  
+
   // Command Execution
   execute(command: Command, target?: AgentTarget): Promise<ExecutionResult>
   broadcast(command: Command): Promise<ExecutionResult[]>
-  
+
   // Coordination
   assignTask(task: Task, agentId?: string): Promise<void>
   getProgress(): Promise<ProgressReport>
-  
+
   // Memory Bank
   store(key: string, value: any, metadata?: Metadata): Promise<void>
   retrieve(key: string): Promise<any>

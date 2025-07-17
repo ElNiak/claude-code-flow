@@ -356,7 +356,7 @@ git config --global user.name "Test User"
 When adding new init command features:
 
 1. **Add unit tests** for core functionality
-2. **Add integration tests** for user workflows  
+2. **Add integration tests** for user workflows
 3. **Add performance tests** if impacting speed/memory
 4. **Update validation tests** for new file formats
 5. **Add rollback tests** for error scenarios

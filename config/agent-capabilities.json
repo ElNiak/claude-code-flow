@@ -1,596 +1,687 @@
 {
-  "version": "2.0.0",
-  "description": "Comprehensive agent capability definitions for the unified architecture",
-  "agentTypes": {
-    "architect": {
-      "name": "System Architect",
-      "description": "Designs system architecture and high-level structure",
-      "capabilities": {
-        "systemDesign": {
-          "level": "expert",
-          "tools": ["uml", "diagrams", "patterns"],
-          "skills": ["architecture_patterns", "scalability", "performance"]
-        },
-        "codeGeneration": {
-          "level": "intermediate",
-          "tools": ["templates", "scaffolding"],
-          "skills": ["boilerplate", "structure", "conventions"]
-        },
-        "documentation": {
-          "level": "advanced",
-          "tools": ["markdown", "diagrams"],
-          "skills": ["technical_writing", "specifications"]
-        },
-        "coordination": {
-          "level": "advanced",
-          "tools": ["workflow", "planning"],
-          "skills": ["project_management", "team_coordination"]
-        }
-      },
-      "specializations": [
-        "microservices",
-        "api_design",
-        "database_design",
-        "frontend_architecture",
-        "infrastructure"
-      ],
-      "workflowRoles": ["planner", "coordinator", "reviewer"],
-      "preferredTopologies": ["hierarchical", "star"],
-      "resourceRequirements": {
-        "memory": "medium",
-        "cpu": "low",
-        "network": "low"
-      }
-    },
-    "coder": {
-      "name": "Code Developer",
-      "description": "Implements features and writes production code",
-      "capabilities": {
-        "codeGeneration": {
-          "level": "expert",
-          "tools": ["ide", "compilers", "debuggers"],
-          "skills": ["algorithms", "data_structures", "patterns"]
-        },
-        "testing": {
-          "level": "advanced",
-          "tools": ["unit_tests", "integration_tests"],
-          "skills": ["tdd", "test_automation"]
-        },
-        "debugging": {
-          "level": "expert",
-          "tools": ["debuggers", "profilers", "monitors"],
-          "skills": ["problem_solving", "performance_tuning"]
-        },
-        "refactoring": {
-          "level": "advanced",
-          "tools": ["ide", "analysis_tools"],
-          "skills": ["code_quality", "maintainability"]
-        }
-      },
-      "specializations": [
-        "frontend",
-        "backend",
-        "fullstack",
-        "mobile",
-        "devops",
-        "database"
-      ],
-      "languages": {
-        "javascript": "expert",
-        "typescript": "expert",
-        "python": "advanced",
-        "java": "intermediate",
-        "go": "intermediate",
-        "rust": "beginner"
-      },
-      "workflowRoles": ["implementer", "contributor"],
-      "preferredTopologies": ["mesh", "hierarchical"],
-      "resourceRequirements": {
-        "memory": "high",
-        "cpu": "high",
-        "network": "medium"
-      }
-    },
-    "tester": {
-      "name": "Quality Assurance Engineer",
-      "description": "Ensures code quality through comprehensive testing",
-      "capabilities": {
-        "testGeneration": {
-          "level": "expert",
-          "tools": ["jest", "pytest", "selenium"],
-          "skills": ["test_design", "automation", "coverage"]
-        },
-        "qualityAssurance": {
-          "level": "expert",
-          "tools": ["linters", "analyzers", "metrics"],
-          "skills": ["code_review", "standards", "best_practices"]
-        },
-        "performanceTesting": {
-          "level": "advanced",
-          "tools": ["load_testing", "profilers"],
-          "skills": ["benchmarking", "optimization"]
-        },
-        "securityTesting": {
-          "level": "intermediate",
-          "tools": ["security_scanners", "penetration_testing"],
-          "skills": ["vulnerability_assessment", "compliance"]
-        }
-      },
-      "specializations": [
-        "unit_testing",
-        "integration_testing",
-        "e2e_testing",
-        "performance_testing",
-        "security_testing",
-        "accessibility_testing"
-      ],
-      "workflowRoles": ["validator", "quality_gatekeeper"],
-      "preferredTopologies": ["ring", "mesh"],
-      "resourceRequirements": {
-        "memory": "medium",
-        "cpu": "medium",
-        "network": "medium"
-      }
-    },
-    "reviewer": {
-      "name": "Code Reviewer",
-      "description": "Reviews code for quality, security, and best practices",
-      "capabilities": {
-        "codeReview": {
-          "level": "expert",
-          "tools": ["git", "diff_tools", "review_platforms"],
-          "skills": ["pattern_recognition", "best_practices", "mentoring"]
-        },
-        "securityReview": {
-          "level": "advanced",
-          "tools": ["security_analyzers", "vulnerability_scanners"],
-          "skills": ["security_patterns", "threat_modeling"]
-        },
-        "performanceReview": {
-          "level": "advanced",
-          "tools": ["profilers", "analyzers"],
-          "skills": ["optimization", "scalability"]
-        },
-        "documentation": {
-          "level": "advanced",
-          "tools": ["markdown", "wiki"],
-          "skills": ["technical_writing", "knowledge_sharing"]
-        }
-      },
-      "specializations": [
-        "security_review",
-        "performance_review",
-        "architecture_review",
-        "accessibility_review"
-      ],
-      "workflowRoles": ["reviewer", "mentor", "quality_gate"],
-      "preferredTopologies": ["ring", "star"],
-      "resourceRequirements": {
-        "memory": "medium",
-        "cpu": "low",
-        "network": "low"
-      }
-    },
-    "researcher": {
-      "name": "Research Specialist",
-      "description": "Conducts research and gathers information",
-      "capabilities": {
-        "informationGathering": {
-          "level": "expert",
-          "tools": ["search_engines", "databases", "apis"],
-          "skills": ["research_methods", "source_evaluation", "data_mining"]
-        },
-        "dataAnalysis": {
-          "level": "advanced",
-          "tools": ["analytics", "visualization", "statistics"],
-          "skills": ["pattern_recognition", "trend_analysis", "insights"]
-        },
-        "documentation": {
-          "level": "expert",
-          "tools": ["markdown", "reports", "presentations"],
-          "skills": ["technical_writing", "synthesis", "summarization"]
-        },
-        "knowledgeManagement": {
-          "level": "advanced",
-          "tools": ["knowledge_bases", "wikis", "databases"],
-          "skills": ["information_architecture", "taxonomy", "retrieval"]
-        }
-      },
-      "specializations": [
-        "academic_research",
-        "market_research",
-        "technology_research",
-        "competitive_analysis",
-        "literature_review"
-      ],
-      "workflowRoles": ["investigator", "analyst", "knowledge_curator"],
-      "preferredTopologies": ["mesh", "star"],
-      "resourceRequirements": {
-        "memory": "high",
-        "cpu": "medium",
-        "network": "high"
-      }
-    },
-    "analyst": {
-      "name": "Data Analyst",
-      "description": "Analyzes data and provides insights",
-      "capabilities": {
-        "dataAnalysis": {
-          "level": "expert",
-          "tools": ["pandas", "numpy", "sql", "r"],
-          "skills": ["statistics", "machine_learning", "visualization"]
-        },
-        "reportGeneration": {
-          "level": "advanced",
-          "tools": ["jupyter", "dashboards", "charts"],
-          "skills": ["storytelling", "presentation", "insights"]
-        },
-        "patternRecognition": {
-          "level": "expert",
-          "tools": ["ml_libraries", "algorithms"],
-          "skills": ["trend_analysis", "anomaly_detection", "prediction"]
-        },
-        "visualization": {
-          "level": "advanced",
-          "tools": ["plotly", "d3", "tableau"],
-          "skills": ["data_storytelling", "dashboard_design"]
-        }
-      },
-      "specializations": [
-        "statistical_analysis",
-        "machine_learning",
-        "business_intelligence",
-        "predictive_analytics",
-        "data_visualization"
-      ],
-      "workflowRoles": ["analyzer", "insight_provider", "decision_support"],
-      "preferredTopologies": ["hierarchical", "mesh"],
-      "resourceRequirements": {
-        "memory": "high",
-        "cpu": "high",
-        "network": "medium"
-      }
-    },
-    "deployer": {
-      "name": "Deployment Engineer",
-      "description": "Handles deployment and infrastructure management",
-      "capabilities": {
-        "deployment": {
-          "level": "expert",
-          "tools": ["docker", "kubernetes", "terraform"],
-          "skills": ["containerization", "orchestration", "infrastructure_as_code"]
-        },
-        "monitoring": {
-          "level": "advanced",
-          "tools": ["prometheus", "grafana", "elk_stack"],
-          "skills": ["observability", "alerting", "troubleshooting"]
-        },
-        "security": {
-          "level": "advanced",
-          "tools": ["security_scanners", "compliance_tools"],
-          "skills": ["hardening", "compliance", "vulnerability_management"]
-        },
-        "automation": {
-          "level": "expert",
-          "tools": ["ci_cd", "scripts", "pipelines"],
-          "skills": ["process_automation", "workflow_design"]
-        }
-      },
-      "specializations": [
-        "cloud_deployment",
-        "container_orchestration",
-        "infrastructure_automation",
-        "security_deployment",
-        "monitoring_setup"
-      ],
-      "workflowRoles": ["deployer", "infrastructure_manager", "reliability_engineer"],
-      "preferredTopologies": ["hierarchical", "ring"],
-      "resourceRequirements": {
-        "memory": "medium",
-        "cpu": "medium",
-        "network": "high"
-      }
-    },
-    "coordinator": {
-      "name": "Workflow Coordinator",
-      "description": "Coordinates team activities and manages workflows",
-      "capabilities": {
-        "projectManagement": {
-          "level": "expert",
-          "tools": ["workflow_engines", "task_managers"],
-          "skills": ["planning", "scheduling", "resource_allocation"]
-        },
-        "communication": {
-          "level": "expert",
-          "tools": ["chat", "notifications", "reports"],
-          "skills": ["stakeholder_management", "status_reporting"]
-        },
-        "riskManagement": {
-          "level": "advanced",
-          "tools": ["monitoring", "alerting"],
-          "skills": ["risk_assessment", "mitigation", "contingency_planning"]
-        },
-        "qualityAssurance": {
-          "level": "advanced",
-          "tools": ["metrics", "dashboards"],
-          "skills": ["process_improvement", "quality_gates"]
-        }
-      },
-      "specializations": [
-        "agile_coordination",
-        "release_management",
-        "stakeholder_communication",
-        "process_optimization"
-      ],
-      "workflowRoles": ["coordinator", "manager", "facilitator"],
-      "preferredTopologies": ["star", "hierarchical"],
-      "resourceRequirements": {
-        "memory": "low",
-        "cpu": "low",
-        "network": "medium"
-      }
-    },
-    "documenter": {
-      "name": "Documentation Specialist",
-      "description": "Creates and maintains technical documentation",
-      "capabilities": {
-        "technicalWriting": {
-          "level": "expert",
-          "tools": ["markdown", "wiki", "documentation_generators"],
-          "skills": ["technical_writing", "information_architecture", "content_strategy"]
-        },
-        "knowledgeManagement": {
-          "level": "advanced",
-          "tools": ["knowledge_bases", "content_management"],
-          "skills": ["information_organization", "searchability", "version_control"]
-        },
-        "visualization": {
-          "level": "intermediate",
-          "tools": ["diagrams", "flowcharts", "screenshots"],
-          "skills": ["visual_communication", "diagram_creation", "ui_documentation"]
-        },
-        "collaboration": {
-          "level": "advanced",
-          "tools": ["review_systems", "feedback_tools"],
-          "skills": ["stakeholder_communication", "content_review", "editing"]
-        }
-      },
-      "specializations": [
-        "api_documentation",
-        "user_guides",
-        "technical_specifications",
-        "process_documentation",
-        "knowledge_base_management"
-      ],
-      "workflowRoles": ["documenter", "knowledge_curator", "content_creator"],
-      "preferredTopologies": ["mesh", "star"],
-      "resourceRequirements": {
-        "memory": "medium",
-        "cpu": "low",
-        "network": "low"
-      }
-    },
-    "synthesizer": {
-      "name": "Information Synthesizer",
-      "description": "Synthesizes information from multiple sources into insights",
-      "capabilities": {
-        "informationSynthesis": {
-          "level": "expert",
-          "tools": ["analysis_tools", "aggregation_systems"],
-          "skills": ["pattern_recognition", "insight_generation", "knowledge_integration"]
-        },
-        "dataIntegration": {
-          "level": "advanced",
-          "tools": ["data_fusion", "correlation_analysis"],
-          "skills": ["cross_reference", "relationship_mapping", "trend_analysis"]
-        },
-        "reportGeneration": {
-          "level": "expert",
-          "tools": ["reporting_tools", "visualization"],
-          "skills": ["executive_summaries", "detailed_analysis", "actionable_insights"]
-        },
-        "qualityAssurance": {
-          "level": "advanced",
-          "tools": ["validation_tools", "fact_checking"],
-          "skills": ["accuracy_verification", "consistency_checking", "bias_detection"]
-        }
-      },
-      "specializations": [
-        "research_synthesis",
-        "competitive_analysis",
-        "market_intelligence",
-        "technical_integration",
-        "strategic_insights"
-      ],
-      "workflowRoles": ["synthesizer", "insight_generator", "knowledge_integrator"],
-      "preferredTopologies": ["mesh", "hierarchical"],
-      "resourceRequirements": {
-        "memory": "high",
-        "cpu": "medium",
-        "network": "medium"
-      }
-    },
-    "monitor": {
-      "name": "System Monitor",
-      "description": "Monitors system performance and health",
-      "capabilities": {
-        "systemMonitoring": {
-          "level": "expert",
-          "tools": ["monitoring_dashboards", "alerting_systems", "log_analysis"],
-          "skills": ["performance_tracking", "anomaly_detection", "trend_analysis"]
-        },
-        "alerting": {
-          "level": "expert",
-          "tools": ["notification_systems", "escalation_workflows"],
-          "skills": ["threshold_management", "alert_prioritization", "incident_response"]
-        },
-        "diagnostics": {
-          "level": "advanced",
-          "tools": ["diagnostic_tools", "profilers", "analyzers"],
-          "skills": ["root_cause_analysis", "performance_debugging", "system_optimization"]
-        },
-        "reporting": {
-          "level": "advanced",
-          "tools": ["reporting_platforms", "metrics_visualization"],
-          "skills": ["performance_reporting", "sla_tracking", "capacity_planning"]
-        }
-      },
-      "specializations": [
-        "application_monitoring",
-        "infrastructure_monitoring",
-        "security_monitoring",
-        "performance_optimization",
-        "incident_management"
-      ],
-      "workflowRoles": ["monitor", "observer", "alert_manager"],
-      "preferredTopologies": ["star", "hierarchical"],
-      "resourceRequirements": {
-        "memory": "medium",
-        "cpu": "medium",
-        "network": "high"
-      }
-    },
-    "security": {
-      "name": "Security Specialist",
-      "description": "Ensures security compliance and threat protection",
-      "capabilities": {
-        "securityAnalysis": {
-          "level": "expert",
-          "tools": ["security_scanners", "vulnerability_assessments", "penetration_testing"],
-          "skills": ["threat_modeling", "risk_assessment", "security_architecture"]
-        },
-        "compliance": {
-          "level": "advanced",
-          "tools": ["compliance_frameworks", "audit_tools"],
-          "skills": ["regulatory_compliance", "policy_enforcement", "audit_preparation"]
-        },
-        "incidentResponse": {
-          "level": "expert",
-          "tools": ["forensic_tools", "incident_management"],
-          "skills": ["threat_detection", "incident_containment", "recovery_procedures"]
-        },
-        "securityAutomation": {
-          "level": "advanced",
-          "tools": ["security_orchestration", "automated_scanning"],
-          "skills": ["security_automation", "policy_as_code", "continuous_monitoring"]
-        }
-      },
-      "specializations": [
-        "application_security",
-        "infrastructure_security",
-        "compliance_management",
-        "threat_intelligence",
-        "security_automation"
-      ],
-      "workflowRoles": ["security_guardian", "compliance_officer", "threat_hunter"],
-      "preferredTopologies": ["ring", "hierarchical"],
-      "resourceRequirements": {
-        "memory": "medium",
-        "cpu": "medium",
-        "network": "high"
-      }
-    }
-  },
-  "agentSelectionRules": {
-    "byFileType": {
-      "*.ts": ["coder", "reviewer", "tester"],
-      "*.js": ["coder", "reviewer", "tester"],
-      "*.py": ["coder", "analyst", "tester"],
-      "*.md": ["documenter", "reviewer"],
-      "*.json": ["analyst", "coder"],
-      "*.yml": ["deployer", "reviewer"],
-      "*.yaml": ["deployer", "reviewer"],
-      "Dockerfile": ["deployer", "security"],
-      "package.json": ["architect", "coder", "deployer"],
-      "*.test.*": ["tester", "reviewer"],
-      "*.spec.*": ["tester", "reviewer"]
-    },
-    "byProjectType": {
-      "web_application": ["architect", "coder", "tester", "deployer"],
-      "api_service": ["architect", "coder", "tester", "security"],
-      "data_analysis": ["researcher", "analyst", "documenter"],
-      "infrastructure": ["deployer", "security", "monitor"],
-      "documentation": ["documenter", "reviewer", "researcher"]
-    },
-    "byWorkflowPhase": {
-      "planning": ["architect", "coordinator"],
-      "implementation": ["coder", "tester"],
-      "testing": ["tester", "reviewer", "security"],
-      "deployment": ["deployer", "monitor", "security"],
-      "monitoring": ["monitor", "analyst"],
-      "maintenance": ["coder", "deployer", "monitor"]
-    }
-  },
-  "coordinationPatterns": {
-    "parallel": {
-      "description": "Agents work simultaneously on different aspects",
-      "suitableFor": ["implementation", "testing", "analysis"],
-      "topologies": ["mesh", "hierarchical"]
-    },
-    "sequential": {
-      "description": "Agents work in a defined order",
-      "suitableFor": ["deployment", "review", "planning"],
-      "topologies": ["ring", "hierarchical"]
-    },
-    "collaborative": {
-      "description": "Agents work together on shared tasks",
-      "suitableFor": ["research", "documentation", "problem_solving"],
-      "topologies": ["mesh", "star"]
-    },
-    "hierarchical": {
-      "description": "Agents work in a command structure",
-      "suitableFor": ["large_projects", "coordination", "management"],
-      "topologies": ["hierarchical", "star"]
-    }
-  },
-  "adaptiveRules": {
-    "projectSize": {
-      "small": {
-        "maxAgents": 3,
-        "preferredTopology": "mesh",
-        "strategy": "balanced"
-      },
-      "medium": {
-        "maxAgents": 6,
-        "preferredTopology": "hierarchical",
-        "strategy": "specialized"
-      },
-      "large": {
-        "maxAgents": 10,
-        "preferredTopology": "hierarchical",
-        "strategy": "adaptive"
-      }
-    },
-    "complexity": {
-      "low": {
-        "agentTypes": ["coder", "reviewer"],
-        "coordination": "simple"
-      },
-      "medium": {
-        "agentTypes": ["architect", "coder", "tester", "reviewer"],
-        "coordination": "moderate"
-      },
-      "high": {
-        "agentTypes": ["architect", "coder", "tester", "reviewer", "security", "coordinator"],
-        "coordination": "advanced"
-      }
-    },
-    "timeConstraints": {
-      "urgent": {
-        "parallelism": "maximum",
-        "quality": "fast",
-        "testing": "minimal"
-      },
-      "normal": {
-        "parallelism": "balanced",
-        "quality": "standard",
-        "testing": "comprehensive"
-      },
-      "thorough": {
-        "parallelism": "careful",
-        "quality": "high",
-        "testing": "exhaustive"
-      }
-    }
-  }
+	"version": "2.0.0",
+	"description": "Comprehensive agent capability definitions for the unified architecture",
+	"agentTypes": {
+		"architect": {
+			"name": "System Architect",
+			"description": "Designs system architecture and high-level structure",
+			"capabilities": {
+				"systemDesign": {
+					"level": "expert",
+					"tools": ["uml", "diagrams", "patterns"],
+					"skills": ["architecture_patterns", "scalability", "performance"]
+				},
+				"codeGeneration": {
+					"level": "intermediate",
+					"tools": ["templates", "scaffolding"],
+					"skills": ["boilerplate", "structure", "conventions"]
+				},
+				"documentation": {
+					"level": "advanced",
+					"tools": ["markdown", "diagrams"],
+					"skills": ["technical_writing", "specifications"]
+				},
+				"coordination": {
+					"level": "advanced",
+					"tools": ["workflow", "planning"],
+					"skills": ["project_management", "team_coordination"]
+				}
+			},
+			"specializations": [
+				"microservices",
+				"api_design",
+				"database_design",
+				"frontend_architecture",
+				"infrastructure"
+			],
+			"workflowRoles": ["planner", "coordinator", "reviewer"],
+			"preferredTopologies": ["hierarchical", "star"],
+			"resourceRequirements": {
+				"memory": "medium",
+				"cpu": "low",
+				"network": "low"
+			}
+		},
+		"coder": {
+			"name": "Code Developer",
+			"description": "Implements features and writes production code",
+			"capabilities": {
+				"codeGeneration": {
+					"level": "expert",
+					"tools": ["ide", "compilers", "debuggers"],
+					"skills": ["algorithms", "data_structures", "patterns"]
+				},
+				"testing": {
+					"level": "advanced",
+					"tools": ["unit_tests", "integration_tests"],
+					"skills": ["tdd", "test_automation"]
+				},
+				"debugging": {
+					"level": "expert",
+					"tools": ["debuggers", "profilers", "monitors"],
+					"skills": ["problem_solving", "performance_tuning"]
+				},
+				"refactoring": {
+					"level": "advanced",
+					"tools": ["ide", "analysis_tools"],
+					"skills": ["code_quality", "maintainability"]
+				}
+			},
+			"specializations": [
+				"frontend",
+				"backend",
+				"fullstack",
+				"mobile",
+				"devops",
+				"database"
+			],
+			"languages": {
+				"javascript": "expert",
+				"typescript": "expert",
+				"python": "advanced",
+				"java": "intermediate",
+				"go": "intermediate",
+				"rust": "beginner"
+			},
+			"workflowRoles": ["implementer", "contributor"],
+			"preferredTopologies": ["mesh", "hierarchical"],
+			"resourceRequirements": {
+				"memory": "high",
+				"cpu": "high",
+				"network": "medium"
+			}
+		},
+		"tester": {
+			"name": "Quality Assurance Engineer",
+			"description": "Ensures code quality through comprehensive testing",
+			"capabilities": {
+				"testGeneration": {
+					"level": "expert",
+					"tools": ["jest", "pytest", "selenium"],
+					"skills": ["test_design", "automation", "coverage"]
+				},
+				"qualityAssurance": {
+					"level": "expert",
+					"tools": ["linters", "analyzers", "metrics"],
+					"skills": ["code_review", "standards", "best_practices"]
+				},
+				"performanceTesting": {
+					"level": "advanced",
+					"tools": ["load_testing", "profilers"],
+					"skills": ["benchmarking", "optimization"]
+				},
+				"securityTesting": {
+					"level": "intermediate",
+					"tools": ["security_scanners", "penetration_testing"],
+					"skills": ["vulnerability_assessment", "compliance"]
+				}
+			},
+			"specializations": [
+				"unit_testing",
+				"integration_testing",
+				"e2e_testing",
+				"performance_testing",
+				"security_testing",
+				"accessibility_testing"
+			],
+			"workflowRoles": ["validator", "quality_gatekeeper"],
+			"preferredTopologies": ["ring", "mesh"],
+			"resourceRequirements": {
+				"memory": "medium",
+				"cpu": "medium",
+				"network": "medium"
+			}
+		},
+		"reviewer": {
+			"name": "Code Reviewer",
+			"description": "Reviews code for quality, security, and best practices",
+			"capabilities": {
+				"codeReview": {
+					"level": "expert",
+					"tools": ["git", "diff_tools", "review_platforms"],
+					"skills": ["pattern_recognition", "best_practices", "mentoring"]
+				},
+				"securityReview": {
+					"level": "advanced",
+					"tools": ["security_analyzers", "vulnerability_scanners"],
+					"skills": ["security_patterns", "threat_modeling"]
+				},
+				"performanceReview": {
+					"level": "advanced",
+					"tools": ["profilers", "analyzers"],
+					"skills": ["optimization", "scalability"]
+				},
+				"documentation": {
+					"level": "advanced",
+					"tools": ["markdown", "wiki"],
+					"skills": ["technical_writing", "knowledge_sharing"]
+				}
+			},
+			"specializations": [
+				"security_review",
+				"performance_review",
+				"architecture_review",
+				"accessibility_review"
+			],
+			"workflowRoles": ["reviewer", "mentor", "quality_gate"],
+			"preferredTopologies": ["ring", "star"],
+			"resourceRequirements": {
+				"memory": "medium",
+				"cpu": "low",
+				"network": "low"
+			}
+		},
+		"researcher": {
+			"name": "Research Specialist",
+			"description": "Conducts research and gathers information",
+			"capabilities": {
+				"informationGathering": {
+					"level": "expert",
+					"tools": ["search_engines", "databases", "apis"],
+					"skills": ["research_methods", "source_evaluation", "data_mining"]
+				},
+				"dataAnalysis": {
+					"level": "advanced",
+					"tools": ["analytics", "visualization", "statistics"],
+					"skills": ["pattern_recognition", "trend_analysis", "insights"]
+				},
+				"documentation": {
+					"level": "expert",
+					"tools": ["markdown", "reports", "presentations"],
+					"skills": ["technical_writing", "synthesis", "summarization"]
+				},
+				"knowledgeManagement": {
+					"level": "advanced",
+					"tools": ["knowledge_bases", "wikis", "databases"],
+					"skills": ["information_architecture", "taxonomy", "retrieval"]
+				}
+			},
+			"specializations": [
+				"academic_research",
+				"market_research",
+				"technology_research",
+				"competitive_analysis",
+				"literature_review"
+			],
+			"workflowRoles": ["investigator", "analyst", "knowledge_curator"],
+			"preferredTopologies": ["mesh", "star"],
+			"resourceRequirements": {
+				"memory": "high",
+				"cpu": "medium",
+				"network": "high"
+			}
+		},
+		"analyst": {
+			"name": "Data Analyst",
+			"description": "Analyzes data and provides insights",
+			"capabilities": {
+				"dataAnalysis": {
+					"level": "expert",
+					"tools": ["pandas", "numpy", "sql", "r"],
+					"skills": ["statistics", "machine_learning", "visualization"]
+				},
+				"reportGeneration": {
+					"level": "advanced",
+					"tools": ["jupyter", "dashboards", "charts"],
+					"skills": ["storytelling", "presentation", "insights"]
+				},
+				"patternRecognition": {
+					"level": "expert",
+					"tools": ["ml_libraries", "algorithms"],
+					"skills": ["trend_analysis", "anomaly_detection", "prediction"]
+				},
+				"visualization": {
+					"level": "advanced",
+					"tools": ["plotly", "d3", "tableau"],
+					"skills": ["data_storytelling", "dashboard_design"]
+				}
+			},
+			"specializations": [
+				"statistical_analysis",
+				"machine_learning",
+				"business_intelligence",
+				"predictive_analytics",
+				"data_visualization"
+			],
+			"workflowRoles": ["analyzer", "insight_provider", "decision_support"],
+			"preferredTopologies": ["hierarchical", "mesh"],
+			"resourceRequirements": {
+				"memory": "high",
+				"cpu": "high",
+				"network": "medium"
+			}
+		},
+		"deployer": {
+			"name": "Deployment Engineer",
+			"description": "Handles deployment and infrastructure management",
+			"capabilities": {
+				"deployment": {
+					"level": "expert",
+					"tools": ["docker", "kubernetes", "terraform"],
+					"skills": [
+						"containerization",
+						"orchestration",
+						"infrastructure_as_code"
+					]
+				},
+				"monitoring": {
+					"level": "advanced",
+					"tools": ["prometheus", "grafana", "elk_stack"],
+					"skills": ["observability", "alerting", "troubleshooting"]
+				},
+				"security": {
+					"level": "advanced",
+					"tools": ["security_scanners", "compliance_tools"],
+					"skills": ["hardening", "compliance", "vulnerability_management"]
+				},
+				"automation": {
+					"level": "expert",
+					"tools": ["ci_cd", "scripts", "pipelines"],
+					"skills": ["process_automation", "workflow_design"]
+				}
+			},
+			"specializations": [
+				"cloud_deployment",
+				"container_orchestration",
+				"infrastructure_automation",
+				"security_deployment",
+				"monitoring_setup"
+			],
+			"workflowRoles": [
+				"deployer",
+				"infrastructure_manager",
+				"reliability_engineer"
+			],
+			"preferredTopologies": ["hierarchical", "ring"],
+			"resourceRequirements": {
+				"memory": "medium",
+				"cpu": "medium",
+				"network": "high"
+			}
+		},
+		"coordinator": {
+			"name": "Workflow Coordinator",
+			"description": "Coordinates team activities and manages workflows",
+			"capabilities": {
+				"projectManagement": {
+					"level": "expert",
+					"tools": ["workflow_engines", "task_managers"],
+					"skills": ["planning", "scheduling", "resource_allocation"]
+				},
+				"communication": {
+					"level": "expert",
+					"tools": ["chat", "notifications", "reports"],
+					"skills": ["stakeholder_management", "status_reporting"]
+				},
+				"riskManagement": {
+					"level": "advanced",
+					"tools": ["monitoring", "alerting"],
+					"skills": ["risk_assessment", "mitigation", "contingency_planning"]
+				},
+				"qualityAssurance": {
+					"level": "advanced",
+					"tools": ["metrics", "dashboards"],
+					"skills": ["process_improvement", "quality_gates"]
+				}
+			},
+			"specializations": [
+				"agile_coordination",
+				"release_management",
+				"stakeholder_communication",
+				"process_optimization"
+			],
+			"workflowRoles": ["coordinator", "manager", "facilitator"],
+			"preferredTopologies": ["star", "hierarchical"],
+			"resourceRequirements": {
+				"memory": "low",
+				"cpu": "low",
+				"network": "medium"
+			}
+		},
+		"documenter": {
+			"name": "Documentation Specialist",
+			"description": "Creates and maintains technical documentation",
+			"capabilities": {
+				"technicalWriting": {
+					"level": "expert",
+					"tools": ["markdown", "wiki", "documentation_generators"],
+					"skills": [
+						"technical_writing",
+						"information_architecture",
+						"content_strategy"
+					]
+				},
+				"knowledgeManagement": {
+					"level": "advanced",
+					"tools": ["knowledge_bases", "content_management"],
+					"skills": [
+						"information_organization",
+						"searchability",
+						"version_control"
+					]
+				},
+				"visualization": {
+					"level": "intermediate",
+					"tools": ["diagrams", "flowcharts", "screenshots"],
+					"skills": [
+						"visual_communication",
+						"diagram_creation",
+						"ui_documentation"
+					]
+				},
+				"collaboration": {
+					"level": "advanced",
+					"tools": ["review_systems", "feedback_tools"],
+					"skills": ["stakeholder_communication", "content_review", "editing"]
+				}
+			},
+			"specializations": [
+				"api_documentation",
+				"user_guides",
+				"technical_specifications",
+				"process_documentation",
+				"knowledge_base_management"
+			],
+			"workflowRoles": ["documenter", "knowledge_curator", "content_creator"],
+			"preferredTopologies": ["mesh", "star"],
+			"resourceRequirements": {
+				"memory": "medium",
+				"cpu": "low",
+				"network": "low"
+			}
+		},
+		"synthesizer": {
+			"name": "Information Synthesizer",
+			"description": "Synthesizes information from multiple sources into insights",
+			"capabilities": {
+				"informationSynthesis": {
+					"level": "expert",
+					"tools": ["analysis_tools", "aggregation_systems"],
+					"skills": [
+						"pattern_recognition",
+						"insight_generation",
+						"knowledge_integration"
+					]
+				},
+				"dataIntegration": {
+					"level": "advanced",
+					"tools": ["data_fusion", "correlation_analysis"],
+					"skills": [
+						"cross_reference",
+						"relationship_mapping",
+						"trend_analysis"
+					]
+				},
+				"reportGeneration": {
+					"level": "expert",
+					"tools": ["reporting_tools", "visualization"],
+					"skills": [
+						"executive_summaries",
+						"detailed_analysis",
+						"actionable_insights"
+					]
+				},
+				"qualityAssurance": {
+					"level": "advanced",
+					"tools": ["validation_tools", "fact_checking"],
+					"skills": [
+						"accuracy_verification",
+						"consistency_checking",
+						"bias_detection"
+					]
+				}
+			},
+			"specializations": [
+				"research_synthesis",
+				"competitive_analysis",
+				"market_intelligence",
+				"technical_integration",
+				"strategic_insights"
+			],
+			"workflowRoles": [
+				"synthesizer",
+				"insight_generator",
+				"knowledge_integrator"
+			],
+			"preferredTopologies": ["mesh", "hierarchical"],
+			"resourceRequirements": {
+				"memory": "high",
+				"cpu": "medium",
+				"network": "medium"
+			}
+		},
+		"monitor": {
+			"name": "System Monitor",
+			"description": "Monitors system performance and health",
+			"capabilities": {
+				"systemMonitoring": {
+					"level": "expert",
+					"tools": [
+						"monitoring_dashboards",
+						"alerting_systems",
+						"log_analysis"
+					],
+					"skills": [
+						"performance_tracking",
+						"anomaly_detection",
+						"trend_analysis"
+					]
+				},
+				"alerting": {
+					"level": "expert",
+					"tools": ["notification_systems", "escalation_workflows"],
+					"skills": [
+						"threshold_management",
+						"alert_prioritization",
+						"incident_response"
+					]
+				},
+				"diagnostics": {
+					"level": "advanced",
+					"tools": ["diagnostic_tools", "profilers", "analyzers"],
+					"skills": [
+						"root_cause_analysis",
+						"performance_debugging",
+						"system_optimization"
+					]
+				},
+				"reporting": {
+					"level": "advanced",
+					"tools": ["reporting_platforms", "metrics_visualization"],
+					"skills": [
+						"performance_reporting",
+						"sla_tracking",
+						"capacity_planning"
+					]
+				}
+			},
+			"specializations": [
+				"application_monitoring",
+				"infrastructure_monitoring",
+				"security_monitoring",
+				"performance_optimization",
+				"incident_management"
+			],
+			"workflowRoles": ["monitor", "observer", "alert_manager"],
+			"preferredTopologies": ["star", "hierarchical"],
+			"resourceRequirements": {
+				"memory": "medium",
+				"cpu": "medium",
+				"network": "high"
+			}
+		},
+		"security": {
+			"name": "Security Specialist",
+			"description": "Ensures security compliance and threat protection",
+			"capabilities": {
+				"securityAnalysis": {
+					"level": "expert",
+					"tools": [
+						"security_scanners",
+						"vulnerability_assessments",
+						"penetration_testing"
+					],
+					"skills": [
+						"threat_modeling",
+						"risk_assessment",
+						"security_architecture"
+					]
+				},
+				"compliance": {
+					"level": "advanced",
+					"tools": ["compliance_frameworks", "audit_tools"],
+					"skills": [
+						"regulatory_compliance",
+						"policy_enforcement",
+						"audit_preparation"
+					]
+				},
+				"incidentResponse": {
+					"level": "expert",
+					"tools": ["forensic_tools", "incident_management"],
+					"skills": [
+						"threat_detection",
+						"incident_containment",
+						"recovery_procedures"
+					]
+				},
+				"securityAutomation": {
+					"level": "advanced",
+					"tools": ["security_orchestration", "automated_scanning"],
+					"skills": [
+						"security_automation",
+						"policy_as_code",
+						"continuous_monitoring"
+					]
+				}
+			},
+			"specializations": [
+				"application_security",
+				"infrastructure_security",
+				"compliance_management",
+				"threat_intelligence",
+				"security_automation"
+			],
+			"workflowRoles": [
+				"security_guardian",
+				"compliance_officer",
+				"threat_hunter"
+			],
+			"preferredTopologies": ["ring", "hierarchical"],
+			"resourceRequirements": {
+				"memory": "medium",
+				"cpu": "medium",
+				"network": "high"
+			}
+		}
+	},
+	"agentSelectionRules": {
+		"byFileType": {
+			"*.ts": ["coder", "reviewer", "tester"],
+			"*.js": ["coder", "reviewer", "tester"],
+			"*.py": ["coder", "analyst", "tester"],
+			"*.md": ["documenter", "reviewer"],
+			"*.json": ["analyst", "coder"],
+			"*.yml": ["deployer", "reviewer"],
+			"*.yaml": ["deployer", "reviewer"],
+			"Dockerfile": ["deployer", "security"],
+			"package.json": ["architect", "coder", "deployer"],
+			"*.test.*": ["tester", "reviewer"],
+			"*.spec.*": ["tester", "reviewer"]
+		},
+		"byProjectType": {
+			"web_application": ["architect", "coder", "tester", "deployer"],
+			"api_service": ["architect", "coder", "tester", "security"],
+			"data_analysis": ["researcher", "analyst", "documenter"],
+			"infrastructure": ["deployer", "security", "monitor"],
+			"documentation": ["documenter", "reviewer", "researcher"]
+		},
+		"byWorkflowPhase": {
+			"planning": ["architect", "coordinator"],
+			"implementation": ["coder", "tester"],
+			"testing": ["tester", "reviewer", "security"],
+			"deployment": ["deployer", "monitor", "security"],
+			"monitoring": ["monitor", "analyst"],
+			"maintenance": ["coder", "deployer", "monitor"]
+		}
+	},
+	"coordinationPatterns": {
+		"parallel": {
+			"description": "Agents work simultaneously on different aspects",
+			"suitableFor": ["implementation", "testing", "analysis"],
+			"topologies": ["mesh", "hierarchical"]
+		},
+		"sequential": {
+			"description": "Agents work in a defined order",
+			"suitableFor": ["deployment", "review", "planning"],
+			"topologies": ["ring", "hierarchical"]
+		},
+		"collaborative": {
+			"description": "Agents work together on shared tasks",
+			"suitableFor": ["research", "documentation", "problem_solving"],
+			"topologies": ["mesh", "star"]
+		},
+		"hierarchical": {
+			"description": "Agents work in a command structure",
+			"suitableFor": ["large_projects", "coordination", "management"],
+			"topologies": ["hierarchical", "star"]
+		}
+	},
+	"adaptiveRules": {
+		"projectSize": {
+			"small": {
+				"maxAgents": 3,
+				"preferredTopology": "mesh",
+				"strategy": "balanced"
+			},
+			"medium": {
+				"maxAgents": 6,
+				"preferredTopology": "hierarchical",
+				"strategy": "specialized"
+			},
+			"large": {
+				"maxAgents": 10,
+				"preferredTopology": "hierarchical",
+				"strategy": "adaptive"
+			}
+		},
+		"complexity": {
+			"low": {
+				"agentTypes": ["coder", "reviewer"],
+				"coordination": "simple"
+			},
+			"medium": {
+				"agentTypes": ["architect", "coder", "tester", "reviewer"],
+				"coordination": "moderate"
+			},
+			"high": {
+				"agentTypes": [
+					"architect",
+					"coder",
+					"tester",
+					"reviewer",
+					"security",
+					"coordinator"
+				],
+				"coordination": "advanced"
+			}
+		},
+		"timeConstraints": {
+			"urgent": {
+				"parallelism": "maximum",
+				"quality": "fast",
+				"testing": "minimal"
+			},
+			"normal": {
+				"parallelism": "balanced",
+				"quality": "standard",
+				"testing": "comprehensive"
+			},
+			"thorough": {
+				"parallelism": "careful",
+				"quality": "high",
+				"testing": "exhaustive"
+			}
+		}
+	}
 }

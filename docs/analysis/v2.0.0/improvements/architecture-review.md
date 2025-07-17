@@ -86,7 +86,7 @@ interface IClaudeFlowCore {
 class ClaudeFlowKernel {
   private plugins = new Map<string, IClaudeFlowPlugin>();
   private services = new Map<string, unknown>();
-  
+
   async loadPlugin(plugin: IClaudeFlowPlugin): Promise<void> {
     await this.validateDependencies(plugin);
     await plugin.initialize(this.getCoreAPI());
@@ -115,11 +115,11 @@ class DistributedOrchestrator {
     private registry: IServiceRegistry,
     private loadBalancer: ILoadBalancer
   ) {}
-  
+
   async delegateTask(task: Task): Promise<void> {
-    const instances = await this.registry.discover({ 
+    const instances = await this.registry.discover({
       type: 'worker',
-      capabilities: task.requirements 
+      capabilities: task.requirements
     });
     const instance = await this.loadBalancer.selectInstance('worker');
     await this.sendTask(instance, task);
@@ -174,12 +174,12 @@ interface ISwarmAdapter {
 // Pluggable implementation
 class RuvSwarmAdapter implements ISwarmAdapter {
   private client?: RuvSwarmClient;
-  
+
   async connect(config: SwarmConfig): Promise<void> {
     this.client = await this.createClient(config);
     await this.validateConnection();
   }
-  
+
   // Graceful degradation if ruv-swarm unavailable
   async createSwarm(topology: Topology): Promise<ISwarm> {
     if (!this.client) {
@@ -203,11 +203,11 @@ class MCPGateway implements IMCPGateway {
   private transports = new Map<string, IMCPTransport>();
   private router: IMCPRouter;
   private middleware: IMCPMiddleware[] = [];
-  
+
   constructor() {
     this.setupDefaultMiddleware();
   }
-  
+
   private setupDefaultMiddleware(): void {
     this.use(new AuthenticationMiddleware());
     this.use(new RateLimitMiddleware());
@@ -231,14 +231,14 @@ interface IActor {
 class AgentActor implements IActor {
   private mailbox = new PriorityQueue<Message>();
   private processing = false;
-  
+
   async receive(message: Message): Promise<void> {
     this.mailbox.enqueue(message);
     if (!this.processing) {
       await this.processMessages();
     }
   }
-  
+
   private async processMessages(): Promise<void> {
     this.processing = true;
     while (!this.mailbox.isEmpty()) {
@@ -265,10 +265,10 @@ class RedisStateManager implements IDistributedState {
     private localCache: LRUCache,
     private changeStream: ChangeStream
   ) {}
-  
+
   async get<T>(key: string): Promise<T | null> {
     // L1 cache -> L2 cache -> Source
-    return this.localCache.get(key) || 
+    return this.localCache.get(key) ||
            await this.redis.get(key);
   }
 }
@@ -287,7 +287,7 @@ interface ITracer {
 
 class DistributedTracer implements ITracer {
   constructor(private tracer: Tracer) {}
-  
+
   @Trace()
   async executeTask(task: Task): Promise<void> {
     const span = this.startSpan('task.execute');
@@ -296,7 +296,7 @@ class DistributedTracer implements ITracer {
       'task.type': task.type,
       'agent.id': task.assignedAgent
     });
-    
+
     try {
       await this.performTask(task);
       span.setStatus({ code: SpanStatusCode.OK });
@@ -322,11 +322,11 @@ interface IMetricsCollector {
 
 class MetricsRegistry implements IMetricsCollector {
   private metrics = new Map<string, IMetric>();
-  
+
   counter(name: string, labels?: Labels): ICounter {
     return this.getOrCreate(name, () => new Counter(name, labels));
   }
-  
+
   // Export for Prometheus scraping
   async export(): Promise<string> {
     const lines: string[] = [];
@@ -351,20 +351,20 @@ interface ISecurityContext {
 
 class ZeroTrustGateway {
   constructor(private security: ISecurityContext) {}
-  
+
   async handleRequest(request: Request): Promise<Response> {
     // Authenticate
     const principal = await this.security.authenticate(
       this.extractCredentials(request)
     );
-    
+
     // Authorize
     const authorized = await this.security.authorize(
       principal,
       this.extractResource(request),
       this.extractAction(request)
     );
-    
+
     if (!authorized) {
       await this.security.audit({
         type: 'authorization.denied',
@@ -373,7 +373,7 @@ class ZeroTrustGateway {
       });
       throw new UnauthorizedError();
     }
-    
+
     // Process with security context
     return this.processWithContext(request, principal);
   }

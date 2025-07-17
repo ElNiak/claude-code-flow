@@ -13,24 +13,24 @@ from ..output.sqlite_manager import SQLiteManager
 
 class BenchmarkEngine:
     """Main engine for running swarm benchmarks."""
-    
+
     def __init__(self, config: Optional[BenchmarkConfig] = None):
         """Initialize the benchmark engine."""
         self.config = config or BenchmarkConfig()
         self.status = "READY"
         self.task_queue = []
         self.current_benchmark: Optional[Benchmark] = None
-    
+
     def submit_task(self, task: Task) -> None:
         """Submit a task to the benchmark queue."""
         self.task_queue.append(task)
-    
+
     async def run_benchmark(self, objective: str) -> Dict[str, Any]:
         """Run a complete benchmark for the given objective.
-        
+
         Args:
             objective: The main objective for the benchmark
-            
+
         Returns:
             Benchmark results dictionary
         """
@@ -43,7 +43,7 @@ class BenchmarkEngine:
             timeout=self.config.task_timeout,
             max_retries=self.config.max_retries
         )
-        
+
         # Create benchmark
         benchmark = Benchmark(
             name=self.config.name,
@@ -53,22 +53,22 @@ class BenchmarkEngine:
         benchmark.add_task(main_task)
         benchmark.status = TaskStatus.RUNNING
         benchmark.started_at = datetime.now()
-        
+
         self.current_benchmark = benchmark
-        
+
         try:
             # Execute the task using the specified strategy
             strategy = create_strategy(self.config.strategy.value.lower())
             result = await strategy.execute(main_task)
-            
+
             # Add result to benchmark
             benchmark.add_result(result)
             benchmark.status = TaskStatus.COMPLETED
             benchmark.completed_at = datetime.now()
-            
+
             # Save results
             await self._save_results(benchmark)
-            
+
             return {
                 "benchmark_id": benchmark.id,
                 "status": "success",
@@ -76,23 +76,23 @@ class BenchmarkEngine:
                 "duration": benchmark.duration(),
                 "results": [self._result_to_dict(r) for r in benchmark.results]
             }
-            
+
         except Exception as e:
             benchmark.status = TaskStatus.FAILED
             benchmark.completed_at = datetime.now()
             benchmark.error_log.append(str(e))
-            
+
             return {
                 "benchmark_id": benchmark.id,
                 "status": "failed",
                 "error": str(e),
                 "duration": benchmark.duration()
             }
-    
+
     async def execute_batch(self, tasks: List[Task]) -> List[Result]:
         """Execute a batch of tasks."""
         results = []
-        
+
         for task in tasks:
             try:
                 strategy = create_strategy(task.strategy.value.lower() if hasattr(task.strategy, 'value') else task.strategy)
@@ -108,14 +108,14 @@ class BenchmarkEngine:
                     errors=[str(e)]
                 )
                 results.append(error_result)
-        
+
         return results
-    
+
     async def _save_results(self, benchmark: Benchmark) -> None:
         """Save benchmark results to configured output formats."""
         output_dir = Path(self.config.output_directory)
         output_dir.mkdir(exist_ok=True)
-        
+
         for format_type in self.config.output_formats:
             if format_type == "json":
                 writer = JSONWriter()
@@ -123,7 +123,7 @@ class BenchmarkEngine:
             elif format_type == "sqlite":
                 manager = SQLiteManager()
                 await manager.save_benchmark(benchmark, output_dir)
-    
+
     def _result_to_dict(self, result: Result) -> Dict[str, Any]:
         """Convert result to dictionary for JSON serialization."""
         return {

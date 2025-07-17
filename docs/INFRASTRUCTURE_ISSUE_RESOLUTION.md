@@ -96,7 +96,7 @@ claude-flow mcp <subcommand> [options]
 Available subcommands:
   status                           # Show MCP server status
   start [--port <port>]            # Start MCP server
-  stop                             # Stop MCP server  
+  stop                             # Stop MCP server
   tools [--verbose]                # List available tools
   auth <setup|status|rotate>       # Manage authentication
   config                           # Show configuration
@@ -134,7 +134,7 @@ Available subcommands:
 
 ### v2.0.0 Improvements:
 - ✅ Complete command namespace reorganization
-- ✅ Eliminated all command path conflicts  
+- ✅ Eliminated all command path conflicts
 - ✅ Enhanced help and documentation system
 - ✅ Backward compatibility with migration warnings
 - ✅ Clear error messages for deprecated commands
@@ -188,7 +188,7 @@ sudo ./claude-flow mcp start --port 80
 # Generate default configuration
 ./claude-flow config generate
 
-# Validate current configuration  
+# Validate current configuration
 ./claude-flow config validate
 
 # Show all configuration options

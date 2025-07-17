@@ -8,12 +8,12 @@ class TestUserModel:
         assert user.username == "testuser"
         assert user.email == "test@example.com"
         assert user.id is None  # Not saved yet
-    
+
     def test_user_validation(self):
         """Test user validation rules"""
         with pytest.raises(ValueError):
             User(username="", email="invalid-email")
-    
+
     def test_user_serialization(self):
         """Test user to dict conversion"""
         user = User(username="testuser", email="test@example.com")

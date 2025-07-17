@@ -46,7 +46,7 @@ USAGE:
 
 INSTALLATION & SETUP:
   npx claude-flow@latest init --sparc  # Initialize SPARC development environment
-  
+
   The --sparc flag creates:
   • .roomodes file with 17 pre-configured SPARC modes
   • CLAUDE.md for project instructions

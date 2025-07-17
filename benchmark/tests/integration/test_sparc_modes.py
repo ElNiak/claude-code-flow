@@ -28,7 +28,7 @@ class SPARCTestCase:
     expected_outputs: List[str]  # Keywords to check in output
     performance_thresholds: Dict[str, float]  # Max execution times
     special_flags: List[str] = None
-    
+
     def __post_init__(self):
         if self.special_flags is None:
             self.special_flags = []
@@ -47,7 +47,7 @@ class SPARCTestResult:
     memory_usage: Optional[float] = None
     output_size: int = 0
     timestamp: str = ""
-    
+
     def __post_init__(self):
         self.timestamp = datetime.now().isoformat()
         self.output_size = len(self.stdout) + len(self.stderr)
@@ -55,7 +55,7 @@ class SPARCTestResult:
 
 class TestSPARCModes:
     """Comprehensive test suite for all SPARC modes"""
-    
+
     # Define all 17 SPARC modes with test cases
     SPARC_MODES = [
         # Core Orchestration Modes
@@ -103,7 +103,7 @@ class TestSPARCModes:
             expected_outputs=["batch", "parallel", "execution", "concurrent"],
             performance_thresholds={"max_duration": 45.0, "avg_duration": 30.0}
         ),
-        
+
         # Development Modes
         SPARCTestCase(
             mode="coder",
@@ -149,7 +149,7 @@ class TestSPARCModes:
             expected_outputs=["test", "assert", "describe", "coverage"],
             performance_thresholds={"max_duration": 35.0, "avg_duration": 25.0}
         ),
-        
+
         # Analysis and Research Modes
         SPARCTestCase(
             mode="researcher",
@@ -184,7 +184,7 @@ class TestSPARCModes:
             expected_outputs=["optimization", "performance", "improved", "efficiency"],
             performance_thresholds={"max_duration": 45.0, "avg_duration": 30.0}
         ),
-        
+
         # Creative and Support Modes
         SPARCTestCase(
             mode="designer",
@@ -253,20 +253,20 @@ class TestSPARCModes:
             performance_thresholds={"max_duration": 35.0, "avg_duration": 25.0}
         )
     ]
-    
+
     def __init__(self):
         """Initialize test suite"""
         self.claude_flow_path = Path(__file__).parent.parent.parent.parent / "claude-flow"
         self.results: List[SPARCTestResult] = []
         self.temp_dirs: List[Path] = []
-        
+
     def setup_method(self):
         """Setup for each test method"""
         # Create temporary directory for test outputs
         self.test_dir = Path(tempfile.mkdtemp(prefix="sparc_test_"))
         self.temp_dirs.append(self.test_dir)
         os.chdir(self.test_dir)
-        
+
     def teardown_method(self):
         """Cleanup after each test method"""
         # Clean up temporary directories
@@ -274,13 +274,13 @@ class TestSPARCModes:
             if temp_dir.exists():
                 shutil.rmtree(temp_dir)
         self.temp_dirs.clear()
-        
-    def execute_sparc_command(self, mode: str, prompt: str, 
+
+    def execute_sparc_command(self, mode: str, prompt: str,
                             special_flags: List[str] = None) -> SPARCTestResult:
         """Execute a single SPARC command and return results"""
         if special_flags is None:
             special_flags = []
-            
+
         command = [
             str(self.claude_flow_path),
             "sparc",
@@ -288,9 +288,9 @@ class TestSPARCModes:
             prompt,
             "--non-interactive"
         ] + special_flags
-        
+
         start_time = time.time()
-        
+
         try:
             result = subprocess.run(
                 command,
@@ -299,9 +299,9 @@ class TestSPARCModes:
                 timeout=60,  # 60 second timeout
                 env={**os.environ, "CLAUDE_FLOW_NON_INTERACTIVE": "true"}
             )
-            
+
             duration = time.time() - start_time
-            
+
             return SPARCTestResult(
                 mode=mode,
                 prompt=prompt,
@@ -311,7 +311,7 @@ class TestSPARCModes:
                 stderr=result.stderr,
                 return_code=result.returncode
             )
-            
+
         except subprocess.TimeoutExpired:
             return SPARCTestResult(
                 mode=mode,
@@ -332,12 +332,12 @@ class TestSPARCModes:
                 stderr=str(e),
                 return_code=-1
             )
-    
+
     @pytest.mark.parametrize("test_case", SPARC_MODES)
     def test_sparc_mode_execution(self, test_case: SPARCTestCase):
         """Test individual SPARC mode execution"""
         mode_results = []
-        
+
         for prompt in test_case.test_prompts:
             result = self.execute_sparc_command(
                 mode=test_case.mode,
@@ -346,76 +346,76 @@ class TestSPARCModes:
             )
             mode_results.append(result)
             self.results.append(result)
-            
+
             # Basic assertions
             assert result.return_code != -1, f"Command execution failed for {test_case.mode}"
-            
+
             # Check for expected output keywords (at least one should be present)
             output_text = (result.stdout + result.stderr).lower()
             keyword_found = any(keyword in output_text for keyword in test_case.expected_outputs)
             assert keyword_found, f"Expected keywords not found in {test_case.mode} output"
-        
+
         # Performance assertions
         durations = [r.duration for r in mode_results]
         avg_duration = statistics.mean(durations)
         max_duration = max(durations)
-        
+
         assert max_duration <= test_case.performance_thresholds["max_duration"], \
             f"{test_case.mode} exceeded max duration threshold"
         assert avg_duration <= test_case.performance_thresholds["avg_duration"], \
             f"{test_case.mode} exceeded average duration threshold"
-    
+
     @pytest.mark.integration
     def test_all_modes_availability(self):
         """Test that all SPARC modes are available"""
         command = [str(self.claude_flow_path), "sparc", "list", "--non-interactive"]
-        
+
         result = subprocess.run(
             command,
             capture_output=True,
             text=True,
             timeout=30
         )
-        
+
         assert result.returncode == 0, "Failed to list SPARC modes"
-        
+
         output = result.stdout.lower()
         for test_case in self.SPARC_MODES:
             assert test_case.mode in output, f"Mode {test_case.mode} not found in list"
-    
+
     @pytest.mark.performance
     def test_sparc_mode_performance_comparison(self):
         """Compare performance across all SPARC modes"""
         performance_data = {}
-        
+
         # Run a standard prompt across all modes
         standard_prompt = "Create a simple example demonstrating your capabilities"
-        
+
         for test_case in self.SPARC_MODES:
             result = self.execute_sparc_command(
                 mode=test_case.mode,
                 prompt=standard_prompt
             )
-            
+
             performance_data[test_case.mode] = {
                 "duration": result.duration,
                 "success": result.success,
                 "output_size": result.output_size
             }
-        
+
         # Generate performance report
         self._generate_performance_report(performance_data)
-    
+
     @pytest.mark.stress
     def test_sparc_mode_concurrent_execution(self):
         """Test concurrent execution of multiple SPARC modes"""
         import concurrent.futures
-        
+
         test_cases = self.SPARC_MODES[:5]  # Test first 5 modes concurrently
-        
+
         with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
             futures = []
-            
+
             for test_case in test_cases:
                 future = executor.submit(
                     self.execute_sparc_command,
@@ -423,12 +423,12 @@ class TestSPARCModes:
                     test_case.test_prompts[0]
                 )
                 futures.append((test_case.mode, future))
-            
+
             for mode, future in futures:
                 result = future.result(timeout=90)
                 assert result.success or result.return_code == 0, \
                     f"Concurrent execution failed for {mode}"
-    
+
     def _generate_performance_report(self, performance_data: Dict[str, Any]):
         """Generate detailed performance report"""
         report = {
@@ -443,19 +443,19 @@ class TestSPARCModes:
                 "slowest_mode": max(performance_data.items(), key=lambda x: x[1]["duration"])[0]
             }
         }
-        
+
         # Save report
         report_path = Path(__file__).parent / "sparc_performance_report.json"
         with open(report_path, "w") as f:
             json.dump(report, f, indent=2)
-        
+
         return report
-    
+
     @pytest.fixture(scope="class")
     def benchmark_results(self):
         """Fixture to collect and save all benchmark results"""
         yield
-        
+
         # Save all results after tests complete
         if self.results:
             results_path = Path(__file__).parent / "sparc_test_results.json"

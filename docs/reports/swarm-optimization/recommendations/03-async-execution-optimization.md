@@ -11,16 +11,16 @@ Converting from synchronous to asynchronous execution is the single most impactf
 // PROBLEM: Each API call blocks for 10-15 seconds
 async executeTask(task: Task): Promise<Result> {
   console.log(`Starting task ${task.id}`);
-  
+
   // BLOCKING: Single connection, no pooling
   const result = await this.claudeAPI.complete({
     prompt: task.prompt,
     model: task.model
   });
-  
+
   // BLOCKING: Synchronous file write
   fs.writeFileSync(`results/${task.id}.json`, JSON.stringify(result));
-  
+
   return result;
 }
 ```
@@ -57,7 +57,7 @@ import { Pool } from 'generic-pool';
 
 class ClaudeConnectionPool {
   private pool: Pool<ClaudeConnection>;
-  
+
   constructor(config: PoolConfig) {
     this.pool = createPool({
       create: async () => {
@@ -75,7 +75,7 @@ class ClaudeConnectionPool {
       evictionRunIntervalMillis: 10000
     });
   }
-  
+
   async execute<T>(fn: (conn: ClaudeConnection) => Promise<T>): Promise<T> {
     const conn = await this.pool.acquire();
     try {
@@ -84,7 +84,7 @@ class ClaudeConnectionPool {
       await this.pool.release(conn);
     }
   }
-  
+
   async drain() {
     await this.pool.drain();
     await this.pool.clear();
@@ -101,13 +101,13 @@ import { createWriteStream } from 'fs';
 
 class AsyncFileManager {
   private writeQueue = new PQueue({ concurrency: 10 });
-  
+
   async writeResult(taskId: string, result: any): Promise<void> {
     // Non-blocking write with queuing
     return this.writeQueue.add(async () => {
       const path = `results/${taskId}.json`;
       const data = JSON.stringify(result, null, 2);
-      
+
       // Use streaming for large results
       if (data.length > 1024 * 1024) { // > 1MB
         const stream = createWriteStream(path);
@@ -121,7 +121,7 @@ class AsyncFileManager {
       }
     });
   }
-  
+
   async ensureDirectories(): Promise<void> {
     const dirs = ['results', 'logs', 'cache'];
     await Promise.all(
@@ -138,7 +138,7 @@ class ConcurrentExecutor {
   private connectionPool: ClaudeConnectionPool;
   private fileManager: AsyncFileManager;
   private concurrencyLimit = 10;
-  
+
   async executeTasks(tasks: Task[]): Promise<Result[]> {
     // Use p-map for controlled concurrency
     const results = await pMap(
@@ -146,24 +146,24 @@ class ConcurrentExecutor {
       async (task) => this.executeTask(task),
       { concurrency: this.concurrencyLimit }
     );
-    
+
     return results;
   }
-  
+
   private async executeTask(task: Task): Promise<Result> {
     // Parallel execution of API call and file prep
     const [result] = await Promise.all([
       this.callClaudeAPI(task),
       this.fileManager.ensureDirectories()
     ]);
-    
+
     // Non-blocking result storage
     this.fileManager.writeResult(task.id, result)
       .catch(err => console.error(`Failed to write result: ${err}`));
-    
+
     return result;
   }
-  
+
   private async callClaudeAPI(task: Task): Promise<Result> {
     return this.connectionPool.execute(async (conn) => {
       const result = await conn.complete({
@@ -172,7 +172,7 @@ class ConcurrentExecutor {
         temperature: task.temperature || 0.7,
         maxTokens: task.maxTokens || 1000
       });
-      
+
       return {
         taskId: task.id,
         output: result.completion,
@@ -192,11 +192,11 @@ class BatchedExecutor {
   private batchTimer: NodeJS.Timeout | null = null;
   private batchSize = 5;
   private batchDelay = 100; // ms
-  
+
   async addTask(task: Task): Promise<Result> {
     return new Promise((resolve, reject) => {
       this.batchQueue.push({ task, resolve, reject });
-      
+
       if (this.batchQueue.length >= this.batchSize) {
         this.processBatch();
       } else if (!this.batchTimer) {
@@ -204,22 +204,22 @@ class BatchedExecutor {
       }
     });
   }
-  
+
   private async processBatch() {
     if (this.batchTimer) {
       clearTimeout(this.batchTimer);
       this.batchTimer = null;
     }
-    
+
     const batch = this.batchQueue.splice(0, this.batchSize);
     if (batch.length === 0) return;
-    
+
     try {
       // Process batch in parallel
       const results = await Promise.all(
         batch.map(({ task }) => this.executeTask(task))
       );
-      
+
       // Resolve all promises
       batch.forEach(({ resolve }, index) => {
         resolve(results[index]);
@@ -241,13 +241,13 @@ class StreamingExecutor {
   ): AsyncIterableIterator<Result> {
     const reader = taskStream.getReader();
     const executor = new ConcurrentExecutor();
-    
+
     async function* processStream() {
       try {
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
-          
+
           // Process task and yield result immediately
           const result = await executor.executeTask(value);
           yield result;
@@ -256,7 +256,7 @@ class StreamingExecutor {
         reader.releaseLock();
       }
     }
-    
+
     return processStream();
   }
 }
@@ -274,27 +274,27 @@ class PerformanceMonitor {
     connectionPoolSize: new Gauge(),
     queueLength: new Gauge()
   };
-  
+
   async trackExecution<T>(
     name: string,
     fn: () => Promise<T>
   ): Promise<T> {
     const start = performance.now();
     this.metrics.concurrentTasks.inc();
-    
+
     try {
       const result = await fn();
       const duration = performance.now() - start;
-      
+
       this.metrics[`${name}Duration`]?.observe(duration);
       this.metrics.taskExecutionTime.observe(duration);
-      
+
       return result;
     } finally {
       this.metrics.concurrentTasks.dec();
     }
   }
-  
+
   getMetrics() {
     return {
       avgApiCallTime: this.metrics.apiCallDuration.mean(),
@@ -372,19 +372,19 @@ describe('Async Execution Performance', () => {
   it('should handle 100 concurrent tasks', async () => {
     const tasks = generateTasks(100);
     const executor = new ConcurrentExecutor();
-    
+
     const start = Date.now();
     const results = await executor.executeTasks(tasks);
     const duration = Date.now() - start;
-    
+
     expect(results).toHaveLength(100);
     expect(duration).toBeLessThan(30000); // 30s for 100 tasks
   });
-  
+
   it('should maintain connection pool health', async () => {
     const pool = new ClaudeConnectionPool(config);
     const metrics = [];
-    
+
     // Simulate load
     for (let i = 0; i < 1000; i++) {
       await pool.execute(async (conn) => {
@@ -392,7 +392,7 @@ describe('Async Execution Performance', () => {
         await conn.complete({ prompt: 'test' });
       });
     }
-    
+
     // Verify pool stability
     const avgConnections = average(metrics.map(m => m.size));
     expect(avgConnections).toBeGreaterThan(2);

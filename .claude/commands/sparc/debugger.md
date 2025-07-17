@@ -37,8 +37,8 @@ TodoWrite([
     priority: "high",
     mode: "debugger",
     batchOptimized: true,
-    
-    
+
+
     tools: ["Read","Edit","Bash","Grep","TodoWrite","Memory"]
   }
 ]);
@@ -47,7 +47,7 @@ TodoWrite([
 Task("Debugger Agent", "Execute specialized debugger task", {
   mode: "debugger",
   batchOptimized: true,
-  
+
   memoryIntegration: true
 });
 ```

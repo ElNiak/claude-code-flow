@@ -151,10 +151,10 @@ optimize_all() {
   optimize_styles &
   optimize_scripts &
   optimize_fonts &
-  
+
   # Wait for all to complete
   wait
-  
+
   # Generate optimization report
   generate_optimization_report
 }
@@ -166,7 +166,7 @@ optimize_all() {
 # Run tests for refactored modules in parallel
 test_refactored_modules() {
   local modules=("auth" "user" "dashboard" "api" "utils")
-  
+
   printf '%s\n' "${modules[@]}" | \
     parallel --jobs 5 'npm test -- --testPathPattern={}'
 }

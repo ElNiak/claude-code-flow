@@ -2,9 +2,8 @@
  * Integration tests for YAML and JSON workflow format support
  */
 
-import { describe, it, beforeEach, afterEach, expect } from "../test.utils.ts";
-import { describe, it, beforeEach, afterEach, expect } from "../test.utils.ts";
 import { WorkflowEngine } from '../../package/src/workflow/engine.ts';
+import { afterEach, afterEach, beforeEach, beforeEach, describe, describe, expect, expect, it, it } from "../test.utils.ts";
 
 describe('Workflow Format Integration Tests', () => {
   let engine: WorkflowEngine;
@@ -64,7 +63,7 @@ describe('Workflow Format Integration Tests', () => {
       };
 
       await Deno.writeTextFile(workflowPath, JSON.stringify(workflow, null, 2));
-      
+
       const loadedWorkflow = await engine.loadWorkflow(workflowPath);
       expect(loadedWorkflow.name).toBe('Basic JSON Workflow');
       expect(loadedWorkflow.tasks.length).toBe(3);
@@ -166,7 +165,7 @@ describe('Workflow Format Integration Tests', () => {
       };
 
       await Deno.writeTextFile(workflowPath, JSON.stringify(workflow, null, 2));
-      
+
       const loadedWorkflow = await engine.loadWorkflow(workflowPath);
       expect(loadedWorkflow.name).toBe('Complex JSON Workflow');
       expect(loadedWorkflow.agents!.length).toBe(2);
@@ -200,13 +199,13 @@ tasks:
       env: "\${environment}"
       timeout: "\${timeout}"
       debug: "\${debug}"
-    
+
   - id: "execute"
     type: "execution"
     description: "Execute main logic"
     depends: ["setup"]
     timeout: 60000
-    
+
   - id: "cleanup"
     type: "cleanup"
     description: "Clean up resources"
@@ -219,7 +218,7 @@ settings:
 `;
 
       await Deno.writeTextFile(workflowPath, yamlContent);
-      
+
       const loadedWorkflow = await engine.loadWorkflow(workflowPath);
       expect(loadedWorkflow.name).toBe('Basic YAML Workflow');
       expect(loadedWorkflow.tasks.length).toBe(3);
@@ -266,14 +265,14 @@ agents:
     resources:
       memory: "2GB"
       cpu: "1 core"
-    
+
   - id: "worker-1"
     type: "worker"
     name: "Primary Worker"
     config:
       specialization: "data-processing"
       timeout: 120
-    
+
   - id: "worker-2"
     type: "worker"
     name: "Secondary Worker"
@@ -285,7 +284,7 @@ conditions:
     expression: "variables.enable_parallel === true"
     type: "javascript"
     description: "Check if parallel execution is enabled"
-    
+
   - id: "sufficient-workers"
     expression: "variables.max_workers >= 2"
     type: "javascript"
@@ -315,7 +314,7 @@ tasks:
     retries: 2
     priority: 1
     tags: ["setup", "critical"]
-    
+
   - id: "parallel-task-1"
     name: "Parallel Processing Task 1"
     type: "processing"
@@ -329,7 +328,7 @@ tasks:
     parallel: true
     timeout: 120000
     retries: 1
-    
+
   - id: "parallel-task-2"
     name: "Parallel Processing Task 2"
     type: "processing"
@@ -343,7 +342,7 @@ tasks:
     parallel: true
     timeout: 120000
     retries: 1
-    
+
   - id: "process-batch"
     name: "Batch Processing"
     type: "batch"
@@ -353,7 +352,7 @@ tasks:
       batch_size: 100
       iteration: "\${loop.iteration}"
     condition: "sufficient-workers"
-    
+
   - id: "aggregation"
     name: "Result Aggregation"
     type: "aggregation"
@@ -369,7 +368,7 @@ tasks:
     timeout: 90000
     onSuccess: ["finalization"]
     onFailure: ["error-handling"]
-    
+
   - id: "error-handling"
     name: "Error Recovery"
     type: "error-recovery"
@@ -379,7 +378,7 @@ tasks:
       error_context: "\${aggregation.error}"
     output:
       - "recovery_actions"
-    
+
   - id: "finalization"
     name: "Workflow Finalization"
     type: "finalization"
@@ -408,7 +407,7 @@ integrations:
         token: "\${WEBHOOK_TOKEN}"
     retries: 3
     timeout: 10000
-    
+
   - id: "metrics-api"
     type: "api"
     config:
@@ -427,7 +426,7 @@ settings:
   retryPolicy: "exponential"
   failurePolicy: "continue"
   errorHandler: "error-handling"
-  
+
   monitoring:
     enabled: true
     interval: 10000
@@ -441,7 +440,7 @@ settings:
         action: "status-webhook"
         threshold: 3
         cooldown: 300000
-        
+
   resources:
     limits:
       memory: "8GB"
@@ -451,7 +450,7 @@ settings:
       memory: "4GB"
       cpu: "2 cores"
       disk: "1GB"
-      
+
   notifications:
     enabled: true
     channels: ["webhook", "api"]
@@ -467,7 +466,7 @@ settings:
 `;
 
       await Deno.writeTextFile(workflowPath, yamlContent);
-      
+
       const loadedWorkflow = await engine.loadWorkflow(workflowPath);
       expect(loadedWorkflow.name).toBe('Advanced YAML Workflow');
       expect(loadedWorkflow.agents!.length).toBe(3);
@@ -497,9 +496,9 @@ tasks:
       input:
           param1: "value1"
           param2: "value2"
-          
+
     - id: "task2"
-      type: "test"  
+      type: "test"
       description: "Task with mixed indentation"
       input:
         param1: "value1"
@@ -514,7 +513,7 @@ settings:
 `;
 
       await Deno.writeTextFile(workflowPath, yamlContent);
-      
+
       const loadedWorkflow = await engine.loadWorkflow(workflowPath);
       expect(loadedWorkflow.name).toBe('Indentation Test');
       expect(loadedWorkflow.tasks.length).toBe(2);
@@ -532,7 +531,7 @@ settings:
       };
 
       await Deno.writeTextFile(workflowPath, JSON.stringify(workflow));
-      
+
       const loadedWorkflow = await engine.loadWorkflow(workflowPath);
       expect(loadedWorkflow.name).toBe('Auto-detect JSON');
     });
@@ -548,7 +547,7 @@ tasks:
 `;
 
       await Deno.writeTextFile(workflowPath, yamlContent);
-      
+
       const loadedWorkflow = await engine.loadWorkflow(workflowPath);
       expect(loadedWorkflow.name).toBe('Auto-detect YAML');
     });
@@ -561,7 +560,7 @@ It should cause an error when trying to parse
 `;
 
       await Deno.writeTextFile(workflowPath, invalidContent);
-      
+
       await assertThrows(
         async () => await engine.loadWorkflow(workflowPath),
         Error,
@@ -657,25 +656,25 @@ settings:
     it('should execute the research workflow example', async () => {
       // Use the actual research workflow example
       const examplePath = '/workspaces/claude-code-flow/examples/research-workflow.yaml';
-      
+
       try {
         const workflow = await engine.loadWorkflow(examplePath);
         expect(workflow.name).toBe('Advanced Research Workflow');
-        
+
         const validation = await engine.validateWorkflow(workflow, true);
         expect(validation.valid).toBe(true);
-        
+
         // Test execution with modified settings for faster testing
         const testWorkflow = { ...workflow };
         testWorkflow.settings = { ...testWorkflow.settings, timeout: 30000 };
-        
+
         const execution = await engine.executeWorkflow(testWorkflow);
         expect(execution.id).toBeDefined();
         expect(execution.startedAt).toBeDefined();
       } catch (error) {
         // If the example file doesn't exist, create a minimal version for testing
         console.warn('Research workflow example not found, creating test version');
-        
+
         const testWorkflowPath = `${testDir}/research-test.yaml`;
         const minimalResearchWorkflow = `
 name: "Test Research Workflow"
@@ -684,14 +683,14 @@ description: "Minimal research workflow for testing"
 
 variables:
   topic: "test topic"
-  
+
 tasks:
   - id: "research"
     type: "research"
     description: "Conduct research"
     input:
       topic: "\${topic}"
-      
+
   - id: "analyze"
     type: "analysis"
     description: "Analyze results"
@@ -701,7 +700,7 @@ settings:
   maxConcurrency: 1
   timeout: 30000
 `;
-        
+
         await Deno.writeTextFile(testWorkflowPath, minimalResearchWorkflow);
         const workflow = await engine.loadWorkflow(testWorkflowPath);
         const execution = await engine.executeWorkflow(workflow);
@@ -712,25 +711,25 @@ settings:
     it('should validate the development workflow example', async () => {
       // Use the actual development workflow example
       const examplePath = '/workspaces/claude-code-flow/examples/development-workflow.json';
-      
+
       try {
         const workflow = await engine.loadWorkflow(examplePath);
         expect(workflow.name).toBe('Full-Stack Development Workflow');
-        
+
         const validation = await engine.validateWorkflow(workflow, true);
         expect(validation.valid).toBe(true);
-        
+
         // Verify complex structure
         expect(workflow.agents).toBeDefined();
         expect(workflow.conditions).toBeDefined();
         expect(workflow.integrations).toBeDefined();
         expect(workflow.agents!.length > 0).toBe(true);
         expect(workflow.tasks.length > 0).toBe(true);
-        
+
       } catch (error) {
         // If the example file doesn't exist, create a minimal version for testing
         console.warn('Development workflow example not found, creating test version');
-        
+
         const testWorkflowPath = `${testDir}/development-test.json`;
         const minimalDevWorkflow = {
           name: "Test Development Workflow",
@@ -758,7 +757,7 @@ settings:
             timeout: 30000
           }
         };
-        
+
         await Deno.writeTextFile(testWorkflowPath, JSON.stringify(minimalDevWorkflow, null, 2));
         const workflow = await engine.loadWorkflow(testWorkflowPath);
         const validation = await engine.validateWorkflow(workflow, true);

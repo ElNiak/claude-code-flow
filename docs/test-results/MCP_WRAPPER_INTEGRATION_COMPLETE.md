@@ -68,9 +68,9 @@ All SPARC tools now:
 
 Example flow:
 ```
-sparc_coder("Create REST API") 
-  → Inject SPARC coder prompt 
-  → Forward to Claude Code Task 
+sparc_coder("Create REST API")
+  → Inject SPARC coder prompt
+  → Forward to Claude Code Task
   → AI generates actual code
 ```
 

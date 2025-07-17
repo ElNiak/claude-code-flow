@@ -33,7 +33,7 @@ Successfully implemented a comprehensive hooks system for Claude Flow that integ
    - Auto-spawn agents
    - Complexity assessment
    - Time estimation
-   
+
 2. **post-task** - Cleanup after task completion
    - Performance analysis
    - Report generation
@@ -42,7 +42,7 @@ Successfully implemented a comprehensive hooks system for Claude Flow that integ
 3. **pre-edit** - Validate before file modifications
    - Operation type tracking
    - File validation
-   
+
 4. **post-edit** - Process after file changes
    - Memory storage
    - Auto-formatting
@@ -52,7 +52,7 @@ Successfully implemented a comprehensive hooks system for Claude Flow that integ
 5. **pre-command** - Validate before running commands
    - Safety validation
    - Sandbox mode
-   
+
 6. **post-command** - Track command results
    - Exit code capture
    - Duration tracking
@@ -61,12 +61,12 @@ Successfully implemented a comprehensive hooks system for Claude Flow that integ
 7. **session-start** - Initialize new sessions
    - Previous session loading
    - Auto-restoration
-   
+
 8. **session-end** - Finalize sessions
    - Metric export
    - Summary generation
    - Session persistence
-   
+
 9. **session-restore** - Restore previous sessions
    - Memory restoration
    - Agent configuration
@@ -87,11 +87,11 @@ Successfully implemented a comprehensive hooks system for Claude Flow that integ
 12. **performance** - Track performance metrics
     - Operation timing
     - Custom metrics
-    
+
 13. **memory-sync** - Synchronize memory state
     - Namespace management
     - Directional sync
-    
+
 14. **telemetry** - Event tracking
     - Custom event data
     - Tag support

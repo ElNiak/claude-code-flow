@@ -33,7 +33,7 @@ context:
   type: "ide-assistant"
   description: "Advanced AI agent coordination platform with intelligent task distribution"
   main_entry: "src/cli/main.ts"
-  
+
 # Project metadata
 metadata:
   version: "2.0.0-alpha.50"

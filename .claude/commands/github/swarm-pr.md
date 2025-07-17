@@ -70,7 +70,7 @@ Map PR labels to agent types:
 ### Label-Based Topology
 ```bash
 # Small PR (< 100 lines): ring topology
-# Medium PR (100-500 lines): mesh topology  
+# Medium PR (100-500 lines): mesh topology
 # Large PR (> 500 lines): hierarchical topology
 npx ruv-swarm github pr-topology --pr 123
 ```
@@ -174,11 +174,11 @@ const { execSync } = require('child_process');
 createServer((req, res) => {
   if (req.url === '/github-webhook') {
     const event = JSON.parse(body);
-    
+
     if (event.action === 'opened' && event.pull_request) {
       execSync(`npx ruv-swarm github pr-init ${event.pull_request.number}`);
     }
-    
+
     res.writeHead(200);
     res.end('OK');
   }

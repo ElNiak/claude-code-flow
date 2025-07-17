@@ -41,7 +41,7 @@ swarm-benchmark run [OPTIONS] OBJECTIVE
 ```bash
 --strategy [auto|research|development|analysis|testing|optimization|maintenance]
     # Execution strategy (default: auto)
-    
+
 --strategy-params JSON
     # Custom strategy parameters as JSON string
     # Example: '{"search_depth": 3, "quality_iterations": 2}'
@@ -51,10 +51,10 @@ swarm-benchmark run [OPTIONS] OBJECTIVE
 ```bash
 --mode [centralized|distributed|hierarchical|mesh|hybrid]
     # Coordination mode (default: centralized)
-    
+
 --coordinator-count INT
     # Number of coordinators (distributed mode)
-    
+
 --hierarchy-levels INT
     # Number of hierarchy levels (hierarchical mode)
 ```
@@ -63,10 +63,10 @@ swarm-benchmark run [OPTIONS] OBJECTIVE
 ```bash
 --max-agents INT
     # Maximum number of agents (default: 5)
-    
+
 --agent-selection [capability|load|performance|random|round-robin]
     # Agent selection strategy (default: capability)
-    
+
 --agent-pool PATH
     # Path to agent pool configuration
 ```
@@ -75,13 +75,13 @@ swarm-benchmark run [OPTIONS] OBJECTIVE
 ```bash
 --max-tasks INT
     # Maximum tasks to execute (default: 100)
-    
+
 --task-timeout INT
     # Individual task timeout in seconds (default: 300)
-    
+
 --max-retries INT
     # Maximum retries per task (default: 3)
-    
+
 --priority INT
     # Task priority 1-10 (default: 5)
 ```
@@ -90,13 +90,13 @@ swarm-benchmark run [OPTIONS] OBJECTIVE
 ```bash
 --parallel
     # Enable parallel execution
-    
+
 --background
     # Run in background mode
-    
+
 --distributed
     # Enable distributed coordination
-    
+
 --stream-output
     # Stream real-time output
 ```
@@ -105,13 +105,13 @@ swarm-benchmark run [OPTIONS] OBJECTIVE
 ```bash
 --quality-threshold FLOAT
     # Quality threshold 0-1 (default: 0.8)
-    
+
 --review
     # Enable peer review
-    
+
 --testing
     # Enable automated testing
-    
+
 --validation-mode [strict|normal|lenient]
     # Validation strictness (default: normal)
 ```
@@ -120,13 +120,13 @@ swarm-benchmark run [OPTIONS] OBJECTIVE
 ```bash
 --timeout MINUTES
     # Overall timeout in minutes (default: 60)
-    
+
 --memory-limit MB
     # Memory limit in MB (default: 1024)
-    
+
 --cpu-limit PERCENT
     # CPU limit percentage (default: 80)
-    
+
 --optimization-level [0|1|2|3]
     # Optimization level (default: 1)
 ```
@@ -135,13 +135,13 @@ swarm-benchmark run [OPTIONS] OBJECTIVE
 ```bash
 --monitor
     # Enable real-time monitoring
-    
+
 --metrics-interval SECONDS
     # Metrics collection interval (default: 5)
-    
+
 --profile
     # Enable performance profiling
-    
+
 --trace
     # Enable execution tracing
 ```
@@ -151,13 +151,13 @@ swarm-benchmark run [OPTIONS] OBJECTIVE
 --output FORMAT [FORMAT...]
     # Output formats: json, sqlite, csv, html
     # Can specify multiple formats
-    
+
 --output-dir PATH
     # Output directory (default: ./reports)
-    
+
 --compress
     # Compress output files
-    
+
 --pretty-print
     # Pretty print JSON output
 ```
@@ -166,16 +166,16 @@ swarm-benchmark run [OPTIONS] OBJECTIVE
 ```bash
 --name TEXT
     # Benchmark name
-    
+
 --description TEXT
     # Benchmark description
-    
+
 --tags TAG [TAG...]
     # Tags for categorization
-    
+
 --metadata JSON
     # Additional metadata as JSON
-    
+
 --dry-run
     # Show configuration without executing
 ```
@@ -242,31 +242,31 @@ swarm-benchmark list [OPTIONS]
 ```bash
 --format [table|json|csv]
     # Output format (default: table)
-    
+
 --filter-strategy TEXT
     # Filter by strategy name
-    
+
 --filter-mode TEXT
     # Filter by coordination mode
-    
+
 --filter-status [completed|failed|running]
     # Filter by status
-    
+
 --limit INT
     # Limit number of results (default: 10)
-    
+
 --offset INT
     # Offset for pagination (default: 0)
-    
+
 --sort-by [date|duration|status|strategy]
     # Sort results (default: date)
-    
+
 --reverse
     # Reverse sort order
-    
+
 --since DATE
     # Show benchmarks since date
-    
+
 --until DATE
     # Show benchmarks until date
 ```
@@ -302,13 +302,13 @@ swarm-benchmark show [OPTIONS] BENCHMARK_ID
 ```bash
 --format [json|summary|detailed|report]
     # Output format (default: summary)
-    
+
 --include [all|results|metrics|logs]
     # What to include (default: all)
-    
+
 --export PATH
     # Export to file
-    
+
 --pretty
     # Pretty print output
 ```
@@ -338,22 +338,22 @@ swarm-benchmark clean [OPTIONS]
 ```bash
 --all
     # Delete all benchmark results
-    
+
 --older-than DAYS
     # Delete results older than N days
-    
+
 --strategy TEXT
     # Delete results for specific strategy
-    
+
 --status [completed|failed|all]
     # Delete by status (default: all)
-    
+
 --keep-recent INT
     # Keep N most recent benchmarks
-    
+
 --dry-run
     # Show what would be deleted
-    
+
 --force
     # Skip confirmation prompt
 ```
@@ -383,19 +383,19 @@ swarm-benchmark serve [OPTIONS]
 ```bash
 --port INT
     # Server port (default: 8080)
-    
+
 --host TEXT
     # Server host (default: localhost)
-    
+
 --public
     # Allow external connections
-    
+
 --auth USERNAME:PASSWORD
     # Enable basic authentication
-    
+
 --ssl-cert PATH
     # SSL certificate path
-    
+
 --ssl-key PATH
     # SSL key path
 ```
@@ -422,16 +422,16 @@ swarm-benchmark analyze [OPTIONS] [BENCHMARK_ID]
 ```bash
 --type [performance|quality|resource|coordination]
     # Analysis type (default: performance)
-    
+
 --compare-with ID [ID...]
     # Compare with other benchmarks
-    
+
 --report FORMAT
     # Generate report (html, pdf, json)
-    
+
 --metrics METRIC [METRIC...]
     # Specific metrics to analyze
-    
+
 --export PATH
     # Export analysis results
 ```
@@ -464,13 +464,13 @@ swarm-benchmark compare [OPTIONS] ID1 ID2 [ID3...]
 ```bash
 --metrics METRIC [METRIC...]
     # Metrics to compare
-    
+
 --format [table|chart|json]
     # Output format (default: table)
-    
+
 --export PATH
     # Export comparison
-    
+
 --visualization [bar|line|radar]
     # Chart type for visual comparison
 ```
@@ -620,7 +620,7 @@ swarm-benchmark run "Deploy task" --output json | \
 # Most common commands
 swarm-benchmark run "Task"                    # Basic run
 swarm-benchmark run "Task" -v                 # Verbose
-swarm-benchmark list                          # List results  
+swarm-benchmark list                          # List results
 swarm-benchmark show <id>                     # Show details
 swarm-benchmark clean --older-than 30         # Cleanup
 
@@ -629,7 +629,7 @@ sbr "Task" --strategy auto                    # Auto-select
 sbr "Task" --strategy research                # Research
 sbr "Task" --strategy development             # Development
 
-# Mode shortcuts  
+# Mode shortcuts
 sbr "Task" --mode centralized                 # Simple
 sbr "Task" --mode distributed                 # Parallel
 sbr "Task" --mode hierarchical                # Complex

@@ -38,8 +38,8 @@ TodoWrite([
     priority: "high",
     mode: "researcher",
     batchOptimized: true,
-    
-    
+
+
     tools: ["WebSearch","WebFetch","Read","Write","Memory","TodoWrite","Task"]
   }
 ]);
@@ -48,7 +48,7 @@ TodoWrite([
 Task("Researcher Agent", "Execute specialized researcher task", {
   mode: "researcher",
   batchOptimized: true,
-  
+
   memoryIntegration: true
 });
 ```

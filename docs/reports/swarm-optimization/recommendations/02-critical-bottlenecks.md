@@ -29,18 +29,18 @@ async executeTask(task: Task) {
 class OptimizedExecutor {
   private claudePool = new ConnectionPool({ max: 10 });
   private taskQueue = new PriorityQueue();
-  
+
   async executeTask(task: Task) {
     // Non-blocking execution
     return this.claudePool.execute(async (connection) => {
       const resultPromise = connection.call(task);
       const filePromise = this.asyncFileWrite(task);
-      
+
       const [result] = await Promise.all([
         resultPromise,
         filePromise
       ]);
-      
+
       return result;
     });
   }
@@ -80,19 +80,19 @@ function selectAgent(task: Task, agents: Agent[]) {
 class AgentSelector {
   private capabilityIndex = new Map<string, Set<Agent>>();
   private selectionCache = new LRUCache({ max: 1000 });
-  
+
   selectAgent(task: Task): Agent {
     const cacheKey = task.getCacheKey();
-    
+
     // Check cache first
     if (this.selectionCache.has(cacheKey)) {
       return this.selectionCache.get(cacheKey);
     }
-    
+
     // Use index for O(1) lookup
     const eligibleAgents = this.getEligibleAgents(task.requirements);
     const selectedAgent = this.rankAgents(eligibleAgents)[0];
-    
+
     this.selectionCache.set(cacheKey, selectedAgent);
     return selectedAgent;
   }
@@ -107,7 +107,7 @@ class AgentSelector {
 class SwarmCoordinator {
   private eventHistory: Event[] = [];  // Never cleaned
   private taskStates: Map<string, TaskState> = new Map();  // Grows forever
-  
+
   handleEvent(event: Event) {
     this.eventHistory.push(event);  // Memory leak
   }
@@ -132,12 +132,12 @@ class OptimizedCoordinator {
   private eventHistory = new CircularBuffer(1000);
   private taskStates = new TTLMap({ ttl: 3600000 }); // 1 hour TTL
   private objectPool = new ObjectPool(TaskState, 100);
-  
+
   handleEvent(event: Event) {
     this.eventHistory.add(event);  // Automatic rotation
     this.cleanupOldStates();        // Periodic cleanup
   }
-  
+
   private cleanupOldStates() {
     const cutoff = Date.now() - 3600000;
     for (const [id, state] of this.taskStates) {
@@ -182,18 +182,18 @@ class Scheduler {
 // Event-driven scheduling
 class OptimizedScheduler extends EventEmitter {
   private workQueues = new Map<string, PriorityQueue>();
-  
+
   constructor() {
     super();
     this.on('taskReady', this.scheduleTask);
     this.on('agentIdle', this.redistributeWork);
   }
-  
+
   private async scheduleTask(task: Task) {
     const agent = await this.selectOptimalAgent(task);
     agent.assignTask(task);  // Immediate assignment
   }
-  
+
   private async redistributeWork(idleAgent: Agent) {
     // Work stealing from busy agents
     const victim = this.findBusiestAgent();
@@ -212,7 +212,7 @@ class OptimizedScheduler extends EventEmitter {
 // Sequential decomposition
 function decomposeTasks(objective: string): Task[] {
   const tasks = [];
-  
+
   // Sequential regex operations
   if (objective.match(/research/i)) {
     tasks.push(createResearchTask());
@@ -221,7 +221,7 @@ function decomposeTasks(objective: string): Task[] {
     tasks.push(createImplementTask());
   }
   // ... more sequential checks
-  
+
   return tasks;
 }
 ```
@@ -241,22 +241,22 @@ class TaskDecomposer {
     new ImplementDecomposer(),
     new TestingDecomposer()
   ];
-  
+
   async decompose(objective: string): Promise<Task[]> {
     const cacheKey = this.hashObjective(objective);
-    
+
     if (this.patternCache.has(cacheKey)) {
       return this.instantiateTasks(this.patternCache.get(cacheKey));
     }
-    
+
     // Parallel decomposition
     const taskGroups = await Promise.all(
       this.decomposers.map(d => d.analyze(objective))
     );
-    
+
     const tasks = taskGroups.flat();
     this.patternCache.set(cacheKey, tasks);
-    
+
     return tasks;
   }
 }

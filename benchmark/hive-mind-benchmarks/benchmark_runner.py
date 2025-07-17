@@ -51,28 +51,28 @@ class BenchmarkResult:
 
 class HiveMindBenchmarkRunner:
     """Runs comprehensive Hive Mind performance benchmarks"""
-    
+
     def __init__(self, output_dir: str = "hive-benchmarks"):
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(exist_ok=True)
         self.results: List[BenchmarkResult] = []
         self.cli_path = Path("../src/cli/simple-cli.js")
-        
+
     def create_benchmark_configs(self) -> List[BenchmarkConfig]:
         """Create comprehensive benchmark configurations"""
         configs = []
-        
+
         # Define test matrices
         topologies = ["hierarchical", "mesh", "ring", "star"]
         coordinations = ["queen", "consensus", "hybrid"]
         memory_types = ["sqlite", "memory", "distributed"]
         scales = [
             (5, "simple"),
-            (20, "medium"), 
+            (20, "medium"),
             (100, "complex"),
             (1000, "enterprise")
         ]
-        
+
         # Core performance tests
         for topology in topologies:
             for coordination in coordinations:
@@ -89,7 +89,7 @@ class HiveMindBenchmarkRunner:
                                 task_complexity=complexity,
                                 duration_seconds=30 if agent_count < 100 else 60
                             ))
-        
+
         # Specialized high-performance tests
         configs.extend([
             BenchmarkConfig("optimal_small", "hierarchical", "queen", "sqlite", 5, "simple", 30),
@@ -99,13 +99,13 @@ class HiveMindBenchmarkRunner:
             BenchmarkConfig("democracy_test", "mesh", "consensus", "sqlite", 50, "medium", 90),
             BenchmarkConfig("hybrid_adaptive", "star", "hybrid", "memory", 30, "medium", 45)
         ])
-        
+
         return configs
 
     def run_hive_mind_command(self, command: List[str], timeout: int = 120) -> Dict[str, Any]:
         """Execute a hive-mind CLI command and measure performance"""
         start_time = time.time()
-        
+
         try:
             # Run the command with timeout
             result = subprocess.run(
@@ -115,10 +115,10 @@ class HiveMindBenchmarkRunner:
                 timeout=timeout,
                 cwd=Path.cwd()
             )
-            
+
             end_time = time.time()
             duration = end_time - start_time
-            
+
             return {
                 "success": result.returncode == 0,
                 "duration": duration,
@@ -126,7 +126,7 @@ class HiveMindBenchmarkRunner:
                 "stderr": result.stderr,
                 "returncode": result.returncode
             }
-            
+
         except subprocess.TimeoutExpired:
             return {
                 "success": False,
@@ -149,7 +149,7 @@ class HiveMindBenchmarkRunner:
         try:
             import psutil
             process = psutil.Process()
-            
+
             return {
                 "memory_mb": process.memory_info().rss / 1024 / 1024,
                 "cpu_percent": process.cpu_percent(),
@@ -170,16 +170,16 @@ class HiveMindBenchmarkRunner:
         print(f"🧪 Running benchmark: {config.name}")
         start_time = datetime.now().isoformat()
         bench_start = time.time()
-        
+
         try:
             # Initialize Hive Mind system
             init_start = time.time()
             init_result = self.run_hive_mind_command(["hive-mind", "init", "--test-mode"])
             initialization_time = time.time() - init_start
-            
+
             if not init_result["success"]:
                 raise Exception(f"Initialization failed: {init_result['stderr']}")
-            
+
             # Create swarm with specified configuration
             spawn_start = time.time()
             spawn_cmd = [
@@ -191,36 +191,36 @@ class HiveMindBenchmarkRunner:
                 "--agents", str(config.agent_count),
                 "--dry-run"  # For benchmarking without actual work
             ]
-            
+
             spawn_result = self.run_hive_mind_command(spawn_cmd, timeout=config.duration_seconds)
             agent_spawn_time = time.time() - spawn_start
-            
+
             # Measure coordination latency
             coord_start = time.time()
             status_result = self.run_hive_mind_command(["hive-mind", "status"])
             coordination_latency = (time.time() - coord_start) * 1000  # Convert to ms
-            
+
             # Get system metrics
             metrics = self.measure_system_metrics()
-            
+
             # Simulate task execution and measure performance
             task_start = time.time()
             task_result = self.run_hive_mind_command([
-                "hive-mind", "task", 
+                "hive-mind", "task",
                 f"Performance test task for {config.task_complexity} complexity",
                 "--simulate"
             ])
             task_duration = time.time() - task_start
-            
+
             # Calculate completion metrics
             total_duration = time.time() - bench_start
             end_time = datetime.now().isoformat()
-            
+
             # Parse results from command outputs
             task_completion_rate = 1.0 if spawn_result["success"] and task_result["success"] else 0.0
-            error_count = sum(1 for r in [init_result, spawn_result, status_result, task_result] 
+            error_count = sum(1 for r in [init_result, spawn_result, status_result, task_result]
                             if not r["success"])
-            
+
             return BenchmarkResult(
                 config=config,
                 start_time=start_time,
@@ -238,7 +238,7 @@ class HiveMindBenchmarkRunner:
                 collective_memory_ops=config.agent_count * 5,  # Estimated
                 success=True
             )
-            
+
         except Exception as e:
             return BenchmarkResult(
                 config=config,
@@ -262,24 +262,24 @@ class HiveMindBenchmarkRunner:
     def run_parallel_benchmarks(self, configs: List[BenchmarkConfig], max_workers: int = 3) -> List[BenchmarkResult]:
         """Run benchmarks in parallel for faster execution"""
         results = []
-        
+
         # Group configs by resource intensity
         light_configs = [c for c in configs if c.agent_count <= 20]
         heavy_configs = [c for c in configs if c.agent_count > 20]
-        
+
         # Run light configs in parallel
         print(f"🚀 Running {len(light_configs)} light benchmarks in parallel...")
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            light_futures = {executor.submit(self.run_single_benchmark, config): config 
+            light_futures = {executor.submit(self.run_single_benchmark, config): config
                            for config in light_configs}
-            
+
             for future in as_completed(light_futures):
                 result = future.result()
                 results.append(result)
                 config = light_futures[future]
                 status = "✅" if result.success else "❌"
                 print(f"{status} Completed: {config.name}")
-        
+
         # Run heavy configs sequentially
         print(f"🐘 Running {len(heavy_configs)} heavy benchmarks sequentially...")
         for config in heavy_configs:
@@ -287,26 +287,26 @@ class HiveMindBenchmarkRunner:
             results.append(result)
             status = "✅" if result.success else "❌"
             print(f"{status} Completed: {config.name}")
-        
+
         return results
 
     def analyze_results(self, results: List[BenchmarkResult]) -> Dict[str, Any]:
         """Analyze benchmark results and generate insights"""
         if not results:
             return {"error": "No results to analyze"}
-        
+
         successful_results = [r for r in results if r.success]
         failed_results = [r for r in results if not r.success]
-        
+
         # Calculate performance metrics by category
         topology_performance = {}
         coordination_performance = {}
         memory_performance = {}
         scaling_performance = {}
-        
+
         for result in successful_results:
             config = result.config
-            
+
             # Topology analysis
             if config.topology not in topology_performance:
                 topology_performance[config.topology] = []
@@ -316,7 +316,7 @@ class HiveMindBenchmarkRunner:
                 "agent_spawn_time": result.agent_spawn_time,
                 "agent_count": config.agent_count
             })
-            
+
             # Coordination analysis
             if config.coordination not in coordination_performance:
                 coordination_performance[config.coordination] = []
@@ -325,7 +325,7 @@ class HiveMindBenchmarkRunner:
                 "coordination_latency": result.coordination_latency,
                 "task_completion_rate": result.task_completion_rate
             })
-            
+
             # Memory analysis
             if config.memory_type not in memory_performance:
                 memory_performance[config.memory_type] = []
@@ -334,7 +334,7 @@ class HiveMindBenchmarkRunner:
                 "collective_memory_ops": result.collective_memory_ops,
                 "agent_count": config.agent_count
             })
-            
+
             # Scaling analysis
             if config.agent_count not in scaling_performance:
                 scaling_performance[config.agent_count] = []
@@ -345,12 +345,12 @@ class HiveMindBenchmarkRunner:
                 "topology": config.topology,
                 "coordination": config.coordination
             })
-        
+
         # Calculate averages and find optimal configurations
         def avg(data, key):
             values = [d[key] for d in data]
             return sum(values) / len(values) if values else 0
-        
+
         topology_avg = {
             topology: {
                 "avg_init_time": avg(data, "initialization_time"),
@@ -360,7 +360,7 @@ class HiveMindBenchmarkRunner:
             }
             for topology, data in topology_performance.items()
         }
-        
+
         coordination_avg = {
             coord: {
                 "avg_consensus_decisions": avg(data, "consensus_decisions"),
@@ -370,7 +370,7 @@ class HiveMindBenchmarkRunner:
             }
             for coord, data in coordination_performance.items()
         }
-        
+
         # Find optimal configurations
         optimal_small = min([r for r in successful_results if r.config.agent_count <= 10],
                           key=lambda r: r.coordination_latency, default=None)
@@ -378,7 +378,7 @@ class HiveMindBenchmarkRunner:
                            key=lambda r: r.coordination_latency, default=None)
         optimal_large = min([r for r in successful_results if r.config.agent_count > 50],
                           key=lambda r: r.coordination_latency, default=None)
-        
+
         return {
             "summary": {
                 "total_tests": len(results),
@@ -408,17 +408,17 @@ class HiveMindBenchmarkRunner:
     def save_results(self, results: List[BenchmarkResult], analysis: Dict[str, Any]):
         """Save benchmark results and analysis to files"""
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        
+
         # Save raw results
         results_file = self.output_dir / f"hive_mind_benchmark_results_{timestamp}.json"
         with open(results_file, 'w') as f:
             json.dump([asdict(r) for r in results], f, indent=2)
-        
+
         # Save analysis
         analysis_file = self.output_dir / f"hive_mind_benchmark_analysis_{timestamp}.json"
         with open(analysis_file, 'w') as f:
             json.dump(analysis, f, indent=2)
-        
+
         # Save CSV summary
         csv_file = self.output_dir / f"hive_mind_benchmark_summary_{timestamp}.csv"
         with open(csv_file, 'w') as f:
@@ -429,12 +429,12 @@ class HiveMindBenchmarkRunner:
                        f"{config.agent_count},{result.success},{result.initialization_time:.3f},"
                        f"{result.coordination_latency:.2f},{result.memory_usage_mb:.1f},"
                        f"{result.task_completion_rate:.2f}\\n")
-        
+
         print(f"📊 Results saved to:")
         print(f"   📄 Raw data: {results_file}")
-        print(f"   📈 Analysis: {analysis_file}") 
+        print(f"   📈 Analysis: {analysis_file}")
         print(f"   📋 Summary: {csv_file}")
-        
+
         return {
             "results_file": str(results_file),
             "analysis_file": str(analysis_file),
@@ -445,24 +445,24 @@ class HiveMindBenchmarkRunner:
         """Run the complete Hive Mind benchmark suite"""
         print("🐝 Starting Hive Mind Performance Benchmark Suite v2.0.0")
         print("=" * 60)
-        
+
         # Create benchmark configurations
         configs = self.create_benchmark_configs()
         print(f"📋 Created {len(configs)} benchmark configurations")
-        
+
         # Run benchmarks
         start_time = time.time()
         results = self.run_parallel_benchmarks(configs)
         total_duration = time.time() - start_time
-        
+
         print(f"⏱️  Total benchmark time: {total_duration:.1f} seconds")
-        
+
         # Analyze results
         analysis = self.analyze_results(results)
-        
+
         # Save results
         file_info = self.save_results(results, analysis)
-        
+
         # Add metadata
         analysis["metadata"] = {
             "total_duration_seconds": total_duration,
@@ -472,7 +472,7 @@ class HiveMindBenchmarkRunner:
             "hive_mind_version": "1.0.0"
         }
         analysis["files"] = file_info
-        
+
         return analysis
 
 def main():
@@ -485,21 +485,21 @@ def main():
             BenchmarkConfig("quick_mesh", "mesh", "consensus", "memory", 10, "medium", 15),
             BenchmarkConfig("quick_star", "star", "hybrid", "sqlite", 8, "simple", 10)
         ]
-        
+
         print("🚀 Running quick Hive Mind benchmark...")
         results = []
         for config in configs:
             result = runner.run_single_benchmark(config)
             results.append(result)
-        
+
         analysis = runner.analyze_results(results)
         runner.save_results(results, analysis)
-        
+
     else:
         # Full comprehensive benchmark
         runner = HiveMindBenchmarkRunner()
         analysis = runner.run_comprehensive_benchmark()
-        
+
         # Print summary
         summary = analysis["summary"]
         print("\\n🎯 BENCHMARK SUMMARY")
@@ -509,7 +509,7 @@ def main():
         print(f"Avg initialization: {summary['avg_initialization_time']:.3f}s")
         print(f"Avg coordination latency: {summary['avg_coordination_latency']:.1f}ms")
         print(f"Avg memory usage: {summary['avg_memory_usage']:.1f}MB")
-        
+
         # Print optimal configurations
         optimal = analysis["optimal_configurations"]
         print("\\n🏆 OPTIMAL CONFIGURATIONS")

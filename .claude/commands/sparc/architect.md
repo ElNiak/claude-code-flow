@@ -37,8 +37,8 @@ TodoWrite([
     priority: "high",
     mode: "architect",
     batchOptimized: true,
-    
-    
+
+
     tools: ["Read","Write","Glob","Memory","TodoWrite","Task"]
   }
 ]);
@@ -47,7 +47,7 @@ TodoWrite([
 Task("Architect Agent", "Execute specialized architect task", {
   mode: "architect",
   batchOptimized: true,
-  
+
   memoryIntegration: true
 });
 ```

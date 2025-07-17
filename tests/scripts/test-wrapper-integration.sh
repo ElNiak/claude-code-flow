@@ -17,7 +17,7 @@ import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
 
 async function testMCP() {
   console.log('🔌 Connecting to MCP server...');
-  
+
   const transport = new StdioClientTransport({
     command: 'npm',
     args: ['run', 'mcp'],
@@ -33,17 +33,17 @@ async function testMCP() {
   try {
     await client.connect(transport);
     console.log('✅ Connected successfully!');
-    
+
     // List tools
     console.log('\n📋 Listing tools...');
     const tools = await client.listTools();
     console.log(`Found ${tools.tools.length} tools`);
-    
+
     // Test sparc_list
     console.log('\n🧪 Testing sparc_list...');
     const listResult = await client.callTool('sparc_list', { verbose: false });
     console.log('Result:', listResult.content[0].text.substring(0, 200) + '...');
-    
+
     // Test sparc_coder
     console.log('\n🧪 Testing sparc_coder (would forward to Claude Code)...');
     const coderResult = await client.callTool('sparc_coder', {
@@ -51,7 +51,7 @@ async function testMCP() {
       context: { memoryKey: 'test_greeting' }
     });
     console.log('Result preview:', coderResult.content[0].text.substring(0, 200) + '...');
-    
+
     await client.close();
     console.log('\n✅ All tests passed!');
     process.exit(0);

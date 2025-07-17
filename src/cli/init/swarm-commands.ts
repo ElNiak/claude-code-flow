@@ -1,34 +1,34 @@
-import { getErrorMessage as _getErrorMessage } from '../../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from "../../utils/error-handler.js";
 // init/swarm-commands.ts - Swarm command documentation creation,
 export async function createSwarmCommands(): Promise<void> {
-  const fs = await import('fs/promises');
-  const _path = await import('path');
-  
-  const swarmDir = '.claude/commands/swarm';
-  
-  // Individual strategy documentation,
-  const swarmCommands = {
-    'research.md': createResearchCommand(),
-    'development.md': createDevelopmentCommand(),
-    'analysis.md': createAnalysisCommand(),
-    'testing.md': createTestingCommand(),
-    'optimization.md': createOptimizationCommand(),
-    'maintenance.md': createMaintenanceCommand(),
-    'examples.md': createSwarmExamples(),
-    'coordination-modes.md': createCoordinationModes(),
-    'best-practices.md': createBestPractices(),
-    'task-tracking.md': createTaskTracking()
-  };
-  
-  // Write swarm command documentation,
-  for (const [filename, content] of Object.entries(swarmCommands)) {
-    await fs.writeFile(_path.join(swarmDir, filename), content);
-    console.log(`  ✅ Created ${filename}`);
-  }
+	const fs = await import("fs/promises");
+	const _path = await import("path");
+
+	const swarmDir = ".claude/commands/swarm";
+
+	// Individual strategy documentation,
+	const swarmCommands = {
+		"research.md": createResearchCommand(),
+		"development.md": createDevelopmentCommand(),
+		"analysis.md": createAnalysisCommand(),
+		"testing.md": createTestingCommand(),
+		"optimization.md": createOptimizationCommand(),
+		"maintenance.md": createMaintenanceCommand(),
+		"examples.md": createSwarmExamples(),
+		"coordination-modes.md": createCoordinationModes(),
+		"best-practices.md": createBestPractices(),
+		"task-tracking.md": createTaskTracking(),
+	};
+
+	// Write swarm command documentation,
+	for (const [filename, content] of Object.entries(swarmCommands)) {
+		await fs.writeFile(_path.join(swarmDir, filename), content);
+		console.log(`  ✅ Created ${filename}`);
+	}
 }
 
 function createResearchCommand(): string {
-  return `# Research Swarm Command
+	return `# Research Swarm Command
 
 ## Usage
 \`\`\`bash,
@@ -72,7 +72,7 @@ Multi-agent research coordination with distributed intelligence gathering using 
 }
 
 function createDevelopmentCommand(): string {
-  return `# Development Swarm Command
+	return `# Development Swarm Command
 
 ## Usage
 \`\`\`bash,
@@ -119,7 +119,7 @@ Coordinated software development with specialized agents using batch operations.
 }
 
 function createAnalysisCommand(): string {
-  return `# Analysis Swarm Command
+	return `# Analysis Swarm Command
 
 ## Usage
 \`\`\`bash,
@@ -167,7 +167,7 @@ Data analysis and insights generation with coordinated batch processing.
 }
 
 function createTestingCommand(): string {
-  return `# Testing Swarm Command
+	return `# Testing Swarm Command
 
 ## Usage
 \`\`\`bash,
@@ -216,7 +216,7 @@ Comprehensive testing coordination with distributed validation and batch operati
 }
 
 function createOptimizationCommand(): string {
-  return `# Optimization Swarm Command
+	return `# Optimization Swarm Command
 
 ## Usage
 \`\`\`bash,
@@ -264,7 +264,7 @@ Performance optimization with coordinated analysis and improvements using batch 
 }
 
 function createMaintenanceCommand(): string {
-  return `# Maintenance Swarm Command
+	return `# Maintenance Swarm Command
 
 ## Usage
 \`\`\`bash,
@@ -313,7 +313,7 @@ System maintenance and updates with coordinated agents and batch operations.
 }
 
 function createSwarmExamples(): string {
-  return `# Claude-Flow Swarm Examples with Batch Tools
+	return `# Claude-Flow Swarm Examples with Batch Tools
 
 ## Quick Start Commands with Batch Operations
 
@@ -376,7 +376,7 @@ See individual strategy files for detailed documentation and best practices.
 }
 
 function createCoordinationModes(): string {
-  return `# Coordination Modes for Swarm Operations
+	return `# Coordination Modes for Swarm Operations
 
 ## Centralized Mode
 **Best for**: Simple tasks, controlled operations, safety-critical maintenance
@@ -508,7 +508,7 @@ function createCoordinationModes(): string {
 }
 
 function createBestPractices(): string {
-  return `# Swarm Operation Best Practices
+	return `# Swarm Operation Best Practices
 
 ## Task Planning and Coordination
 
@@ -635,7 +635,7 @@ function createBestPractices(): string {
 }
 
 function createTaskTracking(): string {
-  return `# Task Tracking Format for Swarm Operations
+	return `# Task Tracking Format for Swarm Operations
 
 ## Overview,
 Swarm operations use a standardized task tracking format to provide clear visibility into progress, priorities, and dependencies across all agents.
@@ -780,11 +780,11 @@ The swarm coordinator will:
    └── 🟢 011: Add social sharing buttons [LOW] ▶
 
 🔄 In progress (5)
-   ├── 🔴 012: Payment gateway integration [CRITICAL] 
-   ├── 🔴 013: User authentication system [HIGH] 
-   ├── 🟡 014: Product catalog implementation ↳ 2 deps 
-   ├── 🟡 015: Shopping cart API endpoints 
-   └── 🟢 016: Email notification service 
+   ├── 🔴 012: Payment gateway integration [CRITICAL]
+   ├── 🔴 013: User authentication system [HIGH]
+   ├── 🟡 014: Product catalog implementation ↳ 2 deps
+   ├── 🟡 015: Shopping cart API endpoints
+   └── 🟢 016: Email notification service
 
 ✅ Completed (15)
    ├── ✅ 001: Project setup and configuration

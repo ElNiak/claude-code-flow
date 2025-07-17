@@ -138,7 +138,7 @@ swarm-benchmark run "Big data analysis" \
 def select_coordination_mode(task_complexity, agent_count, priority):
     if agent_count <= 3:
         return "centralized"
-    
+
     if priority == "speed" and task_complexity == "simple":
         return "centralized"
     elif priority == "reliability":
@@ -394,7 +394,7 @@ profiles:
     strategy: development
     mode: hierarchical
     review: true
-    
+
   production:
     quality_threshold: 0.95
     max_retries: 5
@@ -443,7 +443,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      
+
       - name: Run Benchmarks
         run: |
           swarm-benchmark run "${{ github.event.head_commit.message }}" \
@@ -451,7 +451,7 @@ jobs:
             --tags ci,automated \
             --output json \
             > benchmark-results.json
-      
+
       - name: Analyze Results
         run: |
           swarm-benchmark analyze $(jq -r '.benchmark_id' benchmark-results.json) \
@@ -502,22 +502,22 @@ from datetime import datetime, timedelta
 def generate_dashboard():
     # Get recent benchmarks
     benchmarks = get_benchmarks_since(datetime.now() - timedelta(days=7))
-    
+
     # Create dashboard
     fig, axes = plt.subplots(2, 2, figsize=(15, 10))
-    
+
     # Performance trends
     plot_performance_trends(axes[0, 0], benchmarks)
-    
+
     # Strategy effectiveness
     plot_strategy_comparison(axes[0, 1], benchmarks)
-    
+
     # Resource utilization
     plot_resource_usage(axes[1, 0], benchmarks)
-    
+
     # Quality scores
     plot_quality_trends(axes[1, 1], benchmarks)
-    
+
     plt.savefig('weekly_dashboard.png')
 ```
 

@@ -229,7 +229,7 @@ services:
     networks:
       - swarm-network
     restart: unless-stopped
-    
+
   database:
     image: postgres:14-alpine
     container_name: swarm-db
@@ -360,45 +360,45 @@ jobs:
     strategy:
       matrix:
         python-version: [3.8, 3.9, 3.10, 3.11]
-    
+
     steps:
     - uses: actions/checkout@v3
-    
+
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
-    
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install -r requirements-dev.txt
-    
+
     - name: Run tests
       run: |
         pytest --cov=swarm_benchmark --cov-report=xml
-    
+
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
 
   build:
     needs: test
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v3
-    
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: 3.11
-    
+
     - name: Build package
       run: |
         python -m pip install --upgrade pip build
         python -m build
-    
+
     - name: Store package artifacts
       uses: actions/upload-artifact@v3
       with:
@@ -409,16 +409,16 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
-    
+
     steps:
     - uses: actions/checkout@v3
-    
+
     - name: Download package artifacts
       uses: actions/download-artifact@v3
       with:
         name: python-package
         path: dist/
-    
+
     - name: Publish to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
@@ -427,19 +427,19 @@ jobs:
   build-docker:
     needs: test
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v3
-    
+
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
-    
+
     - name: Login to DockerHub
       uses: docker/login-action@v2
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
-    
+
     - name: Build and push
       uses: docker/build-push-action@v4
       with:
@@ -584,7 +584,7 @@ async def health_check():
         "memory": check_memory_usage(),
         "cpu": check_cpu_usage()
     }
-    
+
     overall_status = all(checks.values())
     return {
         "status": "healthy" if overall_status else "unhealthy",

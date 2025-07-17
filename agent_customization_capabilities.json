@@ -1,0 +1,284 @@
+{
+	"agent_customization_analysis": {
+		"timestamp": "2025-07-13T19:21:00Z",
+		"scope": "Comprehensive analysis of current agent customization capabilities",
+
+		"current_customization_layers": {
+			"template_level_customization": {
+				"predefined_templates": {
+					"researcher_template": {
+						"capabilities": [
+							"research: true",
+							"analysis: true",
+							"documentation: true",
+							"webSearch: true",
+							"codeGeneration: false",
+							"testing: false"
+						],
+						"config_defaults": {
+							"autonomyLevel": 0.8,
+							"maxConcurrentTasks": 5,
+							"timeoutThreshold": 600000,
+							"permissions": ["web-access", "file-read"]
+						},
+						"specialization": "Information gathering and analysis"
+					},
+					"coder_template": {
+						"capabilities": {
+							"codeGeneration": "true",
+							"codeReview": "true",
+							"testing": "true",
+							"terminalAccess": "true",
+							"languages": ["typescript", "javascript", "python", "rust"],
+							"frameworks": ["deno", "node", "react", "svelte"]
+						},
+						"config_defaults": {
+							"autonomyLevel": 0.6,
+							"maxConcurrentTasks": 3,
+							"timeoutThreshold": 1200000,
+							"permissions": [
+								"file-read",
+								"file-write",
+								"terminal-access",
+								"git-access"
+							]
+						},
+						"specialization": "Code development and implementation"
+					},
+					"analyst_template": {
+						"capabilities": {
+							"analysis": "true",
+							"codeReview": "true",
+							"languages": ["python", "r", "sql"],
+							"frameworks": ["pandas", "numpy", "matplotlib"],
+							"tools": [
+								"data-processor",
+								"chart-generator",
+								"statistical-analyzer"
+							]
+						},
+						"config_defaults": {
+							"autonomyLevel": 0.7,
+							"maxConcurrentTasks": 4,
+							"maxMemoryUsage": "1GB",
+							"permissions": ["file-read", "data-access"]
+						},
+						"specialization": "Data analysis and visualization"
+					}
+				},
+				"template_extensibility": {
+					"adding_new_templates": "Templates stored in Map<string, AgentTemplate>",
+					"template_properties": [
+						"name, type, capabilities",
+						"config (autonomy, tasks, timeouts)",
+						"environment (runtime, directories, tools)",
+						"startup scripts, dependencies"
+					],
+					"initialization_method": "initializeDefaultTemplates() and initializeSpecializedTemplates()"
+				}
+			},
+
+			"configuration_level_customization": {
+				"agent_config_properties": {
+					"autonomyLevel": {
+						"range": "0-1 (float)",
+						"description": "How autonomous the agent operates",
+						"default_variations": {
+							"researcher": 0.8,
+							"coder": 0.6,
+							"analyst": 0.7
+						}
+					},
+					"maxConcurrentTasks": {
+						"range": "1-20 (integer)",
+						"description": "Maximum parallel task execution",
+						"validation": "Must be between 1 and 20"
+					},
+					"timeoutThreshold": {
+						"range": "milliseconds",
+						"description": "Task execution timeout",
+						"defaults": {
+							"researcher": 600000,
+							"coder": 1200000,
+							"analyst": 900000
+						}
+					},
+					"permissions": {
+						"type": "string[]",
+						"options": [
+							"web-access",
+							"file-read",
+							"file-write",
+							"terminal-access",
+							"git-access",
+							"data-access"
+						]
+					},
+					"expertise": {
+						"type": "Record<string, number>",
+						"description": "Skill levels in different domains (0-1)",
+						"examples": {
+							"coding": 0.95,
+							"testing": 0.8,
+							"research": 0.9
+						}
+					}
+				},
+				"environment_customization": {
+					"runtime": {
+						"options": ["deno", "node", "claude", "browser"],
+						"default": "deno"
+					},
+					"directories": {
+						"workingDirectory": "Agent execution directory",
+						"tempDirectory": "Temporary file storage",
+						"logDirectory": "Log file location"
+					},
+					"availableTools": {
+						"type": "string[]",
+						"examples": [
+							"git",
+							"editor",
+							"debugger",
+							"web-search",
+							"data-processor"
+						]
+					},
+					"apiEndpoints": "External service integrations",
+					"credentials": "Authentication for external services"
+				}
+			},
+
+			"interactive_customization": {
+				"wizard_system": {
+					"file": "src/cli/commands/agent.ts",
+					"function": "interactiveAgentConfiguration()",
+					"steps": [
+						"Template selection from available options",
+						"Agent naming with auto-generation",
+						"Autonomy level (0-1) with validation",
+						"Max concurrent tasks (1-20) with validation",
+						"Memory limit (128-4096 MB) with validation"
+					],
+					"validation": {
+						"autonomy": "Must be between 0 and 1",
+						"tasks": "Must be between 1 and 20",
+						"memory": "Must be between 128 and 4096 MB"
+					}
+				},
+				"command_line_overrides": {
+					"options": [
+						"--name <name> - Agent name",
+						"--type <type> - Agent type",
+						"--autonomy <level> - Autonomy level",
+						"--max-tasks <max> - Max concurrent tasks",
+						"--max-memory <mb> - Memory limit",
+						"--timeout <ms> - Task timeout"
+					],
+					"precedence": "CLI options override template defaults"
+				}
+			},
+
+			"file_based_customization": {
+				"json_configuration": {
+					"usage": "--config <path> loads configuration from JSON",
+					"structure": {
+						"template": "string",
+						"name": "string",
+						"config": {
+							"autonomyLevel": "number",
+							"maxConcurrentTasks": "number",
+							"timeoutThreshold": "number"
+						},
+						"environment": {
+							"maxMemoryUsage": "number",
+							"runtime": "string",
+							"workingDirectory": "string"
+						}
+					}
+				}
+			}
+		},
+
+		"agent_selection_customization": {
+			"capability_based_selection": {
+				"searchByCapabilities": {
+					"method": "AgentRegistry.searchByCapabilities()",
+					"matches": [
+						"languages array",
+						"frameworks array",
+						"domains array",
+						"tools array"
+					],
+					"logic": "Substring matching on capability arrays"
+				},
+				"findBestAgent": {
+					"scoring_algorithm": {
+						"health_score": "40 points max",
+						"success_rate": "30 points max",
+						"availability": "20 points max",
+						"capability_match": "10 points max"
+					},
+					"parameters": [
+						"taskType: string",
+						"requiredCapabilities: string[]",
+						"preferredAgent?: string"
+					]
+				}
+			},
+			"strategy_based_selection": {
+				"auto_strategy": {
+					"ml_heuristics": "Machine learning inspired scoring",
+					"performance_history": "Tracks agent performance over time",
+					"complexity_analysis": "Estimates task complexity for matching"
+				},
+				"research_strategy": {
+					"research_capabilities": "Prioritizes research-specific skills",
+					"capability_weighting": "Different scoring for research tasks"
+				}
+			}
+		},
+
+		"pool_and_scaling_customization": {
+			"agent_pools": {
+				"creation": "createAgentPool() with template and scaling config",
+				"parameters": {
+					"minSize": "Minimum pool size",
+					"maxSize": "Maximum pool size",
+					"autoScale": "Enable automatic scaling",
+					"scaleUpThreshold": "Utilization threshold for scaling up",
+					"scaleDownThreshold": "Utilization threshold for scaling down"
+				}
+			},
+			"auto_scaling": {
+				"policies": "Scaling policies with rules and thresholds",
+				"triggers": [
+					"Pool utilization > 80% -> scale up",
+					"Pool utilization < 30% -> scale down"
+				],
+				"cooldown": "5 minute cooldown between scaling operations"
+			}
+		},
+
+		"health_and_monitoring_customization": {
+			"health_components": [
+				"responsiveness (heartbeat tracking)",
+				"performance (task completion metrics)",
+				"reliability (success rate)",
+				"resourceUsage (CPU, memory, disk)"
+			],
+			"auto_restart": {
+				"enabled": "configurable via autoRestart flag",
+				"triggers": [
+					"Health < 30% triggers restart",
+					"Heartbeat timeout triggers restart",
+					"Critical errors trigger restart"
+				]
+			},
+			"monitoring_intervals": {
+				"heartbeat": "configurable heartbeatInterval",
+				"health_check": "configurable healthCheckInterval"
+			}
+		}
+	}
+}

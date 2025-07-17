@@ -2,10 +2,9 @@
  * Integration tests for the start command
  */
 
-import { describe, it, beforeEach, afterEach, expect } from "../test.utils.ts";
-import { describe, it, beforeEach, afterEach, expect } from "../test.utils.ts";
-import { startCommand } from '../../src/cli/commands/start/start-command.ts';
 import { Command } from '@cliffy/command';
+import { startCommand } from '../../src/cli/commands/start/start-command.ts';
+import { afterEach, afterEach, beforeEach, beforeEach, describe, describe, expect, expect, it, it } from "../test.utils.ts";
 
 describe('Start Command Integration', () => {
   let testDir: string;
@@ -14,11 +13,11 @@ describe('Start Command Integration', () => {
     // Create test directory
     testDir = await Deno.makeTempDir({ prefix: 'claude-flow-test-' });
     Deno.chdir(testDir);
-    
+
     // Create required directories
     await Deno.mkdir('memory', { recursive: true });
     await Deno.mkdir('coordination', { recursive: true });
-    
+
     // Create minimal config
     const config = {
       memory: {
@@ -39,7 +38,7 @@ describe('Start Command Integration', () => {
         maxConcurrentTasks: 10
       }
     };
-    
+
     await Deno.writeTextFile('claude-flow.config.json', JSON.stringify(config, null, 2));
   });
 
@@ -59,7 +58,7 @@ describe('Start Command Integration', () => {
     });
 
     it('should have correct description', () => {
-      const desc = (startCommand as any)._globalParent?._description || 
+      const desc = (startCommand as any)._globalParent?._description ||
                    (startCommand as any).getDescription();
       expect(typeof desc).toBe('string');
       expect(desc.includes('orchestration')).toBe(true);
@@ -68,7 +67,7 @@ describe('Start Command Integration', () => {
     it('should have all expected options', () => {
       const command = startCommand as any;
       const options = command.options || command.getOptions?.() || [];
-      
+
       const optionNames = options.map((opt: any) => opt.name);
       expect(optionNames.includes('daemon')).toBe(true);
       expect(optionNames.includes('port')).toBe(true);
@@ -82,7 +81,7 @@ describe('Start Command Integration', () => {
       // Test that the command can be parsed without executing
       const command = new Command()
         .command('start', startCommand);
-      
+
       const help = await command.getHelp();
       expect(help).toBeDefined();
       expect(help.includes('start')).toBe(true);

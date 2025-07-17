@@ -197,12 +197,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      
+
       - name: Install dependencies
         run: |
           npm install -g claude-flow
           npm install -g batchtool
-      
+
       - name: Run SPARC orchestration
         run: |
           batchtool orchestrate --boomerang \

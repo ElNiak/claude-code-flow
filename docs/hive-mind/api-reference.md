@@ -125,7 +125,7 @@ class Agent {
   readonly type: AgentType
   readonly name: string
   readonly status: AgentStatus
-  
+
   async execute(task: SubTask): Promise<TaskResult>
   async communicate(message: AgentMessage): Promise<void>
   async getMetrics(): Promise<AgentMetrics>
@@ -136,9 +136,9 @@ class Agent {
 #### Agent Types
 
 ```typescript
-type AgentType = 
+type AgentType =
   | 'coordinator'
-  | 'architect' 
+  | 'architect'
   | 'coder'
   | 'analyst'
   | 'tester'
@@ -187,7 +187,7 @@ class Swarm {
   readonly id: string
   readonly topology: Topology
   readonly agents: Agent[]
-  
+
   async addAgent(agent: Agent): Promise<void>
   async removeAgent(agentId: string): Promise<void>
   async optimize(): Promise<void>
@@ -256,7 +256,7 @@ interface TaskDefinition {
 ### Feature Type
 
 ```typescript
-type Feature = 
+type Feature =
   | 'auth'
   | 'database'
   | 'api'
@@ -329,7 +329,7 @@ interface FileOutput {
 ### Event Types
 
 ```typescript
-type HiveMindEvent = 
+type HiveMindEvent =
   | 'agent.spawned'
   | 'agent.started'
   | 'agent.completed'
@@ -380,7 +380,7 @@ const workflow = hiveMind.createWorkflow({
     },
     {
       id: 'frontend',
-      type: 'implementation', 
+      type: 'implementation',
       agent: 'coder',
       dependencies: ['design'],
       parallel: true
@@ -404,7 +404,7 @@ interface Workflow {
   id: string;
   name: string;
   steps: WorkflowStep[];
-  
+
   async execute(context?: any): Promise<WorkflowResult>
   async pause(): Promise<void>
   async resume(): Promise<void>
@@ -547,7 +547,7 @@ app.post('/api/generate', async (req, res) => {
       complexity: req.body.complexity,
       features: req.body.features
     });
-    
+
     res.json({
       success: true,
       result: result
@@ -574,22 +574,22 @@ jobs:
   generate:
     if: github.event.label.name == 'hive-mind'
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v3
-    
+
     - name: Setup Node.js
       uses: actions/setup-node@v3
       with:
         node-version: '20'
-    
+
     - name: Run Hive Mind
       run: |
         npx claude-flow@2.0.0 hive-mind \
           --task "${{ github.event.issue.title }}" \
           --complexity high \
           --non-interactive
-    
+
     - name: Create PR
       uses: peter-evans/create-pull-request@v5
       with:
@@ -605,27 +605,27 @@ const { HiveMind } = require('claude-flow');
 
 function activate(context) {
   const hiveMind = new HiveMind();
-  
+
   const disposable = vscode.commands.registerCommand(
     'hivemind.generate',
     async () => {
       const task = await vscode.window.showInputBox({
         prompt: 'What would you like to build?'
       });
-      
+
       if (task) {
         const result = await hiveMind.execute({
           task: task,
           complexity: 'medium'
         });
-        
+
         vscode.window.showInformationMessage(
           `Hive Mind completed: ${result.files.length} files created`
         );
       }
     }
   );
-  
+
   context.subscriptions.push(disposable);
 }
 ```
@@ -723,12 +723,12 @@ const { HiveMind, MockAgent } = require('claude-flow/testing');
 describe('HiveMind', () => {
   it('should execute simple task', async () => {
     const hiveMind = new HiveMind({ mock: true });
-    
+
     const result = await hiveMind.execute({
       task: 'Create REST endpoint',
       complexity: 'low'
     });
-    
+
     expect(result.success).toBe(true);
     expect(result.files).toHaveLength(3);
   });

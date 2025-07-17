@@ -12,9 +12,9 @@ async def test_simple_benchmark():
         output_formats=["json"],
         output_directory="./test_output"
     )
-    
+
     engine = BenchmarkEngine(config)
-    
+
     try:
         result = await engine.run_benchmark("Build a simple REST API")
         print("Benchmark result:", result)

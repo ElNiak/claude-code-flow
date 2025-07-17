@@ -26,8 +26,8 @@ class ProcessMetrics:
     num_threads: int = 0
     num_fds: int = 0  # File descriptors
     create_time: float = 0.0
-    
-    
+
+
 @dataclass
 class CollectionInterval:
     """Metrics collected during an interval."""
@@ -35,14 +35,14 @@ class CollectionInterval:
     duration_ms: float
     process_metrics: List[ProcessMetrics]
     system_metrics: Dict[str, Any]
-    
+
 
 class PerformanceCollector:
     """Collects real performance metrics from claude-flow executions."""
-    
+
     def __init__(self, sample_interval: float = 0.1):
         """Initialize the performance collector.
-        
+
         Args:
             sample_interval: How often to sample metrics (seconds)
         """
@@ -55,10 +55,10 @@ class PerformanceCollector:
         self._end_time: Optional[float] = None
         self._tracked_pids: List[int] = []
         self._main_process: Optional[psutil.Process] = None
-        
+
     def start_collection(self, process: Optional[subprocess.Popen] = None) -> None:
         """Start collecting metrics.
-        
+
         Args:
             process: Optional subprocess to track (will track it and all children)
         """
@@ -67,66 +67,66 @@ class PerformanceCollector:
         self._process_map.clear()
         self._start_time = time.time()
         self._end_time = None
-        
+
         if process:
             try:
                 self._main_process = psutil.Process(process.pid)
                 self._tracked_pids = [process.pid]
             except psutil.NoSuchProcess:
                 self._main_process = None
-                
+
         self._collection_thread = threading.Thread(
             target=self._collect_metrics,
             daemon=True
         )
         self._collection_thread.start()
-        
+
     def stop_collection(self) -> PerformanceMetrics:
         """Stop collecting metrics and return aggregated results."""
         self._stop_event.set()
         self._end_time = time.time()
-        
+
         if self._collection_thread:
             self._collection_thread.join(timeout=5.0)
-            
+
         return self._aggregate_metrics()
-        
+
     def _collect_metrics(self) -> None:
         """Background thread that collects metrics."""
         while not self._stop_event.is_set():
             interval_start = time.time()
-            
+
             # Collect process metrics
             process_metrics = self._collect_process_metrics()
-            
+
             # Collect system metrics
             system_metrics = self._collect_system_metrics()
-            
+
             interval_duration = (time.time() - interval_start) * 1000
-            
+
             interval = CollectionInterval(
                 timestamp=datetime.now(),
                 duration_ms=interval_duration,
                 process_metrics=process_metrics,
                 system_metrics=system_metrics
             )
-            
+
             self._metrics_buffer.append(interval)
-            
+
             # Sleep for the remainder of the interval
             sleep_time = max(0, self.sample_interval - (time.time() - interval_start))
             if sleep_time > 0:
                 time.sleep(sleep_time)
-                
+
     def _collect_process_metrics(self) -> List[ProcessMetrics]:
         """Collect metrics for tracked processes."""
         metrics = []
-        
+
         if self._main_process:
             try:
                 # Get main process and all children
                 processes = [self._main_process] + self._main_process.children(recursive=True)
-                
+
                 for proc in processes:
                     try:
                         # Get process info
@@ -139,41 +139,41 @@ class PerformanceCollector:
                                 num_threads=proc.num_threads(),
                                 create_time=proc.create_time()
                             )
-                            
+
                             # Try to get file descriptors (may not be available on all platforms)
                             try:
                                 pm.num_fds = proc.num_fds()
                             except (AttributeError, psutil.AccessDenied):
                                 pm.num_fds = 0
-                                
+
                             metrics.append(pm)
                             self._process_map[pm.pid] = pm
-                            
+
                     except (psutil.NoSuchProcess, psutil.AccessDenied):
                         continue
-                        
+
             except (psutil.NoSuchProcess, psutil.AccessDenied):
                 self._main_process = None
-                
+
         return metrics
-        
+
     def _collect_system_metrics(self) -> Dict[str, Any]:
         """Collect system-wide metrics."""
         try:
             # CPU metrics
             cpu_percent = psutil.cpu_percent(interval=None, percpu=True)
             cpu_freq = psutil.cpu_freq()
-            
+
             # Memory metrics
             memory = psutil.virtual_memory()
             swap = psutil.swap_memory()
-            
+
             # Disk I/O
             disk_io = psutil.disk_io_counters()
-            
+
             # Network I/O
             net_io = psutil.net_io_counters()
-            
+
             return {
                 "cpu": {
                     "percent": sum(cpu_percent) / len(cpu_percent),
@@ -203,55 +203,55 @@ class PerformanceCollector:
             }
         except Exception as e:
             return {"error": str(e)}
-            
+
     def _aggregate_metrics(self) -> PerformanceMetrics:
         """Aggregate collected metrics into final performance metrics."""
         if not self._metrics_buffer:
             return PerformanceMetrics()
-            
+
         # Calculate execution time
         execution_time = (self._end_time or time.time()) - self._start_time
-        
+
         # Aggregate process metrics
         total_cpu = 0.0
         peak_memory_mb = 0.0
         avg_memory_mb = 0.0
         total_samples = 0
-        
+
         for interval in self._metrics_buffer:
             interval_cpu = sum(pm.cpu_percent for pm in interval.process_metrics)
             interval_memory = sum(pm.memory_mb for pm in interval.process_metrics)
-            
+
             total_cpu += interval_cpu
             peak_memory_mb = max(peak_memory_mb, interval_memory)
             avg_memory_mb += interval_memory
             total_samples += 1
-            
+
         if total_samples > 0:
             avg_cpu_percent = total_cpu / total_samples
             avg_memory_mb = avg_memory_mb / total_samples
         else:
             avg_cpu_percent = 0.0
             avg_memory_mb = 0.0
-            
+
         # Calculate network and disk I/O deltas
         network_bytes_sent = 0
         network_bytes_recv = 0
         disk_bytes_read = 0
         disk_bytes_write = 0
-        
+
         if len(self._metrics_buffer) >= 2:
             first_metrics = self._metrics_buffer[0].system_metrics
             last_metrics = self._metrics_buffer[-1].system_metrics
-            
+
             if "network_io" in first_metrics and "network_io" in last_metrics:
                 network_bytes_sent = last_metrics["network_io"]["bytes_sent"] - first_metrics["network_io"]["bytes_sent"]
                 network_bytes_recv = last_metrics["network_io"]["bytes_recv"] - first_metrics["network_io"]["bytes_recv"]
-                
+
             if "disk_io" in first_metrics and "disk_io" in last_metrics:
                 disk_bytes_read = last_metrics["disk_io"]["read_bytes"] - first_metrics["disk_io"]["read_bytes"]
                 disk_bytes_write = last_metrics["disk_io"]["write_bytes"] - first_metrics["disk_io"]["write_bytes"]
-                
+
         # Create ResourceUsage
         resource_usage = ResourceUsage(
             cpu_percent=avg_cpu_percent,
@@ -263,10 +263,10 @@ class PerformanceCollector:
             disk_bytes_read=disk_bytes_read,
             disk_bytes_write=disk_bytes_write
         )
-        
+
         # Calculate throughput (tasks per second)
         throughput = 1.0 / execution_time if execution_time > 0 else 0.0
-        
+
         return PerformanceMetrics(
             execution_time=execution_time,
             throughput=throughput,
@@ -276,7 +276,7 @@ class PerformanceCollector:
             coordination_overhead=0.0,  # Will be calculated separately
             communication_latency=0.0   # Will be calculated separately
         )
-        
+
     def get_detailed_metrics(self) -> Dict[str, Any]:
         """Get detailed metrics for analysis."""
         return {
@@ -309,7 +309,7 @@ class PerformanceCollector:
                 for interval in self._metrics_buffer[-100:]  # Last 100 samples
             ]
         }
-        
+
     def save_raw_metrics(self, filepath: Path) -> None:
         """Save raw metrics data for later analysis."""
         data = {
@@ -339,24 +339,24 @@ class PerformanceCollector:
                 for interval in self._metrics_buffer
             ]
         }
-        
+
         with open(filepath, "w") as f:
             json.dump(data, f, indent=2)
-            
+
 
 class AsyncPerformanceCollector(PerformanceCollector):
     """Async version of the performance collector."""
-    
+
     async def start_collection_async(self, process: Optional[subprocess.Popen] = None) -> None:
         """Start collecting metrics asynchronously."""
         self.start_collection(process)
-        
+
     async def stop_collection_async(self) -> PerformanceMetrics:
         """Stop collecting metrics asynchronously."""
         return await asyncio.get_event_loop().run_in_executor(
             None, self.stop_collection
         )
-        
+
     async def collect_for_duration(self, duration: float, process: Optional[subprocess.Popen] = None) -> PerformanceMetrics:
         """Collect metrics for a specific duration."""
         await self.start_collection_async(process)

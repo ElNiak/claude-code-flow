@@ -36,8 +36,8 @@ TodoWrite([
     priority: "high",
     mode: "workflow-manager",
     batchOptimized: true,
-    
-    
+
+
     tools: ["TodoWrite","TodoRead","Task","Bash","Memory"]
   }
 ]);
@@ -46,7 +46,7 @@ TodoWrite([
 Task("Workflow manager Agent", "Execute specialized workflow-manager task", {
   mode: "workflow-manager",
   batchOptimized: true,
-  
+
   memoryIntegration: true
 });
 ```

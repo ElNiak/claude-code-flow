@@ -146,7 +146,7 @@ Test results are saved to:
 - name: Run Hive Mind Tests
   run: |
     npm test -- --ci --coverage tests/hive-mind/
-    
+
 - name: Upload Coverage
   uses: codecov/codecov-action@v3
   with:
@@ -210,7 +210,7 @@ When adding new tests:
 
 ## Test Data
 
-Test databases and files are automatically cleaned up after tests run. 
+Test databases and files are automatically cleaned up after tests run.
 Temporary files are created in `tmp/test-*` directories.
 
 ## Troubleshooting

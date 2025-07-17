@@ -1,15 +1,15 @@
 /**
  * Hive Mind Optimization Load Testing Suite
- * 
+ *
  * Tests performance optimizations under various load conditions to ensure
  * optimizations maintain their benefits under stress and scale appropriately.
  */
 
-import { describe, test, expect, beforeAll, afterAll, beforeEach, afterEach } from '@jest/globals';
-import { performance } from 'perf_hooks';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test } from '@jest/globals';
 import { promises as fs } from 'fs';
 import { join } from 'path';
-import { Worker } from 'worker_threads';
+import { performance } from 'perf_hooks';
+import type { Worker } from 'worker_threads';
 
 interface LoadTestResult {
   testName: string;
@@ -35,7 +35,7 @@ class LoadTestRunner {
   private results: LoadTestResult[] = [];
   private workers: Worker[] = [];
 
-  async runLoadTest(testName: string, config: LoadTestConfig, 
+  async runLoadTest(testName: string, config: LoadTestConfig,
                    testFunction: () => Promise<void>): Promise<LoadTestResult> {
     console.log(`Starting load test: ${testName}`);
     console.log(`Config: ${config.concurrency} concurrent, ${config.duration}s duration, ${config.operations} ops`);
@@ -43,14 +43,14 @@ class LoadTestRunner {
     const startTime = performance.now();
     const startMemory = process.memoryUsage();
     const startCpu = process.cpuUsage();
-    
+
     let completedOperations = 0;
     let errorCount = 0;
     const responseTimes: number[] = [];
 
     // Create concurrent execution promises
     const concurrentPromises: Promise<void>[] = [];
-    
+
     for (let i = 0; i < config.concurrency; i++) {
       const promise = this.runConcurrentOperations(
         testFunction,
@@ -101,10 +101,10 @@ class LoadTestRunner {
   ): Promise<void> {
     const startTime = Date.now();
     const endTime = startTime + (config.duration * 1000);
-    
+
     while (Date.now() < endTime) {
       const opStartTime = performance.now();
-      
+
       try {
         await testFunction();
         const responseTime = performance.now() - opStartTime;
@@ -113,7 +113,7 @@ class LoadTestRunner {
         const responseTime = performance.now() - opStartTime;
         onComplete(responseTime, false);
       }
-      
+
       // Add small delay to prevent overwhelming the system
       await new Promise(resolve => setTimeout(resolve, Math.random() * 10));
     }
@@ -139,7 +139,7 @@ class LoadTestRunner {
 
     const reportPath = join(__dirname, '../../tests/results/load-test-report.json');
     await fs.writeFile(reportPath, JSON.stringify(report, null, 2));
-    
+
     return reportPath;
   }
 
@@ -180,7 +180,7 @@ describe('Hive Mind Optimization Load Testing', () => {
           // Simulate optimized agent spawning
           const spawnTime = Math.random() * 30 + 20; // 20-50ms
           await new Promise(resolve => setTimeout(resolve, spawnTime));
-          
+
           // Simulate agent initialization
           const agent = {
             id: `agent-${Date.now()}-${Math.random()}`,
@@ -188,7 +188,7 @@ describe('Hive Mind Optimization Load Testing', () => {
             status: 'active',
             created: Date.now()
           };
-          
+
           // Verify agent creation (basic validation)
           if (!agent.id || !agent.type) {
             throw new Error('Agent creation failed');
@@ -220,7 +220,7 @@ describe('Hive Mind Optimization Load Testing', () => {
           // Simulate sustained agent operations
           const operations = ['spawn', 'update', 'communicate', 'terminate'];
           const operation = operations[Math.floor(Math.random() * operations.length)];
-          
+
           switch (operation) {
             case 'spawn':
               await new Promise(resolve => setTimeout(resolve, Math.random() * 40 + 20));
@@ -263,7 +263,7 @@ describe('Hive Mind Optimization Load Testing', () => {
           // Simulate optimized database operations
           const operations = ['SELECT', 'INSERT', 'UPDATE', 'DELETE'];
           const operation = operations[Math.floor(Math.random() * operations.length)];
-          
+
           let queryTime: number;
           switch (operation) {
             case 'SELECT':
@@ -281,9 +281,9 @@ describe('Hive Mind Optimization Load Testing', () => {
             default:
               queryTime = 3;
           }
-          
+
           await new Promise(resolve => setTimeout(resolve, queryTime));
-          
+
           // Simulate occasional database contention
           if (Math.random() < 0.01) { // 1% chance
             throw new Error('Database timeout');
@@ -315,10 +315,10 @@ describe('Hive Mind Optimization Load Testing', () => {
           const connectionAcquisitionTime = Math.random() * 2 + 0.5; // 0.5-2.5ms
           const queryExecutionTime = Math.random() * 3 + 1; // 1-4ms
           const connectionReleaseTime = 0.5; // 0.5ms
-          
+
           const totalTime = connectionAcquisitionTime + queryExecutionTime + connectionReleaseTime;
           await new Promise(resolve => setTimeout(resolve, totalTime));
-          
+
           // Simulate pool exhaustion (rare)
           if (Math.random() < 0.005) { // 0.5% chance
             throw new Error('Connection pool exhausted');
@@ -356,17 +356,17 @@ describe('Hive Mind Optimization Load Testing', () => {
             timestamp: Date.now(),
             metadata: { processed: false, priority: Math.random() }
           }));
-          
+
           // Process data (simulate work)
           const processedData = tempData.map(item => ({
             ...item,
             metadata: { ...item.metadata, processed: true }
           }));
-          
+
           // Cleanup (prevent memory leaks)
           tempData.length = 0;
           processedData.length = 0;
-          
+
           // Force garbage collection hint
           if (Math.random() < 0.1 && global.gc) {
             global.gc();
@@ -406,16 +406,16 @@ describe('Hive Mind Optimization Load Testing', () => {
               array: new Array(100).fill(Math.random())
             }
           }));
-          
+
           // Use the array briefly
           const sum = largeArray.reduce((acc, item) => acc + item.nested.value, 0);
-          
+
           // Explicit cleanup
           largeArray.length = 0;
-          
+
           // Track memory usage
           memorySnapshots.push(process.memoryUsage().heapUsed);
-          
+
           // Occasional explicit GC
           if (Math.random() < 0.2 && global.gc) {
             global.gc();
@@ -449,13 +449,13 @@ describe('Hive Mind Optimization Load Testing', () => {
         config,
         async () => {
           // Simulate complete workflow: swarm creation, agent spawning, task execution
-          
+
           // 1. Create swarm
           const swarmCreationTime = Math.random() * 50 + 30; // 30-80ms
           await new Promise(resolve => setTimeout(resolve, swarmCreationTime));
-          
+
           const swarmId = `swarm-${Date.now()}-${Math.random()}`;
-          
+
           // 2. Spawn agents
           const agentCount = Math.floor(Math.random() * 5) + 3; // 3-7 agents
           const agentSpawnPromises = Array.from({ length: agentCount }, async () => {
@@ -463,9 +463,9 @@ describe('Hive Mind Optimization Load Testing', () => {
             await new Promise(resolve => setTimeout(resolve, spawnTime));
             return `agent-${Date.now()}-${Math.random()}`;
           });
-          
+
           const agents = await Promise.all(agentSpawnPromises);
-          
+
           // 3. Create and execute tasks
           const taskCount = Math.floor(Math.random() * 8) + 2; // 2-9 tasks
           const taskPromises = Array.from({ length: taskCount }, async () => {
@@ -473,13 +473,13 @@ describe('Hive Mind Optimization Load Testing', () => {
             await new Promise(resolve => setTimeout(resolve, taskExecutionTime));
             return `task-${Date.now()}-${Math.random()}`;
           });
-          
+
           const tasks = await Promise.all(taskPromises);
-          
+
           // 4. Coordination and cleanup
           const coordinationTime = Math.random() * 30 + 10; // 10-40ms
           await new Promise(resolve => setTimeout(resolve, coordinationTime));
-          
+
           // Verify workflow completion
           if (agents.length !== agentCount || tasks.length !== taskCount) {
             throw new Error('Workflow incomplete');
@@ -516,9 +516,9 @@ describe('Hive Mind Optimization Load Testing', () => {
             'send_message',
             'query_metrics'
           ];
-          
+
           const operation = operations[Math.floor(Math.random() * operations.length)];
-          
+
           let operationTime: number;
           switch (operation) {
             case 'create_swarm':
@@ -542,9 +542,9 @@ describe('Hive Mind Optimization Load Testing', () => {
             default:
               operationTime = 50;
           }
-          
+
           await new Promise(resolve => setTimeout(resolve, operationTime));
-          
+
           // Simulate occasional coordination conflicts
           if (Math.random() < 0.02) { // 2% chance
             throw new Error(`Coordination conflict in ${operation}`);
@@ -564,7 +564,7 @@ describe('Hive Mind Optimization Load Testing', () => {
   describe('Load Test Summary and Validation', () => {
     test('Generate comprehensive load test analysis', async () => {
       const allResults = loadTestRunner.getResults();
-      
+
       // Calculate overall metrics
       const totalThroughput = allResults.reduce((sum, result) => sum + result.throughput, 0);
       const avgThroughput = totalThroughput / allResults.length;

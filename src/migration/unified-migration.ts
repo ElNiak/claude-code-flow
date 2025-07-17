@@ -1,282 +1,320 @@
 #!/usr/bin/env node,
-import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from "../utils/error-handler.js";
 /**
  * Unified Migration Utilities
  * Helps users migrate from legacy Claude Flow to unified coordination system
  */
 
-import chalk from 'chalk';
-import fs from 'fs-extra';
-import path from 'path';
-import type { ILogger } from '../core/logger.js';
+import chalk from "chalk";
+import fs from "fs-extra";
+import path from "path";
+import type { ILogger } from "../core/logger.js";
 
 export interface MigrationPlan {
-  version: string;
-  backupPath: string;
-  commands: MigrationCommand[];
-  estimatedTime: number;
-  riskLevel: 'low' | 'medium' | 'high';
+	version: string;
+	backupPath: string;
+	commands: MigrationCommand[];
+	estimatedTime: number;
+	riskLevel: "low" | "medium" | "high";
 }
 
 export interface MigrationCommand {
-  type: 'backup' | 'update' | 'create' | 'migrate';
-  description: string;
-  oldPath?: string;
-  newPath?: string;
-  content?: string;
-  required: boolean;
+	type: "backup" | "update" | "create" | "migrate";
+	description: string;
+	oldPath?: string;
+	newPath?: string;
+	content?: string;
+	required: boolean;
 }
 
 export class UnifiedMigrationManager {
-  constructor(
-    private workingDirectory: string,
-    private logger?: ILogger
-  ) {}
+	constructor(
+		private workingDirectory: string,
+		private logger?: ILogger
+	) {}
 
-  async createMigrationPlan(): Promise<MigrationPlan> {
-    this.log('info', 'Creating migration plan for unified coordination system');
-    
-    const plan: MigrationPlan = {
-      version: '2.0.0-alpha.50',
-      backupPath: path.join(this.workingDirectory, '.claude-flow-backup'),
-      commands: [],
-      estimatedTime: 0,
-      riskLevel: 'low'
-    };
+	async createMigrationPlan(): Promise<MigrationPlan> {
+		this.log("info", "Creating migration plan for unified coordination system");
 
-    // Check existing files and configurations,
-    const existingFiles = await this.scanExistingFiles();
-    const legacyConfigs = await this.detectLegacyConfigurations();
-    
-    // Create backup command,
-    plan.commands.push({
-      type: 'backup',
-      description: 'Backup existing Claude Flow configuration and data',
-      oldPath: this.workingDirectory,
-      newPath: plan.backupPath,
-      required: true
-    });
+		const plan: MigrationPlan = {
+			version: "2.0.0-alpha.50",
+			backupPath: path.join(this.workingDirectory, ".claude-flow-backup"),
+			commands: [],
+			estimatedTime: 0,
+			riskLevel: "low",
+		};
 
-    // Migration commands based on existing setup,
-    if (existingFiles.hasMemoryData) {
-      plan.commands.push({
-        type: 'migrate',
-        description: 'Migrate memory data to unified coordination format',
-        oldPath: existingFiles.memoryPath,
-        newPath: path.join(this.workingDirectory, 'memory/unified-coordination.db'),
-        required: true
-      });
-      plan.estimatedTime += 30; // seconds
-    }
+		// Check existing files and configurations,
+		const existingFiles = await this.scanExistingFiles();
+		const legacyConfigs = await this.detectLegacyConfigurations();
 
-    if (existingFiles.hasSwarmConfig) {
-      plan.commands.push({
-        type: 'update',
-        description: 'Update swarm configuration for unified coordination',
-        oldPath: existingFiles.swarmConfigPath,
-        newPath: path.join(this.workingDirectory, '.claude/unified-config.json'),
-        required: true
-      });
-      plan.estimatedTime += 15;
-    }
+		// Create backup command,
+		plan.commands.push({
+			type: "backup",
+			description: "Backup existing Claude Flow configuration and data",
+			oldPath: this.workingDirectory,
+			newPath: plan.backupPath,
+			required: true,
+		});
 
-    // Create new unified configuration files,
-    plan.commands.push({
-      type: 'create',
-      description: 'Create unified coordination configuration',
-      newPath: path.join(this.workingDirectory, '.claude/unified-settings.json'),
-      content: JSON.stringify(this.createUnifiedConfig(), null, 2),
-      required: true
-    });
+		// Migration commands based on existing setup,
+		if (existingFiles.hasMemoryData) {
+			plan.commands.push({
+				type: "migrate",
+				description: "Migrate memory data to unified coordination format",
+				oldPath: existingFiles.memoryPath,
+				newPath: path.join(
+					this.workingDirectory,
+					"memory/unified-coordination.db"
+				),
+				required: true,
+			});
+			plan.estimatedTime += 30; // seconds
+		}
 
-    // Update CLAUDE.md for unified system,
-    plan.commands.push({
-      type: 'update',
-      description: 'Update CLAUDE.md with unified coordination instructions',
-      oldPath: path.join(this.workingDirectory, 'CLAUDE.md'),
-      newPath: path.join(this.workingDirectory, 'CLAUDE.md'),
-      content: this.createUnifiedClaudeMd(),
-      required: false
-    });
+		if (existingFiles.hasSwarmConfig) {
+			plan.commands.push({
+				type: "update",
+				description: "Update swarm configuration for unified coordination",
+				oldPath: existingFiles.swarmConfigPath,
+				newPath: path.join(
+					this.workingDirectory,
+					".claude/unified-config.json"
+				),
+				required: true,
+			});
+			plan.estimatedTime += 15;
+		}
 
-    // Create migration completion marker,
-    plan.commands.push({
-      type: 'create',
-      description: 'Create migration completion marker',
-      newPath: path.join(this.workingDirectory, '.claude/migration-completed.json'),
-      content: JSON.stringify({
-        version: plan.version,
-        migratedAt: new Date().toISOString(),
-        features: ['unified-coordination', 'intrinsic-agents', 'memory-coordination']
-      }, null, 2),
-      required: true
-    });
+		// Create new unified configuration files,
+		plan.commands.push({
+			type: "create",
+			description: "Create unified coordination configuration",
+			newPath: path.join(
+				this.workingDirectory,
+				".claude/unified-settings.json"
+			),
+			content: JSON.stringify(this.createUnifiedConfig(), null, 2),
+			required: true,
+		});
 
-    plan.estimatedTime += 30; // Additional time for setup and verification,
+		// Update CLAUDE.md for unified system,
+		plan.commands.push({
+			type: "update",
+			description: "Update CLAUDE.md with unified coordination instructions",
+			oldPath: path.join(this.workingDirectory, "CLAUDE.md"),
+			newPath: path.join(this.workingDirectory, "CLAUDE.md"),
+			content: this.createUnifiedClaudeMd(),
+			required: false,
+		});
 
-    this.log('info', `Migration plan created: ${plan.commands.length} steps, estimated ${plan.estimatedTime}s`);
-    return plan;
-  }
+		// Create migration completion marker,
+		plan.commands.push({
+			type: "create",
+			description: "Create migration completion marker",
+			newPath: path.join(
+				this.workingDirectory,
+				".claude/migration-completed.json"
+			),
+			content: JSON.stringify(
+				{
+					version: plan.version,
+					migratedAt: new Date().toISOString(),
+					features: [
+						"unified-coordination",
+						"intrinsic-agents",
+						"memory-coordination",
+					],
+				},
+				null,
+				2
+			),
+			required: true,
+		});
 
-  async executeMigrationPlan(plan: MigrationPlan): Promise<{ success: boolean; errors: string[] }> {
-    this.log('info', 'Starting unified coordination migration');
-    
-    const errors: string[] = [];
-    let completed = 0;
+		plan.estimatedTime += 30; // Additional time for setup and verification,
 
-    try {
-      for (const command of plan.commands) {
-        try {
-          await this.executeCommand(command);
-          completed++;
-          this.log('info', `✅ ${command.description}`);
-        } catch (error) {
-          const errorMsg = `Failed to ${command.description}: ${_getErrorMessage(error)}`;
-          errors.push(errorMsg);
-          this.log('error', errorMsg);
-          
-          if (command.required) {
-            this.log('error', 'Required migration step failed, aborting');
-            break;
-          }
-        }
-      }
+		this.log(
+			"info",
+			`Migration plan created: ${plan.commands.length} steps, estimated ${plan.estimatedTime}s`
+		);
+		return plan;
+	}
 
-      const success = errors.length === 0 || !plan.commands.some(c => c.required && errors.some(e => e.includes(c.description)));
-      
-      if (success) {
-        this.log('info', `🎉 Migration completed successfully (${completed}/${plan.commands.length} steps)`);
-        await this.createMigrationSummary(plan, errors);
-      } else {
-        this.log('error', `❌ Migration failed (${completed}/${plan.commands.length} steps completed)`);
-      }
+	async executeMigrationPlan(
+		plan: MigrationPlan
+	): Promise<{ success: boolean; errors: string[] }> {
+		this.log("info", "Starting unified coordination migration");
 
-      return { success, errors };
+		const errors: string[] = [];
+		let completed = 0;
 
-    } catch (error) {
-      const errorMsg = `Migration execution failed: ${_getErrorMessage(error)}`;
-      errors.push(errorMsg);
-      this.log('error', errorMsg);
-      return { success: false, errors };
-    }
-  }
+		try {
+			for (const command of plan.commands) {
+				try {
+					await this.executeCommand(command);
+					completed++;
+					this.log("info", `✅ ${command.description}`);
+				} catch (error) {
+					const errorMsg = `Failed to ${command.description}: ${_getErrorMessage(error)}`;
+					errors.push(errorMsg);
+					this.log("error", errorMsg);
 
-  private async executeCommand(command: MigrationCommand): Promise<void> {
-    switch (command.type) {
-      case 'backup':
-        await this.createBackup(command.oldPath!, command.newPath!);
-        break;
-        
-      case 'update':
-        if (command.content) {
-          await fs.writeFile(command.newPath!, command.content);
-        } else if (command.oldPath && command.newPath) {
-          await fs.copy(command.oldPath, command.newPath, { overwrite: true });
-        }
-        break;
-        
-      case 'create':
-        await fs.ensureDir(path.dirname(command.newPath!));
-        await fs.writeFile(command.newPath!, command.content || '');
-        break;
-        
-      case 'migrate':
-        await this.migrateData(command.oldPath!, command.newPath!);
-        break;
-        
-      default:
-        throw new Error(`Unknown command type: ${command.type}`);
-    }
-  }
+					if (command.required) {
+						this.log("error", "Required migration step failed, aborting");
+						break;
+					}
+				}
+			}
 
-  private async scanExistingFiles(): Promise<{
-    hasMemoryData: boolean;
-    memoryPath?: string;
-    hasSwarmConfig: boolean;
-    swarmConfigPath?: string;
-  }> {
-    const result: {
-      hasMemoryData: boolean;
-      hasSwarmConfig: boolean;
-      memoryPath?: string;
-      swarmConfigPath?: string;
-    } = {
-      hasMemoryData: false,
-      hasSwarmConfig: false
-    };
+			const success =
+				errors.length === 0 ||
+				!plan.commands.some(
+					(c) => c.required && errors.some((e) => e.includes(c.description))
+				);
 
-    // Check for memory data,
-    const memoryPaths = [
-      'memory/claude-flow-data.json',
-      'memory/claude-flow-memory.db',
-      'claude-flow-data.json'
-    ];
+			if (success) {
+				this.log(
+					"info",
+					`🎉 Migration completed successfully (${completed}/${plan.commands.length} steps)`
+				);
+				await this.createMigrationSummary(plan, errors);
+			} else {
+				this.log(
+					"error",
+					`❌ Migration failed (${completed}/${plan.commands.length} steps completed)`
+				);
+			}
 
-    for (const memoryPath of memoryPaths) {
-      const fullPath = path.join(this.workingDirectory, memoryPath);
-      if (await fs.pathExists(fullPath)) {
-        result.hasMemoryData = true;
-        result['memoryPath'] = fullPath;
-        break;
-      }
-    }
+			return { success, errors };
+		} catch (error) {
+			const errorMsg = `Migration execution failed: ${_getErrorMessage(error)}`;
+			errors.push(errorMsg);
+			this.log("error", errorMsg);
+			return { success: false, errors };
+		}
+	}
 
-    // Check for swarm configuration,
-    const swarmConfigPaths = [
-      '.claude/swarm-config.json',
-      'swarm-config.json',
-      '.claude/settings.json'
-    ];
+	private async executeCommand(command: MigrationCommand): Promise<void> {
+		switch (command.type) {
+			case "backup":
+				await this.createBackup(command.oldPath!, command.newPath!);
+				break;
 
-    for (const configPath of swarmConfigPaths) {
-      const fullPath = path.join(this.workingDirectory, configPath);
-      if (await fs.pathExists(fullPath)) {
-        result.hasSwarmConfig = true;
-        result['swarmConfigPath'] = fullPath;
-        break;
-      }
-    }
+			case "update":
+				if (command.content) {
+					await fs.writeFile(command.newPath!, command.content);
+				} else if (command.oldPath && command.newPath) {
+					await fs.copy(command.oldPath, command.newPath, { overwrite: true });
+				}
+				break;
 
-    return result;
-  }
+			case "create":
+				await fs.ensureDir(path.dirname(command.newPath!));
+				await fs.writeFile(command.newPath!, command.content || "");
+				break;
 
-  private async detectLegacyConfigurations(): Promise<any[]> {
-    // Implementation would scan for legacy configuration patterns,
-    return [];
-  }
+			case "migrate":
+				await this.migrateData(command.oldPath!, command.newPath!);
+				break;
 
-  private createUnifiedConfig(): any {
-    return {
-      version: '2.0.0-alpha.50',
-      unified: {
-        enabled: true,
-        intrinsicAgents: true,
-        memoryCoordination: true,
-        ruvSwarmIntegration: true,
-        backwardCompatibility: true
-      },
-      coordination: {
-        defaultTopology: 'hierarchical',
-        defaultStrategy: 'parallel',
-        memoryHooks: true,
-        autoAgentCount: true
-      },
-      features: {
-        workCommand: true,
-        intrinsicCoordination: true,
-        unifiedMemory: true,
-        migrationSupport: true
-      },
-      migration: {
-        completed: true,
-        version: '2.0.0-alpha.50',
-        features: ['unified-coordination', 'intrinsic-agents', 'memory-coordination']
-      }
-    };
-  }
+			default:
+				throw new Error(`Unknown command type: ${command.type}`);
+		}
+	}
 
-  private createUnifiedClaudeMd(): string {
-    return `# Claude Code Configuration for Claude Flow - Unified Coordination System
+	private async scanExistingFiles(): Promise<{
+		hasMemoryData: boolean;
+		memoryPath?: string;
+		hasSwarmConfig: boolean;
+		swarmConfigPath?: string;
+	}> {
+		const result: {
+			hasMemoryData: boolean;
+			hasSwarmConfig: boolean;
+			memoryPath?: string;
+			swarmConfigPath?: string;
+		} = {
+			hasMemoryData: false,
+			hasSwarmConfig: false,
+		};
+
+		// Check for memory data,
+		const memoryPaths = [
+			"memory/claude-flow-data.json",
+			"memory/claude-flow-memory.db",
+			"claude-flow-data.json",
+		];
+
+		for (const memoryPath of memoryPaths) {
+			const fullPath = path.join(this.workingDirectory, memoryPath);
+			if (await fs.pathExists(fullPath)) {
+				result.hasMemoryData = true;
+				result["memoryPath"] = fullPath;
+				break;
+			}
+		}
+
+		// Check for swarm configuration,
+		const swarmConfigPaths = [
+			".claude/swarm-config.json",
+			"swarm-config.json",
+			".claude/settings.json",
+		];
+
+		for (const configPath of swarmConfigPaths) {
+			const fullPath = path.join(this.workingDirectory, configPath);
+			if (await fs.pathExists(fullPath)) {
+				result.hasSwarmConfig = true;
+				result["swarmConfigPath"] = fullPath;
+				break;
+			}
+		}
+
+		return result;
+	}
+
+	private async detectLegacyConfigurations(): Promise<any[]> {
+		// Implementation would scan for legacy configuration patterns,
+		return [];
+	}
+
+	private createUnifiedConfig(): any {
+		return {
+			version: "2.0.0-alpha.50",
+			unified: {
+				enabled: true,
+				intrinsicAgents: true,
+				memoryCoordination: true,
+				ruvSwarmIntegration: true,
+				backwardCompatibility: true,
+			},
+			coordination: {
+				defaultTopology: "hierarchical",
+				defaultStrategy: "parallel",
+				memoryHooks: true,
+				autoAgentCount: true,
+			},
+			features: {
+				workCommand: true,
+				intrinsicCoordination: true,
+				unifiedMemory: true,
+				migrationSupport: true,
+			},
+			migration: {
+				completed: true,
+				version: "2.0.0-alpha.50",
+				features: [
+					"unified-coordination",
+					"intrinsic-agents",
+					"memory-coordination",
+				],
+			},
+		};
+	}
+
+	private createUnifiedClaudeMd(): string {
+		return `# Claude Code Configuration for Claude Flow - Unified Coordination System
 
 ## 🚀 UNIFIED COORDINATION SYSTEM
 
@@ -303,7 +341,7 @@ Agents now have intrinsic coordination with automatic memory hooks:
 # Spawn intrinsic agents with coordination,
 npx claude-flow@alpha agent spawn researcher --intrinsic --memory-hooks
 
-# Check agent coordination status,  
+# Check agent coordination status,
 npx claude-flow@alpha agent status --session-id my-session
 
 # Memory-based agent coordination,
@@ -407,7 +445,7 @@ When ruv-swarm is available, the system automatically:
 
 This project has been migrated to:
 - ✅ Unified Coordination System
-- ✅ Intrinsic Agent Coordination  
+- ✅ Intrinsic Agent Coordination
 - ✅ Memory-Based Coordination
 - ✅ Backward Compatibility Support,
 
@@ -426,137 +464,146 @@ npx claude-flow@alpha migrate-guide
 
 **Unified Coordination System v2.0.0-alpha.50** - Enhanced with intrinsic agents and memory coordination
 `;
-  }
+	}
 
-  private async createBackup(sourcePath: string, backupPath: string): Promise<void> {
-    await fs.ensureDir(backupPath);
-    
-    const backupManifest = {
-      createdAt: new Date().toISOString(),
-      sourcePath,
-      backupPath,
-      version: '2.0.0-alpha.50'
-    };
+	private async createBackup(
+		sourcePath: string,
+		backupPath: string
+	): Promise<void> {
+		await fs.ensureDir(backupPath);
 
-    await fs.writeFile(
-      path.join(backupPath, 'backup-manifest.json'),
-      JSON.stringify(backupManifest, null, 2)
-    );
+		const backupManifest = {
+			createdAt: new Date().toISOString(),
+			sourcePath,
+			backupPath,
+			version: "2.0.0-alpha.50",
+		};
 
-    // Copy relevant files,
-    const filesToBackup = [
-      'CLAUDE.md',
-      'memory',
-      '.claude',
-      'claude-flow-data.json',
-      'coordination.md',
-      'memory-bank.md'
-    ];
+		await fs.writeFile(
+			path.join(backupPath, "backup-manifest.json"),
+			JSON.stringify(backupManifest, null, 2)
+		);
 
-    for (const file of filesToBackup) {
-      const sourceFilePath = path.join(sourcePath, file);
-      const backupFilePath = path.join(backupPath, file);
-      
-      if (await fs.pathExists(sourceFilePath)) {
-        await fs.copy(sourceFilePath, backupFilePath);
-      }
-    }
-  }
+		// Copy relevant files,
+		const filesToBackup = [
+			"CLAUDE.md",
+			"memory",
+			".claude",
+			"claude-flow-data.json",
+			"coordination.md",
+			"memory-bank.md",
+		];
 
-  private async migrateData(oldPath: string, newPath: string): Promise<void> {
-    // Implementation would handle data format migration,
-    await fs.ensureDir(path.dirname(newPath));
-    
-    if (await fs.pathExists(oldPath)) {
-      // Copy and potentially transform data,
-      await fs.copy(oldPath, newPath);
-      
-      // Add migration metadata,
-      const migrationMeta = {
-        migratedFrom: oldPath,
-        migratedAt: new Date().toISOString(),
-        format: 'unified-coordination'
-      };
-      
-      await fs.writeFile(
-        newPath + '.migration-meta.json',
-        JSON.stringify(migrationMeta, null, 2)
-      );
-    }
-  }
+		for (const file of filesToBackup) {
+			const sourceFilePath = path.join(sourcePath, file);
+			const backupFilePath = path.join(backupPath, file);
 
-  private async createMigrationSummary(plan: MigrationPlan, errors: string[]): Promise<void> {
-    const summary = {
-      migration: {
-        version: plan.version,
-        completedAt: new Date().toISOString(),
-        steps: plan.commands.length,
-        errors: errors.length,
-        success: errors.length === 0
-      },
-      features: {
-        unifiedCoordination: true,
-        intrinsicAgents: true,
-        memoryCoordination: true,
-        backwardCompatibility: true
-      },
-      nextSteps: [
-        'Run: npx claude-flow@alpha work --task "test unified system"',
-        'Check: npx claude-flow@alpha agent status',
-        'Explore: npx claude-flow@alpha help'
-      ],
-      errors
-    };
+			if (await fs.pathExists(sourceFilePath)) {
+				await fs.copy(sourceFilePath, backupFilePath);
+			}
+		}
+	}
 
-    await fs.writeFile(
-      path.join(this.workingDirectory, '.claude/migration-summary.json'),
-      JSON.stringify(summary, null, 2)
-    );
-  }
+	private async migrateData(oldPath: string, newPath: string): Promise<void> {
+		// Implementation would handle data format migration,
+		await fs.ensureDir(path.dirname(newPath));
 
-  private log(level: string, message: string): void {
-    if (this.logger) {
-      switch (level) {
-        case 'info':
-          this.logger.info(message);
-          break;
-        case 'warn':
-          this.logger.warn(message);
-          break;
-        case 'error':
-          this.logger.error(message);
-          break;
-        case 'debug':
-          this.logger.debug(message);
-          break;
-        default:
-          this.logger.info(message);
-      }
-    } else {
-      console.log(`[${level.toUpperCase()}] ${message}`);
-    }
-  }
+		if (await fs.pathExists(oldPath)) {
+			// Copy and potentially transform data,
+			await fs.copy(oldPath, newPath);
 
-  static async checkMigrationStatus(workingDirectory: string): Promise<{
-    migrated: boolean;
-    version?: string;
-    features?: string[];
-  }> {
-    const markerPath = path.join(workingDirectory, '.claude/migration-completed.json');
-    
-    if (await fs.pathExists(markerPath)) {
-      try {
-        const marker = await fs.readJson(markerPath);
-        return {
-          migrated: true,
-          version: marker.version,
-          features: marker.features
-        };
-      } catch {
-        return { migrated: false };
-      }
-    }
-    
-    return { migrated: false };
-  }
+			// Add migration metadata,
+			const migrationMeta = {
+				migratedFrom: oldPath,
+				migratedAt: new Date().toISOString(),
+				format: "unified-coordination",
+			};
+
+			await fs.writeFile(
+				newPath + ".migration-meta.json",
+				JSON.stringify(migrationMeta, null, 2)
+			);
+		}
+	}
+
+	private async createMigrationSummary(
+		plan: MigrationPlan,
+		errors: string[]
+	): Promise<void> {
+		const summary = {
+			migration: {
+				version: plan.version,
+				completedAt: new Date().toISOString(),
+				steps: plan.commands.length,
+				errors: errors.length,
+				success: errors.length === 0,
+			},
+			features: {
+				unifiedCoordination: true,
+				intrinsicAgents: true,
+				memoryCoordination: true,
+				backwardCompatibility: true,
+			},
+			nextSteps: [
+				'Run: npx claude-flow@alpha work --task "test unified system"',
+				"Check: npx claude-flow@alpha agent status",
+				"Explore: npx claude-flow@alpha help",
+			],
+			errors,
+		};
+
+		await fs.writeFile(
+			path.join(this.workingDirectory, ".claude/migration-summary.json"),
+			JSON.stringify(summary, null, 2)
+		);
+	}
+
+	private log(level: string, message: string): void {
+		if (this.logger) {
+			switch (level) {
+				case "info":
+					this.logger.info(message);
+					break;
+				case "warn":
+					this.logger.warn(message);
+					break;
+				case "error":
+					this.logger.error(message);
+					break;
+				case "debug":
+					this.logger.debug(message);
+					break;
+				default:
+					this.logger.info(message);
+			}
+		} else {
+			console.log(`[${level.toUpperCase()}] ${message}`);
+		}
+	}
+
+	static async checkMigrationStatus(workingDirectory: string): Promise<{
+		migrated: boolean;
+		version?: string;
+		features?: string[];
+	}> {
+		const markerPath = path.join(
+			workingDirectory,
+			".claude/migration-completed.json"
+		);
+
+		if (await fs.pathExists(markerPath)) {
+			try {
+				const marker = await fs.readJson(markerPath);
+				return {
+					migrated: true,
+					version: marker.version,
+					features: marker.features,
+				};
+			} catch {
+				return { migrated: false };
+			}
+		}
+
+		return { migrated: false };
+	}
 }

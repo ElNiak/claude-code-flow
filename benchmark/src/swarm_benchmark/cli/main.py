@@ -19,8 +19,8 @@ from swarm_benchmark.core.real_benchmark_engine import RealBenchmarkEngine
 @click.pass_context
 def cli(ctx, verbose, config):
     """Claude Flow Advanced Swarm Benchmarking Tool.
-    
-    A comprehensive Python-based benchmarking tool for agent swarms that interfaces 
+
+    A comprehensive Python-based benchmarking tool for agent swarms that interfaces
     with the Claude Flow Advanced Swarm System.
     """
     ctx.ensure_object(dict)
@@ -30,13 +30,13 @@ def cli(ctx, verbose, config):
 
 @cli.command()
 @click.argument('objective')
-@click.option('--strategy', 
+@click.option('--strategy',
               type=click.Choice(['auto', 'research', 'development', 'analysis', 'testing', 'optimization', 'maintenance']),
               default='auto',
               help='Execution strategy (default: auto)')
 @click.option('--mode',
               type=click.Choice(['centralized', 'distributed', 'hierarchical', 'mesh', 'hybrid']),
-              default='centralized', 
+              default='centralized',
               help='Coordination mode (default: centralized)')
 @click.option('--max-agents', type=int, default=5, help='Maximum agents (default: 5)')
 @click.option('--max-tasks', type=int, default=100, help='Maximum tasks (default: 100)')
@@ -45,21 +45,21 @@ def cli(ctx, verbose, config):
 @click.option('--max-retries', type=int, default=3, help='Maximum retries per task (default: 3)')
 @click.option('--parallel', is_flag=True, help='Enable parallel execution')
 @click.option('--monitor', is_flag=True, help='Enable monitoring')
-@click.option('--output', '-o', 'output_formats', multiple=True, 
+@click.option('--output', '-o', 'output_formats', multiple=True,
               type=click.Choice(['json', 'sqlite', 'csv', 'html']),
               help='Output formats (default: json)')
-@click.option('--output-dir', type=click.Path(), default='./reports', 
+@click.option('--output-dir', type=click.Path(), default='./reports',
               help='Output directory (default: ./reports)')
 @click.option('--name', help='Benchmark name')
 @click.option('--description', help='Benchmark description')
 @click.option('--real-metrics', is_flag=True, help='Use real metrics collection (default: False)')
 @click.pass_context
-def run(ctx, objective, strategy, mode, max_agents, max_tasks, timeout, task_timeout, 
+def run(ctx, objective, strategy, mode, max_agents, max_tasks, timeout, task_timeout,
         max_retries, parallel, monitor, output_formats, output_dir, name, description, real_metrics):
     """Run a swarm benchmark with the specified objective.
-    
+
     OBJECTIVE: The goal or task for the swarm to accomplish
-    
+
     Examples:
       swarm-benchmark run "Build a REST API" --strategy development
       swarm-benchmark run "Research cloud architecture" --strategy research --mode distributed
@@ -83,24 +83,24 @@ def run(ctx, objective, strategy, mode, max_agents, max_tasks, timeout, task_tim
         output_directory=output_dir,
         verbose=ctx.obj.get('verbose', False)
     )
-    
+
     if ctx.obj.get('verbose'):
         click.echo(f"Running benchmark: {config.name}")
         click.echo(f"Objective: {objective}")
         click.echo(f"Strategy: {strategy}")
         click.echo(f"Mode: {mode}")
         click.echo(f"Real metrics: {'Enabled' if real_metrics else 'Disabled'}")
-    
+
     # Run the benchmark
     try:
         result = asyncio.run(_run_benchmark(objective, config, real_metrics))
-        
+
         if result:
             click.echo(f"✅ Benchmark completed successfully!")
             click.echo(f"📊 Results saved to: {output_dir}")
             if ctx.obj.get('verbose'):
                 click.echo(f"📋 Summary: {result.get('summary', 'N/A')}")
-                
+
             # Display metrics if available
             if 'metrics' in result and real_metrics:
                 click.echo("\n📈 Performance Metrics:")
@@ -114,16 +114,16 @@ def run(ctx, objective, strategy, mode, max_agents, max_tasks, timeout, task_tim
         else:
             click.echo("❌ Benchmark failed!")
             return 1
-            
+
     except Exception as e:
         click.echo(f"❌ Error running benchmark: {e}")
         return 1
-    
+
     return 0
 
 
 @cli.command()
-@click.option('--format', 'output_format', 
+@click.option('--format', 'output_format',
               type=click.Choice(['json', 'table', 'csv']),
               default='table',
               help='Output format (default: table)')
@@ -135,18 +135,18 @@ def list(ctx, output_format, filter_strategy, filter_mode, limit):
     """List recent benchmark runs."""
     try:
         benchmarks = _get_recent_benchmarks(filter_strategy, filter_mode, limit)
-        
+
         if output_format == 'table':
             _display_benchmarks_table(benchmarks)
         elif output_format == 'json':
             click.echo(json.dumps(benchmarks, indent=2))
         elif output_format == 'csv':
             _display_benchmarks_csv(benchmarks)
-            
+
     except Exception as e:
         click.echo(f"❌ Error listing benchmarks: {e}")
         return 1
-    
+
     return 0
 
 
@@ -161,22 +161,22 @@ def show(ctx, benchmark_id, output_format):
     """Show details for a specific benchmark run."""
     try:
         benchmark = _get_benchmark_details(benchmark_id)
-        
+
         if not benchmark:
             click.echo(f"❌ Benchmark {benchmark_id} not found")
             return 1
-        
+
         if output_format == 'json':
             click.echo(json.dumps(benchmark, indent=2))
         elif output_format == 'summary':
             _display_benchmark_summary(benchmark)
         elif output_format == 'detailed':
             _display_benchmark_detailed(benchmark)
-            
+
     except Exception as e:
         click.echo(f"❌ Error showing benchmark: {e}")
         return 1
-    
+
     return 0
 
 
@@ -191,11 +191,11 @@ def clean(ctx, all, older_than, strategy):
     try:
         deleted_count = _clean_benchmarks(all, older_than, strategy)
         click.echo(f"✅ Deleted {deleted_count} benchmark results")
-        
+
     except Exception as e:
         click.echo(f"❌ Error cleaning benchmarks: {e}")
         return 1
-    
+
     return 0
 
 
@@ -208,28 +208,28 @@ def serve(ctx, port, host):
     try:
         click.echo(f"🚀 Starting benchmark server at http://{host}:{port}")
         click.echo("Press Ctrl+C to stop")
-        
+
         # TODO: Implement web interface
         click.echo("⚠️  Web interface not yet implemented")
-        
+
     except KeyboardInterrupt:
         click.echo("\n👋 Server stopped")
     except Exception as e:
         click.echo(f"❌ Error starting server: {e}")
         return 1
-    
+
     return 0
 
 
 @cli.command()
 @click.argument('objective')
-@click.option('--strategy', 
+@click.option('--strategy',
               type=click.Choice(['auto', 'research', 'development', 'analysis', 'testing', 'optimization', 'maintenance']),
               default='auto',
               help='Execution strategy (default: auto)')
 @click.option('--mode',
               type=click.Choice(['centralized', 'distributed', 'hierarchical', 'mesh', 'hybrid']),
-              default='centralized', 
+              default='centralized',
               help='Coordination mode (default: centralized)')
 @click.option('--sparc-mode',
               help='Specific SPARC mode to test (e.g., coder, architect, reviewer)')
@@ -239,20 +239,20 @@ def serve(ctx, port, host):
 @click.option('--task-timeout', type=int, default=300, help='Individual task timeout in seconds (default: 300)')
 @click.option('--parallel', is_flag=True, help='Enable parallel execution')
 @click.option('--monitor', is_flag=True, help='Enable monitoring')
-@click.option('--output', '-o', 'output_formats', multiple=True, 
+@click.option('--output', '-o', 'output_formats', multiple=True,
               type=click.Choice(['json', 'sqlite']),
               help='Output formats (default: json)')
-@click.option('--output-dir', type=click.Path(), default='./reports', 
+@click.option('--output-dir', type=click.Path(), default='./reports',
               help='Output directory (default: ./reports)')
 @click.option('--name', help='Benchmark name')
 @click.option('--description', help='Benchmark description')
 @click.pass_context
-def real(ctx, objective, strategy, mode, sparc_mode, all_modes, max_agents, timeout, 
+def real(ctx, objective, strategy, mode, sparc_mode, all_modes, max_agents, timeout,
          task_timeout, parallel, monitor, output_formats, output_dir, name, description):
     """Run real claude-flow benchmarks with actual command execution.
-    
+
     OBJECTIVE: The goal or task for claude-flow to accomplish
-    
+
     Examples:
       swarm-benchmark real "Build a REST API" --strategy development
       swarm-benchmark real "Create a parser" --sparc-mode coder
@@ -274,7 +274,7 @@ def real(ctx, objective, strategy, mode, sparc_mode, all_modes, max_agents, time
         output_directory=output_dir,
         verbose=ctx.obj.get('verbose', False)
     )
-    
+
     if ctx.obj.get('verbose'):
         click.echo(f"Running real benchmark: {config.name}")
         click.echo(f"Objective: {objective}")
@@ -284,11 +284,11 @@ def real(ctx, objective, strategy, mode, sparc_mode, all_modes, max_agents, time
             click.echo(f"SPARC Mode: {sparc_mode}")
         if all_modes:
             click.echo("Testing all modes: Yes")
-    
+
     # Run the real benchmark
     try:
         result = asyncio.run(_run_real_benchmark(objective, config, sparc_mode, all_modes))
-        
+
         if result:
             click.echo(f"✅ Real benchmark completed successfully!")
             click.echo(f"📊 Results saved to: {output_dir}")
@@ -297,14 +297,14 @@ def real(ctx, objective, strategy, mode, sparc_mode, all_modes, max_agents, time
         else:
             click.echo("❌ Real benchmark failed!")
             return 1
-            
+
     except Exception as e:
         click.echo(f"❌ Error running real benchmark: {e}")
         if ctx.obj.get('verbose'):
             import traceback
             click.echo(traceback.format_exc())
         return 1
-    
+
     return 0
 
 
@@ -315,7 +315,7 @@ async def _run_benchmark(objective: str, config: BenchmarkConfig, use_real_metri
         engine = RealBenchmarkEngine(config)
     else:
         engine = BenchmarkEngine(config)
-    
+
     try:
         result = await engine.run_benchmark(objective)
         return result
@@ -324,12 +324,12 @@ async def _run_benchmark(objective: str, config: BenchmarkConfig, use_real_metri
         return None
 
 
-async def _run_real_benchmark(objective: str, config: BenchmarkConfig, 
+async def _run_real_benchmark(objective: str, config: BenchmarkConfig,
                               sparc_mode: Optional[str] = None,
                               all_modes: bool = False) -> Optional[dict]:
     """Run a real benchmark with actual claude-flow execution."""
     engine = RealBenchmarkEngine(config)
-    
+
     try:
         if all_modes:
             # Test all modes comprehensively
@@ -341,7 +341,7 @@ async def _run_real_benchmark(objective: str, config: BenchmarkConfig,
         else:
             # Standard benchmark run
             result = await engine.run_benchmark(objective)
-        
+
         return result
     except Exception as e:
         click.echo(f"Error in real benchmark execution: {e}")
@@ -374,7 +374,7 @@ def _display_benchmarks_table(benchmarks):
     if not benchmarks:
         click.echo("No benchmarks found.")
         return
-    
+
     # TODO: Implement table display
     click.echo("Benchmark results (table format not yet implemented)")
 

@@ -630,7 +630,7 @@ echo "npm Version: $(npm --version)"
 echo "Operating System: $(uname -a)"
 echo "Working Directory: $(pwd)"
 echo "Directory Contents: $(ls -la)"
-echo "Environment Variables:" 
+echo "Environment Variables:"
 env | grep -E "(NODE|NPM|PATH)" | head -10
 ```
 
@@ -649,13 +649,13 @@ if [ "$confirm" = "yes" ]; then
   rm -f CLAUDE.md memory-bank.md coordination.md .roomodes
   rm -rf .claude/ memory/ coordination/
   rm -f claude-flow claude-flow.cmd
-  
+
   # Clear npm cache
   npm cache clean --force
-  
+
   # Fresh start
   npx -y claude-flow@latest init --sparc --force
-  
+
   echo "✅ Emergency recovery complete"
 else
   echo "❌ Emergency recovery cancelled"

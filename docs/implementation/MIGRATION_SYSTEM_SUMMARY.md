@@ -39,7 +39,7 @@ scripts/build-migration.sh       # Build and distribution script
 ### 1. Migration Strategies
 
 - **Full Strategy**: Complete replacement of .claude folder (high risk, with backup)
-- **Selective Strategy**: Updates core files, preserves customizations (medium risk) 
+- **Selective Strategy**: Updates core files, preserves customizations (medium risk)
 - **Merge Strategy**: Merges configurations, preserves custom commands (low risk)
 
 ### 2. Risk Management
@@ -336,7 +336,7 @@ The Claude-Flow Migration System provides a robust, safe, and user-friendly way 
 
 **Key Achievements:**
 - ✅ Complete migration framework with 3 strategies
-- ✅ Comprehensive backup and rollback system  
+- ✅ Comprehensive backup and rollback system
 - ✅ Advanced risk detection and mitigation
 - ✅ Extensive test coverage and validation
 - ✅ Professional CLI interface with progress reporting

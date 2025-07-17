@@ -11,7 +11,7 @@ The parallel execution system provides efficient, scalable execution of multiple
 The core execution engine that manages concurrent task execution with multiple execution modes:
 
 - **Thread-based execution**: For I/O-bound tasks
-- **Process-based execution**: For CPU-bound tasks  
+- **Process-based execution**: For CPU-bound tasks
 - **Asyncio-based execution**: For async/await compatible tasks
 - **Hybrid execution**: Automatically chooses the best mode based on task characteristics
 
@@ -96,7 +96,7 @@ await executor.stop()
 
 ```python
 from swarm_benchmark.core import (
-    OrchestrationManager, 
+    OrchestrationManager,
     OrchestrationConfig,
     SchedulingAlgorithm
 )

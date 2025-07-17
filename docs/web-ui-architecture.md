@@ -67,10 +67,10 @@ The CLI output capture system uses a non-intrusive approach that wraps existing 
 interface OutputInterceptor {
   // Capture stdout/stderr from CLI processes
   captureStream(processId: string, streamType: 'stdout' | 'stderr'): ReadableStream;
-  
-  // Buffer output for late-joining clients  
+
+  // Buffer output for late-joining clients
   bufferOutput(processId: string, maxSize: number): void;
-  
+
   // Filter sensitive information
   filterOutput(data: string, rules: FilterRule[]): string;
 }
@@ -87,10 +87,10 @@ interface FilterRule {
 interface StreamManager {
   // Create output stream for web clients
   createClientStream(sessionId: string): WebSocketStream;
-  
+
   // Multiplex single CLI output to multiple clients
   multiplexStream(cliStream: ReadableStream): Map<string, WebSocketStream>;
-  
+
   // Handle client connection/disconnection
   manageConnections(): void;
 }
@@ -101,7 +101,7 @@ interface StreamManager {
 interface ProcessWrapper {
   // Launch CLI with output capture
   launchWithCapture(command: string[], options: LaunchOptions): Promise<CapturedProcess>;
-  
+
   // Attach to existing CLI process
   attachToProcess(pid: number): CapturedProcess;
 }
@@ -168,10 +168,10 @@ interface StreamMessage {
 interface InputRouter {
   // Route commands to appropriate handler
   routeCommand(input: UserInput): Promise<CommandResult>;
-  
+
   // Validate input security and format
   validateInput(input: UserInput): ValidationResult;
-  
+
   // Handle file uploads and attachments
   processFileInput(files: FileInput[]): Promise<ProcessedFiles>;
 }
@@ -190,10 +190,10 @@ interface UserInput {
 interface CommandParser {
   // Parse web UI input into CLI-compatible format
   parseWebInput(input: string): ParsedCommand;
-  
+
   // Handle special web UI commands (file upload, etc.)
   parseSpecialCommands(input: string): SpecialCommand[];
-  
+
   // Validate command syntax and permissions
   validateCommand(command: ParsedCommand): ValidationResult;
 }
@@ -211,10 +211,10 @@ interface ParsedCommand {
 interface SessionManager {
   // Create new CLI session for web client
   createSession(clientId: string): Promise<CLISession>;
-  
+
   // Synchronize session state between CLI and web
   syncSessionState(sessionId: string): Promise<SessionState>;
-  
+
   // Handle session persistence and recovery
   persistSession(session: CLISession): Promise<void>;
   restoreSession(sessionId: string): Promise<CLISession>;
@@ -252,11 +252,11 @@ interface WebServer {
   app: express.Application;
   httpServer: http.Server;
   socketServer: SocketIOServer;
-  
+
   // Core server lifecycle
   start(port: number): Promise<void>;
   stop(): Promise<void>;
-  
+
   // Handle client connections
   handleConnection(socket: Socket): void;
 }
@@ -267,13 +267,13 @@ interface WebServer {
 interface RouteHandlers {
   // Serve web UI assets
   serveStaticAssets(req: Request, res: Response): void;
-  
+
   // Handle file uploads
   handleFileUpload(req: Request, res: Response): Promise<void>;
-  
+
   // Provide session information
   getSessionInfo(req: Request, res: Response): Promise<void>;
-  
+
   // Health check endpoint
   healthCheck(req: Request, res: Response): void;
 }
@@ -291,13 +291,13 @@ interface RouteHandlers {
 interface ConsoleComponent {
   // Terminal display with scrollback
   terminal: TerminalDisplay;
-  
+
   // Command input with history
   commandLine: CommandInput;
-  
+
   // Status and monitoring panels
   statusPanel: StatusDisplay;
-  
+
   // File drag-and-drop
   fileHandler: FileDropHandler;
 }
@@ -305,11 +305,11 @@ interface ConsoleComponent {
 interface TerminalDisplay {
   // Render output with ANSI color support
   renderOutput(data: string): void;
-  
+
   // Handle scrolling and history
   scrollToBottom(): void;
   scrollToTop(): void;
-  
+
   // Search functionality
   search(query: string): SearchResult[];
 }
@@ -321,11 +321,11 @@ interface WebSocketClient {
   // Connection management
   connect(url: string): Promise<void>;
   disconnect(): void;
-  
+
   // Message handling
   sendCommand(command: string): void;
   sendFile(file: File): Promise<void>;
-  
+
   // Event listeners
   onOutput(callback: (data: string) => void): void;
   onStatus(callback: (status: SessionStatus) => void): void;
@@ -346,7 +346,7 @@ interface ClientMessage {
   requestId: string;
 }
 
-// Server to Client  
+// Server to Client
 interface ServerMessage {
   type: 'output' | 'error' | 'status' | 'pong' | 'complete';
   payload: any;
@@ -382,11 +382,11 @@ interface APIEndpoints {
   'POST /api/sessions': CreateSessionResponse;
   'GET /api/sessions/:id': SessionInfo;
   'DELETE /api/sessions/:id': void;
-  
+
   // File operations
   'POST /api/files/upload': FileUploadResponse;
   'GET /api/files/:id': FileContent;
-  
+
   // System status
   'GET /api/status': SystemStatus;
   'GET /api/health': HealthCheck;
@@ -404,7 +404,7 @@ CLI Process ← Process Manager ← Session Manager ← Command Validator
 Output Capture → Stream Manager → WebSocket → Web UI Display
 ```
 
-### File Upload Flow  
+### File Upload Flow
 ```
 File Drop → Upload Handler → Temporary Storage → CLI Access Path
                 ↓                    ↓
@@ -416,7 +416,7 @@ File Drop → Upload Handler → Temporary Storage → CLI Access Path
 CLI Process Output → Output Interceptor → Stream Multiplexer
                                               ↓
                                     ┌─── Client 1 WebSocket
-                                    ├─── Client 2 WebSocket  
+                                    ├─── Client 2 WebSocket
                                     └─── Client N WebSocket
 ```
 
@@ -433,10 +433,10 @@ CLI Process Output → Output Interceptor → Stream Multiplexer
 interface SecurityManager {
   // Validate client connections
   authenticateClient(token: string): Promise<ClientIdentity>;
-  
+
   // Check command permissions
   authorizeCommand(client: ClientIdentity, command: string): boolean;
-  
+
   // Rate limiting
   checkRateLimit(clientId: string): Promise<boolean>;
 }

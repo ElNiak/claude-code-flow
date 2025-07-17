@@ -705,7 +705,7 @@ cat .claude/settings.json >> debug-config.txt 2>&1
    - Specify NPX vs local build
    - Include error messages and steps to reproduce
 
-2. **Documentation**: 
+2. **Documentation**:
    - API Reference: `/API_REFERENCE.md`
    - Usage Guide: `/USAGE_GUIDE.md`
    - Setup Guide: `/SETUP.md`
@@ -748,6 +748,6 @@ time npx claude-flow@2.0.0 swarm "benchmark task" --max-agents 3
 
 *This troubleshooting guide covers known issues as of 2025-01-05. For the latest updates, check the GitHub repository.*
 
-*Last Updated: 2025-01-05*  
-*Version: 2.0.0*  
+*Last Updated: 2025-01-05*
+*Version: 2.0.0*
 *Status: NPX Production Ready | Local Build Issues Known*

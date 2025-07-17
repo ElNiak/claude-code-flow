@@ -311,9 +311,9 @@ swarm-benchmark run "Test authentication system" --strategy testing
 - Maintenance: 0.14s ⚡
 - Research: 0.10s ⚡
 - Testing: 0.12s ⚡
-- Analysis: 0.15s 
-- Optimization: 0.18s 
-- Development: 0.20s 
+- Analysis: 0.15s
+- Optimization: 0.18s
+- Development: 0.20s
 - Auto: 0.16s (varies)
 
 ### Quality Scores (Average)

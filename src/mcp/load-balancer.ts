@@ -1,511 +1,563 @@
-import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from "../utils/error-handler.js";
+
 /**
  * Load balancer and rate limiting for MCP
  */
 
-import type { MCPLoadBalancerConfig, MCPRequest, MCPResponse, MCPSession } from '../utils/types.js';
-import type { ILogger } from '../core/logger.js';
-import { MCPError } from '../utils/errors.js';
+import type { ILogger } from "../core/logger.js";
+import { MCPError } from "../utils/errors.js";
+import type {
+	MCPLoadBalancerConfig,
+	MCPRequest,
+	MCPResponse,
+	MCPSession,
+} from "../utils/types.js";
 
 export interface RequestMetrics {
-  requestId: string;
-  sessionId: string;
-  method: string;
-  startTime: number;
-  endTime?: number;
-  success?: boolean;
-  error?: string;
+	requestId: string;
+	sessionId: string;
+	method: string;
+	startTime: number;
+	endTime?: number;
+	success?: boolean;
+	error?: string;
 }
 
 export interface LoadBalancerMetrics {
-  totalRequests: number;
-  successfulRequests: number;
-  failedRequests: number;
-  rateLimitedRequests: number;
-  averageResponseTime: number;
-  requestsPerSecond: number;
-  circuitBreakerTrips: number;
-  lastReset: Date;
+	totalRequests: number;
+	successfulRequests: number;
+	failedRequests: number;
+	rateLimitedRequests: number;
+	averageResponseTime: number;
+	requestsPerSecond: number;
+	circuitBreakerTrips: number;
+	lastReset: Date;
 }
 
 export interface ILoadBalancer {
-  shouldAllowRequest(session: MCPSession, request: MCPRequest): Promise<boolean>;
-  recordRequestStart(session: MCPSession, request: MCPRequest): RequestMetrics;
-  recordRequestEnd(metrics: RequestMetrics, response?: MCPResponse, error?: Error): void;
-  getMetrics(): LoadBalancerMetrics;
-  resetMetrics(): void;
-  isCircuitBreakerOpen(): boolean;
+	shouldAllowRequest(
+		session: MCPSession,
+		request: MCPRequest
+	): Promise<boolean>;
+	recordRequestStart(session: MCPSession, request: MCPRequest): RequestMetrics;
+	recordRequestEnd(
+		metrics: RequestMetrics,
+		response?: MCPResponse,
+		error?: Error
+	): void;
+	getMetrics(): LoadBalancerMetrics;
+	resetMetrics(): void;
+	isCircuitBreakerOpen(): boolean;
 }
 
 /**
  * Circuit breaker state
  */
 enum CircuitBreakerState {
-  CLOSED = 'closed',
-  OPEN = 'open',
-  HALF_OPEN = 'half_open',
+	CLOSED = "closed",
+	OPEN = "open",
+	HALF_OPEN = "half_open",
 }
 
 /**
  * Rate limiter using token bucket algorithm
  */
 class RateLimiter {
-  private tokens: number;
-  private lastRefill: number;
+	private tokens: number;
+	private lastRefill: number;
 
-  constructor(
-    private maxTokens: number,
-    private refillRate: number, // tokens per second
-  ) {
-    this.tokens = maxTokens;
-    this.lastRefill = Date.now();
-  }
+	constructor(
+		private maxTokens: number,
+		private refillRate: number // tokens per second
+	) {
+		this.tokens = maxTokens;
+		this.lastRefill = Date.now();
+	}
 
-  tryConsume(tokens = 1): boolean {
-    this.refill();
+	tryConsume(tokens = 1): boolean {
+		this.refill();
 
-    if (this.tokens >= tokens) {
-      this.tokens -= tokens;
-      return true;
-    }
+		if (this.tokens >= tokens) {
+			this.tokens -= tokens;
+			return true;
+		}
 
-    return false;
-  }
+		return false;
+	}
 
-  private refill(): void {
-    const now = Date.now();
-    const timePassed = (now - this.lastRefill) / 1000;
-    const tokensToAdd = Math.floor(timePassed * this.refillRate);
+	private refill(): void {
+		const now = Date.now();
+		const timePassed = (now - this.lastRefill) / 1000;
+		const tokensToAdd = Math.floor(timePassed * this.refillRate);
 
-    if (tokensToAdd > 0) {
-      this.tokens = Math.min(this.maxTokens, this.tokens + tokensToAdd);
-      this.lastRefill = now;
-    }
-  }
+		if (tokensToAdd > 0) {
+			this.tokens = Math.min(this.maxTokens, this.tokens + tokensToAdd);
+			this.lastRefill = now;
+		}
+	}
 
-  getTokens(): number {
-    this.refill();
-    return this.tokens;
-  }
+	getTokens(): number {
+		this.refill();
+		return this.tokens;
+	}
 }
 
 /**
  * Circuit breaker implementation
  */
 class CircuitBreaker {
-  private state = CircuitBreakerState.CLOSED;
-  private failureCount = 0;
-  private lastFailureTime = 0;
-  private successCount = 0;
+	private state = CircuitBreakerState.CLOSED;
+	private failureCount = 0;
+	private lastFailureTime = 0;
+	private successCount = 0;
 
-  constructor(
-    private failureThreshold: number,
-    private recoveryTimeout: number, // milliseconds,
-    private halfOpenMaxRequests = 3,
-  ) {}
+	constructor(
+		private failureThreshold: number,
+		private recoveryTimeout: number, // milliseconds,
+		private halfOpenMaxRequests = 3
+	) {}
 
-  canExecute(): boolean {
-    const now = Date.now();
+	canExecute(): boolean {
+		const now = Date.now();
 
-    switch (this.state) {
-      case CircuitBreakerState.CLOSED:
-        return true;
+		switch (this.state) {
+			case CircuitBreakerState.CLOSED:
+				return true;
 
-      case CircuitBreakerState.OPEN:
-        if (now - this.lastFailureTime >= this.recoveryTimeout) {
-          this.state = CircuitBreakerState.HALF_OPEN;
-          this.successCount = 0;
-          return true;
-        }
-        return false;
+			case CircuitBreakerState.OPEN:
+				if (now - this.lastFailureTime >= this.recoveryTimeout) {
+					this.state = CircuitBreakerState.HALF_OPEN;
+					this.successCount = 0;
+					return true;
+				}
+				return false;
 
-      case CircuitBreakerState.HALF_OPEN:
-        return this.successCount < this.halfOpenMaxRequests;
+			case CircuitBreakerState.HALF_OPEN:
+				return this.successCount < this.halfOpenMaxRequests;
 
-      default:
-        return false;
-    }
-  }
+			default:
+				return false;
+		}
+	}
 
-  recordSuccess(): void {
-    if (this.state === CircuitBreakerState.HALF_OPEN) {
-      this.successCount++;
-      if (this.successCount >= this.halfOpenMaxRequests) {
-        this.state = CircuitBreakerState.CLOSED;
-        this.failureCount = 0;
-      }
-    } else if (this.state === CircuitBreakerState.CLOSED) {
-      this.failureCount = 0;
-    }
-  }
+	recordSuccess(): void {
+		if (this.state === CircuitBreakerState.HALF_OPEN) {
+			this.successCount++;
+			if (this.successCount >= this.halfOpenMaxRequests) {
+				this.state = CircuitBreakerState.CLOSED;
+				this.failureCount = 0;
+			}
+		} else if (this.state === CircuitBreakerState.CLOSED) {
+			this.failureCount = 0;
+		}
+	}
 
-  recordFailure(): void {
-    this.failureCount++;
-    this.lastFailureTime = Date.now();
+	recordFailure(): void {
+		this.failureCount++;
+		this.lastFailureTime = Date.now();
 
-    if (this.state === CircuitBreakerState.HALF_OPEN) {
-      this.state = CircuitBreakerState.OPEN;
-    } else if (this.state === CircuitBreakerState.CLOSED && this.failureCount >= this.failureThreshold) {
-      this.state = CircuitBreakerState.OPEN;
-    }
-  }
+		if (this.state === CircuitBreakerState.HALF_OPEN) {
+			this.state = CircuitBreakerState.OPEN;
+		} else if (
+			this.state === CircuitBreakerState.CLOSED &&
+			this.failureCount >= this.failureThreshold
+		) {
+			this.state = CircuitBreakerState.OPEN;
+		}
+	}
 
-  getState(): CircuitBreakerState {
-    return this.state;
-  }
+	getState(): CircuitBreakerState {
+		return this.state;
+	}
 
-  getMetrics(): { state: string; failureCount: number; successCount: number } {
-    return {
-      state: this.state,
-      failureCount: this.failureCount,
-      successCount: this.successCount,
-    };
-  }
+	getMetrics(): { state: string; failureCount: number; successCount: number } {
+		return {
+			state: this.state,
+			failureCount: this.failureCount,
+			successCount: this.successCount,
+		};
+	}
 }
 
 /**
  * Load balancer implementation
  */
 export class LoadBalancer implements ILoadBalancer {
-  private rateLimiter: RateLimiter;
-  private circuitBreaker: CircuitBreaker;
-  private sessionRateLimiters = new Map<string, RateLimiter>();
-  private metrics: LoadBalancerMetrics;
-  private requestTimes: number[] = [];
-  private requestsInLastSecond = 0;
-  private lastSecondTimestamp = 0;
+	private rateLimiter: RateLimiter;
+	private circuitBreaker: CircuitBreaker;
+	private sessionRateLimiters = new Map<string, RateLimiter>();
+	private metrics: LoadBalancerMetrics;
+	private requestTimes: number[] = [];
+	private requestsInLastSecond = 0;
+	private lastSecondTimestamp = 0;
 
-  constructor(
-    private config: MCPLoadBalancerConfig,
-    private logger: ILogger,
-  ) {
-    this.rateLimiter = new RateLimiter(
-      config.maxRequestsPerSecond,
-      config.maxRequestsPerSecond,
-    );
+	constructor(
+		private config: MCPLoadBalancerConfig,
+		private logger: ILogger
+	) {
+		this.rateLimiter = new RateLimiter(
+			config.maxRequestsPerSecond,
+			config.maxRequestsPerSecond
+		);
 
-    this.circuitBreaker = new CircuitBreaker(
-      config.circuitBreakerThreshold,
-      30000, // 30 second recovery timeout
-    );
+		this.circuitBreaker = new CircuitBreaker(
+			config.circuitBreakerThreshold,
+			30000 // 30 second recovery timeout
+		);
 
-    this.metrics = {
-      totalRequests: 0,
-      successfulRequests: 0,
-      failedRequests: 0,
-      rateLimitedRequests: 0,
-      averageResponseTime: 0,
-      requestsPerSecond: 0,
-      circuitBreakerTrips: 0,
-      lastReset: new Date(),
-    };
+		this.metrics = {
+			totalRequests: 0,
+			successfulRequests: 0,
+			failedRequests: 0,
+			rateLimitedRequests: 0,
+			averageResponseTime: 0,
+			requestsPerSecond: 0,
+			circuitBreakerTrips: 0,
+			lastReset: new Date(),
+		};
 
-    // Clean up old session rate limiters periodically,
-    setInterval(() => {
-      this.cleanupSessionRateLimiters();
-    }, 300000); // Every 5 minutes
-  }
+		// Clean up old session rate limiters periodically,
+		setInterval(() => {
+			this.cleanupSessionRateLimiters();
+		}, 300000); // Every 5 minutes
+	}
+	/**
+	 * Initialize the load balancer
+	 */
+	async initialize(): Promise<void> {
+		this.logger.info("Load balancer initialized");
+		// Setup cleanup interval for session rate limiters
+		setInterval(() => {
+			this.cleanupSessionRateLimiters();
+		}, 60000); // Every minute
+	}
 
-  async shouldAllowRequest(session: MCPSession, request: MCPRequest): Promise<boolean> {
-    if (!this.config.enabled) {
-      return true;
-    }
+	/**
+	 * Shutdown the load balancer
+	 */
+	async shutdown(): Promise<void> {
+		this.logger.info("Load balancer shutting down");
+		// Clear any intervals and cleanup resources
+		this.sessionRateLimiters.clear();
+		this.requestTimes.length = 0;
+	}
 
-    // Check circuit breaker,
-    if (!this.circuitBreaker.canExecute()) {
-      this.logger.warn('Request rejected by circuit breaker', {
-        sessionId: session.id,
-        method: request.method,
-        circuitState: this.circuitBreaker.getState(),
-      });
-      this.metrics.circuitBreakerTrips++;
-      return false;
-    }
+	async shouldAllowRequest(
+		session: MCPSession,
+		request: MCPRequest
+	): Promise<boolean> {
+		if (!this.config.enabled) {
+			return true;
+		}
 
-    // Check global rate limit,
-    if (!this.rateLimiter.tryConsume()) {
-      this.logger.warn('Request rejected by global rate limiter', {
-        sessionId: session.id,
-        method: request.method,
-        remainingTokens: this.rateLimiter.getTokens(),
-      });
-      this.metrics.rateLimitedRequests++;
-      return false;
-    }
+		// Check circuit breaker,
+		if (!this.circuitBreaker.canExecute()) {
+			this.logger.warn("Request rejected by circuit breaker", {
+				sessionId: session.id,
+				method: request.method,
+				circuitState: this.circuitBreaker.getState(),
+			});
+			this.metrics.circuitBreakerTrips++;
+			return false;
+		}
 
-    // Check per-session rate limit,
-    const sessionRateLimiter = this.getSessionRateLimiter(session.id);
-    if (!sessionRateLimiter.tryConsume()) {
-      this.logger.warn('Request rejected by session rate limiter', {
-        sessionId: session.id,
-        method: request.method,
-        remainingTokens: sessionRateLimiter.getTokens(),
-      });
-      this.metrics.rateLimitedRequests++;
-      return false;
-    }
+		// Check global rate limit,
+		if (!this.rateLimiter.tryConsume()) {
+			this.logger.warn("Request rejected by global rate limiter", {
+				sessionId: session.id,
+				method: request.method,
+				remainingTokens: this.rateLimiter.getTokens(),
+			});
+			this.metrics.rateLimitedRequests++;
+			return false;
+		}
 
-    return true;
-  }
+		// Check per-session rate limit,
+		const sessionRateLimiter = this.getSessionRateLimiter(session.id);
+		if (!sessionRateLimiter.tryConsume()) {
+			this.logger.warn("Request rejected by session rate limiter", {
+				sessionId: session.id,
+				method: request.method,
+				remainingTokens: sessionRateLimiter.getTokens(),
+			});
+			this.metrics.rateLimitedRequests++;
+			return false;
+		}
 
-  recordRequestStart(session: MCPSession, request: MCPRequest): RequestMetrics {
-    const requestMetrics: RequestMetrics = {
-      requestId: request.id.toString(),
-      sessionId: session.id,
-      method: request.method,
-      startTime: Date.now(),
-    };
+		return true;
+	}
 
-    this.metrics.totalRequests++;
-    this.updateRequestsPerSecond();
+	recordRequestStart(session: MCPSession, request: MCPRequest): RequestMetrics {
+		const requestMetrics: RequestMetrics = {
+			requestId: request.id.toString(),
+			sessionId: session.id,
+			method: request.method,
+			startTime: Date.now(),
+		};
 
-    this.logger.debug('Request started', {
-      requestId: requestMetrics.requestId,
-      sessionId: session.id,
-      method: request.method,
-    });
+		this.metrics.totalRequests++;
+		this.updateRequestsPerSecond();
 
-    return requestMetrics;
-  }
+		this.logger.debug("Request started", {
+			requestId: requestMetrics.requestId,
+			sessionId: session.id,
+			method: request.method,
+		});
 
-  recordRequestEnd(metrics: RequestMetrics, response?: MCPResponse, error?: Error): void {
-    metrics.endTime = Date.now();
-    const duration = metrics.endTime - metrics.startTime;
+		return requestMetrics;
+	}
 
-    // Update response time tracking,
-    this.requestTimes.push(duration);
-    if (this.requestTimes.length > 1000) {
-      this.requestTimes.shift(); // Keep only last 1000 requests
-    }
+	recordRequestEnd(
+		metrics: RequestMetrics,
+		response?: MCPResponse,
+		error?: Error
+	): void {
+		metrics.endTime = Date.now();
+		const duration = metrics.endTime - metrics.startTime;
 
-    const success = !error && (!response || !response.error);
-    metrics.success = success;
-    const errorMessage = error?.message || response?.error?.message;
-    if (errorMessage) {
-      metrics.error = errorMessage;
-    }
+		// Update response time tracking,
+		this.requestTimes.push(duration);
+		if (this.requestTimes.length > 1000) {
+			this.requestTimes.shift(); // Keep only last 1000 requests
+		}
 
-    if (success) {
-      this.metrics.successfulRequests++;
-      this.circuitBreaker.recordSuccess();
-    } else {
-      this.metrics.failedRequests++;
-      this.circuitBreaker.recordFailure();
-    }
+		const success = !error && (!response || !response.error);
+		metrics.success = success;
+		const errorMessage = error?.message || response?.error?.message;
+		if (errorMessage) {
+			metrics.error = errorMessage;
+		}
 
-    // Update average response time,
-    this.metrics.averageResponseTime = this.calculateAverageResponseTime();
+		if (success) {
+			this.metrics.successfulRequests++;
+			this.circuitBreaker.recordSuccess();
+		} else {
+			this.metrics.failedRequests++;
+			this.circuitBreaker.recordFailure();
+		}
 
-    this.logger.debug('Request completed', {
-      requestId: metrics.requestId,
-      sessionId: metrics.sessionId,
-      method: metrics.method,
-      duration,
-      success,
-      error: metrics.error,
-    });
-  }
+		// Update average response time,
+		this.metrics.averageResponseTime = this.calculateAverageResponseTime();
 
-  getMetrics(): LoadBalancerMetrics {
-    return { ...this.metrics };
-  }
+		this.logger.debug("Request completed", {
+			requestId: metrics.requestId,
+			sessionId: metrics.sessionId,
+			method: metrics.method,
+			duration,
+			success,
+			error: metrics.error,
+		});
+	}
 
-  resetMetrics(): void {
-    this.metrics = {
-      totalRequests: 0,
-      successfulRequests: 0,
-      failedRequests: 0,
-      rateLimitedRequests: 0,
-      averageResponseTime: 0,
-      requestsPerSecond: 0,
-      circuitBreakerTrips: 0,
-      lastReset: new Date(),
-    };
-    this.requestTimes = [];
-    
-    this.logger.info('Load balancer metrics reset');
-  }
+	getMetrics(): LoadBalancerMetrics {
+		return { ...this.metrics };
+	}
 
-  isCircuitBreakerOpen(): boolean {
-    return this.circuitBreaker.getState() === CircuitBreakerState.OPEN;
-  }
+	resetMetrics(): void {
+		this.metrics = {
+			totalRequests: 0,
+			successfulRequests: 0,
+			failedRequests: 0,
+			rateLimitedRequests: 0,
+			averageResponseTime: 0,
+			requestsPerSecond: 0,
+			circuitBreakerTrips: 0,
+			lastReset: new Date(),
+		};
+		this.requestTimes = [];
 
-  getDetailedMetrics(): {
-    loadBalancer: LoadBalancerMetrics;
-    circuitBreaker: { state: string; failureCount: number; successCount: number };
-    rateLimiter: { tokens: number; maxTokens: number };
-    sessions: number;
-  } {
-    return {
-      loadBalancer: this.getMetrics(),
-      circuitBreaker: this.circuitBreaker.getMetrics(),
-      rateLimiter: {
-        tokens: this.rateLimiter.getTokens(),
-        maxTokens: this.config.maxRequestsPerSecond,
-      },
-      sessions: this.sessionRateLimiters.size,
-    };
-  }
+		this.logger.info("Load balancer metrics reset");
+	}
 
-  private getSessionRateLimiter(sessionId: string): RateLimiter {
-    let rateLimiter = this.sessionRateLimiters.get(sessionId);
-    
-    if (!rateLimiter) {
-      // Create a per-session rate limiter (more restrictive than global)
-      const sessionLimit = Math.max(1, Math.floor(this.config.maxRequestsPerSecond / 10));
-      rateLimiter = new RateLimiter(sessionLimit, sessionLimit);
-      this.sessionRateLimiters.set(sessionId, rateLimiter);
-    }
+	isCircuitBreakerOpen(): boolean {
+		return this.circuitBreaker.getState() === CircuitBreakerState.OPEN;
+	}
 
-    return rateLimiter;
-  }
+	getDetailedMetrics(): {
+		loadBalancer: LoadBalancerMetrics;
+		circuitBreaker: {
+			state: string;
+			failureCount: number;
+			successCount: number;
+		};
+		rateLimiter: { tokens: number; maxTokens: number };
+		sessions: number;
+	} {
+		return {
+			loadBalancer: this.getMetrics(),
+			circuitBreaker: this.circuitBreaker.getMetrics(),
+			rateLimiter: {
+				tokens: this.rateLimiter.getTokens(),
+				maxTokens: this.config.maxRequestsPerSecond,
+			},
+			sessions: this.sessionRateLimiters.size,
+		};
+	}
 
-  private calculateAverageResponseTime(): number {
-    if (this.requestTimes.length === 0) {
-      return 0;
-    }
+	private getSessionRateLimiter(sessionId: string): RateLimiter {
+		let rateLimiter = this.sessionRateLimiters.get(sessionId);
 
-    const sum = this.requestTimes.reduce((acc, time) => acc + time, 0);
-    return sum / this.requestTimes.length;
-  }
+		if (!rateLimiter) {
+			// Create a per-session rate limiter (more restrictive than global)
+			const sessionLimit = Math.max(
+				1,
+				Math.floor(this.config.maxRequestsPerSecond / 10)
+			);
+			rateLimiter = new RateLimiter(sessionLimit, sessionLimit);
+			this.sessionRateLimiters.set(sessionId, rateLimiter);
+		}
 
-  private updateRequestsPerSecond(): void {
-    const now = Math.floor(Date.now() / 1000);
-    
-    if (now !== this.lastSecondTimestamp) {
-      this.metrics.requestsPerSecond = this.requestsInLastSecond;
-      this.requestsInLastSecond = 1;
-      this.lastSecondTimestamp = now;
-    } else {
-      this.requestsInLastSecond++;
-    }
-  }
+		return rateLimiter;
+	}
 
-  private cleanupSessionRateLimiters(): void {
-    // Remove rate limiters for sessions that haven't been used recently,
-    const cutoffTime = Date.now() - 300000; // 5 minutes ago,
-    let cleaned = 0;
+	private calculateAverageResponseTime(): number {
+		if (this.requestTimes.length === 0) {
+			return 0;
+		}
 
-    for (const [sessionId, rateLimiter] of this.sessionRateLimiters.entries()) {
-      // If the rate limiter has full tokens, it hasn't been used recently,
-      if (rateLimiter.getTokens() === this.config.maxRequestsPerSecond) {
-        this.sessionRateLimiters.delete(sessionId);
-        cleaned++;
-      }
-    }
+		const sum = this.requestTimes.reduce((acc, time) => acc + time, 0);
+		return sum / this.requestTimes.length;
+	}
 
-    if (cleaned > 0) {
-      this.logger.debug('Cleaned up session rate limiters', { count: cleaned });
-    }
-  }
+	private updateRequestsPerSecond(): void {
+		const now = Math.floor(Date.now() / 1000);
+
+		if (now !== this.lastSecondTimestamp) {
+			this.metrics.requestsPerSecond = this.requestsInLastSecond;
+			this.requestsInLastSecond = 1;
+			this.lastSecondTimestamp = now;
+		} else {
+			this.requestsInLastSecond++;
+		}
+	}
+
+	private cleanupSessionRateLimiters(): void {
+		// Remove rate limiters for sessions that haven't been used recently,
+		const cutoffTime = Date.now() - 300000; // 5 minutes ago,
+		let cleaned = 0;
+
+		for (const [sessionId, rateLimiter] of this.sessionRateLimiters.entries()) {
+			// If the rate limiter has full tokens, it hasn't been used recently,
+			if (rateLimiter.getTokens() === this.config.maxRequestsPerSecond) {
+				this.sessionRateLimiters.delete(sessionId);
+				cleaned++;
+			}
+		}
+
+		if (cleaned > 0) {
+			this.logger.debug("Cleaned up session rate limiters", { count: cleaned });
+		}
+	}
 }
 
 /**
  * Request queue for handling backpressure
  */
 export class RequestQueue {
-  private queue: Array<{
-    session: MCPSession;
-    request: MCPRequest;
-    resolve: (result: any) => void;
-    reject: (error: Error) => void;
-    timestamp: number;
-  }> = [];
-  
-  private processing = false;
-  private maxQueueSize: number;
-  private requestTimeout: number;
+	private queue: Array<{
+		session: MCPSession;
+		request: MCPRequest;
+		resolve: (result: any) => void;
+		reject: (error: Error) => void;
+		timestamp: number;
+	}> = [];
 
-  constructor(
-    maxQueueSize = 1000,
-    requestTimeout = 30000, // 30 seconds,
-    private logger: ILogger,
-  ) {
-    this.maxQueueSize = maxQueueSize;
-    this.requestTimeout = requestTimeout;
+	private processing = false;
+	private maxQueueSize: number;
+	private requestTimeout: number;
 
-    // Clean up expired requests periodically,
-    setInterval(() => {
-      this.cleanupExpiredRequests();
-    }, 10000); // Every 10 seconds
-  }
+	constructor(
+		maxQueueSize = 1000,
+		requestTimeout = 30000, // 30 seconds,
+		private logger: ILogger
+	) {
+		this.maxQueueSize = maxQueueSize;
+		this.requestTimeout = requestTimeout;
 
-  async enqueue<T>(
-    session: MCPSession,
-    request: MCPRequest,
-    processor: (session: MCPSession, request: MCPRequest) => Promise<T>,
-  ): Promise<T> {
-    if (this.queue.length >= this.maxQueueSize) {
-      throw new MCPError('Request queue is full');
-    }
+		// Clean up expired requests periodically,
+		setInterval(() => {
+			this.cleanupExpiredRequests();
+		}, 10000); // Every 10 seconds
+	}
 
-    return new Promise<T>((resolve, reject) => {
-      this.queue.push({
-        session,
-        request,
-        resolve,
-        reject,
-        timestamp: Date.now(),
-      });
+	async enqueue<T>(
+		session: MCPSession,
+		request: MCPRequest,
+		processor: (session: MCPSession, request: MCPRequest) => Promise<T>
+	): Promise<T> {
+		if (this.queue.length >= this.maxQueueSize) {
+			throw new MCPError("Request queue is full");
+		}
 
-      if (!this.processing) {
-        this.processQueue(processor);
-      }
-    });
-  }
+		return new Promise<T>((resolve, reject) => {
+			this.queue.push({
+				session,
+				request,
+				resolve,
+				reject,
+				timestamp: Date.now(),
+			});
 
-  private async processQueue<T>(
-    processor: (session: MCPSession, request: MCPRequest) => Promise<T>,
-  ): Promise<void> {
-    if (this.processing) {
-      return;
-    }
+			if (!this.processing) {
+				this.processQueue(processor);
+			}
+		});
+	}
 
-    this.processing = true;
+	private async processQueue<T>(
+		processor: (session: MCPSession, request: MCPRequest) => Promise<T>
+	): Promise<void> {
+		if (this.processing) {
+			return;
+		}
 
-    while (this.queue.length > 0) {
-      const item = this.queue.shift()!;
+		this.processing = true;
 
-      // Check if request has expired,
-      if (Date.now() - item.timestamp > this.requestTimeout) {
-        item.reject(new MCPError('Request timeout'));
-        continue;
-      }
+		while (this.queue.length > 0) {
+			const item = this.queue.shift()!;
 
-      try {
-        const result = await processor(item.session, item.request);
-        item.resolve(result);
-      } catch (error) {
-        item.reject(error instanceof Error ? error : new Error(String(error)));
-      }
-    }
+			// Check if request has expired,
+			if (Date.now() - item.timestamp > this.requestTimeout) {
+				item.reject(new MCPError("Request timeout"));
+				continue;
+			}
 
-    this.processing = false;
-  }
+			try {
+				const result = await processor(item.session, item.request);
+				item.resolve(result);
+			} catch (error) {
+				item.reject(error instanceof Error ? error : new Error(String(error)));
+			}
+		}
 
-  private cleanupExpiredRequests(): void {
-    const now = Date.now();
-    let cleaned = 0;
+		this.processing = false;
+	}
 
-    this.queue = this.queue.filter((item) => {
-      if (now - item.timestamp > this.requestTimeout) {
-        item.reject(new MCPError('Request timeout'));
-        cleaned++;
-        return false;
-      }
-      return true;
-    });
+	private cleanupExpiredRequests(): void {
+		const now = Date.now();
+		let cleaned = 0;
 
-    if (cleaned > 0) {
-      this.logger.warn('Cleaned up expired requests from queue', { count: cleaned });
-    }
-  }
+		this.queue = this.queue.filter((item) => {
+			if (now - item.timestamp > this.requestTimeout) {
+				item.reject(new MCPError("Request timeout"));
+				cleaned++;
+				return false;
+			}
+			return true;
+		});
 
-  getQueueSize(): number {
-    return this.queue.length;
-  }
+		if (cleaned > 0) {
+			this.logger.warn("Cleaned up expired requests from queue", {
+				count: cleaned,
+			});
+		}
+	}
 
-  isProcessing(): boolean {
-    return this.processing;
-  }
+	getQueueSize(): number {
+		return this.queue.length;
+	}
+
+	isProcessing(): boolean {
+		return this.processing;
+	}
 }

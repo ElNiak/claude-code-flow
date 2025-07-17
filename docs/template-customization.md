@@ -246,7 +246,7 @@ npx claude-flow init --sparc --force
 # Add frontend-specific configuration
 npx claude-flow template add frontend --type react
 
-# Add backend-specific configuration  
+# Add backend-specific configuration
 npx claude-flow template add backend --type nodejs-api
 
 # Add mobile configuration
@@ -263,7 +263,7 @@ export class BaseTemplate {
   constructor(config) {
     this.config = config;
   }
-  
+
   generateClaudeMd() {
     return this.getBaseInstructions() + this.getSpecificInstructions();
   }
@@ -291,17 +291,17 @@ export function generateDynamicTemplate(projectPath) {
   const packageJson = readPackageJson(projectPath);
   const hasReact = packageJson.dependencies?.react;
   const hasExpress = packageJson.dependencies?.express;
-  
+
   const template = new BaseTemplate();
-  
+
   if (hasReact) {
     template.addFrontendConfig();
   }
-  
+
   if (hasExpress) {
     template.addBackendConfig();
   }
-  
+
   return template.generate();
 }
 ```
@@ -344,7 +344,7 @@ export function createCustomTemplate(options = {}) {
     framework = 'vanilla',
     testingStrategy = 'jest'
   } = options;
-  
+
   return {
     claudeMd: generateClaudeMd(projectType, framework),
     sparcModes: generateSparcModes(testingStrategy),
@@ -408,7 +408,7 @@ describe('Template Generation', () => {
     expect(template.claudeMd).toContain('# Claude Code Configuration');
     expect(template.claudeMd).toContain('## SPARC Development');
   });
-  
+
   test('includes all required SPARC modes', () => {
     const template = createCustomTemplate();
     const requiredModes = ['architect', 'code', 'tdd', 'debug'];

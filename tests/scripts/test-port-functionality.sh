@@ -40,7 +40,7 @@ echo
 cat << 'EOF'
 ✅ RESOLVED Command Structure:
   claude-flow mcp status           ← Clear namespace
-  claude-flow mcp start --port N   ← Port configuration  
+  claude-flow mcp start --port N   ← Port configuration
   claude-flow mcp tools            ← Tool listing
   claude-flow mcp config           ← Configuration
 
@@ -78,14 +78,14 @@ echo
 cat << 'EOF'
 ✅ RESOLVED Issues:
   #87 - Port configuration: WORKING ✅
-  #91 - Command conflicts: RESOLVED ✅  
+  #91 - Command conflicts: RESOLVED ✅
   #21 - Port binding: FIXED ✅
   #19 - Startup issues: FIXED ✅
   #57 - Configuration: IMPROVED ✅
 
 ✅ New Features:
   • Smart port detection and conflict resolution
-  • Enhanced error handling and validation  
+  • Enhanced error handling and validation
   • Cross-platform compatibility (Windows/macOS/Linux)
   • Runtime detection (Deno/Node.js fallback)
   • Enterprise-grade Docker integration

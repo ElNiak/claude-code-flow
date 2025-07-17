@@ -8,7 +8,7 @@ The MCP implementation includes:
 - **Full Protocol Compliance**: JSON-RPC 2.0 with MCP extensions
 - **Multiple Transports**: stdio, HTTP with WebSocket support
 - **Authentication & Authorization**: Token-based, Basic auth, and OAuth ready
-- **Session Management**: Client session tracking and lifecycle management  
+- **Session Management**: Client session tracking and lifecycle management
 - **Load Balancing**: Rate limiting, circuit breaker, and request queuing
 - **Comprehensive Tools**: Full Claude-Flow functionality exposure
 - **Error Handling**: Robust error reporting and recovery

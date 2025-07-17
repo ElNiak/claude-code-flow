@@ -36,8 +36,8 @@ TodoWrite([
     priority: "high",
     mode: "designer",
     batchOptimized: true,
-    
-    
+
+
     tools: ["Read","Write","Edit","Memory","TodoWrite"]
   }
 ]);
@@ -46,7 +46,7 @@ TodoWrite([
 Task("Designer Agent", "Execute specialized designer task", {
   mode: "designer",
   batchOptimized: true,
-  
+
   memoryIntegration: true
 });
 ```

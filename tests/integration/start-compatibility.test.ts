@@ -2,8 +2,7 @@
  * Tests to ensure backward compatibility with existing start command functionality
  */
 
-import { describe, it, beforeEach, afterEach, expect } from "../test.utils.ts";
-import { describe, it, beforeEach, afterEach, expect } from "../test.utils.ts";
+import { afterEach, afterEach, beforeEach, beforeEach, describe, describe, expect, expect, it, it } from "../test.utils.ts";
 
 describe('Start Command Backward Compatibility', () => {
   describe('CLI imports', () => {
@@ -28,7 +27,7 @@ describe('Start Command Backward Compatibility', () => {
   describe('simple-commands functionality', () => {
     it('should handle help flag', async () => {
       const { startCommand } = await import('../../src/cli/simple-commands/start.js');
-      
+
       // Mock console.log
       const originalLog = console.log;
       let helpShown = false;
@@ -37,17 +36,17 @@ describe('Start Command Backward Compatibility', () => {
           helpShown = true;
         }
       };
-      
+
       await startCommand(['--help'], {});
       expect(helpShown).toBe(true);
-      
+
       // Restore
       console.log = originalLog;
     });
 
     it('should show UI option in help', async () => {
       const { startCommand } = await import('../../src/cli/simple-commands/start.js');
-      
+
       // Mock console.log
       const originalLog = console.log;
       let uiOptionShown = false;
@@ -57,17 +56,17 @@ describe('Start Command Backward Compatibility', () => {
           uiOptionShown = true;
         }
       };
-      
+
       await startCommand(['--help'], {});
       expect(uiOptionShown).toBe(true);
-      
+
       // Restore
       console.log = originalLog;
     });
 
     it('should handle daemon flag', async () => {
       const { startCommand } = await import('../../src/cli/simple-commands/start.js');
-      
+
       // Mock console.log and file operations
       const originalLog = console.log;
       let daemonMode = false;
@@ -76,7 +75,7 @@ describe('Start Command Backward Compatibility', () => {
           daemonMode = true;
         }
       };
-      
+
       const originalWriteTextFile = Deno.writeTextFile;
       Deno.writeTextFile = async (path: string) => {
         if (path === '.claude-flow.pid') {
@@ -84,7 +83,7 @@ describe('Start Command Backward Compatibility', () => {
         }
         return originalWriteTextFile(path, '');
       };
-      
+
       // Mock Deno.stat to simulate missing directories
       const originalStat = Deno.stat;
       Deno.stat = async (path: string) => {
@@ -93,12 +92,12 @@ describe('Start Command Backward Compatibility', () => {
         }
         return originalStat(path);
       };
-      
+
       await startCommand(['--daemon'], { daemon: true });
-      
+
       // Verify warning about missing dirs was shown
       expect(daemonMode || console.log.toString().includes('Missing required')).toBe(true);
-      
+
       // Restore
       console.log = originalLog;
       Deno.writeTextFile = originalWriteTextFile;
@@ -109,16 +108,16 @@ describe('Start Command Backward Compatibility', () => {
   describe('command options preservation', () => {
     it('should support all original options', async () => {
       const { startCommand } = await import('../../src/cli/commands/start/start-command.ts');
-      
+
       // Check that command has expected options
       const cmd = startCommand as any;
       const options = cmd.options || [];
-      
+
       const expectedOptions = ['daemon', 'port', 'mcp-transport', 'ui', 'verbose'];
-      const hasAllOptions = expectedOptions.every(opt => 
+      const hasAllOptions = expectedOptions.every(opt =>
         options.some((o: any) => o.name === opt || o.flags?.includes(opt))
       );
-      
+
       expect(hasAllOptions).toBe(true);
     });
   });
@@ -129,7 +128,7 @@ describe('Start Command Backward Compatibility', () => {
       // Verify the event handling is still in place by checking imports
       const module = await import('../../src/cli/commands/start/start-command.ts');
       expect(module.startCommand).toBeDefined();
-      
+
       // Check that it imports eventBus
       const sourceCode = await Deno.readTextFile('src/cli/commands/start/start-command.ts');
       expect(sourceCode.includes('eventBus')).toBe(true);

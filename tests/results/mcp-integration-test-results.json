@@ -1,139 +1,139 @@
 {
-  "timestamp": "2025-07-05T01:57:33.767Z",
-  "totalTools": 25,
-  "passedTools": 25,
-  "failedTools": 0,
-  "successRate": 100,
-  "results": [
-    {
-      "test": "MCP Server",
-      "status": "PASS",
-      "details": "Server responds to tools command"
-    },
-    {
-      "test": "mcp__ruv-swarm__swarm_init",
-      "status": "PASS",
-      "details": "Tool available in MCP registry"
-    },
-    {
-      "test": "mcp__ruv-swarm__swarm_status",
-      "status": "PASS",
-      "details": "Tool available in MCP registry"
-    },
-    {
-      "test": "mcp__ruv-swarm__swarm_monitor",
-      "status": "PASS",
-      "details": "Tool available in MCP registry"
-    },
-    {
-      "test": "mcp__ruv-swarm__agent_spawn",
-      "status": "PASS",
-      "details": "Tool available in MCP registry"
-    },
-    {
-      "test": "mcp__ruv-swarm__agent_list",
-      "status": "PASS",
-      "details": "Tool available in MCP registry"
-    },
-    {
-      "test": "mcp__ruv-swarm__agent_metrics",
-      "status": "PASS",
-      "details": "Tool available in MCP registry"
-    },
-    {
-      "test": "mcp__ruv-swarm__task_orchestrate",
-      "status": "PASS",
-      "details": "Tool available in MCP registry"
-    },
-    {
-      "test": "mcp__ruv-swarm__task_status",
-      "status": "PASS",
-      "details": "Tool available in MCP registry"
-    },
-    {
-      "test": "mcp__ruv-swarm__task_results",
-      "status": "PASS",
-      "details": "Tool available in MCP registry"
-    },
-    {
-      "test": "mcp__ruv-swarm__memory_usage",
-      "status": "PASS",
-      "details": "Tool available in MCP registry"
-    },
-    {
-      "test": "mcp__ruv-swarm__neural_status",
-      "status": "PASS",
-      "details": "Tool available in MCP registry"
-    },
-    {
-      "test": "mcp__ruv-swarm__neural_train",
-      "status": "PASS",
-      "details": "Tool available in MCP registry"
-    },
-    {
-      "test": "mcp__ruv-swarm__neural_patterns",
-      "status": "PASS",
-      "details": "Tool available in MCP registry"
-    },
-    {
-      "test": "mcp__ruv-swarm__benchmark_run",
-      "status": "PASS",
-      "details": "Tool available in MCP registry"
-    },
-    {
-      "test": "mcp__ruv-swarm__features_detect",
-      "status": "PASS",
-      "details": "Tool available in MCP registry"
-    },
-    {
-      "test": "mcp__ruv-swarm__daa_init",
-      "status": "PASS",
-      "details": "Tool available in MCP registry"
-    },
-    {
-      "test": "mcp__ruv-swarm__daa_agent_create",
-      "status": "PASS",
-      "details": "Tool available in MCP registry"
-    },
-    {
-      "test": "mcp__ruv-swarm__daa_workflow_create",
-      "status": "PASS",
-      "details": "Tool available in MCP registry"
-    },
-    {
-      "test": "mcp__ruv-swarm__daa_learning_status",
-      "status": "PASS",
-      "details": "Tool available in MCP registry"
-    },
-    {
-      "test": "mcp__ruv-swarm__daa_metrics",
-      "status": "PASS",
-      "details": "Tool available in MCP registry"
-    },
-    {
-      "test": "mcp__ruv-swarm__daa_optimization",
-      "status": "PASS",
-      "details": "Tool available in MCP registry"
-    },
-    {
-      "test": "mcp__ruv-swarm__performance_analyze",
-      "status": "PASS",
-      "details": "Tool available in MCP registry"
-    },
-    {
-      "test": "mcp__ruv-swarm__performance_optimize",
-      "status": "PASS",
-      "details": "Tool available in MCP registry"
-    },
-    {
-      "test": "mcp__ruv-swarm__performance_monitor",
-      "status": "PASS",
-      "details": "Tool available in MCP registry"
-    },
-    {
-      "test": "mcp__ruv-swarm__performance_report",
-      "status": "PASS",
-      "details": "Tool available in MCP registry"
-    }
-  ]
+	"timestamp": "2025-07-05T01:57:33.767Z",
+	"totalTools": 25,
+	"passedTools": 25,
+	"failedTools": 0,
+	"successRate": 100,
+	"results": [
+		{
+			"test": "MCP Server",
+			"status": "PASS",
+			"details": "Server responds to tools command"
+		},
+		{
+			"test": "mcp__ruv-swarm__swarm_init",
+			"status": "PASS",
+			"details": "Tool available in MCP registry"
+		},
+		{
+			"test": "mcp__ruv-swarm__swarm_status",
+			"status": "PASS",
+			"details": "Tool available in MCP registry"
+		},
+		{
+			"test": "mcp__ruv-swarm__swarm_monitor",
+			"status": "PASS",
+			"details": "Tool available in MCP registry"
+		},
+		{
+			"test": "mcp__ruv-swarm__agent_spawn",
+			"status": "PASS",
+			"details": "Tool available in MCP registry"
+		},
+		{
+			"test": "mcp__ruv-swarm__agent_list",
+			"status": "PASS",
+			"details": "Tool available in MCP registry"
+		},
+		{
+			"test": "mcp__ruv-swarm__agent_metrics",
+			"status": "PASS",
+			"details": "Tool available in MCP registry"
+		},
+		{
+			"test": "mcp__ruv-swarm__task_orchestrate",
+			"status": "PASS",
+			"details": "Tool available in MCP registry"
+		},
+		{
+			"test": "mcp__ruv-swarm__task_status",
+			"status": "PASS",
+			"details": "Tool available in MCP registry"
+		},
+		{
+			"test": "mcp__ruv-swarm__task_results",
+			"status": "PASS",
+			"details": "Tool available in MCP registry"
+		},
+		{
+			"test": "mcp__ruv-swarm__memory_usage",
+			"status": "PASS",
+			"details": "Tool available in MCP registry"
+		},
+		{
+			"test": "mcp__ruv-swarm__neural_status",
+			"status": "PASS",
+			"details": "Tool available in MCP registry"
+		},
+		{
+			"test": "mcp__ruv-swarm__neural_train",
+			"status": "PASS",
+			"details": "Tool available in MCP registry"
+		},
+		{
+			"test": "mcp__ruv-swarm__neural_patterns",
+			"status": "PASS",
+			"details": "Tool available in MCP registry"
+		},
+		{
+			"test": "mcp__ruv-swarm__benchmark_run",
+			"status": "PASS",
+			"details": "Tool available in MCP registry"
+		},
+		{
+			"test": "mcp__ruv-swarm__features_detect",
+			"status": "PASS",
+			"details": "Tool available in MCP registry"
+		},
+		{
+			"test": "mcp__ruv-swarm__daa_init",
+			"status": "PASS",
+			"details": "Tool available in MCP registry"
+		},
+		{
+			"test": "mcp__ruv-swarm__daa_agent_create",
+			"status": "PASS",
+			"details": "Tool available in MCP registry"
+		},
+		{
+			"test": "mcp__ruv-swarm__daa_workflow_create",
+			"status": "PASS",
+			"details": "Tool available in MCP registry"
+		},
+		{
+			"test": "mcp__ruv-swarm__daa_learning_status",
+			"status": "PASS",
+			"details": "Tool available in MCP registry"
+		},
+		{
+			"test": "mcp__ruv-swarm__daa_metrics",
+			"status": "PASS",
+			"details": "Tool available in MCP registry"
+		},
+		{
+			"test": "mcp__ruv-swarm__daa_optimization",
+			"status": "PASS",
+			"details": "Tool available in MCP registry"
+		},
+		{
+			"test": "mcp__ruv-swarm__performance_analyze",
+			"status": "PASS",
+			"details": "Tool available in MCP registry"
+		},
+		{
+			"test": "mcp__ruv-swarm__performance_optimize",
+			"status": "PASS",
+			"details": "Tool available in MCP registry"
+		},
+		{
+			"test": "mcp__ruv-swarm__performance_monitor",
+			"status": "PASS",
+			"details": "Tool available in MCP registry"
+		},
+		{
+			"test": "mcp__ruv-swarm__performance_report",
+			"status": "PASS",
+			"details": "Tool available in MCP registry"
+		}
+	]
 }

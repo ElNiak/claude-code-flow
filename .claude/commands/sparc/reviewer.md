@@ -37,8 +37,8 @@ TodoWrite([
     priority: "high",
     mode: "reviewer",
     batchOptimized: true,
-    
-    
+
+
     tools: ["Read","Edit","Grep","Bash","TodoWrite","Memory"]
   }
 ]);
@@ -47,7 +47,7 @@ TodoWrite([
 Task("Reviewer Agent", "Execute specialized reviewer task", {
   mode: "reviewer",
   batchOptimized: true,
-  
+
   memoryIntegration: true
 });
 ```

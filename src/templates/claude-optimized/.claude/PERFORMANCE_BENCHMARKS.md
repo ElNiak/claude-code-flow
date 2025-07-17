@@ -195,7 +195,7 @@ const result = await pipeline(data)
 ### Optimal Parallelization Factors
 
 | Operation Type | Optimal Concurrency | Reasoning |
-|----------------|--------------------|-----------| 
+|----------------|--------------------|-----------|
 | File Reading | 20 | I/O bound, benefits from high concurrency |
 | File Writing | 10 | Prevents filesystem contention |
 | API Calls | 5-10 | Respects rate limits while maximizing throughput |
@@ -262,16 +262,16 @@ After:  ↑═══════════════ (Pooled connections)
 async function measureBatchOperation(name, operation) {
   const start = performance.now();
   const memBefore = process.memoryUsage();
-  
+
   const result = await operation();
-  
+
   const end = performance.now();
   const memAfter = process.memoryUsage();
-  
+
   console.log(`${name} Performance:`);
   console.log(`  Time: ${(end - start).toFixed(2)}ms`);
   console.log(`  Memory Delta: ${((memAfter.heapUsed - memBefore.heapUsed) / 1024 / 1024).toFixed(2)}MB`);
-  
+
   return result;
 }
 ```

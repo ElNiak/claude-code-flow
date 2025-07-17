@@ -155,7 +155,7 @@ export const CLAUDE_FLOW_TOOLS = {
     },
     // ... all 15 neural tools
   ],
-  
+
   // Memory Tools
   memory: [
     {
@@ -165,7 +165,7 @@ export const CLAUDE_FLOW_TOOLS = {
     },
     // ... all 10 memory tools
   ],
-  
+
   // Analytics Tools
   analytics: [
     {
@@ -175,7 +175,7 @@ export const CLAUDE_FLOW_TOOLS = {
     },
     // ... all 13 analytics tools
   ],
-  
+
   // ... continue for all tool categories
 };
 ```
@@ -188,7 +188,7 @@ Modify the web server to handle all MCP tools dynamically:
 // In web-server.js - handleToolsList method
 handleToolsList(ws, message) {
   const tools = [];
-  
+
   // Import tool registry
   Object.entries(CLAUDE_FLOW_TOOLS).forEach(([category, categoryTools]) => {
     categoryTools.forEach(tool => {
@@ -200,13 +200,13 @@ handleToolsList(ws, message) {
       });
     });
   });
-  
+
   const response = {
     jsonrpc: '2.0',
     id: message.id,
     result: { tools }
   };
-  
+
   this.sendMessage(ws, response);
 }
 
@@ -238,18 +238,18 @@ export class MCPToolBridge {
         toolName,
         JSON.stringify(args)
       ]);
-      
+
       let output = '';
       let error = '';
-      
+
       mcpProcess.stdout.on('data', (data) => {
         output += data.toString();
       });
-      
+
       mcpProcess.stderr.on('data', (data) => {
         error += data.toString();
       });
-      
+
       mcpProcess.on('close', (code) => {
         if (code === 0) {
           try {
@@ -327,29 +327,29 @@ export class UnifiedCommandHandler {
     this.ws = websocketClient;
     this.toolRegistry = {};
   }
-  
+
   async loadToolRegistry() {
     const response = await this.ws.sendRequest('tools/list', {});
     this.toolRegistry = this.organizeToolsByCategory(response.tools);
   }
-  
+
   async executeCommand(command, args) {
     // Parse command to determine if it's a tool call
     const toolMatch = command.match(/^(\w+)\/(\w+)$/);
-    
+
     if (toolMatch) {
       const [, category, action] = toolMatch;
       const toolName = `${category}/${action}`;
-      
+
       if (this.toolRegistry[toolName]) {
         return await this.executeTool(toolName, args);
       }
     }
-    
+
     // Fall back to regular command execution
     return await this.ws.sendCommand(command, args);
   }
-  
+
   async executeTool(toolName, args) {
     return await this.ws.sendRequest('tools/call', {
       name: toolName,
@@ -376,7 +376,7 @@ export class MemoryPanel {
       'state_snapshot', 'context_restore', 'memory_analytics'
     ];
   }
-  
+
   render() {
     // Similar structure to neural-networks panel
     // but tailored for memory operations
@@ -399,7 +399,7 @@ export class WorkflowPanel {
       'parallel_execute'
     ];
   }
-  
+
   render() {
     // Workflow-specific UI with visual pipeline builder
   }
@@ -415,14 +415,14 @@ Create comprehensive tests for all tools:
 describe('Web UI Tool Integration', () => {
   let server;
   let client;
-  
+
   beforeAll(async () => {
     server = new ClaudeCodeWebServer(3001);
     await server.start();
     client = new WebSocketTestClient('ws://localhost:3001/ws');
     await client.connect();
   });
-  
+
   describe('Neural Tools', () => {
     test.each([
       ['neural/status', {}],
@@ -433,7 +433,7 @@ describe('Web UI Tool Integration', () => {
       expect(result.success).toBe(true);
     });
   });
-  
+
   // Repeat for all tool categories
 });
 ```
@@ -446,7 +446,7 @@ describe('Web UI Tool Integration', () => {
 function validateToolInput(toolName, args) {
   const schema = getToolSchema(toolName);
   if (!schema) throw new Error(`Unknown tool: ${toolName}`);
-  
+
   const validation = validateAgainstSchema(args, schema);
   if (!validation.valid) {
     throw new Error(`Invalid arguments: ${validation.errors.join(', ')}`);
@@ -480,29 +480,29 @@ class ToolResponseCache {
     this.maxSize = maxSize;
     this.ttl = ttl;
   }
-  
+
   getCacheKey(toolName, args) {
     return `${toolName}:${JSON.stringify(args)}`;
   }
-  
+
   get(toolName, args) {
     const key = this.getCacheKey(toolName, args);
     const cached = this.cache.get(key);
-    
+
     if (cached && Date.now() - cached.timestamp < this.ttl) {
       return cached.data;
     }
-    
+
     return null;
   }
-  
+
   set(toolName, args, data) {
     const key = this.getCacheKey(toolName, args);
     this.cache.set(key, {
       data,
       timestamp: Date.now()
     });
-    
+
     // Implement LRU eviction
     if (this.cache.size > this.maxSize) {
       const firstKey = this.cache.keys().next().value;
@@ -516,13 +516,13 @@ class ToolResponseCache {
 ```javascript
 // Execute multiple tools in parallel
 async function executeBatchTools(tools) {
-  const promises = tools.map(({ name, args }) => 
+  const promises = tools.map(({ name, args }) =>
     this.executeTool(name, args).catch(err => ({
       error: err.message,
       tool: name
     }))
   );
-  
+
   return await Promise.all(promises);
 }
 ```

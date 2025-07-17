@@ -1,352 +1,361 @@
 {
-  "unified_command_architecture": {
-    "design_metadata": {
-      "architect": "Swarm-SPARC-Hive Merger Analysis Specialist",
-      "date": "2025-07-13",
-      "approach": "Progressive unification with mode-based execution",
-      "compatibility": "Backward compatible through mode detection"
-    },
-    
-    "proposed_unified_command": {
-      "name": "orchestrate",
-      "aliases": ["swarm", "sparc", "hive"],
-      "description": "Unified multi-agent coordination with SPARC methodology and consensus mechanisms",
-      
-      "syntax": "claude-flow orchestrate <objective> [--method <method>] [options]",
-      
-      "methods": {
-        "swarm": {
-          "description": "Self-organizing agent swarms with strategy-based coordination",
-          "legacy_compatibility": "100% - preserves all existing swarm functionality",
-          "primary_parameters": ["strategy", "max-agents", "parallel", "research"]
-        },
-        "sparc": {
-          "description": "SPARC methodology execution with TDD and workflow support",
-          "legacy_compatibility": "95% - requires minor adaptation of subcommands",
-          "primary_parameters": ["mode", "namespace", "sequential", "workflow"]
-        },
-        "hive": {
-          "description": "Consensus-driven collective intelligence with quality gates",
-          "legacy_compatibility": "100% - preserves all existing hive functionality", 
-          "primary_parameters": ["topology", "consensus", "quality-threshold"]
-        },
-        "hybrid": {
-          "description": "Combined approach using best of all three systems",
-          "legacy_compatibility": "N/A - new unified functionality",
-          "primary_parameters": ["coordination-style", "methodology", "consensus"]
-        }
-      }
-    },
-    
-    "unified_parameter_structure": {
-      "core_parameters": {
-        "objective": {
-          "type": "positional_argument",
-          "description": "The main objective or task to accomplish",
-          "required": true,
-          "applies_to": ["all_methods"]
-        },
-        "method": {
-          "type": "option",
-          "flag": "--method",
-          "values": ["swarm", "sparc", "hive", "hybrid", "auto"],
-          "default": "auto",
-          "description": "Coordination method to use",
-          "applies_to": ["unified_command"]
-        }
-      },
-      
-      "execution_parameters": {
-        "max_agents": {
-          "flag": "--max-agents",
-          "type": "number",
-          "default_by_method": {
-            "swarm": 5,
-            "sparc": "mode_dependent", 
-            "hive": 8,
-            "hybrid": 6
-          },
-          "description": "Maximum number of agents to spawn"
-        },
-        "timeout": {
-          "flag": "--timeout",
-          "type": "number",
-          "default": 60,
-          "description": "Timeout in minutes",
-          "applies_to": ["all_methods"]
-        },
-        "parallel": {
-          "flag": "--parallel",
-          "type": "boolean",
-          "default_by_method": {
-            "swarm": false,
-            "sparc": false,
-            "hive": true,
-            "hybrid": true
-          },
-          "description": "Enable parallel execution"
-        },
-        "background": {
-          "flag": "--background",
-          "type": "boolean",
-          "default": false,
-          "description": "Run in background mode",
-          "applies_to": ["swarm", "hive", "hybrid"]
-        }
-      },
-      
-      "method_specific_parameters": {
-        "swarm_parameters": {
-          "strategy": {
-            "flag": "--strategy",
-            "values": ["auto", "research", "development", "analysis"],
-            "default": "auto",
-            "description": "Swarm coordination strategy"
-          },
-          "research": {
-            "flag": "--research",
-            "type": "boolean",
-            "description": "Enable research capabilities"
-          },
-          "coordinator": {
-            "flag": "--coordinator",
-            "type": "boolean",
-            "description": "Enable coordinator agent"
-          }
-        },
-        "sparc_parameters": {
-          "mode": {
-            "flag": "--mode",
-            "type": "string",
-            "description": "SPARC mode to execute"
-          },
-          "workflow": {
-            "flag": "--workflow",
-            "type": "string",
-            "description": "Custom workflow file"
-          },
-          "tdd": {
-            "flag": "--tdd",
-            "type": "boolean",
-            "description": "Use TDD workflow"
-          },
-          "sequential": {
-            "flag": "--sequential",
-            "type": "boolean",
-            "default": true,
-            "description": "Wait between workflow steps"
-          }
-        },
-        "hive_parameters": {
-          "topology": {
-            "flag": "--topology",
-            "values": ["mesh", "hierarchical", "ring", "star"],
-            "default": "hierarchical",
-            "description": "Swarm topology"
-          },
-          "consensus": {
-            "flag": "--consensus",
-            "values": ["quorum", "unanimous", "weighted", "leader"],
-            "default": "quorum",
-            "description": "Consensus mechanism"
-          },
-          "quality_threshold": {
-            "flag": "--quality-threshold",
-            "type": "number",
-            "default": 0.8,
-            "description": "Minimum quality threshold (0-1)"
-          }
-        },
-        "hybrid_parameters": {
-          "coordination_style": {
-            "flag": "--coordination-style",
-            "values": ["strategic", "methodical", "consensus", "adaptive"],
-            "default": "adaptive",
-            "description": "How to coordinate between approaches"
-          },
-          "methodology": {
-            "flag": "--methodology",
-            "values": ["agile", "sparc", "waterfall", "lean"],
-            "default": "sparc",
-            "description": "Development methodology to follow"
-          },
-          "enable_voting": {
-            "flag": "--enable-voting",
-            "type": "boolean",
-            "default": true,
-            "description": "Enable consensus voting for decisions"
-          }
-        }
-      },
-      
-      "common_parameters": {
-        "memory_namespace": {
-          "flag": "--memory-namespace",
-          "type": "string",
-          "default_by_method": {
-            "swarm": "swarm",
-            "sparc": "sparc", 
-            "hive": "hive",
-            "hybrid": "orchestrate"
-          },
-          "description": "Memory namespace for coordination"
-        },
-        "monitor": {
-          "flag": "--monitor",
-          "type": "boolean",
-          "default": false,
-          "description": "Enable real-time monitoring"
-        },
-        "verbose": {
-          "flag": "--verbose",
-          "type": "boolean",
-          "default": false,
-          "description": "Enable verbose output"
-        },
-        "dry_run": {
-          "flag": "--dry-run",
-          "type": "boolean",
-          "default": false,
-          "description": "Show configuration without executing"
-        },
-        "config": {
-          "flag": "--config",
-          "type": "string",
-          "description": "Configuration file path"
-        }
-      }
-    },
-    
-    "command_resolution_logic": {
-      "method_detection": {
-        "auto_detection": {
-          "description": "Automatically detect method based on parameters and objective",
-          "rules": [
-            "If --mode specified → sparc method",
-            "If --topology specified → hive method", 
-            "If --strategy specified → swarm method",
-            "If --workflow specified → sparc method",
-            "If --consensus specified → hive method",
-            "If objective contains 'sparc' keywords → sparc method",
-            "If objective requires consensus → hive method",
-            "Default → swarm method"
-          ]
-        },
-        "explicit_method": {
-          "description": "Use explicitly specified method",
-          "validation": "Check parameter compatibility with chosen method"
-        }
-      },
-      
-      "parameter_filtering": {
-        "description": "Filter parameters based on selected method",
-        "process": [
-          "Validate required parameters for method",
-          "Filter out incompatible parameters",
-          "Apply method-specific defaults",
-          "Warn about ignored parameters"
-        ]
-      },
-      
-      "backward_compatibility": {
-        "legacy_command_mapping": {
-          "claude-flow swarm": "claude-flow orchestrate --method swarm",
-          "claude-flow sparc": "claude-flow orchestrate --method sparc",
-          "claude-flow hive": "claude-flow orchestrate --method hive"
-        },
-        "parameter_translation": {
-          "swarm_maxAgents": "max_agents",
-          "sparc_namespace": "memory_namespace",
-          "hive_qualityThreshold": "quality_threshold"
-        }
-      }
-    },
-    
-    "execution_flow": {
-      "unified_workflow": [
-        {
-          "step": "1_parse_and_resolve",
-          "description": "Parse command, detect/validate method, resolve parameters"
-        },
-        {
-          "step": "2_initialize_coordination",
-          "description": "Initialize unified coordination system with method-specific configuration"
-        },
-        {
-          "step": "3_spawn_agents",
-          "description": "Spawn agents based on method requirements and topology"
-        },
-        {
-          "step": "4_execute_method",
-          "description": "Execute using method-specific workflow (swarm/sparc/hive/hybrid)"
-        },
-        {
-          "step": "5_monitor_and_coordinate",
-          "description": "Monitor execution with method-appropriate mechanisms"
-        },
-        {
-          "step": "6_aggregate_results",
-          "description": "Aggregate and present results using unified format"
-        }
-      ],
-      
-      "method_specific_execution": {
-        "swarm_execution": "Preserve existing swarm workflow with unified coordination",
-        "sparc_execution": "Integrate SPARC methodology with unified agent management", 
-        "hive_execution": "Preserve consensus mechanisms with unified monitoring",
-        "hybrid_execution": "Combine elements based on coordination-style parameter"
-      }
-    },
-    
-    "advantages_of_unification": {
-      "user_benefits": [
-        "Single command to learn and remember",
-        "Consistent parameter naming across methods",
-        "Ability to combine approaches in hybrid mode",
-        "Unified monitoring and result presentation",
-        "Cross-method memory sharing"
-      ],
-      
-      "technical_benefits": [
-        "Shared coordination infrastructure",
-        "Unified testing and maintenance",
-        "Common performance optimizations",
-        "Simplified documentation",
-        "Reduced code duplication"
-      ],
-      
-      "extensibility_benefits": [
-        "Easy to add new methods",
-        "Common plugin interface",
-        "Shared memory and monitoring systems",
-        "Unified configuration management"
-      ]
-    },
-    
-    "migration_strategy": {
-      "phase_1_alias_support": {
-        "description": "Maintain original commands as aliases",
-        "timeline": "Immediate",
-        "changes": "Add orchestrate command with legacy alias support"
-      },
-      
-      "phase_2_parameter_harmonization": {
-        "description": "Gradually migrate to unified parameter names",
-        "timeline": "3 months",
-        "changes": "Support both old and new parameter names with deprecation warnings"
-      },
-      
-      "phase_3_unified_implementation": {
-        "description": "Consolidate implementations under unified architecture", 
-        "timeline": "6 months",
-        "changes": "Refactor to use shared coordination and execution systems"
-      },
-      
-      "phase_4_legacy_deprecation": {
-        "description": "Remove legacy aliases and parameters",
-        "timeline": "12 months",
-        "changes": "Remove deprecated functionality with clear migration guide"
-      }
-    }
-  }
+	"unified_command_architecture": {
+		"design_metadata": {
+			"architect": "Swarm-SPARC-Hive Merger Analysis Specialist",
+			"date": "2025-07-13",
+			"approach": "Progressive unification with mode-based execution",
+			"compatibility": "Backward compatible through mode detection"
+		},
+
+		"proposed_unified_command": {
+			"name": "orchestrate",
+			"aliases": ["swarm", "sparc", "hive"],
+			"description": "Unified multi-agent coordination with SPARC methodology and consensus mechanisms",
+
+			"syntax": "claude-flow orchestrate <objective> [--method <method>] [options]",
+
+			"methods": {
+				"swarm": {
+					"description": "Self-organizing agent swarms with strategy-based coordination",
+					"legacy_compatibility": "100% - preserves all existing swarm functionality",
+					"primary_parameters": [
+						"strategy",
+						"max-agents",
+						"parallel",
+						"research"
+					]
+				},
+				"sparc": {
+					"description": "SPARC methodology execution with TDD and workflow support",
+					"legacy_compatibility": "95% - requires minor adaptation of subcommands",
+					"primary_parameters": ["mode", "namespace", "sequential", "workflow"]
+				},
+				"hive": {
+					"description": "Consensus-driven collective intelligence with quality gates",
+					"legacy_compatibility": "100% - preserves all existing hive functionality",
+					"primary_parameters": ["topology", "consensus", "quality-threshold"]
+				},
+				"hybrid": {
+					"description": "Combined approach using best of all three systems",
+					"legacy_compatibility": "N/A - new unified functionality",
+					"primary_parameters": [
+						"coordination-style",
+						"methodology",
+						"consensus"
+					]
+				}
+			}
+		},
+
+		"unified_parameter_structure": {
+			"core_parameters": {
+				"objective": {
+					"type": "positional_argument",
+					"description": "The main objective or task to accomplish",
+					"required": true,
+					"applies_to": ["all_methods"]
+				},
+				"method": {
+					"type": "option",
+					"flag": "--method",
+					"values": ["swarm", "sparc", "hive", "hybrid", "auto"],
+					"default": "auto",
+					"description": "Coordination method to use",
+					"applies_to": ["unified_command"]
+				}
+			},
+
+			"execution_parameters": {
+				"max_agents": {
+					"flag": "--max-agents",
+					"type": "number",
+					"default_by_method": {
+						"swarm": 5,
+						"sparc": "mode_dependent",
+						"hive": 8,
+						"hybrid": 6
+					},
+					"description": "Maximum number of agents to spawn"
+				},
+				"timeout": {
+					"flag": "--timeout",
+					"type": "number",
+					"default": 60,
+					"description": "Timeout in minutes",
+					"applies_to": ["all_methods"]
+				},
+				"parallel": {
+					"flag": "--parallel",
+					"type": "boolean",
+					"default_by_method": {
+						"swarm": false,
+						"sparc": false,
+						"hive": true,
+						"hybrid": true
+					},
+					"description": "Enable parallel execution"
+				},
+				"background": {
+					"flag": "--background",
+					"type": "boolean",
+					"default": false,
+					"description": "Run in background mode",
+					"applies_to": ["swarm", "hive", "hybrid"]
+				}
+			},
+
+			"method_specific_parameters": {
+				"swarm_parameters": {
+					"strategy": {
+						"flag": "--strategy",
+						"values": ["auto", "research", "development", "analysis"],
+						"default": "auto",
+						"description": "Swarm coordination strategy"
+					},
+					"research": {
+						"flag": "--research",
+						"type": "boolean",
+						"description": "Enable research capabilities"
+					},
+					"coordinator": {
+						"flag": "--coordinator",
+						"type": "boolean",
+						"description": "Enable coordinator agent"
+					}
+				},
+				"sparc_parameters": {
+					"mode": {
+						"flag": "--mode",
+						"type": "string",
+						"description": "SPARC mode to execute"
+					},
+					"workflow": {
+						"flag": "--workflow",
+						"type": "string",
+						"description": "Custom workflow file"
+					},
+					"tdd": {
+						"flag": "--tdd",
+						"type": "boolean",
+						"description": "Use TDD workflow"
+					},
+					"sequential": {
+						"flag": "--sequential",
+						"type": "boolean",
+						"default": true,
+						"description": "Wait between workflow steps"
+					}
+				},
+				"hive_parameters": {
+					"topology": {
+						"flag": "--topology",
+						"values": ["mesh", "hierarchical", "ring", "star"],
+						"default": "hierarchical",
+						"description": "Swarm topology"
+					},
+					"consensus": {
+						"flag": "--consensus",
+						"values": ["quorum", "unanimous", "weighted", "leader"],
+						"default": "quorum",
+						"description": "Consensus mechanism"
+					},
+					"quality_threshold": {
+						"flag": "--quality-threshold",
+						"type": "number",
+						"default": 0.8,
+						"description": "Minimum quality threshold (0-1)"
+					}
+				},
+				"hybrid_parameters": {
+					"coordination_style": {
+						"flag": "--coordination-style",
+						"values": ["strategic", "methodical", "consensus", "adaptive"],
+						"default": "adaptive",
+						"description": "How to coordinate between approaches"
+					},
+					"methodology": {
+						"flag": "--methodology",
+						"values": ["agile", "sparc", "waterfall", "lean"],
+						"default": "sparc",
+						"description": "Development methodology to follow"
+					},
+					"enable_voting": {
+						"flag": "--enable-voting",
+						"type": "boolean",
+						"default": true,
+						"description": "Enable consensus voting for decisions"
+					}
+				}
+			},
+
+			"common_parameters": {
+				"memory_namespace": {
+					"flag": "--memory-namespace",
+					"type": "string",
+					"default_by_method": {
+						"swarm": "swarm",
+						"sparc": "sparc",
+						"hive": "hive",
+						"hybrid": "orchestrate"
+					},
+					"description": "Memory namespace for coordination"
+				},
+				"monitor": {
+					"flag": "--monitor",
+					"type": "boolean",
+					"default": false,
+					"description": "Enable real-time monitoring"
+				},
+				"verbose": {
+					"flag": "--verbose",
+					"type": "boolean",
+					"default": false,
+					"description": "Enable verbose output"
+				},
+				"dry_run": {
+					"flag": "--dry-run",
+					"type": "boolean",
+					"default": false,
+					"description": "Show configuration without executing"
+				},
+				"config": {
+					"flag": "--config",
+					"type": "string",
+					"description": "Configuration file path"
+				}
+			}
+		},
+
+		"command_resolution_logic": {
+			"method_detection": {
+				"auto_detection": {
+					"description": "Automatically detect method based on parameters and objective",
+					"rules": [
+						"If --mode specified → sparc method",
+						"If --topology specified → hive method",
+						"If --strategy specified → swarm method",
+						"If --workflow specified → sparc method",
+						"If --consensus specified → hive method",
+						"If objective contains 'sparc' keywords → sparc method",
+						"If objective requires consensus → hive method",
+						"Default → swarm method"
+					]
+				},
+				"explicit_method": {
+					"description": "Use explicitly specified method",
+					"validation": "Check parameter compatibility with chosen method"
+				}
+			},
+
+			"parameter_filtering": {
+				"description": "Filter parameters based on selected method",
+				"process": [
+					"Validate required parameters for method",
+					"Filter out incompatible parameters",
+					"Apply method-specific defaults",
+					"Warn about ignored parameters"
+				]
+			},
+
+			"backward_compatibility": {
+				"legacy_command_mapping": {
+					"claude-flow swarm": "claude-flow orchestrate --method swarm",
+					"claude-flow sparc": "claude-flow orchestrate --method sparc",
+					"claude-flow hive": "claude-flow orchestrate --method hive"
+				},
+				"parameter_translation": {
+					"swarm_maxAgents": "max_agents",
+					"sparc_namespace": "memory_namespace",
+					"hive_qualityThreshold": "quality_threshold"
+				}
+			}
+		},
+
+		"execution_flow": {
+			"unified_workflow": [
+				{
+					"step": "1_parse_and_resolve",
+					"description": "Parse command, detect/validate method, resolve parameters"
+				},
+				{
+					"step": "2_initialize_coordination",
+					"description": "Initialize unified coordination system with method-specific configuration"
+				},
+				{
+					"step": "3_spawn_agents",
+					"description": "Spawn agents based on method requirements and topology"
+				},
+				{
+					"step": "4_execute_method",
+					"description": "Execute using method-specific workflow (swarm/sparc/hive/hybrid)"
+				},
+				{
+					"step": "5_monitor_and_coordinate",
+					"description": "Monitor execution with method-appropriate mechanisms"
+				},
+				{
+					"step": "6_aggregate_results",
+					"description": "Aggregate and present results using unified format"
+				}
+			],
+
+			"method_specific_execution": {
+				"swarm_execution": "Preserve existing swarm workflow with unified coordination",
+				"sparc_execution": "Integrate SPARC methodology with unified agent management",
+				"hive_execution": "Preserve consensus mechanisms with unified monitoring",
+				"hybrid_execution": "Combine elements based on coordination-style parameter"
+			}
+		},
+
+		"advantages_of_unification": {
+			"user_benefits": [
+				"Single command to learn and remember",
+				"Consistent parameter naming across methods",
+				"Ability to combine approaches in hybrid mode",
+				"Unified monitoring and result presentation",
+				"Cross-method memory sharing"
+			],
+
+			"technical_benefits": [
+				"Shared coordination infrastructure",
+				"Unified testing and maintenance",
+				"Common performance optimizations",
+				"Simplified documentation",
+				"Reduced code duplication"
+			],
+
+			"extensibility_benefits": [
+				"Easy to add new methods",
+				"Common plugin interface",
+				"Shared memory and monitoring systems",
+				"Unified configuration management"
+			]
+		},
+
+		"migration_strategy": {
+			"phase_1_alias_support": {
+				"description": "Maintain original commands as aliases",
+				"timeline": "Immediate",
+				"changes": "Add orchestrate command with legacy alias support"
+			},
+
+			"phase_2_parameter_harmonization": {
+				"description": "Gradually migrate to unified parameter names",
+				"timeline": "3 months",
+				"changes": "Support both old and new parameter names with deprecation warnings"
+			},
+
+			"phase_3_unified_implementation": {
+				"description": "Consolidate implementations under unified architecture",
+				"timeline": "6 months",
+				"changes": "Refactor to use shared coordination and execution systems"
+			},
+
+			"phase_4_legacy_deprecation": {
+				"description": "Remove legacy aliases and parameters",
+				"timeline": "12 months",
+				"changes": "Remove deprecated functionality with clear migration guide"
+			}
+		}
+	}
 }

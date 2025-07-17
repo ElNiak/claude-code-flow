@@ -416,10 +416,10 @@ tail -f logs/mcp-server.log
    ```bash
    # Development workflow
    ./claude-flow sparc run architect "design REST API"
-   
+
    # Testing workflow
    ./claude-flow swarm "comprehensive test suite" --strategy testing
-   
+
    # Deployment workflow
    ./claude-flow sparc run devops "setup CI/CD pipeline"
    ```

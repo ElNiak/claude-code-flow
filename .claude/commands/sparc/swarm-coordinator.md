@@ -37,7 +37,7 @@ TodoWrite([
     mode: "swarm-coordinator",
     batchOptimized: true,
     coordinationMode: "hierarchical",
-    
+
     tools: ["TodoWrite","TodoRead","Task","Memory","Bash"]
   }
 ]);

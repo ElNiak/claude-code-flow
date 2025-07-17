@@ -6,7 +6,7 @@ class TestUserService:
     @pytest.fixture
     def user_service(self):
         return UserService()
-    
+
     def test_create_user_success(self, user_service):
         """Test successful user creation"""
         user_data = {"username": "newuser", "email": "new@example.com"}
@@ -14,7 +14,7 @@ class TestUserService:
             user = user_service.create_user(user_data)
             assert user.username == "newuser"
             mock_db.session.add.assert_called_once()
-    
+
     def test_get_user_by_id(self, user_service):
         """Test retrieving user by ID"""
         with patch('src.services.User.query') as mock_query:

@@ -194,7 +194,7 @@ claude-flow task create coordination "Coordinate multi-team sprint execution" \
     },
     {
       "name": "launch",
-      "duration": "2-weeks", 
+      "duration": "2-weeks",
       "activities": ["deployment", "monitoring", "support-preparation"]
     }
   ],
@@ -580,7 +580,7 @@ claude-flow task workflow abort <workflow-id> --save-progress
         },
         {
           "id": "security-testing",
-          "agent": "security-team", 
+          "agent": "security-team",
           "duration": "3d",
           "condition": "${security_level} == 'high'",
           "dependencies": ["integration-testing"]

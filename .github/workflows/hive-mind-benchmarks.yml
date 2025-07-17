@@ -139,36 +139,36 @@ jobs:
           script: |
             const fs = require('fs');
             const path = 'benchmark/hive-mind-benchmarks/pr-benchmark-results';
-            
+
             if (fs.existsSync(path)) {
               const files = fs.readdirSync(path);
               const reportFile = files.find(f => f.includes('automation_report'));
-              
+
               if (reportFile) {
                 const report = JSON.parse(fs.readFileSync(`${path}/${reportFile}`, 'utf8'));
                 const summary = report.test_summary;
                 const thresholds = report.performance_validation;
-                
+
                 const comment = `## 🐝 Hive Mind Benchmark Results
-                
+
                 **Test Summary:**
                 - Total tests: ${summary.completed_tests}/${summary.total_configurations}
                 - Success rate: ${((summary.successful_tests / summary.completed_tests) * 100).toFixed(1)}%
                 - Performance thresholds: ${thresholds.thresholds_met ? '✅ Met' : '❌ Failed'}
-                
+
                 ${thresholds.violations.length > 0 ? `
                 **Performance Issues:**
                 ${thresholds.violations.slice(0, 3).map(v => `- ${v}`).join('\n')}
                 ` : ''}
-                
+
                 <details>
                 <summary>View detailed results</summary>
-                
+
                 \`\`\`json
                 ${JSON.stringify(summary, null, 2)}
                 \`\`\`
                 </details>`;
-                
+
                 github.rest.issues.createComment({
                   issue_number: context.issue.number,
                   owner: context.repo.owner,
@@ -226,31 +226,31 @@ jobs:
             python3 -c "
             import json, os
             from pathlib import Path
-            
+
             results_dir = Path('${{ matrix.profile }}-benchmark-results')
             if results_dir.exists():
                 files = list(results_dir.glob('automation_report_*.json'))
                 if files:
                     with open(files[0]) as f:
                         report = json.load(f)
-                    
+
                     # Create GitHub step summary
                     summary = report.get('test_summary', {})
                     validation = report.get('performance_validation', {})
-                    
+
                     with open(os.environ['GITHUB_STEP_SUMMARY'], 'w') as f:
                         f.write(f'''# 🐝 Hive Mind Benchmark Report (${{ matrix.profile }})
-            
+
             ## Summary
             - **Total Tests:** {summary.get('completed_tests', 0)}/{summary.get('total_configurations', 0)}
             - **Success Rate:** {(summary.get('successful_tests', 0) / max(summary.get('completed_tests', 1), 1) * 100):.1f}%
             - **Performance Thresholds:** {'✅ Met' if validation.get('thresholds_met', False) else '❌ Failed'}
-            
+
             ## Performance Metrics
             {chr(10).join(f'- {k}: {v}' for k, v in report.get('benchmark_analysis', {}).get('summary', {}).items())}
-            
+
             {'## ⚠️ Violations' + chr(10) + chr(10).join(f'- {v}' for v in validation.get('violations', [])) if validation.get('violations') else ''}
-            ''')  
+            ''')
             "
           fi
 
@@ -306,37 +306,37 @@ jobs:
           python3 -c "
           import json, glob, pandas as pd, matplotlib.pyplot as plt
           from pathlib import Path
-          
+
           # Load and process results
           results_dir = Path('comprehensive-benchmark-results')
           if results_dir.exists():
               csv_files = list(results_dir.glob('summary_*.csv'))
               if csv_files:
                   df = pd.read_csv(csv_files[0])
-                  
+
                   # Generate performance plots
                   fig, axes = plt.subplots(2, 2, figsize=(15, 10))
-                  
+
                   # Coordination latency by topology
                   df.groupby('topology')['coord_latency'].mean().plot(kind='bar', ax=axes[0,0])
                   axes[0,0].set_title('Avg Coordination Latency by Topology')
                   axes[0,0].set_ylabel('Latency (ms)')
-                  
+
                   # Memory usage by agent count
                   df.plot.scatter(x='agent_count', y='memory_mb', ax=axes[0,1])
                   axes[0,1].set_title('Memory Usage vs Agent Count')
-                  
+
                   # Success rate by coordination type
                   success_rate = df.groupby('coordination')['success'].mean()
                   success_rate.plot(kind='bar', ax=axes[1,0])
                   axes[1,0].set_title('Success Rate by Coordination Type')
                   axes[1,0].set_ylabel('Success Rate')
-                  
+
                   # Initialization time distribution
                   df['init_time'].hist(bins=20, ax=axes[1,1])
                   axes[1,1].set_title('Initialization Time Distribution')
                   axes[1,1].set_xlabel('Time (seconds)')
-                  
+
                   plt.tight_layout()
                   plt.savefig(results_dir / 'performance_analysis.png', dpi=300, bbox_inches='tight')
                   print('Performance analysis plots generated')
@@ -428,31 +428,31 @@ jobs:
           python3 -c "
           import json, pandas as pd, numpy as np
           from pathlib import Path
-          
+
           def load_results(results_dir):
               results_path = Path(results_dir)
               if not results_path.exists():
                   return None
               csv_files = list(results_path.glob('summary_*.csv'))
               return pd.read_csv(csv_files[0]) if csv_files else None
-          
+
           current = load_results('current-results')
           baseline = load_results('baseline-results')
-          
+
           if current is not None and baseline is not None:
               # Compare key metrics
               metrics = ['init_time', 'coord_latency', 'memory_mb']
               regression_threshold = 1.1  # 10% regression threshold
-              
+
               regressions = []
               for metric in metrics:
                   current_avg = current[metric].mean()
                   baseline_avg = baseline[metric].mean()
                   ratio = current_avg / baseline_avg if baseline_avg > 0 else 1
-                  
+
                   if ratio > regression_threshold:
                       regressions.append(f'{metric}: {ratio:.2f}x increase ({current_avg:.2f} vs {baseline_avg:.2f})')
-              
+
               if regressions:
                   print('Performance regressions detected:')
                   for regression in regressions:
@@ -477,6 +477,6 @@ jobs:
           echo "- Standard: ${{ needs.standard-benchmarks.result }}"
           echo "- Comprehensive: ${{ needs.comprehensive-benchmarks.result }}"
           echo "- Docker: ${{ needs.docker-benchmarks.result }}"
-          
+
           # Here you could add Slack/Discord/email notifications
           # Example: curl -X POST -H 'Content-type: application/json' --data '{"text":"Benchmark failures detected!"}' $SLACK_WEBHOOK_URL

@@ -1,15 +1,15 @@
 {
-  "version": "1.0.72",
-  "project": {
-    "name": "swarm",
-    "type": "claude-flow",
-    "created": "2025-06-24T14:06:21.139Z"
-  },
-  "features": {
-    "swarm": true,
-    "sparc": true,
-    "memory": true,
-    "terminal": true,
-    "mcp": true
-  }
+	"version": "1.0.72",
+	"project": {
+		"name": "swarm",
+		"type": "claude-flow",
+		"created": "2025-06-24T14:06:21.139Z"
+	},
+	"features": {
+		"swarm": true,
+		"sparc": true,
+		"memory": true,
+		"terminal": true,
+		"mcp": true
+	}
 }

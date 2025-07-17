@@ -11,7 +11,7 @@
 claude-flow sparc coder "task"          → repoctl agent spawn coder --task "task"
 claude-flow spawn researcher             → repoctl agent spawn researcher
 
-# Swarm operations  
+# Swarm operations
 claude-flow swarm "objective"            → repoctl swarm create "objective"
 claude-flow swarm research "task"        → repoctl swarm create "task" --strategy research
 
@@ -34,7 +34,7 @@ claude-flow init --sparc                 → repoctl config init --template adva
 ```bash
 # 50+ commands to remember
 claude-flow sparc orchestrator "task"
-claude-flow sparc coder "task"  
+claude-flow sparc coder "task"
 claude-flow sparc researcher "task"
 claude-flow swarm research "objective"
 claude-flow swarm development "objective"
@@ -50,7 +50,7 @@ claude-flow monitor
 ```bash
 # 8 domains, intuitive commands
 repoctl agent spawn <type> --task "task"      # All agent operations
-repoctl swarm create "objective" --strategy   # All swarm operations  
+repoctl swarm create "objective" --strategy   # All swarm operations
 repoctl memory <action> <args>                # All memory operations
 repoctl github <action> <args>                # All GitHub operations
 repoctl config <action> <args>                # All configuration
@@ -80,11 +80,11 @@ repoctl migrate plan
 
 # Output example:
 # 🔄 Migration Plan for your project:
-# 
+#
 # Scripts to update: 3 files
-# Config files to migrate: 2 files  
+# Config files to migrate: 2 files
 # Estimated time: 15 minutes
-# 
+#
 # High-impact changes:
 # - ./scripts/ci.sh: 5 command updates needed
 # - ./package.json: 3 npm script updates needed
@@ -402,16 +402,16 @@ domains:
     defaultType: "coder"
     maxConcurrent: 5
     parallel: true
-    
+
   swarm:
     defaultStrategy: "development"
     defaultMode: "hierarchical"
     maxAgents: 5
-    
+
   memory:
     backend: "sqlite"
     location: ".repoctl/memory.db"
-    
+
   github:
     repository: "user/repo"
     defaultBranch: "main"
@@ -514,7 +514,7 @@ repoctl config set teams.backend.newCli false  # Keep legacy for now
 RUN npm install -g claude-flow
 CMD ["claude-flow", "start", "--ui"]
 
-# After: Migrated Dockerfile  
+# After: Migrated Dockerfile
 RUN npm install -g claude-flow@latest  # Includes repoctl
 CMD ["repoctl", "monitor", "dashboard"]
 ```

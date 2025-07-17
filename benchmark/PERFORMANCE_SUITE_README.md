@@ -26,7 +26,7 @@ This performance benchmarking suite provides automated testing, monitoring, and 
 - **Agent Spawn Latency**: Time to spawn new agents
 - **Resource Loading**: Memory and CPU usage during startup
 
-### 2. Coordination Efficiency  
+### 2. Coordination Efficiency
 - **Inter-Agent Communication**: Message passing latency between agents
 - **Task Orchestration Overhead**: Coordination vs execution time ratio
 - **Scalability Tests**: Performance under increasing agent loads
@@ -352,7 +352,7 @@ The suite automatically detects performance regressions by comparing:
 
 ### Trend Detection
 - **Memory Growth**: Identifies steady memory increases
-- **Latency Creep**: Detects gradual response time increases  
+- **Latency Creep**: Detects gradual response time increases
 - **Throughput Decline**: Monitors task completion rates
 - **Error Rate Increase**: Tracks failure pattern changes
 
@@ -524,7 +524,7 @@ node ../cli.js swarm list
 ## 📊 Performance Score: 100/100
 - ✅ **Startup Performance**: All targets met
 - ✅ **Coordination Efficiency**: Optimal latency
-- ✅ **Memory Performance**: No leaks detected  
+- ✅ **Memory Performance**: No leaks detected
 - ✅ **Network Performance**: Response times excellent
 - ✅ **Scalability**: Linear scaling achieved
 - ✅ **Regression Detection**: No critical issues

@@ -11,16 +11,16 @@ graph TB
     Orchestrator --> MM[Memory Manager]
     Orchestrator --> CM[Coordination Manager]
     Orchestrator --> MCP[MCP Server]
-    
+
     TM --> TP[Terminal Pool]
     MM --> Cache[Memory Cache]
     MM --> Storage[Persistent Storage]
     CM --> Queue[Task Queue]
     CM --> Lock[Resource Locks]
-    
+
     MCP --> Tools[External Tools]
     MCP --> Protocols[Communication Protocols]
-    
+
     style Orchestrator fill:#e1f5fe
     style MM fill:#f3e5f5
     style CM fill:#e8f5e8
@@ -46,7 +46,7 @@ interface Orchestrator {
   resourceManager: ResourceManager;
   healthMonitor: HealthMonitor;
   serviceRegistry: ServiceRegistry;
-  
+
   spawnAgent(config: AgentConfig): Promise<AgentSession>;
   terminateAgent(agentId: string): Promise<void>;
   allocateResources(request: ResourceRequest): Promise<ResourceAllocation>;
@@ -72,7 +72,7 @@ graph LR
     Pool --> T2[Terminal 2]
     Pool --> T3[Terminal 3]
     Pool --> TN[Terminal N]
-    
+
     T1 --> Agent1[Agent Session]
     T2 --> Agent2[Agent Session]
     T3 --> Available[Available]
@@ -106,14 +106,14 @@ graph TD
     MM[Memory Manager] --> Cache[LRU Cache]
     MM --> Sync[Sync Engine]
     MM --> Store[Storage Layer]
-    
+
     Store --> SQLite[SQLite Backend]
     Store --> MD[Markdown Backend]
     Store --> Hybrid[Hybrid Backend]
-    
+
     Sync --> CRDT[CRDT Resolution]
     Sync --> Conflict[Conflict Detection]
-    
+
     Cache --> Hot[Hot Data]
     Cache --> Warm[Warm Data]
     Cache --> Cold[Cold Data]
@@ -138,17 +138,17 @@ graph TD
     Priority --> Normal[Normal Queue]
     Priority --> Low[Low Queue]
     Priority --> Background[Background Queue]
-    
+
     Critical --> Scheduler[Task Scheduler]
     High --> Scheduler
     Normal --> Scheduler
     Low --> Scheduler
     Background --> Scheduler
-    
+
     Scheduler --> Deps{Check Dependencies}
     Deps --> Ready[Ready for Execution]
     Deps --> Waiting[Waiting for Dependencies]
-    
+
     Ready --> Agent[Assign to Agent]
     Waiting --> Monitor[Monitor Dependencies]
 ```
@@ -178,7 +178,7 @@ sequenceDiagram
     participant CM as Coordination Manager
     participant MM as Memory Manager
     participant A2 as Agent 2
-    
+
     A1->>CM: Send Message
     CM->>MM: Store Message
     CM->>A2: Route Message
@@ -197,7 +197,7 @@ sequenceDiagram
     participant Agent
     participant Memory
     participant Terminal
-    
+
     User->>CLI: claude-flow task create
     CLI->>Orchestrator: Create task request
     Orchestrator->>Memory: Store task definition
@@ -259,11 +259,11 @@ graph TB
     LB[Load Balancer] --> N1[Node 1]
     LB --> N2[Node 2]
     LB --> N3[Node 3]
-    
+
     N1 --> A1[Agents 1-10]
     N2 --> A2[Agents 11-20]
     N3 --> A3[Agents 21-30]
-    
+
     A1 --> SM[Shared Memory]
     A2 --> SM
     A3 --> SM

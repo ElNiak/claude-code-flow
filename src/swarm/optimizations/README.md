@@ -70,7 +70,7 @@ private initializeOptimizations() {
     concurrency: 10,
     caching: { enabled: true }
   });
-  
+
   // Replace arrays with optimized structures
   this.events = new CircularBuffer(1000);
   this.tasks = new TTLMap({ defaultTTL: 3600000 });
@@ -84,10 +84,10 @@ private initializeOptimizations() {
 async executeTask(taskId: string) {
   const task = this.tasks.get(taskId);
   const agent = this.agents.get(task.assignedTo?.id);
-  
+
   // Use optimized executor
   const result = await this.optimizedExecutor.executeTask(task, agent.id);
-  
+
   task.result = result;
   task.status = 'completed';
 }
@@ -186,7 +186,7 @@ python compare_optimizations.py
 After implementing all optimizations:
 
 - **50% reduction** in task execution time
-- **70% reduction** in memory usage  
+- **70% reduction** in memory usage
 - **2.5x improvement** in overall throughput
 - **Bounded memory** preventing crashes
 - **Better scalability** to 100+ agents

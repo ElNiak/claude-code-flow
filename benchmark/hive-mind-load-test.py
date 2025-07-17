@@ -68,14 +68,14 @@ class LoadTestResult:
 
 class HiveMindLoadTester:
     """Comprehensive load testing for Hive Mind system"""
-    
+
     def __init__(self, output_dir: str = "load-test-results"):
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(exist_ok=True)
         self.results: List[LoadTestResult] = []
         self.cli_path = self._find_cli_path()
         self.system_monitor = SystemMonitor()
-        
+
     def _find_cli_path(self) -> Path:
         """Find the claude-flow CLI executable"""
         possible_paths = [
@@ -84,18 +84,18 @@ class HiveMindLoadTester:
             Path("./claude-flow"),
             Path("../claude-flow")
         ]
-        
+
         for path in possible_paths:
             if path.exists():
                 return path
-        
+
         # Fallback to system claude-flow
         return Path("claude-flow")
 
     def create_load_test_scenarios(self) -> List[LoadTestConfig]:
         """Create comprehensive load testing scenarios"""
         scenarios = []
-        
+
         # Progressive scaling tests (1 -> 1000 agents)
         scaling_tests = [
             (1, "Baseline single agent", 30),
@@ -108,7 +108,7 @@ class HiveMindLoadTester:
             (500, "Large enterprise", 240),
             (1000, "Massive scale", 300)
         ]
-        
+
         for count, desc, duration in scaling_tests:
             # Test optimal configuration for each scale
             scenarios.append(LoadTestConfig(
@@ -121,7 +121,7 @@ class HiveMindLoadTester:
                 duration_seconds=duration,
                 ramp_up_seconds=max(5, count // 10)
             ))
-        
+
         # Topology stress tests
         topologies = ["hierarchical", "mesh", "ring", "star"]
         for topology in topologies:
@@ -135,7 +135,7 @@ class HiveMindLoadTester:
                 duration_seconds=120,
                 stress_mode=True
             ))
-        
+
         # Coordination mode stress tests
         coordination_modes = ["queen", "consensus", "hybrid", "democracy"]
         for mode in coordination_modes:
@@ -149,7 +149,7 @@ class HiveMindLoadTester:
                 duration_seconds=90,
                 stress_mode=True
             ))
-        
+
         # Concurrent swarm tests
         scenarios.extend([
             LoadTestConfig(
@@ -184,7 +184,7 @@ class HiveMindLoadTester:
                 stress_mode=True
             )
         ])
-        
+
         # Memory system stress tests
         scenarios.extend([
             LoadTestConfig(
@@ -210,7 +210,7 @@ class HiveMindLoadTester:
                 stress_mode=True
             )
         ])
-        
+
         # Breaking point discovery tests
         scenarios.extend([
             LoadTestConfig(
@@ -236,17 +236,17 @@ class HiveMindLoadTester:
                 stress_mode=True
             )
         ])
-        
+
         return scenarios
 
     def run_hive_mind_command(self, command: List[str], timeout: int = 120) -> Dict[str, Any]:
         """Execute hive-mind command with performance monitoring"""
         start_time = time.time()
-        
+
         try:
             # Start system monitoring
             monitor_process = self.system_monitor.start_monitoring()
-            
+
             # Execute command
             result = subprocess.run(
                 ["node", str(self.cli_path)] + command,
@@ -255,13 +255,13 @@ class HiveMindLoadTester:
                 timeout=timeout,
                 cwd=Path.cwd()
             )
-            
+
             end_time = time.time()
             duration = end_time - start_time
-            
+
             # Stop monitoring and get metrics
             metrics = self.system_monitor.stop_monitoring(monitor_process)
-            
+
             return {
                 "success": result.returncode == 0,
                 "duration": duration,
@@ -270,7 +270,7 @@ class HiveMindLoadTester:
                 "returncode": result.returncode,
                 "metrics": metrics
             }
-            
+
         except subprocess.TimeoutExpired:
             self.system_monitor.stop_monitoring(None)
             return {
@@ -295,11 +295,11 @@ class HiveMindLoadTester:
     def run_single_swarm_load_test(self, config: LoadTestConfig, swarm_id: int = 0) -> Dict[str, Any]:
         """Run load test for a single swarm"""
         print(f"🔥 Starting swarm {swarm_id} load test: {config.name}")
-        
+
         start_time = time.time()
         response_times = []
         errors = []
-        
+
         try:
             # Initialize swarm
             init_cmd = [
@@ -307,18 +307,18 @@ class HiveMindLoadTester:
                 "--test-mode",
                 "--swarm-id", f"{config.name}_swarm_{swarm_id}"
             ]
-            
+
             init_result = self.run_hive_mind_command(init_cmd, timeout=60)
             if not init_result["success"]:
                 raise Exception(f"Swarm initialization failed: {init_result['stderr']}")
-            
+
             # Ramp up agents gradually
             agents_spawned = 0
             ramp_increment = max(1, config.agent_count // (config.ramp_up_seconds // 2))
-            
+
             while agents_spawned < config.agent_count:
                 batch_size = min(ramp_increment, config.agent_count - agents_spawned)
-                
+
                 spawn_start = time.time()
                 spawn_cmd = [
                     "hive-mind", "spawn",
@@ -329,25 +329,25 @@ class HiveMindLoadTester:
                     "--agents", str(batch_size),
                     "--stress-test" if config.stress_mode else "--load-test"
                 ]
-                
+
                 spawn_result = self.run_hive_mind_command(spawn_cmd, timeout=120)
                 spawn_time = time.time() - spawn_start
                 response_times.append(spawn_time * 1000)  # Convert to ms
-                
+
                 if not spawn_result["success"]:
                     errors.append(f"Agent spawn failed: {spawn_result['stderr']}")
                     break
-                
+
                 agents_spawned += batch_size
-                
+
                 # Brief pause between batches during ramp-up
                 if agents_spawned < config.agent_count:
                     time.sleep(1)
-            
+
             # Run sustained load for duration
             test_start = time.time()
             operations_completed = 0
-            
+
             while time.time() - test_start < config.duration_seconds:
                 # Execute coordination tasks
                 task_start = time.time()
@@ -357,25 +357,25 @@ class HiveMindLoadTester:
                     "--complexity", config.task_complexity,
                     "--timeout", "30"
                 ]
-                
+
                 task_result = self.run_hive_mind_command(task_cmd, timeout=30)
                 task_time = time.time() - task_start
                 response_times.append(task_time * 1000)
-                
+
                 if not task_result["success"]:
                     errors.append(f"Task execution failed: {task_result['stderr']}")
-                
+
                 operations_completed += 1
-                
+
                 # Brief pause between operations
                 time.sleep(0.5)
-            
+
             # Cleanup swarm
             cleanup_cmd = ["hive-mind", "cleanup", "--swarm-id", f"{config.name}_swarm_{swarm_id}"]
             cleanup_result = self.run_hive_mind_command(cleanup_cmd, timeout=60)
-            
+
             total_duration = time.time() - start_time
-            
+
             return {
                 "swarm_id": swarm_id,
                 "success": len(errors) == 0,
@@ -386,7 +386,7 @@ class HiveMindLoadTester:
                 "errors": errors,
                 "throughput": operations_completed / config.duration_seconds if config.duration_seconds > 0 else 0
             }
-            
+
         except Exception as e:
             return {
                 "swarm_id": swarm_id,
@@ -405,22 +405,22 @@ class HiveMindLoadTester:
         print(f"   📊 {config.agent_count} agents, {config.concurrent_swarms} swarms")
         print(f"   🏗️ Topology: {config.topology}, Coordination: {config.coordination}")
         print(f"   💾 Memory: {config.memory_type}, Duration: {config.duration_seconds}s")
-        
+
         start_time = datetime.now().isoformat()
         test_start = time.time()
-        
+
         # Start system monitoring
         system_monitor_process = self.system_monitor.start_monitoring()
-        
+
         try:
             # Run concurrent swarms if specified
             if config.concurrent_swarms > 1:
                 with ThreadPoolExecutor(max_workers=config.concurrent_swarms) as executor:
                     futures = {
-                        executor.submit(self.run_single_swarm_load_test, config, i): i 
+                        executor.submit(self.run_single_swarm_load_test, config, i): i
                         for i in range(config.concurrent_swarms)
                     }
-                    
+
                     swarm_results = []
                     for future in as_completed(futures):
                         result = future.result()
@@ -432,21 +432,21 @@ class HiveMindLoadTester:
                 # Single swarm test
                 swarm_result = self.run_single_swarm_load_test(config, 0)
                 swarm_results = [swarm_result]
-            
+
             # Stop system monitoring and collect metrics
             system_metrics = self.system_monitor.stop_monitoring(system_monitor_process)
-            
+
             # Aggregate results from all swarms
             total_duration = time.time() - test_start
             end_time = datetime.now().isoformat()
-            
+
             # Calculate aggregate metrics
             all_response_times = []
             all_errors = []
             total_agents = 0
             total_operations = 0
             successful_swarms = 0
-            
+
             for result in swarm_results:
                 all_response_times.extend(result["response_times"])
                 all_errors.extend(result["errors"])
@@ -454,21 +454,21 @@ class HiveMindLoadTester:
                 total_operations += result["operations_completed"]
                 if result["success"]:
                     successful_swarms += 1
-            
+
             # Calculate performance metrics
             avg_response_time = statistics.mean(all_response_times) if all_response_times else 0
             p95_response_time = statistics.quantiles(all_response_times, n=20)[18] if len(all_response_times) > 20 else 0
             p99_response_time = statistics.quantiles(all_response_times, n=100)[98] if len(all_response_times) > 100 else 0
-            
+
             throughput = total_operations / config.duration_seconds if config.duration_seconds > 0 else 0
             error_rate = len(all_errors) / (total_operations + len(all_errors)) if (total_operations + len(all_errors)) > 0 else 0
-            
+
             # Determine system stability
             success_rate = successful_swarms / len(swarm_results) if swarm_results else 0
             system_stable = success_rate >= config.expected_success_rate
             breaking_point_reached = success_rate < 0.5
             resource_exhaustion = system_metrics.get("peak_memory_mb", 0) > 8000 or system_metrics.get("peak_cpu_percent", 0) > 95
-            
+
             return LoadTestResult(
                 config=config,
                 start_time=start_time,
@@ -494,7 +494,7 @@ class HiveMindLoadTester:
                 resource_exhaustion=resource_exhaustion,
                 error_messages=all_errors[:10]  # Keep first 10 errors
             )
-            
+
         except Exception as e:
             self.system_monitor.stop_monitoring(system_monitor_process)
             return LoadTestResult(
@@ -526,26 +526,26 @@ class HiveMindLoadTester:
     def run_progressive_load_testing(self, scenarios: List[LoadTestConfig]) -> List[LoadTestResult]:
         """Run load tests progressively, stopping at breaking points"""
         results = []
-        
+
         # Sort scenarios by agent count for progressive testing
         sorted_scenarios = sorted(scenarios, key=lambda s: s.agent_count)
-        
+
         print("🎯 Starting Progressive Load Testing")
         print("=" * 50)
-        
+
         for i, scenario in enumerate(sorted_scenarios):
             print(f"\n📈 Test {i+1}/{len(sorted_scenarios)}: {scenario.name}")
-            
+
             result = self.run_load_test(scenario)
             results.append(result)
-            
+
             # Report result
             status = "✅" if result.system_stable else "❌"
             print(f"{status} {scenario.name}: {result.successful_agents}/{scenario.agent_count * scenario.concurrent_swarms} agents")
             print(f"   ⚡ Throughput: {result.throughput_ops_per_sec:.1f} ops/sec")
             print(f"   🧠 Memory: {result.peak_memory_mb:.1f}MB, CPU: {result.peak_cpu_percent:.1f}%")
             print(f"   🎯 Response time: {result.average_response_time_ms:.1f}ms (P95: {result.p95_response_time_ms:.1f}ms)")
-            
+
             # Check if we should continue
             if result.breaking_point_reached:
                 print(f"🚨 Breaking point reached at {scenario.agent_count} agents!")
@@ -554,25 +554,25 @@ class HiveMindLoadTester:
                 else:
                     print("   Stopping progressive testing due to early failure.")
                     break
-            
+
             # Brief pause between tests for system recovery
             time.sleep(5)
-        
+
         return results
 
     def analyze_load_test_results(self, results: List[LoadTestResult]) -> Dict[str, Any]:
         """Analyze load test results and generate insights"""
         if not results:
             return {"error": "No results to analyze"}
-        
+
         successful_results = [r for r in results if r.system_stable]
         failed_results = [r for r in results if not r.system_stable]
         breaking_points = [r for r in results if r.breaking_point_reached]
-        
+
         # Find scaling limits
         max_stable_agents = max([r.successful_agents for r in successful_results], default=0)
         breaking_point_agents = min([r.config.agent_count for r in breaking_points], default=None)
-        
+
         # Performance characteristics
         performance_by_scale = {}
         for result in successful_results:
@@ -586,7 +586,7 @@ class HiveMindLoadTester:
                 "memory_mb": result.peak_memory_mb,
                 "cpu_percent": result.peak_cpu_percent
             })
-        
+
         # Topology performance comparison
         topology_performance = {}
         for result in successful_results:
@@ -599,43 +599,43 @@ class HiveMindLoadTester:
                 "response_time": result.average_response_time_ms,
                 "coordination_failures": result.coordination_failures
             })
-        
+
         # Resource utilization analysis
         resource_analysis = {
             "memory_efficiency": {},
             "cpu_efficiency": {},
             "breaking_points": {}
         }
-        
+
         for result in results:
             agent_count = result.config.agent_count
             if result.successful_agents > 0:
                 memory_per_agent = result.peak_memory_mb / result.successful_agents
                 cpu_per_agent = result.peak_cpu_percent / result.successful_agents
-                
+
                 resource_analysis["memory_efficiency"][agent_count] = memory_per_agent
                 resource_analysis["cpu_efficiency"][agent_count] = cpu_per_agent
-            
+
             if result.breaking_point_reached:
                 resource_analysis["breaking_points"][agent_count] = {
                     "error_rate": result.error_rate,
                     "resource_exhaustion": result.resource_exhaustion,
                     "coordination_failures": result.coordination_failures
                 }
-        
+
         # Recommendations
         recommendations = []
-        
+
         if max_stable_agents < 100:
             recommendations.append("System shows scaling issues below 100 agents. Consider optimizing coordination mechanisms.")
         elif max_stable_agents < 500:
             recommendations.append("Good performance up to medium scale. Consider distributed memory for larger deployments.")
         else:
             recommendations.append("Excellent scaling characteristics. System ready for enterprise deployment.")
-        
+
         if breaking_point_agents and breaking_point_agents < 1000:
             recommendations.append(f"Breaking point identified at {breaking_point_agents} agents. Implement sharding or federation for larger scales.")
-        
+
         # Performance targets assessment
         targets_met = {
             "response_time_target": len([r for r in successful_results if r.average_response_time_ms < 1000]),
@@ -643,7 +643,7 @@ class HiveMindLoadTester:
             "memory_target": len([r for r in successful_results if r.peak_memory_mb < 2000]),
             "stability_target": len([r for r in successful_results if r.error_rate < 0.05])
         }
-        
+
         return {
             "summary": {
                 "total_tests": len(results),
@@ -667,7 +667,7 @@ class HiveMindLoadTester:
                 "resource_efficiency_curve": resource_analysis["memory_efficiency"]
             }
         }
-    
+
     def _categorize_scale(self, agent_count: int) -> str:
         """Categorize agent count into scale categories"""
         if agent_count <= 10:
@@ -682,24 +682,24 @@ class HiveMindLoadTester:
     def save_load_test_results(self, results: List[LoadTestResult], analysis: Dict[str, Any]):
         """Save load test results and analysis"""
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        
+
         # Save detailed results
         results_file = self.output_dir / f"hive_mind_load_test_results_{timestamp}.json"
         with open(results_file, 'w') as f:
             json.dump([asdict(r) for r in results], f, indent=2)
-        
+
         # Save analysis
         analysis_file = self.output_dir / f"hive_mind_load_test_analysis_{timestamp}.json"
         with open(analysis_file, 'w') as f:
             json.dump(analysis, f, indent=2)
-        
+
         # Save performance summary CSV
         csv_file = self.output_dir / f"hive_mind_load_test_summary_{timestamp}.csv"
         with open(csv_file, 'w') as f:
             f.write("test_name,agent_count,concurrent_swarms,topology,coordination,memory_type,")
             f.write("successful_agents,throughput_ops_sec,avg_response_ms,p95_response_ms,")
             f.write("peak_memory_mb,peak_cpu_percent,error_rate,system_stable,breaking_point\\n")
-            
+
             for result in results:
                 config = result.config
                 f.write(f"{config.name},{config.agent_count},{config.concurrent_swarms},")
@@ -708,12 +708,12 @@ class HiveMindLoadTester:
                 f.write(f"{result.average_response_time_ms:.1f},{result.p95_response_time_ms:.1f},")
                 f.write(f"{result.peak_memory_mb:.1f},{result.peak_cpu_percent:.1f},")
                 f.write(f"{result.error_rate:.3f},{result.system_stable},{result.breaking_point_reached}\\n")
-        
+
         print(f"📊 Load test results saved:")
         print(f"   📄 Detailed results: {results_file}")
         print(f"   📈 Analysis: {analysis_file}")
         print(f"   📋 Summary CSV: {csv_file}")
-        
+
         return {
             "results_file": str(results_file),
             "analysis_file": str(analysis_file),
@@ -729,24 +729,24 @@ class HiveMindLoadTester:
         print("💾 Different memory backends")
         print("🔍 Breaking point discovery")
         print("=" * 60)
-        
+
         # Create test scenarios
         scenarios = self.create_load_test_scenarios()
         print(f"📋 Created {len(scenarios)} load test scenarios")
-        
+
         # Run progressive load testing
         start_time = time.time()
         results = self.run_progressive_load_testing(scenarios)
         total_duration = time.time() - start_time
-        
+
         print(f"\\n⏱️  Total testing time: {total_duration:.1f} seconds")
-        
+
         # Analyze results
         analysis = self.analyze_load_test_results(results)
-        
+
         # Save results
         file_info = self.save_load_test_results(results, analysis)
-        
+
         # Add metadata
         analysis["metadata"] = {
             "total_duration_seconds": total_duration,
@@ -760,12 +760,12 @@ class HiveMindLoadTester:
             }
         }
         analysis["files"] = file_info
-        
+
         return analysis
 
 class SystemMonitor:
     """Monitor system resources during load testing"""
-    
+
     def __init__(self):
         self.monitoring = False
         self.metrics = {
@@ -773,23 +773,23 @@ class SystemMonitor:
             "memory_samples": [],
             "io_samples": []
         }
-    
+
     def start_monitoring(self) -> threading.Thread:
         """Start monitoring system resources"""
         self.monitoring = True
         self.metrics = {"cpu_samples": [], "memory_samples": [], "io_samples": []}
-        
+
         def monitor():
             while self.monitoring:
                 try:
                     # CPU usage
                     cpu_percent = psutil.cpu_percent(interval=1)
                     self.metrics["cpu_samples"].append(cpu_percent)
-                    
+
                     # Memory usage
                     memory = psutil.virtual_memory()
                     self.metrics["memory_samples"].append(memory.percent)
-                    
+
                     # I/O stats
                     io_counters = psutil.disk_io_counters()
                     if io_counters:
@@ -797,27 +797,27 @@ class SystemMonitor:
                             "read_bytes": io_counters.read_bytes,
                             "write_bytes": io_counters.write_bytes
                         })
-                    
+
                 except Exception:
                     pass  # Continue monitoring despite errors
-                
+
                 time.sleep(1)
-        
+
         thread = threading.Thread(target=monitor)
         thread.daemon = True
         thread.start()
         return thread
-    
+
     def stop_monitoring(self, thread: Optional[threading.Thread]) -> Dict[str, Any]:
         """Stop monitoring and return collected metrics"""
         self.monitoring = False
-        
+
         if thread:
             thread.join(timeout=2)
-        
+
         if not self.metrics["cpu_samples"]:
             return {}
-        
+
         return {
             "peak_cpu_percent": max(self.metrics["cpu_samples"]),
             "avg_cpu_percent": statistics.mean(self.metrics["cpu_samples"]),
@@ -830,17 +830,17 @@ class SystemMonitor:
 def main():
     """Main load testing execution"""
     import argparse
-    
+
     parser = argparse.ArgumentParser(description="Hive Mind Load Testing Suite")
     parser.add_argument("--quick", action="store_true", help="Run quick load test with reduced scenarios")
     parser.add_argument("--scale", type=int, help="Test specific agent scale")
     parser.add_argument("--output", default="load-test-results", help="Output directory")
     parser.add_argument("--max-agents", type=int, default=1000, help="Maximum agents to test")
-    
+
     args = parser.parse_args()
-    
+
     tester = HiveMindLoadTester(output_dir=args.output)
-    
+
     if args.quick:
         # Quick test scenarios
         scenarios = [
@@ -848,16 +848,16 @@ def main():
             LoadTestConfig("quick_medium", "Quick medium scale test", 25, "mesh", "consensus", "memory", duration_seconds=45),
             LoadTestConfig("quick_large", "Quick large scale test", 100, "hierarchical", "queen", "distributed", duration_seconds=60)
         ]
-        
+
         print("🚀 Running quick load test...")
         results = []
         for scenario in scenarios:
             result = tester.run_load_test(scenario)
             results.append(result)
-        
+
         analysis = tester.analyze_load_test_results(results)
         tester.save_load_test_results(results, analysis)
-        
+
     elif args.scale:
         # Test specific scale
         scenario = LoadTestConfig(
@@ -865,20 +865,20 @@ def main():
             f"Custom scale test with {args.scale} agents",
             args.scale,
             "hierarchical" if args.scale <= 100 else "mesh",
-            "queen" if args.scale <= 50 else "consensus", 
+            "queen" if args.scale <= 50 else "consensus",
             "sqlite" if args.scale <= 100 else "distributed",
             duration_seconds=max(60, args.scale // 10)
         )
-        
+
         print(f"🎯 Running custom scale test with {args.scale} agents...")
         result = tester.run_load_test(scenario)
         analysis = tester.analyze_load_test_results([result])
         tester.save_load_test_results([result], analysis)
-        
+
     else:
         # Full comprehensive load testing
         analysis = tester.run_comprehensive_load_testing()
-        
+
         # Print summary
         summary = analysis["summary"]
         print("\\n🎯 LOAD TESTING SUMMARY")
@@ -891,7 +891,7 @@ def main():
         print(f"Average response time: {summary['avg_response_time_ms']:.1f}ms")
         print(f"Peak memory usage: {summary['peak_memory_usage_mb']:.1f}MB")
         print(f"Peak CPU usage: {summary['peak_cpu_usage_percent']:.1f}%")
-        
+
         # Print recommendations
         if analysis["recommendations"]:
             print("\\n💡 RECOMMENDATIONS")

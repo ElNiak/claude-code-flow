@@ -9,30 +9,30 @@ from .base_strategy import BaseStrategy
 
 class TestingStrategy(BaseStrategy):
     """Strategy for testing and quality assurance tasks."""
-    
+
     def __init__(self):
         """Initialize the testing strategy."""
         super().__init__()
         self.claude_flow_client = None
-    
+
     @property
     def name(self) -> str:
         """Strategy name."""
         return "testing"
-    
+
     @property
     def description(self) -> str:
         """Strategy description."""
         return "Testing and quality assurance"
-    
+
     async def execute(self, task: Task) -> Result:
         """Execute a testing task."""
         start_time = datetime.now()
-        
+
         # Simulate testing execution
         await asyncio.sleep(0.12)
         execution_time = (datetime.now() - start_time).total_seconds()
-        
+
         result = Result(
             task_id=task.id,
             agent_id="testing-agent",
@@ -51,10 +51,10 @@ class TestingStrategy(BaseStrategy):
             started_at=start_time,
             completed_at=datetime.now()
         )
-        
+
         self._record_execution(task, result)
         return result
-    
+
     def get_metrics(self) -> Dict[str, Any]:
         """Get testing strategy metrics."""
         return {

@@ -1,474 +1,494 @@
-import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from "../utils/error-handler.js";
+
 /**
  * Authentication and authorization for MCP
  */
 
-import type { MCPAuthConfig, MCPSession } from '../utils/types.js';
-import type { ILogger } from '../core/logger.js';
-import type { MCPError } from '../utils/errors.js';
-import { createHash, timingSafeEqual } from 'node:crypto';
+import { createHash, timingSafeEqual } from "node:crypto";
+import type { ILogger } from "../core/logger.js";
+import type { MCPError } from "../utils/errors.js";
+import type { MCPAuthConfig, MCPSession } from "../utils/types.js";
 
 export interface AuthContext {
-  user: string;
-  permissions: string[];
-  sessionId: string;
-  createdAt: Date;
-  expiresAt: Date;
+	user: string;
+	permissions: string[];
+	sessionId: string;
+	createdAt: Date;
+	expiresAt: Date;
 }
 
 export interface TokenInfo {
-  token: string;
-  user: string;
-  permissions: string[];
-  createdAt: Date;
-  expiresAt: Date;
-  active: boolean;
+	token: string;
+	user: string;
+	permissions: string[];
+	createdAt: Date;
+	expiresAt: Date;
+	active: boolean;
 }
 
 export interface TokenGenerationOptions {
-  user: string;
-  permissions: string[];
-  expiresIn?: number; // seconds
-  metadata?: Record<string, any>;
+	user: string;
+	permissions: string[];
+	expiresIn?: number; // seconds
+	metadata?: Record<string, any>;
 }
 
 export interface AuthSession {
-  id: string;
-  user: string;
-  permissions: string[];
-  token: string;
-  context: AuthContext;
-  active: boolean;
-  createdAt: Date;
-  lastActivity: Date;
+	id: string;
+	user: string;
+	permissions: string[];
+	token: string;
+	context: AuthContext;
+	active: boolean;
+	createdAt: Date;
+	lastActivity: Date;
 }
 
 export interface IAuthManager {
-  authenticate(credentials: unknown): Promise<AuthResult>;
-  authorize(session: MCPSession, permission: string): boolean;
-  validateToken(token: string): Promise<TokenValidation>;
-  generateToken(userId: string, permissions: string[]): Promise<string>;
-  revokeToken(token: string): Promise<void>;
+	authenticate(credentials: unknown): Promise<AuthResult>;
+	authorize(session: MCPSession, permission: string): boolean;
+	validateToken(token: string): Promise<TokenValidation>;
+	generateToken(userId: string, permissions: string[]): Promise<string>;
+	revokeToken(token: string): Promise<void>;
 }
 
 export interface AuthResult {
-  success: boolean;
-  user?: string;
-  permissions?: string[];
-  token?: string;
-  error?: string;
+	success: boolean;
+	user?: string;
+	permissions?: string[];
+	token?: string;
+	error?: string;
 }
 
 export interface TokenValidation {
-  valid: boolean;
-  user?: string;
-  permissions?: string[];
-  expiresAt?: Date;
-  error?: string;
+	valid: boolean;
+	user?: string;
+	permissions?: string[];
+	expiresAt?: Date;
+	error?: string;
 }
 
 /**
  * Authentication manager implementation
  */
 export class AuthManager implements IAuthManager {
-  private revokedTokens = new Set<string>();
-  private tokenStore = new Map<string, {
-    user: string;
-    permissions: string[];
-    createdAt: Date;
-    expiresAt: Date;
-  }>();
+	private revokedTokens = new Set<string>();
+	private tokenStore = new Map<
+		string,
+		{
+			user: string;
+			permissions: string[];
+			createdAt: Date;
+			expiresAt: Date;
+		}
+	>();
 
-  constructor(
-    private config: MCPAuthConfig,
-    private logger: ILogger,
-  ) {
-    // Start token cleanup timer,
-    if (config.enabled) {
-      setInterval(() => {
-        this.cleanupExpiredTokens();
-      }, 300000); // Clean up every 5 minutes
-    }
-  }
+	constructor(
+		private config: MCPAuthConfig,
+		private logger: ILogger
+	) {
+		// Start token cleanup timer,
+		if (config.enabled) {
+			setInterval(() => {
+				this.cleanupExpiredTokens();
+			}, 300000); // Clean up every 5 minutes
+		}
+	}
 
-  async authenticate(credentials: unknown): Promise<AuthResult> {
-    if (!this.config.enabled) {
-      return {
-        success: true,
-        user: 'anonymous',
-        permissions: ['*'],
-      };
-    }
+	async authenticate(credentials: unknown): Promise<AuthResult> {
+		if (!this.config.enabled) {
+			return {
+				success: true,
+				user: "anonymous",
+				permissions: ["*"],
+			};
+		}
 
-    this.logger.debug('Authenticating credentials', {
-      method: this.config.method,
-      hasCredentials: !!credentials,
-    });
+		this.logger.debug("Authenticating credentials", {
+			method: this.config.method,
+			hasCredentials: !!credentials,
+		});
 
-    try {
-      switch (this.config.method) {
-        case 'token':
-          return await this.authenticateToken(credentials);
-        case 'basic':
-          return await this.authenticateBasic(credentials);
-        case 'oauth':
-          return await this.authenticateOAuth(credentials);
-        default:
-          return {
-            success: false,
-            error: `Unsupported authentication method: ${this.config.method}`,
-          };
-      }
-    } catch (error) {
-      this.logger.error('Authentication error', error);
-      return {
-        success: false,
-        error: error instanceof Error ? (error instanceof Error ? error.message : String(error)) : 'Authentication failed',
-      };
-    }
-  }
+		try {
+			switch (this.config.method) {
+				case "token":
+					return await this.authenticateToken(credentials);
+				case "basic":
+					return await this.authenticateBasic(credentials);
+				case "oauth":
+					return await this.authenticateOAuth(credentials);
+				default:
+					return {
+						success: false,
+						error: `Unsupported authentication method: ${this.config.method}`,
+					};
+			}
+		} catch (error) {
+			this.logger.error("Authentication error", error);
+			return {
+				success: false,
+				error:
+					error instanceof Error
+						? error instanceof Error
+							? error.message
+							: String(error)
+						: "Authentication failed",
+			};
+		}
+	}
 
-  authorize(session: MCPSession, permission: string): boolean {
-    if (!this.config.enabled || !session.authenticated) {
-      return !this.config.enabled; // If auth disabled, allow all
-    }
+	authorize(session: MCPSession, permission: string): boolean {
+		if (!this.config.enabled || !session.authenticated) {
+			return !this.config.enabled; // If auth disabled, allow all
+		}
 
-    const permissions = session.authData?.permissions || [];
-    
-    // Check for wildcard permission,
-    if (permissions.includes('*')) {
-      return true;
-    }
+		const permissions = session.authData?.permissions || [];
 
-    // Check for exact permission match,
-    if (permissions.includes(permission)) {
-      return true;
-    }
+		// Check for wildcard permission,
+		if (permissions.includes("*")) {
+			return true;
+		}
 
-    // Check for prefix-based permissions (e.g., "tools.*" matches "tools.list")
-    for (const perm of permissions) {
-      if (perm.endsWith('*') && permission.startsWith(perm.slice(0, -1))) {
-        return true;
-      }
-    }
+		// Check for exact permission match,
+		if (permissions.includes(permission)) {
+			return true;
+		}
 
-    this.logger.warn('Authorization denied', {
-      sessionId: session.id,
-      user: session.authData?.user,
-      permission,
-      userPermissions: permissions,
-    });
+		// Check for prefix-based permissions (e.g., "tools.*" matches "tools.list")
+		for (const perm of permissions) {
+			if (perm.endsWith("*") && permission.startsWith(perm.slice(0, -1))) {
+				return true;
+			}
+		}
 
-    return false;
-  }
+		this.logger.warn("Authorization denied", {
+			sessionId: session.id,
+			user: session.authData?.user,
+			permission,
+			userPermissions: permissions,
+		});
 
-  async validateToken(token: string): Promise<TokenValidation> {
-    if (this.revokedTokens.has(token)) {
-      return {
-        valid: false,
-        error: 'Token has been revoked',
-      };
-    }
+		return false;
+	}
 
-    const tokenData = this.tokenStore.get(token);
-    if (!tokenData) {
-      return {
-        valid: false,
-        error: 'Invalid token',
-      };
-    }
+	async validateToken(token: string): Promise<TokenValidation> {
+		if (this.revokedTokens.has(token)) {
+			return {
+				valid: false,
+				error: "Token has been revoked",
+			};
+		}
 
-    if (tokenData.expiresAt < new Date()) {
-      this.tokenStore.delete(token);
-      return {
-        valid: false,
-        error: 'Token has expired',
-      };
-    }
+		const tokenData = this.tokenStore.get(token);
+		if (!tokenData) {
+			return {
+				valid: false,
+				error: "Invalid token",
+			};
+		}
 
-    return {
-      valid: true,
-      user: tokenData.user,
-      permissions: tokenData.permissions,
-      expiresAt: tokenData.expiresAt,
-    };
-  }
+		if (tokenData.expiresAt < new Date()) {
+			this.tokenStore.delete(token);
+			return {
+				valid: false,
+				error: "Token has expired",
+			};
+		}
 
-  async generateToken(userId: string, permissions: string[]): Promise<string> {
-    const token = this.createSecureToken();
-    const now = new Date();
-    const expiresAt = new Date(now.getTime() + (this.config.sessionTimeout || 3600000));
+		return {
+			valid: true,
+			user: tokenData.user,
+			permissions: tokenData.permissions,
+			expiresAt: tokenData.expiresAt,
+		};
+	}
 
-    this.tokenStore.set(token, {
-      user: userId,
-      permissions,
-      createdAt: now,
-      expiresAt,
-    });
+	async generateToken(userId: string, permissions: string[]): Promise<string> {
+		const token = this.createSecureToken();
+		const now = new Date();
+		const expiresAt = new Date(
+			now.getTime() + (this.config.sessionTimeout || 3600000)
+		);
 
-    this.logger.info('Token generated', {
-      userId,
-      permissions,
-      expiresAt,
-    });
+		this.tokenStore.set(token, {
+			user: userId,
+			permissions,
+			createdAt: now,
+			expiresAt,
+		});
 
-    return token;
-  }
+		this.logger.info("Token generated", {
+			userId,
+			permissions,
+			expiresAt,
+		});
 
-  async revokeToken(token: string): Promise<void> {
-    this.revokedTokens.add(token);
-    this.tokenStore.delete(token);
-    this.logger.info('Token revoked', { token: token.substring(0, 8) + '...' });
-  }
+		return token;
+	}
 
-  private async authenticateToken(credentials: unknown): Promise<AuthResult> {
-    const token = this.extractToken(credentials);
-    if (!token) {
-      return {
-        success: false,
-        error: 'Token not provided',
-      };
-    }
+	async revokeToken(token: string): Promise<void> {
+		this.revokedTokens.add(token);
+		this.tokenStore.delete(token);
+		this.logger.info("Token revoked", { token: token.substring(0, 8) + "..." });
+	}
 
-    // Check if it's a stored token (generated by us)
-    const validation = await this.validateToken(token);
-    if (validation.valid) {
-      return {
-        success: true,
-        user: validation.user!,
-        permissions: validation.permissions!,
-        token,
-      };
-    }
+	private async authenticateToken(credentials: unknown): Promise<AuthResult> {
+		const token = this.extractToken(credentials);
+		if (!token) {
+			return {
+				success: false,
+				error: "Token not provided",
+			};
+		}
 
-    // Check against configured static tokens,
-    if (this.config.tokens && this.config.tokens.length > 0) {
-      const isValid = this.config.tokens.some((validToken) => {
-        return this.timingSafeEqual(token, validToken);
-      });
+		// Check if it's a stored token (generated by us)
+		const validation = await this.validateToken(token);
+		if (validation.valid) {
+			return {
+				success: true,
+				user: validation.user!,
+				permissions: validation.permissions!,
+				token,
+			};
+		}
 
-      if (isValid) {
-        return {
-          success: true,
-          user: 'token-user',
-          permissions: ['*'], // Static tokens get all permissions,
-          token,
-        };
-      }
-    }
+		// Check against configured static tokens,
+		if (this.config.tokens && this.config.tokens.length > 0) {
+			const isValid = this.config.tokens.some((validToken) => {
+				return this.timingSafeEqual(token, validToken);
+			});
 
-    return {
-      success: false,
-      error: 'Invalid token',
-    };
-  }
+			if (isValid) {
+				return {
+					success: true,
+					user: "token-user",
+					permissions: ["*"], // Static tokens get all permissions,
+					token,
+				};
+			}
+		}
 
-  private async authenticateBasic(credentials: unknown): Promise<AuthResult> {
-    const { username, password } = this.extractBasicAuth(credentials);
-    if (!username || !password) {
-      return {
-        success: false,
-        error: 'Username and password required',
-      };
-    }
+		return {
+			success: false,
+			error: "Invalid token",
+		};
+	}
 
-    if (!this.config.users || this.config.users.length === 0) {
-      return {
-        success: false,
-        error: 'No users configured',
-      };
-    }
+	private async authenticateBasic(credentials: unknown): Promise<AuthResult> {
+		const { username, password } = this.extractBasicAuth(credentials);
+		if (!username || !password) {
+			return {
+				success: false,
+				error: "Username and password required",
+			};
+		}
 
-    const user = this.config.users.find((u) => u.username === username);
-    if (!user) {
-      return {
-        success: false,
-        error: 'Invalid username or password',
-      };
-    }
+		if (!this.config.users || this.config.users.length === 0) {
+			return {
+				success: false,
+				error: "No users configured",
+			};
+		}
 
-    // Verify password,
-    const isValidPassword = this.verifyPassword(password, user.password);
-    if (!isValidPassword) {
-      return {
-        success: false,
-        error: 'Invalid username or password',
-      };
-    }
+		const user = this.config.users.find((u) => u.username === username);
+		if (!user) {
+			return {
+				success: false,
+				error: "Invalid username or password",
+			};
+		}
 
-    // Generate a session token,
-    const token = await this.generateToken(username, user.permissions);
+		// Verify password,
+		const isValidPassword = this.verifyPassword(password, user.password);
+		if (!isValidPassword) {
+			return {
+				success: false,
+				error: "Invalid username or password",
+			};
+		}
 
-    return {
-      success: true,
-      user: username,
-      permissions: user.permissions,
-      token,
-    };
-  }
+		// Generate a session token,
+		const token = await this.generateToken(username, user.permissions);
 
-  private async authenticateOAuth(credentials: unknown): Promise<AuthResult> {
-    // TODO: Implement OAuth authentication
-    // This would typically involve:
-    // 1. Validating JWT tokens
-    // 2. Checking token expiration
-    // 3. Extracting user info and permissions from token claims,
-    
-    this.logger.warn('OAuth authentication not yet implemented');
-    return {
-      success: false,
-      error: 'OAuth authentication not implemented',
-    };
-  }
+		return {
+			success: true,
+			user: username,
+			permissions: user.permissions,
+			token,
+		};
+	}
 
-  private extractToken(credentials: unknown): string | null {
-    if (typeof credentials === 'string') {
-      return credentials;
-    }
+	private async authenticateOAuth(credentials: unknown): Promise<AuthResult> {
+		// TODO: Implement OAuth authentication
+		// This would typically involve:
+		// 1. Validating JWT tokens
+		// 2. Checking token expiration
+		// 3. Extracting user info and permissions from token claims,
 
-    if (typeof credentials === 'object' && credentials !== null) {
-      const creds = credentials as Record<string, unknown>;
-      
-      if (typeof creds.token === 'string') {
-        return creds.token;
-      }
-      
-      if (typeof creds.authorization === 'string') {
-        const match = creds.authorization.match(/^Bearer\s+(.+)$/i);
-        return match ? match[1] : null;
-      }
-    }
+		this.logger.warn("OAuth authentication not yet implemented");
+		return {
+			success: false,
+			error: "OAuth authentication not implemented",
+		};
+	}
 
-    return null;
-  }
+	private extractToken(credentials: unknown): string | null {
+		if (typeof credentials === "string") {
+			return credentials;
+		}
 
-  private extractBasicAuth(credentials: unknown): { username?: string; password?: string } {
-    if (typeof credentials === 'object' && credentials !== null) {
-      const creds = credentials as Record<string, unknown>;
-      
-      if (typeof creds.username === 'string' && typeof creds.password === 'string') {
-        return {
-          username: creds.username,
-          password: creds.password,
-        };
-      }
+		if (typeof credentials === "object" && credentials !== null) {
+			const creds = credentials as Record<string, unknown>;
 
-      if (typeof creds.authorization === 'string') {
-        const match = creds.authorization.match(/^Basic\s+(.+)$/i);
-        if (match) {
-          try {
-            const decoded = atob(match[1]);
-            const colonIndex = decoded.indexOf(':');
-            if (colonIndex >= 0) {
-              return {
-                username: decoded.substring(0, colonIndex),
-                password: decoded.substring(colonIndex + 1),
-              };
-            }
-          } catch {
-            // Invalid base64
-          }
-        }
-      }
-    }
+			if (typeof creds.token === "string") {
+				return creds.token;
+			}
 
-    return {};
-  }
+			if (typeof creds.authorization === "string") {
+				const match = creds.authorization.match(/^Bearer\s+(.+)$/i);
+				return match ? match[1] : null;
+			}
+		}
 
-  private verifyPassword(providedPassword: string, storedPassword: string): boolean {
-    // For now, using simple hash comparison
-    // In production, use proper password hashing like bcrypt,
-    const hashedProvided = this.hashPassword(providedPassword);
-    const hashedStored = this.hashPassword(storedPassword);
-    
-    return this.timingSafeEqual(hashedProvided, hashedStored);
-  }
+		return null;
+	}
 
-  private hashPassword(password: string): string {
-    return createHash('sha256').update(password).digest('hex');
-  }
+	private extractBasicAuth(credentials: unknown): {
+		username?: string;
+		password?: string;
+	} {
+		if (typeof credentials === "object" && credentials !== null) {
+			const creds = credentials as Record<string, unknown>;
 
-  private timingSafeEqual(a: string, b: string): boolean {
-    const encoder = new TextEncoder();
-    const bufferA = encoder.encode(a);
-    const bufferB = encoder.encode(b);
-    
-    if (bufferA.length !== bufferB.length) {
-      return false;
-    }
-    
-    return timingSafeEqual(bufferA, bufferB);
-  }
+			if (
+				typeof creds.username === "string" &&
+				typeof creds.password === "string"
+			) {
+				return {
+					username: creds.username,
+					password: creds.password,
+				};
+			}
 
-  private createSecureToken(): string {
-    // Generate a secure random token,
-    const timestamp = Date.now().toString(36);
-    const random1 = Math.random().toString(36).substring(2, 15);
-    const random2 = Math.random().toString(36).substring(2, 15);
-    const hash = createHash('sha256')
-      .update(`${timestamp}${random1}${random2}`)
-      .digest('hex')
-      .substring(0, 32);
-    
-    return `mcp_${timestamp}_${hash}`;
-  }
+			if (typeof creds.authorization === "string") {
+				const match = creds.authorization.match(/^Basic\s+(.+)$/i);
+				if (match) {
+					try {
+						const decoded = atob(match[1]);
+						const colonIndex = decoded.indexOf(":");
+						if (colonIndex >= 0) {
+							return {
+								username: decoded.substring(0, colonIndex),
+								password: decoded.substring(colonIndex + 1),
+							};
+						}
+					} catch {
+						// Invalid base64
+					}
+				}
+			}
+		}
 
-  private cleanupExpiredTokens(): void {
-    const now = new Date();
-    let cleaned = 0;
+		return {};
+	}
 
-    for (const [token, data] of this.tokenStore.entries()) {
-      if (data.expiresAt < now) {
-        this.tokenStore.delete(token);
-        cleaned++;
-      }
-    }
+	private verifyPassword(
+		providedPassword: string,
+		storedPassword: string
+	): boolean {
+		// For now, using simple hash comparison
+		// In production, use proper password hashing like bcrypt,
+		const hashedProvided = this.hashPassword(providedPassword);
+		const hashedStored = this.hashPassword(storedPassword);
 
-    if (cleaned > 0) {
-      this.logger.debug('Cleaned up expired tokens', { count: cleaned });
-    }
-  }
+		return this.timingSafeEqual(hashedProvided, hashedStored);
+	}
+
+	private hashPassword(password: string): string {
+		return createHash("sha256").update(password).digest("hex");
+	}
+
+	private timingSafeEqual(a: string, b: string): boolean {
+		const encoder = new TextEncoder();
+		const bufferA = encoder.encode(a);
+		const bufferB = encoder.encode(b);
+
+		if (bufferA.length !== bufferB.length) {
+			return false;
+		}
+
+		return timingSafeEqual(bufferA, bufferB);
+	}
+
+	private createSecureToken(): string {
+		// Generate a secure random token,
+		const timestamp = Date.now().toString(36);
+		const random1 = Math.random().toString(36).substring(2, 15);
+		const random2 = Math.random().toString(36).substring(2, 15);
+		const hash = createHash("sha256")
+			.update(`${timestamp}${random1}${random2}`)
+			.digest("hex")
+			.substring(0, 32);
+
+		return `mcp_${timestamp}_${hash}`;
+	}
+
+	private cleanupExpiredTokens(): void {
+		const now = new Date();
+		let cleaned = 0;
+
+		for (const [token, data] of this.tokenStore.entries()) {
+			if (data.expiresAt < now) {
+				this.tokenStore.delete(token);
+				cleaned++;
+			}
+		}
+
+		if (cleaned > 0) {
+			this.logger.debug("Cleaned up expired tokens", { count: cleaned });
+		}
+	}
 }
 
 /**
  * Permission constants for common operations
  */
 export const Permissions = {
-  // System operations,
-  SYSTEM_INFO: 'system.info',
-  SYSTEM_HEALTH: 'system.health',
-  SYSTEM_METRICS: 'system.metrics',
+	// System operations,
+	SYSTEM_INFO: "system.info",
+	SYSTEM_HEALTH: "system.health",
+	SYSTEM_METRICS: "system.metrics",
 
-  // Tool operations,
-  TOOLS_LIST: 'tools.list',
-  TOOLS_INVOKE: 'tools.invoke',
-  TOOLS_DESCRIBE: 'tools.describe',
+	// Tool operations,
+	TOOLS_LIST: "tools.list",
+	TOOLS_INVOKE: "tools.invoke",
+	TOOLS_DESCRIBE: "tools.describe",
 
-  // Agent operations,
-  AGENTS_LIST: 'agents.list',
-  AGENTS_SPAWN: 'agents.spawn',
-  AGENTS_TERMINATE: 'agents.terminate',
-  AGENTS_INFO: 'agents.info',
+	// Agent operations,
+	AGENTS_LIST: "agents.list",
+	AGENTS_SPAWN: "agents.spawn",
+	AGENTS_TERMINATE: "agents.terminate",
+	AGENTS_INFO: "agents.info",
 
-  // Task operations,
-  TASKS_LIST: 'tasks.list',
-  TASKS_CREATE: 'tasks.create',
-  TASKS_CANCEL: 'tasks.cancel',
-  TASKS_STATUS: 'tasks.status',
+	// Task operations,
+	TASKS_LIST: "tasks.list",
+	TASKS_CREATE: "tasks.create",
+	TASKS_CANCEL: "tasks.cancel",
+	TASKS_STATUS: "tasks.status",
 
-  // Memory operations,
-  MEMORY_READ: 'memory.read',
-  MEMORY_WRITE: 'memory.write',
-  MEMORY_QUERY: 'memory.query',
-  MEMORY_DELETE: 'memory.delete',
+	// Memory operations,
+	MEMORY_READ: "memory.read",
+	MEMORY_WRITE: "memory.write",
+	MEMORY_QUERY: "memory.query",
+	MEMORY_DELETE: "memory.delete",
 
-  // Administrative operations,
-  ADMIN_CONFIG: 'admin.config',
-  ADMIN_LOGS: 'admin.logs',
-  ADMIN_SESSIONS: 'admin.sessions',
+	// Administrative operations,
+	ADMIN_CONFIG: "admin.config",
+	ADMIN_LOGS: "admin.logs",
+	ADMIN_SESSIONS: "admin.sessions",
 
-  // Wildcard permission,
-  ALL: '*',
+	// Wildcard permission,
+	ALL: "*",
 } as const;
 
-export type Permission = typeof Permissions[keyof typeof Permissions];
+export type Permission = (typeof Permissions)[keyof typeof Permissions];

@@ -3,11 +3,11 @@
  * Provides robust loading, validation, and graceful degradation for WASM modules
  */
 
-import { WasmModuleLoader } from './wasm-loader.js';
-import { ErrorHandlingManager, ErrorCategory, ErrorSeverity } from './error-handling-manager.js';
 import crypto from 'crypto';
-import path from 'path';
 import { promises as fs } from 'fs';
+import path from 'path';
+import { ErrorCategory, ErrorHandlingManager, ErrorSeverity } from './error-handling-manager.js';
+import { WasmModuleLoader } from './wasm-loader.js';
 
 export class EnhancedWasmLoader {
     constructor(options = {}) {
@@ -32,7 +32,7 @@ export class EnhancedWasmLoader {
         this.maxLoadingTime = options.maxLoadingTime || 30000; // 30 seconds
         this.enableFallbacks = options.enableFallbacks !== false;
         this.enableValidation = options.enableValidation !== false;
-        
+
         this.setupModuleValidators();
         this.setupFallbackImplementations();
     }
@@ -43,17 +43,17 @@ export class EnhancedWasmLoader {
     async initialize(strategy = 'progressive') {
         return await this.errorHandler.wrapOperation(async () => {
             console.log(`🔧 Initializing enhanced WASM loader with strategy: ${strategy}`);
-            
+
             // Validate strategy
             this.validateLoadingStrategy(strategy);
-            
+
             // Check system capabilities
             await this.checkSystemCapabilities();
-            
+
             // Initialize base loader with timeout
             const initPromise = this.baseLoader.initialize(strategy);
             const timeoutPromise = this.createTimeoutPromise(15000, 'WASM loader initialization');
-            
+
             return await Promise.race([initPromise, timeoutPromise]);
         }, {
             category: ErrorCategory.WASM,
@@ -69,10 +69,10 @@ export class EnhancedWasmLoader {
     async loadModule(name) {
         return await this.errorHandler.wrapOperation(async () => {
             console.log(`📦 Loading WASM module: ${name}`);
-            
+
             // Validate module name
             this.validateModuleName(name);
-            
+
             // Check if module is already loaded
             if (this.baseLoader.modules.has(name)) {
                 const module = this.baseLoader.modules.get(name);
@@ -91,7 +91,7 @@ export class EnhancedWasmLoader {
                 // Create loading timeout
                 const loadingPromise = this.baseLoader.loadModule(name);
                 const timeoutPromise = this.createTimeoutPromise(
-                    this.maxLoadingTime, 
+                    this.maxLoadingTime,
                     `Loading module ${name}`
                 );
 
@@ -107,17 +107,17 @@ export class EnhancedWasmLoader {
 
                 this.completeLoadingProgress(name, true);
                 console.log(`✅ Module ${name} loaded and validated successfully`);
-                
+
                 return module;
             } catch (error) {
                 this.completeLoadingProgress(name, false, error.message);
-                
+
                 // Try fallback if available and enabled
                 if (this.enableFallbacks && this.fallbackImplementations.has(name)) {
                     console.warn(`🔄 WASM module ${name} failed, using fallback implementation`);
                     return this.getFallbackImplementation(name);
                 }
-                
+
                 throw error;
             }
         }, {
@@ -213,7 +213,7 @@ export class EnhancedWasmLoader {
         if (!name || typeof name !== 'string') {
             throw new Error('Module name must be a non-empty string');
         }
-        
+
         const validModules = ['core', 'neural', 'forecasting', 'swarm', 'persistence'];
         if (!validModules.includes(name)) {
             throw new Error(`Unknown module: ${name}. Valid modules: ${validModules.join(', ')}`);
@@ -239,17 +239,17 @@ export class EnhancedWasmLoader {
             if (!module || (!module.exports && !module.instance)) {
                 throw new Error('Core module missing exports');
             }
-            
+
             // Check for expected core exports (adjust based on actual module)
             const exports = module.exports || module.instance?.exports || {};
             const requiredExports = ['memory']; // Minimum required
-            
+
             for (const required of requiredExports) {
                 if (!(required in exports)) {
                     console.warn(`Core module missing expected export: ${required}`);
                 }
             }
-            
+
             return true;
         });
 
@@ -258,20 +258,20 @@ export class EnhancedWasmLoader {
             if (!module || module.isPlaceholder) {
                 return true; // Placeholder is acceptable for optional modules
             }
-            
+
             const exports = module.exports || module.instance?.exports || {};
             // Neural modules should have specific neural network functions
             const expectedFunctions = ['create_neural_network', 'train_network'];
             let foundFunctions = 0;
-            
+
             expectedFunctions.forEach(func => {
                 if (func in exports) foundFunctions++;
             });
-            
+
             if (foundFunctions === 0) {
                 console.warn('Neural module does not contain expected neural network functions');
             }
-            
+
             return true;
         });
 
@@ -280,7 +280,7 @@ export class EnhancedWasmLoader {
             if (!module || module.isPlaceholder) {
                 return true; // Placeholder is acceptable for optional modules
             }
-            
+
             // Basic validation for forecasting module
             const exports = module.exports || module.instance?.exports || {};
             return true; // Accept any structure for now
@@ -290,7 +290,7 @@ export class EnhancedWasmLoader {
         const genericValidator = (module) => {
             return module !== null && module !== undefined;
         };
-        
+
         this.moduleValidators.set('swarm', genericValidator);
         this.moduleValidators.set('persistence', genericValidator);
     }
@@ -360,13 +360,13 @@ export class EnhancedWasmLoader {
         if (!fallbackFactory) {
             throw new Error(`No fallback available for module: ${name}`);
         }
-        
+
         const fallback = fallbackFactory();
         console.log(`🔄 Using fallback implementation for ${name} module`);
-        
+
         // Store fallback in base loader
         this.baseLoader.modules.set(name, fallback);
-        
+
         return fallback;
     }
 
@@ -472,7 +472,7 @@ export class EnhancedWasmLoader {
             last_error: progress.error,
             failed_at: progress.completed,
             load_duration: progress.duration,
-            fallback_used: this.baseLoader.modules.has(name) && 
+            fallback_used: this.baseLoader.modules.has(name) &&
                           this.baseLoader.modules.get(name)?.isFallback
         };
     }
@@ -526,7 +526,7 @@ export class EnhancedWasmLoader {
         // Get memory usage safely
         try {
             health.memory.total_usage = this.getTotalMemoryUsage();
-            
+
             for (const [name, module] of this.baseLoader.modules.entries()) {
                 if (module && module.memory && module.memory.buffer) {
                     health.memory.per_module[name] = module.memory.buffer.byteLength;
@@ -544,16 +544,16 @@ export class EnhancedWasmLoader {
      */
     async cleanup() {
         console.log('🧹 Cleaning up WASM loader...');
-        
+
         // Clear loading progress
         this.loadingProgress.clear();
-        
+
         // Clear timeouts
         for (const [name, timeoutId] of this.loadingTimeouts) {
             clearTimeout(timeoutId);
         }
         this.loadingTimeouts.clear();
-        
+
         // Reset base loader modules (carefully)
         for (const [name, module] of this.baseLoader.modules.entries()) {
             if (module && module.cleanup && typeof module.cleanup === 'function') {
@@ -564,7 +564,7 @@ export class EnhancedWasmLoader {
                 }
             }
         }
-        
+
         console.log('✅ WASM loader cleanup completed');
     }
 

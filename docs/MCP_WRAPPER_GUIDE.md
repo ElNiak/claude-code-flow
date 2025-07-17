@@ -211,7 +211,7 @@ The interface remains the same! All existing SPARC tools work identically:
 
 ```javascript
 // Still works exactly the same
-sparc_coder({ 
+sparc_coder({
   task: "Create a user authentication system"
 })
 ```

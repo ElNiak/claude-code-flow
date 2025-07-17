@@ -25,7 +25,7 @@ test_command() {
     local name="$1"
     local cmd="$2"
     ((TOTAL++))
-    
+
     if eval "$cmd" >/dev/null 2>&1; then
         echo "- ✅ $name"
         ((PASSED++))

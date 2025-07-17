@@ -3,18 +3,18 @@
  * Tests complete scenarios from CLI to execution
  */
 
+import { delay, generateId } from '../../src/utils/helpers.ts';
+import { cleanupTestEnv, setupTestEnv } from '../test.config.ts';
 import {
-  describe,
-  it,
-  beforeEach,
   afterEach,
   assertEquals,
   assertExists,
   assertStringIncludes,
+  beforeEach,
+  describe,
+  it,
   spy,
 } from '../test.utils.ts';
-import { cleanupTestEnv, setupTestEnv } from '../test.config.ts';
-import { delay, generateId } from '../../src/utils/helpers.ts';
 
 describe('E2E Full Workflow', () => {
   let testDir: string;
@@ -111,7 +111,7 @@ describe('E2E Full Workflow', () => {
       });
 
       const startProcess = startCommand.spawn();
-      
+
       // Give system time to start
       await delay(2000);
 
@@ -134,7 +134,7 @@ describe('E2E Full Workflow', () => {
 
         const { code: researcherCode, stdout: researcherOutput } = await researcherCommand.output();
         expect(researcherCode).toBe(0);
-        
+
         const researcherResult = new TextDecoder().decode(researcherOutput);
         const researcherMatch = researcherResult.match(/"id":\s*"([^"]+)"/);
         expect(researcherMatch).toBeDefined();
@@ -158,7 +158,7 @@ describe('E2E Full Workflow', () => {
 
         const { code: implementerCode, stdout: implementerOutput } = await implementerCommand.output();
         expect(implementerCode).toBe(0);
-        
+
         const implementerResult = new TextDecoder().decode(implementerOutput);
         const implementerMatch = implementerResult.match(/"id":\s*"([^"]+)"/);
         expect(implementerMatch).toBeDefined();
@@ -186,7 +186,7 @@ describe('E2E Full Workflow', () => {
 
         const { code: researchTaskCode, stdout: researchTaskOutput } = await researchTaskCommand.output();
         expect(researchTaskCode).toBe(0);
-        
+
         const researchTaskResult = new TextDecoder().decode(researchTaskOutput);
         const researchTaskMatch = researchTaskResult.match(/"id":\s*"([^"]+)"/);
         expect(researchTaskMatch).toBeDefined();
@@ -216,7 +216,7 @@ describe('E2E Full Workflow', () => {
 
         const { code: implementTaskCode, stdout: implementTaskOutput } = await implementTaskCommand.output();
         expect(implementTaskCode).toBe(0);
-        
+
         const implementTaskResult = new TextDecoder().decode(implementTaskOutput);
         const implementTaskMatch = implementTaskResult.match(/"id":\s*"([^"]+)"/);
         expect(implementTaskMatch).toBeDefined();
@@ -268,7 +268,7 @@ describe('E2E Full Workflow', () => {
 
         const { code: researchStatusCode, stdout: researchStatusOutput } = await researchStatusCommand.output();
         expect(researchStatusCode).toBe(0);
-        
+
         const researchStatus = new TextDecoder().decode(researchStatusOutput);
         assertStringIncludes(researchStatus, researchTaskId);
 
@@ -304,7 +304,7 @@ describe('E2E Full Workflow', () => {
 
         const { code: statusCode, stdout: statusOutput } = await statusCommand.output();
         expect(statusCode).toBe(0);
-        
+
         const statusResult = new TextDecoder().decode(statusOutput);
         assertStringIncludes(statusResult, 'System Status');
 
@@ -351,7 +351,7 @@ describe('E2E Full Workflow', () => {
         });
 
         await shutdownCommand.output();
-        
+
         // Cleanup start process
         try {
           startProcess.kill();
@@ -562,7 +562,7 @@ describe('E2E Full Workflow', () => {
         });
 
         await shutdownCommand.output();
-        
+
         try {
           startProcess.kill();
         } catch {
@@ -736,7 +736,7 @@ describe('E2E Full Workflow', () => {
         });
 
         await shutdownCommand.output();
-        
+
         try {
           startProcess.kill();
         } catch {
@@ -845,7 +845,7 @@ describe('E2E Full Workflow', () => {
         const batchSize = 5;
         for (let i = 0; i < taskIds.length; i += batchSize) {
           const batch = taskIds.slice(i, i + batchSize);
-          
+
           const batchExecutions = batch.map(taskId => {
             const executeCommand = new Deno.Command(Deno.execPath(), {
               args: [
@@ -862,7 +862,7 @@ describe('E2E Full Workflow', () => {
           });
 
           await Promise.all(batchExecutions);
-          
+
           // Brief pause between batches
           await delay(500);
         }
@@ -882,7 +882,7 @@ describe('E2E Full Workflow', () => {
 
         const { code: metricsCode, stdout: metricsOutput } = await metricsCommand.output();
         expect(metricsCode).toBe(0);
-        
+
         const metricsResult = new TextDecoder().decode(metricsOutput);
         assertStringIncludes(metricsResult, 'System Status');
 
@@ -915,7 +915,7 @@ describe('E2E Full Workflow', () => {
         });
 
         await shutdownCommand.output();
-        
+
         try {
           startProcess.kill();
         } catch {

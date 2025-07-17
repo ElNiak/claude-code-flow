@@ -16,7 +16,7 @@ A comprehensive, enterprise-grade prompt copying mechanism designed for Claude-F
 
 ### Advanced Features
 - 🔍 **Pattern Matching**: Flexible include/exclude patterns
-- 📁 **Directory Discovery**: Automatic detection of prompt directories  
+- 📁 **Directory Discovery**: Automatic detection of prompt directories
 - ✅ **File Validation**: Validate prompt files for common issues
 - 🔧 **Configuration Profiles**: Pre-configured settings for different use cases
 - 📊 **Comprehensive Reporting**: Detailed operation reports and statistics
@@ -44,7 +44,7 @@ console.log(`Copied ${result.copiedFiles} files successfully`);
 import { copyPromptsEnhanced } from './prompt-copier-enhanced';
 
 const result = await copyPromptsEnhanced({
-  source: './.roo', 
+  source: './.roo',
   destination: './project-prompts',
   parallel: true,
   maxWorkers: 8,
@@ -97,7 +97,7 @@ npx prompt-copier validate ./prompts --recursive
 # Initialize configuration
 npx prompt-copier config --init
 
-# Show current configuration  
+# Show current configuration
 npx prompt-copier config --show
 
 # Rollback from backup
@@ -112,7 +112,7 @@ npx prompt-copier rollback ./prompts/.prompt-backups/manifest-123456.json
 {
   "sourceDirectories": [
     ".roo",
-    ".claude/commands", 
+    ".claude/commands",
     "src/templates"
   ],
   "destinationDirectory": "./project-prompts",
@@ -155,7 +155,7 @@ Optimized for SPARC methodology prompts:
 - Excludes: README and changelog files
 - Backup enabled, merge conflicts
 
-#### `templates` Profile  
+#### `templates` Profile
 For template files:
 - Includes: `*.template`, `*.tmpl`, `*.hbs`, `*.mustache`
 - Merge conflict resolution
@@ -190,7 +190,7 @@ interface CopyOptions {
   verify?: boolean;                  // Verify copied files (default: true)
   preservePermissions?: boolean;     // Preserve file permissions
   excludePatterns?: string[];        // Exclude patterns
-  includePatterns?: string[];        // Include patterns  
+  includePatterns?: string[];        // Include patterns
   parallel?: boolean;                // Enable parallel processing
   maxWorkers?: number;               // Worker thread count
   dryRun?: boolean;                  // Preview mode
@@ -455,7 +455,7 @@ const result = await copyPrompts(options);
 
 1. **Files not copying**: Check include/exclude patterns
 2. **Slow performance**: Increase worker count or disable verification
-3. **Permission errors**: Check file/directory permissions  
+3. **Permission errors**: Check file/directory permissions
 4. **Memory issues**: Reduce worker count or enable streaming
 5. **Verification failures**: Check disk space and file integrity
 
@@ -475,7 +475,7 @@ npm test
 
 ```bash
 npm run example:basic
-npm run example:enhanced  
+npm run example:enhanced
 npm run example:manager
 ```
 

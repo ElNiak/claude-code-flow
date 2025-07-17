@@ -238,7 +238,7 @@ claude-flow init --batch-init payment-service --environments dev,staging,prod --
 
 **Creates:**
 - `payment-service-dev/` - Development version
-- `payment-service-staging/` - Testing version  
+- `payment-service-staging/` - Testing version
 - `payment-service-prod/` - Production version
 
 ## Integration Examples

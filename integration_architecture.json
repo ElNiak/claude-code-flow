@@ -1,0 +1,301 @@
+{
+	"system_architecture": {
+		"overview": "Four-layer architecture enabling seamless AI agent orchestration",
+		"layers": {
+			"1_user_interface": {
+				"purpose": "User interaction and command processing",
+				"components": ["CLI commands", "wrapper scripts", "runtime detection"],
+				"integration_pattern": "Command dispatch → Runtime selection → Component invocation"
+			},
+			"2_mcp_coordination": {
+				"purpose": "Model Context Protocol integration and coordination",
+				"components": [
+					"MCP tools",
+					"Claude Code integration",
+					"swarm coordination"
+				],
+				"integration_pattern": "MCP tool invocation → Swarm coordination → Claude Code execution"
+			},
+			"3_swarm_execution": {
+				"purpose": "Multi-agent coordination and task execution",
+				"components": [
+					"Coordinator",
+					"Executor",
+					"Agent management",
+					"Task orchestration"
+				],
+				"integration_pattern": "Task breakdown → Agent spawning → Parallel execution → Result aggregation"
+			},
+			"4_persistence_intelligence": {
+				"purpose": "Data persistence and intelligent learning",
+				"components": [
+					"Memory management",
+					"Neural patterns",
+					"Performance optimization"
+				],
+				"integration_pattern": "Data persistence → Pattern learning → Intelligence optimization"
+			}
+		}
+	},
+	"integration_flows": {
+		"primary_command_flow": {
+			"description": "Main user command execution flow",
+			"steps": [
+				{
+					"step": 1,
+					"component": "bin/claude-flow",
+					"action": "Smart runtime detection and dispatch",
+					"integration": "Finds appropriate runtime (Node.js/TSX) and executes main CLI"
+				},
+				{
+					"step": 2,
+					"component": "src/cli/main.ts",
+					"action": "CLI initialization and command routing",
+					"integration": "Loads command registry and routes to appropriate handler"
+				},
+				{
+					"step": 3,
+					"component": "Command handlers",
+					"action": "Specific command execution",
+					"integration": "Executes command logic with orchestrator integration"
+				},
+				{
+					"step": 4,
+					"component": "Orchestrator",
+					"action": "System coordination and execution",
+					"integration": "Coordinates between CLI, MCP, swarm, and persistence layers"
+				}
+			]
+		},
+		"mcp_integration_flow": {
+			"description": "Claude Code integration through MCP tools",
+			"steps": [
+				{
+					"step": 1,
+					"component": "Claude Code",
+					"action": "Invokes mcp__claude-flow__ tools",
+					"integration": "Uses MCP protocol to communicate with claude-flow"
+				},
+				{
+					"step": 2,
+					"component": "MCP Server",
+					"action": "Processes MCP tool requests",
+					"integration": "Routes requests to appropriate tool handlers"
+				},
+				{
+					"step": 3,
+					"component": "Tool handlers",
+					"action": "Executes coordination logic",
+					"integration": "Coordinates with swarm system and orchestrator"
+				},
+				{
+					"step": 4,
+					"component": "Response",
+					"action": "Returns coordination results",
+					"integration": "Provides results back to Claude Code for execution"
+				}
+			]
+		},
+		"swarm_coordination_flow": {
+			"description": "Multi-agent swarm coordination and execution",
+			"steps": [
+				{
+					"step": 1,
+					"component": "Swarm Coordinator",
+					"action": "Analyzes task and selects strategy",
+					"integration": "Uses strategy patterns to determine optimal approach"
+				},
+				{
+					"step": 2,
+					"component": "Agent Spawning",
+					"action": "Creates specialized agents",
+					"integration": "Spawns agents with specific roles and capabilities"
+				},
+				{
+					"step": 3,
+					"component": "Task Distribution",
+					"action": "Assigns tasks to appropriate agents",
+					"integration": "Uses coordination patterns to distribute work"
+				},
+				{
+					"step": 4,
+					"component": "Execution Monitoring",
+					"action": "Monitors agent progress and coordination",
+					"integration": "Tracks execution through hooks and memory system"
+				},
+				{
+					"step": 5,
+					"component": "Result Aggregation",
+					"action": "Combines results from all agents",
+					"integration": "Aggregates outputs into cohesive final result"
+				}
+			]
+		},
+		"memory_persistence_flow": {
+			"description": "Data persistence and learning system",
+			"steps": [
+				{
+					"step": 1,
+					"component": "Operation execution",
+					"action": "System operations generate data",
+					"integration": "All operations create memory entries and context"
+				},
+				{
+					"step": 2,
+					"component": "Hooks system",
+					"action": "Captures operation context",
+					"integration": "Pre/post hooks capture operation context automatically"
+				},
+				{
+					"step": 3,
+					"component": "Memory Manager",
+					"action": "Stores and indexes data",
+					"integration": "SQLite backend with intelligent indexing and retrieval"
+				},
+				{
+					"step": 4,
+					"component": "Neural Patterns",
+					"action": "Analyzes patterns and optimizes",
+					"integration": "Learning system that improves coordination over time"
+				}
+			]
+		}
+	},
+	"data_flows": {
+		"configuration_flow": {
+			"source": "User configuration",
+			"path": "CLI → ConfigManager → Components",
+			"persistence": "JSON files and SQLite",
+			"integration": "Centralized configuration distributed to all components"
+		},
+		"memory_flow": {
+			"source": "Agent operations and context",
+			"path": "Operations → Hooks → MemoryManager → SQLite",
+			"persistence": ".swarm/memory.db",
+			"integration": "Cross-agent memory sharing and session persistence"
+		},
+		"coordination_flow": {
+			"source": "Task requirements and agent capabilities",
+			"path": "Task → Coordinator → Agents → Results",
+			"persistence": "Memory system and JSON state",
+			"integration": "Real-time coordination with persistent learning"
+		},
+		"monitoring_flow": {
+			"source": "System metrics and health data",
+			"path": "Components → Monitor → Aggregation → Status",
+			"persistence": "Time-series data in memory system",
+			"integration": "Real-time monitoring with historical analysis"
+		}
+	},
+	"external_integrations": {
+		"claude_code_integration": {
+			"protocol": "Model Context Protocol (MCP)",
+			"interface": "mcp__claude-flow__ tools",
+			"purpose": "Enable Claude Code to orchestrate complex multi-agent workflows",
+			"data_exchange": "JSON-structured tool calls and responses",
+			"benefits": [
+				"Seamless AI coordination",
+				"Intelligent task breakdown",
+				"Persistent context"
+			]
+		},
+		"terminal_integration": {
+			"protocol": "Process spawning and management",
+			"interface": "Terminal manager and session pools",
+			"purpose": "Isolated execution environments for agents",
+			"data_exchange": "Command execution and output capture",
+			"benefits": [
+				"Secure execution",
+				"Resource isolation",
+				"Output management"
+			]
+		},
+		"filesystem_integration": {
+			"protocol": "Direct file system access",
+			"interface": "File operations and project structure",
+			"purpose": "Project initialization and file management",
+			"data_exchange": "File creation, modification, and monitoring",
+			"benefits": [
+				"Project setup automation",
+				"File change tracking",
+				"Template system"
+			]
+		},
+		"git_integration": {
+			"protocol": "Git command execution",
+			"interface": "Git operations through terminal",
+			"purpose": "Version control integration",
+			"data_exchange": "Git commands and repository state",
+			"benefits": [
+				"Automated version control",
+				"Branch management",
+				"Commit tracking"
+			]
+		}
+	},
+	"cross_system_dependencies": {
+		"circular_dependencies": {
+			"description": "Managed circular dependencies between components",
+			"examples": [
+				"CLI → Orchestrator → MCP → Swarm → CLI (command completion)",
+				"Memory → Coordination → Agents → Memory (context sharing)",
+				"Config → Components → Status → Config (configuration updates)"
+			],
+			"management": "Event-driven architecture with dependency injection"
+		},
+		"initialization_order": {
+			"description": "Required initialization sequence for proper system startup",
+			"sequence": [
+				"1. Configuration loading",
+				"2. Persistence system initialization",
+				"3. Event bus and logging setup",
+				"4. Orchestrator initialization",
+				"5. MCP server startup",
+				"6. Swarm system initialization",
+				"7. CLI command registration",
+				"8. Hooks and monitoring activation"
+			]
+		},
+		"error_propagation": {
+			"description": "How errors flow through the system",
+			"patterns": [
+				"CLI errors → User-friendly messages",
+				"MCP errors → Tool response errors",
+				"Swarm errors → Coordination failures with recovery",
+				"Persistence errors → Fallback mechanisms"
+			],
+			"recovery": "Multi-level fallback with graceful degradation"
+		}
+	},
+	"performance_characteristics": {
+		"parallel_execution": {
+			"description": "System designed for parallel operation",
+			"benefits": "Performance improvements through coordination",
+			"implementation": "Event-driven architecture with concurrent processing"
+		},
+		"memory_efficiency": {
+			"description": "Optimized memory usage through intelligent caching",
+			"benefits": "Token usage optimization through context management",
+			"implementation": "SQLite persistence with intelligent indexing"
+		},
+		"scalability": {
+			"description": "Horizontal scaling through agent spawning",
+			"benefits": "Handles 1-50 agents with optimal coordination",
+			"implementation": "Dynamic agent management with resource balancing"
+		}
+	},
+	"security_considerations": {
+		"execution_isolation": {
+			"description": "Agents run in isolated environments",
+			"implementation": "Separate terminal sessions and process isolation"
+		},
+		"configuration_validation": {
+			"description": "All configuration is validated before use",
+			"implementation": "Schema validation and type checking"
+		},
+		"command_sanitization": {
+			"description": "Commands are validated before execution",
+			"implementation": "Pre-bash hooks with safety checking"
+		}
+	}
+}

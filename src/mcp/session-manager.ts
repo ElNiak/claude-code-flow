@@ -1,419 +1,424 @@
-import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from "../utils/error-handler.js";
+
 /**
  * Session manager for MCP connections
  */
 
+import { createHash, timingSafeEqual } from "node:crypto";
+import type { ILogger } from "../core/logger.js";
+import { MCPError } from "../utils/errors.js";
 import {
-  MCPSession,
-  MCPInitializeParams,
-  MCPProtocolVersion,
-  MCPCapabilities,
-  MCPAuthConfig,
-  MCPConfig,
-} from '../utils/types.js';
-import type { ILogger } from '../core/logger.js';
-import { MCPError } from '../utils/errors.js';
-import { createHash, timingSafeEqual } from 'node:crypto';
+	type MCPAuthConfig,
+	MCPCapabilities,
+	type MCPConfig,
+	type MCPInitializeParams,
+	type MCPProtocolVersion,
+	type MCPSession,
+} from "../utils/types.js";
 
 export interface ISessionManager {
-  createSession(transport: 'stdio' | 'http' | 'websocket'): MCPSession;
-  getSession(id: string): MCPSession | undefined;
-  initializeSession(sessionId: string, params: MCPInitializeParams): void;
-  authenticateSession(sessionId: string, credentials: unknown): boolean;
-  updateActivity(sessionId: string): void;
-  removeSession(sessionId: string): void;
-  getActiveSessions(): MCPSession[];
-  cleanupExpiredSessions(): void;
-  getSessionMetrics(): {
-    total: number;
-    active: number;
-    authenticated: number;
-    expired: number;
-  };
+	createSession(transport: "stdio" | "http" | "websocket"): MCPSession;
+	getSession(id: string): MCPSession | undefined;
+	initializeSession(sessionId: string, params: MCPInitializeParams): void;
+	authenticateSession(sessionId: string, credentials: unknown): boolean;
+	updateActivity(sessionId: string): void;
+	removeSession(sessionId: string): void;
+	getActiveSessions(): MCPSession[];
+	cleanupExpiredSessions(): void;
+	getSessionMetrics(): {
+		total: number;
+		active: number;
+		authenticated: number;
+		expired: number;
+	};
 }
 
 /**
  * Session manager implementation
  */
 export class SessionManager implements ISessionManager {
-  private sessions = new Map<string, MCPSession>();
-  private authConfig: MCPAuthConfig;
-  private sessionTimeout: number;
-  private maxSessions: number;
-  private cleanupInterval?: number;
+	private sessions = new Map<string, MCPSession>();
+	private authConfig: MCPAuthConfig;
+	private sessionTimeout: number;
+	private maxSessions: number;
+	private cleanupInterval?: number;
 
-  constructor(
-    private config: MCPConfig,
-    private logger: ILogger,
-  ) {
-    this.authConfig = config.auth || { enabled: false, method: 'token' };
-    this.sessionTimeout = config.sessionTimeout || 3600000; // 1 hour default,
-    this.maxSessions = config.maxSessions || 100;
+	constructor(
+		private config: MCPConfig,
+		private logger: ILogger
+	) {
+		this.authConfig = config.auth || { enabled: false, method: "token" };
+		this.sessionTimeout = config.sessionTimeout || 3600000; // 1 hour default,
+		this.maxSessions = config.maxSessions || 100;
 
-    // Start cleanup timer,
-    this.cleanupInterval = setInterval(() => {
-      this.cleanupExpiredSessions();
-    }, 60000) as any; // Clean up every minute
-  }
+		// Start cleanup timer,
+		this.cleanupInterval = setInterval(() => {
+			this.cleanupExpiredSessions();
+		}, 60000) as any; // Clean up every minute
+	}
 
-  createSession(transport: 'stdio' | 'http' | 'websocket'): MCPSession {
-    // Check session limit,
-    if (this.sessions.size >= this.maxSessions) {
-      // Try to clean up expired sessions first,
-      this.cleanupExpiredSessions();
-      
-      if (this.sessions.size >= this.maxSessions) {
-        throw new MCPError('Maximum number of sessions reached');
-      }
-    }
+	createSession(transport: "stdio" | "http" | "websocket"): MCPSession {
+		// Check session limit,
+		if (this.sessions.size >= this.maxSessions) {
+			// Try to clean up expired sessions first,
+			this.cleanupExpiredSessions();
 
-    const sessionId = this.generateSessionId();
-    const now = new Date();
+			if (this.sessions.size >= this.maxSessions) {
+				throw new MCPError("Maximum number of sessions reached");
+			}
+		}
 
-    const session: MCPSession = {
-      id: sessionId,
-      clientInfo: { name: 'unknown', version: 'unknown' },
-      protocolVersion: { major: 0, minor: 0, patch: 0 },
-      capabilities: {},
-      isInitialized: false,
-      createdAt: now,
-      lastActivity: now,
-      transport,
-      authenticated: !this.authConfig.enabled, // If auth disabled, session is authenticated
-    };
+		const sessionId = this.generateSessionId();
+		const now = new Date();
 
-    this.sessions.set(sessionId, session);
+		const session: MCPSession = {
+			id: sessionId,
+			clientInfo: { name: "unknown", version: "unknown" },
+			protocolVersion: { major: 0, minor: 0, patch: 0 },
+			capabilities: {},
+			isInitialized: false,
+			createdAt: now,
+			lastActivity: now,
+			transport,
+			authenticated: !this.authConfig.enabled, // If auth disabled, session is authenticated
+		};
 
-    this.logger.info('Session created', {
-      sessionId,
-      transport,
-      totalSessions: this.sessions.size,
-    });
+		this.sessions.set(sessionId, session);
 
-    return session;
-  }
+		this.logger.info("Session created", {
+			sessionId,
+			transport,
+			totalSessions: this.sessions.size,
+		});
 
-  getSession(id: string): MCPSession | undefined {
-    const session = this.sessions.get(id);
-    if (session && this.isSessionExpired(session)) {
-      this.removeSession(id);
-      return undefined;
-    }
-    return session;
-  }
+		return session;
+	}
 
-  initializeSession(sessionId: string, params: MCPInitializeParams): void {
-    const session = this.getSession(sessionId);
-    if (!session) {
-      throw new MCPError(`Session not found: ${sessionId}`);
-    }
+	getSession(id: string): MCPSession | undefined {
+		const session = this.sessions.get(id);
+		if (session && this.isSessionExpired(session)) {
+			this.removeSession(id);
+			return undefined;
+		}
+		return session;
+	}
 
-    // Validate protocol version,
-    this.validateProtocolVersion(params.protocolVersion);
+	initializeSession(sessionId: string, params: MCPInitializeParams): void {
+		const session = this.getSession(sessionId);
+		if (!session) {
+			throw new MCPError(`Session not found: ${sessionId}`);
+		}
 
-    // Update session with initialization params,
-    session.clientInfo = params.clientInfo;
-    session.protocolVersion = params.protocolVersion;
-    session.capabilities = params.capabilities;
-    session.isInitialized = true;
-    session.lastActivity = new Date();
+		// Validate protocol version,
+		this.validateProtocolVersion(params.protocolVersion);
 
-    this.logger.info('Session initialized', {
-      sessionId,
-      clientInfo: params.clientInfo,
-      protocolVersion: params.protocolVersion,
-    });
-  }
+		// Update session with initialization params,
+		session.clientInfo = params.clientInfo;
+		session.protocolVersion = params.protocolVersion;
+		session.capabilities = params.capabilities;
+		session.isInitialized = true;
+		session.lastActivity = new Date();
 
-  authenticateSession(sessionId: string, credentials: unknown): boolean {
-    const session = this.getSession(sessionId);
-    if (!session) {
-      return false;
-    }
+		this.logger.info("Session initialized", {
+			sessionId,
+			clientInfo: params.clientInfo,
+			protocolVersion: params.protocolVersion,
+		});
+	}
 
-    if (!this.authConfig.enabled) {
-      session.authenticated = true;
-      return true;
-    }
+	authenticateSession(sessionId: string, credentials: unknown): boolean {
+		const session = this.getSession(sessionId);
+		if (!session) {
+			return false;
+		}
 
-    let authenticated = false;
+		if (!this.authConfig.enabled) {
+			session.authenticated = true;
+			return true;
+		}
 
-    switch (this.authConfig.method) {
-      case 'token':
-        authenticated = this.authenticateToken(credentials);
-        break;
-      case 'basic':
-        authenticated = this.authenticateBasic(credentials);
-        break;
-      case 'oauth':
-        authenticated = this.authenticateOAuth(credentials);
-        break;
-      default:
-        this.logger.warn('Unknown authentication method', {
-          method: this.authConfig.method,
-        });
-        return false;
-    }
+		let authenticated = false;
 
-    if (authenticated) {
-      session.authenticated = true;
-      session.authData = this.extractAuthData(credentials);
-      session.lastActivity = new Date();
+		switch (this.authConfig.method) {
+			case "token":
+				authenticated = this.authenticateToken(credentials);
+				break;
+			case "basic":
+				authenticated = this.authenticateBasic(credentials);
+				break;
+			case "oauth":
+				authenticated = this.authenticateOAuth(credentials);
+				break;
+			default:
+				this.logger.warn("Unknown authentication method", {
+					method: this.authConfig.method,
+				});
+				return false;
+		}
 
-      this.logger.info('Session authenticated', {
-        sessionId,
-        method: this.authConfig.method,
-      });
-    } else {
-      this.logger.warn('Session authentication failed', {
-        sessionId,
-        method: this.authConfig.method,
-      });
-    }
+		if (authenticated) {
+			session.authenticated = true;
+			session.authData = this.extractAuthData(credentials);
+			session.lastActivity = new Date();
 
-    return authenticated;
-  }
+			this.logger.info("Session authenticated", {
+				sessionId,
+				method: this.authConfig.method,
+			});
+		} else {
+			this.logger.warn("Session authentication failed", {
+				sessionId,
+				method: this.authConfig.method,
+			});
+		}
 
-  updateActivity(sessionId: string): void {
-    const session = this.getSession(sessionId);
-    if (session) {
-      session.lastActivity = new Date();
-    }
-  }
+		return authenticated;
+	}
 
-  removeSession(sessionId: string): void {
-    const session = this.sessions.get(sessionId);
-    if (session) {
-      this.sessions.delete(sessionId);
-      this.logger.info('Session removed', {
-        sessionId,
-        duration: Date.now() - session.createdAt.getTime(),
-        transport: session.transport,
-      });
-    }
-  }
+	updateActivity(sessionId: string): void {
+		const session = this.getSession(sessionId);
+		if (session) {
+			session.lastActivity = new Date();
+		}
+	}
 
-  getActiveSessions(): MCPSession[] {
-    const activeSessions: MCPSession[] = [];
-    for (const session of this.sessions.values()) {
-      if (!this.isSessionExpired(session)) {
-        activeSessions.push(session);
-      }
-    }
-    return activeSessions;
-  }
+	removeSession(sessionId: string): void {
+		const session = this.sessions.get(sessionId);
+		if (session) {
+			this.sessions.delete(sessionId);
+			this.logger.info("Session removed", {
+				sessionId,
+				duration: Date.now() - session.createdAt.getTime(),
+				transport: session.transport,
+			});
+		}
+	}
 
-  cleanupExpiredSessions(): void {
-    const expiredSessions: string[] = [];
-    
-    for (const [sessionId, session] of this.sessions) {
-      if (this.isSessionExpired(session)) {
-        expiredSessions.push(sessionId);
-      }
-    }
+	getActiveSessions(): MCPSession[] {
+		const activeSessions: MCPSession[] = [];
+		for (const session of this.sessions.values()) {
+			if (!this.isSessionExpired(session)) {
+				activeSessions.push(session);
+			}
+		}
+		return activeSessions;
+	}
 
-    for (const sessionId of expiredSessions) {
-      this.removeSession(sessionId);
-    }
+	cleanupExpiredSessions(): void {
+		const expiredSessions: string[] = [];
 
-    if (expiredSessions.length > 0) {
-      this.logger.info('Cleaned up expired sessions', {
-        count: expiredSessions.length,
-        remainingSessions: this.sessions.size,
-      });
-    }
-  }
+		for (const [sessionId, session] of this.sessions) {
+			if (this.isSessionExpired(session)) {
+				expiredSessions.push(sessionId);
+			}
+		}
 
-  getSessionMetrics(): {
-    total: number;
-    active: number;
-    authenticated: number;
-    expired: number;
-  } {
-    let active = 0;
-    let authenticated = 0;
-    let expired = 0;
+		for (const sessionId of expiredSessions) {
+			this.removeSession(sessionId);
+		}
 
-    for (const session of this.sessions.values()) {
-      if (this.isSessionExpired(session)) {
-        expired++;
-      } else {
-        active++;
-        if (session.authenticated) {
-          authenticated++;
-        }
-      }
-    }
+		if (expiredSessions.length > 0) {
+			this.logger.info("Cleaned up expired sessions", {
+				count: expiredSessions.length,
+				remainingSessions: this.sessions.size,
+			});
+		}
+	}
 
-    return {
-      total: this.sessions.size,
-      active,
-      authenticated,
-      expired,
-    };
-  }
+	getSessionMetrics(): {
+		total: number;
+		active: number;
+		authenticated: number;
+		expired: number;
+	} {
+		let active = 0;
+		let authenticated = 0;
+		let expired = 0;
 
-  destroy(): void {
-    if (this.cleanupInterval) {
-      clearInterval(this.cleanupInterval);
-    }
-    this.sessions.clear();
-  }
+		for (const session of this.sessions.values()) {
+			if (this.isSessionExpired(session)) {
+				expired++;
+			} else {
+				active++;
+				if (session.authenticated) {
+					authenticated++;
+				}
+			}
+		}
 
-  private generateSessionId(): string {
-    const timestamp = Date.now().toString(36);
-    const random = Math.random().toString(36).substr(2, 9);
-    return `session_${timestamp}_${random}`;
-  }
+		return {
+			total: this.sessions.size,
+			active,
+			authenticated,
+			expired,
+		};
+	}
 
-  private isSessionExpired(session: MCPSession): boolean {
-    const now = Date.now();
-    const sessionAge = now - session.lastActivity.getTime();
-    return sessionAge > this.sessionTimeout;
-  }
+	destroy(): void {
+		if (this.cleanupInterval) {
+			clearInterval(this.cleanupInterval);
+		}
+		this.sessions.clear();
+	}
 
-  private validateProtocolVersion(version: MCPProtocolVersion): void {
-    // Currently supporting MCP version 2024-11-05,
-    const supportedVersions = [
-      { major: 2024, minor: 11, patch: 5 },
-    ];
+	private generateSessionId(): string {
+		const timestamp = Date.now().toString(36);
+		const random = Math.random().toString(36).substr(2, 9);
+		return `session_${timestamp}_${random}`;
+	}
 
-    const isSupported = supportedVersions.some(
-      (supported) =>
-        supported.major === version.major &&
-        supported.minor === version.minor &&
-        supported.patch === version.patch,
-    );
+	private isSessionExpired(session: MCPSession): boolean {
+		const now = Date.now();
+		const sessionAge = now - session.lastActivity.getTime();
+		return sessionAge > this.sessionTimeout;
+	}
 
-    if (!isSupported) {
-      throw new MCPError(
-        `Unsupported protocol version: ${version.major}.${version.minor}.${version.patch}`,
-        { supportedVersions }
-      );
-    }
-  }
+	private validateProtocolVersion(version: MCPProtocolVersion): void {
+		// Currently supporting MCP version 2024-11-05,
+		const supportedVersions = [{ major: 2024, minor: 11, patch: 5 }];
 
-  private authenticateToken(credentials: unknown): boolean {
-    if (!this.authConfig.tokens || this.authConfig.tokens.length === 0) {
-      return false;
-    }
+		const isSupported = supportedVersions.some(
+			(supported) =>
+				supported.major === version.major &&
+				supported.minor === version.minor &&
+				supported.patch === version.patch
+		);
 
-    const token = this.extractToken(credentials);
-    if (!token) {
-      return false;
-    }
+		if (!isSupported) {
+			throw new MCPError(
+				`Unsupported protocol version: ${version.major}.${version.minor}.${version.patch}`,
+				{ supportedVersions }
+			);
+		}
+	}
 
-    // Use timing-safe comparison to prevent timing attacks,
-    return this.authConfig.tokens.some((validToken) => {
-      const encoder = new TextEncoder();
-      const validTokenBytes = encoder.encode(validToken);
-      const providedTokenBytes = encoder.encode(token);
-      
-      if (validTokenBytes.length !== providedTokenBytes.length) {
-        return false;
-      }
-      
-      return timingSafeEqual(validTokenBytes, providedTokenBytes);
-    });
-  }
+	private authenticateToken(credentials: unknown): boolean {
+		if (!this.authConfig.tokens || this.authConfig.tokens.length === 0) {
+			return false;
+		}
 
-  private authenticateBasic(credentials: unknown): boolean {
-    if (!this.authConfig.users || this.authConfig.users.length === 0) {
-      return false;
-    }
+		const token = this.extractToken(credentials);
+		if (!token) {
+			return false;
+		}
 
-    const { username, password } = this.extractBasicAuth(credentials);
-    if (!username || !password) {
-      return false;
-    }
+		// Use timing-safe comparison to prevent timing attacks,
+		return this.authConfig.tokens.some((validToken) => {
+			const encoder = new TextEncoder();
+			const validTokenBytes = encoder.encode(validToken);
+			const providedTokenBytes = encoder.encode(token);
 
-    const user = this.authConfig.users.find((u) => u.username === username);
-    if (!user) {
-      return false;
-    }
+			if (validTokenBytes.length !== providedTokenBytes.length) {
+				return false;
+			}
 
-    // Hash the provided password and compare,
-    const hashedPassword = this.hashPassword(password);
-    const expectedHashedPassword = this.hashPassword(user.password);
+			return timingSafeEqual(validTokenBytes, providedTokenBytes);
+		});
+	}
 
-    const encoder = new TextEncoder();
-    const hashedPasswordBytes = encoder.encode(hashedPassword);
-    const expectedHashedPasswordBytes = encoder.encode(expectedHashedPassword);
+	private authenticateBasic(credentials: unknown): boolean {
+		if (!this.authConfig.users || this.authConfig.users.length === 0) {
+			return false;
+		}
 
-    if (hashedPasswordBytes.length !== expectedHashedPasswordBytes.length) {
-      return false;
-    }
+		const { username, password } = this.extractBasicAuth(credentials);
+		if (!username || !password) {
+			return false;
+		}
 
-    return timingSafeEqual(hashedPasswordBytes, expectedHashedPasswordBytes);
-  }
+		const user = this.authConfig.users.find((u) => u.username === username);
+		if (!user) {
+			return false;
+		}
 
-  private authenticateOAuth(credentials: unknown): boolean {
-    // TODO: Implement OAuth authentication
-    // This would typically involve validating JWT tokens,
-    this.logger.warn('OAuth authentication not yet implemented');
-    return false;
-  }
+		// Hash the provided password and compare,
+		const hashedPassword = this.hashPassword(password);
+		const expectedHashedPassword = this.hashPassword(user.password);
 
-  private extractToken(credentials: unknown): string | null {
-    if (typeof credentials === 'string') {
-      return credentials;
-    }
+		const encoder = new TextEncoder();
+		const hashedPasswordBytes = encoder.encode(hashedPassword);
+		const expectedHashedPasswordBytes = encoder.encode(expectedHashedPassword);
 
-    if (typeof credentials === 'object' && credentials !== null) {
-      const creds = credentials as Record<string, unknown>;
-      if (typeof creds.token === 'string') {
-        return creds.token;
-      }
-      if (typeof creds.authorization === 'string') {
-        const match = creds.authorization.match(/^Bearer\s+(.+)$/);
-        return match ? match[1] : null;
-      }
-    }
+		if (hashedPasswordBytes.length !== expectedHashedPasswordBytes.length) {
+			return false;
+		}
 
-    return null;
-  }
+		return timingSafeEqual(hashedPasswordBytes, expectedHashedPasswordBytes);
+	}
 
-  private extractBasicAuth(credentials: unknown): { username?: string; password?: string } {
-    if (typeof credentials === 'object' && credentials !== null) {
-      const creds = credentials as Record<string, unknown>;
-      
-      if (typeof creds.username === 'string' && typeof creds.password === 'string') {
-        return {
-          username: creds.username,
-          password: creds.password,
-        };
-      }
+	private authenticateOAuth(credentials: unknown): boolean {
+		// TODO: Implement OAuth authentication
+		// This would typically involve validating JWT tokens,
+		this.logger.warn("OAuth authentication not yet implemented");
+		return false;
+	}
 
-      if (typeof creds.authorization === 'string') {
-        const match = creds.authorization.match(/^Basic\s+(.+)$/);
-        if (match) {
-          try {
-            const decoded = atob(match[1]);
-            const [username, password] = decoded.split(':', 2);
-            return { username, password };
-          } catch {
-            return {};
-          }
-        }
-      }
-    }
+	private extractToken(credentials: unknown): string | null {
+		if (typeof credentials === "string") {
+			return credentials;
+		}
 
-    return {};
-  }
+		if (typeof credentials === "object" && credentials !== null) {
+			const creds = credentials as Record<string, unknown>;
+			if (typeof creds.token === "string") {
+				return creds.token;
+			}
+			if (typeof creds.authorization === "string") {
+				const match = creds.authorization.match(/^Bearer\s+(.+)$/);
+				return match ? match[1] : null;
+			}
+		}
 
-  private extractAuthData(credentials: unknown): any {
-    if (typeof credentials === 'object' && credentials !== null) {
-      const creds = credentials as Record<string, unknown>;
-      return {
-        token: this.extractToken(credentials),
-        user: creds.username || creds.user,
-        permissions: creds.permissions || [],
-      };
-    }
-    return {};
-  }
+		return null;
+	}
 
-  private hashPassword(password: string): string {
-    return createHash('sha256').update(password).digest('hex');
-  }
+	private extractBasicAuth(credentials: unknown): {
+		username?: string;
+		password?: string;
+	} {
+		if (typeof credentials === "object" && credentials !== null) {
+			const creds = credentials as Record<string, unknown>;
+
+			if (
+				typeof creds.username === "string" &&
+				typeof creds.password === "string"
+			) {
+				return {
+					username: creds.username,
+					password: creds.password,
+				};
+			}
+
+			if (typeof creds.authorization === "string") {
+				const match = creds.authorization.match(/^Basic\s+(.+)$/);
+				if (match) {
+					try {
+						const decoded = atob(match[1]);
+						const [username, password] = decoded.split(":", 2);
+						return { username, password };
+					} catch {
+						return {};
+					}
+				}
+			}
+		}
+
+		return {};
+	}
+
+	private extractAuthData(credentials: unknown): any {
+		if (typeof credentials === "object" && credentials !== null) {
+			const creds = credentials as Record<string, unknown>;
+			return {
+				token: this.extractToken(credentials),
+				user: creds.username || creds.user,
+				permissions: creds.permissions || [],
+			};
+		}
+		return {};
+	}
+
+	private hashPassword(password: string): string {
+		return createHash("sha256").update(password).digest("hex");
+	}
 }

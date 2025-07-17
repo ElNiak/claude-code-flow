@@ -279,15 +279,15 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: '18'
-      
+
       - name: Install Claude-Flow
         run: npm install -g claude-flow
-      
+
       - name: Validate Configuration
         run: |
           ./claude-flow config validate
           ./claude-flow sparc modes --validate
-      
+
       - name: Run Quality Gates
         run: |
           ./claude-flow sparc run security-review "automated security scan"
@@ -410,19 +410,19 @@ npx claude-flow@latest init --sparc --force
 ### 12. Best Practices Summary
 
 #### Do's
-✅ Always use `--sparc --force` for new projects  
-✅ Backup before major updates  
-✅ Customize for your project type  
-✅ Monitor performance regularly  
-✅ Train team on optimized workflows  
-✅ Use version control for configurations  
+✅ Always use `--sparc --force` for new projects
+✅ Backup before major updates
+✅ Customize for your project type
+✅ Monitor performance regularly
+✅ Train team on optimized workflows
+✅ Use version control for configurations
 
 #### Don'ts
-❌ Don't skip the verification steps  
-❌ Don't ignore performance monitoring  
-❌ Don't customize without understanding  
-❌ Don't update without backing up  
-❌ Don't use standard init for new projects  
+❌ Don't skip the verification steps
+❌ Don't ignore performance monitoring
+❌ Don't customize without understanding
+❌ Don't update without backing up
+❌ Don't use standard init for new projects
 
 ### 13. Getting Help
 

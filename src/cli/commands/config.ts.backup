@@ -35,7 +35,7 @@ configCommand
         console.log(JSON.stringify(exported, null, 2));
       } else {
         const config = configManager.get();
-        
+
         if (options.format === 'json') {
           console.log(JSON.stringify(config, null, 2));
         } else {
@@ -50,7 +50,7 @@ configCommand
     .action(async (options: Record<string, unknown>, path: string) => {
       try {
         const value = configManager.getValue(path);
-        
+
         if (value === undefined) {
           console.error(chalk.red(`Configuration path not found: ${path}`));
           process.exit(1);
@@ -72,7 +72,7 @@ configCommand
     .action(async (options: { type?: string; reason?: string; force?: boolean }, path: string, value: string) => {
       try {
         let parsedValue: unknown;
-        
+
         switch (options.type) {
           case 'string':
             parsedValue = value;
@@ -101,10 +101,10 @@ configCommand
         // Get user info for change tracking
         const user = process.env.USER || process.env.USERNAME || 'unknown';
         const reason = options.reason;
-        
+
         configManager.set(path, parsedValue, { user, reason, source: 'cli' });
         console.log(chalk.green('✓'), `Set ${path} = ${JSON.stringify(parsedValue)}`);
-        
+
         if (reason) {
           console.log(chalk.gray(`Reason: ${reason}`));
         }
@@ -123,13 +123,13 @@ configCommand
           message: 'Reset configuration to defaults?',
           default: false,
         });
-        
+
         if (!confirmed) {
           console.log(chalk.gray('Reset cancelled'));
           return;
         }
       }
-      
+
       configManager.reset();
       console.log(chalk.green('✓ Configuration reset to defaults'));
     }),
@@ -156,7 +156,7 @@ configCommand
         }
 
         let templateName = options.template;
-        
+
         // Interactive template selection
         if (options.interactive) {
           const availableTemplates = configManager.getAvailableTemplates();
@@ -168,19 +168,19 @@ configCommand
             }))
           });
         }
-        
+
         const config = configManager.createTemplate(templateName);
-        
+
         // Detect format from file extension or use option
         const ext = outputFile.split('.').pop()?.toLowerCase();
         const format = options.format || (ext === 'yaml' || ext === 'yml' ? 'yaml' : ext === 'toml' ? 'toml' : 'json');
-        
+
         const formatParsers = configManager.getFormatParsers();
         const parser = formatParsers[format];
         const content = parser ? parser.stringify(config) : JSON.stringify(config, null, 2);
-        
+
         await fs.writeFile(outputFile, content);
-        
+
         console.log(chalk.green('✓'), `Configuration file created: ${outputFile}`);
         console.log(chalk.gray(`Template: ${templateName}`));
         console.log(chalk.gray(`Format: ${format}`));
@@ -198,13 +198,13 @@ configCommand
       try {
         await configManager.load(configFile);
         console.log(chalk.blue('Validating configuration file:'), configFile);
-        
+
         // Use the new comprehensive validation method
         const result = await configManager.validateFile(configFile);
-        
+
         if (result.valid) {
           console.log(chalk.green('✓'), 'Configuration is valid');
-          
+
           if (options.strict) {
             console.log(chalk.gray('✓ Strict validation passed'));
           }
@@ -233,20 +233,20 @@ configCommand
         try {
           const profiles = await configManager.listProfiles();
           const currentProfile = configManager.getCurrentProfile();
-          
+
           if (profiles.length === 0) {
             console.log(chalk.gray('No profiles found'));
             return;
           }
-          
+
           console.log(chalk.cyan.bold(`Configuration Profiles (${profiles.length})`));
           console.log('─'.repeat(40));
-          
+
           for (const profile of profiles) {
             const indicator = profile === currentProfile ? chalk.green('● ') : '  ';
             console.log(`${indicator}${profile}`);
           }
-          
+
           if (currentProfile) {
             console.log();
             console.log(chalk.gray(`Current: ${currentProfile}`));
@@ -268,7 +268,7 @@ configCommand
             console.log(chalk.gray('Use --force to overwrite'));
             return;
           }
-          
+
           await configManager.saveProfile(profileName);
           console.log(chalk.green('✓'), `Profile '${profileName}' saved`);
         } catch (error) {
@@ -299,13 +299,13 @@ configCommand
               message: `Delete profile '${profileName}'?`,
               default: false,
             });
-            
+
             if (!confirmed) {
               console.log(chalk.gray('Delete cancelled'));
               return;
             }
           }
-          
+
           await configManager.deleteProfile(profileName);
           console.log(chalk.green('✓'), `Profile '${profileName}' deleted`);
         } catch (error) {
@@ -323,7 +323,7 @@ configCommand
             console.error(chalk.red(`Profile '${profileName}' not found`));
             return;
           }
-          
+
           console.log(JSON.stringify(profile, null, 2));
         } catch (error) {
           console.error(chalk.red('Failed to show profile:'), (error as Error).message);
@@ -348,7 +348,7 @@ configCommand
             config: configManager.getDiff(),
           };
         }
-        
+
         await fs.writeFile(outputFile, JSON.stringify(data, null, 2));
         console.log(chalk.green('✓'), `Configuration exported to ${outputFile}`);
       } catch (error) {
@@ -364,15 +364,15 @@ configCommand
       try {
         const content = await fs.readFile(inputFile);
         const data = JSON.parse(content);
-        
+
         if (options.merge) {
           const current = configManager.get();
           data.config = deepMerge(current as unknown as Record<string, unknown>, data.config) as any;
         }
-        
+
         configManager.import(data);
         console.log(chalk.green('✓'), 'Configuration imported successfully');
-        
+
         if (data.profile) {
           console.log(chalk.gray(`Profile: ${data.profile}`));
         }
@@ -386,7 +386,7 @@ configCommand
     .option('--path <path:string>', 'Show schema for specific path')
     .action(async (options: any) => {
       const schema = configManager.getSchema();
-      
+
       if (options.path) {
         const value = getValueByPath(schema, options.path);
         if (value === undefined) {
@@ -406,38 +406,38 @@ configCommand
     .option('--format <format:string>', 'Output format (json, table)', { default: 'table' })
     .action(async (options: { path?: string; limit?: number; format?: string }) => {
       try {
-        const changes = options.path 
+        const changes = options.path
           ? configManager.getPathHistory(options.path, options.limit)
           : configManager.getChangeHistory(options.limit);
-        
+
         if (changes.length === 0) {
           console.log(chalk.gray('No configuration changes found'));
           return;
         }
-        
+
         if (options.format === 'json') {
           console.log(JSON.stringify(changes, null, 2));
         } else {
           console.log(chalk.cyan.bold(`Configuration Change History (${changes.length} changes)`));
           console.log('─'.repeat(80));
-          
+
           changes.reverse().forEach((change: any, index: number) => {
             const timestamp = new Date(change.timestamp).toLocaleString();
             const user = change.user || 'system';
             const source = change.source || 'unknown';
-            
+
             console.log(`${chalk.green(timestamp)} | ${chalk.blue(user)} | ${chalk.yellow(source)}`);
             console.log(`Path: ${chalk.cyan(change.path)}`);
-            
+
             if (change.reason) {
               console.log(`Reason: ${chalk.gray(change.reason)}`);
             }
-            
+
             if (change.oldValue !== undefined && change.newValue !== undefined) {
               console.log(`Old: ${chalk.red(JSON.stringify(change.oldValue))}`);
               console.log(`New: ${chalk.green(JSON.stringify(change.newValue))}`);
             }
-            
+
             if (index < changes.length - 1) {
               console.log('');
             }
@@ -456,7 +456,7 @@ configCommand
       try {
         const finalPath = backupPath || (options.autoName ? undefined : 'config-backup.json');
         const savedPath = await configManager.backup(finalPath);
-        
+
         console.log(chalk.green('✓'), `Configuration backed up to: ${savedPath}`);
         console.log(chalk.gray(`Backup includes configuration and recent change history`));
       } catch (error) {
@@ -476,13 +476,13 @@ configCommand
           message: `Restore configuration from ${backupPath}? This will overwrite current configuration.`,
           default: false,
         });
-        
+
         if (!confirmed) {
           console.log(chalk.gray('Restore cancelled'));
           return;
         }
       }
-      
+
       await configManager.restore(backupPath);
       console.log(chalk.green('✓'), 'Configuration restored successfully');
       console.log(chalk.yellow('⚠️'), 'You may need to restart the application for changes to take effect');
@@ -500,19 +500,19 @@ configCommand
     .action(async (options: any) => {
       try {
         const templates = configManager.getAvailableTemplates();
-        
+
         console.log(chalk.cyan.bold(`Available Configuration Templates (${templates.length})`));
         console.log('─'.repeat(50));
-        
+
         for (const template of templates) {
           console.log(chalk.green('●'), chalk.bold(template));
-          
+
           if (options.detailed) {
             try {
               const config = configManager.createTemplate(template);
               const description = getTemplateDescription(template);
               console.log(`  ${chalk.gray(description)}`);
-              
+
               if (config.orchestrator) {
                 console.log(`  Max Agents: ${chalk.cyan(config.orchestrator.maxConcurrentAgents)}`);
               }
@@ -523,7 +523,7 @@ configCommand
               console.log(`  ${chalk.red('Error loading template')}`);
             }
           }
-          
+
           console.log('');
         }
       } catch (error) {
@@ -541,14 +541,14 @@ function getTemplateDescription(templateName: string): string {
     testing: 'Optimized for testing with fast feedback and lower retention',
     enterprise: 'Enterprise-grade with maximum security and scalability'
   };
-  
+
   return descriptions[templateName] || 'Custom configuration template';
 }
 
 function getValueByPath(obj: any, path: string): any {
   const parts = path.split('.');
   let current = obj;
-  
+
   for (const part of parts) {
     if (current && typeof current === 'object' && part in current) {
       current = current[part];
@@ -556,7 +556,7 @@ function getValueByPath(obj: any, path: string): any {
       return undefined;
     }
   }
-  
+
   return current;
 }
 

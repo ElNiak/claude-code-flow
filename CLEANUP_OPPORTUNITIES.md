@@ -247,7 +247,7 @@ export class RepositoryCleanup {
   private async createBackup(): Promise<void> {
     const backupDir = `.backup-${Date.now()}`;
     await fs.mkdir(backupDir, { recursive: true });
-    
+
     // Create backup of files to be moved
     for (const [source] of this.rootCleanupMap) {
       try {

@@ -1,1 +1,25 @@
-Package configuration
+{
+	"name": "data-pipeline",
+	"version": "1.0.0",
+	"description": "Data pipeline processing example",
+	"main": "src/main.js",
+	"scripts": {
+		"start": "node src/main.js",
+		"test": "jest",
+		"dev": "nodemon src/main.js"
+	},
+	"dependencies": {
+		"lodash": "^4.17.21"
+	},
+	"devDependencies": {
+		"jest": "^29.5.0",
+		"nodemon": "^2.0.22"
+	},
+	"keywords": [
+		"data",
+		"pipeline",
+		"processing"
+	],
+	"author": "",
+	"license": "MIT"
+}

@@ -34,9 +34,9 @@ test_cli() {
     local name="$1"
     local command="$2"
     ((TESTS++))
-    
+
     log "Testing: $name"
-    
+
     if timeout 10 eval "$command" >/dev/null 2>&1; then
         success "$name"
     else
@@ -46,10 +46,10 @@ test_cli() {
 
 main() {
     log "🚀 Quick CLI Validation Started"
-    
+
     # Store test start
     npx ruv-swarm hook post-edit --file "test-cli/quick-validation.sh" --memory-key "swarm-1751574161255/quick/start" 2>/dev/null || true
-    
+
     # Core tests
     test_cli "CLI help command" "node cli.js --help | grep -i usage"
     test_cli "CLI version command" "node cli.js --version | grep -E '[0-9]+\.[0-9]+\.[0-9]+'"
@@ -61,15 +61,15 @@ main() {
     test_cli "Init command help" "node cli.js init --help | grep -i init"
     test_cli "Swarm command help" "node cli.js swarm --help | grep -i swarm"
     test_cli "Agent command help" "node cli.js agent --help | grep -i agent"
-    
+
     # Results
     log "📊 Quick Test Results"
     echo "Total: $TESTS | Passed: $PASSED | Failed: $FAILED"
     echo "Success Rate: $(( PASSED * 100 / TESTS ))%"
-    
+
     # Store results
     npx ruv-swarm hook notification --message "Quick tests: $PASSED/$TESTS passed" --telemetry true 2>/dev/null || true
-    
+
     if [ $FAILED -eq 0 ]; then
         success "All quick tests passed!"
         exit 0

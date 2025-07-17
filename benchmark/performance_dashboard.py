@@ -33,36 +33,36 @@ except ImportError:
 
 class PerformanceDashboard:
     """Generates interactive performance dashboards."""
-    
+
     def __init__(self, output_dir: str = "dashboard_output"):
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(exist_ok=True)
-        
+
     def generate_dashboard(self, data_source: str = "database") -> str:
         """Generate complete performance dashboard."""
         print("📊 Generating Performance Dashboard...")
-        
+
         # Collect data
         if data_source == "database":
             dashboard_data = self._collect_database_data()
         else:
             dashboard_data = self._generate_sample_data()
-        
+
         # Generate HTML dashboard
         dashboard_file = self._generate_html_dashboard(dashboard_data)
-        
+
         # Generate additional reports
         self._generate_csv_export(dashboard_data)
         self._generate_json_export(dashboard_data)
-        
+
         print(f"✅ Dashboard generated: {dashboard_file}")
         return str(dashboard_file)
-    
+
     def _collect_database_data(self) -> Dict[str, Any]:
         """Collect data from performance database."""
         try:
             monitor = PerformanceMonitor()
-            
+
             # Get dashboard data for different time periods
             data = {
                 "last_24h": monitor.get_performance_dashboard_data(24),
@@ -70,21 +70,21 @@ class PerformanceDashboard:
                 "last_30d": monitor.get_performance_dashboard_data(720),
                 "regression_report": monitor.generate_regression_report()
             }
-            
+
             return data
-            
+
         except Exception as e:
             print(f"Warning: Could not collect database data: {e}")
             return self._generate_sample_data()
-    
+
     def _generate_sample_data(self) -> Dict[str, Any]:
         """Generate sample data for demonstration."""
         import random
-        
+
         # Generate sample time series data
         now = datetime.now()
         time_series = []
-        
+
         for i in range(100):
             timestamp = now - timedelta(hours=i)
             time_series.append({
@@ -98,7 +98,7 @@ class PerformanceDashboard:
                 "active_agents": random.randint(0, 8),
                 "cpu_usage_percent": random.uniform(10, 70)
             })
-        
+
         return {
             "last_24h": {
                 "summary": {
@@ -145,36 +145,36 @@ class PerformanceDashboard:
                 }
             }
         }
-    
+
     def _generate_html_dashboard(self, data: Dict[str, Any]) -> Path:
         """Generate HTML dashboard file."""
         dashboard_data = data.get("last_24h", {})
         regression_data = data.get("regression_report", {})
-        
+
         html_content = self._create_html_template(dashboard_data, regression_data)
-        
+
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         dashboard_file = self.output_dir / f"performance_dashboard_{timestamp}.html"
-        
+
         with open(dashboard_file, 'w') as f:
             f.write(html_content)
-        
+
         # Also create a 'latest' version
         latest_file = self.output_dir / "performance_dashboard_latest.html"
         with open(latest_file, 'w') as f:
             f.write(html_content)
-        
+
         return dashboard_file
-    
+
     def _create_html_template(self, dashboard_data: Dict[str, Any], regression_data: Dict[str, Any]) -> str:
         """Create HTML template with embedded data and charts."""
-        
+
         summary = dashboard_data.get("summary", {})
         swarm_perf = dashboard_data.get("swarm_performance", {})
         resource_usage = dashboard_data.get("resource_usage", {})
         time_series = dashboard_data.get("time_series", [])
         baselines = dashboard_data.get("baselines", {})
-        
+
         # Create JavaScript data for charts
         chart_data = {
             "timeSeries": time_series[-50:],  # Last 50 data points
@@ -184,7 +184,7 @@ class PerformanceDashboard:
             "resourceUsage": resource_usage,
             "regressionData": regression_data
         }
-        
+
         html_template = f"""
 <!DOCTYPE html>
 <html lang="en">
@@ -319,13 +319,13 @@ class PerformanceDashboard:
     <div class="refresh-info">
         Last updated: {summary.get("last_update", datetime.now().isoformat())[:19]}
     </div>
-    
+
     <div class="container">
         <div class="header">
             <h1>🚀 Claude-Flow Swarm Performance Dashboard</h1>
             <p>Real-time monitoring and performance analytics</p>
         </div>
-        
+
         <div class="metrics-grid">
             <div class="metric-card">
                 <div class="metric-value status-{self._get_status(swarm_perf.get("avg_init_time", 0), baselines.get("swarm_init_time", 5.0))}">
@@ -334,7 +334,7 @@ class PerformanceDashboard:
                 <div class="metric-label">Avg Swarm Init Time</div>
                 <div class="metric-target">Target: &lt; {baselines.get("swarm_init_time", 5.0)}s</div>
             </div>
-            
+
             <div class="metric-card">
                 <div class="metric-value status-{self._get_status(swarm_perf.get("avg_coordination_latency", 0), baselines.get("agent_coordination_latency", 200.0))}">
                     {swarm_perf.get("avg_coordination_latency", 0):.1f}ms
@@ -342,7 +342,7 @@ class PerformanceDashboard:
                 <div class="metric-label">Avg Coordination Latency</div>
                 <div class="metric-target">Target: &lt; {baselines.get("agent_coordination_latency", 200.0)}ms</div>
             </div>
-            
+
             <div class="metric-card">
                 <div class="metric-value status-{self._get_status(resource_usage.get("avg_memory_mb", 0), baselines.get("memory_usage_mb", 50.0))}">
                     {resource_usage.get("avg_memory_mb", 0):.1f}MB
@@ -350,7 +350,7 @@ class PerformanceDashboard:
                 <div class="metric-label">Avg Memory Usage</div>
                 <div class="metric-target">Target: &lt; {baselines.get("memory_usage_mb", 50.0)}MB</div>
             </div>
-            
+
             <div class="metric-card">
                 <div class="metric-value status-good">
                     {resource_usage.get("peak_memory_mb", 0):.1f}MB
@@ -359,55 +359,55 @@ class PerformanceDashboard:
                 <div class="metric-target">Trend: {resource_usage.get("memory_trend", "unknown")}</div>
             </div>
         </div>
-        
+
         <div class="charts-section">
             <div class="chart-container">
                 <div class="chart-title">📈 Performance Trends (Last 24 Hours)</div>
                 <canvas id="performanceTrendChart" class="chart-canvas"></canvas>
             </div>
-            
+
             <div class="chart-container">
                 <div class="chart-title">💾 Memory Usage Over Time</div>
                 <canvas id="memoryUsageChart" class="chart-canvas"></canvas>
             </div>
-            
+
             <div class="chart-container">
                 <div class="chart-title">🕒 Response Time Distribution</div>
                 <canvas id="responseTimeChart" class="chart-canvas"></canvas>
             </div>
         </div>
-        
+
         <div class="regression-section">
             <h2>🔍 Performance Regression Analysis</h2>
             {self._generate_regression_html(regression_data)}
         </div>
-        
+
         <div class="footer">
-            Generated by Claude-Flow Metrics Analyst Agent | 
-            Version 1.0.0 | 
+            Generated by Claude-Flow Metrics Analyst Agent |
+            Version 1.0.0 |
             {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
         </div>
     </div>
-    
+
     <script>
         // Dashboard data
         const dashboardData = {json.dumps(chart_data, indent=2, default=str)};
-        
+
         // Initialize charts when page loads
         document.addEventListener('DOMContentLoaded', function() {{
             initializeCharts();
         }});
-        
+
         function initializeCharts() {{
             createPerformanceTrendChart();
             createMemoryUsageChart();
             createResponseTimeChart();
         }}
-        
+
         function createPerformanceTrendChart() {{
             const ctx = document.getElementById('performanceTrendChart').getContext('2d');
             const timeSeries = dashboardData.timeSeries;
-            
+
             new Chart(ctx, {{
                 type: 'line',
                 data: {{
@@ -466,11 +466,11 @@ class PerformanceDashboard:
                 }}
             }});
         }}
-        
+
         function createMemoryUsageChart() {{
             const ctx = document.getElementById('memoryUsageChart').getContext('2d');
             const timeSeries = dashboardData.timeSeries;
-            
+
             new Chart(ctx, {{
                 type: 'area',
                 data: {{
@@ -504,15 +504,15 @@ class PerformanceDashboard:
                 }}
             }});
         }}
-        
+
         function createResponseTimeChart() {{
             const ctx = document.getElementById('responseTimeChart').getContext('2d');
             const timeSeries = dashboardData.timeSeries;
-            
+
             // Create histogram data
             const responseTimeBins = [0, 0.5, 1.0, 1.5, 2.0, 2.5];
             const binCounts = new Array(responseTimeBins.length - 1).fill(0);
-            
+
             timeSeries.forEach(d => {{
                 const responseTime = d.mcp_response_time;
                 for (let i = 0; i < responseTimeBins.length - 1; i++) {{
@@ -522,11 +522,11 @@ class PerformanceDashboard:
                     }}
                 }}
             }});
-            
+
             new Chart(ctx, {{
                 type: 'bar',
                 data: {{
-                    labels: responseTimeBins.slice(0, -1).map((bin, i) => 
+                    labels: responseTimeBins.slice(0, -1).map((bin, i) =>
                         `${{bin}}-${{responseTimeBins[i + 1]}}s`),
                     datasets: [{{
                         label: 'Response Time Distribution',
@@ -565,9 +565,9 @@ class PerformanceDashboard:
     </script>
 </body>
 </html>"""
-        
+
         return html_template
-    
+
     def _get_status(self, value: float, target: float) -> str:
         """Get status class based on value vs target."""
         if value <= target:
@@ -576,21 +576,21 @@ class PerformanceDashboard:
             return "warning"
         else:
             return "critical"
-    
+
     def _generate_regression_html(self, regression_data: Dict[str, Any]) -> str:
         """Generate HTML for regression analysis section."""
         if not regression_data or "regression_analysis" not in regression_data:
             return "<p>No regression data available.</p>"
-        
+
         analysis = regression_data["regression_analysis"]
         html_parts = []
-        
+
         for metric_name, metric_data in analysis.items():
             regression_percent = metric_data.get("regression_percent", 0)
             regression_detected = metric_data.get("regression_detected", False)
             recent_avg = metric_data.get("recent_avg", 0)
             historical_avg = metric_data.get("historical_avg", 0)
-            
+
             # Determine status class
             if regression_percent < -5:
                 status_class = "improvement"
@@ -608,7 +608,7 @@ class PerformanceDashboard:
                 status_class = ""
                 icon = "✅"
                 status_text = "Stable"
-            
+
             html_parts.append(f"""
             <div class="regression-item {status_class}">
                 <h4>{icon} {metric_name.replace('_', ' ').title()}</h4>
@@ -618,42 +618,42 @@ class PerformanceDashboard:
                 <p><strong>Historical Average:</strong> {historical_avg:.2f}</p>
             </div>
             """)
-        
+
         return "".join(html_parts)
-    
+
     def _generate_csv_export(self, data: Dict[str, Any]):
         """Generate CSV export of performance data."""
         dashboard_data = data.get("last_24h", {})
         time_series = dashboard_data.get("time_series", [])
-        
+
         if not time_series:
             return
-        
+
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         csv_file = self.output_dir / f"performance_data_{timestamp}.csv"
-        
+
         # Write CSV header and data
         with open(csv_file, 'w') as f:
             if time_series:
                 # Write header
                 headers = list(time_series[0].keys())
                 f.write(",".join(headers) + "\n")
-                
+
                 # Write data rows
                 for row in time_series:
                     values = [str(row.get(h, "")) for h in headers]
                     f.write(",".join(values) + "\n")
-        
+
         print(f"📄 CSV export saved: {csv_file}")
-    
+
     def _generate_json_export(self, data: Dict[str, Any]):
         """Generate JSON export of all dashboard data."""
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         json_file = self.output_dir / f"dashboard_data_{timestamp}.json"
-        
+
         with open(json_file, 'w') as f:
             json.dump(data, f, indent=2, default=str)
-        
+
         print(f"📋 JSON export saved: {json_file}")
 
 
@@ -675,35 +675,35 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
 
 if __name__ == "__main__":
     os.chdir(dashboard_dir)
-    
+
     with socketserver.TCPServer(("", PORT), DashboardHandler) as httpd:
         print(f"🌐 Performance Dashboard Server started at http://localhost:{PORT}")
         print("📊 Available dashboards:")
-        
+
         for file in dashboard_dir.glob("*.html"):
             print(f"   http://localhost:{PORT}/{file.name}")
-        
+
         try:
             # Try to open in browser
             webbrowser.open(f"http://localhost:{PORT}/performance_dashboard_latest.html")
         except:
             pass
-        
+
         print("\\nPress Ctrl+C to stop the server")
-        
+
         try:
             httpd.serve_forever()
         except KeyboardInterrupt:
             print("\\n🛑 Dashboard server stopped")
 """
-    
+
     server_file = Path("dashboard_server.py")
     with open(server_file, 'w') as f:
         f.write(server_script)
-    
+
     # Make executable
     os.chmod(server_file, 0o755)
-    
+
     print(f"✅ Dashboard server created: {server_file}")
     print(f"   Run with: python {server_file}")
 
@@ -711,34 +711,34 @@ if __name__ == "__main__":
 def main():
     """Main entry point for dashboard generation."""
     import argparse
-    
+
     parser = argparse.ArgumentParser(description="Performance Dashboard Generator")
     parser.add_argument("--output-dir", default="dashboard_output", help="Output directory")
     parser.add_argument("--data-source", choices=["database", "sample"], default="database", help="Data source")
     parser.add_argument("--create-server", action="store_true", help="Create dashboard server script")
     parser.add_argument("--serve", action="store_true", help="Generate dashboard and start server")
-    
+
     args = parser.parse_args()
-    
+
     if args.create_server:
         create_dashboard_server()
         return
-    
+
     # Generate dashboard
     dashboard = PerformanceDashboard(args.output_dir)
     dashboard_file = dashboard.generate_dashboard(args.data_source)
-    
+
     if args.serve:
         import subprocess
         import webbrowser
         import time
-        
+
         # Create server if it doesn't exist
         if not Path("dashboard_server.py").exists():
             create_dashboard_server()
-        
+
         print("🌐 Starting dashboard server...")
-        
+
         try:
             # Start server in background
             server_process = subprocess.Popen(
@@ -746,19 +746,19 @@ def main():
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE
             )
-            
+
             # Give server time to start
             time.sleep(2)
-            
+
             # Open in browser
             webbrowser.open("http://localhost:8000/performance_dashboard_latest.html")
-            
+
             print("Dashboard is now running at http://localhost:8000")
             print("Press Ctrl+C to stop...")
-            
+
             # Wait for user to stop
             server_process.wait()
-            
+
         except KeyboardInterrupt:
             if 'server_process' in locals():
                 server_process.terminate()

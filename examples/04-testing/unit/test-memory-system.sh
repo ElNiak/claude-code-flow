@@ -16,9 +16,9 @@ run_test() {
     local test_name=$1
     local command=$2
     local expected=$3
-    
+
     echo -n "Testing $test_name... "
-    
+
     if eval "$command"; then
         if [[ -z "$expected" ]] || [[ "$output" == *"$expected"* ]]; then
             echo "✅ PASSED"

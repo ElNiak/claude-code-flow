@@ -29,12 +29,12 @@ const tutorialTasks = [
   { tool: 'Grep', params: { pattern: 'sparc (run|tdd|spec)', include: '*.md' } },
   { tool: 'Glob', params: { pattern: 'examples/**/sparc-*.md' } },
   { tool: 'Glob', params: { pattern: '.claude/commands/sparc/*.md' } },
-  
+
   // Concurrent reading of existing documentation
   { tool: 'Read', params: { file_path: 'README.md' } },
   { tool: 'Read', params: { file_path: 'docs/sparc.md' } },
   { tool: 'Read', params: { file_path: 'CLAUDE.md' } },
-  
+
   // Parallel analysis of mode configurations
   { tool: 'Read', params: { file_path: '.roomodes' } },
   { tool: 'Grep', params: { pattern: 'mode:.*description:', include: '*.md' } }
@@ -83,7 +83,7 @@ const advancedTutorial = [
       edits: generateBasicsTutorial()
     }
   },
-  
+
   // Create interactive examples
   {
     tool: 'Write',
@@ -92,7 +92,7 @@ const advancedTutorial = [
       content: generateInteractiveExample('auth')
     }
   },
-  
+
   // Build exercise files
   {
     tool: 'Write',
@@ -101,7 +101,7 @@ const advancedTutorial = [
       content: generateTDDExercises()
     }
   },
-  
+
   // Create video script outlines
   {
     tool: 'Write',

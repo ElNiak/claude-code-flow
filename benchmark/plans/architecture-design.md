@@ -73,7 +73,7 @@ class Strategy(ABC):
     @abstractmethod
     async def execute(self, task: Task) -> Result:
         pass
-    
+
     @abstractmethod
     def get_metrics(self) -> Dict[str, Any]:
         pass
@@ -86,7 +86,7 @@ class CoordinationMode(ABC):
     @abstractmethod
     async def coordinate(self, agents: List[Agent], tasks: List[Task]) -> Results:
         pass
-    
+
     @abstractmethod
     def get_coordination_metrics(self) -> Dict[str, Any]:
         pass

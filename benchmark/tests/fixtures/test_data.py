@@ -12,12 +12,12 @@ import shutil
 
 class TestDataGenerator:
     """Generate test data for benchmarking"""
-    
+
     @staticmethod
     def create_sample_project(project_type: str = "web_api") -> Path:
         """Create a sample project structure for testing"""
         temp_dir = Path(tempfile.mkdtemp(prefix=f"test_{project_type}_"))
-        
+
         if project_type == "web_api":
             # Create a simple web API project structure
             structure = {
@@ -62,7 +62,7 @@ def test_get_users():
                 "requirements.txt": "flask==2.3.0\npytest==7.4.0\n",
                 "README.md": "# Test Web API Project\n\nA sample project for benchmarking."
             }
-            
+
         elif project_type == "data_pipeline":
             structure = {
                 "pipeline": {
@@ -87,7 +87,7 @@ def extract_data(source):
                     "sample.csv": "id,name,value\n1,Test,100\n2,Sample,200\n"
                 }
             }
-            
+
         elif project_type == "ml_model":
             structure = {
                 "model": {
@@ -138,11 +138,11 @@ def evaluate_model(y_true, y_pred):
                     "test_main.py": "def test_main():\n    assert True\n"
                 }
             }
-        
+
         # Create the project structure
         TestDataGenerator._create_structure(temp_dir, structure)
         return temp_dir
-    
+
     @staticmethod
     def _create_structure(base_path: Path, structure: Dict[str, Any]):
         """Recursively create directory structure"""
@@ -153,7 +153,7 @@ def evaluate_model(y_true, y_pred):
                 TestDataGenerator._create_structure(path, content)
             else:
                 path.write_text(content)
-    
+
     @staticmethod
     def get_test_prompts() -> Dict[str, List[str]]:
         """Get categorized test prompts for different scenarios"""
@@ -194,7 +194,7 @@ def evaluate_model(y_true, y_pred):
                 "Reduce memory usage"
             ]
         }
-    
+
     @staticmethod
     def get_performance_scenarios() -> List[Dict[str, Any]]:
         """Get realistic performance testing scenarios"""
@@ -235,7 +235,7 @@ def evaluate_model(y_true, y_pred):
                 "complexity": "medium"
             }
         ]
-    
+
     @staticmethod
     def get_code_samples() -> Dict[str, str]:
         """Get code samples for testing different aspects"""
@@ -263,10 +263,10 @@ def execute_command(user_input):
 
 def calculate_average(numbers: List[float]) -> Optional[float]:
     """Calculate the average of a list of numbers.
-    
+
     Args:
         numbers: List of numbers to average
-        
+
     Returns:
         Average value or None if list is empty
     """
@@ -277,28 +277,28 @@ def calculate_average(numbers: List[float]) -> Optional[float]:
             "complex_algorithm": '''def dijkstra(graph, start):
     """Dijkstra's shortest path algorithm"""
     import heapq
-    
+
     distances = {node: float('infinity') for node in graph}
     distances[start] = 0
     pq = [(0, start)]
-    
+
     while pq:
         current_distance, current_node = heapq.heappop(pq)
-        
+
         if current_distance > distances[current_node]:
             continue
-            
+
         for neighbor, weight in graph[current_node].items():
             distance = current_distance + weight
-            
+
             if distance < distances[neighbor]:
                 distances[neighbor] = distance
                 heapq.heappush(pq, (distance, neighbor))
-    
+
     return distances
 '''
         }
-    
+
     @staticmethod
     def cleanup_test_projects(paths: List[Path]):
         """Clean up temporary test projects"""

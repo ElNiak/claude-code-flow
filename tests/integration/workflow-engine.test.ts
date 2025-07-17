@@ -2,9 +2,8 @@
  * Integration tests for the Workflow Engine
  */
 
-import { describe, it, beforeEach, afterEach, expect } from "../test.utils.ts";
-import { describe, it, beforeEach, afterEach, expect } from "../test.utils.ts";
-import { WorkflowEngine, WorkflowDefinition, ExecutionOptions } from '../../package/src/workflow/engine.ts';
+import { ExecutionOptions, type WorkflowDefinition, WorkflowEngine } from '../../package/src/workflow/engine.ts';
+import { afterEach, afterEach, beforeEach, beforeEach, describe, describe, expect, expect, it, it } from "../test.utils.ts";
 
 describe('Workflow Engine Integration Tests', () => {
   let engine: WorkflowEngine;
@@ -40,7 +39,7 @@ describe('Workflow Engine Integration Tests', () => {
       };
 
       await Deno.writeTextFile(workflowPath, JSON.stringify(workflow, null, 2));
-      
+
       const loadedWorkflow = await engine.loadWorkflow(workflowPath);
       expect(loadedWorkflow.name).toBe('Test Workflow');
       expect(loadedWorkflow.tasks.length).toBe(1);
@@ -60,7 +59,7 @@ tasks:
 `;
 
       await Deno.writeTextFile(workflowPath, yamlContent);
-      
+
       const loadedWorkflow = await engine.loadWorkflow(workflowPath);
       expect(loadedWorkflow.name).toBe('YAML Test Workflow');
       expect(loadedWorkflow.tasks.length).toBe(1);
@@ -70,7 +69,7 @@ tasks:
     it('should handle invalid workflow files', async () => {
       const workflowPath = `${testWorkflowDir}/invalid-workflow.json`;
       await Deno.writeTextFile(workflowPath, 'invalid json content');
-      
+
       await assertThrows(
         async () => await engine.loadWorkflow(workflowPath),
         Error,
@@ -188,7 +187,7 @@ tasks:
       };
 
       const execution = await engine.executeWorkflow(workflow);
-      
+
       expect(execution.workflowName).toBe('Simple Execution Test');
       expect(execution.status).toBe('completed');
       expect(execution.progress.total).toBe(1);
@@ -223,20 +222,20 @@ tasks:
       };
 
       const execution = await engine.executeWorkflow(workflow);
-      
+
       expect(execution.status).toBe('completed');
       expect(execution.progress.total).toBe(3);
       expect(execution.progress.completed).toBe(3);
-      
+
       // Verify execution order
       const task1 = execution.tasks.find(t => t.taskId === 'task1')!;
       const task2 = execution.tasks.find(t => t.taskId === 'task2')!;
       const task3 = execution.tasks.find(t => t.taskId === 'task3')!;
-      
+
       expect(task1.status).toBe('completed');
       expect(task2.status).toBe('completed');
       expect(task3.status).toBe('completed');
-      
+
       // Task 1 should complete before task 2
       expect(task1.completedAt! <= task2.startedAt!).toBe(true);
       // Tasks 1 and 2 should complete before task 3
@@ -275,11 +274,11 @@ tasks:
       const startTime = Date.now();
       const execution = await engine.executeWorkflow(workflow);
       const endTime = Date.now();
-      
+
       expect(execution.status).toBe('completed');
       expect(execution.progress.total).toBe(3);
       expect(execution.progress.completed).toBe(3);
-      
+
       // Parallel execution should be faster than sequential
       const executionTime = endTime - startTime;
       expect(executionTime < 5000).toBe(true); // Should complete in less than 5 seconds
@@ -314,15 +313,15 @@ tasks:
       };
 
       const execution = await engine.executeWorkflow(workflow);
-      
+
       expect(execution.status).toBe('completed');
       expect(execution.progress.total).toBe(2);
       expect(execution.progress.completed).toBe(1);
       expect(execution.progress.skipped).toBe(1);
-      
+
       const requiredTask = execution.tasks.find(t => t.taskId === 'required-task')!;
       const optionalTask = execution.tasks.find(t => t.taskId === 'optional-task')!;
-      
+
       expect(requiredTask.status).toBe('completed');
       expect(optionalTask.status).toBe('skipped');
     });
@@ -346,7 +345,7 @@ tasks:
       // Mock a task that fails the first time but succeeds on retry
       const originalExecuteTaskByType = (engine as any).executeTaskByType;
       let attemptCount = 0;
-      
+
       (engine as any).executeTaskByType = async function(execution: any, task: any, taskDef: any) {
         attemptCount++;
         if (attemptCount === 1) {
@@ -356,11 +355,11 @@ tasks:
       };
 
       const execution = await engine.executeWorkflow(workflow);
-      
+
       expect(execution.status).toBe('completed');
       expect(execution.progress.completed).toBe(1);
       expect(execution.progress.failed).toBe(0);
-      
+
       const task = execution.tasks.find(t => t.taskId === 'flaky-task')!;
       expect(task.status).toBe('completed');
       expect(task.retryCount).toBe(1);
@@ -380,13 +379,13 @@ tasks:
       };
 
       // Mock a task that takes longer than the timeout
-      (engine as any).executeTaskByType = async function() {
+      (engine as any).executeTaskByType = async () => {
         await new Promise(resolve => setTimeout(resolve, 200));
         return { success: true };
       };
 
       const execution = await engine.executeWorkflow(workflow);
-      
+
       // The workflow should handle the timeout gracefully
       expect(execution.status).toBe('failed');
       expect(execution.progress.failed).toBe(1);
@@ -399,7 +398,7 @@ tasks:
         name: 'Workflow 1',
         tasks: [{ id: 'task1', type: 'test', description: 'Task 1' }]
       };
-      
+
       const workflow2: WorkflowDefinition = {
         name: 'Workflow 2',
         tasks: [{ id: 'task2', type: 'test', description: 'Task 2' }]
@@ -407,7 +406,7 @@ tasks:
 
       const execution1 = await engine.executeWorkflow(workflow1);
       const execution2 = await engine.executeWorkflow(workflow2);
-      
+
       const executions = engine.listExecutions();
       expect(executions.length).toBe(2);
       expect(executions.some(e => e.id === execution1.id)).toBe(true);
@@ -421,15 +420,15 @@ tasks:
       };
 
       const execution = await engine.executeWorkflow(workflow);
-      
+
       const filteredByName = engine.listExecutions({ workflowName: 'Filter Test' });
       expect(filteredByName.length).toBe(1);
       expect(filteredByName[0].id).toBe(execution.id);
-      
+
       const filteredByStatus = engine.listExecutions({ status: 'completed' });
       expect(filteredByStatus.length).toBe(1);
       expect(filteredByStatus[0].id).toBe(execution.id);
-      
+
       const filteredByDifferentName = engine.listExecutions({ workflowName: 'Nonexistent' });
       expect(filteredByDifferentName.length).toBe(0);
     });
@@ -447,22 +446,22 @@ tasks:
       };
 
       // Mock a long-running task
-      (engine as any).executeTaskByType = async function() {
+      (engine as any).executeTaskByType = async () => {
         await new Promise(resolve => setTimeout(resolve, 10000)); // 10 seconds
         return { success: true };
       };
 
       // Start execution in background
       const executionPromise = engine.executeWorkflow(workflow);
-      
+
       // Wait a bit then cancel
       await new Promise(resolve => setTimeout(resolve, 100));
-      
+
       const executions = engine.listExecutions();
       expect(executions.length).toBe(1);
-      
+
       await engine.cancelExecution(executions[0].id);
-      
+
       const execution = await executionPromise;
       expect(execution.status).toBe('cancelled');
     });
@@ -490,7 +489,7 @@ tasks:
       };
 
       // Mock a failing task
-      (engine as any).executeTaskByType = async function(execution: any, task: any, taskDef: any) {
+      (engine as any).executeTaskByType = async (execution: any, task: any, taskDef: any) => {
         if (taskDef.id === 'failing-task') {
           throw new Error('Intentional failure');
         }
@@ -498,14 +497,14 @@ tasks:
       };
 
       const execution = await engine.executeWorkflow(workflow);
-      
+
       expect(execution.status).toBe('failed');
       expect(execution.progress.failed).toBe(1);
       expect(execution.progress.completed).toBe(0);
-      
+
       const failingTask = execution.tasks.find(t => t.taskId === 'failing-task')!;
       const subsequentTask = execution.tasks.find(t => t.taskId === 'subsequent-task')!;
-      
+
       expect(failingTask.status).toBe('failed');
       expect(subsequentTask.status).toBe('pending'); // Should not have started
     });
@@ -531,7 +530,7 @@ tasks:
       };
 
       // Mock mixed success/failure
-      (engine as any).executeTaskByType = async function(execution: any, task: any, taskDef: any) {
+      (engine as any).executeTaskByType = async (execution: any, task: any, taskDef: any) => {
         if (taskDef.id === 'failing-task') {
           throw new Error('Intentional failure');
         }
@@ -539,14 +538,14 @@ tasks:
       };
 
       const execution = await engine.executeWorkflow(workflow);
-      
+
       expect(execution.status).toBe('failed'); // Overall failed due to one failure
       expect(execution.progress.failed).toBe(1);
       expect(execution.progress.completed).toBe(1);
-      
+
       const failingTask = execution.tasks.find(t => t.taskId === 'failing-task')!;
       const successTask = execution.tasks.find(t => t.taskId === 'success-task')!;
-      
+
       expect(failingTask.status).toBe('failed');
       expect(successTask.status).toBe('completed');
     });
@@ -574,7 +573,7 @@ tasks:
       };
 
       const execution = await engine.executeWorkflow(workflow);
-      
+
       expect(execution.status).toBe('completed');
       expect(execution.context.variables.testValue).toBe('Hello World');
       expect(execution.context.variables.numericValue).toBe(42);
@@ -603,7 +602,7 @@ tasks:
       };
 
       // Mock task that produces output
-      (engine as any).executeTaskByType = async function(execution: any, task: any, taskDef: any) {
+      (engine as any).executeTaskByType = async (execution: any, task: any, taskDef: any) => {
         if (taskDef.id === 'producer-task') {
           return {
             result: 'produced data',
@@ -614,7 +613,7 @@ tasks:
       };
 
       const execution = await engine.executeWorkflow(workflow);
-      
+
       expect(execution.status).toBe('completed');
       expect(execution.context.outputs['producer-task.result']).toBe('produced data');
       expect(execution.context.outputs['producer-task.data'].value).toBe(123);

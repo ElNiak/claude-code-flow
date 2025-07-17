@@ -1,285 +1,349 @@
-import { dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
-import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
+
+import { getErrorMessage as _getErrorMessage } from "../utils/error-handler.js";
+
 /**
  * Direct Task Executor for Swarm
  * Executes tasks directly without relying on Claude CLI
  * Works in both local development and npm installed environments
  */
 
-import type { TaskDefinition, AgentState, TaskResult } from './types.js';
-import * as fs from 'node:fs/promises';
-import * as path from 'node:path';
-import { Logger } from '../core/logger.js';
+import * as fs from "node:fs/promises";
+import * as path from "node:path";
+import { Logger } from "../core/logger.js";
+import type { AgentState, TaskDefinition, TaskResult } from "./types.js";
 
 export interface DirectExecutorConfig {
-  logger?: Logger;
-  timeout?: number;
+	logger?: Logger;
+	timeout?: number;
 }
 
 export class DirectTaskExecutor {
-  private logger: Logger;
-  private timeout: number;
+	private logger: Logger;
+	private timeout: number;
 
-  constructor(config: DirectExecutorConfig = {}) {
-    this.logger = config.logger || new Logger(
-      { level: 'info', format: 'text', destination: 'console' },
-      { component: 'DirectTaskExecutor' }
-    );
-    this.timeout = config.timeout || 300000; // 5 minutes default
-  }
+	constructor(config: DirectExecutorConfig = {}) {
+		this.logger =
+			config.logger ||
+			new Logger(
+				{ level: "info", format: "text", destination: "console" },
+				{ component: "DirectTaskExecutor" }
+			);
+		this.timeout = config.timeout || 300000; // 5 minutes default
+	}
 
-  async executeTask(
-    task: TaskDefinition,
-    agent: AgentState,
-    targetDir?: string
-  ): Promise<TaskResult> {
-    this.logger.info('Executing task directly', {
-      taskId: task.id.id,
-      taskName: task.name,
-      agentType: agent.type,
-      targetDir
-    });
+	async executeTask(
+		task: TaskDefinition,
+		agent: AgentState,
+		targetDir?: string
+	): Promise<TaskResult> {
+		this.logger.info("Executing task directly", {
+			taskId: task.id.id,
+			taskName: task.name,
+			agentType: agent.type,
+			targetDir,
+		});
 
-    const startTime = Date.now();
+		const startTime = Date.now();
 
-    try {
-      // Ensure target directory exists,
-      if (targetDir) {
-        await fs.mkdir(targetDir, { recursive: true });
-      }
+		try {
+			// Ensure target directory exists,
+			if (targetDir) {
+				await fs.mkdir(targetDir, { recursive: true });
+			}
 
-      // Execute based on task type and objective,
-      const result = await this.executeTaskByType(task, agent, targetDir);
+			// Execute based on task type and objective,
+			const result = await this.executeTaskByType(task, agent, targetDir);
 
-      const endTime = Date.now();
-      const executionTime = endTime - startTime;
+			const endTime = Date.now();
+			const executionTime = endTime - startTime;
 
-      return {
-        output: result,
-        artifacts: {},
-        metadata: {
-          agentId: agent.id.id,
-          agentType: agent.type,
-          executionTime,
-          targetDir
-        },
-        quality: 1.0,
-        completeness: 1.0,
-        accuracy: 1.0,
-        executionTime,
-        resourcesUsed: {
-          cpuTime: executionTime,
-          maxMemory: 0,
-          diskIO: 0,
-          networkIO: 0,
-          fileHandles: 0
-        },
-        validated: true
-      };
-    } catch (error) {
-      this.logger.error('Task execution failed', {
-        taskId: task.id.id,
-        error: (error instanceof Error ? error.message : String(error))
-      });
-      throw error;
-    }
-  }
+			return {
+				output: result,
+				artifacts: {},
+				metadata: {
+					agentId: agent.id.id,
+					agentType: agent.type,
+					executionTime,
+					targetDir,
+				},
+				quality: 1.0,
+				completeness: 1.0,
+				accuracy: 1.0,
+				executionTime,
+				resourcesUsed: {
+					cpuTime: executionTime,
+					maxMemory: 0,
+					diskIO: 0,
+					networkIO: 0,
+					fileHandles: 0,
+				},
+				validated: true,
+			};
+		} catch (error) {
+			this.logger.error("Task execution failed", {
+				taskId: task.id.id,
+				error: error instanceof Error ? error.message : String(error),
+			});
+			throw error;
+		}
+	}
 
-  private async executeTaskByType(
-    task: TaskDefinition,
-    agent: AgentState,
-    targetDir?: string
-  ): Promise<any> {
-    const objective = task.description.toLowerCase();
-    
-    // Extract key information from the task,
-    const isRestAPI = objective.includes('rest api') || objective.includes('crud');
-    const isTodo = objective.includes('todo');
-    const isChat = objective.includes('chat') || objective.includes('websocket');
-    const isAuth = objective.includes('auth') || objective.includes('jwt');
-    const isHelloWorld = objective.includes('hello world');
-    const isCalculator = objective.includes('calculator') || objective.includes('calc');
-    const isAnalysis = task.type === 'analysis' || objective.includes('analyze');
-    const isResearch = task.type === 'research' || objective.includes('research');
+	private async executeTaskByType(
+		task: TaskDefinition,
+		agent: AgentState,
+		targetDir?: string
+	): Promise<any> {
+		const objective = task.description.toLowerCase();
 
-    // Route to appropriate implementation based on agent type and task,
-    switch (agent.type) {
-      case 'analyst':
-        return this.executeAnalyzerTask(task, targetDir);
-      
-      case 'coder':
-        const workingDir = targetDir || './temp-output';
-        if (isRestAPI) return this.createRestAPI(workingDir, task);
-        if (isTodo) return this.createTodoApp(workingDir, task);
-        if (isChat) return this.createChatApp(workingDir, task);
-        if (isAuth) return this.createAuthService(workingDir, task);
-        if (isHelloWorld) return this.createHelloWorld(workingDir, task);
-        if (isCalculator) return this.createCalculator(workingDir, task);
-        return this.createGenericApp(workingDir, task);
-      
-      case 'tester':
-        return this.executeTestingTask(task, targetDir);
-      
-      case 'reviewer':
-        if (task.name.toLowerCase().includes('analyze') || task.name.toLowerCase().includes('plan')) {
-          return this.executeAnalyzerTask(task, targetDir);
-        }
-        return this.executeReviewTask(task, targetDir);
-      
-      case 'documenter':
-        return this.executeDocumentationTask(task, targetDir);
-      
-      case 'researcher':
-        return this.executeResearchTask(task, targetDir);
-      
-      case 'coordinator':
-        return this.executeCoordinationTask(task, targetDir);
-      
-      default:
-        return this.executeGenericTask(task, targetDir);
-    }
-  }
+		// Extract key information from the task,
+		const isRestAPI =
+			objective.includes("rest api") || objective.includes("crud");
+		const isTodo = objective.includes("todo");
+		const isChat =
+			objective.includes("chat") || objective.includes("websocket");
+		const isAuth = objective.includes("auth") || objective.includes("jwt");
+		const isHelloWorld = objective.includes("hello world");
+		const isCalculator =
+			objective.includes("calculator") || objective.includes("calc");
+		const isAnalysis =
+			task.type === "analysis" || objective.includes("analyze");
+		const isResearch =
+			task.type === "research" || objective.includes("research");
 
-  private async executeAnalyzerTask(task: TaskDefinition, targetDir?: string): Promise<any> {
-    this.logger.info('Executing analyzer task', { taskName: task.name });
-    
-    const analysis = {
-      taskName: task.name,
-      objective: task.description,
-      analysis: {
-        requirements: this.extractRequirements(task.description),
-        components: this.identifyComponents(task.description),
-        technologies: this.suggestTechnologies(task.description),
-        architecture: this.suggestArchitecture(task.description)
-      },
-      recommendations: [],
-      executionPlan: []
-    };
+		// Route to appropriate implementation based on agent type and task,
+		switch (agent.type) {
+			case "analyst":
+				return this.executeAnalyzerTask(task, targetDir);
 
-    if (targetDir) {
-      await fs.writeFile(
-        path.join(targetDir, 'analysis.json'),
-        JSON.stringify(analysis, null, 2)
-      );
-    }
+			case "coder": {
+				const workingDir = targetDir || "./temp-output";
+				if (isRestAPI) return this.createRestAPI(workingDir, task);
+				if (isTodo) return this.createTodoApp(workingDir, task);
+				if (isChat) return this.createChatApp(workingDir, task);
+				if (isAuth) return this.createAuthService(workingDir, task);
+				if (isHelloWorld) return this.createHelloWorld(workingDir, task);
+				if (isCalculator) return this.createCalculator(workingDir, task);
+				return this.createGenericApp(workingDir, task);
+			}
 
-    return analysis;
-  }
+			case "tester":
+				return this.executeTestingTask(task, targetDir);
 
-  private async createRestAPI(targetDir: string, task: TaskDefinition): Promise<any> {
-    this.logger.info('Creating REST API', { targetDir });
+			case "reviewer":
+				if (
+					task.name.toLowerCase().includes("analyze") ||
+					task.name.toLowerCase().includes("plan")
+				) {
+					return this.executeAnalyzerTask(task, targetDir);
+				}
+				return this.executeReviewTask(task, targetDir);
 
-    const files = {
-      'server.js': this.generateRestAPIServer(task),
-      'package.json': this.generatePackageJson('rest-api', ['express', 'cors', 'dotenv']),
-      'README.md': this.generateReadme('REST API', task),
-      '.env.example': 'PORT=3000\nDATABASE_URL=',
-      '.gitignore': 'node_modules/\n.env\n*.log'
-    };
+			case "documenter":
+				return this.executeDocumentationTask(task, targetDir);
 
-    // Create middleware and routes directories,
-    await fs.mkdir(path.join(targetDir, 'routes'), { recursive: true });
-    await fs.mkdir(path.join(targetDir, 'middleware'), { recursive: true });
-    await fs.mkdir(path.join(targetDir, 'models'), { recursive: true });
+			case "researcher":
+				return this.executeResearchTask(task, targetDir);
 
-    // Write all files,
-    for (const [filename, content] of Object.entries(files)) {
-      await fs.writeFile(path.join(targetDir, filename), content);
-    }
+			case "coordinator":
+				return this.executeCoordinationTask(task, targetDir);
 
-    // Add route files,
-    await fs.writeFile(
-      path.join(targetDir, 'routes', 'users.js'),
-      this.generateUserRoutes()
-    );
+			default:
+				return this.executeGenericTask(task, targetDir);
+		}
+	}
 
-    return {
-      filesCreated: Object.keys(files).length + 1,
-      structure: 'REST API with Express',
-      targetDir
-    };
-  }
+	private async executeAnalyzerTask(
+		task: TaskDefinition,
+		targetDir?: string
+	): Promise<any> {
+		this.logger.info("Executing analyzer task", { taskName: task.name });
 
-  private async createTodoApp(targetDir: string, task: TaskDefinition): Promise<any> {
-    this.logger.info('Creating Todo App', { targetDir });
+		const analysis = {
+			taskName: task.name,
+			objective: task.description,
+			analysis: {
+				requirements: this.extractRequirements(task.description),
+				components: this.identifyComponents(task.description),
+				technologies: this.suggestTechnologies(task.description),
+				architecture: this.suggestArchitecture(task.description),
+			},
+			recommendations: [],
+			executionPlan: [],
+		};
 
-    const files = {
-      'app.js': this.generateTodoApp(task),
-      'package.json': this.generatePackageJson('todo-app', ['commander', 'chalk']),
-      'README.md': this.generateReadme('Todo List Application', task),
-      'todos.json': '[]'
-    };
+		if (targetDir) {
+			await fs.writeFile(
+				path.join(targetDir, "analysis.json"),
+				JSON.stringify(analysis, null, 2)
+			);
+		}
 
-    for (const [filename, content] of Object.entries(files)) {
-      await fs.writeFile(path.join(targetDir, filename), content);
-    }
+		return analysis;
+	}
 
-    return {
-      filesCreated: Object.keys(files).length,
-      structure: 'CLI Todo Application',
-      targetDir
-    };
-  }
+	private async createRestAPI(
+		targetDir: string,
+		task: TaskDefinition
+	): Promise<any> {
+		this.logger.info("Creating REST API", { targetDir });
 
-  private async createChatApp(targetDir: string, task: TaskDefinition): Promise<any> {
-    this.logger.info('Creating Chat Application', { targetDir });
+		const files = {
+			"server.js": this.generateRestAPIServer(task),
+			"package.json": this.generatePackageJson("rest-api", [
+				"express",
+				"cors",
+				"dotenv",
+			]),
+			"README.md": this.generateReadme("REST API", task),
+			".env.example": "PORT=3000\nDATABASE_URL=",
+			".gitignore": "node_modules/\n.env\n*.log",
+		};
 
-    const files = {
-      'server.js': this.generateChatServer(task),
-      'index.html': this.generateChatHTML(),
-      'client.js': this.generateChatClient(),
-      'package.json': this.generatePackageJson('chat-app', ['express', 'socket.io']),
-      'README.md': this.generateReadme('Real-time Chat Application', task)
-    };
+		// Create middleware and routes directories,
+		await fs.mkdir(path.join(targetDir, "routes"), { recursive: true });
+		await fs.mkdir(path.join(targetDir, "middleware"), { recursive: true });
+		await fs.mkdir(path.join(targetDir, "models"), { recursive: true });
 
-    await fs.mkdir(path.join(targetDir, 'public'), { recursive: true });
-    
-    await fs.writeFile(path.join(targetDir, 'server.js'), files['server.js']);
-    await fs.writeFile(path.join(targetDir, 'package.json'), files['package.json']);
-    await fs.writeFile(path.join(targetDir, 'README.md'), files['README.md']);
-    await fs.writeFile(path.join(targetDir, 'public', 'index.html'), files['index.html']);
-    await fs.writeFile(path.join(targetDir, 'public', 'client.js'), files['client.js']);
+		// Write all files,
+		for (const [filename, content] of Object.entries(files)) {
+			await fs.writeFile(path.join(targetDir, filename), content);
+		}
 
-    return {
-      filesCreated: Object.keys(files).length,
-      structure: 'WebSocket Chat Application',
-      targetDir
-    };
-  }
+		// Add route files,
+		await fs.writeFile(
+			path.join(targetDir, "routes", "users.js"),
+			this.generateUserRoutes()
+		);
 
-  private async createAuthService(targetDir: string, task: TaskDefinition): Promise<any> {
-    this.logger.info('Creating Auth Service', { targetDir });
+		return {
+			filesCreated: Object.keys(files).length + 1,
+			structure: "REST API with Express",
+			targetDir,
+		};
+	}
 
-    const files = {
-      'server.js': this.generateAuthServer(task),
-      'auth.js': this.generateAuthMiddleware(),
-      'package.json': this.generatePackageJson('auth-service', ['express', 'jsonwebtoken', 'bcrypt']),
-      'README.md': this.generateReadme('Authentication Service', task),
-      '.env.example': 'JWT_SECRET=your-secret-key\nPORT=3000'
-    };
+	private async createTodoApp(
+		targetDir: string,
+		task: TaskDefinition
+	): Promise<any> {
+		this.logger.info("Creating Todo App", { targetDir });
 
-    await fs.mkdir(path.join(targetDir, 'middleware'), { recursive: true });
-    
-    await fs.writeFile(path.join(targetDir, 'server.js'), files['server.js']);
-    await fs.writeFile(path.join(targetDir, 'middleware', 'auth.js'), files['auth.js']);
-    await fs.writeFile(path.join(targetDir, 'package.json'), files['package.json']);
-    await fs.writeFile(path.join(targetDir, 'README.md'), files['README.md']);
-    await fs.writeFile(path.join(targetDir, '.env.example'), files['.env.example']);
+		const files = {
+			"app.js": this.generateTodoApp(task),
+			"package.json": this.generatePackageJson("todo-app", [
+				"commander",
+				"chalk",
+			]),
+			"README.md": this.generateReadme("Todo List Application", task),
+			"todos.json": "[]",
+		};
 
-    return {
-      filesCreated: Object.keys(files).length,
-      structure: 'JWT Authentication Service',
-      targetDir
-    };
-  }
+		for (const [filename, content] of Object.entries(files)) {
+			await fs.writeFile(path.join(targetDir, filename), content);
+		}
 
-  private async createCalculator(targetDir: string, task: TaskDefinition): Promise<any> {
-    this.logger.info('Creating Calculator', { targetDir });
+		return {
+			filesCreated: Object.keys(files).length,
+			structure: "CLI Todo Application",
+			targetDir,
+		};
+	}
 
-    const files = {
-      'calculator.js': `class Calculator {
+	private async createChatApp(
+		targetDir: string,
+		task: TaskDefinition
+	): Promise<any> {
+		this.logger.info("Creating Chat Application", { targetDir });
+
+		const files = {
+			"server.js": this.generateChatServer(task),
+			"index.html": this.generateChatHTML(),
+			"client.js": this.generateChatClient(),
+			"package.json": this.generatePackageJson("chat-app", [
+				"express",
+				"socket.io",
+			]),
+			"README.md": this.generateReadme("Real-time Chat Application", task),
+		};
+
+		await fs.mkdir(path.join(targetDir, "public"), { recursive: true });
+
+		await fs.writeFile(path.join(targetDir, "server.js"), files["server.js"]);
+		await fs.writeFile(
+			path.join(targetDir, "package.json"),
+			files["package.json"]
+		);
+		await fs.writeFile(path.join(targetDir, "README.md"), files["README.md"]);
+		await fs.writeFile(
+			path.join(targetDir, "public", "index.html"),
+			files["index.html"]
+		);
+		await fs.writeFile(
+			path.join(targetDir, "public", "client.js"),
+			files["client.js"]
+		);
+
+		return {
+			filesCreated: Object.keys(files).length,
+			structure: "WebSocket Chat Application",
+			targetDir,
+		};
+	}
+
+	private async createAuthService(
+		targetDir: string,
+		task: TaskDefinition
+	): Promise<any> {
+		this.logger.info("Creating Auth Service", { targetDir });
+
+		const files = {
+			"server.js": this.generateAuthServer(task),
+			"auth.js": this.generateAuthMiddleware(),
+			"package.json": this.generatePackageJson("auth-service", [
+				"express",
+				"jsonwebtoken",
+				"bcrypt",
+			]),
+			"README.md": this.generateReadme("Authentication Service", task),
+			".env.example": "JWT_SECRET=your-secret-key\nPORT=3000",
+		};
+
+		await fs.mkdir(path.join(targetDir, "middleware"), { recursive: true });
+
+		await fs.writeFile(path.join(targetDir, "server.js"), files["server.js"]);
+		await fs.writeFile(
+			path.join(targetDir, "middleware", "auth.js"),
+			files["auth.js"]
+		);
+		await fs.writeFile(
+			path.join(targetDir, "package.json"),
+			files["package.json"]
+		);
+		await fs.writeFile(path.join(targetDir, "README.md"), files["README.md"]);
+		await fs.writeFile(
+			path.join(targetDir, ".env.example"),
+			files[".env.example"]
+		);
+
+		return {
+			filesCreated: Object.keys(files).length,
+			structure: "JWT Authentication Service",
+			targetDir,
+		};
+	}
+
+	private async createCalculator(
+		targetDir: string,
+		task: TaskDefinition
+	): Promise<any> {
+		this.logger.info("Creating Calculator", { targetDir });
+
+		const files = {
+			"calculator.js": `class Calculator {
   add(a, b) {
     return a + b;
   }
@@ -313,7 +377,7 @@ export class DirectTaskExecutor {
 
 module.exports = Calculator;
 `,
-      'cli.js': `#!/usr/bin/env node,
+			"cli.js": `#!/usr/bin/env node,
 const Calculator = require('./calculator');
 const readline = require('readline');
 
@@ -389,7 +453,7 @@ function prompt() {
 
 prompt();
 `,
-      'test.js': `const Calculator = require('./calculator');
+			"test.js": `const Calculator = require('./calculator');
 const assert = require('assert');
 
 const calc = new Calculator();
@@ -426,8 +490,8 @@ assert.throws(() => calc.sqrt(-1), /Cannot calculate square root of negative num
 
 console.log('All tests passed! ✅');
 `,
-      'package.json': this.generatePackageJson('calculator-app', []),
-      'README.md': `# Calculator Application,
+			"package.json": this.generatePackageJson("calculator-app", []),
+			"README.md": `# Calculator Application,
 
 A simple calculator with basic mathematical operations.
 
@@ -466,126 +530,141 @@ npm test
 \`\`\`
 
 Created by Claude Flow Swarm
-`
-    };
+`,
+		};
 
-    // Update package.json with test script,
-    const pkgJson = JSON.parse(files['package.json']);
-    pkgJson.scripts.test = 'node test.js';
-    pkgJson.main = 'calculator.js';
-    files['package.json'] = JSON.stringify(pkgJson, null, 2);
+		// Update package.json with test script,
+		const pkgJson = JSON.parse(files["package.json"]);
+		pkgJson.scripts.test = "node test.js";
+		pkgJson.main = "calculator.js";
+		files["package.json"] = JSON.stringify(pkgJson, null, 2);
 
-    for (const [filename, content] of Object.entries(files)) {
-      await fs.writeFile(path.join(targetDir, filename), content);
-    }
+		for (const [filename, content] of Object.entries(files)) {
+			await fs.writeFile(path.join(targetDir, filename), content);
+		}
 
-    return {
-      filesCreated: Object.keys(files).length,
-      structure: 'Calculator with CLI and tests',
-      targetDir
-    };
-  }
+		return {
+			filesCreated: Object.keys(files).length,
+			structure: "Calculator with CLI and tests",
+			targetDir,
+		};
+	}
 
-  private async createHelloWorld(targetDir: string, task: TaskDefinition): Promise<any> {
-    this.logger.info('Creating Hello World', { targetDir });
+	private async createHelloWorld(
+		targetDir: string,
+		task: TaskDefinition
+	): Promise<any> {
+		this.logger.info("Creating Hello World", { targetDir });
 
-    const files = {
-      'index.js': `#!/usr/bin/env node,
+		const files = {
+			"index.js": `#!/usr/bin/env node,
 console.log('Hello, World!');
 console.log('Created by Claude Flow Swarm');
 `,
-      'package.json': this.generatePackageJson('hello-world', []),
-      'README.md': this.generateReadme('Hello World Application', task)
-    };
+			"package.json": this.generatePackageJson("hello-world", []),
+			"README.md": this.generateReadme("Hello World Application", task),
+		};
 
-    for (const [filename, content] of Object.entries(files)) {
-      await fs.writeFile(path.join(targetDir, filename), content);
-    }
+		for (const [filename, content] of Object.entries(files)) {
+			await fs.writeFile(path.join(targetDir, filename), content);
+		}
 
-    return {
-      filesCreated: Object.keys(files).length,
-      structure: 'Simple Hello World',
-      targetDir
-    };
-  }
+		return {
+			filesCreated: Object.keys(files).length,
+			structure: "Simple Hello World",
+			targetDir,
+		};
+	}
 
-  private async createGenericApp(targetDir: string, task: TaskDefinition): Promise<any> {
-    this.logger.info('Creating generic application', { targetDir });
+	private async createGenericApp(
+		targetDir: string,
+		task: TaskDefinition
+	): Promise<any> {
+		this.logger.info("Creating generic application", { targetDir });
 
-    const files = {
-      'app.js': this.generateGenericApp(task),
-      'package.json': this.generatePackageJson('app', []),
-      'README.md': this.generateReadme('Application', task)
-    };
+		const files = {
+			"app.js": this.generateGenericApp(task),
+			"package.json": this.generatePackageJson("app", []),
+			"README.md": this.generateReadme("Application", task),
+		};
 
-    for (const [filename, content] of Object.entries(files)) {
-      await fs.writeFile(path.join(targetDir, filename), content);
-    }
+		for (const [filename, content] of Object.entries(files)) {
+			await fs.writeFile(path.join(targetDir, filename), content);
+		}
 
-    return {
-      filesCreated: Object.keys(files).length,
-      structure: 'Generic Application',
-      targetDir
-    };
-  }
+		return {
+			filesCreated: Object.keys(files).length,
+			structure: "Generic Application",
+			targetDir,
+		};
+	}
 
-  private async executeTestingTask(task: TaskDefinition, targetDir?: string): Promise<any> {
-    this.logger.info('Executing testing task', { taskName: task.name });
-    
-    const testPlan = {
-      taskName: task.name,
-      testStrategy: 'Comprehensive testing approach',
-      testCases: [
-        'Unit tests for core functionality',
-        'Integration tests for API endpoints',
-        'Performance tests for scalability',
-        'Security tests for vulnerabilities'
-      ],
-      coverage: 'Target 80% code coverage'
-    };
+	private async executeTestingTask(
+		task: TaskDefinition,
+		targetDir?: string
+	): Promise<any> {
+		this.logger.info("Executing testing task", { taskName: task.name });
 
-    if (targetDir) {
-      await fs.writeFile(
-        path.join(targetDir, 'test-plan.json'),
-        JSON.stringify(testPlan, null, 2)
-      );
-    }
+		const testPlan = {
+			taskName: task.name,
+			testStrategy: "Comprehensive testing approach",
+			testCases: [
+				"Unit tests for core functionality",
+				"Integration tests for API endpoints",
+				"Performance tests for scalability",
+				"Security tests for vulnerabilities",
+			],
+			coverage: "Target 80% code coverage",
+		};
 
-    return testPlan;
-  }
+		if (targetDir) {
+			await fs.writeFile(
+				path.join(targetDir, "test-plan.json"),
+				JSON.stringify(testPlan, null, 2)
+			);
+		}
 
-  private async executeReviewTask(task: TaskDefinition, targetDir?: string): Promise<any> {
-    this.logger.info('Executing review task', { taskName: task.name });
-    
-    const review = {
-      taskName: task.name,
-      reviewType: 'Code Quality Review',
-      findings: [
-        'Code follows best practices',
-        'Proper error handling implemented',
-        'Documentation is comprehensive'
-      ],
-      recommendations: [
-        'Consider adding more unit tests',
-        'Optimize database queries',
-        'Add input validation'
-      ]
-    };
+		return testPlan;
+	}
 
-    if (targetDir) {
-      await fs.writeFile(
-        path.join(targetDir, 'review.json'),
-        JSON.stringify(review, null, 2)
-      );
-    }
+	private async executeReviewTask(
+		task: TaskDefinition,
+		targetDir?: string
+	): Promise<any> {
+		this.logger.info("Executing review task", { taskName: task.name });
 
-    return review;
-  }
+		const review = {
+			taskName: task.name,
+			reviewType: "Code Quality Review",
+			findings: [
+				"Code follows best practices",
+				"Proper error handling implemented",
+				"Documentation is comprehensive",
+			],
+			recommendations: [
+				"Consider adding more unit tests",
+				"Optimize database queries",
+				"Add input validation",
+			],
+		};
 
-  private async executeDocumentationTask(task: TaskDefinition, targetDir?: string): Promise<any> {
-    this.logger.info('Executing documentation task', { taskName: task.name });
-    
-    const docs = `# Documentation
+		if (targetDir) {
+			await fs.writeFile(
+				path.join(targetDir, "review.json"),
+				JSON.stringify(review, null, 2)
+			);
+		}
+
+		return review;
+	}
+
+	private async executeDocumentationTask(
+		task: TaskDefinition,
+		targetDir?: string
+	): Promise<any> {
+		this.logger.info("Executing documentation task", { taskName: task.name });
+
+		const docs = `# Documentation
 
 ## Overview
 ${task.description}
@@ -602,63 +681,72 @@ Follow the instructions in the README file.
 See the generated API documentation.
 `;
 
-    if (targetDir) {
-      await fs.writeFile(path.join(targetDir, 'DOCS.md'), docs);
-    }
+		if (targetDir) {
+			await fs.writeFile(path.join(targetDir, "DOCS.md"), docs);
+		}
 
-    return { documentation: 'Created', location: targetDir };
-  }
+		return { documentation: "Created", location: targetDir };
+	}
 
-  private async executeResearchTask(task: TaskDefinition, targetDir?: string): Promise<any> {
-    this.logger.info('Executing research task', { taskName: task.name });
-    
-    const research = {
-      taskName: task.name,
-      findings: [
-        'Best practices identified',
-        'Similar implementations analyzed',
-        'Performance benchmarks reviewed'
-      ],
-      recommendations: [
-        'Use established patterns',
-        'Follow industry standards',
-        'Implement security best practices'
-      ]
-    };
+	private async executeResearchTask(
+		task: TaskDefinition,
+		targetDir?: string
+	): Promise<any> {
+		this.logger.info("Executing research task", { taskName: task.name });
 
-    if (targetDir) {
-      await fs.writeFile(
-        path.join(targetDir, 'research.json'),
-        JSON.stringify(research, null, 2)
-      );
-    }
+		const research = {
+			taskName: task.name,
+			findings: [
+				"Best practices identified",
+				"Similar implementations analyzed",
+				"Performance benchmarks reviewed",
+			],
+			recommendations: [
+				"Use established patterns",
+				"Follow industry standards",
+				"Implement security best practices",
+			],
+		};
 
-    return research;
-  }
+		if (targetDir) {
+			await fs.writeFile(
+				path.join(targetDir, "research.json"),
+				JSON.stringify(research, null, 2)
+			);
+		}
 
-  private async executeCoordinationTask(task: TaskDefinition, targetDir?: string): Promise<any> {
-    this.logger.info('Executing coordination task', { taskName: task.name });
-    
-    return {
-      taskName: task.name,
-      coordination: 'Task coordination completed',
-      subtasks: 'All subtasks have been delegated'
-    };
-  }
+		return research;
+	}
 
-  private async executeGenericTask(task: TaskDefinition, targetDir?: string): Promise<any> {
-    this.logger.info('Executing generic task', { taskName: task.name });
-    
-    return {
-      taskName: task.name,
-      status: 'Completed',
-      description: task.description
-    };
-  }
+	private async executeCoordinationTask(
+		task: TaskDefinition,
+		targetDir?: string
+	): Promise<any> {
+		this.logger.info("Executing coordination task", { taskName: task.name });
 
-  // Helper methods for generating code,
-  private generateRestAPIServer(task: TaskDefinition): string {
-    return `const express = require('express');
+		return {
+			taskName: task.name,
+			coordination: "Task coordination completed",
+			subtasks: "All subtasks have been delegated",
+		};
+	}
+
+	private async executeGenericTask(
+		task: TaskDefinition,
+		targetDir?: string
+	): Promise<any> {
+		this.logger.info("Executing generic task", { taskName: task.name });
+
+		return {
+			taskName: task.name,
+			status: "Completed",
+			description: task.description,
+		};
+	}
+
+	// Helper methods for generating code,
+	private generateRestAPIServer(task: TaskDefinition): string {
+		return `const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
 
@@ -690,10 +778,10 @@ app.listen(port, () => {
 
 module.exports = app;
 `;
-  }
+	}
 
-  private generateUserRoutes(): string {
-    return `const express = require('express');
+	private generateUserRoutes(): string {
+		return `const express = require('express');
 const router = express.Router();
 
 // In-memory storage (replace with database)
@@ -727,7 +815,7 @@ router.post('/', (req, res) => {
 router.put('/:id', (req, res) => {
   const index = users.findIndex(u => u.id === parseInt(req.params.id));
   if (index === -1) return res.status(404).json({ error: 'User not found' });
-  
+
   users[index] = {
     ...users[index],
     ...req.body,
@@ -740,17 +828,17 @@ router.put('/:id', (req, res) => {
 router.delete('/:id', (req, res) => {
   const index = users.findIndex(u => u.id === parseInt(req.params.id));
   if (index === -1) return res.status(404).json({ error: 'User not found' });
-  
+
   users.splice(index, 1);
   res.status(204).send();
 });
 
 module.exports = router;
 `;
-  }
+	}
 
-  private generateTodoApp(task: TaskDefinition): string {
-    return `#!/usr/bin/env node,
+	private generateTodoApp(task: TaskDefinition): string {
+		return `#!/usr/bin/env node,
 const { program } = require('commander');
 const chalk = require('chalk');
 const fs = require('fs').promises;
@@ -800,7 +888,7 @@ program
       console.log(chalk.yellow('No todos found'));
       return;
     }
-    
+
     todos.forEach((todo, index) => {
       const status = todo.completed ? chalk.green('✓') : chalk.red('✗');
       console.log(\`\${index + 1}. \${status} \${todo.task}\`);
@@ -818,7 +906,7 @@ program
       console.log(chalk.red('Invalid todo ID'));
       return;
     }
-    
+
     const removed = todos.splice(index, 1);
     await saveTodos(todos);
     console.log(chalk.green('✓ Todo removed:', removed[0].task));
@@ -835,7 +923,7 @@ program
       console.log(chalk.red('Invalid todo ID'));
       return;
     }
-    
+
     todos[index].completed = true;
     todos[index].completedAt = new Date();
     await saveTodos(todos);
@@ -844,10 +932,10 @@ program
 
 program.parse(process.argv);
 `;
-  }
+	}
 
-  private generateChatServer(task: TaskDefinition): string {
-    return `const express = require('express');
+	private generateChatServer(task: TaskDefinition): string {
+		return `const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
 const _path = require('path');
@@ -863,13 +951,13 @@ const users = new Map();
 
 io.on('connection', (socket) => {
   console.log('New user connected');
-  
+
   socket.on('join', (username) => {
     users.set(socket.id, username);
     socket.emit('history', messages);
     io.emit('userJoined', { username, userCount: users.size });
   });
-  
+
   socket.on('message', (data) => {
     const message = {
       id: Date.now(),
@@ -877,13 +965,13 @@ io.on('connection', (socket) => {
       text: data.text,
       timestamp: new Date()
     };
-    
+
     messages.push(message);
     if (messages.length > 100) messages.shift(); // Keep last 100 messages,
-    
+
     io.emit('message', message);
   });
-  
+
   socket.on('disconnect', () => {
     const username = users.get(socket.id);
     users.delete(socket.id);
@@ -898,10 +986,10 @@ server.listen(PORT, () => {
   console.log(\`Chat server running on port \${PORT}\`);
 });
 `;
-  }
+	}
 
-  private generateChatHTML(): string {
-    return `<!DOCTYPE html>
+	private generateChatHTML(): string {
+		return `<!DOCTYPE html>
 <html>
 <head>
   <title>Chat App</title>
@@ -928,10 +1016,10 @@ server.listen(PORT, () => {
 </body>
 </html>
 `;
-  }
+	}
 
-  private generateChatClient(): string {
-    return `const socket = io();
+	private generateChatClient(): string {
+		return `const socket = io();
 const messagesDiv = document.getElementById('messages');
 const messageForm = document.getElementById('messageForm');
 const messageInput = document.getElementById('messageInput');
@@ -990,10 +1078,10 @@ function updateUserCount(count) {
   userCountDiv.textContent = \`Users: \${count}\`;
 }
 `;
-  }
+	}
 
-  private generateAuthServer(task: TaskDefinition): string {
-    return `const express = require('express');
+	private generateAuthServer(task: TaskDefinition): string {
+		return `const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 require('dotenv').config();
@@ -1010,31 +1098,31 @@ const users = [];
 app.post('/api/register', async (req, res) => {
   try {
     const { username, password } = req.body;
-    
+
     // Check if user exists,
     if (users.find(u => u.username === username)) {
       return res.status(400).json({ error: 'User already exists' });
     }
-    
+
     // Hash password,
     const hashedPassword = await bcrypt.hash(password, 10);
-    
+
     // Create user,
     const user = {
       id: users.length + 1,
       username,
       password: hashedPassword
     };
-    
+
     users.push(user);
-    
+
     // Generate token,
     const token = jwt.sign(
       { id: user.id, username: user.username },
       process.env.JWT_SECRET || 'default-secret',
       { expiresIn: '24h' }
     );
-    
+
     res.status(201).json({ token, user: { id: user.id, username: user.username } });
   } catch (error) {
     res.status(500).json({ error: 'Registration failed' });
@@ -1045,26 +1133,26 @@ app.post('/api/register', async (req, res) => {
 app.post('/api/login', async (req, res) => {
   try {
     const { username, password } = req.body;
-    
+
     // Find user,
     const user = users.find(u => u.username === username);
     if (!user) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
-    
+
     // Verify password,
     const validPassword = await bcrypt.compare(password, user.password);
     if (!validPassword) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
-    
+
     // Generate token,
     const token = jwt.sign(
       { id: user.id, username: user.username },
       process.env.JWT_SECRET || 'default-secret',
       { expiresIn: '24h' }
     );
-    
+
     res.json({ token, user: { id: user.id, username: user.username } });
   } catch (error) {
     res.status(500).json({ error: 'Login failed' });
@@ -1080,18 +1168,18 @@ app.listen(port, () => {
   console.log(\`Auth service running on port \${port}\`);
 });
 `;
-  }
+	}
 
-  private generateAuthMiddleware(): string {
-    return `const jwt = require('jsonwebtoken');
+	private generateAuthMiddleware(): string {
+		return `const jwt = require('jsonwebtoken');
 
 module.exports = (req, res, next) => {
   const token = req.header('Authorization')?.replace('Bearer ', '');
-  
+
   if (!token) {
     return res.status(401).json({ error: 'Access denied' });
   }
-  
+
   try {
     const verified = jwt.verify(token, process.env.JWT_SECRET || 'default-secret');
     req.user = verified;
@@ -1101,35 +1189,35 @@ module.exports = (req, res, next) => {
   }
 };
 `;
-  }
+	}
 
-  private generatePackageJson(name: string, dependencies: string[]): string {
-    const deps: Record<string, string> = {};
-    dependencies.forEach(dep => {
-      deps[dep] = '^latest';
-    });
+	private generatePackageJson(name: string, dependencies: string[]): string {
+		const deps: Record<string, string> = {};
+		dependencies.forEach((dep) => {
+			deps[dep] = "^latest";
+		});
 
-    const pkg = {
-      name,
-      version: '1.0.0',
-      description: `${name} created by Claude Flow Swarm`,
-      main: 'server.js',
-      scripts: {
-        start: 'node server.js',
-        dev: 'nodemon server.js',
-        test: 'echo "No tests yet"'
-      },
-      keywords: ['swarm', 'claude-flow'],
-      author: 'Claude Flow Swarm',
-      license: 'MIT',
-      dependencies: deps
-    };
+		const pkg = {
+			name,
+			version: "1.0.0",
+			description: `${name} created by Claude Flow Swarm`,
+			main: "server.js",
+			scripts: {
+				start: "node server.js",
+				dev: "nodemon server.js",
+				test: 'echo "No tests yet"',
+			},
+			keywords: ["swarm", "claude-flow"],
+			author: "Claude Flow Swarm",
+			license: "MIT",
+			dependencies: deps,
+		};
 
-    return JSON.stringify(pkg, null, 2);
-  }
+		return JSON.stringify(pkg, null, 2);
+	}
 
-  private generateReadme(title: string, task: TaskDefinition): string {
-    return `# ${title}
+	private generateReadme(title: string, task: TaskDefinition): string {
+		return `# ${title}
 
 Created by Claude Flow Swarm
 
@@ -1156,10 +1244,10 @@ npm run dev
 - Task Type: ${task.type}
 - Created: ${new Date().toISOString()}
 `;
-  }
+	}
 
-  private generateGenericApp(task: TaskDefinition): string {
-    return `// Application created by Claude Flow Swarm
+	private generateGenericApp(task: TaskDefinition): string {
+		return `// Application created by Claude Flow Swarm
 // Task: ${task.name}
 // Description: ${task.description}
 
@@ -1174,68 +1262,87 @@ if (require.main === module) {
 
 module.exports = { main };
 `;
-  }
+	}
 
-  // Analysis helper methods,
-  private extractRequirements(description: string): string[] {
-    const requirements = [];
-    
-    if (description.includes('rest api') || description.includes('crud')) {
-      requirements.push('RESTful API endpoints', 'CRUD operations', 'Data validation');
-    }
-    if (description.includes('auth')) {
-      requirements.push('User authentication', 'JWT tokens', 'Password hashing');
-    }
-    if (description.includes('real-time') || description.includes('websocket')) {
-      requirements.push('WebSocket support', 'Real-time communication', 'Message broadcasting');
-    }
-    if (description.includes('todo')) {
-      requirements.push('Task management', 'CRUD for todos', 'Status tracking');
-    }
-    
-    return requirements;
-  }
+	// Analysis helper methods,
+	private extractRequirements(description: string): string[] {
+		const requirements = [];
 
-  private identifyComponents(description: string): string[] {
-    const components = [];
-    
-    if (description.includes('api')) components.push('API Server', 'Route Handlers');
-    if (description.includes('auth')) components.push('Auth Middleware', 'Token Manager');
-    if (description.includes('database')) components.push('Database Models', 'Data Access Layer');
-    if (description.includes('frontend')) components.push('UI Components', 'Client Application');
-    
-    return components;
-  }
+		if (description.includes("rest api") || description.includes("crud")) {
+			requirements.push(
+				"RESTful API endpoints",
+				"CRUD operations",
+				"Data validation"
+			);
+		}
+		if (description.includes("auth")) {
+			requirements.push(
+				"User authentication",
+				"JWT tokens",
+				"Password hashing"
+			);
+		}
+		if (
+			description.includes("real-time") ||
+			description.includes("websocket")
+		) {
+			requirements.push(
+				"WebSocket support",
+				"Real-time communication",
+				"Message broadcasting"
+			);
+		}
+		if (description.includes("todo")) {
+			requirements.push("Task management", "CRUD for todos", "Status tracking");
+		}
 
-  private suggestTechnologies(description: string): string[] {
-    const tech = [];
-    
-    if (description.includes('rest') || description.includes('api')) {
-      tech.push('Express.js', 'Node.js');
-    }
-    if (description.includes('real-time') || description.includes('chat')) {
-      tech.push('Socket.io', 'WebSockets');
-    }
-    if (description.includes('auth')) {
-      tech.push('JWT', 'bcrypt');
-    }
-    if (description.includes('database')) {
-      tech.push('MongoDB', 'PostgreSQL');
-    }
-    
-    return tech;
-  }
+		return requirements;
+	}
 
-  private suggestArchitecture(description: string): string {
-    if (description.includes('microservice')) {
-      return 'Microservices architecture with API Gateway';
-    }
-    if (description.includes('real-time')) {
-      return 'Event-driven architecture with WebSocket layer';
-    }
-    if (description.includes('crud') || description.includes('rest')) {
-      return 'RESTful architecture with MVC pattern';
-    }
-    return 'Modular monolithic architecture';
-  }
+	private identifyComponents(description: string): string[] {
+		const components = [];
+
+		if (description.includes("api"))
+			components.push("API Server", "Route Handlers");
+		if (description.includes("auth"))
+			components.push("Auth Middleware", "Token Manager");
+		if (description.includes("database"))
+			components.push("Database Models", "Data Access Layer");
+		if (description.includes("frontend"))
+			components.push("UI Components", "Client Application");
+
+		return components;
+	}
+
+	private suggestTechnologies(description: string): string[] {
+		const tech = [];
+
+		if (description.includes("rest") || description.includes("api")) {
+			tech.push("Express.js", "Node.js");
+		}
+		if (description.includes("real-time") || description.includes("chat")) {
+			tech.push("Socket.io", "WebSockets");
+		}
+		if (description.includes("auth")) {
+			tech.push("JWT", "bcrypt");
+		}
+		if (description.includes("database")) {
+			tech.push("MongoDB", "PostgreSQL");
+		}
+
+		return tech;
+	}
+
+	private suggestArchitecture(description: string): string {
+		if (description.includes("microservice")) {
+			return "Microservices architecture with API Gateway";
+		}
+		if (description.includes("real-time")) {
+			return "Event-driven architecture with WebSocket layer";
+		}
+		if (description.includes("crud") || description.includes("rest")) {
+			return "RESTful architecture with MVC pattern";
+		}
+		return "Modular monolithic architecture";
+	}
 }

@@ -31,7 +31,7 @@ const parallelTasks = [
 ];
 
 await Promise.all(
-  parallelTasks.map(({ mode, task }) => 
+  parallelTasks.map(({ mode, task }) =>
     new_task(mode, task)
   )
 );
@@ -124,7 +124,7 @@ await executeConcurrentReviews(securityTasks);
 # Integrate multiple services concurrently
 integrate_services() {
   local services=("auth:user" "user:profile" "profile:api" "api:cache")
-  
+
   printf '%s\n' "${services[@]}" | \
     parallel --jobs 4 'integrate_pair {}'
 }
@@ -150,7 +150,7 @@ class SPARCOrchestrator {
   async executeWithDependencies(tasks) {
     const graph = this.buildDependencyGraph(tasks);
     const batches = this.topologicalSort(graph);
-    
+
     for (const batch of batches) {
       // Execute all tasks in batch concurrently
       await Promise.all(
@@ -158,7 +158,7 @@ class SPARCOrchestrator {
       );
     }
   }
-  
+
   buildDependencyGraph(tasks) {
     // Build directed acyclic graph of task dependencies
     return tasks.reduce((graph, task) => {
@@ -175,20 +175,20 @@ class SPARCOrchestrator {
 const scheduler = {
   cpuIntensive: ['optimize', 'compile', 'analyze'],
   ioIntensive: ['read', 'write', 'fetch'],
-  
+
   async schedule(tasks) {
     const grouped = this.groupByResourceType(tasks);
-    
+
     // Run CPU-intensive tasks with limited concurrency
-    const cpuTasks = grouped.cpu.map(task => 
+    const cpuTasks = grouped.cpu.map(task =>
       this.executeWithLimit(task, 4)
     );
-    
+
     // Run I/O-intensive tasks with higher concurrency
-    const ioTasks = grouped.io.map(task => 
+    const ioTasks = grouped.io.map(task =>
       this.executeWithLimit(task, 10)
     );
-    
+
     await Promise.all([...cpuTasks, ...ioTasks]);
   }
 };
@@ -206,16 +206,16 @@ class ProgressMonitor {
       promise: this.executeWithProgress(task),
       startTime: Date.now()
     }));
-    
+
     // Update progress in real-time
     const progressInterval = setInterval(() => {
       this.displayProgress(monitors);
     }, 1000);
-    
+
     const results = await Promise.all(
       monitors.map(m => m.promise)
     );
-    
+
     clearInterval(progressInterval);
     return results;
   }

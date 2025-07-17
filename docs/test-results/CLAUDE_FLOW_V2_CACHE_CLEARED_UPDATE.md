@@ -11,7 +11,7 @@
 ### Version Conflicts Resolved
 1. **Global v1.0.25 removed**: Uninstalled conflicting global version ✅
 2. **Local linking**: `npm link` completed successfully ✅
-3. **Version mismatch identified**: 
+3. **Version mismatch identified**:
    - Local wrapper shows v2.0.0 for `--version`
    - But shows v1.0.25 in help text (indicating mixed versions)
 

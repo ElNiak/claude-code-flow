@@ -59,7 +59,7 @@ Deno.makeTempDir() → fs.mkdtempSync(path.join(os.tmpdir(), 'claude-flow-'))
 Deno.writeTextFile() → fs.writeFileSync()
 Deno.readTextFile() → fs.readFileSync()
 
-// Process Management  
+// Process Management
 Deno.Command() → child_process.spawn()
 Deno.env.get() → process.env
 
@@ -94,18 +94,18 @@ export default {
     '^@/(.*)$': '<rootDir>/src/$1',
     '^@tests/(.*)$': '<rootDir>/tests/$1'
   },
-  
+
   // Better transform handling
   transformIgnorePatterns: [
     'node_modules/(?!(chalk|ora|inquirer|nanoid|fs-extra|ansi-styles|ruv-swarm)/)'
   ],
-  
+
   // Improved test environment
   testEnvironment: 'node',
-  
+
   // Enhanced setup
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
-  
+
   // Better timeout handling
   testTimeout: 30000
 };
@@ -185,7 +185,7 @@ expect(mockFn).toHaveBeenCalledWith(expectedArgs);
 # Script 1: Import converter
 scripts/convert-imports.js
 
-# Script 2: Assertion converter  
+# Script 2: Assertion converter
 scripts/convert-assertions.js
 
 # Script 3: Path fixer
@@ -224,7 +224,7 @@ import { ConfigManager } from '@/core/config.js';
 - [ ] Fix `jest.setup.js` configuration issues
 - [ ] Test core utilities functionality
 
-### Phase 2: Configuration (Day 4)  
+### Phase 2: Configuration (Day 4)
 - [ ] Enhance `jest.config.js` with proper mappings
 - [ ] Update package.json test scripts
 - [ ] Configure CI/CD for new test setup
@@ -238,7 +238,7 @@ import { ConfigManager } from '@/core/config.js';
 
 ### Phase 4: Validation (Days 9-10)
 - [ ] Run unit tests and fix issues
-- [ ] Run integration tests and fix issues  
+- [ ] Run integration tests and fix issues
 - [ ] Run e2e tests and fix issues
 - [ ] Performance test validation
 
@@ -264,17 +264,17 @@ const DENO_TO_JEST_IMPORTS = {
 
 function convertImports(filePath) {
   let content = fs.readFileSync(filePath, 'utf8');
-  
+
   Object.entries(DENO_TO_JEST_IMPORTS).forEach(([denoImport, jestImport]) => {
     const regex = new RegExp(`from\\s+['"]${denoImport.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}['"]`, 'g');
     content = content.replace(regex, `from '${jestImport}'`);
   });
-  
+
   fs.writeFileSync(filePath, content);
 }
 ```
 
-### 2. Assertion Converter Script  
+### 2. Assertion Converter Script
 ```javascript
 // scripts/convert-assertions.js
 const ASSERTION_MAPPINGS = {
@@ -343,7 +343,7 @@ function convertAssertions(content) {
 - **Breaking changes to source code** - Mitigation: Focus on test-only changes
 - **Performance degradation** - Mitigation: Benchmark before/after
 
-### Medium Risk  
+### Medium Risk
 - **Time overrun** - Mitigation: Phased approach with clear milestones
 - **Incomplete conversion** - Mitigation: Automated validation scripts
 - **CI/CD disruption** - Mitigation: Feature branch testing

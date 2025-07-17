@@ -1,548 +1,596 @@
-import { promises as fs } from 'fs';
-import path from 'path';
-import { Config, ConfigError } from './config-manager.js';
+import { promises as fs } from "fs";
+import path from "path";
+import { Config, ConfigError } from "./config-manager.js";
 
 /**
  * Configuration migration interface
  */
 export interface ConfigMigration {
-  fromVersion: string;
-  toVersion: string;
-  migrate(config: any): any;
-  validate(config: any): boolean;
+	fromVersion: string;
+	toVersion: string;
+	migrate(config: any): any;
+	validate(config: any): boolean;
 }
 
 /**
  * Migration result interface
  */
 export interface MigrationResult {
-  success: boolean;
-  fromVersion: string;
-  toVersion: string;
-  warnings: string[];
-  errors: string[];
-  itemsMigrated: number;
-  itemsSkipped: number;
-  itemsFailed: number;
-  duration: number;
+	success: boolean;
+	fromVersion: string;
+	toVersion: string;
+	warnings: string[];
+	errors: string[];
+	itemsMigrated: number;
+	itemsSkipped: number;
+	itemsFailed: number;
+	duration: number;
 }
 
 /**
  * Backup information interface
  */
 export interface BackupInfo {
-  path: string;
-  timestamp: number;
-  version: string;
-  size: number;
+	path: string;
+	timestamp: number;
+	version: string;
+	size: number;
 }
 
 /**
  * Configuration Migration Validator
  */
 export class MigrationValidator {
-  private static instance: MigrationValidator;
-  private migrations: Map<string, ConfigMigration> = new Map();
-  private backupDir: string;
+	private static instance: MigrationValidator;
+	private migrations: Map<string, ConfigMigration> = new Map();
+	private backupDir: string;
 
-  private constructor() {
-    this.backupDir = path.join(process.cwd(), 'config', 'backups');
-    this.registerMigrations();
-  }
+	private constructor() {
+		this.backupDir = path.join(process.cwd(), "config", "backups");
+		this.registerMigrations();
+	}
 
-  /**
-   * Gets the singleton instance
-   */
-  static getInstance(): MigrationValidator {
-    if (!MigrationValidator.instance) {
-      MigrationValidator.instance = new MigrationValidator();
-    }
-    return MigrationValidator.instance;
-  }
+	/**
+	 * Gets the singleton instance
+	 */
+	static getInstance(): MigrationValidator {
+		if (!MigrationValidator.instance) {
+			MigrationValidator.instance = new MigrationValidator();
+		}
+		return MigrationValidator.instance;
+	}
 
-  /**
-   * Register all available migrations
-   */
-  private registerMigrations(): void {
-    // Register v1.x to v2.0 migration,
-    this.migrations.set('1.x->2.0', {
-      fromVersion: '1.x',
-      toVersion: '2.0',
-      migrate: this.migrateV1ToV2.bind(this),
-      validate: this.validateV2Config.bind(this)
-    });
+	/**
+	 * Register all available migrations
+	 */
+	private registerMigrations(): void {
+		// Register v1.x to v2.0 migration,
+		this.migrations.set("1.x->2.0", {
+			fromVersion: "1.x",
+			toVersion: "2.0",
+			migrate: this.migrateV1ToV2.bind(this),
+			validate: this.validateV2Config.bind(this),
+		});
 
-    // Register v2.0 to v2.1 migration (future)
-    this.migrations.set('2.0->2.1', {
-      fromVersion: '2.0',
-      toVersion: '2.1',
-      migrate: this.migrateV2ToV21.bind(this),
-      validate: this.validateV21Config.bind(this)
-    });
-  }
+		// Register v2.0 to v2.1 migration (future)
+		this.migrations.set("2.0->2.1", {
+			fromVersion: "2.0",
+			toVersion: "2.1",
+			migrate: this.migrateV2ToV21.bind(this),
+			validate: this.validateV21Config.bind(this),
+		});
+	}
 
-  /**
-   * Create backup of current configuration
-   */
-  async createBackup(configPath: string): Promise<BackupInfo> {
-    try {
-      await fs.mkdir(this.backupDir, { recursive: true });
-      
-      const timestamp = Date.now();
-      const backupFileName = `config-backup-${timestamp}.json`;
-      const backupPath = path.join(this.backupDir, backupFileName);
-      
-      const originalContent = await fs.readFile(configPath, 'utf8');
-      await fs.writeFile(backupPath, originalContent);
-      
-      const stats = await fs.stat(backupPath);
-      
-      // Try to determine version from config,
-      let version = 'unknown';
-      try {
-        const config = JSON.parse(originalContent);
-        version = config.version || (config.orchestrator?.maxAgents !== undefined ? '1.x' : 'unknown');
-      } catch {
-        // Invalid JSON, keep as unknown
-      }
+	/**
+	 * Create backup of current configuration
+	 */
+	async createBackup(configPath: string): Promise<BackupInfo> {
+		try {
+			await fs.mkdir(this.backupDir, { recursive: true });
 
-      const backupInfo: BackupInfo = {
-        path: backupPath,
-        timestamp,
-        version,
-        size: stats.size
-      };
+			const timestamp = Date.now();
+			const backupFileName = `config-backup-${timestamp}.json`;
+			const backupPath = path.join(this.backupDir, backupFileName);
 
-      console.log(`✅ Created backup: ${backupFileName}`);
-      return backupInfo;
-    } catch (error) {
-      throw new ConfigError(`Failed to create backup: ${(error as Error).message}`);
-    }
-  }
+			const originalContent = await fs.readFile(configPath, "utf8");
+			await fs.writeFile(backupPath, originalContent);
 
-  /**
-   * Detect configuration version
-   */
-  detectVersion(config: any): string {
-    if (config.version) {
-      return config.version;
-    }
+			const stats = await fs.stat(backupPath);
 
-    // Heuristic detection for v1.x,
-    if (config.orchestrator?.maxAgents !== undefined && !config.orchestrator?.maxConcurrentAgents) {
-      return '1.x';
-    }
+			// Try to determine version from config,
+			let version = "unknown";
+			try {
+				const config = JSON.parse(originalContent);
+				version =
+					config.version ||
+					(config.orchestrator?.maxAgents !== undefined ? "1.x" : "unknown");
+			} catch {
+				// Invalid JSON, keep as unknown
+			}
 
-    // Heuristic detection for v2.0,
-    if (config.orchestrator?.maxConcurrentAgents !== undefined) {
-      return '2.0';
-    }
+			const backupInfo: BackupInfo = {
+				path: backupPath,
+				timestamp,
+				version,
+				size: stats.size,
+			};
 
-    return 'unknown';
-  }
+			console.log(`✅ Created backup: ${backupFileName}`);
+			return backupInfo;
+		} catch (error) {
+			throw new ConfigError(
+				`Failed to create backup: ${(error as Error).message}`
+			);
+		}
+	}
 
-  /**
-   * Migrate configuration to latest version
-   */
-  async migrateConfiguration(configPath: string, targetVersion?: string): Promise<MigrationResult> {
-    const startTime = Date.now();
-    const result: MigrationResult = {
-      success: false,
-      fromVersion: 'unknown',
-      toVersion: targetVersion || '2.0',
-      warnings: [],
-      errors: [],
-      itemsMigrated: 0,
-      itemsSkipped: 0,
-      itemsFailed: 0,
-      duration: 0
-    };
+	/**
+	 * Detect configuration version
+	 */
+	detectVersion(config: any): string {
+		if (config.version) {
+			return config.version;
+		}
 
-    try {
-      // Read and parse original configuration,
-      const originalContent = await fs.readFile(configPath, 'utf8');
-      const originalConfig = JSON.parse(originalContent);
-      
-      result.fromVersion = this.detectVersion(originalConfig);
-      
-      if (result.fromVersion === result.toVersion) {
-        result.warnings.push('Configuration is already at target version');
-        result.success = true;
-        result.duration = Date.now() - startTime;
-        return result;
-      }
+		// Heuristic detection for v1.x,
+		if (
+			config.orchestrator?.maxAgents !== undefined &&
+			!config.orchestrator?.maxConcurrentAgents
+		) {
+			return "1.x";
+		}
 
-      // Create backup before migration,
-      await this.createBackup(configPath);
+		// Heuristic detection for v2.0,
+		if (config.orchestrator?.maxConcurrentAgents !== undefined) {
+			return "2.0";
+		}
 
-      // Find appropriate migration path,
-      const migrationKey = `${result.fromVersion}->${result.toVersion}`;
-      const migration = this.migrations.get(migrationKey);
-      
-      if (!migration) {
-        throw new ConfigError(`No migration path found from ${result.fromVersion} to ${result.toVersion}`);
-      }
+		return "unknown";
+	}
 
-      // Perform migration,
-      const migratedConfig = migration.migrate(originalConfig);
-      
-      // Validate migrated configuration,
-      if (!migration.validate(migratedConfig)) {
-        throw new ConfigError('Migrated configuration failed validation');
-      }
+	/**
+	 * Migrate configuration to latest version
+	 */
+	async migrateConfiguration(
+		configPath: string,
+		targetVersion?: string
+	): Promise<MigrationResult> {
+		const startTime = Date.now();
+		const result: MigrationResult = {
+			success: false,
+			fromVersion: "unknown",
+			toVersion: targetVersion || "2.0",
+			warnings: [],
+			errors: [],
+			itemsMigrated: 0,
+			itemsSkipped: 0,
+			itemsFailed: 0,
+			duration: 0,
+		};
 
-      // Write migrated configuration,
-      const migratedContent = JSON.stringify(migratedConfig, null, 2);
-      await fs.writeFile(configPath, migratedContent);
+		try {
+			// Read and parse original configuration,
+			const originalContent = await fs.readFile(configPath, "utf8");
+			const originalConfig = JSON.parse(originalContent);
 
-      result.success = true;
-      result.itemsMigrated = this.countConfigItems(migratedConfig);
-      
-      console.log(`✅ Successfully migrated configuration from ${result.fromVersion} to ${result.toVersion}`);
+			result.fromVersion = this.detectVersion(originalConfig);
 
-    } catch (error) {
-      result.errors.push((error as Error).message);
-      console.error(`❌ Migration failed: ${(error as Error).message}`);
-    }
+			if (result.fromVersion === result.toVersion) {
+				result.warnings.push("Configuration is already at target version");
+				result.success = true;
+				result.duration = Date.now() - startTime;
+				return result;
+			}
 
-    result.duration = Date.now() - startTime;
-    return result;
-  }
+			// Create backup before migration,
+			await this.createBackup(configPath);
 
-  /**
-   * Migrate v1.x configuration to v2.0
-   */
-  private migrateV1ToV2(v1Config: any): any {
-    const v2Config: any = {
-      version: '2.0.0',
-      orchestrator: {
-        maxConcurrentAgents: v1Config.orchestrator?.maxAgents || 10,
-        taskQueueSize: v1Config.orchestrator?.queueSize || 100,
-        healthCheckInterval: v1Config.orchestrator?.healthCheckInterval || 30000,
-        shutdownTimeout: v1Config.orchestrator?.shutdownTimeout || 30000
-      },
-      terminal: {
-        type: v1Config.terminal?.type || 'auto',
-        poolSize: v1Config.terminal?.poolSize || 5,
-        recycleAfter: v1Config.terminal?.recycleAfter || 10,
-        healthCheckInterval: v1Config.terminal?.healthCheckInterval || 60000,
-        commandTimeout: v1Config.terminal?.commandTimeout || 300000
-      },
-      memory: {
-        backend: v1Config.memory?.backend || 'hybrid',
-        cacheSizeMB: v1Config.memory?.cacheSizeMB || 100,
-        syncInterval: v1Config.memory?.syncInterval || 5000,
-        conflictResolution: v1Config.memory?.conflictResolution || 'crdt',
-        retentionDays: v1Config.memory?.retentionDays || 30
-      },
-      coordination: {
-        maxRetries: v1Config.coordination?.maxRetries || 3,
-        retryDelay: v1Config.coordination?.retryDelay || 1000,
-        deadlockDetection: v1Config.coordination?.deadlockDetection ?? true,
-        resourceTimeout: v1Config.coordination?.resourceTimeout || 60000,
-        messageTimeout: v1Config.coordination?.messageTimeout || 30000
-      },
-      mcp: {
-        transport: v1Config.mcp?.transport || 'stdio',
-        port: v1Config.mcp?.port || 3000,
-        tlsEnabled: v1Config.mcp?.tlsEnabled ?? false
-      },
-      logging: {
-        level: v1Config.logging?.level || 'info',
-        format: v1Config.logging?.format || 'json',
-        destination: v1Config.logging?.destination || 'console'
-      },
-      ruvSwarm: {
-        enabled: v1Config.ruvSwarm?.enabled ?? true,
-        defaultTopology: v1Config.ruvSwarm?.defaultTopology || 'mesh',
-        maxAgents: v1Config.ruvSwarm?.maxAgents || 8,
-        defaultStrategy: v1Config.ruvSwarm?.defaultStrategy || 'adaptive',
-        autoInit: v1Config.ruvSwarm?.autoInit ?? true,
-        enableHooks: v1Config.ruvSwarm?.enableHooks ?? true,
-        enablePersistence: v1Config.ruvSwarm?.enablePersistence ?? true,
-        enableNeuralTraining: v1Config.ruvSwarm?.enableNeuralTraining ?? true,
-        configPath: v1Config.ruvSwarm?.configPath || '.claude/ruv-swarm-config.json'
-      }
-    };
+			// Find appropriate migration path,
+			const migrationKey = `${result.fromVersion}->${result.toVersion}`;
+			const migration = this.migrations.get(migrationKey);
 
-    // Migrate custom fields if they exist,
-    if (v1Config.customHooks) {
-      v2Config.hooks = this.migrateCustomHooks(v1Config.customHooks);
-    }
+			if (!migration) {
+				throw new ConfigError(
+					`No migration path found from ${result.fromVersion} to ${result.toVersion}`
+				);
+			}
 
-    if (v1Config.agents) {
-      v2Config.agents = this.migrateAgentConfig(v1Config.agents);
-    }
+			// Perform migration,
+			const migratedConfig = migration.migrate(originalConfig);
 
-    return v2Config;
-  }
+			// Validate migrated configuration,
+			if (!migration.validate(migratedConfig)) {
+				throw new ConfigError("Migrated configuration failed validation");
+			}
 
-  /**
-   * Migrate v2.0 to v2.1 (placeholder for future migration)
-   */
-  private migrateV2ToV21(v2Config: any): any {
-    const v21Config = { ...v2Config };
-    v21Config.version = '2.1.0';
-    
-    // Add new v2.1 features here when they become available,
-    
-    return v21Config;
-  }
+			// Write migrated configuration,
+			const migratedContent = JSON.stringify(migratedConfig, null, 2);
+			await fs.writeFile(configPath, migratedContent);
 
-  /**
-   * Migrate custom hooks from v1 to v2 format
-   */
-  private migrateCustomHooks(v1Hooks: any[]): any {
-    const v2Hooks: any = {};
-    
-    v1Hooks.forEach(hook => {
-      const hookName = hook.name.replace(/-/g, '_');
-      v2Hooks[hookName] = {
-        enabled: true,
-        command: hook.command,
-        timeout: hook.timeout || 30000,
-        onFailure: hook.onFailure || 'warn'
-      };
-    });
+			result.success = true;
+			result.itemsMigrated = this.countConfigItems(migratedConfig);
 
-    return v2Hooks;
-  }
+			console.log(
+				`✅ Successfully migrated configuration from ${result.fromVersion} to ${result.toVersion}`
+			);
+		} catch (error) {
+			result.errors.push((error as Error).message);
+			console.error(`❌ Migration failed: ${(error as Error).message}`);
+		}
 
-  /**
-   * Migrate agent configuration from v1 to v2 format
-   */
-  private migrateAgentConfig(v1Agents: any[]): any {
-    const agentTypeMapping: Record<string, string> = {
-      'worker': 'coder',
-      'coordinator': 'coordinator',
-      'tester': 'tester',
-      'reviewer': 'reviewer'
-    };
+		result.duration = Date.now() - startTime;
+		return result;
+	}
 
-    return {
-      preferredTypes: v1Agents.map(agent => agentTypeMapping[agent.type] || agent.type),
-      autoSpawn: {
-        enabled: true,
-        triggers: {
-          fileTypes: {},
-          projectStructure: {}
-        }
-      }
-    };
-  }
+	/**
+	 * Migrate v1.x configuration to v2.0
+	 */
+	private migrateV1ToV2(v1Config: any): any {
+		const v2Config: any = {
+			version: "2.0.0",
+			orchestrator: {
+				maxConcurrentAgents: v1Config.orchestrator?.maxAgents || 10,
+				taskQueueSize: v1Config.orchestrator?.queueSize || 100,
+				healthCheckInterval:
+					v1Config.orchestrator?.healthCheckInterval || 30000,
+				shutdownTimeout: v1Config.orchestrator?.shutdownTimeout || 30000,
+			},
+			terminal: {
+				type: v1Config.terminal?.type || "auto",
+				poolSize: v1Config.terminal?.poolSize || 5,
+				recycleAfter: v1Config.terminal?.recycleAfter || 10,
+				healthCheckInterval: v1Config.terminal?.healthCheckInterval || 60000,
+				commandTimeout: v1Config.terminal?.commandTimeout || 300000,
+			},
+			memory: {
+				backend: v1Config.memory?.backend || "hybrid",
+				cacheSizeMB: v1Config.memory?.cacheSizeMB || 100,
+				syncInterval: v1Config.memory?.syncInterval || 5000,
+				conflictResolution: v1Config.memory?.conflictResolution || "crdt",
+				retentionDays: v1Config.memory?.retentionDays || 30,
+			},
+			coordination: {
+				maxRetries: v1Config.coordination?.maxRetries || 3,
+				retryDelay: v1Config.coordination?.retryDelay || 1000,
+				deadlockDetection: v1Config.coordination?.deadlockDetection ?? true,
+				resourceTimeout: v1Config.coordination?.resourceTimeout || 60000,
+				messageTimeout: v1Config.coordination?.messageTimeout || 30000,
+			},
+			mcp: {
+				transport: v1Config.mcp?.transport || "stdio",
+				port: v1Config.mcp?.port || 3000,
+				tlsEnabled: v1Config.mcp?.tlsEnabled ?? false,
+			},
+			logging: {
+				level: v1Config.logging?.level || "info",
+				format: v1Config.logging?.format || "json",
+				destination: v1Config.logging?.destination || "console",
+			},
+			ruvSwarm: {
+				enabled: v1Config.ruvSwarm?.enabled ?? true,
+				defaultTopology: v1Config.ruvSwarm?.defaultTopology || "mesh",
+				maxAgents: v1Config.ruvSwarm?.maxAgents || 8,
+				defaultStrategy: v1Config.ruvSwarm?.defaultStrategy || "adaptive",
+				autoInit: v1Config.ruvSwarm?.autoInit ?? true,
+				enableHooks: v1Config.ruvSwarm?.enableHooks ?? true,
+				enablePersistence: v1Config.ruvSwarm?.enablePersistence ?? true,
+				enableNeuralTraining: v1Config.ruvSwarm?.enableNeuralTraining ?? true,
+				configPath:
+					v1Config.ruvSwarm?.configPath || ".claude/ruv-swarm-config.json",
+			},
+		};
 
-  /**
-   * Validate v2.0 configuration
-   */
-  private validateV2Config(config: any): boolean {
-    try {
-      // Check required fields,
-      const requiredFields = [
-        'version',
-        'orchestrator.maxConcurrentAgents',
-        'terminal.type',
-        'memory.backend',
-        'coordination.maxRetries',
-        'mcp.transport',
-        'logging.level',
-        'ruvSwarm.enabled'
-      ];
+		// Migrate custom fields if they exist,
+		if (v1Config.customHooks) {
+			v2Config.hooks = this.migrateCustomHooks(v1Config.customHooks);
+		}
 
-      for (const field of requiredFields) {
-        if (!this.getNestedValue(config, field)) {
-          console.warn(`Missing required field: ${field}`);
-          return false;
-        }
-      }
+		if (v1Config.agents) {
+			v2Config.agents = this.migrateAgentConfig(v1Config.agents);
+		}
 
-      // Validate value ranges,
-      if (config.orchestrator.maxConcurrentAgents < 1 || config.orchestrator.maxConcurrentAgents > 100) {
-        console.warn('orchestrator.maxConcurrentAgents must be between 1 and 100');
-        return false;
-      }
+		return v2Config;
+	}
 
-      if (!['auto', 'vscode', 'native'].includes(config.terminal.type)) {
-        console.warn('terminal.type must be one of: auto, vscode, native');
-        return false;
-      }
+	/**
+	 * Migrate v2.0 to v2.1 (placeholder for future migration)
+	 */
+	private migrateV2ToV21(v2Config: any): any {
+		const v21Config = { ...v2Config };
+		v21Config.version = "2.1.0";
 
-      if (!['sqlite', 'markdown', 'hybrid'].includes(config.memory.backend)) {
-        console.warn('memory.backend must be one of: sqlite, markdown, hybrid');
-        return false;
-      }
+		// Add new v2.1 features here when they become available,
 
-      return true;
-    } catch (error) {
-      console.warn(`Configuration validation failed: ${(error as Error).message}`);
-      return false;
-    }
-  }
+		return v21Config;
+	}
 
-  /**
-   * Validate v2.1 configuration (placeholder)
-   */
-  private validateV21Config(config: any): boolean {
-    // Start with v2.0 validation,
-    if (!this.validateV2Config(config)) {
-      return false;
-    }
+	/**
+	 * Migrate custom hooks from v1 to v2 format
+	 */
+	private migrateCustomHooks(v1Hooks: any[]): any {
+		const v2Hooks: any = {};
 
-    // Add v2.1 specific validations here when needed,
+		v1Hooks.forEach((hook) => {
+			const hookName = hook.name.replace(/-/g, "_");
+			v2Hooks[hookName] = {
+				enabled: true,
+				command: hook.command,
+				timeout: hook.timeout || 30000,
+				onFailure: hook.onFailure || "warn",
+			};
+		});
 
-    return true;
-  }
+		return v2Hooks;
+	}
 
-  /**
-   * Get nested value from object using dot notation
-   */
-  private getNestedValue(obj: any, path: string): any {
-    return path.split('.').reduce((current, key) => current?.[key], obj);
-  }
+	/**
+	 * Migrate agent configuration from v1 to v2 format
+	 */
+	private migrateAgentConfig(v1Agents: any[]): any {
+		const agentTypeMapping: Record<string, string> = {
+			worker: "coder",
+			coordinator: "coordinator",
+			tester: "tester",
+			reviewer: "reviewer",
+		};
 
-  /**
-   * Count configuration items for migration reporting
-   */
-  private countConfigItems(config: any): number {
-    let count = 0;
-    
-    const countObject = (obj: any) => {
-      for (const key in obj) {
-        count++;
-        if (typeof obj[key] === 'object' && obj[key] !== null && !Array.isArray(obj[key])) {
-          countObject(obj[key]);
-        }
-      }
-    };
+		return {
+			preferredTypes: v1Agents.map(
+				(agent) => agentTypeMapping[agent.type] || agent.type
+			),
+			autoSpawn: {
+				enabled: true,
+				triggers: {
+					fileTypes: {},
+					projectStructure: {},
+				},
+			},
+		};
+	}
 
-    countObject(config);
-    return count;
-  }
+	/**
+	 * Validate v2.0 configuration
+	 */
+	private validateV2Config(config: any): boolean {
+		try {
+			// Check required fields,
+			const requiredFields = [
+				"version",
+				"orchestrator.maxConcurrentAgents",
+				"terminal.type",
+				"memory.backend",
+				"coordination.maxRetries",
+				"mcp.transport",
+				"logging.level",
+				"ruvSwarm.enabled",
+			];
 
-  /**
-   * Restore configuration from backup
-   */
-  async restoreFromBackup(backupPath: string, targetConfigPath: string): Promise<void> {
-    try {
-      const backupContent = await fs.readFile(backupPath, 'utf8');
-      await fs.writeFile(targetConfigPath, backupContent);
-      
-      console.log(`✅ Restored configuration from backup: ${path.basename(backupPath)}`);
-    } catch (error) {
-      throw new ConfigError(`Failed to restore from backup: ${(error as Error).message}`);
-    }
-  }
+			for (const field of requiredFields) {
+				if (!this.getNestedValue(config, field)) {
+					console.warn(`Missing required field: ${field}`);
+					return false;
+				}
+			}
 
-  /**
-   * List available backups
-   */
-  async listBackups(): Promise<BackupInfo[]> {
-    try {
-      const files = await fs.readdir(this.backupDir);
-      const backups: BackupInfo[] = [];
+			// Validate value ranges,
+			if (
+				config.orchestrator.maxConcurrentAgents < 1 ||
+				config.orchestrator.maxConcurrentAgents > 100
+			) {
+				console.warn(
+					"orchestrator.maxConcurrentAgents must be between 1 and 100"
+				);
+				return false;
+			}
 
-      for (const file of files) {
-        if (file.startsWith('config-backup-') && file.endsWith('.json')) {
-          const backupPath = path.join(this.backupDir, file);
-          const stats = await fs.stat(backupPath);
-          
-          // Extract timestamp from filename,
-          const timestampMatch = file.match(/config-backup-(\d+)\.json/);
-          const timestamp = timestampMatch ? parseInt(timestampMatch[1]) : 0;
+			if (!["auto", "vscode", "native"].includes(config.terminal.type)) {
+				console.warn("terminal.type must be one of: auto, vscode, native");
+				return false;
+			}
 
-          // Try to determine version,
-          let version = 'unknown';
-          try {
-            const content = await fs.readFile(backupPath, 'utf8');
-            const config = JSON.parse(content);
-            version = this.detectVersion(config);
-          } catch {
-            // Keep as unknown
-          }
+			if (!["sqlite", "markdown", "hybrid"].includes(config.memory.backend)) {
+				console.warn("memory.backend must be one of: sqlite, markdown, hybrid");
+				return false;
+			}
 
-          backups.push({
-            path: backupPath,
-            timestamp,
-            version,
-            size: stats.size
-          });
-        }
-      }
+			return true;
+		} catch (error) {
+			console.warn(
+				`Configuration validation failed: ${(error as Error).message}`
+			);
+			return false;
+		}
+	}
 
-      return backups.sort((a, b) => b.timestamp - a.timestamp);
-    } catch (error) {
-      throw new ConfigError(`Failed to list backups: ${(error as Error).message}`);
-    }
-  }
+	/**
+	 * Validate v2.1 configuration (placeholder)
+	 */
+	private validateV21Config(config: any): boolean {
+		// Start with v2.0 validation,
+		if (!this.validateV2Config(config)) {
+			return false;
+		}
 
-  /**
-   * Validate backward compatibility
-   */
-  async validateBackwardCompatibility(newConfigPath: string, oldConfigPath: string): Promise<boolean> {
-    try {
-      const newConfig = JSON.parse(await fs.readFile(newConfigPath, 'utf8'));
-      const oldConfig = JSON.parse(await fs.readFile(oldConfigPath, 'utf8'));
+		// Add v2.1 specific validations here when needed,
 
-      // Check if essential functionality is preserved,
-      const compatibilityChecks = [
-        this.checkAgentCompatibility(newConfig, oldConfig),
-        this.checkWorkflowCompatibility(newConfig, oldConfig),
-        this.checkPerformanceCompatibility(newConfig, oldConfig)
-      ];
+		return true;
+	}
 
-      return compatibilityChecks.every(check => check);
-    } catch (error) {
-      console.warn(`Backward compatibility check failed: ${(error as Error).message}`);
-      return false;
-    }
-  }
+	/**
+	 * Get nested value from object using dot notation
+	 */
+	private getNestedValue(obj: any, path: string): any {
+		return path.split(".").reduce((current, key) => current?.[key], obj);
+	}
 
-  /**
-   * Check agent configuration compatibility
-   */
-  private checkAgentCompatibility(newConfig: any, oldConfig: any): boolean {
-    // Ensure agent count is not significantly reduced,
-    const oldMaxAgents = oldConfig.orchestrator?.maxAgents || oldConfig.orchestrator?.maxConcurrentAgents || 10;
-    const newMaxAgents = newConfig.orchestrator?.maxConcurrentAgents || 10;
+	/**
+	 * Count configuration items for migration reporting
+	 */
+	private countConfigItems(config: any): number {
+		let count = 0;
 
-    if (newMaxAgents < oldMaxAgents * 0.5) {
-      console.warn('Agent count reduced by more than 50%');
-      return false;
-    }
+		const countObject = (obj: any) => {
+			for (const key in obj) {
+				count++;
+				if (
+					typeof obj[key] === "object" &&
+					obj[key] !== null &&
+					!Array.isArray(obj[key])
+				) {
+					countObject(obj[key]);
+				}
+			}
+		};
 
-    return true;
-  }
+		countObject(config);
+		return count;
+	}
 
-  /**
-   * Check workflow compatibility
-   */
-  private checkWorkflowCompatibility(newConfig: any, oldConfig: any): boolean {
-    // Check if basic workflow capabilities are maintained,
-    const oldHasWorkflows = oldConfig.workflows || oldConfig.agents;
-    const newHasWorkflows = newConfig.workflows || newConfig.agents;
+	/**
+	 * Restore configuration from backup
+	 */
+	async restoreFromBackup(
+		backupPath: string,
+		targetConfigPath: string
+	): Promise<void> {
+		try {
+			const backupContent = await fs.readFile(backupPath, "utf8");
+			await fs.writeFile(targetConfigPath, backupContent);
 
-    if (oldHasWorkflows && !newHasWorkflows) {
-      console.warn('Workflow capabilities may have been lost');
-      return false;
-    }
+			console.log(
+				`✅ Restored configuration from backup: ${path.basename(backupPath)}`
+			);
+		} catch (error) {
+			throw new ConfigError(
+				`Failed to restore from backup: ${(error as Error).message}`
+			);
+		}
+	}
 
-    return true;
-  }
+	/**
+	 * List available backups
+	 */
+	async listBackups(): Promise<BackupInfo[]> {
+		try {
+			const files = await fs.readdir(this.backupDir);
+			const backups: BackupInfo[] = [];
 
-  /**
-   * Check performance compatibility
-   */
-  private checkPerformanceCompatibility(newConfig: any, oldConfig: any): boolean {
-    // Check if performance settings are not significantly degraded,
-    const oldCacheSize = oldConfig.memory?.cacheSizeMB || 100;
-    const newCacheSize = newConfig.memory?.cacheSizeMB || 100;
+			for (const file of files) {
+				if (file.startsWith("config-backup-") && file.endsWith(".json")) {
+					const backupPath = path.join(this.backupDir, file);
+					const stats = await fs.stat(backupPath);
 
-    if (newCacheSize < oldCacheSize * 0.5) {
-      console.warn('Memory cache size reduced by more than 50%');
-      return false;
-    }
+					// Extract timestamp from filename,
+					const timestampMatch = file.match(/config-backup-(\d+)\.json/);
+					const timestamp = timestampMatch ? parseInt(timestampMatch[1]) : 0;
 
-    return true;
-  }
+					// Try to determine version,
+					let version = "unknown";
+					try {
+						const content = await fs.readFile(backupPath, "utf8");
+						const config = JSON.parse(content);
+						version = this.detectVersion(config);
+					} catch {
+						// Keep as unknown
+					}
+
+					backups.push({
+						path: backupPath,
+						timestamp,
+						version,
+						size: stats.size,
+					});
+				}
+			}
+
+			return backups.sort((a, b) => b.timestamp - a.timestamp);
+		} catch (error) {
+			throw new ConfigError(
+				`Failed to list backups: ${(error as Error).message}`
+			);
+		}
+	}
+
+	/**
+	 * Validate backward compatibility
+	 */
+	async validateBackwardCompatibility(
+		newConfigPath: string,
+		oldConfigPath: string
+	): Promise<boolean> {
+		try {
+			const newConfig = JSON.parse(await fs.readFile(newConfigPath, "utf8"));
+			const oldConfig = JSON.parse(await fs.readFile(oldConfigPath, "utf8"));
+
+			// Check if essential functionality is preserved,
+			const compatibilityChecks = [
+				this.checkAgentCompatibility(newConfig, oldConfig),
+				this.checkWorkflowCompatibility(newConfig, oldConfig),
+				this.checkPerformanceCompatibility(newConfig, oldConfig),
+			];
+
+			return compatibilityChecks.every((check) => check);
+		} catch (error) {
+			console.warn(
+				`Backward compatibility check failed: ${(error as Error).message}`
+			);
+			return false;
+		}
+	}
+
+	/**
+	 * Check agent configuration compatibility
+	 */
+	private checkAgentCompatibility(newConfig: any, oldConfig: any): boolean {
+		// Ensure agent count is not significantly reduced,
+		const oldMaxAgents =
+			oldConfig.orchestrator?.maxAgents ||
+			oldConfig.orchestrator?.maxConcurrentAgents ||
+			10;
+		const newMaxAgents = newConfig.orchestrator?.maxConcurrentAgents || 10;
+
+		if (newMaxAgents < oldMaxAgents * 0.5) {
+			console.warn("Agent count reduced by more than 50%");
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Check workflow compatibility
+	 */
+	private checkWorkflowCompatibility(newConfig: any, oldConfig: any): boolean {
+		// Check if basic workflow capabilities are maintained,
+		const oldHasWorkflows = oldConfig.workflows || oldConfig.agents;
+		const newHasWorkflows = newConfig.workflows || newConfig.agents;
+
+		if (oldHasWorkflows && !newHasWorkflows) {
+			console.warn("Workflow capabilities may have been lost");
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Check performance compatibility
+	 */
+	private checkPerformanceCompatibility(
+		newConfig: any,
+		oldConfig: any
+	): boolean {
+		// Check if performance settings are not significantly degraded,
+		const oldCacheSize = oldConfig.memory?.cacheSizeMB || 100;
+		const newCacheSize = newConfig.memory?.cacheSizeMB || 100;
+
+		if (newCacheSize < oldCacheSize * 0.5) {
+			console.warn("Memory cache size reduced by more than 50%");
+			return false;
+		}
+
+		return true;
+	}
 }
 
 // Export singleton instance,

@@ -5,68 +5,74 @@
  * Executes all test suites and generates comprehensive reports
  */
 
-const TestFramework = require('./framework/TestFramework');
-const fs = require('fs').promises;
-const path = require('path');
+const TestFramework = require("./framework/TestFramework");
+const fs = require("fs").promises;
+const path = require("path");
 
 // Import all test suites
-const neuralNetworkTests = require('./unit/NeuralNetworkView.test');
-const toolIntegrationTests = require('./integration/ToolIntegration.test');
-const e2eWorkflowTests = require('./e2e/FullWorkflow.test');
-const performanceTests = require('./performance/LoadTesting.test');
+const neuralNetworkTests = require("./unit/NeuralNetworkView.test");
+const toolIntegrationTests = require("./integration/ToolIntegration.test");
+const e2eWorkflowTests = require("./e2e/FullWorkflow.test");
+const performanceTests = require("./performance/LoadTesting.test");
 
 async function runAllTests() {
-  console.log(`
+	console.log(`
 ╔═══════════════════════════════════════════════════════════════╗
 ║        Claude Flow Web UI - Comprehensive Test Suite          ║
 ║                    Testing 71+ MCP Tools                      ║
 ╚═══════════════════════════════════════════════════════════════╝
 `);
 
-  const framework = new TestFramework();
-  await framework.initialize();
+	const framework = new TestFramework();
+	await framework.initialize();
 
-  // Test suites to run
-  const testSuites = [
-    { ...neuralNetworkTests, category: 'unit' },
-    { ...toolIntegrationTests, category: 'integration' },
-    { ...e2eWorkflowTests, category: 'e2e' },
-    { ...performanceTests, category: 'performance' }
-  ];
+	// Test suites to run
+	const testSuites = [
+		{ ...neuralNetworkTests, category: "unit" },
+		{ ...toolIntegrationTests, category: "integration" },
+		{ ...e2eWorkflowTests, category: "e2e" },
+		{ ...performanceTests, category: "performance" },
+	];
 
-  // Run test suites based on command line arguments
-  const args = process.argv.slice(2);
-  const runOnly = args.find(arg => arg.startsWith('--only='))?.split('=')[1];
-  const skipCategories = args.find(arg => arg.startsWith('--skip='))?.split('=')[1]?.split(',') || [];
-  
-  let suitesToRun = testSuites;
-  
-  if (runOnly) {
-    suitesToRun = testSuites.filter(suite => suite.category === runOnly);
-  } else if (skipCategories.length > 0) {
-    suitesToRun = testSuites.filter(suite => !skipCategories.includes(suite.category));
-  }
+	// Run test suites based on command line arguments
+	const args = process.argv.slice(2);
+	const runOnly = args.find((arg) => arg.startsWith("--only="))?.split("=")[1];
+	const skipCategories =
+		args
+			.find((arg) => arg.startsWith("--skip="))
+			?.split("=")[1]
+			?.split(",") || [];
 
-  console.log(`\n🔧 Running ${suitesToRun.length} test suites...\n`);
+	let suitesToRun = testSuites;
 
-  // Execute test suites
-  for (const suite of suitesToRun) {
-    console.log(`\n${'═'.repeat(60)}`);
-    console.log(`📦 Category: ${suite.category.toUpperCase()}`);
-    console.log(`${'═'.repeat(60)}`);
-    
-    try {
-      await framework.runTestSuite(suite);
-    } catch (error) {
-      console.error(`\n❌ Fatal error in ${suite.name}:`, error);
-    }
-  }
+	if (runOnly) {
+		suitesToRun = testSuites.filter((suite) => suite.category === runOnly);
+	} else if (skipCategories.length > 0) {
+		suitesToRun = testSuites.filter(
+			(suite) => !skipCategories.includes(suite.category),
+		);
+	}
 
-  // Generate final report
-  const report = framework.generateReport();
-  
-  // Display summary
-  console.log(`
+	console.log(`\n🔧 Running ${suitesToRun.length} test suites...\n`);
+
+	// Execute test suites
+	for (const suite of suitesToRun) {
+		console.log(`\n${"═".repeat(60)}`);
+		console.log(`📦 Category: ${suite.category.toUpperCase()}`);
+		console.log(`${"═".repeat(60)}`);
+
+		try {
+			await framework.runTestSuite(suite);
+		} catch (error) {
+			console.error(`\n❌ Fatal error in ${suite.name}:`, error);
+		}
+	}
+
+	// Generate final report
+	const report = framework.generateReport();
+
+	// Display summary
+	console.log(`
 ╔═══════════════════════════════════════════════════════════════╗
 ║                      TEST SUMMARY                             ║
 ╚═══════════════════════════════════════════════════════════════╝
@@ -84,41 +90,45 @@ async function runAllTests() {
    Views Tested: ${report.coverage.views.tested}/${report.coverage.views.total} (${report.coverage.views.percentage})
 `);
 
-  // Display failed tests
-  if (report.failedTests.length > 0) {
-    console.log('\n❌ Failed Tests:');
-    report.failedTests.forEach(test => {
-      console.log(`   - ${test.suite} > ${test.test}`);
-      console.log(`     Error: ${test.error}`);
-    });
-  }
+	// Display failed tests
+	if (report.failedTests.length > 0) {
+		console.log("\n❌ Failed Tests:");
+		report.failedTests.forEach((test) => {
+			console.log(`   - ${test.suite} > ${test.test}`);
+			console.log(`     Error: ${test.error}`);
+		});
+	}
 
-  // Display slow tests
-  if (report.slowTests.length > 0) {
-    console.log('\n🐌 Slowest Tests:');
-    report.slowTests.forEach(test => {
-      console.log(`   - ${test.suite} > ${test.test} (${test.duration}ms)`);
-    });
-  }
+	// Display slow tests
+	if (report.slowTests.length > 0) {
+		console.log("\n🐌 Slowest Tests:");
+		report.slowTests.forEach((test) => {
+			console.log(`   - ${test.suite} > ${test.test} (${test.duration}ms)`);
+		});
+	}
 
-  // Save detailed report
-  const reportPath = path.join(__dirname, 'reports', `test-report-${Date.now()}.json`);
-  await fs.mkdir(path.dirname(reportPath), { recursive: true });
-  await fs.writeFile(reportPath, JSON.stringify(report, null, 2));
-  console.log(`\n📄 Detailed report saved to: ${reportPath}`);
+	// Save detailed report
+	const reportPath = path.join(
+		__dirname,
+		"reports",
+		`test-report-${Date.now()}.json`,
+	);
+	await fs.mkdir(path.dirname(reportPath), { recursive: true });
+	await fs.writeFile(reportPath, JSON.stringify(report, null, 2));
+	console.log(`\n📄 Detailed report saved to: ${reportPath}`);
 
-  // Generate HTML report
-  await generateHTMLReport(report);
+	// Generate HTML report
+	await generateHTMLReport(report);
 
-  // Cleanup
-  await framework.cleanup();
+	// Cleanup
+	await framework.cleanup();
 
-  // Exit with appropriate code
-  process.exit(report.summary.failed > 0 ? 1 : 0);
+	// Exit with appropriate code
+	process.exit(report.summary.failed > 0 ? 1 : 0);
 }
 
 async function generateHTMLReport(report) {
-  const html = `
+	const html = `
 <!DOCTYPE html>
 <html>
 <head>
@@ -220,7 +230,7 @@ async function generateHTMLReport(report) {
   <div class="container">
     <h1>🧪 Claude Flow Web UI Test Report</h1>
     <p>Generated: ${new Date().toLocaleString()}</p>
-    
+
     <div class="summary">
       <div class="metric">
         <div class="metric-value">${report.summary.totalTests}</div>
@@ -239,7 +249,7 @@ async function generateHTMLReport(report) {
         <div class="metric-label">Success Rate</div>
       </div>
     </div>
-    
+
     <h2>📊 Coverage</h2>
     <div>
       <h3>Tools Coverage: ${report.coverage.tools.tested}/${report.coverage.tools.total}</h3>
@@ -248,7 +258,7 @@ async function generateHTMLReport(report) {
           ${report.coverage.tools.percentage}
         </div>
       </div>
-      
+
       <h3>Views Coverage: ${report.coverage.views.tested}/${report.coverage.views.total}</h3>
       <div class="coverage-bar">
         <div class="coverage-fill" style="width: ${report.coverage.views.percentage}">
@@ -256,64 +266,88 @@ async function generateHTMLReport(report) {
         </div>
       </div>
     </div>
-    
+
     <h2>📋 Test Suites</h2>
-    ${report.suites.map(suite => `
+    ${report.suites
+			.map(
+				(suite) => `
       <div class="suite">
         <div class="suite-header">
-          ${suite.name} - ${suite.passed}/${suite.tests.length} passed (${((suite.passed/suite.tests.length)*100).toFixed(1)}%)
+          ${suite.name} - ${suite.passed}/${suite.tests.length} passed (${((suite.passed / suite.tests.length) * 100).toFixed(1)}%)
         </div>
         <div class="suite-content">
-          ${suite.tests.map(test => `
-            <div class="test ${test.passed ? 'passed' : 'failed'}">
-              <span>${test.passed ? '✅' : '❌'} ${test.name}</span>
+          ${suite.tests
+						.map(
+							(test) => `
+            <div class="test ${test.passed ? "passed" : "failed"}">
+              <span>${test.passed ? "✅" : "❌"} ${test.name}</span>
               <span>${test.duration}ms</span>
             </div>
-          `).join('')}
+          `,
+						)
+						.join("")}
         </div>
       </div>
-    `).join('')}
-    
-    ${report.failedTests.length > 0 ? `
+    `,
+			)
+			.join("")}
+
+    ${
+			report.failedTests.length > 0
+				? `
       <h2>❌ Failed Tests</h2>
       <div style="background: #f8d7da; padding: 20px; border-radius: 8px;">
-        ${report.failedTests.map(test => `
+        ${report.failedTests
+					.map(
+						(test) => `
           <div style="margin: 10px 0;">
             <strong>${test.suite} > ${test.test}</strong><br>
             <code style="color: #721c24;">${test.error}</code>
           </div>
-        `).join('')}
+        `,
+					)
+					.join("")}
       </div>
-    ` : ''}
-    
+    `
+				: ""
+		}
+
     <h2>⏱️ Performance</h2>
     <div>
       <p>Total Duration: ${(report.summary.duration / 1000).toFixed(2)} seconds</p>
       <h3>Slowest Tests:</h3>
       <ul>
-        ${report.slowTests.map(test => `
+        ${report.slowTests
+					.map(
+						(test) => `
           <li>${test.suite} > ${test.test} - ${test.duration}ms</li>
-        `).join('')}
+        `,
+					)
+					.join("")}
       </ul>
     </div>
   </div>
 </body>
 </html>
   `;
-  
-  const htmlPath = path.join(__dirname, 'reports', `test-report-${Date.now()}.html`);
-  await fs.writeFile(htmlPath, html);
-  console.log(`\n🌐 HTML report saved to: ${htmlPath}`);
+
+	const htmlPath = path.join(
+		__dirname,
+		"reports",
+		`test-report-${Date.now()}.html`,
+	);
+	await fs.writeFile(htmlPath, html);
+	console.log(`\n🌐 HTML report saved to: ${htmlPath}`);
 }
 
 // Handle errors
-process.on('unhandledRejection', (error) => {
-  console.error('\n❌ Unhandled rejection:', error);
-  process.exit(1);
+process.on("unhandledRejection", (error) => {
+	console.error("\n❌ Unhandled rejection:", error);
+	process.exit(1);
 });
 
 // Run tests
-runAllTests().catch(error => {
-  console.error('\n❌ Test runner failed:', error);
-  process.exit(1);
+runAllTests().catch((error) => {
+	console.error("\n❌ Test runner failed:", error);
+	process.exit(1);
 });

@@ -130,7 +130,7 @@ designer.importWorkflow(saved);
 
 #### File Input
 - **Purpose**: Read data from files
-- **Properties**: 
+- **Properties**:
   - `path`: File path
   - `format`: File format (auto, json, csv, txt)
 - **Outputs**: File data

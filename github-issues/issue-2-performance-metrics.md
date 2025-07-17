@@ -4,9 +4,9 @@
 Performance monitoring tools generate fake metrics using `Math.random()` instead of measuring actual system performance. This creates unreliable performance data and false performance improvement claims.
 
 ## 🔍 Problem Location
-**File**: `src/mcp/mcp-server.js`  
-**Lines**: 842-856 (performance_report)  
-**File**: `src/coordination/advanced-task-executor.ts`  
+**File**: `src/mcp/mcp-server.js`
+**Lines**: 842-856 (performance_report)
+**File**: `src/coordination/advanced-task-executor.ts`
 **Lines**: 520+ (getProcessResourceUsage)
 
 ## 🚨 Specific Code Issues
@@ -68,7 +68,7 @@ case 'performance_report':
     si.mem(),
     si.processes()
   ]);
-  
+
   return {
     success: true,
     metrics: {
@@ -107,15 +107,15 @@ class PerformanceMetrics {
     this.taskFailures = [];
     this.resourceSnapshots = [];
   }
-  
+
   recordTaskStart(taskId) {
     this.taskStartTimes.set(taskId, process.hrtime.bigint());
   }
-  
+
   recordTaskCompletion(taskId, result) {
     const startTime = this.taskStartTimes.get(taskId);
     const duration = Number(process.hrtime.bigint() - startTime) / 1e6; // ms
-    
+
     this.taskCompletions.push({
       taskId,
       duration,
@@ -123,7 +123,7 @@ class PerformanceMetrics {
       result
     });
   }
-  
+
   getMetrics() {
     const completions = this.taskCompletions.slice(-100); // Last 100 tasks
     return {
@@ -156,7 +156,7 @@ class PerformanceMetrics {
 case 'performance_report':
   const realMetrics = await this.metrics.getRealMetrics();
   const estimatedMetrics = this.estimateSystemMetrics();
-  
+
   return {
     success: true,
     metrics: {
@@ -164,11 +164,11 @@ case 'performance_report':
       tasks_executed: realMetrics.taskCount,
       avg_execution_time: realMetrics.avgDuration,
       success_rate: realMetrics.successRate,
-      
+
       // Estimated with clear labeling
       estimated_memory_efficiency: estimatedMetrics.memoryEff,
       estimated_cpu_usage: estimatedMetrics.cpuUsage,
-      
+
       // Metadata
       measurement_confidence: 'partial',
       real_metrics: ['tasks_executed', 'avg_execution_time', 'success_rate'],
@@ -213,8 +213,8 @@ case 'performance_report':
 ## 🎯 Recommended Approach
 **Solution 2 + 3 Combination**: Implement internal metrics collection with clear labeling of real vs estimated data.
 
-**Phase 1**: Build internal task metrics (immediately actionable)  
-**Phase 2**: Add system monitoring for comprehensive data  
+**Phase 1**: Build internal task metrics (immediately actionable)
+**Phase 2**: Add system monitoring for comprehensive data
 **Phase 3**: Remove estimation labels as real metrics become available
 
 ## 🚀 Implementation Priority

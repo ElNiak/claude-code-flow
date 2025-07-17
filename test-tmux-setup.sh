@@ -70,27 +70,27 @@ TEST_SESSION="tmux-test-$(date +%s)"
 # Create test session
 if tmux new-session -d -s "$TEST_SESSION" -c "$(pwd)" 2>/dev/null; then
     echo -e "${GREEN}✅ Test session created: $TEST_SESSION${NC}"
-    
+
     # Test pane splitting
     if tmux split-window -t "$TEST_SESSION" -h -c "$(pwd)" 2>/dev/null; then
         echo -e "${GREEN}✅ Horizontal split successful${NC}"
     else
         echo -e "${RED}❌ Horizontal split failed${NC}"
     fi
-    
+
     if tmux split-window -t "$TEST_SESSION" -v -c "$(pwd)" 2>/dev/null; then
         echo -e "${GREEN}✅ Vertical split successful${NC}"
     else
         echo -e "${RED}❌ Vertical split failed${NC}"
     fi
-    
+
     # Test key bindings by checking configuration
     if tmux list-keys -T prefix | grep -q "break-pane"; then
         echo -e "${GREEN}✅ Break-pane binding configured${NC}"
     else
         echo -e "${YELLOW}⚠️ Break-pane binding not found (may be using custom binding)${NC}"
     fi
-    
+
     # Clean up test session
     tmux kill-session -t "$TEST_SESSION" 2>/dev/null
     echo -e "${GREEN}✅ Test session cleaned up${NC}"

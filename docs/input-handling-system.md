@@ -52,15 +52,15 @@ The Input Router is the entry point for all user input, responsible for routing 
 interface InputRouter {
   // Route input to appropriate handler
   route(input: UserInput): Promise<RoutingResult>;
-  
+
   // Register input sources
   registerSource(source: InputSource): void;
-  
+
   // Handle different input types
   handleCommand(input: CommandInput): Promise<CommandResult>;
   handleFile(input: FileInput): Promise<FileResult>;
   handleInterrupt(input: InterruptInput): Promise<InterruptResult>;
-  
+
   // Input validation and preprocessing
   preprocessInput(input: UserInput): Promise<ProcessedInput>;
 }
@@ -100,30 +100,30 @@ class InputRouter {
   private handlers = new Map<string, InputHandler>();
   private securityValidator: SecurityValidator;
   private sessionManager: SessionManager;
-  
+
   constructor(private config: InputRouterConfig) {
     this.securityValidator = new SecurityValidator(config.securityOptions);
     this.sessionManager = new SessionManager(config.sessionOptions);
     this.initializeHandlers();
   }
-  
+
   async route(input: UserInput): Promise<RoutingResult> {
     const startTime = Date.now();
-    
+
     try {
       // Preprocess input
       const processed = await this.preprocessInput(input);
-      
+
       // Security validation
       const validated = await this.securityValidator.validate(processed);
       if (!validated.isValid) {
         throw new SecurityError(`Input validation failed: ${validated.reason}`);
       }
-      
+
       // Route to appropriate handler
       const handler = this.getHandler(processed.type);
       const result = await handler.handle(processed);
-      
+
       return {
         success: true,
         handlerType: processed.type,
@@ -139,11 +139,11 @@ class InputRouter {
       };
     }
   }
-  
+
   async preprocessInput(input: UserInput): Promise<ProcessedInput> {
     // Get session context
     const session = await this.sessionManager.getSession(input.sessionId);
-    
+
     // Apply session context
     const processed: ProcessedInput = {
       ...input,
@@ -151,7 +151,7 @@ class InputRouter {
       workingDirectory: session.workingDirectory,
       environment: { ...session.environment, ...input.metadata?.environment }
     };
-    
+
     // Handle input type-specific preprocessing
     switch (input.type) {
       case 'command':
@@ -164,16 +164,16 @@ class InputRouter {
         return processed;
     }
   }
-  
+
   private async preprocessCommand(input: ProcessedInput): Promise<ProcessedInput> {
     const content = input.content as string;
-    
+
     // Handle command aliases
     const expanded = this.expandAliases(content, input.session);
-    
+
     // Handle environment variable expansion
     const withEnv = this.expandEnvironmentVariables(expanded, input.environment);
-    
+
     return {
       ...input,
       content: withEnv,
@@ -189,13 +189,13 @@ class InputRouter {
 interface InputSource {
   id: string;
   type: 'cli' | 'web' | 'api';
-  
+
   // Initialize source
   initialize(): Promise<void>;
-  
+
   // Listen for input
   listen(callback: (input: UserInput) => void): void;
-  
+
   // Cleanup
   cleanup(): Promise<void>;
 }
@@ -203,22 +203,22 @@ interface InputSource {
 class WebInputSource implements InputSource {
   id = 'web';
   type = 'web' as const;
-  
+
   constructor(
     private webSocketServer: WebSocketServer,
     private sessionManager: SessionManager
   ) {}
-  
+
   async initialize(): Promise<void> {
     this.webSocketServer.on('connection', (socket) => {
       this.handleConnection(socket);
     });
   }
-  
+
   listen(callback: (input: UserInput) => void): void {
     this.inputCallback = callback;
   }
-  
+
   private handleConnection(socket: WebSocket): void {
     socket.on('message', async (data) => {
       try {
@@ -246,13 +246,13 @@ The Command Parser converts user input into structured commands that can be exec
 interface CommandParser {
   // Parse command string into structured format
   parse(command: string, context: ParseContext): Promise<ParsedCommand>;
-  
+
   // Validate command syntax
   validateSyntax(command: string): SyntaxValidationResult;
-  
+
   // Handle special web UI commands
   parseSpecialCommand(command: string): SpecialCommand | null;
-  
+
   // Expand shortcuts and aliases
   expandCommand(command: string, aliases: Record<string, string>): string;
 }
@@ -263,7 +263,7 @@ interface ParsedCommand {
   args: string[];
   flags: Map<string, string | boolean>;
   files: AttachedFile[];
-  
+
   // Metadata
   originalCommand: string;
   parsedAt: Date;
@@ -287,33 +287,33 @@ class CommandParser {
   private aliasRegistry: AliasRegistry;
   private syntaxValidator: SyntaxValidator;
   private specialCommands: Map<string, SpecialCommandHandler>;
-  
+
   constructor(private config: ParserConfig) {
     this.aliasRegistry = new AliasRegistry();
     this.syntaxValidator = new SyntaxValidator();
     this.initializeSpecialCommands();
   }
-  
+
   async parse(command: string, context: ParseContext): Promise<ParsedCommand> {
     // Check for special commands first
     const special = this.parseSpecialCommand(command);
     if (special) {
       return this.convertSpecialToParsed(special, command);
     }
-    
+
     // Expand aliases
     const expanded = this.expandCommand(command, context.aliases);
-    
+
     // Validate syntax
     const syntaxResult = this.validateSyntax(expanded);
     if (!syntaxResult.isValid) {
       throw new ParseError(`Syntax error: ${syntaxResult.errors.join(', ')}`);
     }
-    
+
     // Parse components
     const tokens = this.tokenize(expanded);
     const parsed = this.parseTokens(tokens, context);
-    
+
     return {
       ...parsed,
       originalCommand: command,
@@ -321,22 +321,22 @@ class CommandParser {
       complexity: this.assessComplexity(parsed)
     };
   }
-  
+
   private parseTokens(tokens: string[], context: ParseContext): Partial<ParsedCommand> {
     const result: Partial<ParsedCommand> = {
       args: [],
       flags: new Map(),
       files: []
     };
-    
+
     let currentToken = 0;
-    
+
     // Parse executable
     if (tokens.length === 0) {
       throw new ParseError('Empty command');
     }
     result.executable = tokens[currentToken++];
-    
+
     // Parse subcommand (if exists)
     if (currentToken < tokens.length && !tokens[currentToken].startsWith('-')) {
       const potentialSubcommand = tokens[currentToken];
@@ -345,11 +345,11 @@ class CommandParser {
         currentToken++;
       }
     }
-    
+
     // Parse flags and arguments
     while (currentToken < tokens.length) {
       const token = tokens[currentToken];
-      
+
       if (token.startsWith('--')) {
         // Long flag
         const [flag, value] = this.parseLongFlag(token, tokens, currentToken);
@@ -372,10 +372,10 @@ class CommandParser {
         currentToken++;
       }
     }
-    
+
     return result;
   }
-  
+
   private initializeSpecialCommands(): void {
     this.specialCommands.set('upload', new FileUploadHandler());
     this.specialCommands.set('paste', new PasteHandler());
@@ -391,27 +391,27 @@ class CommandParser {
 interface AliasRegistry {
   // Register command aliases
   register(alias: string, command: string): void;
-  
+
   // Expand alias to full command
   expand(alias: string): string | null;
-  
+
   // List all aliases
   list(): Map<string, string>;
-  
+
   // Import aliases from configuration
   importFromConfig(config: AliasConfig): void;
 }
 
 class AliasRegistry {
   private aliases = new Map<string, string>();
-  
+
   constructor(defaultAliases?: Record<string, string>) {
     this.loadDefaultAliases();
     if (defaultAliases) {
       this.importAliases(defaultAliases);
     }
   }
-  
+
   private loadDefaultAliases(): void {
     // Common shortcuts for claude-flow commands
     this.aliases.set('cf', 'claude-flow');
@@ -421,12 +421,12 @@ class AliasRegistry {
     this.aliases.set('tasks', 'claude-flow task list');
     this.aliases.set('mem', 'claude-flow memory');
     this.aliases.set('cfg', 'claude-flow config');
-    
+
     // Development shortcuts
     this.aliases.set('dev', 'claude-flow start --mode development');
     this.aliases.set('test', 'claude-flow start --mode testing');
     this.aliases.set('prod', 'claude-flow start --mode production');
-    
+
     // File operation shortcuts
     this.aliases.set('upload', 'special:upload');
     this.aliases.set('attach', 'special:attach');
@@ -444,13 +444,13 @@ The Security Validator ensures all user input is safe and authorized before proc
 interface SecurityValidator {
   // Validate input security
   validate(input: ProcessedInput): Promise<ValidationResult>;
-  
+
   // Check for injection attacks
   checkInjection(input: string): InjectionCheck;
-  
+
   // Validate file uploads
   validateFile(file: File): FileValidationResult;
-  
+
   // Check user permissions
   checkPermissions(userId: string, command: string): Promise<boolean>;
 }
@@ -478,16 +478,16 @@ class SecurityValidator {
   private injectionDetector: InjectionDetector;
   private permissionChecker: PermissionChecker;
   private fileValidator: FileValidator;
-  
+
   constructor(private config: SecurityConfig) {
     this.injectionDetector = new InjectionDetector(config.injectionRules);
     this.permissionChecker = new PermissionChecker(config.permissions);
     this.fileValidator = new FileValidator(config.fileValidation);
   }
-  
+
   async validate(input: ProcessedInput): Promise<ValidationResult> {
     const warnings: string[] = [];
-    
+
     // Check basic input format
     if (!this.isValidFormat(input)) {
       return {
@@ -496,7 +496,7 @@ class SecurityValidator {
         warnings
       };
     }
-    
+
     // Check for injection attacks
     const injectionCheck = this.checkInjection(input.content as string);
     if (!injectionCheck.safe) {
@@ -506,7 +506,7 @@ class SecurityValidator {
         warnings
       };
     }
-    
+
     // Validate command permissions
     if (input.type === 'command') {
       const hasPermission = await this.checkPermissions(
@@ -521,7 +521,7 @@ class SecurityValidator {
         };
       }
     }
-    
+
     // Validate files
     if (input.type === 'file') {
       const files = input.content as File[];
@@ -537,7 +537,7 @@ class SecurityValidator {
         warnings.push(...fileValidation.warnings);
       }
     }
-    
+
     return {
       isValid: true,
       warnings,
@@ -547,38 +547,38 @@ class SecurityValidator {
       } : input
     };
   }
-  
+
   checkInjection(input: string): InjectionCheck {
     const threats: ThreatType[] = [];
     let sanitized = input;
-    
+
     // Command injection detection
     if (this.hasCommandInjection(input)) {
       threats.push('command_injection');
     }
-    
+
     // Path traversal detection
     if (this.hasPathTraversal(input)) {
       threats.push('path_traversal');
     }
-    
+
     // Script injection detection
     if (this.hasScriptInjection(input)) {
       threats.push('script_injection');
     }
-    
+
     // Sanitize if threats found but recoverable
     if (threats.length > 0 && this.config.autoSanitize) {
       sanitized = this.sanitizeInput(input, threats);
     }
-    
+
     return {
       safe: threats.length === 0 || (this.config.autoSanitize && sanitized !== input),
       threats,
       sanitized: sanitized !== input ? sanitized : undefined
     };
   }
-  
+
   private hasCommandInjection(input: string): boolean {
     const patterns = [
       /[;&|`$(){}]/,  // Shell metacharacters
@@ -587,10 +587,10 @@ class SecurityValidator {
       /\|\s*\w+/,     // Pipe to command
       /&&|\|\|/       // Command chaining
     ];
-    
+
     return patterns.some(pattern => pattern.test(input));
   }
-  
+
   private hasPathTraversal(input: string): boolean {
     const patterns = [
       /\.\.[\/\\]/,   // Parent directory traversal
@@ -598,7 +598,7 @@ class SecurityValidator {
       /%2e%2e/i,      // URL encoded traversal
       /\.\.%2f/i      // Mixed encoding traversal
     ];
-    
+
     return patterns.some(pattern => pattern.test(input));
   }
 }
@@ -614,19 +614,19 @@ The Session Manager maintains consistent state across CLI and web interfaces.
 interface SessionManager {
   // Create new session
   createSession(userId: string, options?: SessionOptions): Promise<Session>;
-  
+
   // Get existing session
   getSession(sessionId: string): Promise<Session>;
-  
+
   // Update session state
   updateSession(sessionId: string, updates: Partial<Session>): Promise<void>;
-  
+
   // Synchronize with CLI state
   syncWithCLI(sessionId: string): Promise<void>;
-  
+
   // Persist session data
   persistSession(session: Session): Promise<void>;
-  
+
   // Clean up expired sessions
   cleanupSessions(): Promise<void>;
 }
@@ -636,27 +636,27 @@ interface Session {
   userId: string;
   createdAt: Date;
   lastActivity: Date;
-  
+
   // Working context
   workingDirectory: string;
   environment: Record<string, string>;
-  
+
   // Command history
   history: CommandHistoryEntry[];
-  
+
   // File attachments
   attachments: AttachedFile[];
-  
+
   // CLI process info
   cliProcess?: {
     pid: number;
     status: 'running' | 'completed' | 'failed';
     startTime: Date;
   };
-  
+
   // Web client info
   webClients: WebClient[];
-  
+
   // Session state
   state: SessionState;
 }
@@ -684,13 +684,13 @@ class SessionManager {
   private sessions = new Map<string, Session>();
   private persistence: SessionPersistence;
   private cliSync: CLISync;
-  
+
   constructor(private config: SessionConfig) {
     this.persistence = new SessionPersistence(config.persistenceOptions);
     this.cliSync = new CLISync(config.cliSyncOptions);
     this.startCleanupTimer();
   }
-  
+
   async createSession(userId: string, options?: SessionOptions): Promise<Session> {
     const session: Session = {
       id: generateSessionId(),
@@ -709,33 +709,33 @@ class SessionManager {
         config: { loaded: false, valid: false }
       }
     };
-    
+
     this.sessions.set(session.id, session);
     await this.persistence.save(session);
-    
+
     return session;
   }
-  
+
   async syncWithCLI(sessionId: string): Promise<void> {
     const session = this.sessions.get(sessionId);
     if (!session) {
       throw new Error(`Session ${sessionId} not found`);
     }
-    
+
     // Get latest state from CLI process
     const cliState = await this.cliSync.getState(sessionId);
-    
+
     // Merge states
     session.state = this.mergeStates(session.state, cliState);
     session.lastActivity = new Date();
-    
+
     // Notify web clients of state change
     this.notifyWebClients(session, 'state_updated', session.state);
-    
+
     // Persist updated session
     await this.persistence.save(session);
   }
-  
+
   private notifyWebClients(session: Session, event: string, data: any): void {
     for (const client of session.webClients) {
       if (client.socket && client.socket.readyState === WebSocket.OPEN) {
@@ -761,16 +761,16 @@ The File Handler manages file uploads, validation, and access for both CLI and w
 interface FileHandler {
   // Handle file uploads
   uploadFile(file: File, sessionId: string): Promise<AttachedFile>;
-  
+
   // Validate file upload
   validateFile(file: File): FileValidationResult;
-  
+
   // Store file temporarily
   storeFile(file: File, metadata: FileMetadata): Promise<string>;
-  
+
   // Get file for CLI access
   getFileForCLI(fileId: string): Promise<string>;
-  
+
   // Clean up temporary files
   cleanupFiles(sessionId: string): Promise<void>;
 }
@@ -781,15 +781,15 @@ interface AttachedFile {
   size: number;
   mimeType: string;
   uploadedAt: Date;
-  
+
   // Storage info
   storagePath: string;
   tempPath?: string;
-  
+
   // Validation info
   validated: boolean;
   virusScan?: VirusScanResult;
-  
+
   // Access info
   accessibleToCLI: boolean;
   permissions: FilePermissions;
@@ -812,26 +812,26 @@ class FileHandler {
   private storage: FileStorage;
   private validator: FileValidator;
   private virusScanner?: VirusScanner;
-  
+
   constructor(private config: FileHandlerConfig) {
     this.storage = new FileStorage(config.storageOptions);
     this.validator = new FileValidator(config.validationRules);
-    
+
     if (config.virusScanning.enabled) {
       this.virusScanner = new VirusScanner(config.virusScanning);
     }
   }
-  
+
   async uploadFile(file: File, sessionId: string): Promise<AttachedFile> {
     // Validate file
     const validation = this.validateFile(file);
     if (!validation.isValid) {
       throw new FileValidationError(`File validation failed: ${validation.reason}`);
     }
-    
+
     // Generate file ID
     const fileId = generateFileId();
-    
+
     // Store file
     const storagePath = await this.storage.store(file, {
       fileId,
@@ -839,7 +839,7 @@ class FileHandler {
       originalName: file.name,
       mimeType: file.type
     });
-    
+
     // Virus scan if enabled
     let virusScan: VirusScanResult | undefined;
     if (this.virusScanner) {
@@ -849,7 +849,7 @@ class FileHandler {
         throw new SecurityError(`File failed virus scan: ${virusScan.threat}`);
       }
     }
-    
+
     // Create attached file record
     const attachedFile: AttachedFile = {
       id: fileId,
@@ -863,27 +863,27 @@ class FileHandler {
       accessibleToCLI: true,
       permissions: this.determinePermissions(file, validation)
     };
-    
+
     return attachedFile;
   }
-  
+
   async getFileForCLI(fileId: string): Promise<string> {
     const file = await this.storage.getMetadata(fileId);
     if (!file) {
       throw new Error(`File ${fileId} not found`);
     }
-    
+
     if (!file.accessibleToCLI) {
       throw new SecurityError(`File ${fileId} not accessible to CLI`);
     }
-    
+
     // Create symlink in CLI-accessible location
     const cliPath = path.join(this.config.cliAccessPath, fileId);
     await fs.symlink(file.storagePath, cliPath);
-    
+
     return cliPath;
   }
-  
+
   private determinePermissions(file: File, validation: FileValidationResult): FilePermissions {
     const permissions: FilePermissions = {
       read: true,
@@ -891,7 +891,7 @@ class FileHandler {
       execute: false,
       delete: true
     };
-    
+
     // Determine based on file type and validation
     if (validation.allowedOperations.includes('execute')) {
       // Only allow execution for verified safe file types
@@ -899,7 +899,7 @@ class FileHandler {
       const ext = path.extname(file.name).toLowerCase();
       permissions.execute = safeExecutableTypes.includes(ext);
     }
-    
+
     return permissions;
   }
 }
@@ -915,13 +915,13 @@ The Command Executor processes validated commands through a unified pipeline for
 interface CommandExecutor {
   // Execute command
   execute(command: ParsedCommand, session: Session): Promise<ExecutionResult>;
-  
+
   // Stream execution output
   streamExecution(command: ParsedCommand, session: Session): AsyncIterable<ExecutionUpdate>;
-  
+
   // Handle command interruption
   interrupt(executionId: string): Promise<void>;
-  
+
   // Get execution status
   getStatus(executionId: string): ExecutionStatus;
 }
@@ -932,7 +932,7 @@ interface ExecutionResult {
   output: string;
   errorOutput?: string;
   duration: number;
-  
+
   // Metadata
   executionId: string;
   command: ParsedCommand;
@@ -954,26 +954,26 @@ interface ExecutionUpdate {
 class CommandExecutor {
   private executions = new Map<string, ExecutionContext>();
   private outputCapture: OutputCapture;
-  
+
   constructor(private config: ExecutorConfig) {
     this.outputCapture = new OutputCapture(config.captureOptions);
   }
-  
+
   async execute(command: ParsedCommand, session: Session): Promise<ExecutionResult> {
     const executionId = generateExecutionId();
     const startTime = new Date();
-    
+
     try {
       // Prepare execution context
       const context = this.createExecutionContext(command, session, executionId);
       this.executions.set(executionId, context);
-      
+
       // Build CLI command
       const cliCommand = this.buildCLICommand(command, session);
-      
+
       // Execute with output capture
       const result = await this.executeCLICommand(cliCommand, context);
-      
+
       // Create execution result
       const executionResult: ExecutionResult = {
         success: result.exitCode === 0,
@@ -986,24 +986,24 @@ class CommandExecutor {
         startTime,
         endTime: new Date()
       };
-      
+
       // Update session history
       await this.updateSessionHistory(session, command, executionResult);
-      
+
       return executionResult;
     } finally {
       this.executions.delete(executionId);
     }
   }
-  
+
   async *streamExecution(command: ParsedCommand, session: Session): AsyncIterable<ExecutionUpdate> {
     const executionId = generateExecutionId();
     const context = this.createExecutionContext(command, session, executionId);
-    
+
     try {
       const cliCommand = this.buildCLICommand(command, session);
       const process = this.launchCLIProcess(cliCommand, context);
-      
+
       // Stream stdout
       const stdoutStream = this.outputCapture.captureStream(process.stdout, 'stdout');
       for await (const chunk of stdoutStream) {
@@ -1014,7 +1014,7 @@ class CommandExecutor {
           executionId
         };
       }
-      
+
       // Stream stderr
       const stderrStream = this.outputCapture.captureStream(process.stderr, 'stderr');
       for await (const chunk of stderrStream) {
@@ -1025,7 +1025,7 @@ class CommandExecutor {
           executionId
         };
       }
-      
+
       // Wait for completion
       const exitCode = await process.wait();
       yield {
@@ -1038,14 +1038,14 @@ class CommandExecutor {
       this.executions.delete(executionId);
     }
   }
-  
+
   private buildCLICommand(command: ParsedCommand, session: Session): string[] {
     const args = [command.executable];
-    
+
     if (command.subcommand) {
       args.push(command.subcommand);
     }
-    
+
     // Add flags
     for (const [flag, value] of command.flags) {
       if (flag.length === 1) {
@@ -1053,21 +1053,21 @@ class CommandExecutor {
       } else {
         args.push(`--${flag}`);
       }
-      
+
       if (typeof value === 'string') {
         args.push(value);
       }
     }
-    
+
     // Add arguments
     args.push(...command.args);
-    
+
     // Add file paths
     for (const file of command.files) {
       const cliPath = this.getFilePathForCLI(file);
       args.push(cliPath);
     }
-    
+
     return args;
   }
 }
@@ -1081,10 +1081,10 @@ class CommandExecutor {
 interface WebUIIntegration {
   // Handle input from web interface
   handleWebInput(input: WebInputMessage): Promise<void>;
-  
+
   // Send updates to web clients
   sendToWebClients(sessionId: string, update: any): void;
-  
+
   // Manage web client connections
   manageConnections(): void;
 }
@@ -1103,13 +1103,13 @@ interface WebInputMessage {
 interface CLIIntegration {
   // Check if running in web mode
   isWebMode(): boolean;
-  
+
   // Get session information
   getSessionInfo(): SessionInfo | null;
-  
+
   // Send state updates
   sendStateUpdate(state: any): Promise<void>;
-  
+
   // Handle web client commands
   handleWebCommand(command: string): Promise<any>;
 }
@@ -1123,13 +1123,13 @@ interface CLIIntegration {
 interface ErrorHandler {
   // Handle input errors
   handleInputError(error: Error, input: UserInput): Promise<ErrorResponse>;
-  
+
   // Handle parsing errors
   handleParseError(error: ParseError, command: string): ErrorResponse;
-  
+
   // Handle execution errors
   handleExecutionError(error: Error, execution: ExecutionContext): Promise<ErrorResponse>;
-  
+
   // Handle file errors
   handleFileError(error: FileError, operation: FileOperation): ErrorResponse;
 }
@@ -1160,13 +1160,13 @@ interface RecoveryAction {
 interface PerformanceOptimizer {
   // Cache parsed commands
   cacheCommand(command: string, parsed: ParsedCommand): void;
-  
+
   // Batch input validation
   batchValidate(inputs: UserInput[]): Promise<ValidationResult[]>;
-  
+
   // Optimize file operations
   optimizeFileOps(files: File[]): Promise<OptimizedFileOps>;
-  
+
   // Preload session data
   preloadSession(sessionId: string): Promise<void>;
 }
@@ -1187,13 +1187,13 @@ describe('InputRouter', () => {
       sessionId: 'test-session',
       timestamp: Date.now()
     };
-    
+
     const result = await router.route(input);
-    
+
     expect(result.success).toBe(true);
     expect(result.handlerType).toBe('command');
   });
-  
+
   test('should reject malicious input', async () => {
     const router = new InputRouter(mockConfig);
     const input: UserInput = {
@@ -1203,9 +1203,9 @@ describe('InputRouter', () => {
       sessionId: 'test-session',
       timestamp: Date.now()
     };
-    
+
     const result = await router.route(input);
-    
+
     expect(result.success).toBe(false);
     expect(result.error?.message).toContain('Security threat detected');
   });
@@ -1219,7 +1219,7 @@ describe('End-to-End Input Processing', () => {
   test('should process web command and return CLI output', async () => {
     const system = new InputHandlingSystem(testConfig);
     await system.initialize();
-    
+
     const session = await system.createSession('test-user');
     const result = await system.processInput({
       type: 'command',
@@ -1228,7 +1228,7 @@ describe('End-to-End Input Processing', () => {
       sessionId: session.id,
       timestamp: Date.now()
     });
-    
+
     expect(result.success).toBe(true);
     expect(result.output).toMatch(/\d+\.\d+\.\d+/);
   });

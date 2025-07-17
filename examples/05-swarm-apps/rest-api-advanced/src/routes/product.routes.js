@@ -1,28 +1,28 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const { validationResult } = require('express-validator');
-const { authenticate, authorize } = require('../middleware/auth');
-const productController = require('../controllers/product.controller');
+const { validationResult } = require("express-validator");
+const { authenticate, authorize } = require("../middleware/auth");
+const productController = require("../controllers/product.controller");
 const {
-  createProductValidation,
-  updateProductValidation,
-  productIdValidation,
-  searchProductsValidation,
-  addReviewValidation,
-  updateReviewValidation,
-  markReviewHelpfulValidation,
-  updateInventoryValidation,
-  bulkUpdateInventoryValidation,
-  uploadImagesValidation,
-} = require('../validators/product.validator');
+	createProductValidation,
+	updateProductValidation,
+	productIdValidation,
+	searchProductsValidation,
+	addReviewValidation,
+	updateReviewValidation,
+	markReviewHelpfulValidation,
+	updateInventoryValidation,
+	bulkUpdateInventoryValidation,
+	uploadImagesValidation,
+} = require("../validators/product.validator");
 
 // Validation middleware
 const validate = (req, res, next) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-  next();
+	const errors = validationResult(req);
+	if (!errors.isEmpty()) {
+		return res.status(400).json({ errors: errors.array() });
+	}
+	next();
 };
 
 /**
@@ -97,7 +97,12 @@ const validate = (req, res, next) => {
  *       200:
  *         description: List of products
  */
-router.get('/', searchProductsValidation, validate, productController.getProducts);
+router.get(
+	"/",
+	searchProductsValidation,
+	validate,
+	productController.getProducts,
+);
 
 /**
  * @swagger
@@ -117,7 +122,7 @@ router.get('/', searchProductsValidation, validate, productController.getProduct
  *       404:
  *         description: Product not found
  */
-router.get('/:id', productIdValidation, validate, productController.getProduct);
+router.get("/:id", productIdValidation, validate, productController.getProduct);
 
 /**
  * @swagger
@@ -152,7 +157,14 @@ router.get('/:id', productIdValidation, validate, productController.getProduct);
  *       201:
  *         description: Product created successfully
  */
-router.post('/', authenticate, authorize('admin'), createProductValidation, validate, productController.createProduct);
+router.post(
+	"/",
+	authenticate,
+	authorize("admin"),
+	createProductValidation,
+	validate,
+	productController.createProduct,
+);
 
 /**
  * @swagger
@@ -191,7 +203,14 @@ router.post('/', authenticate, authorize('admin'), createProductValidation, vali
  *       200:
  *         description: Product updated successfully
  */
-router.put('/:id', authenticate, authorize('admin'), updateProductValidation, validate, productController.updateProduct);
+router.put(
+	"/:id",
+	authenticate,
+	authorize("admin"),
+	updateProductValidation,
+	validate,
+	productController.updateProduct,
+);
 
 /**
  * @swagger
@@ -213,7 +232,14 @@ router.put('/:id', authenticate, authorize('admin'), updateProductValidation, va
  *       404:
  *         description: Product not found
  */
-router.delete('/:id', authenticate, authorize('admin'), productIdValidation, validate, productController.deleteProduct);
+router.delete(
+	"/:id",
+	authenticate,
+	authorize("admin"),
+	productIdValidation,
+	validate,
+	productController.deleteProduct,
+);
 
 /**
  * @swagger
@@ -245,32 +271,97 @@ router.delete('/:id', authenticate, authorize('admin'), productIdValidation, val
  *       200:
  *         description: Images uploaded successfully
  */
-router.post('/:id/images', authenticate, authorize('admin'), uploadImagesValidation, validate, productController.uploadImages);
+router.post(
+	"/:id/images",
+	authenticate,
+	authorize("admin"),
+	uploadImagesValidation,
+	validate,
+	productController.uploadImages,
+);
 
 // Additional routes
-router.get('/category/:category', productController.getProductsByCategory);
-router.get('/featured', productController.getFeaturedProducts);
-router.get('/popular', productController.getPopularProducts);
-router.get('/:id/related', productIdValidation, validate, productController.getRelatedProducts);
+router.get("/category/:category", productController.getProductsByCategory);
+router.get("/featured", productController.getFeaturedProducts);
+router.get("/popular", productController.getPopularProducts);
+router.get(
+	"/:id/related",
+	productIdValidation,
+	validate,
+	productController.getRelatedProducts,
+);
 
 // Review routes
-router.post('/:id/reviews', authenticate, addReviewValidation, validate, productController.addReview);
-router.put('/:id/reviews', authenticate, updateReviewValidation, validate, productController.updateReview);
-router.delete('/:id/reviews', authenticate, productIdValidation, validate, productController.deleteReview);
-router.post('/:productId/reviews/:reviewId/helpful', authenticate, markReviewHelpfulValidation, validate, productController.markReviewHelpful);
+router.post(
+	"/:id/reviews",
+	authenticate,
+	addReviewValidation,
+	validate,
+	productController.addReview,
+);
+router.put(
+	"/:id/reviews",
+	authenticate,
+	updateReviewValidation,
+	validate,
+	productController.updateReview,
+);
+router.delete(
+	"/:id/reviews",
+	authenticate,
+	productIdValidation,
+	validate,
+	productController.deleteReview,
+);
+router.post(
+	"/:productId/reviews/:reviewId/helpful",
+	authenticate,
+	markReviewHelpfulValidation,
+	validate,
+	productController.markReviewHelpful,
+);
 
 // Inventory routes
-router.put('/:id/inventory', authenticate, authorize('admin'), updateInventoryValidation, validate, productController.updateInventory);
-router.put('/inventory/bulk', authenticate, authorize('admin'), bulkUpdateInventoryValidation, validate, productController.bulkUpdateInventory);
-router.get('/inventory/report', authenticate, authorize('admin'), productController.getInventoryReport);
+router.put(
+	"/:id/inventory",
+	authenticate,
+	authorize("admin"),
+	updateInventoryValidation,
+	validate,
+	productController.updateInventory,
+);
+router.put(
+	"/inventory/bulk",
+	authenticate,
+	authorize("admin"),
+	bulkUpdateInventoryValidation,
+	validate,
+	productController.bulkUpdateInventory,
+);
+router.get(
+	"/inventory/report",
+	authenticate,
+	authorize("admin"),
+	productController.getInventoryReport,
+);
 
 // Category routes
-router.get('/categories/list', productController.getCategories);
+router.get("/categories/list", productController.getCategories);
 
 // Image management
-router.delete('/:id/images/:imageId', authenticate, authorize('admin'), productController.deleteImage);
+router.delete(
+	"/:id/images/:imageId",
+	authenticate,
+	authorize("admin"),
+	productController.deleteImage,
+);
 
 // Export
-router.get('/export/data', authenticate, authorize('admin'), productController.exportProducts);
+router.get(
+	"/export/data",
+	authenticate,
+	authorize("admin"),
+	productController.exportProducts,
+);
 
 module.exports = router;

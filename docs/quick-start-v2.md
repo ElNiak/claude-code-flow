@@ -15,7 +15,7 @@ Claude Flow v2.0.0 is a complete reimagining of AI agent orchestration:
 
 ## Prerequisites
 
-- **Node.js 18+** 
+- **Node.js 18+**
 - **Claude Code CLI** (recommended) or standalone mode
 - **Terminal access** with bash support
 - **Internet connection** for MCP tool integration
@@ -155,7 +155,7 @@ claude-flow memory store --key "project/architecture" --value '{"pattern":"micro
 # Query collective intelligence
 claude-flow memory search --pattern "authentication" --collective --limit 10
 
-# Memory analytics and insights  
+# Memory analytics and insights
 claude-flow memory analytics --timeframe 7d --show-patterns
 ```
 
@@ -467,7 +467,7 @@ After completing this quick start, explore these advanced v2.0.0 features:
 - [Pattern Recognition](./pattern-recognition.md) - Automated workflow optimization
 - [Predictive Analytics](./predictive-analytics.md) - Proactive task management
 
-### 🐝 Hive Mind Mastery  
+### 🐝 Hive Mind Mastery
 - [Queen Configuration](./hive-mind/queen-setup.md) - Advanced coordination strategies
 - [Collective Intelligence](./hive-mind/collective-intelligence.md) - Swarm learning
 - [Cross-Session Memory](./hive-mind/persistent-memory.md) - Knowledge continuity

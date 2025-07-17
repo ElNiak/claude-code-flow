@@ -90,10 +90,10 @@ const resourceManager = new ResourceManager(config, eventBus, logger);
 try {
   // Acquire with timeout and priority
   await resourceManager.acquire('database-lock', agentId, priority);
-  
+
   // Critical section
   await performDatabaseOperation();
-  
+
 } finally {
   await resourceManager.release('database-lock', agentId);
 }
@@ -228,7 +228,7 @@ console.log({
 });
 
 // Get metric history
-const history = metrics.getMetricHistory('task.completed', 
+const history = metrics.getMetricHistory('task.completed',
   new Date(Date.now() - 3600000) // Last hour
 );
 ```

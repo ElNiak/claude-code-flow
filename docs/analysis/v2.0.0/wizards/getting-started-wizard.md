@@ -6,7 +6,7 @@ Welcome to the Claude Flow Interactive Getting Started Wizard! This guide provid
 
 This interactive wizard will guide you through:
 1. **Environment Check** - Verify your system is ready
-2. **Installation Method** - Choose the best approach for you  
+2. **Installation Method** - Choose the best approach for you
 3. **First Swarm Creation** - Build your first AI agent swarm
 4. **Task Execution** - Run your first orchestrated task
 5. **Success Verification** - Confirm everything works
@@ -20,7 +20,7 @@ Let's make sure your system is ready for Claude Flow v2.0.0.
 ```html
 <div class="wizard-step" id="step-1">
   <h3>System Requirements Check</h3>
-  
+
   <div class="requirement-check">
     <input type="checkbox" id="node-check" onchange="checkNode()">
     <label for="node-check">Node.js 20+ installed</label>
@@ -80,7 +80,7 @@ Based on your needs, select the best installation approach:
 ```html
 <div class="wizard-step" id="step-2">
   <h3>Select Your Installation Method</h3>
-  
+
   <div class="installation-options">
     <div class="option-card" onclick="selectMethod('npx')">
       <h4>🎯 NPX (Recommended)</h4>
@@ -169,7 +169,7 @@ Now let's create your first AI agent swarm!
 ```html
 <div class="wizard-step" id="step-3">
   <h3>Build Your First Swarm</h3>
-  
+
   <div class="swarm-builder">
     <div class="topology-selector">
       <h4>1. Choose Swarm Topology</h4>
@@ -182,7 +182,7 @@ Now let's create your first AI agent swarm!
             <img src="/images/hierarchical.svg" alt="Hierarchical topology">
           </div>
         </label>
-        
+
         <label class="topology-option">
           <input type="radio" name="topology" value="mesh">
           <div class="topology-card">
@@ -191,7 +191,7 @@ Now let's create your first AI agent swarm!
             <img src="/images/mesh.svg" alt="Mesh topology">
           </div>
         </label>
-        
+
         <label class="topology-option">
           <input type="radio" name="topology" value="star">
           <div class="topology-card">
@@ -269,11 +269,11 @@ Let's put your swarm to work!
 ```html
 <div class="wizard-step" id="step-4">
   <h3>Create and Run a Task</h3>
-  
+
   <div class="task-builder">
     <div class="task-templates">
       <h4>Choose a starter task:</h4>
-      
+
       <div class="template-card" onclick="selectTask('research')">
         <h5>🔍 Research Task</h5>
         <p>Research latest AI developments</p>
@@ -281,7 +281,7 @@ Let's put your swarm to work!
           "Research the top 3 breakthroughs in AI from 2024"
         </div>
       </div>
-      
+
       <div class="template-card" onclick="selectTask('analysis')">
         <h5>📊 Analysis Task</h5>
         <p>Analyze data or code</p>
@@ -289,7 +289,7 @@ Let's put your swarm to work!
           "Analyze this codebase for optimization opportunities"
         </div>
       </div>
-      
+
       <div class="template-card" onclick="selectTask('creative')">
         <h5>🎨 Creative Task</h5>
         <p>Generate creative content</p>
@@ -297,7 +297,7 @@ Let's put your swarm to work!
           "Create a project plan for a web application"
         </div>
       </div>
-      
+
       <div class="template-card" onclick="selectTask('custom')">
         <h5>✏️ Custom Task</h5>
         <p>Define your own task</p>
@@ -378,26 +378,26 @@ Congratulations! You've successfully:
 ```html
 <div class="wizard-step" id="step-5">
   <h3>🎊 Welcome to Claude Flow!</h3>
-  
+
   <div class="success-summary">
     <div class="metric-card">
       <h4>Installation</h4>
       <div class="metric-value">✅ Complete</div>
       <div class="metric-detail">v2.0.0 ready</div>
     </div>
-    
+
     <div class="metric-card">
       <h4>Swarm Status</h4>
       <div class="metric-value">🟢 Active</div>
       <div class="metric-detail">3 agents online</div>
     </div>
-    
+
     <div class="metric-card">
       <h4>First Task</h4>
       <div class="metric-value">✅ Complete</div>
       <div class="metric-detail">6ms execution time</div>
     </div>
-    
+
     <div class="metric-card">
       <h4>Performance</h4>
       <div class="metric-value">⚡ 80%</div>
@@ -407,23 +407,23 @@ Congratulations! You've successfully:
 
   <div class="next-steps">
     <h4>What's Next?</h4>
-    
+
     <div class="learning-path">
       <a href="/docs/tutorials/beginner/multi-agent-basics" class="path-card">
         <h5>🤖 Multi-Agent Systems</h5>
         <p>Learn to coordinate multiple agents</p>
       </a>
-      
+
       <a href="/docs/tutorials/intermediate/neural-training" class="path-card">
         <h5>🧠 Neural Networks</h5>
         <p>Train custom neural models</p>
       </a>
-      
+
       <a href="/docs/examples/real-world" class="path-card">
         <h5>💼 Real-World Projects</h5>
         <p>Build production applications</p>
       </a>
-      
+
       <a href="/docs/reference/mcp-tools" class="path-card">
         <h5>🔧 MCP Tools</h5>
         <p>Master all 27 tools</p>
@@ -475,18 +475,18 @@ async function testNode() {
   try {
     const response = await fetch('/api/check-node');
     const data = await response.json();
-    
+
     if (data.version >= 20) {
-      document.getElementById('node-result').innerHTML = 
+      document.getElementById('node-result').innerHTML =
         `✅ Node ${data.version} detected`;
       document.getElementById('node-check').checked = true;
       checkRequirements();
     } else {
-      document.getElementById('node-result').innerHTML = 
+      document.getElementById('node-result').innerHTML =
         `❌ Node ${data.version} - Please upgrade to 20+`;
     }
   } catch (error) {
-    document.getElementById('node-result').innerHTML = 
+    document.getElementById('node-result').innerHTML =
       `⚠️ Could not detect Node.js`;
   }
 }
@@ -499,7 +499,7 @@ function selectMethod(method) {
     global: 'npm install -g claude-flow@2.0.0',
     docker: 'docker run --rm node:20-alpine npx claude-flow@2.0.0'
   };
-  
+
   document.getElementById('selected-command').textContent = commands[method];
   document.getElementById('installation-command').classList.remove('hidden');
 }
@@ -519,11 +519,11 @@ function selectTask(type) {
     analysis: "Analyze this codebase for optimization opportunities",
     creative: "Create a project plan for a web application"
   };
-  
-  const taskText = type === 'custom' 
+
+  const taskText = type === 'custom'
     ? document.getElementById('custom-task').value
     : tasks[type];
-    
+
   const command = `npx ruv-swarm@latest orchestrate "${taskText}" --strategy adaptive`;
   document.getElementById('task-command').textContent = command;
 }

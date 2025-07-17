@@ -148,7 +148,7 @@ The Hive Mind supports multiple coordination topologies that can be changed dyna
 - **Advantages**: Maximum redundancy, fault tolerance, parallel processing
 - **Neural Optimization**: Communication pattern learning, load distribution optimization
 
-#### Hierarchical Topology  
+#### Hierarchical Topology
 - **Use Case**: Complex projects with clear task dependencies
 - **Advantages**: Clear command structure, efficient resource management
 - **Neural Optimization**: Hierarchy optimization, delegation pattern learning
@@ -207,9 +207,9 @@ The heart of the Hive Mind's intelligence is its neural coordination engine:
 
 #### Architecture
 - **Input Layer**: Current swarm state, task requirements, performance metrics
-- **Hidden Layers**: 
+- **Hidden Layers**:
   - Task analysis layer (128 neurons)
-  - Agent capability assessment layer (256 neurons)  
+  - Agent capability assessment layer (256 neurons)
   - Coordination strategy layer (512 neurons)
   - Performance prediction layer (256 neurons)
 - **Output Layer**: Agent assignments, coordination commands, optimization suggestions

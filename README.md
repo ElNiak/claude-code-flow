@@ -63,7 +63,7 @@ claude --dangerously-skip-permissions
 # 1. Initialize Claude Flow with MCP setup
 npx --y claude-flow init --force
 
-# 2. Explore available capabilities  
+# 2. Explore available capabilities
 npx --y claude-flow --help
 
 # 3. Launch the coordination system
@@ -101,7 +101,7 @@ npx claude-flow init --force
 # Feature 1: Authentication (new coordination context)
 npx claude-flow hive-mind spawn "auth-system" --claude
 
-# Feature 2: User management (separate coordination context)  
+# Feature 2: User management (separate coordination context)
 npx claude-flow hive-mind spawn "user-management" --claude
 
 # Resume Feature 1 later
@@ -135,7 +135,7 @@ npx claude-flow hive-mind spawn "Deep dive into API gateway patterns" --claude
 ```bash
 # Check what's actually stored (even if directories look empty)
 npx claude-flow memory stats        # See memory data
-npx claude-flow memory list         # List all namespaces  
+npx claude-flow memory list         # List all namespaces
 npx claude-flow hive-mind status    # See active coordination
 
 # Your project structure after initialization:
@@ -161,7 +161,7 @@ npx claude-flow init --force  # Auto-configures MCP servers & hooks
 #### **Pre-Operation Hooks**
 
 - **`pre-task`**: Prepares context for task execution
-- **`pre-search`**: Optimizes search performance  
+- **`pre-search`**: Optimizes search performance
 - **`pre-edit`**: Validates files and prepares resources
 - **`pre-command`**: Security validation before execution
 
@@ -190,7 +190,7 @@ npx claude-flow init --force  # Auto-configures MCP servers & hooks
       "alwaysRun": false
     },
     "postEditHook": {
-      "command": "npx", 
+      "command": "npx",
       "args": ["claude-flow", "hooks", "post-edit", "--file", "${file}", "--format", "true"],
       "alwaysRun": true
     }

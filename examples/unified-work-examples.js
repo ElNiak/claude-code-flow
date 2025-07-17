@@ -2,7 +2,7 @@
 
 /**
  * Unified Work Command Examples
- * 
+ *
  * This file demonstrates various usage patterns of the unified work command
  * that replaces 50+ individual commands with intelligent task analysis.
  */
@@ -19,7 +19,7 @@ Basic Usage:
 
 1. Simple Development Task:
    npx claude-flow work "build a REST API with authentication"
-   
+
    → Auto-detects: development task
    → Spawns: 4 agents (architect, coder, tester, coordinator)
    → Uses: hierarchical topology, parallel strategy
@@ -27,7 +27,7 @@ Basic Usage:
 
 2. Research Task:
    npx claude-flow work "research machine learning frameworks for computer vision"
-   
+
    → Auto-detects: research task
    → Spawns: 3 agents (researcher, analyst, coordinator)
    → Uses: mesh topology, adaptive strategy
@@ -35,7 +35,7 @@ Basic Usage:
 
 3. Deployment Task:
    npx claude-flow work "deploy application to production with monitoring"
-   
+
    → Auto-detects: deployment task
    → Spawns: 3 agents (devops, monitor, coordinator)
    → Uses: ring topology, sequential strategy
@@ -46,19 +46,19 @@ Preset Usage:
 
 4. Using Research Preset:
    npx claude-flow work "analyze GraphQL vs REST APIs" --preset research
-   
+
    → Uses predefined research configuration
    → Optimized for information gathering and analysis
 
 5. Using Development Preset:
    npx claude-flow work "implement user authentication system" --preset development
-   
+
    → Uses predefined development configuration
    → Optimized for code generation and testing
 
 6. Using API Development Preset:
    npx claude-flow work "build GraphQL API with real-time subscriptions" --preset api
-   
+
    → Uses API-specific configuration
    → Includes authentication, testing, documentation
 
@@ -67,19 +67,19 @@ Custom Configuration:
 
 7. Custom Agent Count:
    npx claude-flow work "build microservices architecture" --agents 8
-   
+
    → Uses 8 agents for complex distributed system
    → Auto-selects appropriate agent types and coordination
 
 8. Custom Topology:
    npx claude-flow work "implement CI/CD pipeline" --topology ring --strategy sequential
-   
+
    → Uses ring topology for pipeline flow
    → Sequential strategy for safe deployment steps
 
 9. Dry Run Mode:
    npx claude-flow work "complex full-stack application" --dry-run --verbose
-   
+
    → Shows execution plan without running
    → Displays agent allocation and coordination strategy
 
@@ -101,19 +101,19 @@ Advanced Examples:
         }
       }
     }
-    
+
     npx claude-flow work "build enterprise application" --preset enterprise
 
 11. Environment Variables:
     export CLAUDE_FLOW_AGENTS=5
     export CLAUDE_FLOW_TOPOLOGY=mesh
     export CLAUDE_FLOW_STRATEGY=adaptive
-    
+
     npx claude-flow work "optimize database performance"
 
 12. JSON Output:
     npx claude-flow work "analyze system architecture" --output json --dry-run
-    
+
     → Outputs execution plan in JSON format
     → Useful for automation and tooling integration
 
@@ -235,41 +235,42 @@ Happy coding! 🎉
 
 // Example of programmatic usage (for integration)
 const exampleUsage = {
-  // Basic development task
-  development: {
-    command: 'npx claude-flow work "build REST API"',
-    expected: {
-      taskType: 'development',
-      agents: 4,
-      topology: 'hierarchical',
-      strategy: 'parallel'
-    }
-  },
-  
-  // Research task with preset
-  research: {
-    command: 'npx claude-flow work "research AI frameworks" --preset research',
-    expected: {
-      taskType: 'research',
-      agents: 3,
-      topology: 'mesh',
-      strategy: 'adaptive'
-    }
-  },
-  
-  // Custom configuration
-  custom: {
-    command: 'npx claude-flow work "deploy to production" --agents 5 --topology ring',
-    expected: {
-      taskType: 'deployment',
-      agents: 5,
-      topology: 'ring',
-      strategy: 'sequential'
-    }
-  }
+	// Basic development task
+	development: {
+		command: 'npx claude-flow work "build REST API"',
+		expected: {
+			taskType: "development",
+			agents: 4,
+			topology: "hierarchical",
+			strategy: "parallel",
+		},
+	},
+
+	// Research task with preset
+	research: {
+		command: 'npx claude-flow work "research AI frameworks" --preset research',
+		expected: {
+			taskType: "research",
+			agents: 3,
+			topology: "mesh",
+			strategy: "adaptive",
+		},
+	},
+
+	// Custom configuration
+	custom: {
+		command:
+			'npx claude-flow work "deploy to production" --agents 5 --topology ring',
+		expected: {
+			taskType: "deployment",
+			agents: 5,
+			topology: "ring",
+			strategy: "sequential",
+		},
+	},
 };
 
 // Export for testing or integration
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { exampleUsage };
+if (typeof module !== "undefined" && module.exports) {
+	module.exports = { exampleUsage };
 }

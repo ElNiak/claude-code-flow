@@ -7,7 +7,7 @@ This document provides comprehensive documentation for all 87 MCP tools availabl
 ## 📋 Tool Categories
 
 ### 🐝 Swarm Coordination Tools (12)
-### 🧠 Neural Network Tools (15)  
+### 🧠 Neural Network Tools (15)
 ### 💾 Memory & Persistence Tools (12)
 ### 📊 Analysis & Monitoring Tools (13)
 ### 🔄 Workflow & Automation Tools (11)
@@ -78,8 +78,8 @@ Create a specialized agent within the swarm.
   "type": {
     "type": "string",
     "enum": [
-      "coordinator", "researcher", "coder", "analyst", 
-      "architect", "tester", "reviewer", "optimizer", 
+      "coordinator", "researcher", "coder", "analyst",
+      "architect", "tester", "reviewer", "optimizer",
       "documenter", "monitor", "specialist"
     ],
     "description": "Type of agent to spawn"

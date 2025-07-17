@@ -7,7 +7,7 @@ Using BatchTool for orchestration, I get real concurrency: one agent researching
 This is what modern development should feel like: modular, recursive, and fast. Claude Code isn’t just a new tool—it’s an entirely new development rhythm.
 
 Great. I’ll develop a full implementation plan, directory structure, and test strategy for integrating multi-terminal orchestration into the Claude-SPARC CLI system. This will cover integration design, VS Code terminal control, argument parsing, test coverage (mocked and behavioral), and compatibility guidance.
- 
+
  # Multi-Terminal Execution in Claude-SPARC CLI
  Here’s a lightweight extension to your `claude-sparc.sh` that lets you kick off multiple VS Code integrated terminals and run a distinct command in each. You can invoke it anywhere in your CLI flow—just drop in the helper and add the new `--multi-term` option.
 
@@ -80,13 +80,13 @@ MULTI_TERM=false
 MULTI_TERM_CONFIG=""
 while [[ "$#" -gt 0 ]]; do
   case "$1" in
-    --multi-term) 
-       MULTI_TERM=true 
+    --multi-term)
+       MULTI_TERM=true
        # If next argument is a file (e.g., ends with .json), treat it as config path
-       if [[ -n "$2" && "$2" != "-"* ]]; then 
-         MULTI_TERM_CONFIG="$2"; shift 
-       fi 
-       ;; 
+       if [[ -n "$2" && "$2" != "-"* ]]; then
+         MULTI_TERM_CONFIG="$2"; shift
+       fi
+       ;;
     # ... other options ...
   esac
   shift
@@ -181,9 +181,9 @@ launch_vscode_terminals() {
     return 1
   fi
   # 2. Open VS Code on the project (reuse window if already open)
-  code -r "$project_dir" 
+  code -r "$project_dir"
   sleep 2  # brief pause to let VS Code initialize
-  
+
   # 3. Read multi-terminal commands from config (JSON parsing)
   if [[ ! -f "$config_file" ]]; then
     echo "Multi-terminal config '$config_file' not found." >&2
@@ -194,7 +194,7 @@ launch_vscode_terminals() {
   while IFS= read -r cmd; do
     commands+=("$cmd")
   done < <(jq -r '.terminals[].command' "$config_file")
-  
+
   # 4. Open the first terminal (if not already open, focus will create one)
   open_vscode_uri "vscode://workbench.action.terminal.focus"
   if ((${#commands[@]} > 0)); then

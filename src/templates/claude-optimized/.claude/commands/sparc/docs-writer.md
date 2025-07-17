@@ -29,11 +29,11 @@ const tasks = [
   { tool: 'Read', params: { file_path: 'src/auth/index.ts' } },
   { tool: 'Read', params: { file_path: 'src/api/index.ts' } },
   { tool: 'Read', params: { file_path: 'src/database/index.ts' } },
-  
+
   // Parallel search for usage examples
   { tool: 'Grep', params: { pattern: 'export (class|function)', include: '*.ts' } },
   { tool: 'Grep', params: { pattern: '@example', include: '*.ts' } },
-  
+
   // Parallel glob for test files
   { tool: 'Glob', params: { pattern: '**/*.test.ts' } },
   { tool: 'Glob', params: { pattern: '**/*.spec.ts' } }

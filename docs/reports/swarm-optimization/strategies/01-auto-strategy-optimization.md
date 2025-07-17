@@ -52,7 +52,7 @@ async decomposeObjective(objective: SwarmObjective): Promise<DecompositionResult
     this.analyzeTaskTypesAsync(objective.description),
     this.estimateComplexityAsync(objective.description)
   ]);
-  
+
   // Intelligent caching with cache hit rate tracking
   // Enhanced task batching and dependency analysis
   // ML-inspired optimization recommendations
@@ -341,6 +341,6 @@ The modular architecture ensures easy maintenance and future enhancements, while
 
 ---
 
-**Report Generated**: December 14, 2025  
-**Version**: 1.0  
+**Report Generated**: December 14, 2025
+**Version**: 1.0
 **Author**: Claude Code Flow Optimization Team

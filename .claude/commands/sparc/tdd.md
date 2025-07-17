@@ -37,8 +37,8 @@ TodoWrite([
     priority: "high",
     mode: "tdd",
     batchOptimized: true,
-    
-    
+
+
     tools: ["Read","Write","Edit","Bash","TodoWrite","Task"]
   }
 ]);
@@ -47,7 +47,7 @@ TodoWrite([
 Task("Tdd Agent", "Execute specialized tdd task", {
   mode: "tdd",
   batchOptimized: true,
-  
+
   memoryIntegration: true
 });
 ```

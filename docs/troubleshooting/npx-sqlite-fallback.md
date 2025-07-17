@@ -169,7 +169,7 @@ console.log(`Store: ${isUsingFallback ? 'In-Memory' : 'SQLite'}`);
 ## Alternative Solutions Considered
 
 1. **Bundle Prebuilt Binaries** - Too large, platform-specific
-2. **Use Pure JS Database** - Breaking change, performance impact  
+2. **Use Pure JS Database** - Breaking change, performance impact
 3. **Postinstall Compilation** - Doesn't work in npx contexts
 4. **Require Local Install** - Poor user experience
 

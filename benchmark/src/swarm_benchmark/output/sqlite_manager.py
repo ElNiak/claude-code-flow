@@ -11,41 +11,41 @@ from ..core.models import Benchmark, Task, Result, BenchmarkMetrics
 
 class SQLiteManager:
     """Manages SQLite database for benchmark results."""
-    
+
     def __init__(self):
         """Initialize the SQLite manager."""
         self.db_path: Optional[Path] = None
-    
+
     async def save_benchmark(self, benchmark: Benchmark, output_dir: Path) -> Path:
         """Save benchmark to SQLite database.
-        
+
         Args:
             benchmark: Benchmark to save
             output_dir: Output directory
-            
+
         Returns:
             Path to database file
         """
         self.db_path = output_dir / "benchmark_results.db"
-        
+
         await self._ensure_database()
-        
+
         async with aiosqlite.connect(self.db_path) as db:
             # Insert benchmark
             await self._insert_benchmark(db, benchmark)
-            
+
             # Insert tasks
             for task in benchmark.tasks:
                 await self._insert_task(db, task, benchmark.id)
-            
+
             # Insert results
             for result in benchmark.results:
                 await self._insert_result(db, result, benchmark.id)
-            
+
             await db.commit()
-        
+
         return self.db_path
-    
+
     async def _ensure_database(self) -> None:
         """Ensure database and tables exist."""
         async with aiosqlite.connect(self.db_path) as db:
@@ -68,7 +68,7 @@ class SQLiteManager:
                     metadata TEXT
                 )
             """)
-            
+
             # Create tasks table
             await db.execute("""
                 CREATE TABLE IF NOT EXISTS tasks (
@@ -94,7 +94,7 @@ class SQLiteManager:
                     FOREIGN KEY (benchmark_id) REFERENCES benchmarks (id)
                 )
             """)
-            
+
             # Create results table
             await db.execute("""
                 CREATE TABLE IF NOT EXISTS results (
@@ -118,7 +118,7 @@ class SQLiteManager:
                     FOREIGN KEY (task_id) REFERENCES tasks (id)
                 )
             """)
-            
+
             # Create indexes for better query performance
             await db.execute("CREATE INDEX IF NOT EXISTS idx_benchmarks_created_at ON benchmarks (created_at)")
             await db.execute("CREATE INDEX IF NOT EXISTS idx_benchmarks_strategy ON benchmarks (strategy)")
@@ -126,9 +126,9 @@ class SQLiteManager:
             await db.execute("CREATE INDEX IF NOT EXISTS idx_tasks_benchmark_id ON tasks (benchmark_id)")
             await db.execute("CREATE INDEX IF NOT EXISTS idx_results_benchmark_id ON results (benchmark_id)")
             await db.execute("CREATE INDEX IF NOT EXISTS idx_results_task_id ON results (task_id)")
-            
+
             await db.commit()
-    
+
     async def _insert_benchmark(self, db: aiosqlite.Connection, benchmark: Benchmark) -> None:
         """Insert benchmark into database."""
         await db.execute("""
@@ -152,7 +152,7 @@ class SQLiteManager:
             json.dumps(benchmark.error_log),
             json.dumps(benchmark.metadata)
         ))
-    
+
     async def _insert_task(self, db: aiosqlite.Connection, task: Task, benchmark_id: str) -> None:
         """Insert task into database."""
         await db.execute("""
@@ -182,7 +182,7 @@ class SQLiteManager:
             json.dumps(task.subtasks),
             json.dumps(task.dependencies)
         ))
-    
+
     async def _insert_result(self, db: aiosqlite.Connection, result: Result, benchmark_id: str) -> None:
         """Insert result into database."""
         await db.execute("""
@@ -209,46 +209,46 @@ class SQLiteManager:
             result.completed_at.isoformat() if result.completed_at else None,
             result.duration()
         ))
-    
-    async def query_benchmarks(self, 
+
+    async def query_benchmarks(self,
                               strategy: Optional[str] = None,
                               mode: Optional[str] = None,
                               limit: int = 10) -> List[Dict[str, Any]]:
         """Query benchmarks from database."""
         if not self.db_path or not self.db_path.exists():
             return []
-        
+
         query = "SELECT * FROM benchmarks WHERE 1=1"
         params = []
-        
+
         if strategy:
             query += " AND strategy = ?"
             params.append(strategy)
-        
+
         if mode:
             query += " AND mode = ?"
             params.append(mode)
-        
+
         query += " ORDER BY created_at DESC LIMIT ?"
         params.append(limit)
-        
+
         async with aiosqlite.connect(self.db_path) as db:
             db.row_factory = aiosqlite.Row
             cursor = await db.execute(query, params)
             rows = await cursor.fetchall()
             return [dict(row) for row in rows]
-    
+
     async def get_benchmark(self, benchmark_id: str) -> Optional[Dict[str, Any]]:
         """Get specific benchmark by ID."""
         if not self.db_path or not self.db_path.exists():
             return None
-        
+
         async with aiosqlite.connect(self.db_path) as db:
             db.row_factory = aiosqlite.Row
             cursor = await db.execute("SELECT * FROM benchmarks WHERE id = ?", (benchmark_id,))
             row = await cursor.fetchone()
             return dict(row) if row else None
-    
+
     def _config_to_dict(self, config) -> Dict[str, Any]:
         """Convert config to dictionary."""
         return {
@@ -270,7 +270,7 @@ class SQLiteManager:
             "output_directory": config.output_directory,
             "verbose": config.verbose
         }
-    
+
     def _metrics_to_dict(self, metrics: BenchmarkMetrics) -> Dict[str, Any]:
         """Convert metrics to dictionary."""
         return {
@@ -290,7 +290,7 @@ class SQLiteManager:
             "total_cpu_time": metrics.total_cpu_time,
             "network_overhead": metrics.network_overhead
         }
-    
+
     def _performance_metrics_to_dict(self, metrics) -> Dict[str, Any]:
         """Convert performance metrics to dictionary."""
         return {
@@ -303,7 +303,7 @@ class SQLiteManager:
             "coordination_overhead": metrics.coordination_overhead,
             "communication_latency": metrics.communication_latency
         }
-    
+
     def _quality_metrics_to_dict(self, metrics) -> Dict[str, Any]:
         """Convert quality metrics to dictionary."""
         return {
@@ -315,7 +315,7 @@ class SQLiteManager:
             "review_score": metrics.review_score,
             "automated_score": metrics.automated_score
         }
-    
+
     def _resource_usage_to_dict(self, usage) -> Dict[str, Any]:
         """Convert resource usage to dictionary."""
         return {

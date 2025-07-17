@@ -1,8 +1,8 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const userController = require('../controllers/user.controller');
-const { protect, authorize } = require('../middleware/auth');
-const { authValidators, validate } = require('../validators/auth.validator');
+const userController = require("../controllers/user.controller");
+const { protect, authorize } = require("../middleware/auth");
+const { authValidators, validate } = require("../validators/auth.validator");
 
 /**
  * @swagger
@@ -60,7 +60,13 @@ const { authValidators, validate } = require('../validators/auth.validator');
  *       403:
  *         description: Forbidden - Admin access required
  */
-router.get('/', protect, authorize('admin'), validate(authValidators.userQuery), userController.getAllUsers);
+router.get(
+	"/",
+	protect,
+	authorize("admin"),
+	validate(authValidators.userQuery),
+	userController.getAllUsers,
+);
 
 /**
  * @swagger
@@ -78,7 +84,7 @@ router.get('/', protect, authorize('admin'), validate(authValidators.userQuery),
  *       403:
  *         description: Forbidden - Admin access required
  */
-router.get('/stats', protect, authorize('admin'), userController.getUserStats);
+router.get("/stats", protect, authorize("admin"), userController.getUserStats);
 
 /**
  * @swagger
@@ -112,7 +118,12 @@ router.get('/stats', protect, authorize('admin'), userController.getUserStats);
  *       401:
  *         description: Unauthorized or incorrect password
  */
-router.put('/change-password', protect, validate(authValidators.changePassword), userController.changePassword);
+router.put(
+	"/change-password",
+	protect,
+	validate(authValidators.changePassword),
+	userController.changePassword,
+);
 
 /**
  * @swagger
@@ -145,7 +156,12 @@ router.put('/change-password', protect, validate(authValidators.changePassword),
  *       401:
  *         description: Incorrect password
  */
-router.put('/change-email', protect, validate(authValidators.changeEmail), userController.changeEmail);
+router.put(
+	"/change-email",
+	protect,
+	validate(authValidators.changeEmail),
+	userController.changeEmail,
+);
 
 /**
  * @swagger
@@ -170,7 +186,12 @@ router.put('/change-email', protect, validate(authValidators.changeEmail), userC
  *       404:
  *         description: User not found
  */
-router.get('/:id', protect, validate(authValidators.userId), userController.getUserById);
+router.get(
+	"/:id",
+	protect,
+	validate(authValidators.userId),
+	userController.getUserById,
+);
 
 /**
  * @swagger
@@ -217,7 +238,13 @@ router.get('/:id', protect, validate(authValidators.userId), userController.getU
  *       404:
  *         description: User not found
  */
-router.put('/:id', protect, validate(authValidators.userId), validate(authValidators.updateProfile), userController.updateUser);
+router.put(
+	"/:id",
+	protect,
+	validate(authValidators.userId),
+	validate(authValidators.updateProfile),
+	userController.updateUser,
+);
 
 /**
  * @swagger
@@ -242,7 +269,12 @@ router.put('/:id', protect, validate(authValidators.userId), validate(authValida
  *       404:
  *         description: User not found
  */
-router.delete('/:id', protect, validate(authValidators.userId), userController.deleteUser);
+router.delete(
+	"/:id",
+	protect,
+	validate(authValidators.userId),
+	userController.deleteUser,
+);
 
 /**
  * @swagger
@@ -275,6 +307,11 @@ router.delete('/:id', protect, validate(authValidators.userId), userController.d
  *       403:
  *         description: Forbidden - Can only view own activity or admin required
  */
-router.get('/:id/activity', protect, validate(authValidators.userId), userController.getUserActivity);
+router.get(
+	"/:id/activity",
+	protect,
+	validate(authValidators.userId),
+	userController.getUserActivity,
+);
 
 module.exports = router;

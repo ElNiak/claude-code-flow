@@ -89,7 +89,7 @@
 </head>
 <body>
     <h1>Settings Dialog Visual Test Suite</h1>
-    
+
     <div class="test-section">
         <h2>🔗 Test Environment</h2>
         <p>Open the console in a new tab to test settings functionality:</p>
@@ -142,10 +142,10 @@
         function runAutomatedTests() {
             const results = document.getElementById('testResults');
             results.innerHTML = '';
-            
+
             const frame = document.getElementById('consoleFrame');
             const frameDoc = frame.contentDocument || frame.contentWindow.document;
-            
+
             const tests = [
                 {
                     name: 'Settings panel exists',
@@ -197,11 +197,11 @@
                     test: () => frameDoc.getElementById('fontFamily') !== null
                 }
             ];
-            
+
             tests.forEach(test => {
                 const result = document.createElement('div');
                 result.className = 'test-result';
-                
+
                 try {
                     const passed = test.test();
                     result.className += passed ? ' pass' : ' fail';
@@ -210,38 +210,38 @@
                     result.className += ' warning';
                     result.textContent = `⚠️ ${test.name} - Error: ${error.message}`;
                 }
-                
+
                 results.appendChild(result);
             });
         }
-        
+
         function inspectLocalStorage() {
             const inspector = document.getElementById('storageInspector');
             const frame = document.getElementById('consoleFrame');
-            
+
             try {
                 // Get localStorage from iframe
                 const frameStorage = frame.contentWindow.localStorage;
                 const data = {};
-                
+
                 for (let i = 0; i < frameStorage.length; i++) {
                     const key = frameStorage.key(i);
                     let value = frameStorage.getItem(key);
-                    
+
                     // Try to parse JSON values
                     try {
                         value = JSON.parse(value);
                     } catch {}
-                    
+
                     data[key] = value;
                 }
-                
+
                 inspector.textContent = JSON.stringify(data, null, 2);
             } catch (error) {
                 inspector.textContent = `Error accessing localStorage: ${error.message}`;
             }
         }
-        
+
         function clearLocalStorage() {
             if (confirm('Clear all localStorage data?')) {
                 const frame = document.getElementById('consoleFrame');
@@ -254,7 +254,7 @@
                 }
             }
         }
-        
+
         // Auto-run tests after iframe loads
         document.getElementById('consoleFrame').onload = () => {
             setTimeout(runAutomatedTests, 1000);

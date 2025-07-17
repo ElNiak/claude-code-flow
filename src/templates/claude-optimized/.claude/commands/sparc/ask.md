@@ -47,12 +47,12 @@ const taskAnalysis = [
   { tool: 'Read', params: { file_path: 'package.json' } },
   { tool: 'Read', params: { file_path: '.roomodes' } },
   { tool: 'Glob', params: { pattern: 'src/**/*.{ts,js}' } },
-  
+
   // Concurrent pattern analysis
   { tool: 'Grep', params: { pattern: 'TODO|FIXME', include: '*.{ts,js}' } },
   { tool: 'Grep', params: { pattern: 'test\\(|describe\\(', include: '*.test.{ts,js}' } },
   { tool: 'Grep', params: { pattern: 'import.*from', include: '*.{ts,js}' } },
-  
+
   // Parallel documentation search
   { tool: 'Glob', params: { pattern: '**/*.md' } },
   { tool: 'Grep', params: { pattern: 'sparc (run|mode)', include: '*.md' } }
@@ -96,17 +96,17 @@ const processQuestion = async (userQuestion) => {
   const analysis = [
     // Analyze question intent
     { tool: 'analyzeIntent', params: { text: userQuestion } },
-    
+
     // Search for similar questions/solutions
     { tool: 'Grep', params: { pattern: extractKeywords(userQuestion), include: '*.md' } },
-    
+
     // Find relevant code examples
     { tool: 'Grep', params: { pattern: extractCodePatterns(userQuestion), include: '*.{ts,js}' } },
-    
+
     // Check existing implementations
     { tool: 'Glob', params: { pattern: `**/*${extractFeature(userQuestion)}*` } }
   ];
-  
+
   const results = await batchtools.execute(analysis);
   return generateSmartResponse(results);
 };

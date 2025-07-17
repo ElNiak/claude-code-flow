@@ -1,45 +1,45 @@
 {
-  "timestamp": "2025-07-05T01:59:51.126Z",
-  "testType": "Swarm Coordination Integration",
-  "totalTests": 6,
-  "passedTests": 5,
-  "failedTests": 1,
-  "successRate": 83,
-  "details": [
-    {
-      "test": "Swarm Init",
-      "status": "PASS",
-      "details": "Mesh topology with 5 agents"
-    },
-    {
-      "test": "Agent Spawning",
-      "status": "PASS",
-      "details": "Multiple agent types spawned"
-    },
-    {
-      "test": "Task Orchestration",
-      "status": "PASS",
-      "details": "Task successfully orchestrated"
-    },
-    {
-      "test": "Neural Capabilities",
-      "status": "PASS",
-      "details": "WASM neural networks working"
-    },
-    {
-      "test": "Performance Monitoring",
-      "status": "FAIL",
-      "details": "Command failed with code 1: ❌ Error: require is not defined in ES module scope, you can use import instead\nThis file is being treated as an ES module because it has a '.js' file extension and '/usr/local/share/nvm/versions/node/v20.19.0/lib/node_modules/ruv-swarm/package.json' contains \"type\": \"module\". To treat it as a CommonJS script, rename it to use the '.cjs' file extension.\n"
-    },
-    {
-      "test": "WASM Integration",
-      "status": "PASS",
-      "details": "WASM benchmarks running"
-    }
-  ],
-  "mcpToolsAvailable": 25,
-  "mcpIntegrationStatus": "FULLY_FUNCTIONAL",
-  "wasmSupport": true,
-  "neuralNetworksEnabled": true,
-  "recommendedUsage": "Production Ready"
+	"timestamp": "2025-07-05T01:59:51.126Z",
+	"testType": "Swarm Coordination Integration",
+	"totalTests": 6,
+	"passedTests": 5,
+	"failedTests": 1,
+	"successRate": 83,
+	"details": [
+		{
+			"test": "Swarm Init",
+			"status": "PASS",
+			"details": "Mesh topology with 5 agents"
+		},
+		{
+			"test": "Agent Spawning",
+			"status": "PASS",
+			"details": "Multiple agent types spawned"
+		},
+		{
+			"test": "Task Orchestration",
+			"status": "PASS",
+			"details": "Task successfully orchestrated"
+		},
+		{
+			"test": "Neural Capabilities",
+			"status": "PASS",
+			"details": "WASM neural networks working"
+		},
+		{
+			"test": "Performance Monitoring",
+			"status": "FAIL",
+			"details": "Command failed with code 1: ❌ Error: require is not defined in ES module scope, you can use import instead\nThis file is being treated as an ES module because it has a '.js' file extension and '/usr/local/share/nvm/versions/node/v20.19.0/lib/node_modules/ruv-swarm/package.json' contains \"type\": \"module\". To treat it as a CommonJS script, rename it to use the '.cjs' file extension.\n"
+		},
+		{
+			"test": "WASM Integration",
+			"status": "PASS",
+			"details": "WASM benchmarks running"
+		}
+	],
+	"mcpToolsAvailable": 25,
+	"mcpIntegrationStatus": "FULLY_FUNCTIONAL",
+	"wasmSupport": true,
+	"neuralNetworksEnabled": true,
+	"recommendedUsage": "Production Ready"
 }

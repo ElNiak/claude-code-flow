@@ -20,7 +20,7 @@ if [[ "$*" != *"--ui"* ]]; then
     # Add --ui flag after the objective
     ARGS=()
     OBJECTIVE_DONE=false
-    
+
     for arg in "$@"; do
         ARGS+=("$arg")
         if [[ ! "$OBJECTIVE_DONE" = true ]] && [[ ! "$arg" =~ ^- ]]; then
@@ -31,7 +31,7 @@ if [[ "$*" != *"--ui"* ]]; then
             fi
         fi
     done
-    
+
     # Run with --ui flag
     exec "$DENO_PATH" run --allow-all "$SWARM_DEMO" "${ARGS[@]}"
 else

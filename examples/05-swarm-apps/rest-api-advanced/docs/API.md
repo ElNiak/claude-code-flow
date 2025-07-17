@@ -127,7 +127,7 @@ The API implements rate limiting to prevent abuse:
 
 ### General Endpoints
 - **Limit**: 100 requests per 15 minutes per IP
-- **Headers**: 
+- **Headers**:
   - `X-RateLimit-Limit`: Total requests allowed
   - `X-RateLimit-Remaining`: Requests remaining
   - `X-RateLimit-Reset`: Reset timestamp
@@ -1240,12 +1240,12 @@ Check if the service is alive.
 4. **Process Orders**
    ```http
    GET /api/orders/admin/all?status=pending
-   
+
    PUT /api/orders/507f1f77bcf86cd799439016/status
    {
      "status": "processing"
    }
-   
+
    POST /api/orders/507f1f77bcf86cd799439016/tracking
    {
      "carrier": "FedEx",

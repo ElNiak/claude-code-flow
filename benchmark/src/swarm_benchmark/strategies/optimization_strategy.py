@@ -9,30 +9,30 @@ from .base_strategy import BaseStrategy
 
 class OptimizationStrategy(BaseStrategy):
     """Strategy for performance optimization tasks."""
-    
+
     def __init__(self):
         """Initialize the optimization strategy."""
         super().__init__()
         self.claude_flow_client = None
-    
+
     @property
     def name(self) -> str:
         """Strategy name."""
         return "optimization"
-    
+
     @property
     def description(self) -> str:
         """Strategy description."""
         return "Performance optimization"
-    
+
     async def execute(self, task: Task) -> Result:
         """Execute an optimization task."""
         start_time = datetime.now()
-        
+
         # Simulate optimization execution
         await asyncio.sleep(0.18)
         execution_time = (datetime.now() - start_time).total_seconds()
-        
+
         result = Result(
             task_id=task.id,
             agent_id="optimization-agent",
@@ -50,10 +50,10 @@ class OptimizationStrategy(BaseStrategy):
             started_at=start_time,
             completed_at=datetime.now()
         )
-        
+
         self._record_execution(task, result)
         return result
-    
+
     def get_metrics(self) -> Dict[str, Any]:
         """Get optimization strategy metrics."""
         return {

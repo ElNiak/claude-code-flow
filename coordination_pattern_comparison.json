@@ -1,0 +1,291 @@
+{
+	"coordination_pattern_comparison": {
+		"analysis_focus": "How SPARC, Hive, and Swarm coordinate agents and manage workflows",
+		"analysis_date": "2025-07-13",
+
+		"sparc_coordination_patterns": {
+			"coordination_philosophy": "methodology_guided_sequential",
+			"coordination_mechanism": "memory_namespace_handoffs",
+			"implementation_details": {
+				"coordination_class": "No dedicated coordinator class - embedded in CLI command",
+				"primary_functions": [
+					"buildSparcPrompt() - methodology context injection",
+					"executeClaudeWithSparc() - subprocess execution with environment",
+					"loadSparcConfig() - mode configuration loading"
+				],
+				"agent_management": "Single agent per phase execution model",
+				"task_coordination": "Sequential phase progression with memory persistence",
+				"communication_pattern": "Memory-based state handoff between phases",
+				"synchronization": "User confirmation barriers between phases"
+			},
+			"coordination_algorithms": {
+				"task_assignment": "Mode-based tool selection via buildToolsFromGroups()",
+				"dependency_management": "Implicit methodology phase dependencies",
+				"resource_allocation": "Sequential single-agent resource usage",
+				"conflict_resolution": "Phase isolation prevents conflicts",
+				"load_balancing": "Not applicable - sequential execution"
+			},
+			"coordination_data_structures": {
+				"mode_configuration": "SparcMode interface with role definitions",
+				"workflow_state": "Memory namespace per mode execution",
+				"task_tracking": "Phase progression tracking",
+				"agent_registry": "No persistent agent registry",
+				"communication_channels": "Memory store key-value pairs"
+			}
+		},
+
+		"hive_coordination_patterns": {
+			"coordination_philosophy": "democratic_consensus_driven",
+			"coordination_mechanism": "voting_based_collective_intelligence",
+			"implementation_details": {
+				"coordination_class": "HiveOrchestrator extends EventEmitter",
+				"primary_functions": [
+					"decomposeObjective() - consensus task breakdown",
+					"proposeTaskAssignment() - voting-based assignment",
+					"conductConsensusRound() - democratic decision making",
+					"calculateAgentTaskScore() - capability matching"
+				],
+				"agent_management": "Specialized agent types with voting participation",
+				"task_coordination": "Consensus-driven task assignment and execution",
+				"communication_pattern": "Event-driven voting and decision propagation",
+				"synchronization": "Consensus threshold-based synchronization"
+			},
+			"coordination_algorithms": {
+				"task_assignment": "Capability-based bidding with consensus approval",
+				"dependency_management": "Consensus-approved dependency graphs",
+				"resource_allocation": "Democratic voting on resource allocation",
+				"conflict_resolution": "Consensus voting for conflict resolution",
+				"load_balancing": "Voting-based workload distribution"
+			},
+			"coordination_data_structures": {
+				"hive_task": "HiveTask interface with voting state",
+				"hive_decision": "HiveDecision interface with vote tracking",
+				"agent_capabilities": "Map<string, Set<string>> capability registry",
+				"voting_state": "Map<string, boolean> vote tracking per decision",
+				"consensus_threshold": "Configurable approval percentage"
+			},
+			"voting_mechanisms": {
+				"decision_types": [
+					"task_assignment",
+					"quality_check",
+					"architecture",
+					"consensus"
+				],
+				"vote_collection": "submitVote() with agent ID and boolean vote",
+				"consensus_evaluation": "evaluateDecision() based on approval rate",
+				"quorum_requirements": "80% agent participation required",
+				"tie_breaking": "Consensus threshold determines approval"
+			}
+		},
+
+		"swarm_coordination_patterns": {
+			"coordination_philosophy": "autonomous_self_organizing",
+			"coordination_mechanism": "distributed_background_processing",
+			"implementation_details": {
+				"coordination_class": "SwarmCoordinator extends EventEmitter",
+				"primary_functions": [
+					"processBackgroundTasks() - autonomous task processing",
+					"selectBestAgent() - capability-based agent selection",
+					"performWorkStealing() - load balancing algorithm",
+					"performHealthChecks() - system health monitoring"
+				],
+				"agent_management": "Dynamic agent pool with capability tracking",
+				"task_coordination": "Background autonomous task assignment",
+				"communication_pattern": "Event-driven with background synchronization",
+				"synchronization": "Background workers with interval-based coordination"
+			},
+			"coordination_algorithms": {
+				"task_assignment": "Capability scoring with best-fit selection",
+				"dependency_management": "areDependenciesMet() dependency checking",
+				"resource_allocation": "Circuit breaker and work stealing",
+				"conflict_resolution": "Agent isolation and task reassignment",
+				"load_balancing": "Work stealing and agent performance metrics"
+			},
+			"coordination_data_structures": {
+				"swarm_agent": "SwarmAgent interface with metrics and status",
+				"swarm_task": "SwarmTask interface with dependency tracking",
+				"swarm_objective": "SwarmObjective interface with strategy",
+				"background_workers": "Map<string, NodeJS.Timeout> worker registry",
+				"agent_capabilities": "String array per agent"
+			},
+			"background_coordination": {
+				"task_processor": "Continuous task assignment and execution",
+				"health_checker": "Agent health and task timeout monitoring",
+				"work_stealer": "Load balancing and task redistribution",
+				"memory_sync": "Distributed state synchronization",
+				"update_intervals": "Configurable background worker frequencies"
+			}
+		},
+
+		"coordination_communication_patterns": {
+			"sparc": {
+				"communication_type": "memory_persistence",
+				"message_passing": "Key-value store in memory namespace",
+				"event_system": "No event system - sequential execution",
+				"coordination_frequency": "Per phase execution",
+				"data_sharing": "Memory namespace artifacts",
+				"conflict_avoidance": "Sequential execution prevents conflicts"
+			},
+			"hive": {
+				"communication_type": "voting_and_consensus",
+				"message_passing": "EventEmitter-based decision events",
+				"event_system": "decision:proposed, decision:resolved, task:assigned",
+				"coordination_frequency": "Per consensus round",
+				"data_sharing": "Voting state and consensus decisions",
+				"conflict_avoidance": "Democratic consensus resolution"
+			},
+			"swarm": {
+				"communication_type": "distributed_event_coordination",
+				"message_passing": "EventEmitter with background synchronization",
+				"event_system": "task:assigned, task:completed, objective:completed",
+				"coordination_frequency": "Background interval-based",
+				"data_sharing": "Distributed state with memory synchronization",
+				"conflict_avoidance": "Circuit breaker and agent isolation"
+			}
+		},
+
+		"agent_lifecycle_management": {
+			"sparc": {
+				"agent_creation": "Subprocess spawning per phase execution",
+				"agent_specialization": "Mode-based tool and role specialization",
+				"agent_persistence": "No persistent agents - ephemeral execution",
+				"agent_termination": "Subprocess completion",
+				"agent_state_tracking": "No agent state - only phase artifacts"
+			},
+			"hive": {
+				"agent_creation": "spawnHiveAgents() with topology-based specialization",
+				"agent_specialization": "getAgentConfigsForTopology() role assignment",
+				"agent_persistence": "Persistent agents throughout hive session",
+				"agent_termination": "Explicit hive shutdown",
+				"agent_state_tracking": "HiveAgent interface with voting status"
+			},
+			"swarm": {
+				"agent_creation": "registerAgent() with capability registration",
+				"agent_specialization": "getCapabilitiesForType() capability mapping",
+				"agent_persistence": "Persistent agents with performance tracking",
+				"agent_termination": "Graceful shutdown with state preservation",
+				"agent_state_tracking": "SwarmAgent interface with comprehensive metrics"
+			}
+		},
+
+		"task_dependency_and_ordering": {
+			"sparc": {
+				"dependency_model": "Implicit methodology phase dependencies",
+				"ordering_algorithm": "Fixed SPARC methodology sequence",
+				"dependency_checking": "No explicit checking - methodology enforced",
+				"parallel_execution": "No parallelism - sequential phases",
+				"dependency_resolution": "Sequential progression ensures dependencies"
+			},
+			"hive": {
+				"dependency_model": "Consensus-approved task dependency graphs",
+				"ordering_algorithm": "applyTopologyOrdering() based on hive topology",
+				"dependency_checking": "Explicit dependency validation in consensus",
+				"parallel_execution": "Limited by consensus coordination overhead",
+				"dependency_resolution": "Democratic voting on dependency changes"
+			},
+			"swarm": {
+				"dependency_model": "Explicit task dependency tracking",
+				"ordering_algorithm": "Strategy-based task decomposition",
+				"dependency_checking": "areDependenciesMet() runtime validation",
+				"parallel_execution": "Full parallel execution of independent tasks",
+				"dependency_resolution": "Automatic dependency completion detection"
+			}
+		},
+
+		"quality_assurance_and_monitoring": {
+			"sparc": {
+				"quality_mechanism": "Built-in TDD methodology enforcement",
+				"monitoring_approach": "Phase completion tracking",
+				"quality_metrics": "Methodology adherence and phase artifacts",
+				"feedback_loops": "User confirmation between phases",
+				"error_detection": "Phase execution failure detection"
+			},
+			"hive": {
+				"quality_mechanism": "Consensus validation and peer review",
+				"monitoring_approach": "Voting participation and consensus tracking",
+				"quality_metrics": "Consensus rates and quality thresholds",
+				"feedback_loops": "Democratic voting feedback",
+				"error_detection": "Consensus failure and voting anomalies"
+			},
+			"swarm": {
+				"quality_mechanism": "Circuit breaker and performance metrics",
+				"monitoring_approach": "SwarmMonitor with real-time tracking",
+				"quality_metrics": "Agent performance and task completion rates",
+				"feedback_loops": "Health checks and performance adjustments",
+				"error_detection": "Circuit breaker and timeout monitoring"
+			}
+		},
+
+		"scalability_and_performance_patterns": {
+			"sparc": {
+				"scalability_approach": "Sequential methodology scaling",
+				"performance_bottlenecks": "Sequential execution and user confirmation",
+				"resource_efficiency": "High - minimal coordination overhead",
+				"scaling_limitations": "No parallel execution capability",
+				"optimal_scale": "Single complex task with methodology requirements"
+			},
+			"hive": {
+				"scalability_approach": "Consensus participation scaling",
+				"performance_bottlenecks": "Consensus coordination and voting delays",
+				"resource_efficiency": "Medium - consensus overhead",
+				"scaling_limitations": "Consensus algorithm complexity increases",
+				"optimal_scale": "Small to medium teams requiring democratic decisions"
+			},
+			"swarm": {
+				"scalability_approach": "Horizontal distributed scaling",
+				"performance_bottlenecks": "Background coordination and state sync",
+				"resource_efficiency": "Medium - distributed coordination overhead",
+				"scaling_limitations": "Coordination complexity with large swarms",
+				"optimal_scale": "Large-scale parallel task execution"
+			}
+		},
+
+		"coordination_pattern_unique_features": {
+			"sparc_unique": [
+				"Methodology-driven coordination with built-in TDD",
+				"Memory namespace handoffs between phases",
+				"User confirmation barriers for quality control",
+				"Mode-based tool selection and role definition",
+				"Configuration-driven workflow customization"
+			],
+			"hive_unique": [
+				"Democratic consensus-based task assignment",
+				"Voting mechanisms for all major decisions",
+				"Topology-aware agent specialization",
+				"Queen Genesis coordination pattern",
+				"Consensus threshold quality validation"
+			],
+			"swarm_unique": [
+				"Autonomous background task processing",
+				"Work stealing and circuit breaker patterns",
+				"Capability-based agent selection algorithms",
+				"Distributed state synchronization",
+				"Strategy-pattern task decomposition"
+			]
+		},
+
+		"real_world_coordination_scenarios": {
+			"sparc_scenarios": [
+				"Code review process with methodology enforcement",
+				"Educational software development with phase gates",
+				"Compliance-driven development workflows",
+				"TDD training and enforcement systems",
+				"Quality-assured iterative development"
+			],
+			"hive_scenarios": [
+				"Open source project governance",
+				"Collaborative research and analysis",
+				"Multi-stakeholder decision making",
+				"Peer review and validation systems",
+				"Democratic development team coordination"
+			],
+			"swarm_scenarios": [
+				"Large-scale distributed development",
+				"Autonomous CI/CD pipeline coordination",
+				"Microservices development coordination",
+				"High-throughput task processing systems",
+				"Self-healing and auto-scaling systems"
+			]
+		}
+	}
+}

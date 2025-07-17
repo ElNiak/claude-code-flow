@@ -76,7 +76,7 @@ npm run test:deno
 - **Coverage**: Core utilities, helpers, formatters
 - **Example**: `performance.test.js` - Tests for utility functions performance
 
-### 2. CLI Tests  
+### 2. CLI Tests
 - **Location**: `src/cli/__tests__/`
 - **Purpose**: Test CLI interfaces and command parsing
 - **Coverage**: Command line interface, argument parsing, help systems
@@ -86,7 +86,7 @@ npm run test:deno
 - **Location**: `src/cli/simple-commands/__tests__/`
 - **Purpose**: Test individual CLI commands
 - **Coverage**: Agent management, memory operations, swarm coordination, task management
-- **Examples**: 
+- **Examples**:
   - `agent.test.js` - Agent spawn, status, management
   - `memory.test.js` - Memory storage, retrieval, search
   - `swarm.test.js` - Swarm initialization, coordination
@@ -231,7 +231,7 @@ npm run test:coverage
 
 **Workflow Steps:**
 1. Setup environment
-2. Install dependencies  
+2. Install dependencies
 3. Run linting and type checking
 4. Execute test suites
 5. Generate coverage reports
@@ -239,7 +239,7 @@ npm run test:coverage
 
 ### Performance Benchmarks
 - **CLI startup**: Must complete in < 100ms
-- **Memory operations**: < 1s for 10k entries  
+- **Memory operations**: < 1s for 10k entries
 - **Memory usage**: < 100MB increase during tests
 - **Swarm coordination**: < 200ms initialization
 
@@ -275,10 +275,10 @@ describe('Component Name', () => {
     test('should behave correctly', () => {
       // Arrange
       const input = 'test input';
-      
+
       // Act
       const result = functionToTest(input);
-      
+
       // Assert
       expect(result).toBeDefined();
     });
@@ -293,7 +293,7 @@ test('should handle async operations', async () => {
   fs.readJson.mockResolvedValue(mockData);
 
   const result = await asyncFunction();
-  
+
   expect(result).toEqual(mockData);
   expect(fs.readJson).toHaveBeenCalled();
 });
@@ -394,6 +394,6 @@ JEST_VERBOSE=true  # Verbose Jest output
 
 ---
 
-**Last Updated**: July 2025  
-**Test Suite Version**: 2.0.0  
+**Last Updated**: July 2025
+**Test Suite Version**: 2.0.0
 **Maintainer**: Claude Flow Test Engineering Team

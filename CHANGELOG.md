@@ -159,7 +159,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    ```bash
    # Check current version
    node --version
-   
+
    # Update to Node.js 20+ (using nvm)
    nvm install 20
    nvm use 20

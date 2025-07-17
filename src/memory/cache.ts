@@ -1,239 +1,241 @@
-import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from "../utils/error-handler.js";
+
 /**
  * Memory cache implementation with LRU eviction
  */
 
-import type { MemoryEntry } from '../utils/types.js';
-import type { ILogger } from '../core/logger.js';
+import type { ILogger } from "../core/logger.js";
+import type { MemoryEntry } from "../utils/types.js";
 
 interface CacheEntry {
-  data: MemoryEntry;
-  size: number;
-  lastAccessed: number;
-  dirty: boolean;
+	data: MemoryEntry;
+	size: number;
+	lastAccessed: number;
+	dirty: boolean;
 }
 
 /**
  * LRU cache for memory entries
  */
 export class MemoryCache {
-  private cache = new Map<string, CacheEntry>();
-  private currentSize = 0;
-  private hits = 0;
-  private misses = 0;
+	private cache = new Map<string, CacheEntry>();
+	private currentSize = 0;
+	private hits = 0;
+	private misses = 0;
 
-  constructor(
-    private maxSize: number,
-    private logger: ILogger,
-  ) {}
+	constructor(
+		private maxSize: number,
+		private logger: ILogger
+	) {}
 
-  /**
-   * Gets an entry from the cache
-   */
-  get(id: string): MemoryEntry | undefined {
-    const entry = this.cache.get(id);
-    
-    if (!entry) {
-      this.misses++;
-      return undefined;
-    }
+	/**
+	 * Gets an entry from the cache
+	 */
+	get(id: string): MemoryEntry | undefined {
+		const entry = this.cache.get(id);
 
-    // Update access time,
-    entry.lastAccessed = Date.now();
-    this.hits++;
-    
-    return entry.data;
-  }
+		if (!entry) {
+			this.misses++;
+			return undefined;
+		}
 
-  /**
-   * Sets an entry in the cache
-   */
-  set(id: string, data: MemoryEntry, dirty = true): void {
-    const size = this.calculateSize(data);
+		// Update access time,
+		entry.lastAccessed = Date.now();
+		this.hits++;
 
-    // Check if we need to evict entries,
-    if (this.currentSize + size > this.maxSize) {
-      this.evict(size);
-    }
+		return entry.data;
+	}
 
-    const entry: CacheEntry = {
-      data,
-      size,
-      lastAccessed: Date.now(),
-      dirty,
-    };
+	/**
+	 * Sets an entry in the cache
+	 */
+	set(id: string, data: MemoryEntry, dirty = true): void {
+		const size = this.calculateSize(data);
 
-    // Update size if replacing existing entry,
-    const existing = this.cache.get(id);
-    if (existing) {
-      this.currentSize -= existing.size;
-    }
+		// Check if we need to evict entries,
+		if (this.currentSize + size > this.maxSize) {
+			this.evict(size);
+		}
 
-    this.cache.set(id, entry);
-    this.currentSize += size;
-  }
+		const entry: CacheEntry = {
+			data,
+			size,
+			lastAccessed: Date.now(),
+			dirty,
+		};
 
-  /**
-   * Deletes an entry from the cache
-   */
-  delete(id: string): void {
-    const entry = this.cache.get(id);
-    if (entry) {
-      this.currentSize -= entry.size;
-      this.cache.delete(id);
-    }
-  }
+		// Update size if replacing existing entry,
+		const existing = this.cache.get(id);
+		if (existing) {
+			this.currentSize -= existing.size;
+		}
 
-  /**
-   * Gets entries by prefix
-   */
-  getByPrefix(prefix: string): MemoryEntry[] {
-    const results: MemoryEntry[] = [];
-    
-    for (const [id, entry] of this.cache) {
-      if (id.startsWith(prefix)) {
-        entry.lastAccessed = Date.now();
-        results.push(entry.data);
-      }
-    }
-    
-    return results;
-  }
+		this.cache.set(id, entry);
+		this.currentSize += size;
+	}
 
-  /**
-   * Gets all dirty entries
-   */
-  getDirtyEntries(): MemoryEntry[] {
-    const dirtyEntries: MemoryEntry[] = [];
-    
-    for (const entry of this.cache.values()) {
-      if (entry.dirty) {
-        dirtyEntries.push(entry.data);
-      }
-    }
-    
-    return dirtyEntries;
-  }
+	/**
+	 * Deletes an entry from the cache
+	 */
+	delete(id: string): void {
+		const entry = this.cache.get(id);
+		if (entry) {
+			this.currentSize -= entry.size;
+			this.cache.delete(id);
+		}
+	}
 
-  /**
-   * Marks entries as clean
-   */
-  markClean(ids: string[]): void {
-    for (const id of ids) {
-      const entry = this.cache.get(id);
-      if (entry) {
-        entry.dirty = false;
-      }
-    }
-  }
+	/**
+	 * Gets entries by prefix
+	 */
+	getByPrefix(prefix: string): MemoryEntry[] {
+		const results: MemoryEntry[] = [];
 
-  /**
-   * Gets all entries
-   */
-  getAllEntries(): MemoryEntry[] {
-    return Array.from(this.cache.values()).map(entry => entry.data);
-  }
+		for (const [id, entry] of this.cache) {
+			if (id.startsWith(prefix)) {
+				entry.lastAccessed = Date.now();
+				results.push(entry.data);
+			}
+		}
 
-  /**
-   * Gets cache metrics
-   */
-  getMetrics(): {
-    size: number;
-    entries: number;
-    hitRate: number;
-    maxSize: number;
-  } {
-    const totalRequests = this.hits + this.misses;
-    const hitRate = totalRequests > 0 ? this.hits / totalRequests : 0;
+		return results;
+	}
 
-    return {
-      size: this.currentSize,
-      entries: this.cache.size,
-      hitRate,
-      maxSize: this.maxSize,
-    };
-  }
+	/**
+	 * Gets all dirty entries
+	 */
+	getDirtyEntries(): MemoryEntry[] {
+		const dirtyEntries: MemoryEntry[] = [];
 
-  /**
-   * Clears the cache
-   */
-  clear(): void {
-    this.cache.clear();
-    this.currentSize = 0;
-    this.hits = 0;
-    this.misses = 0;
-  }
+		for (const entry of this.cache.values()) {
+			if (entry.dirty) {
+				dirtyEntries.push(entry.data);
+			}
+		}
 
-  /**
-   * Performs cache maintenance
-   */
-  performMaintenance(): void {
-    // Remove expired entries if needed
-    // For now, just log metrics,
-    const metrics = this.getMetrics();
-    this.logger.debug('Cache maintenance', metrics);
-  }
+		return dirtyEntries;
+	}
 
-  private calculateSize(entry: MemoryEntry): number {
-    // Rough estimate of memory size,
-    let size = 0;
-    
-    // String fields,
-    size += entry.id.length * 2; // UTF-16,
-    size += entry.agentId.length * 2;
-    size += entry.sessionId.length * 2;
-    size += entry.type.length * 2;
-    size += entry.content.length * 2;
-    
-    // Tags,
-    size += entry.tags.reduce((sum, tag) => sum + tag.length * 2, 0);
-    
-    // JSON objects (rough estimate)
-    size += JSON.stringify(entry.context).length * 2;
-    if (entry.metadata) {
-      size += JSON.stringify(entry.metadata).length * 2;
-    }
-    
-    // Fixed size fields,
-    size += 8; // timestamp,
-    size += 4; // version,
-    size += 100; // overhead,
-    
-    return size;
-  }
+	/**
+	 * Marks entries as clean
+	 */
+	markClean(ids: string[]): void {
+		for (const id of ids) {
+			const entry = this.cache.get(id);
+			if (entry) {
+				entry.dirty = false;
+			}
+		}
+	}
 
-  private evict(requiredSpace: number): void {
-    this.logger.debug('Cache eviction triggered', { 
-      requiredSpace,
-      currentSize: this.currentSize,
-    });
+	/**
+	 * Gets all entries
+	 */
+	getAllEntries(): MemoryEntry[] {
+		return Array.from(this.cache.values()).map((entry) => entry.data);
+	}
 
-    // Sort entries by last accessed time (oldest first)
-    const entries = Array.from(this.cache.entries())
-      .sort((a, b) => a[1].lastAccessed - b[1].lastAccessed);
+	/**
+	 * Gets cache metrics
+	 */
+	getMetrics(): {
+		size: number;
+		entries: number;
+		hitRate: number;
+		maxSize: number;
+	} {
+		const totalRequests = this.hits + this.misses;
+		const hitRate = totalRequests > 0 ? this.hits / totalRequests : 0;
 
-    let freedSpace = 0;
-    const evicted: string[] = [];
+		return {
+			size: this.currentSize,
+			entries: this.cache.size,
+			hitRate,
+			maxSize: this.maxSize,
+		};
+	}
 
-    for (const [id, entry] of entries) {
-      if (freedSpace >= requiredSpace) {
-        break;
-      }
+	/**
+	 * Clears the cache
+	 */
+	clear(): void {
+		this.cache.clear();
+		this.currentSize = 0;
+		this.hits = 0;
+		this.misses = 0;
+	}
 
-      // Don't evict dirty entries if possible,
-      if (entry.dirty && evicted.length > 0) {
-        continue;
-      }
+	/**
+	 * Performs cache maintenance
+	 */
+	performMaintenance(): void {
+		// Remove expired entries if needed
+		// For now, just log metrics,
+		const metrics = this.getMetrics();
+		this.logger.debug("Cache maintenance", metrics);
+	}
 
-      this.cache.delete(id);
-      this.currentSize -= entry.size;
-      freedSpace += entry.size;
-      evicted.push(id);
-    }
+	private calculateSize(entry: MemoryEntry): number {
+		// Rough estimate of memory size,
+		let size = 0;
 
-    this.logger.debug('Cache entries evicted', { 
-      count: evicted.length,
-      freedSpace,
-    });
-  }
+		// String fields,
+		size += entry.id.length * 2; // UTF-16,
+		size += entry.agentId.length * 2;
+		size += entry.sessionId.length * 2;
+		size += entry.type.length * 2;
+		size += entry.content.length * 2;
+
+		// Tags,
+		size += entry.tags.reduce((sum, tag) => sum + tag.length * 2, 0);
+
+		// JSON objects (rough estimate)
+		size += JSON.stringify(entry.context).length * 2;
+		if (entry.metadata) {
+			size += JSON.stringify(entry.metadata).length * 2;
+		}
+
+		// Fixed size fields,
+		size += 8; // timestamp,
+		size += 4; // version,
+		size += 100; // overhead,
+
+		return size;
+	}
+
+	private evict(requiredSpace: number): void {
+		this.logger.debug("Cache eviction triggered", {
+			requiredSpace,
+			currentSize: this.currentSize,
+		});
+
+		// Sort entries by last accessed time (oldest first)
+		const entries = Array.from(this.cache.entries()).sort(
+			(a, b) => a[1].lastAccessed - b[1].lastAccessed
+		);
+
+		let freedSpace = 0;
+		const evicted: string[] = [];
+
+		for (const [id, entry] of entries) {
+			if (freedSpace >= requiredSpace) {
+				break;
+			}
+
+			// Don't evict dirty entries if possible,
+			if (entry.dirty && evicted.length > 0) {
+				continue;
+			}
+
+			this.cache.delete(id);
+			this.currentSize -= entry.size;
+			freedSpace += entry.size;
+			evicted.push(id);
+		}
+
+		this.logger.debug("Cache entries evicted", {
+			count: evicted.length,
+			freedSpace,
+		});
+	}
 }

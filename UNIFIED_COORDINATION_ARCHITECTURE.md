@@ -25,7 +25,7 @@ These systems share 70%+ functionality but lack unified coordination, causing co
   - Claude integration patterns
   - Memory namespace management
 
-#### 2. Swarm Coordination 
+#### 2. Swarm Coordination
 - **Location**: `src/coordination/` + `src/swarm/`
 - **Purpose**: Multi-agent task coordination
 - **Key Components**:
@@ -124,7 +124,7 @@ export class UnifiedCoordinator {
   private memoryStore: MemoryStore;
   private intelligenceLayer: IntelligenceLayer;
   private executionLayer: ExecutionLayer;
-  
+
   // Unified coordination methods
   async coordinateTask(request: CoordinationRequest): Promise<CoordinationResult>
   async spawnAgent(config: AgentConfig): Promise<Agent>
@@ -267,7 +267,7 @@ src/api/
    ```bash
    # Create new engine directories
    mkdir -p src/engine/{core,intelligence,execution,integration}
-   
+
    # Implement UnifiedCoordinator
    # Implement TaskEngine with basic functionality
    # Implement AgentPool with registration
@@ -430,7 +430,7 @@ npx claude-flow sparc run architect      # → SPARC intelligence
 // Legacy adapter example
 export class LegacySwarmAdapter {
   constructor(private unifiedCoordinator: UnifiedCoordinator) {}
-  
+
   async legacySwarmCommand(args: string[]): Promise<void> {
     // Convert legacy command to unified coordination
     const request = this.convertLegacyArgs(args);

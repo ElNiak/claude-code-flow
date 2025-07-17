@@ -1,291 +1,299 @@
-import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from "../utils/error-handler.js";
+
 /**
  * Inter-agent messaging system
  */
 
-import { Message, CoordinationConfig, SystemEvents } from '../utils/types.js';
-import type { IEventBus } from '../core/event-bus.js';
-import type { ILogger } from '../core/logger.js';
-import type { CoordinationError } from '../utils/errors.js';
-import { generateId, timeout as timeoutHelper } from '../utils/helpers.js';
+import type { IEventBus } from "../core/event-bus.js";
+import type { ILogger } from "../core/logger.js";
+import type { CoordinationError } from "../utils/errors.js";
+import { generateId, timeout as timeoutHelper } from "../utils/helpers.js";
+import {
+	type CoordinationConfig,
+	type Message,
+	SystemEvents,
+} from "../utils/types.js";
 
 interface MessageQueue {
-  messages: Message[];
-  handlers: Map<string, (message: Message) => void>;
+	messages: Message[];
+	handlers: Map<string, (message: Message) => void>;
 }
 
 interface PendingResponse {
-  resolve: (response: unknown) => void;
-  reject: (error: Error) => void;
-  timeout: number;
+	resolve: (response: unknown) => void;
+	reject: (error: Error) => void;
+	timeout: number;
 }
 
 /**
  * Message router for inter-agent communication
  */
 export class MessageRouter {
-  private queues = new Map<string, MessageQueue>(); // agentId -> queue,
-  private pendingResponses = new Map<string, PendingResponse>();
-  private messageCount = 0;
+	private queues = new Map<string, MessageQueue>(); // agentId -> queue,
+	private pendingResponses = new Map<string, PendingResponse>();
+	private messageCount = 0;
 
-  constructor(
-    private config: CoordinationConfig,
-    private eventBus: IEventBus,
-    private logger: ILogger,
-  ) {}
+	constructor(
+		private config: CoordinationConfig,
+		private eventBus: IEventBus,
+		private logger: ILogger
+	) {}
 
-  async initialize(): Promise<void> {
-    this.logger.info('Initializing message router');
-    
-    // Set up periodic cleanup,
-    setInterval(() => this.cleanup(), 60000); // Every minute
-  }
+	async initialize(): Promise<void> {
+		this.logger.info("Initializing message router");
 
-  async shutdown(): Promise<void> {
-    this.logger.info('Shutting down message router');
-    
-    // Reject all pending responses,
-    for (const [id, pending] of this.pendingResponses) {
-      pending.reject(new Error('Message router shutdown'));
-      clearTimeout(pending.timeout);
-    }
-    
-    this.queues.clear();
-    this.pendingResponses.clear();
-  }
+		// Set up periodic cleanup,
+		setInterval(() => this.cleanup(), 60000); // Every minute
+	}
 
-  async send(from: string, to: string, payload: unknown): Promise<void> {
-    const message: Message = {
-      id: generateId('msg'),
-      type: 'agent-message',
-      payload,
-      timestamp: new Date(),
-      priority: 0,
-    };
+	async shutdown(): Promise<void> {
+		this.logger.info("Shutting down message router");
 
-    await this.sendMessage(from, to, message);
-  }
+		// Reject all pending responses,
+		for (const [id, pending] of this.pendingResponses) {
+			pending.reject(new Error("Message router shutdown"));
+			clearTimeout(pending.timeout);
+		}
 
-  async sendWithResponse<T = unknown>(
-    from: string,
-    to: string,
-    payload: unknown,
-    timeoutMs?: number,
-  ): Promise<T> {
-    const message: Message = {
-      id: generateId('msg'),
-      type: 'agent-request',
-      payload,
-      timestamp: new Date(),
-      priority: 1,
-    };
+		this.queues.clear();
+		this.pendingResponses.clear();
+	}
 
-    // Create response promise,
-    const responsePromise = new Promise<T>((resolve, reject) => {
-      const timeout = setTimeout(() => {
-        this.pendingResponses.delete(message.id);
-        reject(new Error(`Message response timeout: ${message.id}`));
-      }, timeoutMs || this.config.messageTimeout);
+	async send(from: string, to: string, payload: unknown): Promise<void> {
+		const message: Message = {
+			id: generateId("msg"),
+			type: "agent-message",
+			payload,
+			timestamp: new Date(),
+			priority: 0,
+		};
 
-      this.pendingResponses.set(message.id, {
-        resolve: resolve as (response: unknown) => void,
-        reject,
-        timeout: timeout as unknown as number,
-      });
-    });
+		await this.sendMessage(from, to, message);
+	}
 
-    // Send message,
-    await this.sendMessage(from, to, message);
+	async sendWithResponse<T = unknown>(
+		from: string,
+		to: string,
+		payload: unknown,
+		timeoutMs?: number
+	): Promise<T> {
+		const message: Message = {
+			id: generateId("msg"),
+			type: "agent-request",
+			payload,
+			timestamp: new Date(),
+			priority: 1,
+		};
 
-    // Wait for response,
-    return await responsePromise;
-  }
+		// Create response promise,
+		const responsePromise = new Promise<T>((resolve, reject) => {
+			const timeout = setTimeout(() => {
+				this.pendingResponses.delete(message.id);
+				reject(new Error(`Message response timeout: ${message.id}`));
+			}, timeoutMs || this.config.messageTimeout);
 
-  async broadcast(from: string, payload: unknown): Promise<void> {
-    const message: Message = {
-      id: generateId('broadcast'),
-      type: 'broadcast',
-      payload,
-      timestamp: new Date(),
-      priority: 0,
-    };
+			this.pendingResponses.set(message.id, {
+				resolve: resolve as (response: unknown) => void,
+				reject,
+				timeout: timeout as unknown as number,
+			});
+		});
 
-    // Send to all agents,
-    const agents = Array.from(this.queues.keys()).filter(id => id !== from);
-    
-    await Promise.all(
-      agents.map(to => this.sendMessage(from, to, message)),
-    );
-  }
+		// Send message,
+		await this.sendMessage(from, to, message);
 
-  subscribe(agentId: string, handler: (message: Message) => void): void {
-    const queue = this.ensureQueue(agentId);
-    queue.handlers.set(generateId('handler'), handler);
-  }
+		// Wait for response,
+		return await responsePromise;
+	}
 
-  unsubscribe(agentId: string, handlerId: string): void {
-    const queue = this.queues.get(agentId);
-    if (queue) {
-      queue.handlers.delete(handlerId);
-    }
-  }
+	async broadcast(from: string, payload: unknown): Promise<void> {
+		const message: Message = {
+			id: generateId("broadcast"),
+			type: "broadcast",
+			payload,
+			timestamp: new Date(),
+			priority: 0,
+		};
 
-  async sendResponse(
-    originalMessageId: string,
-    response: unknown,
-  ): Promise<void> {
-    const pending = this.pendingResponses.get(originalMessageId);
-    if (!pending) {
-      this.logger.warn('No pending response found', { messageId: originalMessageId });
-      return;
-    }
+		// Send to all agents,
+		const agents = Array.from(this.queues.keys()).filter((id) => id !== from);
 
-    clearTimeout(pending.timeout);
-    this.pendingResponses.delete(originalMessageId);
-    pending.resolve(response);
-  }
+		await Promise.all(agents.map((to) => this.sendMessage(from, to, message)));
+	}
 
-  async getHealthStatus(): Promise<{ 
-    healthy: boolean; 
-    error?: string; 
-    metrics?: Record<string, number>;
-  }> {
-    const totalQueues = this.queues.size;
-    let totalMessages = 0;
-    let totalHandlers = 0;
+	subscribe(agentId: string, handler: (message: Message) => void): void {
+		const queue = this.ensureQueue(agentId);
+		queue.handlers.set(generateId("handler"), handler);
+	}
 
-    for (const queue of this.queues.values()) {
-      totalMessages += queue.messages.length;
-      totalHandlers += queue.handlers.size;
-    }
+	unsubscribe(agentId: string, handlerId: string): void {
+		const queue = this.queues.get(agentId);
+		if (queue) {
+			queue.handlers.delete(handlerId);
+		}
+	}
 
-    return {
-      healthy: true,
-      metrics: {
-        activeQueues: totalQueues,
-        pendingMessages: totalMessages,
-        registeredHandlers: totalHandlers,
-        pendingResponses: this.pendingResponses.size,
-        totalMessagesSent: this.messageCount,
-      },
-    };
-  }
+	async sendResponse(
+		originalMessageId: string,
+		response: unknown
+	): Promise<void> {
+		const pending = this.pendingResponses.get(originalMessageId);
+		if (!pending) {
+			this.logger.warn("No pending response found", {
+				messageId: originalMessageId,
+			});
+			return;
+		}
 
-  private async sendMessage(
-    from: string,
-    to: string,
-    message: Message,
-  ): Promise<void> {
-    this.logger.debug('Sending message', { 
-      from,
-      to,
-      messageId: message.id,
-      type: message.type,
-    });
+		clearTimeout(pending.timeout);
+		this.pendingResponses.delete(originalMessageId);
+		pending.resolve(response);
+	}
 
-    // Ensure destination queue exists,
-    const queue = this.ensureQueue(to);
+	async getHealthStatus(): Promise<{
+		healthy: boolean;
+		error?: string;
+		metrics?: Record<string, number>;
+	}> {
+		const totalQueues = this.queues.size;
+		let totalMessages = 0;
+		let totalHandlers = 0;
 
-    // Add to queue,
-    queue.messages.push(message);
-    this.messageCount++;
+		for (const queue of this.queues.values()) {
+			totalMessages += queue.messages.length;
+			totalHandlers += queue.handlers.size;
+		}
 
-    // Emit event,
-    this.eventBus.emit(SystemEvents.MESSAGE_SENT, { from, to, message });
+		return {
+			healthy: true,
+			metrics: {
+				activeQueues: totalQueues,
+				pendingMessages: totalMessages,
+				registeredHandlers: totalHandlers,
+				pendingResponses: this.pendingResponses.size,
+				totalMessagesSent: this.messageCount,
+			},
+		};
+	}
 
-    // Process message immediately if handlers exist,
-    if (queue.handlers.size > 0) {
-      await this.processMessage(to, message);
-    }
-  }
+	private async sendMessage(
+		from: string,
+		to: string,
+		message: Message
+	): Promise<void> {
+		this.logger.debug("Sending message", {
+			from,
+			to,
+			messageId: message.id,
+			type: message.type,
+		});
 
-  private async processMessage(agentId: string, message: Message): Promise<void> {
-    const queue = this.queues.get(agentId);
-    if (!queue) {
-      return;
-    }
+		// Ensure destination queue exists,
+		const queue = this.ensureQueue(to);
 
-    // Remove message from queue,
-    const index = queue.messages.indexOf(message);
-    if (index !== -1) {
-      queue.messages.splice(index, 1);
-    }
+		// Add to queue,
+		queue.messages.push(message);
+		this.messageCount++;
 
-    // Call all handlers,
-    const handlers = Array.from(queue.handlers.values());
-    await Promise.all(
-      handlers.map(handler => {
-        try {
-          handler(message);
-        } catch (error) {
-          this.logger.error('Message handler error', { 
-            agentId,
-            messageId: message.id,
-            error,
-          });
-        }
-      }),
-    );
+		// Emit event,
+		this.eventBus.emit(SystemEvents.MESSAGE_SENT, { from, to, message });
 
-    // Emit received event,
-    this.eventBus.emit(SystemEvents.MESSAGE_RECEIVED, { 
-      from: '', // Would need to track this,
-      to: agentId,
-      message,
-    });
-  }
+		// Process message immediately if handlers exist,
+		if (queue.handlers.size > 0) {
+			await this.processMessage(to, message);
+		}
+	}
 
-  private ensureQueue(agentId: string): MessageQueue {
-    if (!this.queues.has(agentId)) {
-      this.queues.set(agentId, {
-        messages: [],
-        handlers: new Map(),
-      });
-    }
-    return this.queues.get(agentId)!;
-  }
+	private async processMessage(
+		agentId: string,
+		message: Message
+	): Promise<void> {
+		const queue = this.queues.get(agentId);
+		if (!queue) {
+			return;
+		}
 
-  async performMaintenance(): Promise<void> {
-    this.logger.debug('Performing message router maintenance');
-    this.cleanup();
-  }
+		// Remove message from queue,
+		const index = queue.messages.indexOf(message);
+		if (index !== -1) {
+			queue.messages.splice(index, 1);
+		}
 
-  private cleanup(): void {
-    const now = Date.now();
+		// Call all handlers,
+		const handlers = Array.from(queue.handlers.values());
+		await Promise.all(
+			handlers.map((handler) => {
+				try {
+					handler(message);
+				} catch (error) {
+					this.logger.error("Message handler error", {
+						agentId,
+						messageId: message.id,
+						error,
+					});
+				}
+			})
+		);
 
-    // Clean up old messages,
-    for (const [agentId, queue] of this.queues) {
-      const filtered = queue.messages.filter(msg => {
-        const age = now - msg.timestamp.getTime();
-        const maxAge = msg.expiry 
-          ? msg.expiry.getTime() - msg.timestamp.getTime()
-          : this.config.messageTimeout;
+		// Emit received event,
+		this.eventBus.emit(SystemEvents.MESSAGE_RECEIVED, {
+			from: "", // Would need to track this,
+			to: agentId,
+			message,
+		});
+	}
 
-        if (age > maxAge) {
-          this.logger.warn('Dropping expired message', { 
-            agentId,
-            messageId: msg.id,
-            age,
-          });
-          return false;
-        }
-        return true;
-      });
+	private ensureQueue(agentId: string): MessageQueue {
+		if (!this.queues.has(agentId)) {
+			this.queues.set(agentId, {
+				messages: [],
+				handlers: new Map(),
+			});
+		}
+		return this.queues.get(agentId)!;
+	}
 
-      queue.messages = filtered;
+	async performMaintenance(): Promise<void> {
+		this.logger.debug("Performing message router maintenance");
+		this.cleanup();
+	}
 
-      // Remove empty queues,
-      if (queue.messages.length === 0 && queue.handlers.size === 0) {
-        this.queues.delete(agentId);
-      }
-    }
+	private cleanup(): void {
+		const now = Date.now();
 
-    // Clean up timed out responses,
-    for (const [id, pending] of this.pendingResponses) {
-      // This is handled by the timeout, but double-check,
-      clearTimeout(pending.timeout);
-      pending.reject(new Error('Response timeout during cleanup'));
-    }
-    this.pendingResponses.clear();
-  }
+		// Clean up old messages,
+		for (const [agentId, queue] of this.queues) {
+			const filtered = queue.messages.filter((msg) => {
+				const age = now - msg.timestamp.getTime();
+				const maxAge = msg.expiry
+					? msg.expiry.getTime() - msg.timestamp.getTime()
+					: this.config.messageTimeout;
+
+				if (age > maxAge) {
+					this.logger.warn("Dropping expired message", {
+						agentId,
+						messageId: msg.id,
+						age,
+					});
+					return false;
+				}
+				return true;
+			});
+
+			queue.messages = filtered;
+
+			// Remove empty queues,
+			if (queue.messages.length === 0 && queue.handlers.size === 0) {
+				this.queues.delete(agentId);
+			}
+		}
+
+		// Clean up timed out responses,
+		for (const [id, pending] of this.pendingResponses) {
+			// This is handled by the timeout, but double-check,
+			clearTimeout(pending.timeout);
+			pending.reject(new Error("Response timeout during cleanup"));
+		}
+		this.pendingResponses.clear();
+	}
 }

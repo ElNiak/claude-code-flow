@@ -40,21 +40,21 @@ OPTIONS:
     -v, --verbose              Enable verbose output
     -d, --dry-run              Show what would be done without executing
     -c, --config FILE          MCP configuration file (default: .roo/mcp.json)
-    
+
     # Research Options
     --skip-research            Skip the web research phase
     --research-depth LEVEL     Research depth: basic, standard, comprehensive (default: standard)
-    
+
     # Development Options
     --mode MODE                Development mode: full, backend-only, frontend-only, api-only (default: full)
     --skip-tests               Skip test development (not recommended)
     --coverage TARGET          Test coverage target percentage (default: 100)
     --no-parallel              Disable parallel execution
-    
+
     # Commit Options
     --commit-freq FREQ         Commit frequency: phase, feature, manual (default: phase)
     --no-commits               Disable automatic commits
-    
+
     # Output Options
     --output FORMAT            Output format: text, json, markdown (default: text)
     --quiet                    Suppress non-essential output
@@ -62,13 +62,13 @@ OPTIONS:
 EXAMPLES:
     # Basic usage
     ./claude-sparc.sh my-app docs/requirements.md
-    
+
     # Backend API development with verbose output
     ./claude-sparc.sh --mode api-only --verbose user-service api-spec.md
-    
+
     # Quick prototype without research
     ./claude-sparc.sh --skip-research --coverage 80 prototype-app readme.md
-    
+
     # Dry run to see what would be executed
     ./claude-sparc.sh --dry-run --verbose my-project requirements.md
 
@@ -180,20 +180,20 @@ validate_config() {
         echo "Warning: MCP config file not found: $MCP_CONFIG" >&2
         echo "Using default MCP configuration" >&2
     fi
-    
+
     # Check if README exists, try to find alternatives if default doesn't exist
     if [[ ! -f "$README_PATH" ]]; then
         # Try common README file variations
         local readme_alternatives=("README.md" "readme.md" "Readme.md" "README.txt" "readme.txt")
         local found_readme=""
-        
+
         for alt in "${readme_alternatives[@]}"; do
             if [[ -f "$alt" ]]; then
                 found_readme="$alt"
                 break
             fi
         done
-        
+
         if [[ -n "$found_readme" ]]; then
             echo "README file '$README_PATH' not found, using '$found_readme' instead" >&2
             README_PATH="$found_readme"
@@ -203,25 +203,25 @@ validate_config() {
             exit 1
         fi
     fi
-    
+
     # Validate development mode
     case $DEVELOPMENT_MODE in
         full|backend-only|frontend-only|api-only) ;;
         *) echo "Error: Invalid development mode: $DEVELOPMENT_MODE" >&2; exit 1 ;;
     esac
-    
+
     # Validate commit frequency
     case $COMMIT_FREQUENCY in
         phase|feature|manual) ;;
         *) echo "Error: Invalid commit frequency: $COMMIT_FREQUENCY" >&2; exit 1 ;;
     esac
-    
+
     # Validate output format
     case $OUTPUT_FORMAT in
         text|json|markdown) ;;
         *) echo "Error: Invalid output format: $OUTPUT_FORMAT" >&2; exit 1 ;;
     esac
-    
+
     # Validate coverage target
     if [[ ! "$TEST_COVERAGE_TARGET" =~ ^[0-9]+$ ]] || [[ "$TEST_COVERAGE_TARGET" -lt 0 ]] || [[ "$TEST_COVERAGE_TARGET" -gt 100 ]]; then
         echo "Error: Invalid coverage target: $TEST_COVERAGE_TARGET (must be 0-100)" >&2
@@ -255,30 +255,30 @@ EOF
 # Build allowed tools based on configuration
 build_allowed_tools() {
     local tools="View,Edit,Replace,GlobTool,GrepTool,LS,Bash"
-    
+
     if [[ "$SKIP_RESEARCH" != true ]]; then
         tools="$tools,WebFetchTool"
     fi
-    
+
     if [[ "$PARALLEL_EXECUTION" == true ]]; then
         tools="$tools,BatchTool,dispatch_agent"
     fi
-    
+
     echo "$tools"
 }
 
 # Build Claude command flags
 build_claude_flags() {
     local flags="--mcp-config $MCP_CONFIG --dangerously-skip-permissions"
-    
+
     if [[ "$VERBOSE" == true ]]; then
         flags="$flags --verbose"
     fi
-    
+
     if [[ "$OUTPUT_FORMAT" != "text" ]]; then
         flags="$flags --output-format $OUTPUT_FORMAT"
     fi
-    
+
     echo "$flags"
 }
 
@@ -287,7 +287,7 @@ main() {
     parse_args "$@"
     validate_config
     show_config
-    
+
     if [[ "$DRY_RUN" == true ]]; then
         echo "DRY RUN - Would execute the following:"
         echo "Project: $PROJECT_NAME"
@@ -296,7 +296,7 @@ main() {
         echo "Claude Flags: $(build_claude_flags)"
         exit 0
     fi
-    
+
     # Execute the SPARC development process
     execute_sparc_development
 }

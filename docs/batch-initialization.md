@@ -33,7 +33,7 @@ Batch initialization enables you to:
 
 ### 4. Performance Monitoring
 - **Real-time Metrics**: Memory usage, operation count, timing
-- **Resource Thresholds**: Automatic warnings for high resource usage  
+- **Resource Thresholds**: Automatic warnings for high resource usage
 - **Performance Reports**: Detailed completion statistics
 - **Optimization Recommendations**: Smart suggestions for better performance
 
@@ -416,7 +416,7 @@ Commands:
 For programmatic usage, the batch initialization system provides JavaScript APIs:
 
 ```javascript
-import { 
+import {
   batchInitCommand,
   PROJECT_TEMPLATES,
   ENVIRONMENT_CONFIGS

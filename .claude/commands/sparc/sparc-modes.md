@@ -222,7 +222,7 @@ Integrate modes into complex workflows:
 ```bash
 # Research-driven development workflow
 ./claude-flow sparc researcher "Best practices for microservices"
-./claude-flow sparc architect "Design microservices architecture"  
+./claude-flow sparc architect "Design microservices architecture"
 ./claude-flow sparc coder "Implement service layer"
 ./claude-flow sparc tester "Create integration tests"
 ./claude-flow sparc reviewer "Review implementation"
@@ -268,7 +268,7 @@ Task("Research Agent", "Research technology options", {
 
 // 2. Architecture design
 Task("System Architect", "Design scalable architecture", {
-  mode: "architect", 
+  mode: "architect",
   memoryDependency: "research_findings",
   memoryKey: "system_architecture"
 });

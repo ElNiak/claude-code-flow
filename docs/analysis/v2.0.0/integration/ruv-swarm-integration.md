@@ -139,7 +139,7 @@ const result = await swarm.orchestrate('Research neural architectures');
 interface RuvSwarmSDK {
   // Initialization
   init(config?: SwarmConfig): Promise<void>;
-  
+
   // Swarm Management
   swarm: {
     create(preset?: SwarmPreset): Promise<Swarm>;
@@ -147,7 +147,7 @@ interface RuvSwarmSDK {
     monitor(options?: MonitorOptions): AsyncIterator<SwarmMetrics>;
     destroy(): Promise<void>;
   };
-  
+
   // Agent Management
   agents: {
     spawn(type: AgentType, options?: AgentOptions): Promise<Agent>;
@@ -155,7 +155,7 @@ interface RuvSwarmSDK {
     assign(agentId: string, task: Task): Promise<void>;
     metrics(agentId?: string): Promise<AgentMetrics>;
   };
-  
+
   // Task Orchestration
   tasks: {
     create(description: string, options?: TaskOptions): Promise<Task>;
@@ -163,7 +163,7 @@ interface RuvSwarmSDK {
     status(taskId?: string): Promise<TaskStatus>;
     cancel(taskId: string): Promise<void>;
   };
-  
+
   // Memory Operations
   memory: {
     store(key: string, value: any): Promise<void>;
@@ -171,7 +171,7 @@ interface RuvSwarmSDK {
     search(pattern: string): Promise<MemoryItem[]>;
     clear(pattern?: string): Promise<void>;
   };
-  
+
   // Presets and Patterns
   presets: {
     development: DevelopmentPreset;
@@ -239,17 +239,17 @@ const sequential = await swarm.patterns.sequential({
 ```typescript
 class MCPBridge {
   private mcpClient: MCPClient;
-  
+
   constructor(private config: BridgeConfig) {
     this.mcpClient = new MCPClient(config.mcpEndpoint);
   }
-  
+
   async callTool(toolName: string, params: any): Promise<any> {
     // Map SDK calls to MCP tools
     const mcpToolName = this.mapToMCPTool(toolName);
     return this.mcpClient.invoke(mcpToolName, params);
   }
-  
+
   private mapToMCPTool(sdkMethod: string): string {
     const mapping: Record<string, string> = {
       'swarm.init': 'mcp__claude-flow__swarm_init',
@@ -268,7 +268,7 @@ class MCPBridge {
 class RuvSwarmProcess {
   private process?: ChildProcess;
   private ready = false;
-  
+
   async start(config: ProcessConfig): Promise<void> {
     // Start ruv-swarm as a long-running process
     this.process = spawn('ruv-swarm', ['mcp', 'start', '--json'], {
@@ -279,11 +279,11 @@ class RuvSwarmProcess {
         RUV_SWARM_CONFIG: JSON.stringify(config)
       }
     });
-    
+
     // Handle process lifecycle
     await this.waitForReady();
   }
-  
+
   async sendCommand(command: Command): Promise<Response> {
     // Send commands via stdin/stdout instead of spawning new processes
     return this.ipc.send(command);
@@ -390,14 +390,14 @@ class SwarmCache {
   async get(key: string): Promise<any> {
     // Check memory cache first
     if (this.memory.has(key)) return this.memory.get(key);
-    
+
     // Check persistent cache
     if (await this.persistent.has(key)) {
       const value = await this.persistent.get(key);
       this.memory.set(key, value);
       return value;
     }
-    
+
     return null;
   }
 }

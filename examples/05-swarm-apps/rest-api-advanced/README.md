@@ -406,7 +406,7 @@ npm run test:coverage
   - Auth service tests
   - Validation tests
   - Utility function tests
-  
+
 - **Integration Tests**: Located in `/tests/integration/`
   - Authentication endpoints
   - Product management

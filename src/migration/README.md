@@ -33,7 +33,7 @@ npx claude-flow migrate rollback
 
 1. **MigrationAnalyzer** - Analyzes project structure and detects conflicts
 2. **MigrationRunner** - Executes migration strategies
-3. **RollbackManager** - Handles backup creation and restoration  
+3. **RollbackManager** - Handles backup creation and restoration
 4. **MigrationValidator** - Validates successful migrations
 5. **ProgressReporter** - Provides visual feedback during operations
 
@@ -45,7 +45,7 @@ npx claude-flow migrate rollback
 - **Risk Level**: High (with backup)
 - **Command**: `--strategy full`
 
-#### Selective Strategy  
+#### Selective Strategy
 - **Use Case**: Projects with custom commands (default)
 - **Behavior**: Updates core files, preserves customizations
 - **Risk Level**: Medium
@@ -386,11 +386,11 @@ Automate migrations in CI/CD pipelines:
 steps:
   - name: Analyze Migration
     run: claude-flow migrate analyze --output analysis.json
-  
+
   - name: Run Migration
     run: claude-flow migrate --strategy selective --force
-  
-  - name: Validate Migration  
+
+  - name: Validate Migration
     run: claude-flow migrate validate
 ```
 
@@ -451,7 +451,7 @@ npm run build:migration
 # Unit tests
 npm test src/migration/tests/
 
-# Integration tests  
+# Integration tests
 npm run test:integration
 
 # End-to-end tests

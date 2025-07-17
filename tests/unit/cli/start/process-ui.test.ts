@@ -2,11 +2,10 @@
  * Test suite for ProcessUI
  */
 
-import { describe, it, beforeEach, afterEach, expect } from "../test.utils.ts";
-import { describe, it, beforeEach, afterEach, expect } from "../test.utils.ts";
-import { ProcessUI } from '../../../../src/cli/commands/start/process-ui.ts';
 import { ProcessManager } from '../../../../src/cli/commands/start/process-manager.ts';
+import { ProcessUI } from '../../../../src/cli/commands/start/process-ui.ts';
 import { ProcessStatus } from '../../../../src/cli/commands/start/types.ts';
+import { afterEach, afterEach, beforeEach, beforeEach, describe, describe, expect, expect, it, it } from "../test.utils.ts";
 
 describe('ProcessUI', () => {
   let processManager: ProcessManager;
@@ -26,14 +25,14 @@ describe('ProcessUI', () => {
       // UI should react to process manager events
       let renderCalled = false;
       const originalRender = ProcessUI.prototype['render'];
-      ProcessUI.prototype['render'] = function() {
+      ProcessUI.prototype['render'] = () => {
         renderCalled = true;
       };
 
       // Create new instance to test event setup
       const ui = new ProcessUI(processManager);
       processManager.emit('statusChanged', { processId: 'test', status: ProcessStatus.RUNNING });
-      
+
       // Restore original
       ProcessUI.prototype['render'] = originalRender;
     });
@@ -42,7 +41,7 @@ describe('ProcessUI', () => {
   describe('formatting helpers', () => {
     it('should format uptime correctly', () => {
       const formatUptime = processUI['formatUptime'].bind(processUI);
-      
+
       expect(formatUptime(1000)).toBe('1s');
       expect(formatUptime(60000)).toBe('1m 0s');
       expect(formatUptime(3600000)).toBe('1h 0m');
@@ -52,7 +51,7 @@ describe('ProcessUI', () => {
 
     it('should display correct status icons', () => {
       const getStatusDisplay = processUI['getStatusDisplay'].bind(processUI);
-      
+
       // Check each status has a unique display
       const displays = {
         [ProcessStatus.RUNNING]: getStatusDisplay(ProcessStatus.RUNNING),
@@ -62,7 +61,7 @@ describe('ProcessUI', () => {
         [ProcessStatus.ERROR]: getStatusDisplay(ProcessStatus.ERROR),
         [ProcessStatus.CRASHED]: getStatusDisplay(ProcessStatus.CRASHED),
       };
-      
+
       // All should be defined and unique
       const values = Object.values(displays);
       expect(values.length).toBe(6);
@@ -73,7 +72,7 @@ describe('ProcessUI', () => {
   describe('command handling', () => {
     it('should handle help command', async () => {
       const handleCommand = processUI['handleCommand'].bind(processUI);
-      
+
       // Mock console output
       const originalLog = console.log;
       let helpShown = false;
@@ -82,10 +81,10 @@ describe('ProcessUI', () => {
           helpShown = true;
         }
       };
-      
+
       await handleCommand('h');
       expect(helpShown).toBe(true);
-      
+
       // Restore
       console.log = originalLog;
     });
@@ -93,18 +92,18 @@ describe('ProcessUI', () => {
     it('should handle refresh command', async () => {
       const handleCommand = processUI['handleCommand'].bind(processUI);
       let renderCalled = false;
-      
+
       processUI['render'] = () => {
         renderCalled = true;
       };
-      
+
       await handleCommand('r');
       expect(renderCalled).toBe(true);
     });
 
     it('should handle invalid commands', async () => {
       const handleCommand = processUI['handleCommand'].bind(processUI);
-      
+
       // Mock console output
       const originalLog = console.log;
       let invalidMessageShown = false;
@@ -113,10 +112,10 @@ describe('ProcessUI', () => {
           invalidMessageShown = true;
         }
       };
-      
+
       await handleCommand('xyz');
       expect(invalidMessageShown).toBe(true);
-      
+
       // Restore
       console.log = originalLog;
     });
@@ -124,13 +123,13 @@ describe('ProcessUI', () => {
     it('should handle numeric process selection', async () => {
       const handleCommand = processUI['handleCommand'].bind(processUI);
       await processManager.initialize();
-      
+
       // Mock showProcessMenu
       let menuShownForProcess: any = null;
       processUI['showProcessMenu'] = async (process) => {
         menuShownForProcess = process;
       };
-      
+
       await handleCommand('1');
       expect(menuShownForProcess).toBeDefined();
       expect(menuShownForProcess.id).toBe('event-bus');
@@ -144,35 +143,35 @@ describe('ProcessUI', () => {
 
     it('should start process', async () => {
       const startProcess = processUI['startProcess'].bind(processUI);
-      
+
       await startProcess('event-bus');
-      
+
       const process = processManager.getProcess('event-bus');
       expect(process?.status).toBe(ProcessStatus.RUNNING);
     });
 
     it('should stop process', async () => {
       const stopProcess = processUI['stopProcess'].bind(processUI);
-      
+
       // Start first
       await processManager.startProcess('event-bus');
-      
+
       await stopProcess('event-bus');
-      
+
       const process = processManager.getProcess('event-bus');
       expect(process?.status).toBe(ProcessStatus.STOPPED);
     });
 
     it('should restart process', async () => {
       const restartProcess = processUI['restartProcess'].bind(processUI);
-      
+
       // Start first
       await processManager.startProcess('event-bus');
       const firstStartTime = processManager.getProcess('event-bus')?.startTime;
-      
+
       await new Promise(resolve => setTimeout(resolve, 100));
       await restartProcess('event-bus');
-      
+
       const process = processManager.getProcess('event-bus');
       expect(process?.status).toBe(ProcessStatus.RUNNING);
       expect(process?.startTime !== firstStartTime).toBe(true);
@@ -180,22 +179,22 @@ describe('ProcessUI', () => {
 
     it('should start all processes', async () => {
       const startAll = processUI['startAll'].bind(processUI);
-      
+
       await startAll();
-      
+
       const stats = processManager.getSystemStats();
       expect(stats.runningProcesses >= 5).toBe(true);
     });
 
     it('should stop all processes', async () => {
       const stopAll = processUI['stopAll'].bind(processUI);
-      
+
       // Start some processes first
       await processManager.startProcess('event-bus');
       await processManager.startProcess('memory-manager');
-      
+
       await stopAll();
-      
+
       const stats = processManager.getSystemStats();
       expect(stats.runningProcesses).toBe(0);
     });
@@ -204,7 +203,7 @@ describe('ProcessUI', () => {
   describe('process details', () => {
     it('should show process details', () => {
       const showProcessDetails = processUI['showProcessDetails'].bind(processUI);
-      
+
       // Mock console output
       const originalLog = console.log;
       let detailsShown = false;
@@ -213,19 +212,19 @@ describe('ProcessUI', () => {
           detailsShown = true;
         }
       };
-      
+
       const mockProcess = processManager.getProcess('event-bus')!;
       showProcessDetails(mockProcess);
-      
+
       expect(detailsShown).toBe(true);
-      
+
       // Restore
       console.log = originalLog;
     });
 
     it('should display metrics when available', () => {
       const showProcessDetails = processUI['showProcessDetails'].bind(processUI);
-      
+
       // Mock console output
       const originalLog = console.log;
       let metricsShown = false;
@@ -234,7 +233,7 @@ describe('ProcessUI', () => {
           metricsShown = true;
         }
       };
-      
+
       const mockProcess = processManager.getProcess('event-bus')!;
       mockProcess.metrics = {
         cpu: 25.5,
@@ -242,11 +241,11 @@ describe('ProcessUI', () => {
         restarts: 2,
         lastError: 'Test error'
       };
-      
+
       showProcessDetails(mockProcess);
-      
+
       expect(metricsShown).toBe(true);
-      
+
       // Restore
       console.log = originalLog;
     });
@@ -255,11 +254,11 @@ describe('ProcessUI', () => {
   describe('exit handling', () => {
     it('should prompt to stop running processes on exit', async () => {
       const handleExit = processUI['handleExit'].bind(processUI);
-      
+
       // Start a process
       await processManager.initialize();
       await processManager.startProcess('event-bus');
-      
+
       // Mock console and stdin
       const originalLog = console.log;
       let promptShown = false;
@@ -268,25 +267,25 @@ describe('ProcessUI', () => {
           promptShown = true;
         }
       };
-      
+
       // Mock stdin to return 'n'
       const originalRead = Deno.stdin.read;
       Deno.stdin.read = async (buf: Uint8Array) => {
         buf[0] = 110; // 'n'
         return 1;
       };
-      
+
       // Mock stop method
       let stopCalled = false;
       processUI['stop'] = async () => {
         stopCalled = true;
       };
-      
+
       await handleExit();
-      
+
       expect(promptShown).toBe(true);
       expect(stopCalled).toBe(true);
-      
+
       // Restore
       console.log = originalLog;
       Deno.stdin.read = originalRead;

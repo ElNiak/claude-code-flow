@@ -1,738 +1,808 @@
-import { getErrorMessage as _getErrorMessage } from '../utils/error-handler.js';
+import { getErrorMessage as _getErrorMessage } from "../utils/error-handler.js";
+
 /**
  * MCP (Model Context Protocol) server implementation
  */
 
+import { arch, platform } from "node:os";
+import { performance } from "node:perf_hooks";
+import type { IEventBus } from "../core/event-bus.js";
+import type { ILogger } from "../core/logger.js";
 import {
-  MCPConfig,
-  MCPRequest,
-  MCPResponse,
-  MCPError,
-  MCPTool,
-  MCPInitializeParams,
-  MCPInitializeResult,
-  MCPSession,
-  MCPMetrics,
-  MCPProtocolVersion,
-  MCPCapabilities,
-  MCPContext,
-} from '../utils/types.js';
-import type { IEventBus } from '../core/event-bus.js';
-import type { ILogger } from '../core/logger.js';
-import { MCPError as MCPErrorClass, MCPMethodNotFoundError } from '../utils/errors.js';
-import type { ITransport } from './transports/base.js';
-import { StdioTransport } from './transports/stdio.js';
-import { HttpTransport } from './transports/http.js';
-import { ToolRegistry } from './tools.js';
-import { RequestRouter } from './router.js';
-import { SessionManager, ISessionManager } from './session-manager.js';
-import { AuthManager, IAuthManager } from './auth.js';
-import { LoadBalancer, ILoadBalancer, RequestQueue } from './load-balancer.js';
-import { createClaudeFlowTools, ClaudeFlowToolContext } from './claude-flow-tools.js';
-import { createSwarmTools, SwarmToolContext } from './swarm-tools.js';
-import { createRuvSwarmTools, RuvSwarmToolContext, isRuvSwarmAvailable, initializeRuvSwarmIntegration } from './ruv-swarm-tools.js';
-import { createUnifiedTools, UnifiedToolContext } from './unified-tools.js';
-import { platform, arch } from 'node:os';
-import { performance } from 'node:perf_hooks';
+	MCPError as MCPErrorClass,
+	MCPMethodNotFoundError,
+} from "../utils/errors.js";
+import type {
+	MCPCapabilities,
+	MCPConfig,
+	MCPContext,
+	MCPError,
+	MCPInitializeParams,
+	MCPInitializeResult,
+	MCPMetrics,
+	MCPProtocolVersion,
+	MCPRequest,
+	MCPResponse,
+	MCPSession,
+	MCPTool,
+} from "../utils/types.js";
+import { AuthManager, type IAuthManager } from "./auth.js";
+import {
+	type ClaudeFlowToolContext,
+	createClaudeFlowTools,
+} from "./claude-flow-tools.js";
+import {
+	type ILoadBalancer,
+	LoadBalancer,
+	RequestQueue,
+} from "./load-balancer.js";
+import { RequestRouter } from "./router.js";
+import {
+	createRuvSwarmTools,
+	initializeRuvSwarmIntegration,
+	isRuvSwarmAvailable,
+	type RuvSwarmToolContext,
+} from "./ruv-swarm-tools.js";
+import { type ISessionManager, SessionManager } from "./session-manager.js";
+import { createSwarmTools, type SwarmToolContext } from "./swarm-tools.js";
+import { ToolRegistry } from "./tools.js";
+import type { ITransport } from "./transports/base.js";
+import { HttpTransport } from "./transports/http.js";
+import { StdioTransport } from "./transports/stdio.js";
+import {
+	createUnifiedTools,
+	type UnifiedToolContext,
+} from "./unified-tools.js";
 
 export interface IMCPServer {
-  start(): Promise<void>;
-  stop(): Promise<void>;
-  registerTool(tool: MCPTool): void;
-  getHealthStatus(): Promise<{
-    healthy: boolean;
-    error?: string;
-    metrics?: Record<string, number>;
-  }>;
-  getMetrics(): MCPMetrics;
-  getSessions(): MCPSession[];
-  getSession(sessionId: string): MCPSession | undefined;
-  terminateSession(sessionId: string): void;
+	start(): Promise<void>;
+	stop(): Promise<void>;
+	registerTool(tool: MCPTool): void;
+	getHealthStatus(): Promise<{
+		healthy: boolean;
+		error?: string;
+		metrics?: Record<string, number>;
+	}>;
+	getMetrics(): MCPMetrics;
+	getSessions(): MCPSession[];
+	getSession(sessionId: string): MCPSession | undefined;
+	terminateSession(sessionId: string): void;
 }
 
 /**
  * MCP server implementation
  */
 export class MCPServer implements IMCPServer {
-  private transport: ITransport;
-  private toolRegistry: ToolRegistry;
-  private router: RequestRouter;
-  private sessionManager: ISessionManager;
-  private authManager: IAuthManager;
-  private loadBalancer?: ILoadBalancer;
-  private requestQueue?: RequestQueue;
-  private running = false;
-  private currentSession?: MCPSession | undefined;
+	private transport: ITransport;
+	private toolRegistry: ToolRegistry;
+	private router: RequestRouter;
+	private sessionManager: ISessionManager;
+	private authManager: IAuthManager;
+	private loadBalancer?: ILoadBalancer;
+	private requestQueue?: RequestQueue;
+	private running = false;
+	private currentSession?: MCPSession | undefined;
 
-  private readonly serverInfo = {
-    name: 'Claude-Flow MCP Server',
-    version: '1.0.0',
-  };
+	private readonly serverInfo = {
+		name: "Claude-Flow MCP Server",
+		version: "1.0.0",
+	};
 
-  private readonly supportedProtocolVersion: MCPProtocolVersion = {
-    major: 2024,
-    minor: 11,
-    patch: 5,
-  };
+	private readonly supportedProtocolVersion: MCPProtocolVersion = {
+		major: 2024,
+		minor: 11,
+		patch: 5,
+	};
 
-  private readonly serverCapabilities: MCPCapabilities = {
-    logging: {
-      level: 'info',
-    },
-    tools: {
-      listChanged: true,
-    },
-    resources: {
-      listChanged: false,
-      subscribe: false,
-    },
-    prompts: {
-      listChanged: false,
-    },
-  };
+	private readonly serverCapabilities: MCPCapabilities = {
+		logging: {
+			level: "info",
+		},
+		tools: {
+			listChanged: true,
+		},
+		resources: {
+			listChanged: false,
+			subscribe: false,
+		},
+		prompts: {
+			listChanged: false,
+		},
+	};
 
-  constructor(
-    private config: MCPConfig,
-    private eventBus: IEventBus,
-    private logger: ILogger,
-    private orchestrator?: any, // Reference to orchestrator instance,
-    private swarmCoordinator?: any, // Reference to swarm coordinator instance,
-    private agentManager?: any, // Reference to agent manager instance,
-    private resourceManager?: any, // Reference to resource manager instance,
-    private messagebus?: any, // Reference to message bus instance,
-    private monitor?: any, // Reference to real-time monitor instance
-  ) {
-    // Initialize transport,
-    this.transport = this.createTransport();
-    
-    // Initialize tool registry,
-    this.toolRegistry = new ToolRegistry(logger);
-    
-    // Initialize session manager,
-    this.sessionManager = new SessionManager(config, logger);
-    
-    // Initialize auth manager,
-    this.authManager = new AuthManager(config.auth || { enabled: false, method: 'token' }, logger);
-    
-    // Initialize load balancer if enabled,
-    if (config.loadBalancer?.enabled) {
-      this.loadBalancer = new LoadBalancer(config.loadBalancer, logger);
-      this.requestQueue = new RequestQueue(1000, 30000, logger);
-    }
-    
-    // Initialize request router,
-    this.router = new RequestRouter(this.toolRegistry, logger);
-  }
+	constructor(
+		private config: MCPConfig,
+		private eventBus: IEventBus,
+		private logger: ILogger,
+		private orchestrator?: any, // Reference to orchestrator instance,
+		private swarmCoordinator?: any, // Reference to swarm coordinator instance,
+		private agentManager?: any, // Reference to agent manager instance,
+		private resourceManager?: any, // Reference to resource manager instance,
+		private messagebus?: any, // Reference to message bus instance,
+		private monitor?: any // Reference to real-time monitor instance
+	) {
+		// Initialize transport,
+		this.transport = this.createTransport();
 
-  async start(): Promise<void> {
-    if (this.running) {
-      throw new MCPErrorClass('MCP server already running');
-    }
+		// Initialize tool registry,
+		this.toolRegistry = new ToolRegistry(logger);
 
-    this.logger.info('Starting MCP server', { transport: this.config.transport });
+		// Initialize session manager,
+		this.sessionManager = new SessionManager(config, logger);
 
-    try {
-      // Set up request handler,
-      this.transport.onRequest(async (request) => {
-        return await this.handleRequest(request);
-      });
+		// Initialize auth manager,
+		this.authManager = new AuthManager(
+			config.auth || { enabled: false, method: "token" },
+			logger
+		);
 
-      // Start transport,
-      await this.transport.start();
+		// Initialize load balancer if enabled,
+		if (config.loadBalancer?.enabled) {
+			this.loadBalancer = new LoadBalancer(config.loadBalancer, logger);
+			this.requestQueue = new RequestQueue(1000, 30000, logger);
+		}
 
-      // Register built-in tools,
-      this.registerBuiltInTools();
+		// Initialize request router,
+		this.router = new RequestRouter(this.toolRegistry, logger);
+	}
 
-      this.running = true;
-      this.logger.info('MCP server started successfully');
-    } catch (error) {
-      this.logger.error('Failed to start MCP server', error);
-      throw new MCPErrorClass('Failed to start MCP server', { error });
-    }
-  }
+	async start(): Promise<void> {
+		if (this.running) {
+			throw new MCPErrorClass("MCP server already running");
+		}
 
-  async stop(): Promise<void> {
-    if (!this.running) {
-      return;
-    }
+		this.logger.info("Starting MCP server", {
+			transport: this.config.transport,
+		});
 
-    this.logger.info('Stopping MCP server');
+		try {
+			// Set up request handler,
+			this.transport.onRequest(async (request) => {
+				return await this.handleRequest(request);
+			});
 
-    try {
-      // Stop transport,
-      await this.transport.stop();
+			// Start transport,
+			await this.transport.start();
 
-      // Clean up session manager,
-      if (this.sessionManager && 'destroy' in this.sessionManager) {
-        (this.sessionManager as any).destroy();
-      }
+			// Register built-in tools,
+			this.registerBuiltInTools();
 
-      // Clean up all sessions,
-      for (const session of this.sessionManager.getActiveSessions()) {
-        this.sessionManager.removeSession(session.id);
-      }
+			this.running = true;
+			this.logger.info("MCP server started successfully");
+		} catch (error) {
+			this.logger.error("Failed to start MCP server", error);
+			throw new MCPErrorClass("Failed to start MCP server", { error });
+		}
+	}
 
-      this.running = false;
-      this.currentSession = undefined;
-      this.logger.info('MCP server stopped');
-    } catch (error) {
-      this.logger.error('Error stopping MCP server', error);
-      throw error;
-    }
-  }
+	/**
+	 * Initialize the MCP server
+	 */
+	async initialize(): Promise<void> {
+		await this.start();
+	}
 
-  registerTool(tool: MCPTool): void {
-    this.toolRegistry.register(tool);
-    this.logger.info('Tool registered', { name: tool.name });
-  }
+	async stop(): Promise<void> {
+		if (!this.running) {
+			return;
+		}
 
-  async getHealthStatus(): Promise<{ 
-    healthy: boolean; 
-    error?: string; 
-    metrics?: Record<string, number>;
-  }> {
-    try {
-      const transportHealth = await this.transport.getHealthStatus();
-      const registeredTools = this.toolRegistry.getToolCount();
-      const { totalRequests, successfulRequests, failedRequests } = this.router.getMetrics();
-      const sessionMetrics = this.sessionManager.getSessionMetrics();
+		this.logger.info("Stopping MCP server");
 
-      const metrics: Record<string, number> = {
-        registeredTools,
-        totalRequests,
-        successfulRequests,
-        failedRequests,
-        totalSessions: sessionMetrics.total,
-        activeSessions: sessionMetrics.active,
-        authenticatedSessions: sessionMetrics.authenticated,
-        expiredSessions: sessionMetrics.expired,
-        ...transportHealth.metrics,
-      };
+		try {
+			// Stop transport,
+			await this.transport.stop();
 
-      if (this.loadBalancer) {
-        const lbMetrics = this.loadBalancer.getMetrics();
-        metrics.rateLimitedRequests = lbMetrics.rateLimitedRequests;
-        metrics.averageResponseTime = lbMetrics.averageResponseTime;
-        metrics.requestsPerSecond = lbMetrics.requestsPerSecond;
-        metrics.circuitBreakerTrips = lbMetrics.circuitBreakerTrips;
-      }
+			// Clean up session manager,
+			if (this.sessionManager && "destroy" in this.sessionManager) {
+				(this.sessionManager as any).destroy();
+			}
 
-      const status: { healthy: boolean; error?: string; metrics?: Record<string, number> } = {
-        healthy: this.running && transportHealth.healthy,
-        metrics,
-      };
-      if (transportHealth.error !== undefined) {
-        status.error = transportHealth.error;
-      }
-      return status;
-    } catch (error) {
-      return {
-        healthy: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      };
-    }
-  }
+			// Clean up all sessions,
+			for (const session of this.sessionManager.getActiveSessions()) {
+				this.sessionManager.removeSession(session.id);
+			}
 
-  getMetrics(): MCPMetrics {
-    const routerMetrics = this.router.getMetrics();
-    const sessionMetrics = this.sessionManager.getSessionMetrics();
-    const lbMetrics = this.loadBalancer?.getMetrics();
+			this.running = false;
+			this.currentSession = undefined;
+			this.logger.info("MCP server stopped");
+		} catch (error) {
+			this.logger.error("Error stopping MCP server", error);
+			throw error;
+		}
+	}
 
-    return {
-      totalRequests: routerMetrics.totalRequests,
-      successfulRequests: routerMetrics.successfulRequests,
-      failedRequests: routerMetrics.failedRequests,
-      averageResponseTime: lbMetrics?.averageResponseTime || 0,
-      activeSessions: sessionMetrics.active,
-      toolInvocations: {}, // TODO: Implement tool-specific metrics,
-      errors: {}, // TODO: Implement error categorization,
-      lastReset: lbMetrics?.lastReset || new Date(),
-    };
-  }
+	/**
+	 * Shutdown the MCP server
+	 */
+	async shutdown(): Promise<void> {
+		await this.stop();
+	}
 
-  getSessions(): MCPSession[] {
-    return this.sessionManager.getActiveSessions();
-  }
+	registerTool(tool: MCPTool): void {
+		this.toolRegistry.register(tool);
+		this.logger.info("Tool registered", { name: tool.name });
+	}
 
-  getSession(sessionId: string): MCPSession | undefined {
-    return this.sessionManager.getSession(sessionId);
-  }
+	async getHealthStatus(): Promise<{
+		healthy: boolean;
+		error?: string;
+		metrics?: Record<string, number>;
+	}> {
+		try {
+			const transportHealth = await this.transport.getHealthStatus();
+			const registeredTools = this.toolRegistry.getToolCount();
+			const { totalRequests, successfulRequests, failedRequests } =
+				this.router.getMetrics();
+			const sessionMetrics = this.sessionManager.getSessionMetrics();
 
-  terminateSession(sessionId: string): void {
-    this.sessionManager.removeSession(sessionId);
-    if (this.currentSession?.id === sessionId) {
-      this.currentSession = undefined;
-    }
-  }
+			const metrics: Record<string, number> = {
+				registeredTools,
+				totalRequests,
+				successfulRequests,
+				failedRequests,
+				totalSessions: sessionMetrics.total,
+				activeSessions: sessionMetrics.active,
+				authenticatedSessions: sessionMetrics.authenticated,
+				expiredSessions: sessionMetrics.expired,
+				...transportHealth.metrics,
+			};
 
-  private async handleRequest(request: MCPRequest): Promise<MCPResponse> {
-    this.logger.debug('Handling MCP request', { 
-      id: request.id,
-      method: request.method,
-    });
+			if (this.loadBalancer) {
+				const lbMetrics = this.loadBalancer.getMetrics();
+				metrics.rateLimitedRequests = lbMetrics.rateLimitedRequests;
+				metrics.averageResponseTime = lbMetrics.averageResponseTime;
+				metrics.requestsPerSecond = lbMetrics.requestsPerSecond;
+				metrics.circuitBreakerTrips = lbMetrics.circuitBreakerTrips;
+			}
 
-    try {
-      // Handle initialization request separately,
-      if (request.method === 'initialize') {
-        return await this.handleInitialize(request);
-      }
+			const status: {
+				healthy: boolean;
+				error?: string;
+				metrics?: Record<string, number>;
+			} = {
+				healthy: this.running && transportHealth.healthy,
+				metrics,
+			};
+			if (transportHealth.error !== undefined) {
+				status.error = transportHealth.error;
+			}
+			return status;
+		} catch (error) {
+			return {
+				healthy: false,
+				error: error instanceof Error ? error.message : "Unknown error",
+			};
+		}
+	}
 
-      // Get or create session,
-      const session = this.getOrCreateSession();
-      
-      // Check if session is initialized for non-initialize requests,
-      if (!session.isInitialized) {
-        return {
-          jsonrpc: '2.0',
-          id: request.id,
-          error: {
-            code: -32002,
-            message: 'Server not initialized',
-          },
-        };
-      }
+	getMetrics(): MCPMetrics {
+		const routerMetrics = this.router.getMetrics();
+		const sessionMetrics = this.sessionManager.getSessionMetrics();
+		const lbMetrics = this.loadBalancer?.getMetrics();
 
-      // Update session activity,
-      this.sessionManager.updateActivity(session.id);
+		return {
+			totalRequests: routerMetrics.totalRequests,
+			successfulRequests: routerMetrics.successfulRequests,
+			failedRequests: routerMetrics.failedRequests,
+			averageResponseTime: lbMetrics?.averageResponseTime || 0,
+			activeSessions: sessionMetrics.active,
+			toolInvocations: {}, // TODO: Implement tool-specific metrics,
+			errors: {}, // TODO: Implement error categorization,
+			lastReset: lbMetrics?.lastReset || new Date(),
+		};
+	}
 
-      // Check load balancer constraints,
-      if (this.loadBalancer) {
-        const allowed = await this.loadBalancer.shouldAllowRequest(session, request);
-        if (!allowed) {
-          return {
-            jsonrpc: '2.0',
-            id: request.id,
-            error: {
-              code: -32000,
-              message: 'Rate limit exceeded or circuit breaker open',
-            },
-          };
-        }
-      }
+	getSessions(): MCPSession[] {
+		return this.sessionManager.getActiveSessions();
+	}
 
-      // Record request start,
-      const requestMetrics = this.loadBalancer?.recordRequestStart(session, request);
+	getSession(sessionId: string): MCPSession | undefined {
+		return this.sessionManager.getSession(sessionId);
+	}
 
-      try {
-        // Process request through router,
-        const result = await this.router.route(request);
-        
-        const response: MCPResponse = {
-          jsonrpc: '2.0',
-          id: request.id,
-          result,
-        };
+	terminateSession(sessionId: string): void {
+		this.sessionManager.removeSession(sessionId);
+		if (this.currentSession?.id === sessionId) {
+			this.currentSession = undefined;
+		}
+	}
 
-        // Record success,
-        if (requestMetrics) {
-          this.loadBalancer?.recordRequestEnd(requestMetrics, response);
-        }
+	private async handleRequest(request: MCPRequest): Promise<MCPResponse> {
+		this.logger.debug("Handling MCP request", {
+			id: request.id,
+			method: request.method,
+		});
 
-        return response;
-      } catch (error) {
-        // Record failure,
-        if (requestMetrics) {
-          this.loadBalancer?.recordRequestEnd(requestMetrics, undefined, error as Error);
-        }
-        throw error;
-      }
-    } catch (error) {
-      this.logger.error('Error handling MCP request', { 
-        id: request.id,
-        method: request.method,
-        error,
-      });
+		try {
+			// Handle initialization request separately,
+			if (request.method === "initialize") {
+				return await this.handleInitialize(request);
+			}
 
-      return {
-        jsonrpc: '2.0',
-        id: request.id,
-        error: this.errorToMCPError(error),
-      };
-    }
-  }
+			// Get or create session,
+			const session = this.getOrCreateSession();
 
-  private async handleInitialize(request: MCPRequest): Promise<MCPResponse> {
-    try {
-      const params = request.params as MCPInitializeParams;
-      
-      if (!params) {
-        return {
-          jsonrpc: '2.0',
-          id: request.id,
-          error: {
-            code: -32602,
-            message: 'Invalid params',
-          },
-        };
-      }
+			// Check if session is initialized for non-initialize requests,
+			if (!session.isInitialized) {
+				return {
+					jsonrpc: "2.0",
+					id: request.id,
+					error: {
+						code: -32002,
+						message: "Server not initialized",
+					},
+				};
+			}
 
-      // Create session,
-      const session = this.sessionManager.createSession(this.config.transport);
-      this.currentSession = session;
+			// Update session activity,
+			this.sessionManager.updateActivity(session.id);
 
-      // Initialize session,
-      this.sessionManager.initializeSession(session.id, params);
+			// Check load balancer constraints,
+			if (this.loadBalancer) {
+				const allowed = await this.loadBalancer.shouldAllowRequest(
+					session,
+					request
+				);
+				if (!allowed) {
+					return {
+						jsonrpc: "2.0",
+						id: request.id,
+						error: {
+							code: -32000,
+							message: "Rate limit exceeded or circuit breaker open",
+						},
+					};
+				}
+			}
 
-      // Prepare response,
-      const result: MCPInitializeResult = {
-        protocolVersion: this.supportedProtocolVersion,
-        capabilities: this.serverCapabilities,
-        serverInfo: this.serverInfo,
-        instructions: 'Claude-Flow MCP Server ready for tool execution',
-      };
+			// Record request start,
+			const requestMetrics = this.loadBalancer?.recordRequestStart(
+				session,
+				request
+			);
 
-      this.logger.info('Session initialized', {
-        sessionId: session.id,
-        clientInfo: params.clientInfo,
-        protocolVersion: params.protocolVersion,
-      });
+			try {
+				// Process request through router,
+				const result = await this.router.route(request);
 
-      return {
-        jsonrpc: '2.0',
-        id: request.id,
-        result,
-      };
-    } catch (error) {
-      this.logger.error('Error during initialization', error);
-      return {
-        jsonrpc: '2.0',
-        id: request.id,
-        error: this.errorToMCPError(error),
-      };
-    }
-  }
+				const response: MCPResponse = {
+					jsonrpc: "2.0",
+					id: request.id,
+					result,
+				};
 
-  private getOrCreateSession(): MCPSession {
-    if (this.currentSession) {
-      return this.currentSession;
-    }
+				// Record success,
+				if (requestMetrics) {
+					this.loadBalancer?.recordRequestEnd(requestMetrics, response);
+				}
 
-    // For stdio transport, create a default session,
-    const session = this.sessionManager.createSession(this.config.transport);
-    this.currentSession = session;
-    return session;
-  }
+				return response;
+			} catch (error) {
+				// Record failure,
+				if (requestMetrics) {
+					this.loadBalancer?.recordRequestEnd(
+						requestMetrics,
+						undefined,
+						error as Error
+					);
+				}
+				throw error;
+			}
+		} catch (error) {
+			this.logger.error("Error handling MCP request", {
+				id: request.id,
+				method: request.method,
+				error,
+			});
 
-  private createTransport(): ITransport {
-    switch (this.config.transport) {
-      case 'stdio':
-        return new StdioTransport(this.logger);
-      
-      case 'http':
-        return new HttpTransport(
-          this.config.host || 'localhost',
-          this.config.port || 3000,
-          this.config.tlsEnabled || false,
-          this.logger,
-        );
-      
-      default:
-        throw new MCPErrorClass(`Unknown transport type: ${this.config.transport}`);
-    }
-  }
+			return {
+				jsonrpc: "2.0",
+				id: request.id,
+				error: this.errorToMCPError(error),
+			};
+		}
+	}
 
-  private registerBuiltInTools(): void {
-    // System information tool,
-    this.registerTool({
-      name: 'system/info',
-      description: 'Get system information',
-      inputSchema: {
-        type: 'object',
-        properties: {},
-      },
-      handler: async () => {
-        return {
-          version: '1.0.0',
-          platform: platform(),
-          arch: arch(),
-          runtime: 'Node.js',
-          uptime: performance.now(),
-        };
-      },
-    });
+	private async handleInitialize(request: MCPRequest): Promise<MCPResponse> {
+		try {
+			const params = request.params as MCPInitializeParams;
 
-    // Health check tool,
-    this.registerTool({
-      name: 'system/health',
-      description: 'Get system health status',
-      inputSchema: {
-        type: 'object',
-        properties: {},
-      },
-      handler: async () => {
-        return await this.getHealthStatus();
-      },
-    });
+			if (!params) {
+				return {
+					jsonrpc: "2.0",
+					id: request.id,
+					error: {
+						code: -32602,
+						message: "Invalid params",
+					},
+				};
+			}
 
-    // List tools,
-    this.registerTool({
-      name: 'tools/list',
-      description: 'List all available tools',
-      inputSchema: {
-        type: 'object',
-        properties: {},
-      },
-      handler: async () => {
-        return this.toolRegistry.listTools();
-      },
-    });
+			// Create session,
+			const session = this.sessionManager.createSession(this.config.transport);
+			this.currentSession = session;
 
-    // Tool schema,
-    this.registerTool({
-      name: 'tools/schema',
-      description: 'Get schema for a specific tool',
-      inputSchema: {
-        type: 'object',
-        properties: {
-          name: { type: 'string' },
-        },
-        required: ['name'],
-      },
-      handler: async (input: any) => {
-        const tool = this.toolRegistry.getTool(input.name);
-        if (!tool) {
-          throw new Error(`Tool not found: ${input.name}`);
-        }
-        return {
-          name: tool.name,
-          description: tool.description,
-          inputSchema: tool.inputSchema,
-        };
-      },
-    });
+			// Initialize session,
+			this.sessionManager.initializeSession(session.id, params);
 
-    // Register Claude-Flow specific tools if orchestrator is available,
-    if (this.orchestrator) {
-      const claudeFlowTools = createClaudeFlowTools(this.logger);
-      
-      for (const tool of claudeFlowTools) {
-        // Wrap the handler to inject orchestrator context,
-        const originalHandler = tool.handler;
-        tool.handler = async (input: unknown, context?: MCPContext) => {
-          const claudeFlowContext: ClaudeFlowToolContext = {
-            ...context,
-            orchestrator: this.orchestrator,
-          } as ClaudeFlowToolContext;
-          
-          return await originalHandler(input, claudeFlowContext);
-        };
-        
-        this.registerTool(tool);
-      }
-      
-      this.logger.info('Registered Claude-Flow tools', { count: claudeFlowTools.length });
-    } else {
-      this.logger.warn('Orchestrator not available - Claude-Flow tools not registered');
-    }
+			// Prepare response,
+			const result: MCPInitializeResult = {
+				protocolVersion: this.supportedProtocolVersion,
+				capabilities: this.serverCapabilities,
+				serverInfo: this.serverInfo,
+				instructions: "Claude-Flow MCP Server ready for tool execution",
+			};
 
-    // Register Swarm-specific tools if swarm components are available,
-    if (this.swarmCoordinator || this.agentManager || this.resourceManager) {
-      const swarmTools = createSwarmTools(this.logger);
-      
-      for (const tool of swarmTools) {
-        // Wrap the handler to inject swarm context,
-        const originalHandler = tool.handler;
-        tool.handler = async (input: unknown, context?: MCPContext) => {
-          const swarmContext: SwarmToolContext = {
-            ...context,
-            swarmCoordinator: this.swarmCoordinator,
-            agentManager: this.agentManager,
-            resourceManager: this.resourceManager,
-            messageBus: this.messagebus,
-            monitor: this.monitor,
-          } as SwarmToolContext;
-          
-          return await originalHandler(input, swarmContext);
-        };
-        
-        this.registerTool(tool);
-      }
-      
-      this.logger.info('Registered Swarm tools', { count: swarmTools.length });
-    } else {
-      this.logger.warn('Swarm components not available - Swarm tools not registered');
-    }
+			this.logger.info("Session initialized", {
+				sessionId: session.id,
+				clientInfo: params.clientInfo,
+				protocolVersion: params.protocolVersion,
+			});
 
-    // Register ruv-swarm MCP tools if available,
-    this.registerRuvSwarmTools();
-    
-    // Register unified coordination tools,
-    this.registerUnifiedTools();
-  }
+			return {
+				jsonrpc: "2.0",
+				id: request.id,
+				result,
+			};
+		} catch (error) {
+			this.logger.error("Error during initialization", error);
+			return {
+				jsonrpc: "2.0",
+				id: request.id,
+				error: this.errorToMCPError(error),
+			};
+		}
+	}
 
-  /**
-   * Register ruv-swarm MCP tools if available
-   */
-  private async registerRuvSwarmTools(): Promise<void> {
-    try {
-      // Check if ruv-swarm is available,
-      const available = await isRuvSwarmAvailable(this.logger);
-      
-      if (!available) {
-        this.logger.info('ruv-swarm not available - skipping ruv-swarm MCP tools registration');
-        return;
-      }
+	private getOrCreateSession(): MCPSession {
+		if (this.currentSession) {
+			return this.currentSession;
+		}
 
-      // Initialize ruv-swarm integration,
-      const workingDirectory = process.cwd();
-      const integration = await initializeRuvSwarmIntegration(workingDirectory, this.logger);
-      
-      if (!integration.success) {
-        this.logger.warn('Failed to initialize ruv-swarm integration', { error: integration.error });
-        return;
-      }
+		// For stdio transport, create a default session,
+		const session = this.sessionManager.createSession(this.config.transport);
+		this.currentSession = session;
+		return session;
+	}
 
-      // Create ruv-swarm tools,
-      const ruvSwarmTools = createRuvSwarmTools(this.logger);
-      
-      for (const tool of ruvSwarmTools) {
-        // Wrap the handler to inject ruv-swarm context,
-        const originalHandler = tool.handler;
-        tool.handler = async (input: unknown, context?: MCPContext) => {
-          const ruvSwarmContext: RuvSwarmToolContext = {
-            sessionId: context?.sessionId || `mcp-session-${Date.now()}`,
-            workingDirectory,
-            swarmId: process.env.CLAUDE_SWARM_ID || `mcp-swarm-${Date.now()}`,
-            logger: this.logger
-          };
-          
-          return await originalHandler(input, ruvSwarmContext);
-        };
-        
-        this.registerTool(tool);
-      }
-      
-      this.logger.info('Registered ruv-swarm MCP tools', { 
-        count: ruvSwarmTools.length,
-        integration: integration.data 
-      });
-      
-    } catch (error) {
-      this.logger.error('Error registering ruv-swarm MCP tools', error);
-    }
-  }
+	private createTransport(): ITransport {
+		switch (this.config.transport) {
+			case "stdio":
+				return new StdioTransport(this.logger);
 
-  /**
-   * Register unified coordination tools
-   */
-  private async registerUnifiedTools(): Promise<void> {
-    try {
-      this.logger.info('Registering unified coordination tools...');
-      
-      // Create unified tools,
-      const unifiedTools = createUnifiedTools(this.logger);
-      
-      for (const tool of unifiedTools) {
-        // Wrap the handler to inject unified context,
-        const originalHandler = tool.handler;
-        tool.handler = async (input: unknown, context?: MCPContext) => {
-          const unifiedContext: UnifiedToolContext = {
-            sessionId: context?.sessionId || `unified-session-${Date.now()}`,
-            orchestrator: this.orchestrator,
-            swarmCoordinator: this.swarmCoordinator,
-            agentManager: this.agentManager,
-            resourceManager: this.resourceManager,
-            messageBus: this.messagebus,
-            monitor: this.monitor,
-            workingDirectory: process.cwd(),
-            logger: this.logger
-          };
-          
-          return await originalHandler(input, unifiedContext);
-        };
-        
-        this.registerTool(tool);
-      }
-      
-      this.logger.info('Registered unified coordination tools', { 
-        count: unifiedTools.length,
-        toolNames: unifiedTools.map(t => t.name)
-      });
-      
-    } catch (error) {
-      this.logger.error('Error registering unified coordination tools', error);
-    }
-  }
+			case "http":
+				return new HttpTransport(
+					this.config.host || "localhost",
+					this.config.port || 3000,
+					this.config.tlsEnabled || false,
+					this.logger
+				);
 
-  private errorToMCPError(error: unknown): MCPError {
-    if (error instanceof MCPMethodNotFoundError) {
-      return {
-        code: -32601,
-        message: (error instanceof Error ? error.message : String(error)),
-        data: error.details,
-      };
-    }
+			default:
+				throw new MCPErrorClass(
+					`Unknown transport type: ${this.config.transport}`
+				);
+		}
+	}
 
-    if (error instanceof MCPErrorClass) {
-      return {
-        code: -32603,
-        message: (error instanceof Error ? error.message : String(error)),
-        data: error.details,
-      };
-    }
+	private registerBuiltInTools(): void {
+		// System information tool,
+		this.registerTool({
+			name: "system/info",
+			description: "Get system information",
+			inputSchema: {
+				type: "object",
+				properties: {},
+			},
+			handler: async () => {
+				return {
+					version: "1.0.0",
+					platform: platform(),
+					arch: arch(),
+					runtime: "Node.js",
+					uptime: performance.now(),
+				};
+			},
+		});
 
-    if (error instanceof Error) {
-      return {
-        code: -32603,
-        message: (error instanceof Error ? error.message : String(error)),
-      };
-    }
+		// Health check tool,
+		this.registerTool({
+			name: "system/health",
+			description: "Get system health status",
+			inputSchema: {
+				type: "object",
+				properties: {},
+			},
+			handler: async () => {
+				return await this.getHealthStatus();
+			},
+		});
 
-    return {
-      code: -32603,
-      message: 'Internal error',
-      data: error,
-    };
-  }
+		// List tools,
+		this.registerTool({
+			name: "tools/list",
+			description: "List all available tools",
+			inputSchema: {
+				type: "object",
+				properties: {},
+			},
+			handler: async () => {
+				return this.toolRegistry.listTools();
+			},
+		});
+
+		// Tool schema,
+		this.registerTool({
+			name: "tools/schema",
+			description: "Get schema for a specific tool",
+			inputSchema: {
+				type: "object",
+				properties: {
+					name: { type: "string" },
+				},
+				required: ["name"],
+			},
+			handler: async (input: any) => {
+				const tool = this.toolRegistry.getTool(input.name);
+				if (!tool) {
+					throw new Error(`Tool not found: ${input.name}`);
+				}
+				return {
+					name: tool.name,
+					description: tool.description,
+					inputSchema: tool.inputSchema,
+				};
+			},
+		});
+
+		// Register Claude-Flow specific tools if orchestrator is available,
+		if (this.orchestrator) {
+			const claudeFlowTools = createClaudeFlowTools(this.logger);
+
+			for (const tool of claudeFlowTools) {
+				// Wrap the handler to inject orchestrator context,
+				const originalHandler = tool.handler;
+				tool.handler = async (input: unknown, context?: MCPContext) => {
+					const claudeFlowContext: ClaudeFlowToolContext = {
+						...context,
+						orchestrator: this.orchestrator,
+					} as ClaudeFlowToolContext;
+
+					return await originalHandler(input, claudeFlowContext);
+				};
+
+				this.registerTool(tool);
+			}
+
+			this.logger.info("Registered Claude-Flow tools", {
+				count: claudeFlowTools.length,
+			});
+		} else {
+			this.logger.warn(
+				"Orchestrator not available - Claude-Flow tools not registered"
+			);
+		}
+
+		// Register Swarm-specific tools if swarm components are available,
+		if (this.swarmCoordinator || this.agentManager || this.resourceManager) {
+			const swarmTools = createSwarmTools(this.logger);
+
+			for (const tool of swarmTools) {
+				// Wrap the handler to inject swarm context,
+				const originalHandler = tool.handler;
+				tool.handler = async (input: unknown, context?: MCPContext) => {
+					const swarmContext: SwarmToolContext = {
+						...context,
+						swarmCoordinator: this.swarmCoordinator,
+						agentManager: this.agentManager,
+						resourceManager: this.resourceManager,
+						messageBus: this.messagebus,
+						monitor: this.monitor,
+					} as SwarmToolContext;
+
+					return await originalHandler(input, swarmContext);
+				};
+
+				this.registerTool(tool);
+			}
+
+			this.logger.info("Registered Swarm tools", { count: swarmTools.length });
+		} else {
+			this.logger.warn(
+				"Swarm components not available - Swarm tools not registered"
+			);
+		}
+
+		// Register ruv-swarm MCP tools if available,
+		this.registerRuvSwarmTools();
+
+		// Register unified coordination tools,
+		this.registerUnifiedTools();
+	}
+
+	/**
+	 * Register ruv-swarm MCP tools if available
+	 */
+	private async registerRuvSwarmTools(): Promise<void> {
+		try {
+			// Check if ruv-swarm is available,
+			const available = await isRuvSwarmAvailable(this.logger);
+
+			if (!available) {
+				this.logger.info(
+					"ruv-swarm not available - skipping ruv-swarm MCP tools registration"
+				);
+				return;
+			}
+
+			// Initialize ruv-swarm integration,
+			const workingDirectory = process.cwd();
+			const integration = await initializeRuvSwarmIntegration(
+				workingDirectory,
+				this.logger
+			);
+
+			if (!integration.success) {
+				this.logger.warn("Failed to initialize ruv-swarm integration", {
+					error: integration.error,
+				});
+				return;
+			}
+
+			// Create ruv-swarm tools,
+			const ruvSwarmTools = createRuvSwarmTools(this.logger);
+
+			for (const tool of ruvSwarmTools) {
+				// Wrap the handler to inject ruv-swarm context,
+				const originalHandler = tool.handler;
+				tool.handler = async (input: unknown, context?: MCPContext) => {
+					const ruvSwarmContext: RuvSwarmToolContext = {
+						sessionId: context?.sessionId || `mcp-session-${Date.now()}`,
+						workingDirectory,
+						swarmId: process.env.CLAUDE_SWARM_ID || `mcp-swarm-${Date.now()}`,
+						logger: this.logger,
+					};
+
+					return await originalHandler(input, ruvSwarmContext);
+				};
+
+				this.registerTool(tool);
+			}
+
+			this.logger.info("Registered ruv-swarm MCP tools", {
+				count: ruvSwarmTools.length,
+				integration: integration.data,
+			});
+		} catch (error) {
+			this.logger.error("Error registering ruv-swarm MCP tools", error);
+		}
+	}
+
+	/**
+	 * Register unified coordination tools
+	 */
+	private async registerUnifiedTools(): Promise<void> {
+		try {
+			this.logger.info("Registering unified coordination tools...");
+
+			// Create unified tools,
+			const unifiedTools = createUnifiedTools(this.logger);
+
+			for (const tool of unifiedTools) {
+				// Wrap the handler to inject unified context,
+				const originalHandler = tool.handler;
+				tool.handler = async (input: unknown, context?: MCPContext) => {
+					const unifiedContext: UnifiedToolContext = {
+						sessionId: context?.sessionId || `unified-session-${Date.now()}`,
+						orchestrator: this.orchestrator,
+						swarmCoordinator: this.swarmCoordinator,
+						agentManager: this.agentManager,
+						resourceManager: this.resourceManager,
+						messageBus: this.messagebus,
+						monitor: this.monitor,
+						workingDirectory: process.cwd(),
+						logger: this.logger,
+					};
+
+					return await originalHandler(input, unifiedContext);
+				};
+
+				this.registerTool(tool);
+			}
+
+			this.logger.info("Registered unified coordination tools", {
+				count: unifiedTools.length,
+				toolNames: unifiedTools.map((t) => t.name),
+			});
+		} catch (error) {
+			this.logger.error("Error registering unified coordination tools", error);
+		}
+	}
+
+	private errorToMCPError(error: unknown): MCPError {
+		if (error instanceof MCPMethodNotFoundError) {
+			return {
+				code: -32601,
+				message: error instanceof Error ? error.message : String(error),
+				data: error.details,
+			};
+		}
+
+		if (error instanceof MCPErrorClass) {
+			return {
+				code: -32603,
+				message: error instanceof Error ? error.message : String(error),
+				data: error.details,
+			};
+		}
+
+		if (error instanceof Error) {
+			return {
+				code: -32603,
+				message: error instanceof Error ? error.message : String(error),
+			};
+		}
+
+		return {
+			code: -32603,
+			message: "Internal error",
+			data: error,
+		};
+	}
 }
 
 /**
  * Function to run the MCP server
  */
 export async function runMCPServer(): Promise<void> {
-  // Default configuration for standalone server
-  const config: MCPConfig = {
-    transport: 'stdio',
-    auth: { enabled: false, method: 'token' }
-  };
+	// Default configuration for standalone server
+	const config: MCPConfig = {
+		transport: "stdio",
+		auth: { enabled: false, method: "token" },
+	};
 
-  // Create basic logger
-  const logger: ILogger = {
-    info: (message: string, data?: any) => console.error(`[INFO] ${message}`, data || ''),
-    warn: (message: string, data?: any) => console.error(`[WARN] ${message}`, data || ''),
-    error: (message: string, data?: any) => console.error(`[ERROR] ${message}`, data || ''),
-    debug: (message: string, data?: any) => console.error(`[DEBUG] ${message}`, data || ''),
-    configure: async () => {}
-  };
+	// Create basic logger
+	const logger: ILogger = {
+		info: (message: string, data?: any) =>
+			console.error(`[INFO] ${message}`, data || ""),
+		warn: (message: string, data?: any) =>
+			console.error(`[WARN] ${message}`, data || ""),
+		error: (message: string, data?: any) =>
+			console.error(`[ERROR] ${message}`, data || ""),
+		debug: (message: string, data?: any) =>
+			console.error(`[DEBUG] ${message}`, data || ""),
+		configure: async () => {},
+	};
 
-  // Create event bus
-  const eventBus: IEventBus = {
-    emit: () => {},
-    on: () => {},
-    off: () => {},
-    once: () => {}
-  };
+	// Create event bus
+	const eventBus: IEventBus = {
+		emit: () => {},
+		on: () => {},
+		off: () => {},
+		once: () => {},
+	};
 
-  try {
-    const server = new MCPServer(config, eventBus, logger);
-    await server.start();
-    
-    // Handle graceful shutdown
-    process.on('SIGINT', async () => {
-      logger.info('Received SIGINT, shutting down gracefully');
-      await server.stop();
-      process.exit(0);
-    });
+	try {
+		const server = new MCPServer(config, eventBus, logger);
+		await server.start();
 
-    process.on('SIGTERM', async () => {
-      logger.info('Received SIGTERM, shutting down gracefully');
-      await server.stop();
-      process.exit(0);
-    });
+		// Handle graceful shutdown
+		process.on("SIGINT", async () => {
+			logger.info("Received SIGINT, shutting down gracefully");
+			await server.stop();
+			process.exit(0);
+		});
 
-    logger.info('MCP server is running');
-  } catch (error) {
-    logger.error('Failed to start MCP server', error);
-    process.exit(1);
-  }
+		process.on("SIGTERM", async () => {
+			logger.info("Received SIGTERM, shutting down gracefully");
+			await server.stop();
+			process.exit(0);
+		});
+
+		logger.info("MCP server is running");
+	} catch (error) {
+		logger.error("Failed to start MCP server", error);
+		process.exit(1);
+	}
 }

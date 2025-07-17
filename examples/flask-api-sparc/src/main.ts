@@ -1,1 +1,1 @@
-Main module implementation
+Main namespace implementation
