@@ -9,6 +9,8 @@ import { getErrorMessage as _getErrorMessage } from "../utils/error-handler.js";
 import { randomUUID as generateId } from "node:crypto";
 import { promises as fs } from "node:fs";
 import { join } from "node:path";
+import { spawn } from "node:child_process";
+import { createInterface } from "node:readline";
 
 // import {
 //   executeCommand,
@@ -19,12 +21,7 @@ import { join } from "node:path";
 // } from './command-registry.js';
 // import { parseFlags } from './utils.js';
 
-// Type declaration for Deno compatibility
-declare global {
-	namespace globalThis {
-		var Deno: any;
-	}
-}
+// Node.js-only implementation (removed Deno compatibility)
 
 const VERSION = "2.0.0-alpha.50";
 
@@ -180,6 +177,7 @@ function showHelpWithCommands() {
 		{ name: "agent", description: "Manage and run AI agents" },
 		{ name: "swarm", description: "Orchestrate multiple agents" },
 		{ name: "mcp", description: "Model Context Protocol integration" },
+		{ name: "hooks", description: "Execute coordination hooks" },
 		{ name: "status", description: "Show system status" },
 		{ name: "help", description: "Show help information" },
 	];
@@ -192,7 +190,7 @@ function showHelpWithCommands() {
 }
 
 async function main() {
-	const args = globalThis.Deno?.args || process.argv.slice(2);
+	const args = process.argv.slice(2);
 
 	if (args.length === 0) {
 		printHelp();
@@ -1576,48 +1574,42 @@ ${flags.mode === "full" || !flags.mode ? `Full-stack development covering all as
 								);
 							}
 
-							const command = globalThis.Deno
-								? new globalThis.Deno.Command("claude", {
-										args: claudeArgs,
-										env: {
-											...(globalThis.Deno
-												? globalThis.Deno.env.toObject()
-												: process.env),
-											CLAUDE_INSTANCE_ID: instanceId,
-											CLAUDE_FLOW_MODE: flags.mode || "full",
-											CLAUDE_FLOW_COVERAGE: (flags.coverage || 80).toString(),
-											CLAUDE_FLOW_COMMIT: flags.commit || "phase",
-											// Add claude-flow specific features,
-											CLAUDE_FLOW_MEMORY_ENABLED: "true",
-											CLAUDE_FLOW_MEMORY_NAMESPACE: "default",
-											CLAUDE_FLOW_COORDINATION_ENABLED: flags.parallel
+							const command = spawn("claude", claudeArgs, {
+								env: {
+									...process.env,
+								CLAUDE_INSTANCE_ID: instanceId,
+								CLAUDE_FLOW_MODE: flags.mode || "full",
+								CLAUDE_FLOW_COVERAGE: (flags.coverage || 80).toString(),
+								CLAUDE_FLOW_COMMIT: flags.commit || "phase",
+								// Add claude-flow specific features,
+								CLAUDE_FLOW_MEMORY_ENABLED: "true",
+								CLAUDE_FLOW_MEMORY_NAMESPACE: "default",
+								CLAUDE_FLOW_COORDINATION_ENABLED: flags.parallel
 												? "true"
 												: "false",
-											CLAUDE_FLOW_FEATURES: "memory,coordination,swarm",
-										},
-										stdin: "inherit",
-										stdout: "inherit",
-										stderr: "inherit",
-									})
-								: null;
+								CLAUDE_FLOW_FEATURES: "memory,coordination,swarm",
+						},
+						stdio: "inherit",
+					});
 
-							if (!command) {
-								printError(
-									"Command execution not supported in this environment"
-								);
-								break;
-							}
+							// Handle command execution with Node.js spawn
+							const exitCode = await new Promise<number>((resolve) => {
+								command.on('close', (code: number) => {
+									resolve(code || 0);
+								});
+								command.on('error', (err: Error) => {
+									console.error(`Failed to spawn Claude: ${err.message}`);
+									resolve(1);
+								});
+							});
 
-							const child = command.spawn();
-							const status = await child.status;
-
-							if (status.success) {
+							if (exitCode === 0) {
 								printSuccess(
 									`Claude instance ${instanceId} completed successfully`
 								);
 							} else {
 								printError(
-									`Claude instance ${instanceId} exited with code ${status.code}`
+									`Claude instance ${instanceId} exited with code ${exitCode}`
 								);
 							}
 						} catch (err: unknown) {
@@ -2285,6 +2277,12 @@ ${flags.mode === "full" || !flags.mode ? `Full-stack development covering all as
 			break;
 		}
 
+		case "hooks": {
+			const { hooksAction } = await import("./simple-commands/hooks.js");
+			await hooksAction(args.slice(1), flags);
+			break;
+		}
+
 		default: {
 			printError(`Unknown command: ${command}`);
 			console.log('Run "claude-flow help" for available commands');
@@ -2443,26 +2441,34 @@ Shortcuts:
 		if (trimmed.startsWith("!")) {
 			const shellCmd = trimmed.substring(1);
 			try {
-				const command = globalThis.Deno
-					? new globalThis.Deno.Command("sh", {
-							args: ["-c", shellCmd],
-							stdout: "piped",
-							stderr: "piped",
-						})
-					: null;
+				const command = spawn("sh", ["-c", shellCmd], {
+					stdio: ["inherit", "pipe", "pipe"],
+				});
 
-				if (!command) {
-					console.error("Shell commands not supported in this environment");
-					return true;
-				}
+				// Handle command output with Node.js spawn
+				let stdout = '';
+				let stderr = '';
 
-				const { stdout, stderr } = await command.output();
-				if (stdout.length > 0) {
-					console.log(new TextDecoder().decode(stdout));
-				}
-				if (stderr.length > 0) {
-					console.error(new TextDecoder().decode(stderr));
-				}
+				command.stdout?.on('data', (data) => {
+					stdout += data.toString();
+				});
+
+				command.stderr?.on('data', (data) => {
+					stderr += data.toString();
+				});
+
+				await new Promise<void>((resolve, reject) => {
+					command.on('close', (code) => {
+						if (stdout.length > 0) {
+							console.log(stdout);
+						}
+						if (stderr.length > 0) {
+							console.error(stderr);
+						}
+						resolve();
+					});
+					command.on('error', reject);
+				});
 			} catch (err: unknown) {
 				console.error(`Shell error: ${(err as Error).message}`);
 			}
@@ -2772,28 +2778,35 @@ Shortcuts:
 	const decoder = new TextDecoder();
 	const encoder = new TextEncoder();
 
-	while (true) {
-		// Show prompt,
-		const prompt = replState.currentSession
+	// Create readline interface for Node.js
+	const rl = createInterface({
+		input: process.stdin,
+		output: process.stdout,
+		prompt: replState.currentSession
 			? `claude-flow:${replState.currentSession}> `
-			: "claude-flow> ";
-		if (globalThis.Deno) {
-			await Deno.stdout.write(encoder.encode(prompt));
-		} else {
-			process.stdout.write(prompt);
-		}
+			: "claude-flow> ",
+	});
 
-		// Read input,
-		const buf = new Uint8Array(1024);
-		const n = globalThis.Deno ? await Deno.stdin.read(buf) : 0;
-		if (n === null) break;
-
-		const input = decoder.decode(buf.subarray(0, n)).trim();
+	// Handle line input
+	rl.on('line', async (input) => {
+		const trimmed = input.trim();
 
 		// Process command,
-		const shouldContinue = await processReplCommand(input);
-		if (!shouldContinue) break;
-	}
+		const shouldContinue = await processReplCommand(trimmed);
+		if (!shouldContinue) {
+			rl.close();
+			return;
+		}
+		rl.prompt();
+	});
+
+	rl.on('close', () => {
+		console.log('\n👋 Exiting Claude-Flow REPL...');
+		process.exit(0);
+	});
+
+	// Start the REPL
+	rl.prompt();
 }
 
 // Helper functions for init command,
@@ -3123,14 +3136,10 @@ async function createSparcStructureManually() {
 
 		for (const dir of rooDirectories) {
 			try {
-				if (globalThis.Deno) {
-					await Deno.mkdir(dir, { recursive: true });
-				} else {
-					await fs.mkdir(dir, { recursive: true });
-				}
+				await fs.mkdir(dir, { recursive: true });
 				console.log(`  ✓ Created ${dir}/`);
-			} catch (err) {
-				if (!(globalThis.Deno && err instanceof Deno.errors.AlreadyExists)) {
+			} catch (err: any) {
+				if (err.code !== 'EEXIST') {
 					throw err;
 				}
 			}
@@ -3586,10 +3595,6 @@ For more information about SPARC methodology, see: https://github.com/ruvnet/cla
 }
 
 // Check if this file is being run directly (not imported)
-if (
-	globalThis.Deno
-		? (import.meta as any).main
-		: import.meta.url === `file://${process.argv[1]}`
-) {
+if (import.meta.url === `file://${process.argv[1]}`) {
 	await main();
 }

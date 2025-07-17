@@ -21,6 +21,7 @@ class SqliteMemoryStore {
 			...options,
 		};
 
+		/** @type {import('better-sqlite3').Database | null} */
 		this.db = null;
 		this.statements = new Map();
 		this.isInitialized = false;

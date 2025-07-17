@@ -6,11 +6,112 @@ import {
 	printSuccess,
 	printWarning,
 } from "../utils.js";
+import { cwd } from "node:process";
+
+// Type definitions
+interface HookFlags {
+	help?: boolean;
+	h?: boolean;
+	description?: string;
+	"task-id"?: string;
+	taskId?: string;
+	"agent-id"?: string;
+	agentId?: string;
+	"auto-spawn-agents"?: string;
+	file?: string;
+	operation?: string;
+	command?: string;
+	cwd?: string;
+	"exit-code"?: string;
+	output?: string;
+	query?: string;
+	"result-count"?: string;
+	type?: string;
+	server?: string;
+	"session-id"?: string;
+	name?: string;
+	"swarm-id"?: string;
+	strategy?: string;
+	priority?: string;
+	model?: string;
+	accuracy?: string;
+	patterns?: string;
+	"generate-summary"?: string;
+	message?: string;
+	level?: string;
+	"swarm-status"?: string;
+	"memory-key"?: string;
+	memoryKey?: string;
+	"analyze-performance"?: string;
+	[key: string]: any;
+}
+
+interface TaskData {
+	taskId: string;
+	description: string;
+	agentId?: string;
+	autoSpawnAgents: boolean;
+	status: string;
+	startedAt: string;
+}
+
+interface EditData {
+	file: string;
+	operation: string;
+	timestamp: string;
+	editId: string;
+}
+
+interface BashData {
+	command: string;
+	workingDir: string;
+	timestamp: string;
+	bashId: string;
+	safety: string;
+	exitCode?: string;
+	output?: string;
+}
+
+interface SearchData {
+	query: string;
+	resultCount: number;
+	searchType: string;
+	timestamp: string;
+	searchId: string;
+}
+
+interface AgentData {
+	agentName: string;
+	agentType: string;
+	swarmId: string;
+	spawnedAt: string;
+	status: string;
+}
+
+interface SessionData {
+	endedAt: string;
+	totalTasks: number;
+	totalEdits: number;
+	sessionId: string;
+}
+
+interface NotificationData {
+	message: string;
+	level: string;
+	swarmStatus: string;
+	timestamp: string;
+	notifyId: string;
+}
+
+interface HookResult {
+	success: boolean;
+	output?: string;
+}
 
 // Initialize memory store
-let memoryStore = null;
+let memoryStore: SqliteMemoryStore | null = null;
 
-async function getMemoryStore() {
+async function getMemoryStore(): Promise<SqliteMemoryStore> {
 	if (!memoryStore) {
 		memoryStore = new SqliteMemoryStore();
 		await memoryStore.initialize();
@@ -19,11 +120,11 @@ async function getMemoryStore() {
 }
 
 // Simple ID generator
-function generateId(prefix = "id") {
+function generateId(prefix: string = "id"): string {
 	return `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 }
 
-export async function hooksAction(subArgs, flags) {
+export async function hooksAction(subArgs: string[], flags: HookFlags): Promise<void> {
 	const subcommand = subArgs[0];
 	const options = flags;
 
@@ -88,14 +189,14 @@ export async function hooksAction(subArgs, flags) {
 				printError(`Unknown hooks command: ${subcommand}`);
 				showHooksHelp();
 		}
-	} catch (err) {
+	} catch (err: any) {
 		printError(`Hooks command failed: ${err.message}`);
 	}
 }
 
 // ===== PRE-OPERATION HOOKS =====
 
-async function preTaskCommand(subArgs, flags) {
+async function preTaskCommand(subArgs: string[], flags: HookFlags): Promise<void> {
 	const options = flags;
 	const description = options.description || "Unnamed task";
 	const taskId = options["task-id"] || options.taskId || generateId("task");
@@ -109,7 +210,7 @@ async function preTaskCommand(subArgs, flags) {
 
 	try {
 		const store = await getMemoryStore();
-		const taskData = {
+		const taskData: TaskData = {
 			taskId,
 			description,
 			agentId,
@@ -139,7 +240,7 @@ async function preTaskCommand(subArgs, flags) {
 		const isAvailable = await checkRuvSwarmAvailable();
 		if (isAvailable) {
 			console.log(`\n🔄 Executing ruv-swarm pre-task hook...`);
-			const hookResult = await execRuvSwarmHook("pre-task", {
+			const hookResult: HookResult = await execRuvSwarmHook("pre-task", {
 				description,
 				"task-id": taskId,
 				"auto-spawn-agents": autoSpawnAgents,
@@ -161,12 +262,12 @@ async function preTaskCommand(subArgs, flags) {
 		}
 
 		console.log(`\n🎯 TASK PREPARATION COMPLETE`);
-	} catch (err) {
+	} catch (err: any) {
 		printError(`Pre-task hook failed: ${err.message}`);
 	}
 }
 
-async function preEditCommand(subArgs, flags) {
+async function preEditCommand(subArgs: string[], flags: HookFlags): Promise<void> {
 	const options = flags;
 	const file = options.file || "unknown-file";
 	const operation = options.operation || "edit";
@@ -177,7 +278,7 @@ async function preEditCommand(subArgs, flags) {
 
 	try {
 		const store = await getMemoryStore();
-		const editData = {
+		const editData: EditData = {
 			file,
 			operation,
 			timestamp: new Date().toISOString(),
@@ -191,15 +292,15 @@ async function preEditCommand(subArgs, flags) {
 
 		console.log(`  💾 Pre-edit state saved to .swarm/memory.db`);
 		printSuccess(`✅ Pre-edit hook completed`);
-	} catch (err) {
+	} catch (err: any) {
 		printError(`Pre-edit hook failed: ${err.message}`);
 	}
 }
 
-async function preBashCommand(subArgs, flags) {
+async function preBashCommand(subArgs: string[], flags: HookFlags): Promise<void> {
 	const options = flags;
 	const command = options.command || subArgs.slice(1).join(" ");
-	const workingDir = options.cwd || process.cwd();
+	const workingDir = options.cwd || cwd();
 
 	console.log(`🔧 Executing pre-bash hook...`);
 	console.log(`📜 Command: ${command}`);
@@ -207,7 +308,7 @@ async function preBashCommand(subArgs, flags) {
 
 	try {
 		const store = await getMemoryStore();
-		const bashData = {
+		const bashData: BashData = {
 			command,
 			workingDir,
 			timestamp: new Date().toISOString(),
@@ -223,14 +324,14 @@ async function preBashCommand(subArgs, flags) {
 		console.log(`  💾 Command logged to .swarm/memory.db`);
 		console.log(`  🔒 Safety check: PASSED`);
 		printSuccess(`✅ Pre-bash hook completed`);
-	} catch (err) {
+	} catch (err: any) {
 		printError(`Pre-bash hook failed: ${err.message}`);
 	}
 }
 
 // ===== POST-OPERATION HOOKS =====
 
-async function postTaskCommand(subArgs, flags) {
+async function postTaskCommand(subArgs: string[], flags: HookFlags): Promise<void> {
 	const options = flags;
 	const taskId = options["task-id"] || options.taskId || generateId("task");
 	const analyzePerformance = options["analyze-performance"] !== "false";
@@ -248,7 +349,7 @@ async function postTaskCommand(subArgs, flags) {
 			...(taskData || {}),
 			status: "completed",
 			completedAt: new Date().toISOString(),
-			duration: taskData
+			duration: taskData && taskData.startedAt
 				? Date.now() - new Date(taskData.startedAt).getTime()
 				: null,
 		};
@@ -274,12 +375,12 @@ async function postTaskCommand(subArgs, flags) {
 
 		console.log(`  💾 Task completion saved to .swarm/memory.db`);
 		printSuccess(`✅ Post-task hook completed`);
-	} catch (err) {
+	} catch (err: any) {
 		printError(`Post-task hook failed: ${err.message}`);
 	}
 }
 
-async function postEditCommand(subArgs, flags) {
+async function postEditCommand(subArgs: string[], flags: HookFlags): Promise<void> {
 	const options = flags;
 	const file = options.file || "unknown-file";
 	const memoryKey = options["memory-key"] || options.memoryKey;
@@ -327,12 +428,12 @@ async function postEditCommand(subArgs, flags) {
 
 		console.log(`  💾 Post-edit data saved to .swarm/memory.db`);
 		printSuccess(`✅ Post-edit hook completed`);
-	} catch (err) {
+	} catch (err: any) {
 		printError(`Post-edit hook failed: ${err.message}`);
 	}
 }
 
-async function postBashCommand(subArgs, flags) {
+async function postBashCommand(subArgs: string[], flags: HookFlags): Promise<void> {
 	const options = flags;
 	const command = options.command || subArgs.slice(1).join(" ");
 	const exitCode = options["exit-code"] || "0";
@@ -344,12 +445,14 @@ async function postBashCommand(subArgs, flags) {
 
 	try {
 		const store = await getMemoryStore();
-		const bashData = {
+		const bashData: BashData = {
 			command,
-			exitCode,
-			output: output.substring(0, 1000), // Limit output size
+			workingDir: cwd(),
 			timestamp: new Date().toISOString(),
 			bashId: generateId("bash"),
+			safety: "completed",
+			exitCode,
+			output: output.substring(0, 1000), // Limit output size
 		};
 
 		await store.store(`bash:${bashData.bashId}:post`, bashData, {
@@ -370,12 +473,12 @@ async function postBashCommand(subArgs, flags) {
 
 		console.log(`  💾 Command execution logged to .swarm/memory.db`);
 		printSuccess(`✅ Post-bash hook completed`);
-	} catch (err) {
+	} catch (err: any) {
 		printError(`Post-bash hook failed: ${err.message}`);
 	}
 }
 
-async function postSearchCommand(subArgs, flags) {
+async function postSearchCommand(subArgs: string[], flags: HookFlags): Promise<void> {
 	const options = flags;
 	const query = options.query || subArgs.slice(1).join(" ");
 	const resultCount = options["result-count"] || "0";
@@ -387,7 +490,7 @@ async function postSearchCommand(subArgs, flags) {
 
 	try {
 		const store = await getMemoryStore();
-		const searchData = {
+		const searchData: SearchData = {
 			query,
 			resultCount: parseInt(resultCount),
 			searchType,
@@ -412,14 +515,14 @@ async function postSearchCommand(subArgs, flags) {
 
 		console.log(`  💾 Search results cached to .swarm/memory.db`);
 		printSuccess(`✅ Post-search hook completed`);
-	} catch (err) {
+	} catch (err: any) {
 		printError(`Post-search hook failed: ${err.message}`);
 	}
 }
 
 // ===== MCP INTEGRATION HOOKS =====
 
-async function mcpInitializedCommand(subArgs, flags) {
+async function mcpInitializedCommand(subArgs: string[], flags: HookFlags): Promise<void> {
 	const options = flags;
 	const serverName = options.server || "claude-flow";
 	const sessionId = options["session-id"] || generateId("mcp-session");
@@ -444,12 +547,12 @@ async function mcpInitializedCommand(subArgs, flags) {
 
 		console.log(`  💾 MCP session saved to .swarm/memory.db`);
 		printSuccess(`✅ MCP initialized hook completed`);
-	} catch (err) {
+	} catch (err: any) {
 		printError(`MCP initialized hook failed: ${err.message}`);
 	}
 }
 
-async function agentSpawnedCommand(subArgs, flags) {
+async function agentSpawnedCommand(subArgs: string[], flags: HookFlags): Promise<void> {
 	const options = flags;
 	const agentType = options.type || "generic";
 	const agentName = options.name || generateId("agent");
@@ -461,7 +564,7 @@ async function agentSpawnedCommand(subArgs, flags) {
 
 	try {
 		const store = await getMemoryStore();
-		const agentData = {
+		const agentData: AgentData = {
 			agentName,
 			agentType,
 			swarmId,
@@ -487,12 +590,12 @@ async function agentSpawnedCommand(subArgs, flags) {
 
 		console.log(`  💾 Agent registered to .swarm/memory.db`);
 		printSuccess(`✅ Agent spawned hook completed`);
-	} catch (err) {
+	} catch (err: any) {
 		printError(`Agent spawned hook failed: ${err.message}`);
 	}
 }
 
-async function taskOrchestratedCommand(subArgs, flags) {
+async function taskOrchestratedCommand(subArgs: string[], flags: HookFlags): Promise<void> {
 	const options = flags;
 	const taskId = options["task-id"] || generateId("orchestrated-task");
 	const strategy = options.strategy || "balanced";
@@ -519,12 +622,12 @@ async function taskOrchestratedCommand(subArgs, flags) {
 
 		console.log(`  💾 Orchestration saved to .swarm/memory.db`);
 		printSuccess(`✅ Task orchestrated hook completed`);
-	} catch (err) {
+	} catch (err: any) {
 		printError(`Task orchestrated hook failed: ${err.message}`);
 	}
 }
 
-async function neuralTrainedCommand(subArgs, flags) {
+async function neuralTrainedCommand(subArgs: string[], flags: HookFlags): Promise<void> {
 	const options = flags;
 	const modelName = options.model || "default-neural";
 	const accuracy = options.accuracy || "0.0";
@@ -550,14 +653,14 @@ async function neuralTrainedCommand(subArgs, flags) {
 
 		console.log(`  💾 Training results saved to .swarm/memory.db`);
 		printSuccess(`✅ Neural trained hook completed`);
-	} catch (err) {
+	} catch (err: any) {
 		printError(`Neural trained hook failed: ${err.message}`);
 	}
 }
 
 // ===== SESSION HOOKS =====
 
-async function sessionEndCommand(subArgs, flags) {
+async function sessionEndCommand(subArgs: string[], flags: HookFlags): Promise<void> {
 	const options = flags;
 	const generateSummary = options["generate-summary"] !== "false";
 
@@ -568,7 +671,7 @@ async function sessionEndCommand(subArgs, flags) {
 		const tasks = await store.list({ namespace: "task-index", limit: 1000 });
 		const edits = await store.list({ namespace: "file-history", limit: 1000 });
 
-		const sessionData = {
+		const sessionData: SessionData = {
 			endedAt: new Date().toISOString(),
 			totalTasks: tasks.length,
 			totalEdits: edits.length,
@@ -594,12 +697,12 @@ async function sessionEndCommand(subArgs, flags) {
 		}
 
 		printSuccess(`✅ Session-end hook completed`);
-	} catch (err) {
+	} catch (err: any) {
 		printError(`Session-end hook failed: ${err.message}`);
 	}
 }
 
-async function sessionRestoreCommand(subArgs, flags) {
+async function sessionRestoreCommand(subArgs: string[], flags: HookFlags): Promise<void> {
 	const options = flags;
 	const sessionId = options["session-id"] || "latest";
 
@@ -610,7 +713,7 @@ async function sessionRestoreCommand(subArgs, flags) {
 		const store = await getMemoryStore();
 
 		// Find session to restore
-		let sessionData;
+		let sessionData: any;
 		if (sessionId === "latest") {
 			const sessions = await store.list({ namespace: "sessions", limit: 1 });
 			sessionData = sessions[0]?.value;
@@ -642,12 +745,12 @@ async function sessionRestoreCommand(subArgs, flags) {
 		} else {
 			printWarning(`No session found with ID: ${sessionId}`);
 		}
-	} catch (err) {
+	} catch (err: any) {
 		printError(`Session restore hook failed: ${err.message}`);
 	}
 }
 
-async function notifyCommand(subArgs, flags) {
+async function notifyCommand(subArgs: string[], flags: HookFlags): Promise<void> {
 	const options = flags;
 	const message = options.message || subArgs.slice(1).join(" ");
 	const level = options.level || "info";
@@ -659,7 +762,7 @@ async function notifyCommand(subArgs, flags) {
 
 	try {
 		const store = await getMemoryStore();
-		const notificationData = {
+		const notificationData: NotificationData = {
 			message,
 			level,
 			swarmStatus,
@@ -684,12 +787,12 @@ async function notifyCommand(subArgs, flags) {
 
 		console.log(`\n  💾 Notification saved to .swarm/memory.db`);
 		printSuccess(`✅ Notify hook completed`);
-	} catch (err) {
+	} catch (err: any) {
 		printError(`Notify hook failed: ${err.message}`);
 	}
 }
 
-function showHooksHelp() {
+function showHooksHelp(): void {
 	console.log("Claude Flow Hooks (with .swarm/memory.db persistence):\n");
 
 	console.log("Pre-Operation Hooks:");

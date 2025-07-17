@@ -7,9 +7,6 @@
 # Phase 2: Structure enforcement (merger weeks 3-4)
 # Phase 3: Enterprise grade (merger weeks 5-6)
 
-default_language_version:
-  node: "20.11.0"
-
 repos:
   # =================================================================
   # PHASE 1: ESSENTIAL QUALITY (Always Active)
@@ -17,7 +14,7 @@ repos:
   # Works with current messy structure, doesn't break workflow
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v4.6.0
     hooks:
       - id: end-of-file-fixer
       - id: trailing-whitespace
@@ -30,12 +27,12 @@ repos:
         args: ['--fix=lf']
 
   # Basic TypeScript/JavaScript quality (warnings OK)
-  - repo: https://github.com/biomejs/pre-commit
-    rev: v2.1.1
+  - repo: local
     hooks:
       - id: biome-check
         name: Biome Format + Lint (Warnings OK)
-        args: [--diagnostic-level=error]
+        entry: npx biome check --staged --apply --no-errors-on-warn
+        language: system
         types_or: [javascript, jsx, ts, tsx, json]
 
   # TypeScript checking (errors only, warnings OK)
@@ -63,7 +60,7 @@ repos:
   # Critical security checks that don't break workflow
 
   - repo: https://github.com/Yelp/detect-secrets
-    rev: v1.5.0
+    rev: v1.4.0
     hooks:
       - id: detect-secrets
         name: Detect Secrets
@@ -76,11 +73,10 @@ repos:
   # Project has multiple Dockerfiles, validate them
 
   - repo: https://github.com/hadolint/hadolint
-    rev: v2.13.1-beta
+    rev: v2.12.0
     hooks:
       - id: hadolint-docker
-        name: Dockerfile Linting (Warnings Only)
-        args: ['--ignore', 'DL3018', '--ignore', 'DL3008', '--ignore', 'DL3013', '--ignore', 'DL3007', '--ignore', 'DL3059', '--ignore', 'DL3015', '--ignore', 'DL3042']
+        name: Dockerfile Linting
 
   # =================================================================
   # REPOSITORY CLEANUP HELPERS (Always Active)
@@ -97,8 +93,8 @@ repos:
         always_run: true
 
       - id: directory-structure-check
-        name: Directory Structure Validation (Phase 2+ Only)
-        entry: bash -c 'if [ "${PRECOMMIT_PHASE:-1}" -ge "2" ]; then node scripts/validate-cleanup.js --gentle "$@"; else echo "Directory structure validation skipped - Phase 2+ only"; fi'
+        name: Directory Structure Validation
+        entry: node scripts/validate-cleanup.js --gentle
         language: system
         pass_filenames: false
 
@@ -173,8 +169,8 @@ repos:
   - repo: local
     hooks:
       - id: merger-compatibility-check
-        name: Merger Compatibility Check (Phase 1+ Only)
-        entry: bash -c 'if [ "${PRECOMMIT_PHASE:-0}" -ge "1" ]; then node scripts/check-merger-compatibility.js "$@"; else echo "Skipping merger compatibility - not in Phase 1 yet"; fi'
+        name: Merger Compatibility Check
+        entry: node scripts/check-merger-compatibility.js
         language: system
         files: src/.*\.(ts|js)$
 
