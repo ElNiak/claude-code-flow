@@ -9,6 +9,7 @@
 import { nanoid } from "nanoid";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
+import { SwarmMemory } from "../memory/swarm-memory.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -27,13 +28,20 @@ class ClaudeFlowMCPServer {
 			},
 		};
 
-		// Initialize memory store
-		this.memoryStore = new Map();
+		// Initialize SwarmMemory for proper agent coordination
+		this.memoryStore = new SwarmMemory({
+			swarmId: this.sessionId,
+			directory: ".swarm",
+			filename: "mcp-memory.db"
+		});
 		this.sessions = new Map();
 		this.swarms = new Map();
 		this.agents = new Map();
 		this.tools = this.initializeTools();
 		this.resources = this.initializeResources();
+
+		// Initialize memory store
+		this.initializeMemoryStore();
 
 		// Setup stdio communication
 		this.setupStdioProtocol();
@@ -41,6 +49,19 @@ class ClaudeFlowMCPServer {
 		console.error(
 			`[${new Date().toISOString()}] INFO [claude-flow-mcp] Server initialized (${this.sessionId})`
 		);
+	}
+
+	async initializeMemoryStore() {
+		try {
+			await this.memoryStore.initialize();
+			console.error(
+				`[${new Date().toISOString()}] INFO [claude-flow-mcp] SwarmMemory initialized for coordination`
+			);
+		} catch (error) {
+			console.error(
+				`[${new Date().toISOString()}] ERROR [claude-flow-mcp] Failed to initialize SwarmMemory: ${error.message}`
+			);
+		}
 	}
 
 	setupStdioProtocol() {
@@ -212,12 +233,16 @@ class ClaudeFlowMCPServer {
 			if (uri === "claude-flow://swarm/status") {
 				content = Array.from(this.swarms.values());
 			} else if (uri === "claude-flow://memory/store") {
-				content = Object.fromEntries(this.memoryStore);
+				try {
+					content = await this.memoryStore.getSwarmStats();
+				} catch (error) {
+					content = { error: "Failed to get memory stats", message: error.message };
+				}
 			} else if (uri === "claude-flow://performance/metrics") {
 				content = {
 					swarms: this.swarms.size,
 					agents: this.agents.size,
-					memory_entries: this.memoryStore.size,
+					memory_entries: this.memoryStore ? "SwarmMemory active" : 0,
 					timestamp: new Date().toISOString(),
 				};
 			}
@@ -523,7 +548,7 @@ class ClaudeFlowMCPServer {
 		};
 	}
 
-	handleAgentSpawn(args) {
+	async handleAgentSpawn(args) {
 		const agentId = `agent-${nanoid(8)}`;
 		const agent = {
 			id: agentId,
@@ -535,7 +560,17 @@ class ClaudeFlowMCPServer {
 			created: new Date().toISOString(),
 		};
 
+		// Store in both local cache and SwarmMemory for coordination
 		this.agents.set(agentId, agent);
+
+		// Store in SwarmMemory for coordination
+		try {
+			await this.memoryStore.storeAgent(agentId, agent);
+		} catch (error) {
+			console.error(
+				`[${new Date().toISOString()}] ERROR [claude-flow-mcp] Failed to store agent in SwarmMemory: ${error.message}`
+			);
+		}
 
 		// Add to swarm if specified
 		if (args.swarmId && this.swarms.has(args.swarmId)) {
@@ -560,7 +595,7 @@ class ClaudeFlowMCPServer {
 		};
 	}
 
-	handleTaskOrchestrate(args) {
+	async handleTaskOrchestrate(args) {
 		const taskId = `task-${nanoid(8)}`;
 		const task = {
 			id: taskId,
@@ -571,6 +606,15 @@ class ClaudeFlowMCPServer {
 			status: "orchestrated",
 			created: new Date().toISOString(),
 		};
+
+		// Store in SwarmMemory for coordination
+		try {
+			await this.memoryStore.storeTask(taskId, task);
+		} catch (error) {
+			console.error(
+				`[${new Date().toISOString()}] ERROR [claude-flow-mcp] Failed to store task in SwarmMemory: ${error.message}`
+			);
+		}
 
 		console.error(
 			`[${new Date().toISOString()}] INFO [claude-flow-mcp] Task orchestrated: ${taskId}`
@@ -590,107 +634,144 @@ class ClaudeFlowMCPServer {
 		};
 	}
 
-	handleMemoryUsage(args) {
+	async handleMemoryUsage(args) {
 		const namespace = args.namespace || "default";
-		const key = `${namespace}:${args.key}`;
+		const key = args.key;
 
 		switch (args.action) {
 			case "store": {
-				const entry = {
-					value: args.value,
-					stored: new Date().toISOString(),
-					ttl: args.ttl,
-					namespace,
-				};
-				this.memoryStore.set(key, entry);
+				try {
+					await this.memoryStore.store(key, args.value, {
+						namespace,
+						ttl: args.ttl,
+						metadata: {
+							timestamp: new Date().toISOString(),
+							source: "mcp-server"
+						}
+					});
 
-				console.error(
-					`[${new Date().toISOString()}] INFO [claude-flow-mcp] Memory stored: ${key}`
-				);
+					console.error(
+						`[${new Date().toISOString()}] INFO [claude-flow-mcp] Memory stored: ${namespace}:${key}`
+					);
 
-				return {
-					success: true,
-					action: "store",
-					key: args.key,
-					namespace,
-					stored: true,
-					timestamp: entry.stored,
-				};
+					return {
+						success: true,
+						action: "store",
+						key,
+						namespace,
+						stored: true,
+						timestamp: new Date().toISOString(),
+					};
+				} catch (error) {
+					console.error(
+						`[${new Date().toISOString()}] ERROR [claude-flow-mcp] Memory store failed: ${error.message}`
+					);
+					return {
+						success: false,
+						action: "store",
+						key,
+						namespace,
+						error: error.message,
+						timestamp: new Date().toISOString(),
+					};
+				}
 			}
 
 			case "retrieve": {
-				const retrieved = this.memoryStore.get(key);
-				if (!retrieved) {
+				try {
+					const retrieved = await this.memoryStore.retrieve(key, namespace);
+
+					if (!retrieved) {
+						return {
+							success: false,
+							action: "retrieve",
+							key,
+							namespace,
+							found: false,
+							timestamp: new Date().toISOString(),
+						};
+					}
+
+					console.error(
+						`[${new Date().toISOString()}] INFO [claude-flow-mcp] Memory retrieved: ${namespace}:${key}`
+					);
+
+					return {
+						success: true,
+						action: "retrieve",
+						key,
+						value: retrieved,
+						namespace,
+						found: true,
+						timestamp: new Date().toISOString(),
+					};
+				} catch (error) {
+					console.error(
+						`[${new Date().toISOString()}] ERROR [claude-flow-mcp] Memory retrieve failed: ${error.message}`
+					);
 					return {
 						success: false,
 						action: "retrieve",
-						key: args.key,
+						key,
 						namespace,
-						found: false,
+						error: error.message,
 						timestamp: new Date().toISOString(),
 					};
 				}
-
-				// Check TTL
-				if (
-					retrieved.ttl &&
-					Date.now() - new Date(retrieved.stored).getTime() > retrieved.ttl
-				) {
-					this.memoryStore.delete(key);
-					return {
-						success: false,
-						action: "retrieve",
-						key: args.key,
-						namespace,
-						found: false,
-						reason: "expired",
-						timestamp: new Date().toISOString(),
-					};
-				}
-
-				console.error(
-					`[${new Date().toISOString()}] INFO [claude-flow-mcp] Memory retrieved: ${key}`
-				);
-
-				return {
-					success: true,
-					action: "retrieve",
-					key: args.key,
-					value: retrieved.value,
-					namespace,
-					found: true,
-					stored: retrieved.stored,
-					timestamp: new Date().toISOString(),
-				};
 			}
 
 			case "list": {
-				const pattern = new RegExp(`^${namespace}:`);
-				const keys = Array.from(this.memoryStore.keys())
-					.filter((k) => pattern.test(k))
-					.map((k) => k.replace(`${namespace}:`, ""));
+				try {
+					const entries = await this.memoryStore.list(namespace, { limit: 100 });
+					const keys = entries.map(entry => entry.key);
 
-				return {
-					success: true,
-					action: "list",
-					namespace,
-					keys,
-					count: keys.length,
-					timestamp: new Date().toISOString(),
-				};
+					return {
+						success: true,
+						action: "list",
+						namespace,
+						keys,
+						count: keys.length,
+						timestamp: new Date().toISOString(),
+					};
+				} catch (error) {
+					console.error(
+						`[${new Date().toISOString()}] ERROR [claude-flow-mcp] Memory list failed: ${error.message}`
+					);
+					return {
+						success: false,
+						action: "list",
+						namespace,
+						error: error.message,
+						timestamp: new Date().toISOString(),
+					};
+				}
 			}
 
 			case "delete": {
-				const deleted = this.memoryStore.delete(key);
+				try {
+					await this.memoryStore.delete(key, namespace);
 
-				return {
-					success: true,
-					action: "delete",
-					key: args.key,
-					namespace,
-					deleted,
-					timestamp: new Date().toISOString(),
-				};
+					return {
+						success: true,
+						action: "delete",
+						key,
+						namespace,
+						deleted: true,
+						timestamp: new Date().toISOString(),
+					};
+				} catch (error) {
+					console.error(
+						`[${new Date().toISOString()}] ERROR [claude-flow-mcp] Memory delete failed: ${error.message}`
+					);
+					return {
+						success: false,
+						action: "delete",
+						key,
+						namespace,
+						error: error.message,
+						timestamp: new Date().toISOString(),
+					};
+				}
 			}
 
 			default:
