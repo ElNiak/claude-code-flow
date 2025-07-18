@@ -1,7 +1,9 @@
 // utils.js - Shared CLI utility functions
 
 import chalk from "chalk";
-import { Deno, existsSync } from "./node-compat.js";
+import { existsSync } from "node:fs";
+import { mkdir, readdir, readFile, stat, unlink, writeFile, chmod } from "node:fs/promises";
+import { spawn } from "node:child_process";
 
 // Color formatting functions
 export function printSuccess(message) {
@@ -22,8 +24,13 @@ export function printInfo(message) {
 
 // Command validation helpers
 export function validateArgs(args, minLength, usage) {
-	if (args.length < minLength) {
+	// Check if arguments were passed from process.argv
+	const processArgs = process.argv.slice(2);
+	const actualArgs = args.length > 0 ? args : processArgs;
+
+	if (actualArgs.length < minLength) {
 		printError(`Usage: ${usage}`);
+		printInfo(`Process args: ${processArgs.join(' ')}`);
 		return false;
 	}
 	return true;
@@ -32,7 +39,7 @@ export function validateArgs(args, minLength, usage) {
 // File system helpers
 export async function ensureDirectory(path) {
 	try {
-		await Deno.mkdir(path, { recursive: true });
+		await mkdir(path, { recursive: true });
 		return true;
 	} catch (err) {
 		if (err.code !== "EEXIST") {
@@ -44,7 +51,7 @@ export async function ensureDirectory(path) {
 
 export async function fileExists(path) {
 	try {
-		await Deno.stat(path);
+		await stat(path);
 		return true;
 	} catch {
 		return false;
@@ -54,7 +61,7 @@ export async function fileExists(path) {
 // JSON helpers
 export async function readJsonFile(path, defaultValue = {}) {
 	try {
-		const content = await Deno.readTextFile(path);
+		const content = await readFile(path, "utf-8");
 		return JSON.parse(content);
 	} catch {
 		return defaultValue;
@@ -62,7 +69,7 @@ export async function readJsonFile(path, defaultValue = {}) {
 }
 
 export async function writeJsonFile(path, data) {
-	await Deno.writeTextFile(path, JSON.stringify(data, null, 2));
+	await writeFile(path, JSON.stringify(data, null, 2), "utf-8");
 }
 
 // String helpers
@@ -89,22 +96,30 @@ export function formatBytes(bytes) {
 
 // Command execution helpers
 export function parseFlags(args) {
+	// Use process.argv if no args provided
+	const argsToProcess = args.length > 0 ? args : process.argv.slice(2);
+
 	console.log(
 		chalk.blue(
-			`🔍 [DEEP DEBUG] parseFlags called with args: [${args.join(", ")}]`
+			`🔍 [DEEP DEBUG] parseFlags called with args: [${argsToProcess.join(", ")}]`
+		)
+	);
+	console.log(
+		chalk.gray(
+			`🔍 [DEEP DEBUG] Original process.argv: [${process.argv.join(", ")}]`
 		)
 	);
 
 	const flags = {};
 	const filteredArgs = [];
 
-	for (let i = 0; i < args.length; i++) {
-		const arg = args[i];
+	for (let i = 0; i < argsToProcess.length; i++) {
+		const arg = argsToProcess[i];
 		console.log(chalk.gray(`  Processing arg[${i}]: "${arg}"`));
 
 		if (arg.startsWith("--")) {
 			const flagName = arg.substring(2);
-			const nextArg = args[i + 1];
+			const nextArg = argsToProcess[i + 1];
 
 			console.log(
 				chalk.gray(`    Flag detected: "${flagName}", next arg: "${nextArg}"`)
@@ -140,7 +155,7 @@ export function parseFlags(args) {
 	console.log(chalk.green(`  flags: ${JSON.stringify(flags, null, 2)}`));
 	console.log(chalk.green(`  args: [${filteredArgs.join(", ")}]`));
 
-	return { flags, args: filteredArgs };
+	return { flags, args: filteredArgs, processArgs: process.argv.slice(2) };
 }
 
 // Process execution helpers
@@ -153,8 +168,8 @@ export async function runCommand(command, args = [], options = {}) {
 			process.versions.node
 		) {
 			// Node.js environment
-			const { spawn } = await import("child_process");
-			const { promisify } = await import("util");
+			const { spawn } = await import("node:child_process");
+			const { promisify } = await import("node:util");
 
 			return new Promise((resolve) => {
 				const child = spawn(command, args, {
@@ -193,20 +208,43 @@ export async function runCommand(command, args = [], options = {}) {
 				});
 			});
 		} else {
-			// Deno environment
-			const cmd = new Deno.Command(command, {
-				args,
-				...options,
+			// Node.js environment fallback
+			return new Promise((resolve) => {
+				const child = spawn(command, args, {
+					stdio: ["pipe", "pipe", "pipe"],
+					shell: true,
+					...options,
+				});
+
+				let stdout = "";
+				let stderr = "";
+
+				child.stdout?.on("data", (data) => {
+					stdout += data.toString();
+				});
+
+				child.stderr?.on("data", (data) => {
+					stderr += data.toString();
+				});
+
+				child.on("close", (code) => {
+					resolve({
+						success: code === 0,
+						code: code || 0,
+						stdout: stdout,
+						stderr: stderr,
+					});
+				});
+
+				child.on("error", (err) => {
+					resolve({
+						success: false,
+						code: -1,
+						stdout: "",
+						stderr: err.message,
+					});
+				});
 			});
-
-			const result = await cmd.output();
-
-			return {
-				success: result.code === 0,
-				code: result.code,
-				stdout: new TextDecoder().decode(result.stdout),
-				stderr: new TextDecoder().decode(result.stderr),
-			};
 		}
 	} catch (err) {
 		return {
@@ -228,7 +266,7 @@ export async function runCommandWithTimeout(command, args = [], options = {}, ti
 			process.versions.node
 		) {
 			// Node.js environment with timeout
-			const { spawn } = await import("child_process");
+			const { spawn } = await import("node:child_process");
 
 			return new Promise((resolve, reject) => {
 				const child = spawn(command, args, {
@@ -294,32 +332,70 @@ export async function runCommandWithTimeout(command, args = [], options = {}, ti
 				});
 			});
 		} else {
-			// Deno environment with timeout
-			const cmd = new Deno.Command(command, {
-				args,
-				...options,
-			});
+			// Node.js environment with timeout fallback
+			return new Promise((resolve, reject) => {
+				const child = spawn(command, args, {
+					stdio: ["pipe", "pipe", "pipe"],
+					shell: true,
+					...options,
+				});
 
-			const timeoutPromise = new Promise((resolve) => {
-				setTimeout(() => {
+				let stdout = "";
+				let stderr = "";
+				let isTimedOut = false;
+
+				// Set up timeout
+				const timeoutId = setTimeout(() => {
+					isTimedOut = true;
+					child.kill('SIGTERM');
+
+					// Force kill after 5 seconds
+					setTimeout(() => {
+						if (!child.killed) {
+							child.kill('SIGKILL');
+						}
+					}, 5000);
+
 					resolve({
 						success: false,
 						code: -1,
-						stdout: "",
+						stdout: stdout,
 						stderr: `Command timed out after ${timeoutMs}ms`,
 					});
 				}, timeoutMs);
+
+				child.stdout?.on("data", (data) => {
+					stdout += data.toString();
+				});
+
+				child.stderr?.on("data", (data) => {
+					stderr += data.toString();
+				});
+
+				child.on("close", (code) => {
+					clearTimeout(timeoutId);
+					if (!isTimedOut) {
+						resolve({
+							success: code === 0,
+							code: code || 0,
+							stdout: stdout,
+							stderr: stderr,
+						});
+					}
+				});
+
+				child.on("error", (err) => {
+					clearTimeout(timeoutId);
+					if (!isTimedOut) {
+						resolve({
+							success: false,
+							code: -1,
+							stdout: "",
+							stderr: err.message,
+						});
+					}
+				});
 			});
-
-			const commandPromise = cmd.output().then(result => ({
-				success: result.code === 0,
-				code: result.code,
-				stdout: new TextDecoder().decode(result.stdout),
-				stderr: new TextDecoder().decode(result.stderr),
-			}));
-
-			// Race between command execution and timeout
-			return Promise.race([commandPromise, timeoutPromise]);
 		}
 	} catch (err) {
 		return {
@@ -351,7 +427,7 @@ export async function loadConfig(path = "claude-flow.config.json") {
 	};
 
 	try {
-		const content = await Deno.readTextFile(path);
+		const content = await readFile(path, "utf-8");
 		return { ...defaultConfig, ...JSON.parse(content) };
 	} catch {
 		return defaultConfig;
@@ -380,11 +456,28 @@ export function chunk(array, size) {
 
 // Environment helpers
 export function getEnvVar(name, defaultValue = null) {
-	return Deno.env.get(name) ?? defaultValue;
+	return process.env[name] ?? defaultValue;
 }
 
 export function setEnvVar(name, value) {
-	Deno.env.set(name, value);
+	process.env[name] = value;
+}
+
+export function getProcessInfo() {
+	return {
+		pid: process.pid,
+		version: process.version,
+		platform: process.platform,
+		arch: process.arch,
+		args: process.argv,
+		env: Object.keys(process.env).filter(k => k.startsWith('CLAUDE_FLOW_')).reduce((acc, key) => {
+			acc[key] = process.env[key];
+			return acc;
+		}, {}),
+		cwd: process.cwd(),
+		memoryUsage: process.memoryUsage(),
+		uptime: process.uptime()
+	};
 }
 
 // Validation helpers
@@ -469,14 +562,14 @@ export async function callRuvSwarmMCP(tool, params = {}) {
 		// Write messages to temp file
 		const messages =
 			JSON.stringify(initMessage) + "\n" + JSON.stringify(toolMessage);
-		await Deno.writeTextFile(tempFile, messages);
+		await writeFile(tempFile, messages, "utf-8");
 
 		// Create a script that feeds the file to the REAL ruv-swarm MCP server
 		const script = `#!/bin/bash
 timeout 30s npx ruv-swarm mcp start --stdio < "${tempFile}" 2>/dev/null | tail -1
 `;
-		await Deno.writeTextFile(tempScript, script);
-		await Deno.chmod(tempScript, 0o755);
+		await writeFile(tempScript, script, "utf-8");
+		await chmod(tempScript, 0o755);
 
 		const result = await runCommand("bash", [tempScript], {
 			stdout: "piped",
@@ -485,8 +578,8 @@ timeout 30s npx ruv-swarm mcp start --stdio < "${tempFile}" 2>/dev/null | tail -
 
 		// Clean up temp files
 		try {
-			await Deno.remove(tempFile);
-			await Deno.remove(tempScript);
+			await unlink(tempFile);
+			await unlink(tempScript);
 		} catch {
 			// Ignore cleanup errors
 		}
@@ -570,7 +663,7 @@ export async function callRuvSwarmDirectNeural(params = {}) {
 			process.versions.node
 		) {
 			// Node.js environment - use spawn with stdio inherit
-			const { spawn } = await import("child_process");
+			const { spawn } = await import("node:child_process");
 
 			result = await new Promise((resolve) => {
 				const child = spawn(
@@ -652,26 +745,26 @@ export async function callRuvSwarmDirectNeural(params = {}) {
 		try {
 			// Read the latest training file
 			const neuralDir = ".ruv-swarm/neural";
-			const files = await Deno.readDir(neuralDir);
+			const files = await readdir(neuralDir, { withFileTypes: true });
 			let latestFile = null;
 			let latestTime = 0;
 
-			for await (const file of files) {
+			for (const file of files) {
 				if (
 					file.name.startsWith(`training-${modelName}-`) &&
 					file.name.endsWith(".json")
 				) {
 					const filePath = `${neuralDir}/${file.name}`;
-					const stat = await Deno.stat(filePath);
-					if (stat.mtime > latestTime) {
-						latestTime = stat.mtime;
+					const fileStat = await stat(filePath);
+					if (fileStat.mtime > latestTime) {
+						latestTime = fileStat.mtime;
 						latestFile = filePath;
 					}
 				}
 			}
 
 			if (latestFile) {
-				const content = await Deno.readTextFile(latestFile);
+				const content = await readFile(latestFile, "utf-8");
 				const realResult = JSON.parse(content);
 
 				return {
@@ -850,18 +943,18 @@ export async function cleanupLockFiles() {
 
 		// Check if lock directory exists
 		if (await fileExists(lockDirectory)) {
-			const files = await Deno.readDir(lockDirectory);
+			const files = await readdir(lockDirectory, { withFileTypes: true });
 			const now = Date.now();
 			let cleanedCount = 0;
 
-			for await (const file of files) {
-				if (file.isFile && file.name.endsWith('.lock')) {
+			for (const file of files) {
+				if (file.isFile() && file.name.endsWith('.lock')) {
 					const filePath = `${lockDirectory}/${file.name}`;
-					const stats = await Deno.stat(filePath);
+					const stats = await stat(filePath);
 
 					// Remove locks older than 5 minutes
 					if (now - stats.mtime.getTime() > 300000) {
-						await Deno.remove(filePath);
+						await unlink(filePath);
 						cleanedCount++;
 						printInfo(`Removed stale lock: ${file.name}`);
 					}

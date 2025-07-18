@@ -3,6 +3,7 @@
  */
 
 import { promises as fs } from "node:fs";
+import { spawn } from "child_process";
 import { BackgroundExecutor } from "../../coordination/background-executor.js";
 import { SwarmCoordinator } from "../../coordination/swarm-coordinator.js";
 import { SwarmMemoryManager } from "../../memory/swarm-memory.js";
@@ -16,6 +17,17 @@ export async function swarmAction(ctx: CommandContext) {
 		// Show help is handled by the CLI framework,
 		return;
 	}
+
+	// Check Node.js environment variables for configuration
+	const envMaxAgents = process.env.CLAUDE_FLOW_MAX_AGENTS ? parseInt(process.env.CLAUDE_FLOW_MAX_AGENTS, 10) : null;
+	const envStrategy = process.env.CLAUDE_FLOW_STRATEGY || null;
+	const envMemoryNamespace = process.env.CLAUDE_FLOW_MEMORY_NAMESPACE || null;
+	const envTimeout = process.env.CLAUDE_FLOW_TIMEOUT ? parseInt(process.env.CLAUDE_FLOW_TIMEOUT, 10) : null;
+
+	// Parse command line arguments for additional context
+	const processArgs = process.argv.slice(2);
+	const commandIndex = processArgs.indexOf('swarm');
+	const swarmArgs = commandIndex >= 0 ? processArgs.slice(commandIndex + 1) : [];
 
 	// The objective should be all the non-flag arguments joined together,
 	const objective = ctx.args.join(" ").trim();
@@ -67,10 +79,11 @@ export async function swarmAction(ctx: CommandContext) {
 		: "auto";
 
 	const options = {
-		strategy,
+		strategy: strategy || envStrategy || "auto",
 		maxAgents:
 			(ctx.flags.maxAgents ? parseInt(ctx.flags.maxAgents as string, 10) : undefined) ||
 			(ctx.flags["max-agents"] ? parseInt(ctx.flags["max-agents"] as string, 10) : undefined) ||
+			envMaxAgents ||
 			5,
 		maxDepth:
 			(ctx.flags.maxDepth as number) || (ctx.flags["max-depth"] as number) || 3,
@@ -79,8 +92,9 @@ export async function swarmAction(ctx: CommandContext) {
 		memoryNamespace:
 			(ctx.flags.memoryNamespace as string) ||
 			(ctx.flags["memory-namespace"] as string) ||
+			envMemoryNamespace ||
 			"swarm",
-		timeout: (ctx.flags.timeout as number) || 60,
+		timeout: (ctx.flags.timeout as number) || envTimeout || 60,
 		review: (ctx.flags.review as boolean) || false,
 		coordinator: (ctx.flags.coordinator as boolean) || false,
 		config: (ctx.flags.config as string) || (ctx.flags.c as string),
@@ -113,6 +127,10 @@ export async function swarmAction(ctx: CommandContext) {
 		console.log(`Coordinator: ${options.coordinator}`);
 		console.log(`Memory Namespace: ${options.memoryNamespace}`);
 		console.log(`Timeout: ${options.timeout} minutes`);
+		console.log(`Node.js Version: ${process.version}`);
+		console.log(`Process ID: ${process.pid}`);
+		console.log(`Command Args: ${swarmArgs.join(' ')}`);
+		console.log(`Environment Variables Used: ${Object.keys(process.env).filter(k => k.startsWith('CLAUDE_FLOW_')).join(', ')}`);
 		return;
 	}
 
@@ -132,20 +150,23 @@ export async function swarmAction(ctx: CommandContext) {
 			}
 
 			if (options.ui) {
-				const command = new Deno.Command("node", {
-					args: [uiScriptPath],
-					stdin: "inherit",
-					stdout: "inherit",
-					stderr: "inherit",
+				return new Promise((resolve, reject) => {
+					const child = spawn("node", [uiScriptPath], {
+						stdio: "inherit",
+					});
+
+					child.on("close", (code) => {
+						if (code !== 0) {
+							error(`Swarm UI exited with code ${code}`);
+						}
+						resolve(undefined);
+					});
+
+					child.on("error", (err) => {
+						error(`Failed to launch UI: ${err.message}`);
+						resolve(undefined);
+					});
 				});
-
-				const process = command.spawn();
-				const { code } = await process.status;
-
-				if (code !== 0) {
-					error(`Swarm UI exited with code ${code}`);
-				}
-				return;
 			}
 		} catch (err) {
 			warning(`Failed to launch blessed UI: ${(err as Error).message}`);
@@ -194,7 +215,7 @@ export async function swarmAction(ctx: CommandContext) {
 
 		// Create swarm tracking directory,
 		const swarmDir = `./swarm-runs/${swarmId}`;
-		await Deno.mkdir(swarmDir, { recursive: true });
+		await fs.mkdir(swarmDir, { recursive: true });
 
 		// Create objective in coordinator,
 		const objectiveId = await coordinator.createObjective(
@@ -251,7 +272,7 @@ export async function swarmAction(ctx: CommandContext) {
 				JSON.stringify(
 					{
 						coordinatorRunning: true,
-						pid: Deno.pid,
+						pid: process.pid,
 						startTime: new Date().toISOString(),
 					},
 					null,
@@ -401,7 +422,7 @@ async function executeParallelTasks(
 
 		// Create agent directory,
 		const agentDir = `${swarmDir}/agents/${agentId}`;
-		await Deno.mkdir(agentDir, { recursive: true });
+		await fs.mkdir(agentDir, { recursive: true });
 
 		// Write agent task,
 		await fs.writeFile(
@@ -456,7 +477,7 @@ async function executeSequentialTasks(
 
 		// Create agent directory,
 		const agentDir = `${swarmDir}/agents/${agentId}`;
-		await Deno.mkdir(agentDir, { recursive: true });
+		await fs.mkdir(agentDir, { recursive: true });
 
 		// Write agent task,
 		await fs.writeFile(
@@ -507,8 +528,19 @@ async function executeAgentTask(
 
 	try {
 		// Check if claude CLI is available and not in simulation mode,
-		const checkClaude = new Deno.Command("which", { args: ["claude"] });
-		const checkResult = await checkClaude.output();
+		const checkResult = await new Promise((resolve) => {
+			const child = spawn("which", ["claude"], {
+				stdio: ["ignore", "pipe", "pipe"],
+			});
+
+			child.on("close", (code) => {
+				resolve({ success: code === 0 });
+			});
+
+			child.on("error", () => {
+				resolve({ success: false });
+			});
+		});
 
 		if (checkResult.success && options.simulate !== true) {
 			// Write prompt to a file for claude to read,
@@ -564,23 +596,28 @@ exit \${PIPESTATUS[0]}`;
 
 			const wrapperPath = `${agentDir}/wrapper.sh`;
 			await fs.writeFile(wrapperPath, wrapperScript);
-			await Deno.chmod(wrapperPath, 0o755);
+			await fs.chmod(wrapperPath, 0o755);
 
 			console.log(`    ┌─ Claude Output ─────────────────────────────`);
 
-			const command = new Deno.Command("bash", {
-				args: [wrapperPath],
-				stdout: "inherit", // This allows real-time streaming to console,
-				stderr: "inherit",
-			});
-
 			try {
-				const process = command.spawn();
-				const { code, success } = await process.status;
+				const code = await new Promise((resolve, reject) => {
+					const child = spawn("bash", [wrapperPath], {
+						stdio: "inherit", // This allows real-time streaming to console,
+					});
+
+					child.on("close", (code) => {
+						resolve(code);
+					});
+
+					child.on("error", (err) => {
+						reject(err);
+					});
+				});
 
 				console.log(`    └─────────────────────────────────────────────`);
 
-				if (!success) {
+				if (code !== 0) {
 					throw new Error(`Claude exited with code ${code}`);
 				}
 
@@ -614,23 +651,42 @@ exit \${PIPESTATUS[0]}`;
 			const claudeFlowBin = `${projectRoot}/bin/claude-flow`;
 
 			// Execute claude-flow command,
-			const command = new Deno.Command(claudeFlowBin, {
-				args: claudeFlowArgs,
-				stdout: "piped",
-				stderr: "piped",
+			const result = await new Promise((resolve) => {
+				const child = spawn(claudeFlowBin, claudeFlowArgs, {
+					stdio: ["pipe", "pipe", "pipe"],
+				});
+
+				let stdout = "";
+				let stderr = "";
+
+				child.stdout?.on("data", (data) => {
+					stdout += data.toString();
+				});
+
+				child.stderr?.on("data", (data) => {
+					stderr += data.toString();
+				});
+
+				child.on("close", (code) => {
+					resolve({ code, stdout, stderr });
+				});
+
+				child.on("error", (err) => {
+					resolve({ code: -1, stdout: "", stderr: err.message });
+				});
 			});
 
-			const { code, stdout, stderr } = await command.output();
+			const { code, stdout, stderr } = result;
 
 			// Save output,
 			await fs.writeFile(
 				`${agentDir}/output.txt`,
-				new TextDecoder().decode(stdout)
+				stdout
 			);
 			if (stderr.length > 0) {
 				await fs.writeFile(
 					`${agentDir}/error.txt`,
-					new TextDecoder().decode(stderr)
+					stderr
 				);
 			}
 
