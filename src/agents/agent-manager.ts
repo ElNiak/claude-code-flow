@@ -1028,6 +1028,9 @@ export class AgentManager extends EventEmitter {
 			AGENT_NAME: agent.name,
 			WORKING_DIR: agent.environment.workingDirectory,
 			LOG_DIR: agent.environment.logDirectory,
+			// INHERIT MEMORY PROTECTION - Option B: 12GB heap with emergency management
+			NODE_OPTIONS: process.env.NODE_OPTIONS || "--max-old-space-size=12288 --expose-gc --incremental-marking",
+			EMERGENCY_MEMORY_ACTIVE: "true",
 		};
 
 		const args = [

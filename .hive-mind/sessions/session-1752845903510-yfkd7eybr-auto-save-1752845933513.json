@@ -1,0 +1,81 @@
+{
+  "sessionId": "session-1752845903510-yfkd7eybr",
+  "checkpointId": "checkpoint-1752845933513-2ah8tffh5",
+  "checkpointName": "auto-save-1752845933513",
+  "timestamp": "2025-07-18T13:38:53.515Z",
+  "data": {
+    "timestamp": "2025-07-18T13:38:53.513Z",
+    "changeCount": 5,
+    "changesByType": {
+      "swarm_created": [
+        {
+          "type": "swarm_created",
+          "data": {
+            "swarmId": "swarm-1752845903510-mzsomx6q4",
+            "swarmName": "hive-1752845903504",
+            "objective": "❯ npx claude-flow hive-mind spawn '<input>' --claude --queen-type adaptive --max-workers 16 --auto-spawn --verbose --auto-scale\n⠋ Spawning Hive Mind swarm...🔍 [DEBUG] HiveMindCore parameter parsing:\n  - maxWorkers: undefined\n  - max-workers: undefined\n  - agents: undefined\n  - queenType: undefined\n  - queen-type: undefined\n  - consensus: undefined\n  - consensusAlgorithm: undefined\n✅ [DEBUG] HiveMindCore parameters resolved:\n  - queenType: strategic\n  - maxWorkers: 8\n  - consensusAlgorithm: majority\n🔍 [DEBUG] HiveMindCore constructor called with config:\n{\n  'objective': <input>",
+            "workerCount": 8
+          },
+          "timestamp": "2025-07-18T13:38:23.511Z"
+        }
+      ],
+      "agent_activity": [
+        {
+          "type": "agent_activity",
+          "data": {
+            "agentId": "worker-swarm-1752845903510-mzsomx6q4-0",
+            "activity": "spawned",
+            "data": {
+              "type": "researcher",
+              "name": "Researcher Worker 1"
+            }
+          },
+          "timestamp": "2025-07-18T13:38:23.513Z"
+        },
+        {
+          "type": "agent_activity",
+          "data": {
+            "agentId": "worker-swarm-1752845903510-mzsomx6q4-1",
+            "activity": "spawned",
+            "data": {
+              "type": "coder",
+              "name": "Coder Worker 2"
+            }
+          },
+          "timestamp": "2025-07-18T13:38:23.513Z"
+        },
+        {
+          "type": "agent_activity",
+          "data": {
+            "agentId": "worker-swarm-1752845903510-mzsomx6q4-2",
+            "activity": "spawned",
+            "data": {
+              "type": "analyst",
+              "name": "Analyst Worker 3"
+            }
+          },
+          "timestamp": "2025-07-18T13:38:23.513Z"
+        },
+        {
+          "type": "agent_activity",
+          "data": {
+            "agentId": "worker-swarm-1752845903510-mzsomx6q4-3",
+            "activity": "spawned",
+            "data": {
+              "type": "tester",
+              "name": "Tester Worker 4"
+            }
+          },
+          "timestamp": "2025-07-18T13:38:23.513Z"
+        }
+      ]
+    },
+    "statistics": {
+      "tasksProcessed": 0,
+      "tasksCompleted": 0,
+      "memoryUpdates": 0,
+      "agentActivities": 4,
+      "consensusDecisions": 0
+    }
+  }
+}

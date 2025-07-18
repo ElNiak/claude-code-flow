@@ -8,6 +8,8 @@ import type { ConfigManager } from "./config.js";
 import type { EventBus } from "./event-bus.js";
 import { JsonPersistenceManager } from "./json-persistence.js";
 import type { Logger } from "./logger.js";
+import { EmergencyMemoryManager } from "../utils/emergency-memory-limits.js";
+import { NodeMemoryOptimizer } from "../optimization/node-memory-optimizer.js";
 
 export interface AgentInfo {
 	id: string;
@@ -53,6 +55,8 @@ export class Orchestrator {
 	private sessions: Map<string, SessionInfo> = new Map();
 	private persistence: JsonPersistenceManager;
 	private workflows: Map<string, WorkflowStatus> = new Map();
+	private emergencyManager: EmergencyMemoryManager;
+	private memoryOptimizer: NodeMemoryOptimizer;
 	private started = false;
 
 	constructor(
@@ -61,12 +65,27 @@ export class Orchestrator {
 		private logger: Logger
 	) {
 		this.persistence = new JsonPersistenceManager();
+
+		// Initialize memory optimization
+		this.emergencyManager = EmergencyMemoryManager.getInstance();
+		this.memoryOptimizer = new NodeMemoryOptimizer();
+
+		this.logger.info("🧠 Memory optimization initialized");
 	}
 
 	async start(): Promise<void> {
 		if (this.started) {
 			throw new Error("Orchestrator already started");
 		}
+
+		// Activate emergency memory management
+		this.emergencyManager.activate();
+
+		// Setup optimized Node.js environment
+		this.memoryOptimizer.setupEnvironment();
+
+		this.logger.info("🚨 Emergency memory management activated");
+		this.logger.info("⚡ Node.js memory optimization applied");
 
 		this.logger.info("Starting orchestrator...");
 
@@ -144,6 +163,10 @@ export class Orchestrator {
 		maxConcurrentTasks: number;
 		priority: number;
 	}): Promise<string> {
+		// Check memory before spawning new agent
+		const currentAgentCount = this.agents.size;
+		this.memoryOptimizer.optimizeForAgents(currentAgentCount + 1);
+
 		const agentId = `agent-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
 		const agent: AgentInfo = {
@@ -317,5 +340,12 @@ export class Orchestrator {
 			terminalPool: true,
 			mcp: this.started,
 		};
+	}
+
+	/**
+	 * Shutdown the orchestrator (alias for stop)
+	 */
+	async shutdown(): Promise<void> {
+		await this.stop();
 	}
 }

@@ -328,4 +328,161 @@ export class AsyncFileManager {
 		this.writeQueue.clear();
 		this.readQueue.clear();
 	}
+
+	/**
+	 * Batch write multiple files in parallel
+	 */
+	async batchWriteFiles(
+		files: Array<{ path: string; data: string | Buffer }>
+	): Promise<FileOperationResult[]> {
+		const start = Date.now();
+		this.logger.info("Starting batch write operation", {
+			count: files.length,
+			totalSize: files.reduce((sum, f) => sum + Buffer.byteLength(f.data), 0)
+		});
+
+		const results = await Promise.allSettled(
+			files.map(file => this.writeFile(file.path, file.data))
+		);
+
+		const processedResults = results.map((result, index) => {
+			if (result.status === 'fulfilled') {
+				return result.value;
+			} else {
+				this.metrics.errors++;
+				return {
+					path: files[index].path,
+					operation: "write" as const,
+					success: false,
+					duration: Date.now() - start,
+					error: result.reason as Error,
+				};
+			}
+		});
+
+		const duration = Date.now() - start;
+		const successCount = processedResults.filter(r => r.success).length;
+		this.logger.info("Batch write operation completed", {
+			count: files.length,
+			successful: successCount,
+			failed: files.length - successCount,
+			duration
+		});
+
+		return processedResults;
+	}
+
+	/**
+	 * Batch read multiple files in parallel
+	 */
+	async batchReadFiles(
+		paths: string[]
+	): Promise<Array<FileOperationResult & { data?: string }>> {
+		const start = Date.now();
+		this.logger.info("Starting batch read operation", { count: paths.length });
+
+		const results = await Promise.allSettled(
+			paths.map(path => this.readFile(path))
+		);
+
+		const processedResults = results.map((result, index) => {
+			if (result.status === 'fulfilled') {
+				return result.value;
+			} else {
+				this.metrics.errors++;
+				return {
+					path: paths[index],
+					operation: "read" as const,
+					success: false,
+					duration: Date.now() - start,
+					error: result.reason as Error,
+				};
+			}
+		});
+
+		const duration = Date.now() - start;
+		const successCount = processedResults.filter(r => r.success).length;
+		this.logger.info("Batch read operation completed", {
+			count: paths.length,
+			successful: successCount,
+			failed: paths.length - successCount,
+			duration
+		});
+
+		return processedResults;
+	}
+
+	/**
+	 * Batch delete multiple files in parallel
+	 */
+	async batchDeleteFiles(paths: string[]): Promise<FileOperationResult[]> {
+		const start = Date.now();
+		this.logger.info("Starting batch delete operation", { count: paths.length });
+
+		const results = await Promise.allSettled(
+			paths.map(path => this.deleteFile(path))
+		);
+
+		const processedResults = results.map((result, index) => {
+			if (result.status === 'fulfilled') {
+				return result.value;
+			} else {
+				this.metrics.errors++;
+				return {
+					path: paths[index],
+					operation: "delete" as const,
+					success: false,
+					duration: Date.now() - start,
+					error: result.reason as Error,
+				};
+			}
+		});
+
+		const duration = Date.now() - start;
+		const successCount = processedResults.filter(r => r.success).length;
+		this.logger.info("Batch delete operation completed", {
+			count: paths.length,
+			successful: successCount,
+			failed: paths.length - successCount,
+			duration
+		});
+
+		return processedResults;
+	}
+
+	/**
+	 * Batch JSON operations
+	 */
+	async batchWriteJSON(
+		files: Array<{ path: string; data: any; pretty?: boolean }>
+	): Promise<FileOperationResult[]> {
+		const processedFiles = files.map(file => ({
+			path: file.path,
+			data: file.pretty !== false
+				? JSON.stringify(file.data, null, 2)
+				: JSON.stringify(file.data)
+		}));
+
+		return this.batchWriteFiles(processedFiles);
+	}
+
+	/**
+	 * Enhanced cleanup for resource management
+	 */
+	async cleanup(): Promise<void> {
+		this.logger.info("Cleaning up AsyncFileManager resources");
+
+		// Wait for pending operations to complete
+		await this.waitForPendingOperations();
+
+		// Clear queues
+		this.clearQueues();
+
+		// Reset metrics
+		this.metrics.operations.clear();
+		this.metrics.totalBytes = 0;
+		this.metrics.errors = 0;
+
+		this.logger.info("AsyncFileManager cleanup completed");
+	}
 }

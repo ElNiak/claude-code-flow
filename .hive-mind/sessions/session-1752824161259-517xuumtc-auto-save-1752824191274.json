@@ -1,0 +1,81 @@
+{
+  "sessionId": "session-1752824161259-517xuumtc",
+  "checkpointId": "checkpoint-1752824191274-3du3s1aa8",
+  "checkpointName": "auto-save-1752824191274",
+  "timestamp": "2025-07-18T07:36:31.276Z",
+  "data": {
+    "timestamp": "2025-07-18T07:36:31.274Z",
+    "changeCount": 5,
+    "changesByType": {
+      "swarm_created": [
+        {
+          "type": "swarm_created",
+          "data": {
+            "swarmId": "swarm-1752824161258-bvcbf1u85",
+            "swarmName": "hive-1752824161253",
+            "objective": "How to add 20 sec timemout to serena MCP ?",
+            "workerCount": 8
+          },
+          "timestamp": "2025-07-18T07:36:01.260Z"
+        }
+      ],
+      "agent_activity": [
+        {
+          "type": "agent_activity",
+          "data": {
+            "agentId": "worker-swarm-1752824161258-bvcbf1u85-0",
+            "activity": "spawned",
+            "data": {
+              "type": "researcher",
+              "name": "Researcher Worker 1"
+            }
+          },
+          "timestamp": "2025-07-18T07:36:01.261Z"
+        },
+        {
+          "type": "agent_activity",
+          "data": {
+            "agentId": "worker-swarm-1752824161258-bvcbf1u85-1",
+            "activity": "spawned",
+            "data": {
+              "type": "coder",
+              "name": "Coder Worker 2"
+            }
+          },
+          "timestamp": "2025-07-18T07:36:01.261Z"
+        },
+        {
+          "type": "agent_activity",
+          "data": {
+            "agentId": "worker-swarm-1752824161258-bvcbf1u85-2",
+            "activity": "spawned",
+            "data": {
+              "type": "analyst",
+              "name": "Analyst Worker 3"
+            }
+          },
+          "timestamp": "2025-07-18T07:36:01.261Z"
+        },
+        {
+          "type": "agent_activity",
+          "data": {
+            "agentId": "worker-swarm-1752824161258-bvcbf1u85-3",
+            "activity": "spawned",
+            "data": {
+              "type": "tester",
+              "name": "Tester Worker 4"
+            }
+          },
+          "timestamp": "2025-07-18T07:36:01.261Z"
+        }
+      ]
+    },
+    "statistics": {
+      "tasksProcessed": 0,
+      "tasksCompleted": 0,
+      "memoryUpdates": 0,
+      "agentActivities": 4,
+      "consensusDecisions": 0
+    }
+  }
+}

@@ -37,4 +37,4 @@ description: "Advanced AI agent coordination platform with intelligent task dist
 log_level: "INFO"
 
 # Tool timeout configuration (seconds)
-tool_timeout: 30
+tool_timeout: 20

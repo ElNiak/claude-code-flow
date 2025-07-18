@@ -9,6 +9,10 @@
 	"scripts": {
 		"dev": "tsx src/cli/main.ts",
 		"dev:tsx": "tsx src/cli/main.ts",
+		"dev:optimized": "./scripts/memory-optimized-start.sh tsx src/cli/main.ts",
+		"start": "./start-optimized.sh dist/cli/simple-cli.js",
+		"start:optimized": "./start-optimized.sh dist/cli/simple-cli.js",
+		"start:dev": "./start-optimized.sh src/cli/simple-cli.js",
 		"mcp": "node src/mcp/stdio-server-complete.js",
 		"mcp:start": "node src/mcp/stdio-server-complete.js",
 		"mcp:stdio": "node src/mcp/stdio-server-complete.js",
@@ -141,6 +145,7 @@
 		"gradient-string": "^3.0.0",
 		"helmet": "^7.1.0",
 		"inquirer": "^9.2.12",
+		"lru-cache": "^11.1.0",
 		"nanoid": "^5.0.4",
 		"node-pty": "^1.0.0",
 		"ora": "^7.0.1",

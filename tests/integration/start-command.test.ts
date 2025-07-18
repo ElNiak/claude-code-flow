@@ -2,7 +2,7 @@
  * Integration tests for the start command
  */
 
-import { Command } from '@cliffy/command';
+import { Command } from 'commander';
 import { startCommand } from '../../src/cli/commands/start/start-command.ts';
 import { afterEach, afterEach, beforeEach, beforeEach, describe, describe, expect, expect, it, it } from "../test.utils.ts";
 
@@ -52,23 +52,23 @@ describe('Start Command Integration', () => {
   });
 
   describe('command structure', () => {
-    it('should be a valid Cliffy command', () => {
+    it('should be a valid Commander command', () => {
       expect(startCommand).toBeDefined();
       expect(startCommand instanceof Command).toBe(true);
     });
 
     it('should have correct description', () => {
-      const desc = (startCommand as any)._globalParent?._description ||
-                   (startCommand as any).getDescription();
+      const desc = (startCommand as any).description() ||
+                   (startCommand as any)._description;
       expect(typeof desc).toBe('string');
       expect(desc.includes('orchestration')).toBe(true);
     });
 
     it('should have all expected options', () => {
       const command = startCommand as any;
-      const options = command.options || command.getOptions?.() || [];
+      const options = command.options || [];
 
-      const optionNames = options.map((opt: any) => opt.name);
+      const optionNames = options.map((opt: any) => opt.long || opt.name);
       expect(optionNames.includes('daemon')).toBe(true);
       expect(optionNames.includes('port')).toBe(true);
       expect(optionNames.includes('ui')).toBe(true);
@@ -82,7 +82,7 @@ describe('Start Command Integration', () => {
       const command = new Command()
         .command('start', startCommand);
 
-      const help = await command.getHelp();
+      const help = command.helpInformation();
       expect(help).toBeDefined();
       expect(help.includes('start')).toBe(true);
     });

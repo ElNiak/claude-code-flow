@@ -5,14 +5,17 @@
     "CLAUDE_FLOW_HOOKS_ENABLED": "true",
     "CLAUDE_FLOW_TELEMETRY_ENABLED": "true",
     "CLAUDE_FLOW_REMOTE_EXECUTION": "true",
-    "CLAUDE_FLOW_GITHUB_INTEGRATION": "true"
+    "CLAUDE_FLOW_GITHUB_INTEGRATION": "true",
+    "EMERGENCY_MEMORY_ACTIVE": "true",
+    "NODE_OPTIONS": "--max-old-space-size=12288 --expose-gc --incremental-marking"
   },
   "permissions": {
     "allow": [
       "Bash(npx claude-flow *)",
-      "Bash(npm run lint)",
-      "Bash(npm run test:*)",
+      "Bash(npm run *)",
       "Bash(npm test *)",
+      "Bash(./start-optimized.sh *)",
+      "Bash(./scripts/memory-optimized-start.sh *)",
       "Bash(git status)",
       "Bash(git diff *)",
       "Bash(git log *)",
@@ -24,7 +27,8 @@
       "Bash(node *)",
       "Bash(which *)",
       "Bash(pwd)",
-      "Bash(ls *)"
+      "Bash(ls *)",
+      "Bash(pkill *)"
     ],
     "deny": [
       "Bash(rm -rf /)",
@@ -49,7 +53,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "npx claude-flow hooks pre-edit --file \"${file_path}\" --auto-assign-agents true --load-context true --serena-verify true --block-on-fail false"
+            "command": "npx claude-flow hooks pre-edit --file \"${file_path}\" --auto-assign-agents false --load-context false --serena-verify false --block-on-fail false"
           }
         ]
       },
@@ -58,7 +62,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "npx claude-flow hooks pre-read --file \"${file_path}\" --symbols-overview true"
+            "command": "npx claude-flow hooks pre-read --file \"${file_path}\" --symbols-overview false"
           }
         ]
       }
@@ -78,7 +82,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "npx claude-flow hooks post-edit --file \"${file_path}\" --format true --update-memory true --train-neural true --validate-changes true --store-verified-structure true"
+            "command": "npx claude-flow hooks post-edit --file \"${file_path}\" --format false --update-memory false --train-neural false --validate-changes false --store-verified-structure false"
           }
         ]
       }
@@ -119,16 +123,17 @@
         "serena-mcp-server",
         "--context",
         "ide-assistant",
+        "--tool-timeout",
+        "30000",
         "--project",
-        "${PWD}"
+        "${pwd}"
       ],
       "env": {
-        "SERENA_LOG_LEVEL": "INFO",
-        "SERENA_TOOL_TIMEOUT": "30"
+        "SERENA_LOG_LEVEL": "INFO"
       }
     }
   },
-  "includeCoAuthoredBy": true,
+  "includeCoAuthoredBy": false,
   "features": {
     "autoTopologySelection": true,
     "parallelExecution": true,

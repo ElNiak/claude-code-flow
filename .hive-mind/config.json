@@ -1,17 +1,17 @@
 {
-	"version": "2.0.0",
-	"initialized": "2025-07-17T07:47:35.713Z",
-	"defaults": {
-		"queenType": "strategic",
-		"maxWorkers": 8,
-		"consensusAlgorithm": "majority",
-		"memorySize": 100,
-		"autoScale": true,
-		"encryption": false
-	},
-	"mcpTools": {
-		"enabled": true,
-		"parallel": true,
-		"timeout": 60000
-	}
+  "version": "2.0.0",
+  "initialized": "2025-07-18T13:37:38.374Z",
+  "defaults": {
+    "queenType": "strategic",
+    "maxWorkers": 8,
+    "consensusAlgorithm": "majority",
+    "memorySize": 100,
+    "autoScale": true,
+    "encryption": false
+  },
+  "mcpTools": {
+    "enabled": true,
+    "parallel": true,
+    "timeout": 60000
+  }
 }

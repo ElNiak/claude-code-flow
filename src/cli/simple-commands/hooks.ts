@@ -5,6 +5,7 @@ import {
 	printError,
 	printSuccess,
 	printWarning,
+	emergencyRecovery,
 } from "../utils.js";
 import { cwd } from "node:process";
 
@@ -183,6 +184,9 @@ export async function hooksAction(subArgs: string[], flags: HookFlags): Promise<
 				break;
 			case "notify":
 				await notifyCommand(subArgs, flags);
+				break;
+			case "emergency-recovery":
+				await emergencyRecovery();
 				break;
 
 			default:
@@ -817,10 +821,14 @@ function showHooksHelp(): void {
 	console.log("  session-restore    Load previous session state");
 	console.log("  notify             Custom notifications");
 
+	console.log("\nEmergency Operations:");
+	console.log("  emergency-recovery Clean up orphaned processes and stale locks");
+
 	console.log("\nExamples:");
 	console.log('  hooks pre-bash --command "rm -rf /"');
 	console.log('  hooks agent-spawned --name "CodeReviewer" --type "reviewer"');
 	console.log('  hooks notify --message "Build completed" --level "success"');
+	console.log('  hooks emergency-recovery');
 }
 
 export default hooksAction;

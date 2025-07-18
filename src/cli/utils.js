@@ -218,6 +218,119 @@ export async function runCommand(command, args = [], options = {}) {
 	}
 }
 
+// Process execution with timeout
+export async function runCommandWithTimeout(command, args = [], options = {}, timeoutMs = 20000) {
+	try {
+		// Check if we're in Node.js or Deno environment
+		if (
+			typeof process !== "undefined" &&
+			process.versions &&
+			process.versions.node
+		) {
+			// Node.js environment with timeout
+			const { spawn } = await import("child_process");
+
+			return new Promise((resolve, reject) => {
+				const child = spawn(command, args, {
+					stdio: ["pipe", "pipe", "pipe"],
+					shell: true,
+					...options,
+				});
+
+				let stdout = "";
+				let stderr = "";
+				let isTimedOut = false;
+
+				// Set up timeout
+				const timeoutId = setTimeout(() => {
+					isTimedOut = true;
+					child.kill('SIGTERM');
+
+					// Force kill after 5 seconds
+					setTimeout(() => {
+						if (!child.killed) {
+							child.kill('SIGKILL');
+						}
+					}, 5000);
+
+					resolve({
+						success: false,
+						code: -1,
+						stdout: stdout,
+						stderr: `Command timed out after ${timeoutMs}ms`,
+					});
+				}, timeoutMs);
+
+				child.stdout?.on("data", (data) => {
+					stdout += data.toString();
+				});
+
+				child.stderr?.on("data", (data) => {
+					stderr += data.toString();
+				});
+
+				child.on("close", (code) => {
+					clearTimeout(timeoutId);
+					if (!isTimedOut) {
+						resolve({
+							success: code === 0,
+							code: code || 0,
+							stdout: stdout,
+							stderr: stderr,
+						});
+					}
+				});
+
+				child.on("error", (err) => {
+					clearTimeout(timeoutId);
+					if (!isTimedOut) {
+						resolve({
+							success: false,
+							code: -1,
+							stdout: "",
+							stderr: err.message,
+						});
+					}
+				});
+			});
+		} else {
+			// Deno environment with timeout
+			const cmd = new Deno.Command(command, {
+				args,
+				...options,
+			});
+
+			const timeoutPromise = new Promise((resolve) => {
+				setTimeout(() => {
+					resolve({
+						success: false,
+						code: -1,
+						stdout: "",
+						stderr: `Command timed out after ${timeoutMs}ms`,
+					});
+				}, timeoutMs);
+			});
+
+			const commandPromise = cmd.output().then(result => ({
+				success: result.code === 0,
+				code: result.code,
+				stdout: new TextDecoder().decode(result.stdout),
+				stderr: new TextDecoder().decode(result.stderr),
+			}));
+
+			// Race between command execution and timeout
+			return Promise.race([commandPromise, timeoutPromise]);
+		}
+	} catch (err) {
+		return {
+			success: false,
+			code: -1,
+			stdout: "",
+			stderr: err.message,
+		};
+	}
+}
+
 // Configuration helpers
 export async function loadConfig(path = "claude-flow.config.json") {
 	const defaultConfig = {
@@ -619,10 +732,24 @@ export async function execRuvSwarmHook(hookName, params = {}) {
 			}
 		});
 
-		const result = await runCommand(command, args, {
+		// Hook-specific timeout configuration
+		const hookTimeouts = {
+			'pre-task': 30000,      // 30 seconds
+			'post-edit': 15000,     // 15 seconds
+			'post-task': 45000,     // 45 seconds
+			'pre-bash': 10000,      // 10 seconds
+			'notify': 5000,         // 5 seconds
+			'session-restore': 60000, // 1 minute
+			'session-end': 90000     // 1.5 minutes
+		};
+
+		const timeout = hookTimeouts[hookName] || 20000; // Default 20 seconds
+
+		// Execute with timeout
+		const result = await runCommandWithTimeout(command, args, {
 			stdout: "piped",
 			stderr: "piped",
-		});
+		}, timeout);
 
 		if (!result.success) {
 			throw new Error(`ruv-swarm hook failed: ${result.stderr}`);
@@ -650,6 +777,128 @@ export async function checkRuvSwarmAvailable() {
 	} catch {
 		return false;
 	}
+}
+
+// Process cleanup utilities
+export async function cleanupOrphanedProcesses() {
+	try {
+		// Find claude-flow and ruv-swarm processes
+		const result = await runCommand("ps", ["aux"], {
+			stdout: "piped",
+			stderr: "piped",
+		});
+
+		if (!result.success) {
+			printWarning("Could not list processes for cleanup");
+			return;
+		}
+
+		const lines = result.stdout.split('\n');
+		const processesToKill = [];
+
+		for (const line of lines) {
+			if (line.includes('claude-flow') || line.includes('ruv-swarm')) {
+				const parts = line.split(/\s+/);
+				if (parts.length >= 11) {
+					const pid = parseInt(parts[1]);
+					const command = parts.slice(10).join(' ');
+
+					// Skip current process
+					if (pid === process.pid) continue;
+
+					// Check if process is hung (running longer than 10 minutes)
+					const startTime = new Date(parts[8]).getTime();
+					const currentTime = Date.now();
+
+					if (currentTime - startTime > 600000) {
+						processesToKill.push({ pid, command });
+					}
+				}
+			}
+		}
+
+		// Kill hung processes
+		for (const { pid, command } of processesToKill) {
+			try {
+				process.kill(pid, 'SIGTERM');
+				printInfo(`Killed hung process: ${pid} - ${command}`);
+
+				// Force kill after 5 seconds if needed
+				setTimeout(() => {
+					try {
+						process.kill(pid, 'SIGKILL');
+					} catch (e) {
+						// Process already dead
+					}
+				}, 5000);
+			} catch (error) {
+				printWarning(`Could not kill process ${pid}: ${error.message}`);
+			}
+		}
+
+		if (processesToKill.length > 0) {
+			printSuccess(`Cleaned up ${processesToKill.length} orphaned processes`);
+		}
+	} catch (error) {
+		printWarning(`Process cleanup failed: ${error.message}`);
+	}
+}
+
+export async function cleanupLockFiles() {
+	try {
+		const lockDirectory = './.claude-flow/locks';
+
+		// Check if lock directory exists
+		if (await fileExists(lockDirectory)) {
+			const files = await Deno.readDir(lockDirectory);
+			const now = Date.now();
+			let cleanedCount = 0;
+
+			for await (const file of files) {
+				if (file.isFile && file.name.endsWith('.lock')) {
+					const filePath = `${lockDirectory}/${file.name}`;
+					const stats = await Deno.stat(filePath);
+
+					// Remove locks older than 5 minutes
+					if (now - stats.mtime.getTime() > 300000) {
+						await Deno.remove(filePath);
+						cleanedCount++;
+						printInfo(`Removed stale lock: ${file.name}`);
+					}
+				}
+			}
+
+			if (cleanedCount > 0) {
+				printSuccess(`Cleaned up ${cleanedCount} stale lock files`);
+			}
+		}
+	} catch (error) {
+		printWarning(`Lock cleanup failed: ${error.message}`);
+	}
+}
+
+export async function emergencyRecovery() {
+	printInfo("🚨 Starting emergency recovery...");
+
+	// 1. Clean up orphaned processes
+	await cleanupOrphanedProcesses();
+
+	// 2. Remove stale lock files
+	await cleanupLockFiles();
+
+	// 3. Reset database connections if possible
+	try {
+		// Close any open database connections
+		if (typeof globalThis.claudeFlowDB !== 'undefined') {
+			globalThis.claudeFlowDB.close();
+			delete globalThis.claudeFlowDB;
+		}
+		printSuccess("Reset database connections");
+	} catch (error) {
+		printWarning(`Database reset failed: ${error.message}`);
+	}
+
+	printSuccess("✅ Emergency recovery completed");
 }
 
 // Neural training specific helpers

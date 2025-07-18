@@ -192,6 +192,14 @@ export class EventBus implements IEventBus {
 	removeAllListeners(event?: string): void {
 		this.typedBus.removeAllListeners(event as any);
 	}
+
+	/**
+	 * Shutdown the event bus and cleanup resources
+	 */
+	shutdown(): void {
+		this.removeAllListeners();
+		this.resetStats();
+	}
 }
 
 // Export singleton instance,

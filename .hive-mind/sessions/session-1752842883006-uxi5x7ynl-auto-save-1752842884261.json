@@ -1,0 +1,81 @@
+{
+  "sessionId": "session-1752842883006-uxi5x7ynl",
+  "checkpointId": "checkpoint-1752842884261-jsh1oia03",
+  "checkpointName": "auto-save-1752842884261",
+  "timestamp": "2025-07-18T12:48:04.261Z",
+  "data": {
+    "timestamp": "2025-07-18T12:48:04.261Z",
+    "changeCount": 5,
+    "changesByType": {
+      "swarm_created": [
+        {
+          "type": "swarm_created",
+          "data": {
+            "swarmId": "swarm-1752842883005-pkwo52awc",
+            "swarmName": "hive-1752842883002",
+            "objective": "Analyse https://raw.githubusercontent.com/oraios/serena/refs/heads/main/README.md and see how to improve performance and efficiency usage of this MCP for planning and analysis",
+            "workerCount": 8
+          },
+          "timestamp": "2025-07-18T12:48:03.006Z"
+        }
+      ],
+      "agent_activity": [
+        {
+          "type": "agent_activity",
+          "data": {
+            "agentId": "worker-swarm-1752842883005-pkwo52awc-0",
+            "activity": "spawned",
+            "data": {
+              "type": "researcher",
+              "name": "Researcher Worker 1"
+            }
+          },
+          "timestamp": "2025-07-18T12:48:03.008Z"
+        },
+        {
+          "type": "agent_activity",
+          "data": {
+            "agentId": "worker-swarm-1752842883005-pkwo52awc-1",
+            "activity": "spawned",
+            "data": {
+              "type": "coder",
+              "name": "Coder Worker 2"
+            }
+          },
+          "timestamp": "2025-07-18T12:48:03.008Z"
+        },
+        {
+          "type": "agent_activity",
+          "data": {
+            "agentId": "worker-swarm-1752842883005-pkwo52awc-2",
+            "activity": "spawned",
+            "data": {
+              "type": "analyst",
+              "name": "Analyst Worker 3"
+            }
+          },
+          "timestamp": "2025-07-18T12:48:03.008Z"
+        },
+        {
+          "type": "agent_activity",
+          "data": {
+            "agentId": "worker-swarm-1752842883005-pkwo52awc-3",
+            "activity": "spawned",
+            "data": {
+              "type": "tester",
+              "name": "Tester Worker 4"
+            }
+          },
+          "timestamp": "2025-07-18T12:48:03.008Z"
+        }
+      ]
+    },
+    "statistics": {
+      "tasksProcessed": 0,
+      "tasksCompleted": 0,
+      "memoryUpdates": 0,
+      "agentActivities": 4,
+      "consensusDecisions": 0
+    }
+  }
+}

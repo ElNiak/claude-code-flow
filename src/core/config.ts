@@ -478,6 +478,13 @@ export class ConfigManager {
 	}
 
 	/**
+	 * Gets the current configuration (alias for get method)
+	 */
+	getConfig(): Config {
+		return this.get();
+	}
+
+	/**
 	 * Gets all configuration values (alias for get method for backward compatibility)
 	 */
 	async getAll(): Promise<Config> {

@@ -78,7 +78,7 @@ const intrinsicCommand: Command = {
 	],
 	action: async (ctx: CommandContext) => {
 		try {
-			const agentCount = (ctx.flags.agents as number) || 5;
+			const agentCount = (ctx.flags.agents ? parseInt(ctx.flags.agents as string, 10) : undefined) || 5;
 			const topology = (ctx.flags.topology as string) || "hierarchical";
 			const memoryHooks = ctx.flags["memory-hooks"] !== false;
 			const sessionId =

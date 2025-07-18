@@ -10,42 +10,60 @@ import type { ILogger } from "../../core/logger.js";
 import { MemoryBackendError } from "../../utils/errors.js";
 import type { MemoryEntry, MemoryQuery } from "../../utils/types.js";
 import type { IMemoryBackend } from "./base.js";
+import { SQLiteConnectionPool } from "./sqlite-pool.js";
+import { EmergencyMemoryManager } from "../../utils/emergency-memory-limits.js";
 
 /**
- * SQLite-based memory backend
+ * SQLite-based memory backend with connection pooling
  */
 export class SQLiteBackend implements IMemoryBackend {
 	private db?: Database.Database;
+	private pool?: SQLiteConnectionPool;
+	private usePool: boolean;
+	private emergencyManager: EmergencyMemoryManager;
 
 	constructor(
 		private dbPath: string,
-		private logger: ILogger
-	) {}
+		private logger: ILogger,
+		usePool: boolean = true
+	) {
+		this.usePool = usePool;
+		this.emergencyManager = EmergencyMemoryManager.getInstance();
+	}
 
 	async initialize(): Promise<void> {
-		this.logger.info("Initializing SQLite backend", { dbPath: this.dbPath });
+		this.logger.info("Initializing SQLite backend", {
+			dbPath: this.dbPath,
+			usePool: this.usePool
+		});
 
 		try {
-			// Ensure directory exists,
-			const dir = path.dirname(this.dbPath);
-			await fs.mkdir(dir, { recursive: true });
+			if (this.usePool) {
+				// Initialize connection pool
+				this.pool = new SQLiteConnectionPool(this.dbPath, this.logger);
+				await this.pool.initialize();
+				this.logger.info("SQLite backend initialized with connection pool");
+			} else {
+				// Fallback to single connection
+				const dir = path.dirname(this.dbPath);
+				await fs.mkdir(dir, { recursive: true });
 
-			// Open SQLite connection,
-			this.db = new Database(this.dbPath);
+				this.db = new Database(this.dbPath);
 
-			// Enable WAL mode for better performance,
-			this.db.pragma("journal_mode = WAL");
-			this.db.pragma("synchronous = NORMAL");
-			this.db.pragma("cache_size = 1000");
-			this.db.pragma("temp_store = memory");
+				// Enable WAL mode for better performance
+				this.db.pragma("journal_mode = WAL");
+				this.db.pragma("synchronous = NORMAL");
+				this.db.pragma("cache_size = 1000");
+				this.db.pragma("temp_store = memory");
 
-			// Create tables,
-			this.createTables();
+				// Create tables
+				this.createTables();
 
-			// Create indexes,
-			this.createIndexes();
+				// Create indexes
+				this.createIndexes();
 
-			this.logger.info("SQLite backend initialized");
+				this.logger.info("SQLite backend initialized with single connection");
+			}
 		} catch (error) {
 			throw new MemoryBackendError("Failed to initialize SQLite backend", {
 				error,
@@ -56,14 +74,17 @@ export class SQLiteBackend implements IMemoryBackend {
 	async shutdown(): Promise<void> {
 		this.logger.info("Shutting down SQLite backend");
 
-		if (this.db) {
+		if (this.pool) {
+			await this.pool.shutdown();
+			delete this.pool;
+		} else if (this.db) {
 			this.db.close();
 			delete this.db;
 		}
 	}
 
 	async store(entry: MemoryEntry): Promise<void> {
-		if (!this.db) {
+		if (!this.pool && !this.db) {
 			throw new MemoryBackendError("Database not initialized");
 		}
 
@@ -89,29 +110,34 @@ export class SQLiteBackend implements IMemoryBackend {
 		];
 
 		try {
-			const stmt = this.db.prepare(sql);
-			stmt.run(...params);
+			if (this.pool) {
+				await this.pool.executeUpdate(sql, params);
+			} else if (this.db) {
+				const stmt = this.db.prepare(sql);
+				stmt.run(...params);
+			}
 		} catch (error) {
 			throw new MemoryBackendError("Failed to store entry", { error });
 		}
 	}
 
 	async retrieve(id: string): Promise<MemoryEntry | undefined> {
-		if (!this.db) {
+		if (!this.pool && !this.db) {
 			throw new MemoryBackendError("Database not initialized");
 		}
 
 		const sql = "SELECT * FROM memory_entries WHERE id = ?";
 
 		try {
-			const stmt = this.db.prepare(sql);
-			const row = stmt.get(id);
-
-			if (!row) {
-				return undefined;
+			if (this.pool) {
+				const rows = await this.pool.executeQuery<any>(sql, [id]);
+				return rows.length > 0 ? this.rowToEntry(rows[0] as Record<string, unknown>) : undefined;
+			} else if (this.db) {
+				const stmt = this.db.prepare(sql);
+				const row = stmt.get(id);
+				return row ? this.rowToEntry(row as Record<string, unknown>) : undefined;
 			}
-
-			return this.rowToEntry(row as Record<string, unknown>);
+			return undefined;
 		} catch (error) {
 			throw new MemoryBackendError("Failed to retrieve entry", { error });
 		}
@@ -120,6 +146,16 @@ export class SQLiteBackend implements IMemoryBackend {
 	async update(id: string, entry: MemoryEntry): Promise<void> {
 		// SQLite INSERT OR REPLACE handles updates,
 		await this.store(entry);
+	}
+
+	/**
+	 * Get performance metrics from the connection pool
+	 */
+	getPoolMetrics() {
+		if (this.pool) {
+			return this.pool.getMetrics();
+		}
+		return null;
 	}
 
 	async delete(id: string): Promise<void> {

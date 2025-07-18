@@ -12,14 +12,14 @@ import { join } from "node:path";
 import { spawn } from "node:child_process";
 import { createInterface } from "node:readline";
 
-// import {
-//   executeCommand,
-//   hasCommand,
-//   showCommandHelp,
-//   showAllCommands,
-//   listCommands
-// } from './command-registry.js';
-// import { parseFlags } from './utils.js';
+import {
+   executeCommand,
+   hasCommand,
+   showCommandHelp,
+   showAllCommands,
+   listCommands
+} from './command-registry.js';
+ import { parseFlags } from './utils.js';
 
 // Node.js-only implementation (removed Deno compatibility)
 
@@ -198,10 +198,8 @@ async function main() {
 	}
 
 	const command = args[0];
-	// const { flags, args: parsedArgs } = parseFlags(args.slice(1));
-	// Simple fallback parsing
-	const flags = {};
-	const parsedArgs = args.slice(1);
+	// Parse flags properly using the imported parseFlags function
+	const { flags, args: parsedArgs } = parseFlags(args.slice(1));
 	const _flags = flags; // Alias for compatibility
 
 	// Handle special commands first,
@@ -227,12 +225,12 @@ async function main() {
 	}
 
 	// Check if this is a registered modular command,
-	// if (hasCommand(command)) {
-	//   try {
-	//     await executeCommand(command, parsedArgs, _flags);
-	if (false) {
-		// Command registry not available, always show fallback
-		// Commented out command execution
+	if (hasCommand(command)) {
+		try {
+			await executeCommand(command, parsedArgs, _flags);
+		} catch (error) {
+			printError(`Failed to execute command "${command}": ${error instanceof Error ? error.message : String(error)}`);
+		}
 		return;
 	}
 

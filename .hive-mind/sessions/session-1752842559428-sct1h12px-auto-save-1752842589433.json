@@ -1,0 +1,81 @@
+{
+  "sessionId": "session-1752842559428-sct1h12px",
+  "checkpointId": "checkpoint-1752842589433-ltk7woe5y",
+  "checkpointName": "auto-save-1752842589433",
+  "timestamp": "2025-07-18T12:43:09.437Z",
+  "data": {
+    "timestamp": "2025-07-18T12:43:09.433Z",
+    "changeCount": 5,
+    "changesByType": {
+      "swarm_created": [
+        {
+          "type": "swarm_created",
+          "data": {
+            "swarmId": "swarm-1752842559427-gf78lwtvh",
+            "swarmName": "hive-1752842559423",
+            "objective": "Make a complete and full analyse of the code base present in claude-flow@alpha (https://github.com/ruvnet/claude-flow) version and this forked version. Think deeply, and analyse deeply this task is complex, then generate a compelte report about the differences. Dont code anything, only comparison",
+            "workerCount": 8
+          },
+          "timestamp": "2025-07-18T12:42:39.429Z"
+        }
+      ],
+      "agent_activity": [
+        {
+          "type": "agent_activity",
+          "data": {
+            "agentId": "worker-swarm-1752842559427-gf78lwtvh-0",
+            "activity": "spawned",
+            "data": {
+              "type": "researcher",
+              "name": "Researcher Worker 1"
+            }
+          },
+          "timestamp": "2025-07-18T12:42:39.430Z"
+        },
+        {
+          "type": "agent_activity",
+          "data": {
+            "agentId": "worker-swarm-1752842559427-gf78lwtvh-1",
+            "activity": "spawned",
+            "data": {
+              "type": "coder",
+              "name": "Coder Worker 2"
+            }
+          },
+          "timestamp": "2025-07-18T12:42:39.430Z"
+        },
+        {
+          "type": "agent_activity",
+          "data": {
+            "agentId": "worker-swarm-1752842559427-gf78lwtvh-2",
+            "activity": "spawned",
+            "data": {
+              "type": "analyst",
+              "name": "Analyst Worker 3"
+            }
+          },
+          "timestamp": "2025-07-18T12:42:39.430Z"
+        },
+        {
+          "type": "agent_activity",
+          "data": {
+            "agentId": "worker-swarm-1752842559427-gf78lwtvh-3",
+            "activity": "spawned",
+            "data": {
+              "type": "tester",
+              "name": "Tester Worker 4"
+            }
+          },
+          "timestamp": "2025-07-18T12:42:39.430Z"
+        }
+      ]
+    },
+    "statistics": {
+      "tasksProcessed": 0,
+      "tasksCompleted": 0,
+      "memoryUpdates": 0,
+      "agentActivities": 4,
+      "consensusDecisions": 0
+    }
+  }
+}

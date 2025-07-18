@@ -3,15 +3,15 @@
  * Test script for Claude Swarm Mode functionality
  */
 
-import { colors } from "https://deno.land/x/cliffy@v1.0.0-rc.3/ansi/colors.ts";
+import chalk from "chalk";
 
 async function runTest(
 	name: string,
 	command: string[],
 	expectedPatterns: string[],
 ): Promise<boolean> {
-	console.log(colors.blue(`\nTesting: ${name}`));
-	console.log(colors.gray(`Command: ${command.join(" ")}`));
+	console.log(chalk.blue(`\nTesting: ${name}`));
+	console.log(chalk.gray(`Command: ${command.join(" ")}`));
 
 	try {
 		const cmd = new Deno.Command(command[0], {
@@ -25,9 +25,9 @@ async function runTest(
 		const errorOutput = new TextDecoder().decode(stderr);
 
 		if (code !== 0 && !name.includes("dry-run")) {
-			console.log(colors.red(`❌ Command failed with code ${code}`));
+			console.log(chalk.red(`❌ Command failed with code ${code}`));
 			if (errorOutput) {
-				console.log(colors.red(`Error: ${errorOutput}`));
+				console.log(chalk.red(`Error: ${errorOutput}`));
 			}
 			return false;
 		}
@@ -36,29 +36,29 @@ async function runTest(
 		let allPatternsFound = true;
 		for (const pattern of expectedPatterns) {
 			if (!output.includes(pattern)) {
-				console.log(colors.red(`❌ Expected pattern not found: "${pattern}"`));
+				console.log(chalk.red(`❌ Expected pattern not found: "${pattern}"`));
 				allPatternsFound = false;
 			}
 		}
 
 		if (allPatternsFound) {
-			console.log(colors.green(`✅ Test passed`));
+			console.log(chalk.green(`✅ Test passed`));
 			return true;
 		} else {
-			console.log(colors.red(`❌ Test failed`));
-			console.log(colors.gray(`Output: ${output.substring(0, 200)}...`));
+			console.log(chalk.red(`❌ Test failed`));
+			console.log(chalk.gray(`Output: ${output.substring(0, 200)}...`));
 			return false;
 		}
 	} catch (error) {
 		console.log(
-			colors.red(`❌ Error running test: ${(error as Error).message}`),
+			chalk.red(`❌ Error running test: ${(error as Error).message}`),
 		);
 		return false;
 	}
 }
 
 async function main() {
-	console.log(colors.bold("Claude-Flow Swarm Mode Test Suite"));
+	console.log(chalk.bold("Claude-Flow Swarm Mode Test Suite"));
 	console.log("=".repeat(50));
 
 	const tests = [
@@ -142,19 +142,19 @@ async function main() {
 	}
 
 	console.log("\n" + "=".repeat(50));
-	console.log(colors.bold("Test Summary:"));
-	console.log(colors.green(`✅ Passed: ${passedTests}`));
-	console.log(colors.red(`❌ Failed: ${failedTests}`));
-	console.log(colors.blue(`📊 Total: ${tests.length}`));
+	console.log(chalk.bold("Test Summary:"));
+	console.log(chalk.green(`✅ Passed: ${passedTests}`));
+	console.log(chalk.red(`❌ Failed: ${failedTests}`));
+	console.log(chalk.blue(`📊 Total: ${tests.length}`));
 
 	if (failedTests === 0) {
-		console.log(colors.green("\n🎉 All tests passed!"));
+		console.log(chalk.green("\n🎉 All tests passed!"));
 	} else {
-		console.log(colors.red("\n⚠️  Some tests failed"));
+		console.log(chalk.red("\n⚠️  Some tests failed"));
 	}
 
 	// Additional manual test instructions
-	console.log("\n" + colors.bold("Manual Testing Instructions:"));
+	console.log("\n" + chalk.bold("Manual Testing Instructions:"));
 	console.log("1. Test with actual Claude CLI (if available):");
 	console.log('   ./swarm-demo.ts "Build a simple calculator"');
 	console.log('   ./bin/claude-flow swarm "Create a REST API"');

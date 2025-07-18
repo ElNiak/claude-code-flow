@@ -4,6 +4,13 @@ import { ConfigManager } from "../../core/config.js";
 import { EventBus } from "../../core/event-bus.js";
 import { Logger } from "../../core/logger.js";
 import { Orchestrator } from "../../core/orchestrator-fixed.js";
+import {
+	ExitCode,
+	handleError,
+	registerCleanupResource,
+	setExitLogger,
+	setupSignalHandlers
+} from "../../utils/graceful-exit.js";
 import { ConfigManager as WorkConfigManager } from "./config-manager.js";
 import { PresetManager } from "./preset-manager.js";
 import { TaskAnalyzer } from "./task-analyzer.js";
@@ -38,6 +45,27 @@ export class WorkCommand {
 			destination: "console",
 		});
 		this.eventBus = EventBus.getInstance();
+
+		// Setup graceful exit handling
+		setExitLogger(this.logger);
+		setupSignalHandlers();
+
+		// Register cleanup resources
+		registerCleanupResource({
+			name: "Work Command EventBus",
+			cleanup: async () => {
+				this.eventBus.shutdown();
+			}
+		});
+
+		registerCleanupResource({
+			name: "Work Command Orchestrator",
+			cleanup: async () => {
+				if (this.orchestrator) {
+					await this.orchestrator.shutdown();
+				}
+			}
+		});
 	}
 
 	/**
@@ -149,16 +177,12 @@ Examples:
 
 			this.logger.info(chalk.green.bold("✅ Work completed successfully!"));
 		} catch (error) {
-			this.logger.error(chalk.red.bold("❌ Work execution failed:"));
-			this.logger.error(
-				chalk.red(error instanceof Error ? error.message : String(error))
+			// Use enhanced error handling with cleanup
+			await handleError(
+				error as Error,
+				"Work execution failed",
+				options.debug
 			);
-
-			if (options.debug) {
-				console.error(error);
-			}
-
-			process.exit(1);
 		}
 	}
 

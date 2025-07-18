@@ -1,0 +1,81 @@
+{
+  "sessionId": "session-1752850924960-ovmdkao1z",
+  "checkpointId": "checkpoint-1752850954963-ldwu3z3cm",
+  "checkpointName": "auto-save-1752850954963",
+  "timestamp": "2025-07-18T15:02:34.965Z",
+  "data": {
+    "timestamp": "2025-07-18T15:02:34.963Z",
+    "changeCount": 5,
+    "changesByType": {
+      "swarm_created": [
+        {
+          "type": "swarm_created",
+          "data": {
+            "swarmId": "swarm-1752850924960-mvxv9grxz",
+            "swarmName": "hive-1752850924956",
+            "objective": "It happens when mulutple agents are working but ontext left until auto-compact: 0% is present and the work is continuing. Analyse and propose multiple solutions for \nFATAL ERROR: Reached heap limit Allocation failed - JavaScript heap out of memory\n----- Native stack trace -----\n\n 1: 0x1008f5f0c node::OOMErrorHandler(char const*, v8::OOMDetails const&) [/opt/homebrew/Cellar/node/23.11.0/bin/node]\n 2: 0x100aa1ca4 v8::internal::V8::FatalProcessOutOfMemory(v8::internal::Isolate*, char const*, v8::OOMDetails const&) [/opt/homebrew/Cellar/node/23.11.0/bin/node]\n 3: 0x100c5ece8 v8::internal::Heap::CallGCPrologueCallbacks(v8::GCType, v8::GCCallbackFlags, v8::internal::GCTracer::Scope::ScopeId) [/opt/homebrew/Cellar/node/23.11.0/bin/node]\n 4: 0x100c5c344 v8::internal::Heap::CollectGarbage(v8::internal::AllocationSpace, v8::internal::GarbageCollectionReason, v8::GCCallbackFlags) [/opt/homebrew/Cellar/node/23.11.0/bin/node]\n 5: 0x100c55968 v8::internal::HeapAllocator::AllocateRawWithLightRetrySlowPath(int, v8::internal::AllocationType, v8::internal::AllocationOrigin, v8::internal::AllocationAlignment) [/opt/homebrew/Cellar/node/23.11.0/bin/node]\n 6: 0x100c56330 v8::internal::HeapAllocator::AllocateRawWithRetryOrFailSlowPath(int, v8::internal::AllocationType, v8::internal::AllocationOrigin, v8::internal::AllocationAlignment) [/opt/homebrew/Cellar/node/23.11.0/bin/node]\n 7: 0x100c473dc v8::internal::Factory::NewFillerObject(int, v8::internal::AllocationAlignment, v8::internal::AllocationType, v8::internal::AllocationOrigin) [/opt/homebrew/Cellar/node/23.11.0/bin/node]\n 8: 0x100f0a218 v8::internal::Runtime_AllocateInYoungGeneration(int, unsigned long*, v8::internal::Isolate*) [/opt/homebrew/Cellar/node/23.11.0/bin/node]\n 9: 0x1006e79f4 Builtins_CEntry_Return1_ArgvOnStack_NoBuiltinExit [/opt/homebrew/Cellar/node/23.11.0/bin/node]\n10: 0x109456d74 \n11: 0x109644474 \n12: 0x10071661c Builtins_ArrayMap [/opt/homebrew/Cellar/node/23.11.0/bin/node]",
+            "workerCount": 8
+          },
+          "timestamp": "2025-07-18T15:02:04.961Z"
+        }
+      ],
+      "agent_activity": [
+        {
+          "type": "agent_activity",
+          "data": {
+            "agentId": "worker-swarm-1752850924960-mvxv9grxz-0",
+            "activity": "spawned",
+            "data": {
+              "type": "researcher",
+              "name": "Researcher Worker 1"
+            }
+          },
+          "timestamp": "2025-07-18T15:02:04.962Z"
+        },
+        {
+          "type": "agent_activity",
+          "data": {
+            "agentId": "worker-swarm-1752850924960-mvxv9grxz-1",
+            "activity": "spawned",
+            "data": {
+              "type": "coder",
+              "name": "Coder Worker 2"
+            }
+          },
+          "timestamp": "2025-07-18T15:02:04.962Z"
+        },
+        {
+          "type": "agent_activity",
+          "data": {
+            "agentId": "worker-swarm-1752850924960-mvxv9grxz-2",
+            "activity": "spawned",
+            "data": {
+              "type": "analyst",
+              "name": "Analyst Worker 3"
+            }
+          },
+          "timestamp": "2025-07-18T15:02:04.963Z"
+        },
+        {
+          "type": "agent_activity",
+          "data": {
+            "agentId": "worker-swarm-1752850924960-mvxv9grxz-3",
+            "activity": "spawned",
+            "data": {
+              "type": "tester",
+              "name": "Tester Worker 4"
+            }
+          },
+          "timestamp": "2025-07-18T15:02:04.963Z"
+        }
+      ]
+    },
+    "statistics": {
+      "tasksProcessed": 0,
+      "tasksCompleted": 0,
+      "memoryUpdates": 0,
+      "agentActivities": 4,
+      "consensusDecisions": 0
+    }
+  }
+}

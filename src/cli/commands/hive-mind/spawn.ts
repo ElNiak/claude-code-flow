@@ -58,7 +58,7 @@ const CAPABILITY_MAP: Record<AgentType, AgentCapability[]> = {
 
 export const spawnCommand = new Command("spawn")
 	.description("Spawn specialized agents into the Hive Mind")
-	.argument("[type]", "Agent type to spawn")
+	.argument("[objective]", "Objective or agent type to spawn")
 	.option("-n, --name <string>", "Custom agent name")
 	.option(
 		"-c, --capabilities <items>",
@@ -68,6 +68,12 @@ export const spawnCommand = new Command("spawn")
 	.option("-i, --interactive", "Interactive spawn mode", false)
 	.option("-b, --batch <number>", "Spawn multiple agents of same type", "1")
 	.option("--auto-assign", "Automatically assign to available tasks", false)
+	.option("--claude", "Generate Claude Code spawn commands", false)
+	.option("--queen-type <type>", "Queen coordinator type (strategic, tactical, adaptive)", "strategic")
+	.option("--max-workers <number>", "Maximum worker agents", "8")
+	.option("--auto-spawn", "Automatically spawn Claude Code instances", false)
+	.option("--verbose", "Enable verbose output", false)
+	.option("--auto-scale", "Enable auto-scaling based on workload", false)
 	.action(async (type, _options) => {
 		const spinner = ora("Spawning agent...").start();
 

@@ -3,7 +3,7 @@
  * Verification script for start command consolidation
  */
 
-import { colors } from "@cliffy/ansi/colors";
+import chalk from "chalk";
 
 async function runTest(
 	name: string,
@@ -12,18 +12,18 @@ async function runTest(
 	try {
 		const result = await fn();
 		if (result) {
-			console.log(colors.green("✓"), name);
+			console.log(chalk.green("✓"), name);
 		} else {
-			console.log(colors.red("✗"), name);
+			console.log(chalk.red("✗"), name);
 		}
 	} catch (error) {
-		console.log(colors.red("✗"), name, "-", (error as Error).message);
+		console.log(chalk.red("✗"), name, "-", (error as Error).message);
 	}
 }
 
 async function verifyStartCommand() {
-	console.log(colors.cyan.bold("Verifying Start Command Consolidation"));
-	console.log(colors.gray("─".repeat(60)));
+	console.log(chalk.cyan.bold("Verifying Start Command Consolidation"));
+	console.log(chalk.gray("─".repeat(60)));
 
 	// Test 1: Module structure
 	await runTest("Module structure exists", async () => {
@@ -148,8 +148,8 @@ async function verifyStartCommand() {
 		return isRunning;
 	});
 
-	console.log(colors.gray("\n─".repeat(60)));
-	console.log(colors.green.bold("✓ Verification complete"));
+	console.log(chalk.gray("\n─".repeat(60)));
+	console.log(chalk.green.bold("✓ Verification complete"));
 	console.log("\nSummary:");
 	console.log(
 		"- 3 separate start implementations consolidated into 1 modular structure",

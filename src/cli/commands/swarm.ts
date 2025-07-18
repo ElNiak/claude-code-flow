@@ -69,8 +69,8 @@ export async function swarmAction(ctx: CommandContext) {
 	const options = {
 		strategy,
 		maxAgents:
-			(ctx.flags.maxAgents as number) ||
-			(ctx.flags["max-agents"] as number) ||
+			(ctx.flags.maxAgents ? parseInt(ctx.flags.maxAgents as string, 10) : undefined) ||
+			(ctx.flags["max-agents"] ? parseInt(ctx.flags["max-agents"] as string, 10) : undefined) ||
 			5,
 		maxDepth:
 			(ctx.flags.maxDepth as number) || (ctx.flags["max-depth"] as number) || 3,

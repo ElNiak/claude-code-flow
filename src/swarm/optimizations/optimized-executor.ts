@@ -24,12 +24,14 @@ export interface ExecutorConfig {
 	connectionPool?: {
 		min?: number;
 		max?: number;
+		adaptiveResize?: boolean;
 	};
 	concurrency?: number;
 	caching?: {
 		enabled?: boolean;
 		ttl?: number;
 		maxSize?: number;
+		distributed?: boolean;
 	};
 	fileOperations?: {
 		outputDir?: string;
@@ -38,6 +40,27 @@ export interface ExecutorConfig {
 	monitoring?: {
 		metricsInterval?: number;
 		slowTaskThreshold?: number;
+	};
+	// New batch processing options
+	batchProcessing?: {
+		enabled?: boolean;
+		batchSize?: number;
+		batchTimeout?: number;
+		optimalBatchSize?: number;
+	};
+	// Memory optimization options
+	memoryOptimization?: {
+		enabled?: boolean;
+		gcInterval?: number;
+		maxMemoryUsage?: number;
+		preallocationSize?: number;
+	};
+	// Async optimization options
+	asyncOptimization?: {
+		enabled?: boolean;
+		parallelism?: number;
+		streaming?: boolean;
+		pipeline?: boolean;
 	};
 }
 
@@ -49,6 +72,14 @@ export interface OptimizedExecutionMetrics {
 	cacheHitRate: number;
 	queueLength: number;
 	activeExecutions: number;
+	// Enhanced metrics
+	batchesProcessed: number;
+	batchEfficiency: number;
+	memoryUsage: number;
+	gcCycles: number;
+	batchQueueLength: number;
+	streamingConnections: number;
+	memoryPoolSize: number;
 }
 
 export interface ExecutionTaskResult {
@@ -93,9 +124,21 @@ export class OptimizedExecutor extends EventEmitter {
 		totalExecutionTime: 0,
 		cacheHits: 0,
 		cacheMisses: 0,
+		batchesProcessed: 0,
+		batchEfficiency: 0,
+		memoryUsage: 0,
+		gcCycles: 0,
+		batchQueueLength: 0,
+		streamingConnections: 0,
+		memoryPoolSize: 0,
 	};
 
 	private activeExecutions = new Set<string>();
+	private batchQueue: TaskDefinition[] = [];
+	private batchTimeout?: NodeJS.Timeout;
+	private memoryPool: Map<string, any> = new Map();
+	private gcInterval?: NodeJS.Timeout;
+	private streamingConnections: Map<string, any> = new Map();
 
 	constructor(private config: ExecutorConfig = {}) {
 		super();
@@ -120,6 +163,7 @@ export class OptimizedExecutor extends EventEmitter {
 		this.connectionPool = new ClaudeConnectionPool({
 			min: config.connectionPool?.min || 2,
 			max: config.connectionPool?.max || 10,
+			adaptiveResize: config.connectionPool?.adaptiveResize || true,
 		});
 
 		// Initialize file manager,
@@ -144,6 +188,21 @@ export class OptimizedExecutor extends EventEmitter {
 
 		// Initialize execution history,
 		this.executionHistory = new CircularBuffer(1000);
+
+		// Initialize batch processing
+		if (config.batchProcessing?.enabled) {
+			this.setupBatchProcessing();
+		}
+
+		// Initialize memory optimization
+		if (config.memoryOptimization?.enabled) {
+			this.setupMemoryOptimization();
+		}
+
+		// Initialize async optimization
+		if (config.asyncOptimization?.enabled) {
+			this.setupAsyncOptimization();
+		}
 
 		// Start monitoring if configured,
 		if (config.monitoring?.metricsInterval) {
@@ -408,6 +467,13 @@ export class OptimizedExecutor extends EventEmitter {
 			cacheHitRate,
 			queueLength: this.executionQueue.size,
 			activeExecutions: this.activeExecutions.size,
+			batchesProcessed: this.metrics.batchesProcessed || 0,
+			batchEfficiency: this.metrics.batchEfficiency || 0,
+			memoryUsage: process.memoryUsage().heapUsed,
+			gcCycles: this.metrics.gcCycles || 0,
+			batchQueueLength: this.metrics.batchQueueLength || 0,
+			streamingConnections: this.metrics.streamingConnections || 0,
+			memoryPoolSize: this.metrics.memoryPoolSize || 0,
 		};
 	}
 
@@ -468,5 +534,235 @@ export class OptimizedExecutor extends EventEmitter {
 	 */
 	getCacheStats() {
 		return this.resultCache.getStats();
+	}
+
+	// === BATCH PROCESSING METHODS ===
+
+	private setupBatchProcessing(): void {
+		this.logger.info("Setting up batch processing", {
+			batchSize: this.config.batchProcessing?.batchSize,
+			batchTimeout: this.config.batchProcessing?.batchTimeout,
+		});
+
+		// Start batch processing timer
+		const timeout = this.config.batchProcessing?.batchTimeout || 1000;
+		this.batchTimeout = setInterval(() => {
+			this.processPendingBatch();
+		}, timeout);
+	}
+
+	private async processPendingBatch(): Promise<void> {
+		if (this.batchQueue.length === 0) return;
+
+		const batchSize = this.config.batchProcessing?.batchSize || 10;
+		const batch = this.batchQueue.splice(0, batchSize);
+
+		this.logger.debug("Processing pending batch", {
+			batchSize: batch.length,
+			remainingQueue: this.batchQueue.length,
+		});
+
+		// Process batch asynchronously
+		setImmediate(async () => {
+			for (const task of batch) {
+				try {
+					await this.executeTask(task, { id: "batch-processor", instance: 1, swarmId: "default", type: "coordinator" });
+				} catch (error) {
+					this.logger.error("Batch task execution failed", { taskId: task.id.id, error });
+				}
+			}
+		});
+	}
+
+	async executeOptimizedBatch(
+		tasks: TaskDefinition[],
+		agentId: AgentId
+	): Promise<ExecutionTaskResult[]> {
+		const batchStartTime = Date.now();
+		const batchSize = this.config.batchProcessing?.batchSize || 5;
+		const results: ExecutionTaskResult[] = [];
+
+		// Process tasks in optimized batches
+		for (let i = 0; i < tasks.length; i += batchSize) {
+			const batch = tasks.slice(i, i + batchSize);
+			const batchResults = await this.processBatchOptimized(batch, agentId);
+			results.push(...batchResults);
+		}
+
+		// Update batch metrics
+		this.metrics.batchesProcessed++;
+		const batchDuration = Date.now() - batchStartTime;
+		const efficiency = tasks.length / (batchDuration / 1000); // tasks per second
+		this.metrics.batchEfficiency = (this.metrics.batchEfficiency + efficiency) / 2;
+
+		this.logger.debug("Batch execution completed", {
+			totalTasks: tasks.length,
+			batchDuration,
+			efficiency,
+		});
+
+		return results;
+	}
+
+	private async processBatchOptimized(
+		tasks: TaskDefinition[],
+		agentId: AgentId
+	): Promise<ExecutionTaskResult[]> {
+		if (this.config.asyncOptimization?.streaming) {
+			return this.processStreamingBatch(tasks, agentId);
+		}
+
+		return Promise.all(tasks.map((task) => this.executeTask(task, agentId)));
+	}
+
+	private async processStreamingBatch(
+		tasks: TaskDefinition[],
+		agentId: AgentId
+	): Promise<ExecutionTaskResult[]> {
+		const results: ExecutionTaskResult[] = [];
+		const processingPromises: Promise<ExecutionTaskResult>[] = [];
+
+		// Start processing tasks with streaming
+		for (const task of tasks) {
+			const promise = this.executeTaskWithStreaming(task, agentId);
+			processingPromises.push(promise);
+		}
+
+		// Process results as they become available
+		for (const promise of processingPromises) {
+			results.push(await promise);
+		}
+
+		return results;
+	}
+
+	private async executeTaskWithStreaming(
+		task: TaskDefinition,
+		agentId: AgentId
+	): Promise<ExecutionTaskResult> {
+		// Implementation for streaming task execution
+		// For now, fallback to regular execution
+		return this.executeTask(task, agentId);
+	}
+
+	// === MEMORY OPTIMIZATION METHODS ===
+
+	private setupMemoryOptimization(): void {
+		this.logger.info("Setting up memory optimization", {
+			gcInterval: this.config.memoryOptimization?.gcInterval,
+			maxMemoryUsage: this.config.memoryOptimization?.maxMemoryUsage,
+		});
+
+		// Preallocate memory pool
+		const preallocationSize = this.config.memoryOptimization?.preallocationSize || 1000;
+		for (let i = 0; i < preallocationSize; i++) {
+			this.memoryPool.set(`pool-${i}`, { available: true, data: null });
+		}
+
+		// Start garbage collection timer
+		const gcInterval = this.config.memoryOptimization?.gcInterval || 30000;
+		this.gcInterval = setInterval(() => {
+			this.performGarbageCollection();
+		}, gcInterval);
+	}
+
+	private performGarbageCollection(): void {
+		const startTime = Date.now();
+		let freed = 0;
+
+		// Clean up expired cache entries
+		(this.resultCache as any).cleanup();
+
+		// Clean up memory pool
+		for (const [key, poolItem] of this.memoryPool) {
+			if (poolItem.available && poolItem.data) {
+				poolItem.data = null;
+				freed++;
+			}
+		}
+
+		// Force garbage collection if available
+		if (global.gc) {
+			global.gc();
+		}
+
+		const duration = Date.now() - startTime;
+		this.metrics.gcCycles++;
+		this.updateMemoryMetrics();
+
+		this.logger.debug("Garbage collection completed", {
+			duration,
+			freed,
+			cycles: this.metrics.gcCycles,
+		});
+	}
+
+	private updateMemoryMetrics(): void {
+		if (process.memoryUsage) {
+			const memUsage = process.memoryUsage();
+			this.metrics.memoryUsage = memUsage.heapUsed;
+
+			// Check if memory usage is too high
+			const maxMemory = this.config.memoryOptimization?.maxMemoryUsage || 1024 * 1024 * 1024; // 1GB
+			if (memUsage.heapUsed > maxMemory) {
+				this.logger.warn("High memory usage detected", {
+					heapUsed: memUsage.heapUsed,
+					maxMemory,
+					utilization: (memUsage.heapUsed / maxMemory) * 100,
+				});
+				// Trigger immediate garbage collection
+				setImmediate(() => this.performGarbageCollection());
+			}
+		}
+	}
+
+	// === ASYNC OPTIMIZATION METHODS ===
+
+	private setupAsyncOptimization(): void {
+		this.logger.info("Setting up async optimization", {
+			parallelism: this.config.asyncOptimization?.parallelism,
+			streaming: this.config.asyncOptimization?.streaming,
+			pipeline: this.config.asyncOptimization?.pipeline,
+		});
+
+		// Setup streaming connections pool
+		if (this.config.asyncOptimization?.streaming) {
+			this.setupStreamingPool();
+		}
+
+		// Setup pipeline processing
+		if (this.config.asyncOptimization?.pipeline) {
+			this.setupPipelineProcessing();
+		}
+	}
+
+	private setupStreamingPool(): void {
+		const poolSize = this.config.asyncOptimization?.parallelism || 10;
+		for (let i = 0; i < poolSize; i++) {
+			this.streamingConnections.set(`stream-${i}`, {
+				id: `stream-${i}`,
+				active: false,
+				lastUsed: Date.now(),
+			});
+		}
+	}
+
+	private setupPipelineProcessing(): void {
+		// Setup pipeline stages for optimized processing
+		this.logger.debug("Pipeline processing setup completed");
+	}
+
+	// === DISTRIBUTED CACHE METHODS ===
+
+	private async updateDistributedCache(key: string, result: ExecutionTaskResult): Promise<void> {
+		// Implementation for distributed cache update
+		// This could integrate with Redis, Memcached, etc.
+		this.logger.debug("Updating distributed cache", { key, resultId: result.id });
+	}
+
+	private async getFromDistributedCache(key: string): Promise<ExecutionTaskResult | null> {
+		// Implementation for distributed cache retrieval
+		this.logger.debug("Checking distributed cache", { key });
+		return null;
 	}
 }

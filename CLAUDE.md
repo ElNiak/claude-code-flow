@@ -361,7 +361,7 @@ Once configured, Claude Flow MCP tools enhance Claude Code's coordination:
 2. Each agent MUST use Claude Flow hooks for coordination:
    - `npx claude-flow hooks pre-task` before starting
    - `npx claude-flow hooks post-edit` after each file operation
-   - `npx claude-flow hooks notification` to share decisions
+   - `npx claude-flow hooks notify` to share decisions
 3. Claude Code uses its native Read, WebSearch, and Task tools
 4. The swarm coordinates through shared memory and hooks
 5. Results are synthesized by Claude Code with full coordination history
@@ -581,7 +581,7 @@ You are the [Agent Type] agent in a coordinated swarm.
 MANDATORY COORDINATION:
 1. START: Run `npx claude-flow hooks pre-task --description "[your task]"`
 2. DURING: After EVERY file operation, run `npx claude-flow hooks post-edit --file "[file]" --memory-key "agent/[step]"`
-3. MEMORY: Store ALL decisions using `npx claude-flow hooks notification --message "[decision]"`
+3. MEMORY: Store ALL decisions using `npx claude-flow hooks notify --message "[decision]"`
 4. END: Run `npx claude-flow hooks post-task --task-id "[task]" --analyze-performance true`
 
 Your specific task: [detailed task description]

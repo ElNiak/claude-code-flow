@@ -6,7 +6,7 @@ import { getErrorMessage as _getErrorMessage } from "../utils/error-handler.js";
  * Helps existing projects migrate to optimized prompts and configurations
  */
 
-// import { Command } from "@cliffy/command";
+// Migrated from @cliffy/command to commander.js for Node.js compatibility
 // Using basic command parsing instead of cliffy for compatibility
 class Command {
 	private _name: string = "";

@@ -139,7 +139,7 @@ function showRuvSwarmHelp() {
 async function handleInit(ctx: CommandContext) {
 	const topology = (ctx.flags.topology as string) || "mesh";
 	const maxAgents =
-		(ctx.flags.maxAgents as number) || (ctx.flags["max-agents"] as number) || 5;
+		(ctx.flags.maxAgents ? parseInt(ctx.flags.maxAgents as string, 10) : undefined) || (ctx.flags["max-agents"] ? parseInt(ctx.flags["max-agents"] as string, 10) : undefined) || 5;
 	const strategy = (ctx.flags.strategy as string) || "balanced";
 
 	if (!["mesh", "hierarchical", "ring", "star"].includes(topology)) {

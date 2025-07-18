@@ -4,12 +4,12 @@
  * Manual test script for ProcessManager functionality
  */
 
-import { colors } from "@cliffy/ansi/colors";
+import chalk from "chalk";
 import { ProcessManager } from "../../src/cli/commands/start/process-manager.ts";
 
 async function testProcessManager() {
-	console.log(colors.cyan.bold("Testing ProcessManager..."));
-	console.log(colors.gray("─".repeat(60)));
+	console.log(chalk.cyan.bold("Testing ProcessManager..."));
+	console.log(chalk.gray("─".repeat(60)));
 
 	const manager = new ProcessManager();
 
@@ -32,31 +32,31 @@ async function testProcessManager() {
 	console.log("\n3. Initializing manager...");
 	try {
 		await manager.initialize();
-		console.log(colors.green("   ✓ Initialized successfully"));
+		console.log(chalk.green("   ✓ Initialized successfully"));
 	} catch (error) {
-		console.log(colors.red(`   ✗ Failed: ${(error as Error).message}`));
+		console.log(chalk.red(`   ✗ Failed: ${(error as Error).message}`));
 	}
 
 	// Test 4: Start a simple process
 	console.log("\n4. Starting event-bus process...");
 	try {
 		await manager.startProcess("event-bus");
-		console.log(colors.green("   ✓ Started successfully"));
+		console.log(chalk.green("   ✓ Started successfully"));
 
 		const eventBus = manager.getProcess("event-bus");
 		console.log(`   Status: ${eventBus?.status}`);
 		console.log(`   PID: ${eventBus?.pid}`);
 	} catch (error) {
-		console.log(colors.red(`   ✗ Failed: ${(error as Error).message}`));
+		console.log(chalk.red(`   ✗ Failed: ${(error as Error).message}`));
 	}
 
 	// Test 5: Stop the process
 	console.log("\n5. Stopping event-bus process...");
 	try {
 		await manager.stopProcess("event-bus");
-		console.log(colors.green("   ✓ Stopped successfully"));
+		console.log(chalk.green("   ✓ Stopped successfully"));
 	} catch (error) {
-		console.log(colors.red(`   ✗ Failed: ${(error as Error).message}`));
+		console.log(chalk.red(`   ✗ Failed: ${(error as Error).message}`));
 	}
 
 	// Test 6: Event handling
@@ -68,12 +68,12 @@ async function testProcessManager() {
 	});
 
 	await manager.startProcess("event-bus");
-	console.log(colors.green(`   ✓ Event received: ${eventReceived}`));
+	console.log(chalk.green(`   ✓ Event received: ${eventReceived}`));
 
 	await manager.stopProcess("event-bus");
 
-	console.log(colors.gray("\n─".repeat(60)));
-	console.log(colors.green.bold("✓ All tests completed"));
+	console.log(chalk.gray("\n─".repeat(60)));
+	console.log(chalk.green.bold("✓ All tests completed"));
 }
 
 // Run the test

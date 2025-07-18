@@ -8,6 +8,7 @@ import { getErrorMessage as _getErrorMessage } from "../../utils/error-handler.j
 import chalk from "chalk";
 import type { WorkOptions } from "../../unified/work/types.js";
 import { WorkCommand } from "../../unified/work/work-command.js";
+import { ExitCode, handleError, exitPatterns } from "../../utils/graceful-exit.js";
 import type { Command, CommandContext } from "../cli-core.js";
 import { _error, info, success, warning } from "../cli-core.js";
 
@@ -130,6 +131,7 @@ export const workCommand: Command = {
 				console.log(
 					'         npx claude-flow work "deploy to production" --agents 3 --topology hierarchical'
 				);
+				exitPatterns.invalidArgs("Task description is required");
 				return;
 			}
 
@@ -140,7 +142,7 @@ export const workCommand: Command = {
 				dryRun: ctx.flags["dry-run"] as boolean,
 				config: ctx.flags.config as string,
 				preset: ctx.flags.preset as string,
-				agents: ctx.flags.agents as number,
+				agents: ctx.flags.agents ? parseInt(ctx.flags.agents as string, 10) : undefined,
 				topology: ctx.flags.topology as string,
 				strategy: ctx.flags.strategy as string,
 				output: ctx.flags.output as string,
@@ -158,10 +160,12 @@ export const workCommand: Command = {
 			// Execute the unified work command directly
 			await workCommandInstance.execute(task, params, options);
 		} catch (err) {
-			_error(
-				`Failed to execute unified work command: ${_getErrorMessage(err)}`
+			// Use enhanced error handling with cleanup
+			await handleError(
+				err as Error,
+				"Failed to execute unified work command",
+				ctx.flags.debug as boolean
 			);
-			process.exit(1);
 		}
 	},
 };
