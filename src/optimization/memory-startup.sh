@@ -94,7 +94,7 @@ set_memory_flags() {
         "--max-old-space-size=$heap_size"
         "--initial-old-space-size=$((heap_size / 4))"
         "--max-semi-space-size=$((heap_size / 16))"
-        "--max-executable-size=256"
+        "--max-executable-size=2048"
         "--expose-gc"
         "--incremental-marking"
         "--concurrent-marking"

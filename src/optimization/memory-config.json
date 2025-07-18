@@ -7,7 +7,7 @@
       "--max-old-space-size=4096",
       "--initial-old-space-size=1024",
       "--max-semi-space-size=128",
-      "--max-executable-size=256",
+      "--max-executable-size=2048",
       "--expose-gc",
       "--incremental-marking",
       "--concurrent-marking",

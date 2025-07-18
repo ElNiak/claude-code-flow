@@ -56,7 +56,7 @@ export class NodeMemoryOptimizer {
       maxOldSpaceSize: maxHeapSizeMB,
       maxSemiSpaceSize: Math.min(192, Math.floor(maxHeapSizeMB / 64)), // 1/64 of heap, max 192MB
       initialOldSpaceSize: Math.floor(maxHeapSizeMB / 4), // 25% of max heap
-      maxExecutableSize: Math.min(384, Math.floor(maxHeapSizeMB / 32)), // 1/32 of heap, max 384MB
+      maxExecutableSize: Math.min(2048, Math.floor(maxHeapSizeMB / 8)), // 1/8 of heap, max 2048MB
       gcStrategy: this.determineGCStrategy(agentCount),
       threadPoolSize: Math.min(16, systemCores * 2), // 2x CPU cores, max 16
       enableGC: true,

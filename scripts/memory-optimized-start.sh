@@ -20,7 +20,7 @@ echo "   Target Agents: ${AGENT_COUNT}"
 MAX_HEAP_SIZE=$(node -e "console.log(Math.min(Math.floor($TOTAL_MEMORY * 0.6), 12288))")
 INITIAL_HEAP_SIZE=$(node -e "console.log(Math.floor($MAX_HEAP_SIZE / 4))")
 SEMI_SPACE_SIZE=$(node -e "console.log(Math.min(192, Math.floor($MAX_HEAP_SIZE / 64)))")
-EXECUTABLE_SIZE=$(node -e "console.log(Math.min(384, Math.floor($MAX_HEAP_SIZE / 32)))")
+EXECUTABLE_SIZE=$(node -e "console.log(Math.min(2048, Math.floor($MAX_HEAP_SIZE / 8)))")
 
 echo "🧠 Memory Configuration:"
 echo "   Max Heap Size: ${MAX_HEAP_SIZE}MB"
