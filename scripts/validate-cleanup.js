@@ -13,7 +13,7 @@ const CONFIG = {
     'package.json',
     'README.md',
     'CLAUDE.md',
-    'STEP_BY_STEP_MERGER_IMPLEMENTATION_PLAN.md',
+    //'STEP_BY_STEP_MERGER_IMPLEMENTATION_PLAN.md',
     'bin/claude-flow',
     'src/cli/simple-cli.ts',
     'src/cli/simple-cli.js'

@@ -11,7 +11,18 @@ import { getErrorMessage } from "../../utils/error-handler.js";
 import { generateId } from "../../utils/helpers.js";
 import type { CommandContext } from "../cli-core.js";
 import { _error as error, info, success, warning } from "../cli-core.js";
-export async function swarmAction(ctx: CommandContext) {
+
+// Type definitions for Promise results
+interface ProcessResult {
+	success: boolean;
+}
+
+interface ExecutionResult {
+	code: number;
+	stdout: string;
+	stderr: string;
+}
+export async function swarmAction(ctx: CommandContext): Promise<void> {
 	// First check if help is requested,
 	if (ctx.flags.help || ctx.flags.h) {
 		// Show help is handled by the CLI framework,
@@ -150,7 +161,7 @@ export async function swarmAction(ctx: CommandContext) {
 			}
 
 			if (options.ui) {
-				return new Promise((resolve, reject) => {
+				return new Promise<void>((resolve, reject) => {
 					const child = spawn("node", [uiScriptPath], {
 						stdio: "inherit",
 					});
@@ -159,12 +170,12 @@ export async function swarmAction(ctx: CommandContext) {
 						if (code !== 0) {
 							error(`Swarm UI exited with code ${code}`);
 						}
-						resolve(undefined);
+						resolve();
 					});
 
 					child.on("error", (err) => {
 						error(`Failed to launch UI: ${err.message}`);
-						resolve(undefined);
+						resolve();
 					});
 				});
 			}
@@ -528,7 +539,7 @@ async function executeAgentTask(
 
 	try {
 		// Check if claude CLI is available and not in simulation mode,
-		const checkResult = await new Promise((resolve) => {
+		const checkResult = await new Promise<ProcessResult>((resolve) => {
 			const child = spawn("which", ["claude"], {
 				stdio: ["ignore", "pipe", "pipe"],
 			});
@@ -651,7 +662,7 @@ exit \${PIPESTATUS[0]}`;
 			const claudeFlowBin = `${projectRoot}/bin/claude-flow`;
 
 			// Execute claude-flow command,
-			const result = await new Promise((resolve) => {
+			const result = await new Promise<ExecutionResult>((resolve) => {
 				const child = spawn(claudeFlowBin, claudeFlowArgs, {
 					stdio: ["pipe", "pipe", "pipe"],
 				});
@@ -668,7 +679,7 @@ exit \${PIPESTATUS[0]}`;
 				});
 
 				child.on("close", (code) => {
-					resolve({ code, stdout, stderr });
+					resolve({ code: code || 0, stdout, stderr });
 				});
 
 				child.on("error", (err) => {
