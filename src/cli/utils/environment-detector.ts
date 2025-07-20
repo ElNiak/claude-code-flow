@@ -349,7 +349,7 @@ function existsSync(path: string): boolean {
 
 function readFileSync(path: string, encoding: string): string {
 	try {
-		return fsReadFileSync(path, encoding);
+		return fsReadFileSync(path, { encoding: encoding as BufferEncoding });
 	} catch {
 		return "";
 	}

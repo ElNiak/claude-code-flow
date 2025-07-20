@@ -194,7 +194,7 @@ export class ProcessUI {
 		const decoder = new TextDecoder();
 		const encoder = new TextEncoder();
 
-		process.stdout.write("\nAction: ");
+		globalThis.process.stdout.write("\nAction: ");
 
 		const buf = new Uint8Array(1024);
 		const n = await this.readStdin();

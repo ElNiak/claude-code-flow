@@ -2525,9 +2525,7 @@ Ensure your implementation is complete, well-structured, and follows best practi
 					CLAUDE_FLOW_MEMORY_ENABLED: "true",
 					CLAUDE_FLOW_MEMORY_NAMESPACE: `swarm-${this.swarmId.id}`,
 				},
-				stdin: "null",
-				stdout: "piped",
-				stderr: "piped",
+				stdio: ["ignore", "pipe", "pipe"],
 			});
 
 			this.logger.info("Spawning Claude agent for task", {
@@ -2537,31 +2535,48 @@ Ensure your implementation is complete, well-structured, and follows best practi
 				targetDir,
 			});
 
-			command.on("close", (code) => {
-				// Handle process completion
+			return new Promise((resolve, reject) => {
+				let stdout = "";
+				let stderr = "";
+
+				command.stdout?.on("data", (data) => {
+					stdout += data.toString();
+				});
+
+				command.stderr?.on("data", (data) => {
+					stderr += data.toString();
+				});
+
+				command.on("close", (code) => {
+					if (code === 0) {
+						this.logger.info("Claude agent completed task successfully", {
+							taskId: task.id.id,
+							outputLength: stdout.length,
+						});
+
+						resolve({
+							success: true,
+							output: stdout,
+							instanceId,
+							targetDir,
+						});
+					} else {
+						this.logger.error(`Claude agent failed with code ${code}`, {
+							taskId: task.id.id,
+							error: stderr,
+						});
+						reject(new Error(`Claude execution failed: ${stderr}`));
+					}
+				});
+
+				command.on("error", (error) => {
+					this.logger.error("Failed to spawn Claude process", {
+						taskId: task.id.id,
+						error: error.message,
+					});
+					reject(error);
+				});
 			});
-
-			if (code === 0) {
-				const output = new TextDecoder().decode(stdout);
-				this.logger.info("Claude agent completed task successfully", {
-					taskId: task.id.id,
-					outputLength: output.length,
-				});
-
-				return {
-					success: true,
-					output,
-					instanceId,
-					targetDir,
-				};
-			} else {
-				const errorOutput = new TextDecoder().decode(stderr);
-				this.logger.error(`Claude agent failed with code ${code}`, {
-					taskId: task.id.id,
-					error: errorOutput,
-				});
-				throw new Error(`Claude execution failed: ${errorOutput}`);
-			}
 		} catch (error) {
 			this.logger.error("Failed to execute Claude agent", {
 				taskId: task.id.id,
