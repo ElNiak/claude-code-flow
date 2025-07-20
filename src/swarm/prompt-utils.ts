@@ -1,3 +1,4 @@
+import { statSync } from "fs";
 import * as fs from "fs/promises";
 import * as path from "path";
 import { logger } from "../core/logger.js";
@@ -155,7 +156,7 @@ export class PromptPathResolver {
 
 	private directoryExists(dirPath: string): boolean {
 		try {
-			const stats = require("fs").statSync(dirPath);
+			const stats = statSync(dirPath);
 			return stats.isDirectory();
 		} catch {
 			return false;

@@ -7,11 +7,11 @@ import Database from "better-sqlite3";
 import { promises as fs } from "fs";
 import path from "path";
 import type { ILogger } from "../../core/logger.js";
+import { EmergencyMemoryManager } from "../../utils/emergency-memory-limits.js";
 import { MemoryBackendError } from "../../utils/errors.js";
 import type { MemoryEntry, MemoryQuery } from "../../utils/types.js";
 import type { IMemoryBackend } from "./base.js";
 import { SQLiteConnectionPool } from "./sqlite-pool.js";
-import { EmergencyMemoryManager } from "../../utils/emergency-memory-limits.js";
 
 /**
  * SQLite-based memory backend with connection pooling
@@ -34,7 +34,7 @@ export class SQLiteBackend implements IMemoryBackend {
 	async initialize(): Promise<void> {
 		this.logger.info("Initializing SQLite backend", {
 			dbPath: this.dbPath,
-			usePool: this.usePool
+			usePool: this.usePool,
 		});
 
 		try {
@@ -131,11 +131,15 @@ export class SQLiteBackend implements IMemoryBackend {
 		try {
 			if (this.pool) {
 				const rows = await this.pool.executeQuery<any>(sql, [id]);
-				return rows.length > 0 ? this.rowToEntry(rows[0] as Record<string, unknown>) : undefined;
+				return rows.length > 0
+					? this.rowToEntry(rows[0] as Record<string, unknown>)
+					: undefined;
 			} else if (this.db) {
 				const stmt = this.db.prepare(sql);
 				const row = stmt.get(id);
-				return row ? this.rowToEntry(row as Record<string, unknown>) : undefined;
+				return row
+					? this.rowToEntry(row as Record<string, unknown>)
+					: undefined;
 			}
 			return undefined;
 		} catch (error) {

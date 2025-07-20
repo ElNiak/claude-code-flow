@@ -1,11 +1,29 @@
-#!/usr/bin/env deno run --allow-net --allow-read
+#!/usr/bin/env tsx
 
 /**
  * Documentation Link Checker
  * Scans documentation files for broken links
  */
 
-import { walk } from "https://deno.land/std@0.220.0/fs/mod.ts";
+import { readdir, stat } from 'fs/promises';
+import { join } from 'path';
+
+// Simple walk function replacement
+async function* walk(dir: string, options: { exts: string[] }): AsyncIterableIterator<{ path: string; isFile: boolean }> {
+	try {
+		const entries = await readdir(dir, { withFileTypes: true });
+		for (const entry of entries) {
+			const fullPath = join(dir, entry.name);
+			if (entry.isDirectory()) {
+				yield* walk(fullPath, options);
+			} else if (entry.isFile() && options.exts.some(ext => entry.name.endsWith(ext))) {
+				yield { path: fullPath, isFile: true };
+			}
+		}
+	} catch (error) {
+		// Directory doesn't exist or access denied
+	}
+}
 
 interface LinkCheckResult {
 	file: string;
@@ -116,7 +134,8 @@ async function scanFile(filePath: string): Promise<LinkCheckResult[]> {
 	const results: LinkCheckResult[] = [];
 
 	try {
-		const content = await Deno.readTextFile(filePath);
+		const fs = await import('fs/promises');
+		const content = await fs.readFile(filePath, 'utf-8');
 		const links = extractLinks(content);
 
 		// Remove duplicates and filter
@@ -191,13 +210,13 @@ async function main(): Promise<void> {
 
 	for (const dir of directories) {
 		try {
-			const stat = await Deno.stat(dir);
-			if (stat.isFile) {
+			const fileStats = await stat(dir);
+			if (fileStats.isFile()) {
 				// Single file
 				const fileResults = await scanFile(dir);
 				results.push(...fileResults);
 				fileCount++;
-			} else if (stat.isDirectory) {
+			} else if (fileStats.isDirectory()) {
 				// Directory
 				for await (const entry of walk(dir, { exts: extensions })) {
 					if (entry.isFile) {
@@ -208,7 +227,7 @@ async function main(): Promise<void> {
 				}
 			}
 		} catch (error) {
-			if (!(error instanceof Deno.errors.NotFound)) {
+			if (error.code !== 'ENOENT') {
 				console.warn(`Failed to process ${dir}: ${error.message}`);
 			}
 		}
@@ -271,16 +290,12 @@ async function main(): Promise<void> {
 
 		// Don't fail CI for timeouts or minor errors, only broken links
 		if (scanResult.brokenLinks.length > 0) {
-			Deno.exit(1);
+			process.exit(1);
 		}
 	}
 }
 
-// import.meta.main is Deno-specific, use process.argv check for Node.js compatibility
-if (
-	typeof process !== "undefined" &&
-	process.argv[1] &&
-	new URL(import.meta.url).pathname === process.argv[1]
-) {
+// Check if script is being run directly
+if (import.meta.url === `file://${process.argv[1]}`) {
 	await main();
 }

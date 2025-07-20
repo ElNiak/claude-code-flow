@@ -1,13 +1,13 @@
+import { cwd } from "node:process";
 import { SqliteMemoryStore } from "../../memory/sqlite-store.js";
 import {
 	checkRuvSwarmAvailable,
+	emergencyRecovery,
 	execRuvSwarmHook,
 	printError,
 	printSuccess,
 	printWarning,
-	emergencyRecovery,
 } from "../utils.js";
-import { cwd } from "node:process";
 
 // Type definitions
 interface HookFlags {
@@ -125,7 +125,10 @@ function generateId(prefix: string = "id"): string {
 	return `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 }
 
-export async function hooksAction(subArgs: string[], flags: HookFlags): Promise<void> {
+export async function hooksAction(
+	subArgs: string[],
+	flags: HookFlags
+): Promise<void> {
 	const subcommand = subArgs[0];
 	const options = flags;
 
@@ -200,7 +203,10 @@ export async function hooksAction(subArgs: string[], flags: HookFlags): Promise<
 
 // ===== PRE-OPERATION HOOKS =====
 
-async function preTaskCommand(subArgs: string[], flags: HookFlags): Promise<void> {
+async function preTaskCommand(
+	subArgs: string[],
+	flags: HookFlags
+): Promise<void> {
 	const options = flags;
 	const description = options.description || "Unnamed task";
 	const taskId = options["task-id"] || options.taskId || generateId("task");
@@ -271,7 +277,10 @@ async function preTaskCommand(subArgs: string[], flags: HookFlags): Promise<void
 	}
 }
 
-async function preEditCommand(subArgs: string[], flags: HookFlags): Promise<void> {
+async function preEditCommand(
+	subArgs: string[],
+	flags: HookFlags
+): Promise<void> {
 	const options = flags;
 	const file = options.file || "unknown-file";
 	const operation = options.operation || "edit";
@@ -301,7 +310,10 @@ async function preEditCommand(subArgs: string[], flags: HookFlags): Promise<void
 	}
 }
 
-async function preBashCommand(subArgs: string[], flags: HookFlags): Promise<void> {
+async function preBashCommand(
+	subArgs: string[],
+	flags: HookFlags
+): Promise<void> {
 	const options = flags;
 	const command = options.command || subArgs.slice(1).join(" ");
 	const workingDir = options.cwd || cwd();
@@ -335,7 +347,10 @@ async function preBashCommand(subArgs: string[], flags: HookFlags): Promise<void
 
 // ===== POST-OPERATION HOOKS =====
 
-async function postTaskCommand(subArgs: string[], flags: HookFlags): Promise<void> {
+async function postTaskCommand(
+	subArgs: string[],
+	flags: HookFlags
+): Promise<void> {
 	const options = flags;
 	const taskId = options["task-id"] || options.taskId || generateId("task");
 	const analyzePerformance = options["analyze-performance"] !== "false";
@@ -353,9 +368,10 @@ async function postTaskCommand(subArgs: string[], flags: HookFlags): Promise<voi
 			...(taskData || {}),
 			status: "completed",
 			completedAt: new Date().toISOString(),
-			duration: taskData && taskData.startedAt
-				? Date.now() - new Date(taskData.startedAt).getTime()
-				: null,
+			duration:
+				taskData && taskData.startedAt
+					? Date.now() - new Date(taskData.startedAt).getTime()
+					: null,
 		};
 
 		await store.store(`task:${taskId}:completed`, completedData, {
@@ -384,7 +400,10 @@ async function postTaskCommand(subArgs: string[], flags: HookFlags): Promise<voi
 	}
 }
 
-async function postEditCommand(subArgs: string[], flags: HookFlags): Promise<void> {
+async function postEditCommand(
+	subArgs: string[],
+	flags: HookFlags
+): Promise<void> {
 	const options = flags;
 	const file = options.file || "unknown-file";
 	const memoryKey = options["memory-key"] || options.memoryKey;
@@ -437,7 +456,10 @@ async function postEditCommand(subArgs: string[], flags: HookFlags): Promise<voi
 	}
 }
 
-async function postBashCommand(subArgs: string[], flags: HookFlags): Promise<void> {
+async function postBashCommand(
+	subArgs: string[],
+	flags: HookFlags
+): Promise<void> {
 	const options = flags;
 	const command = options.command || subArgs.slice(1).join(" ");
 	const exitCode = options["exit-code"] || "0";
@@ -482,7 +504,10 @@ async function postBashCommand(subArgs: string[], flags: HookFlags): Promise<voi
 	}
 }
 
-async function postSearchCommand(subArgs: string[], flags: HookFlags): Promise<void> {
+async function postSearchCommand(
+	subArgs: string[],
+	flags: HookFlags
+): Promise<void> {
 	const options = flags;
 	const query = options.query || subArgs.slice(1).join(" ");
 	const resultCount = options["result-count"] || "0";
@@ -526,7 +551,10 @@ async function postSearchCommand(subArgs: string[], flags: HookFlags): Promise<v
 
 // ===== MCP INTEGRATION HOOKS =====
 
-async function mcpInitializedCommand(subArgs: string[], flags: HookFlags): Promise<void> {
+async function mcpInitializedCommand(
+	subArgs: string[],
+	flags: HookFlags
+): Promise<void> {
 	const options = flags;
 	const serverName = options.server || "claude-flow";
 	const sessionId = options["session-id"] || generateId("mcp-session");
@@ -556,7 +584,10 @@ async function mcpInitializedCommand(subArgs: string[], flags: HookFlags): Promi
 	}
 }
 
-async function agentSpawnedCommand(subArgs: string[], flags: HookFlags): Promise<void> {
+async function agentSpawnedCommand(
+	subArgs: string[],
+	flags: HookFlags
+): Promise<void> {
 	const options = flags;
 	const agentType = options.type || "generic";
 	const agentName = options.name || generateId("agent");
@@ -599,7 +630,10 @@ async function agentSpawnedCommand(subArgs: string[], flags: HookFlags): Promise
 	}
 }
 
-async function taskOrchestratedCommand(subArgs: string[], flags: HookFlags): Promise<void> {
+async function taskOrchestratedCommand(
+	subArgs: string[],
+	flags: HookFlags
+): Promise<void> {
 	const options = flags;
 	const taskId = options["task-id"] || generateId("orchestrated-task");
 	const strategy = options.strategy || "balanced";
@@ -631,7 +665,10 @@ async function taskOrchestratedCommand(subArgs: string[], flags: HookFlags): Pro
 	}
 }
 
-async function neuralTrainedCommand(subArgs: string[], flags: HookFlags): Promise<void> {
+async function neuralTrainedCommand(
+	subArgs: string[],
+	flags: HookFlags
+): Promise<void> {
 	const options = flags;
 	const modelName = options.model || "default-neural";
 	const accuracy = options.accuracy || "0.0";
@@ -664,7 +701,10 @@ async function neuralTrainedCommand(subArgs: string[], flags: HookFlags): Promis
 
 // ===== SESSION HOOKS =====
 
-async function sessionEndCommand(subArgs: string[], flags: HookFlags): Promise<void> {
+async function sessionEndCommand(
+	subArgs: string[],
+	flags: HookFlags
+): Promise<void> {
 	const options = flags;
 	const generateSummary = options["generate-summary"] !== "false";
 
@@ -706,7 +746,10 @@ async function sessionEndCommand(subArgs: string[], flags: HookFlags): Promise<v
 	}
 }
 
-async function sessionRestoreCommand(subArgs: string[], flags: HookFlags): Promise<void> {
+async function sessionRestoreCommand(
+	subArgs: string[],
+	flags: HookFlags
+): Promise<void> {
 	const options = flags;
 	const sessionId = options["session-id"] || "latest";
 
@@ -754,7 +797,10 @@ async function sessionRestoreCommand(subArgs: string[], flags: HookFlags): Promi
 	}
 }
 
-async function notifyCommand(subArgs: string[], flags: HookFlags): Promise<void> {
+async function notifyCommand(
+	subArgs: string[],
+	flags: HookFlags
+): Promise<void> {
 	const options = flags;
 	const message = options.message || subArgs.slice(1).join(" ");
 	const level = options.level || "info";
@@ -822,13 +868,15 @@ function showHooksHelp(): void {
 	console.log("  notify             Custom notifications");
 
 	console.log("\nEmergency Operations:");
-	console.log("  emergency-recovery Clean up orphaned processes and stale locks");
+	console.log(
+		"  emergency-recovery Clean up orphaned processes and stale locks"
+	);
 
 	console.log("\nExamples:");
 	console.log('  hooks pre-bash --command "rm -rf /"');
 	console.log('  hooks agent-spawned --name "CodeReviewer" --type "reviewer"');
 	console.log('  hooks notify --message "Build completed" --level "success"');
-	console.log('  hooks emergency-recovery');
+	console.log("  hooks emergency-recovery");
 }
 
 export default hooksAction;

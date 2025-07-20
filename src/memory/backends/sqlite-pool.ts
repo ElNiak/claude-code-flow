@@ -242,7 +242,10 @@ export class SQLiteConnectionPool {
 		}
 
 		// Create new connection if needed and allowed
-		if (!availableConnection && this.connections.size < this.options.maxConnections) {
+		if (
+			!availableConnection &&
+			this.connections.size < this.options.maxConnections
+		) {
 			try {
 				availableConnection = await this.createConnection();
 			} catch (error) {
@@ -282,10 +285,7 @@ export class SQLiteConnectionPool {
 		}
 	}
 
-	async executeQuery<T>(
-		query: string,
-		params: any[] = []
-	): Promise<T[]> {
+	async executeQuery<T>(query: string, params: any[] = []): Promise<T[]> {
 		const start = Date.now();
 		const connection = await this.acquireConnection();
 
@@ -353,7 +353,8 @@ export class SQLiteConnectionPool {
 	private updateQueryMetrics(duration: number): void {
 		this.metrics.queryCount++;
 		this.totalQueryTime += duration;
-		this.metrics.averageQueryTime = this.totalQueryTime / this.metrics.queryCount;
+		this.metrics.averageQueryTime =
+			this.totalQueryTime / this.metrics.queryCount;
 	}
 
 	private startCleanupInterval(): void {
@@ -401,6 +402,6 @@ export class SQLiteConnectionPool {
 	}
 
 	getActiveConnectionCount(): number {
-		return Array.from(this.connections.values()).filter(c => c.inUse).length;
+		return Array.from(this.connections.values()).filter((c) => c.inUse).length;
 	}
 }

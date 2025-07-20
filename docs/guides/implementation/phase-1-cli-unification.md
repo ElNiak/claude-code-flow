@@ -25,9 +25,9 @@ This guide provides detailed implementation procedures for Phase 1 of the compre
 7. **Performance Baselines**: Establish baseline metrics for optimization tracking
 
 ### **🔧 OPTIMIZATION REQUIREMENTS**
-- **CLI Enhancements**: Apply patterns from docs/guides/improvements/cli-enhancements.md
-- **Build Optimization**: Apply patterns from docs/guides/improvements/build-optimization.md
-- **Performance Tuning**: Apply patterns from docs/guides/improvements/performance-tuning.md
+- **CLI Enhancements**: Apply patterns from docs/guides/docs/guides/optimization/cli-enhancements.md
+- **Build Optimization**: Apply patterns from docs/guides/docs/guides/optimization/build-optimization.md
+- **Performance Tuning**: Apply patterns from docs/guides/docs/guides/optimization/performance-tuning.md
 - **Zero Tolerance**: No placeholders, simplifications, or incomplete implementations
 
 ## 📅 DETAILED DAILY IMPLEMENTATION PLAN
@@ -55,9 +55,9 @@ sed -i 's/"main": "cli.mjs"/"main": "dist\/cli\/simple-cli.js"/' package.json
 # Verify fix
 grep '"main"' package.json >> DAY1_FOUNDATION_LOG.md
 
-# Apply CLI enhancements from improvements/
-# Reference: docs/guides/improvements/cli-enhancements.md
-if [ -f "docs/guides/improvements/cli-enhancements.md" ]; then
+# Apply CLI enhancements from docs/guides/optimization/
+# Reference: docs/guides/docs/guides/optimization/cli-enhancements.md
+if [ -f "docs/guides/docs/guides/optimization/cli-enhancements.md" ]; then
     echo "✅ CLI enhancements guide found - applying optimizations..." >> DAY1_FOUNDATION_LOG.md
     ./scripts/apply-cli-optimizations.sh 2>&1 >> DAY1_FOUNDATION_LOG.md
 else
@@ -81,8 +81,8 @@ echo "=== DIRECTORY STRUCTURE SETUP ===" >> DAY1_FOUNDATION_LOG.md
 mkdir -p docs/guides/{implementation,usage,improvements,troubleshooting,advanced}
 
 # Move existing guides if they exist
-if [ -f "STEP_BY_STEP_MERGER_IMPLEMENTATION_PLAN.md" ]; then
-    mv STEP_BY_STEP_MERGER_IMPLEMENTATION_PLAN.md docs/guides/implementation/
+if [ -f "docs/guides/implementation/STEP_BY_STEP_MERGER_IMPLEMENTATION_PLAN.md" ]; then
+    mv docs/guides/implementation/STEP_BY_STEP_MERGER_IMPLEMENTATION_PLAN.md docs/guides/implementation/
     echo "✅ Moved merger implementation plan" >> DAY1_FOUNDATION_LOG.md
 fi
 
@@ -96,16 +96,16 @@ if [ -f "COMPREHENSIVE_USAGE_GUIDE.md" ]; then
     echo "✅ Moved comprehensive usage guide" >> DAY1_FOUNDATION_LOG.md
 fi
 
-# Move improvements/ content if it exists
+# Move docs/guides/optimization/ content if it exists
 if [ -d "improvements" ]; then
-    cp -r improvements/* docs/guides/improvements/ 2>/dev/null || true
+    cp -r docs/guides/optimization/* docs/guides/docs/guides/optimization/ 2>/dev/null || true
     echo "✅ Moved improvements content" >> DAY1_FOUNDATION_LOG.md
 fi
 
 # Create placeholder files for missing guides
-touch docs/guides/improvements/cli-enhancements.md
-touch docs/guides/improvements/build-optimization.md
-touch docs/guides/improvements/performance-tuning.md
+touch docs/guides/docs/guides/optimization/cli-enhancements.md
+touch docs/guides/docs/guides/optimization/build-optimization.md
+touch docs/guides/docs/guides/optimization/performance-tuning.md
 
 echo "✅ Step 1.2 completed successfully" >> DAY1_FOUNDATION_LOG.md
 ```
@@ -562,7 +562,7 @@ npm pkg set scripts.dev="NODE_OPTIONS='--max-old-space-size=4096' tsx src/cli/si
 npm pkg set scripts.build:fast="NODE_OPTIONS='--max-old-space-size=4096' npm run build"
 
 # Apply CLI optimizations if guide exists
-if [ -f "docs/guides/improvements/cli-enhancements.md" ]; then
+if [ -f "docs/guides/docs/guides/optimization/cli-enhancements.md" ]; then
     echo "🔧 Applying CLI enhancements..."
     # Add CLI optimization markers to source files
     find src/cli -name "*.ts" -o -name "*.js" | while read -r file; do
@@ -1104,9 +1104,9 @@ npm run test -- --verbose
 - **Code Quality Control**: docs/guides/usage/CODE_QUALITY_CONTROL.md
 
 ### **Optimization Patterns**
-- **CLI Enhancements**: docs/guides/improvements/cli-enhancements.md
-- **Build Optimization**: docs/guides/improvements/build-optimization.md
-- **Performance Tuning**: docs/guides/improvements/performance-tuning.md
+- **CLI Enhancements**: docs/guides/docs/guides/optimization/cli-enhancements.md
+- **Build Optimization**: docs/guides/docs/guides/optimization/build-optimization.md
+- **Performance Tuning**: docs/guides/docs/guides/optimization/performance-tuning.md
 
 ### **Next Phase**
 - **Phase 2**: docs/guides/implementation/phase-2-mcp-unification.md

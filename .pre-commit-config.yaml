@@ -7,6 +7,9 @@
 # Phase 2: Structure enforcement (merger weeks 3-4)
 # Phase 3: Enterprise grade (merger weeks 5-6)
 
+default_language_version:
+  node: system
+
 repos:
   # =================================================================
   # PHASE 1: ESSENTIAL QUALITY (Always Active)
@@ -14,7 +17,7 @@ repos:
   # Works with current messy structure, doesn't break workflow
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: v5.0.0
     hooks:
       - id: end-of-file-fixer
       - id: trailing-whitespace
@@ -27,12 +30,11 @@ repos:
         args: ['--fix=lf']
 
   # Basic TypeScript/JavaScript quality (warnings OK)
-  - repo: local
+  - repo: https://github.com/biomejs/pre-commit
+    rev: v2.1.2
     hooks:
       - id: biome-check
-        name: Biome Format + Lint (Warnings OK)
-        entry: npx biome check --staged --apply --no-errors-on-warn
-        language: system
+        name: Biome Format + Lint (Phase 1 - Gentle)
         types_or: [javascript, jsx, ts, tsx, json]
 
   # TypeScript checking (errors only, warnings OK)
@@ -60,7 +62,7 @@ repos:
   # Critical security checks that don't break workflow
 
   - repo: https://github.com/Yelp/detect-secrets
-    rev: v1.4.0
+    rev: v1.5.0
     hooks:
       - id: detect-secrets
         name: Detect Secrets
@@ -73,7 +75,7 @@ repos:
   # Project has multiple Dockerfiles, validate them
 
   - repo: https://github.com/hadolint/hadolint
-    rev: v2.12.0
+    rev: v2.13.1-beta
     hooks:
       - id: hadolint-docker
         name: Dockerfile Linting

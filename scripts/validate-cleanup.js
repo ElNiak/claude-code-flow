@@ -36,8 +36,8 @@ const CONFIG = {
 
   phaseExpectedFiles: {
     1: {
-      'docs/completed': ['FINAL_SYNTHESIS_REPORT.md', 'MISSION_COMPLETION_SUMMARY.md', 'DEPLOYMENT_READINESS_REPORT.md'],
-      'docs/architecture': ['UNIFIED_CLI_ARCHITECTURE_SPECIFICATION.md', 'UNIFIED_COORDINATION_ARCHITECTURE.md'],
+      'docs/completed': ['docs/completed/implementation-reportsdocs/completed/implementation-reports/FINAL_SYNTHESIS_REPORT.md', 'docs/completed/implementation-reportsdocs/completed/implementation-reports/MISSION_COMPLETION_SUMMARY.md', 'docs/completed/implementation-reportsdocs/completed/implementation-reports/DEPLOYMENT_READINESS_REPORT.md'],
+      'docs/architecture': ['docs/architecture/specificationsdocs/architecture/specifications/UNIFIED_CLI_ARCHITECTURE_SPECIFICATION.md', 'UNIFIED_COORDINATION_ARCHITECTURE.md'],
       'docs/active': ['IMPLEMENTATION_ROADMAP.md', 'DENO_REMOVAL_ANALYSIS.md']
     },
     2: {

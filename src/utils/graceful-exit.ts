@@ -40,7 +40,7 @@ export function registerCleanupResource(resource: CleanupResource): void {
  * Unregister a cleanup resource
  */
 export function unregisterCleanupResource(name: string): void {
-	const index = cleanupResources.findIndex(r => r.name === name);
+	const index = cleanupResources.findIndex((r) => r.name === name);
 	if (index !== -1) {
 		cleanupResources.splice(index, 1);
 	}
@@ -96,19 +96,25 @@ export async function gracefulShutdown(
 					console.log(chalk.green(`✅ ${resource.name} cleaned up`));
 				}
 			} catch (error) {
-				const errorMessage = error instanceof Error ? error.message : String(error);
+				const errorMessage =
+					error instanceof Error ? error.message : String(error);
 				if (logger) {
-					logger.error(chalk.red(`❌ Failed to cleanup ${resource.name}: ${errorMessage}`));
+					logger.error(
+						chalk.red(`❌ Failed to cleanup ${resource.name}: ${errorMessage}`)
+					);
 				} else {
-					console.error(chalk.red(`❌ Failed to cleanup ${resource.name}: ${errorMessage}`));
+					console.error(
+						chalk.red(`❌ Failed to cleanup ${resource.name}: ${errorMessage}`)
+					);
 				}
 			}
 		}
 
 		// Final success message
-		const successMessage = exitCode === ExitCode.SUCCESS
-			? "🛑 Shutdown completed successfully"
-			: `🛑 Shutdown completed with exit code ${exitCode}`;
+		const successMessage =
+			exitCode === ExitCode.SUCCESS
+				? "🛑 Shutdown completed successfully"
+				: `🛑 Shutdown completed with exit code ${exitCode}`;
 
 		if (logger) {
 			logger.info(chalk.green(successMessage));
@@ -202,7 +208,10 @@ export function setupSignalHandlers(): void {
 		console.error(chalk.red.bold("💥 Unhandled Promise Rejection:"));
 		console.error("Promise:", promise);
 		console.error("Reason:", reason);
-		await gracefulShutdown(ExitCode.GENERAL_ERROR, "Unhandled promise rejection");
+		await gracefulShutdown(
+			ExitCode.GENERAL_ERROR,
+			"Unhandled promise rejection"
+		);
 	});
 }
 
@@ -214,10 +223,7 @@ export function createTimeoutHandler(
 	operation: string
 ): NodeJS.Timeout {
 	return setTimeout(async () => {
-		await handleError(
-			`Operation timed out after ${timeoutMs}ms`,
-			operation
-		);
+		await handleError(`Operation timed out after ${timeoutMs}ms`, operation);
 	}, timeoutMs);
 }
 
@@ -246,7 +252,9 @@ export function safeExit(
 ): void {
 	// Validate exit code
 	if (!Object.values(ExitCode).includes(code)) {
-		console.warn(chalk.yellow(`⚠️  Invalid exit code ${code}, using GENERAL_ERROR`));
+		console.warn(
+			chalk.yellow(`⚠️  Invalid exit code ${code}, using GENERAL_ERROR`)
+		);
 		code = ExitCode.GENERAL_ERROR;
 	}
 

@@ -36,7 +36,7 @@ repos:
       - id: biome-check
         name: Biome Format + Lint (Warnings OK)
         args: [--staged, --apply, --no-errors-on-warn]
-        types_or: [js, jsx, ts, tsx, json]
+        types_or: [javascript, jsx, ts, tsx, json]
 
   # TypeScript checking (errors only, warnings OK)
   - repo: local

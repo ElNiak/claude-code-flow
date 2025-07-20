@@ -838,14 +838,15 @@ export async function swarmAction(ctx: CommandContext) {
 			const projectRoot = scriptPath.substring(0, scriptPath.indexOf("/src/"));
 			const bgScriptPath = `${projectRoot}/bin/claude-flow-swarm-background`;
 
-			const bgCommand = new Deno.Command(bgScriptPath, {
-				args: [objective, ...buildBackgroundArgs(options)],
-				stdout: "piped",
-				stderr: "piped",
-				stdin: "null",
-			});
+			const bgCommand = spawn(
+				bgScriptPath,
+				[objective, ...buildBackgroundArgs(options)],
+				{
+					stdio: ["ignore", "pipe", "pipe"],
+				}
+			);
 
-			const bgProcess = bgCommand.spawn();
+			const bgProcess = bgCommand;
 
 			// Just confirm launch and exit,
 			success("Swarm launched in background successfully!");
@@ -1494,9 +1495,10 @@ async function showSwarmResults(
 			if (depth > 3) return; // Limit recursion depth,
 
 			try {
-				for await (const entry of Deno.readDir(dir)) {
+				const entries = await fs.readdir(dir, { withFileTypes: true });
+				for (const entry of entries) {
 					if (
-						entry.isFile &&
+						entry.isFile() &&
 						!entry.name.startsWith(".") &&
 						!dir.includes("swarm-runs") &&
 						!dir.includes("node_modules")
@@ -1509,7 +1511,7 @@ async function showSwarmResults(
 							createdFiles.push(fullPath);
 						}
 					} else if (
-						entry.isDirectory &&
+						entry.isDirectory() &&
 						!entry.name.startsWith(".") &&
 						!entry.name.includes("node_modules") &&
 						!entry.name.includes("swarm-runs")
@@ -1552,19 +1554,28 @@ async function launchSwarmUI(objective: string, options: any): Promise<void> {
 			return;
 		}
 
-		const command = new Deno.Command("node", {
-			args: [uiScriptPath, objective, ...buildUIArgs(options)],
-			stdin: "inherit",
-			stdout: "inherit",
-			stderr: "inherit",
+		const command = spawn(
+			"node",
+			[uiScriptPath, objective, ...buildUIArgs(options)],
+			{
+				stdio: "inherit",
+			}
+		);
+
+		const process = command;
+
+		// Wait for the process to complete
+		await new Promise<void>((resolve, reject) => {
+			process.on("exit", (code) => {
+				if (code !== 0) {
+					_error(`Swarm UI exited with code ${code}`);
+				}
+				resolve();
+			});
+			process.on("error", (err) => {
+				reject(err);
+			});
 		});
-
-		const process = command.spawn();
-		const { code } = await process.status;
-
-		if (code !== 0) {
-			_error(`Swarm UI exited with code ${code}`);
-		}
 	} catch (err) {
 		warning(`Failed to launch swarm UI: ${(err as Error).message}`);
 		console.log("Falling back to standard mode...");

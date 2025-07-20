@@ -50,10 +50,15 @@ export interface CLILibraryAdapter {
 	colors: typeof import("chalk");
 }
 
+import chalk from "chalk";
+import Table from "cli-table3";
+// Import dependencies at module level
+import { Command } from "commander";
+
 // Export unified adapter,
 export const cliAdapter: CLILibraryAdapter = {
-	Command: require("commander").Command,
-	Table: require("cli-table3"),
+	Command,
+	Table,
 	prompt: {
 		prompt: async (question: any) => {
 			const inquirer = await import("inquirer");
@@ -74,5 +79,5 @@ export const cliAdapter: CLILibraryAdapter = {
 			return answers.confirmed;
 		},
 	},
-	colors: require("chalk"),
+	colors: chalk,
 };

@@ -3,7 +3,7 @@ import { getErrorMessage as _getErrorMessage } from "../utils/error-handler.js";
  * Node.js-compatible Configuration management for Claude-Flow
  */
 
-import { promises as fs } from "fs";
+import { promises as fs, readFileSync } from "fs";
 import os from "os";
 import path from "path";
 
@@ -541,7 +541,7 @@ export class ConfigManager {
 	validateFile(path: string): boolean {
 		try {
 			// Basic validation - file exists and is valid JSON,
-			require("fs").readFileSync(path, "utf8");
+			readFileSync(path, "utf8");
 			return true;
 		} catch {
 			return false;

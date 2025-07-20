@@ -5,7 +5,7 @@
  * to prompts when running in non-interactive mode.
  */
 
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 
@@ -61,7 +61,7 @@ export class PromptDefaultsManager {
 		try {
 			const dir = join(this.configPath, "..");
 			if (!existsSync(dir)) {
-				require("fs").mkdirSync(dir, { recursive: true });
+				mkdirSync(dir, { recursive: true });
 			}
 			writeFileSync(this.configPath, JSON.stringify(this.config, null, 2));
 		} catch (error) {

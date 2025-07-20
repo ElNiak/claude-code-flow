@@ -69,7 +69,11 @@ export const spawnCommand = new Command("spawn")
 	.option("-b, --batch <number>", "Spawn multiple agents of same type", "1")
 	.option("--auto-assign", "Automatically assign to available tasks", false)
 	.option("--claude", "Generate Claude Code spawn commands", false)
-	.option("--queen-type <type>", "Queen coordinator type (strategic, tactical, adaptive)", "strategic")
+	.option(
+		"--queen-type <type>",
+		"Queen coordinator type (strategic, tactical, adaptive)",
+		"strategic"
+	)
 	.option("--max-workers <number>", "Maximum worker agents", "8")
 	.option("--auto-spawn", "Automatically spawn Claude Code instances", false)
 	.option("--verbose", "Enable verbose output", false)

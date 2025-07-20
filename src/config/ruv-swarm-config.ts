@@ -6,7 +6,7 @@ import { getErrorMessage as _getErrorMessage } from "../utils/error-handler.js";
  * including topology preferences, agent limits, and coordination patterns.
  */
 
-import { existsSync, readFileSync, writeFileSync } from "fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 import type { ILogger } from "../core/logger.js";
 import { deepMerge } from "../utils/helpers.js";
@@ -199,8 +199,7 @@ export class RuvSwarmConfigManager {
 
 			// Ensure config directory exists,
 			if (!existsSync(configDir)) {
-				const fs = require("fs");
-				fs.mkdirSync(configDir, { recursive: true });
+				mkdirSync(configDir, { recursive: true });
 			}
 
 			writeFileSync(

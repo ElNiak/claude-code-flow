@@ -36,7 +36,7 @@ export enum ErrorSeverity {
 	LOW = "low",
 	MEDIUM = "medium",
 	HIGH = "high",
-	CRITICAL = "critical"
+	CRITICAL = "critical",
 }
 
 export interface EnhancedError extends Error {
@@ -64,11 +64,14 @@ export class EnhancedErrorHandler {
 		recoverySuccesses: 0,
 		criticalErrors: 0,
 	};
-	private circuitBreakers = new Map<string, {
-		failures: number;
-		lastFailure: Date;
-		isOpen: boolean;
-	}>();
+	private circuitBreakers = new Map<
+		string,
+		{
+			failures: number;
+			lastFailure: Date;
+			isOpen: boolean;
+		}
+	>();
 
 	constructor(
 		private logger: ILogger,
@@ -90,55 +93,55 @@ export class EnhancedErrorHandler {
 		const error = new Error(message) as EnhancedError;
 
 		// Add enhanced properties
-		Object.defineProperty(error, 'id', {
+		Object.defineProperty(error, "id", {
 			value: `err_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
 			writable: false,
-			enumerable: true
+			enumerable: true,
 		});
 
-		Object.defineProperty(error, 'severity', {
+		Object.defineProperty(error, "severity", {
 			value: severity,
 			writable: false,
-			enumerable: true
+			enumerable: true,
 		});
 
-		Object.defineProperty(error, 'context', {
+		Object.defineProperty(error, "context", {
 			value: context,
 			writable: false,
-			enumerable: true
+			enumerable: true,
 		});
 
-		Object.defineProperty(error, 'retryable', {
+		Object.defineProperty(error, "retryable", {
 			value: this.isRetryableError(originalError || error),
 			writable: false,
-			enumerable: true
+			enumerable: true,
 		});
 
-		Object.defineProperty(error, 'recoveryAttempts', {
+		Object.defineProperty(error, "recoveryAttempts", {
 			value: 0,
 			writable: true,
-			enumerable: true
+			enumerable: true,
 		});
 
 		if (originalError) {
-			Object.defineProperty(error, 'originalError', {
+			Object.defineProperty(error, "originalError", {
 				value: originalError,
 				writable: false,
-				enumerable: true
+				enumerable: true,
 			});
 		}
 
-		Object.defineProperty(error, 'stackTrace', {
+		Object.defineProperty(error, "stackTrace", {
 			value: error.stack,
 			writable: false,
-			enumerable: true
+			enumerable: true,
 		});
 
 		if (userMessage) {
-			Object.defineProperty(error, 'userMessage', {
+			Object.defineProperty(error, "userMessage", {
 				value: userMessage,
 				writable: false,
-				enumerable: true
+				enumerable: true,
 			});
 		}
 
@@ -151,7 +154,7 @@ export class EnhancedErrorHandler {
 	async handleError(error: Error, context: ErrorContext): Promise<boolean> {
 		// Create enhanced error if needed
 		const enhancedError = this.isEnhancedError(error)
-			? error as EnhancedError
+			? (error as EnhancedError)
 			: this.createError(error.message, context, ErrorSeverity.MEDIUM, error);
 
 		// Update metrics
@@ -163,7 +166,7 @@ export class EnhancedErrorHandler {
 			this.logger.warn("Circuit breaker open, skipping operation", {
 				error: enhancedError.id,
 				circuit: circuitKey,
-				context
+				context,
 			});
 			return false;
 		}
@@ -176,7 +179,7 @@ export class EnhancedErrorHandler {
 			this.eventBus.emit(SystemEvents.SYSTEM_ERROR, {
 				error: enhancedError,
 				context,
-				timestamp: new Date()
+				timestamp: new Date(),
 			});
 		}
 
@@ -211,7 +214,7 @@ export class EnhancedErrorHandler {
 						operation(),
 						new Promise<never>((_, reject) =>
 							setTimeout(() => reject(new Error("Operation timeout")), timeout)
-						)
+						),
 					]);
 				}
 
@@ -251,7 +254,9 @@ export class EnhancedErrorHandler {
 
 				// Wait before retry
 				if (!isLastAttempt) {
-					await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000));
+					await new Promise((resolve) =>
+						setTimeout(resolve, Math.pow(2, attempt) * 1000)
+					);
 				}
 			}
 		}
@@ -282,7 +287,7 @@ export class EnhancedErrorHandler {
 			byOperation: new Map(this.metrics.byOperation),
 			recoveryAttempts: this.metrics.recoveryAttempts,
 			recoverySuccesses: this.metrics.recoverySuccesses,
-			criticalErrors: this.metrics.criticalErrors
+			criticalErrors: this.metrics.criticalErrors,
 		};
 	}
 
@@ -302,7 +307,7 @@ export class EnhancedErrorHandler {
 	}
 
 	private isEnhancedError(error: Error): boolean {
-		return 'id' in error && 'severity' in error && 'context' in error;
+		return "id" in error && "severity" in error && "context" in error;
 	}
 
 	private isRetryableError(error: Error): boolean {
@@ -316,11 +321,11 @@ export class EnhancedErrorHandler {
 			/ETIMEDOUT/i,
 			/temporarily unavailable/i,
 			/rate limit/i,
-			/circuit.*open/i
+			/circuit.*open/i,
 		];
 
-		const message = error.message || '';
-		return retryablePatterns.some(pattern => pattern.test(message));
+		const message = error.message || "";
+		return retryablePatterns.some((pattern) => pattern.test(message));
 	}
 
 	private updateMetrics(error: EnhancedError): void {
@@ -328,15 +333,24 @@ export class EnhancedErrorHandler {
 
 		// By type
 		const errorType = error.constructor.name;
-		this.metrics.byType.set(errorType, (this.metrics.byType.get(errorType) || 0) + 1);
+		this.metrics.byType.set(
+			errorType,
+			(this.metrics.byType.get(errorType) || 0) + 1
+		);
 
 		// By component
 		const component = error.context.component;
-		this.metrics.byComponent.set(component, (this.metrics.byComponent.get(component) || 0) + 1);
+		this.metrics.byComponent.set(
+			component,
+			(this.metrics.byComponent.get(component) || 0) + 1
+		);
 
 		// By operation
 		const operation = error.context.operation;
-		this.metrics.byOperation.set(operation, (this.metrics.byOperation.get(operation) || 0) + 1);
+		this.metrics.byOperation.set(
+			operation,
+			(this.metrics.byOperation.get(operation) || 0) + 1
+		);
 
 		// Critical errors
 		if (error.severity === ErrorSeverity.CRITICAL) {
@@ -354,17 +368,17 @@ export class EnhancedErrorHandler {
 			retryable: error.retryable,
 			recoveryAttempts: error.recoveryAttempts,
 			stack: error.stackTrace,
-			originalError: error.originalError?.message
+			originalError: error.originalError?.message,
 		};
 
 		switch (logLevel) {
-			case 'error':
+			case "error":
 				this.logger.error("System error occurred", logData);
 				break;
-			case 'warn':
+			case "warn":
 				this.logger.warn("System warning", logData);
 				break;
-			case 'info':
+			case "info":
 				this.logger.info("System event", logData);
 				break;
 			default:
@@ -372,17 +386,19 @@ export class EnhancedErrorHandler {
 		}
 	}
 
-	private getLogLevel(severity: ErrorSeverity): 'error' | 'warn' | 'info' | 'debug' {
+	private getLogLevel(
+		severity: ErrorSeverity
+	): "error" | "warn" | "info" | "debug" {
 		switch (severity) {
 			case ErrorSeverity.CRITICAL:
 			case ErrorSeverity.HIGH:
-				return 'error';
+				return "error";
 			case ErrorSeverity.MEDIUM:
-				return 'warn';
+				return "warn";
 			case ErrorSeverity.LOW:
-				return 'info';
+				return "info";
 			default:
-				return 'debug';
+				return "debug";
 		}
 	}
 
@@ -398,7 +414,7 @@ export class EnhancedErrorHandler {
 						this.logger.info("Error recovery successful", {
 							errorId: error.id,
 							strategy: strategy.name,
-							context: error.context
+							context: error.context,
 						});
 						return true;
 					}
@@ -406,7 +422,10 @@ export class EnhancedErrorHandler {
 					this.logger.warn("Recovery strategy failed", {
 						errorId: error.id,
 						strategy: strategy.name,
-						recoveryError: recoveryError instanceof Error ? recoveryError.message : String(recoveryError)
+						recoveryError:
+							recoveryError instanceof Error
+								? recoveryError.message
+								: String(recoveryError),
 					});
 				}
 			}
@@ -456,23 +475,25 @@ export class EnhancedErrorHandler {
 			name: "database-reconnect",
 			priority: 100,
 			canHandle: (error, context) => {
-				return context.component.includes('database') ||
-					   context.component.includes('sqlite') ||
-					   error.message.includes('database');
+				return (
+					context.component.includes("database") ||
+					context.component.includes("sqlite") ||
+					error.message.includes("database")
+				);
 			},
 			execute: async (error, context) => {
 				// Implement database reconnection logic
 				this.logger.info("Attempting database reconnection", {
 					errorId: (error as EnhancedError).id,
-					context
+					context,
 				});
 
 				// Simulate recovery attempt
-				await new Promise(resolve => setTimeout(resolve, 1000));
+				await new Promise((resolve) => setTimeout(resolve, 1000));
 
 				// Return success if connection issues are resolved
 				return Math.random() > 0.3; // 70% success rate for demo
-			}
+			},
 		});
 
 		// Network retry recovery
@@ -480,22 +501,27 @@ export class EnhancedErrorHandler {
 			name: "network-retry",
 			priority: 90,
 			canHandle: (error, context) => {
-				return error.message.includes('network') ||
-					   error.message.includes('connection') ||
-					   error.message.includes('timeout');
+				return (
+					error.message.includes("network") ||
+					error.message.includes("connection") ||
+					error.message.includes("timeout")
+				);
 			},
 			execute: async (error, context) => {
 				this.logger.info("Attempting network retry", {
 					errorId: (error as EnhancedError).id,
-					context
+					context,
 				});
 
 				// Exponential backoff
-				const delay = Math.min(1000 * Math.pow(2, (error as EnhancedError).recoveryAttempts), 10000);
-				await new Promise(resolve => setTimeout(resolve, delay));
+				const delay = Math.min(
+					1000 * Math.pow(2, (error as EnhancedError).recoveryAttempts),
+					10000
+				);
+				await new Promise((resolve) => setTimeout(resolve, delay));
 
 				return Math.random() > 0.5; // 50% success rate for demo
-			}
+			},
 		});
 
 		// Memory cleanup recovery
@@ -503,14 +529,16 @@ export class EnhancedErrorHandler {
 			name: "memory-cleanup",
 			priority: 80,
 			canHandle: (error, context) => {
-				return error.message.includes('memory') ||
-					   error.message.includes('heap') ||
-					   context.operation.includes('memory');
+				return (
+					error.message.includes("memory") ||
+					error.message.includes("heap") ||
+					context.operation.includes("memory")
+				);
 			},
 			execute: async (error, context) => {
 				this.logger.info("Attempting memory cleanup", {
 					errorId: (error as EnhancedError).id,
-					context
+					context,
 				});
 
 				// Force garbage collection if available
@@ -519,7 +547,7 @@ export class EnhancedErrorHandler {
 				}
 
 				return true;
-			}
+			},
 		});
 	}
 }
@@ -529,7 +557,10 @@ export class EnhancedErrorHandler {
  */
 let globalErrorHandler: EnhancedErrorHandler | null = null;
 
-export function initializeGlobalErrorHandler(logger: ILogger, eventBus?: any): EnhancedErrorHandler {
+export function initializeGlobalErrorHandler(
+	logger: ILogger,
+	eventBus?: any
+): EnhancedErrorHandler {
 	if (!globalErrorHandler) {
 		globalErrorHandler = new EnhancedErrorHandler(logger, eventBus);
 	}
@@ -554,7 +585,11 @@ export function withErrorHandling(
 		severity?: ErrorSeverity;
 	} = {}
 ) {
-	return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+	return function (
+		target: any,
+		propertyKey: string,
+		descriptor: PropertyDescriptor
+	) {
 		const originalMethod = descriptor.value;
 
 		descriptor.value = async function (...args: any[]) {
@@ -563,7 +598,7 @@ export function withErrorHandling(
 				operation: propertyKey,
 				component: target.constructor.name,
 				timestamp: new Date(),
-				...context
+				...context,
 			};
 
 			return errorHandler.withErrorHandling(

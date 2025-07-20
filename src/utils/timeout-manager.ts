@@ -4,7 +4,10 @@ import { getErrorMessage as _getErrorMessage } from "./error-handler.js";
  */
 
 import type { ILogger } from "../core/logger.js";
-import { EnhancedErrorHandler, ErrorSeverity } from "./enhanced-error-handler.js";
+import {
+	EnhancedErrorHandler,
+	ErrorSeverity,
+} from "./enhanced-error-handler.js";
 
 export interface TimeoutOptions {
 	timeout: number;
@@ -19,27 +22,33 @@ export interface TimeoutMetrics {
 	timedOutOperations: number;
 	retriedOperations: number;
 	averageExecutionTime: number;
-	operationsByType: Map<string, {
-		count: number;
-		timeouts: number;
-		averageTime: number;
-	}>;
+	operationsByType: Map<
+		string,
+		{
+			count: number;
+			timeouts: number;
+			averageTime: number;
+		}
+	>;
 }
 
 export class TimeoutManager {
-	private activeOperations = new Map<string, {
-		startTime: number;
-		timeout: NodeJS.Timeout;
-		operation: string;
-		promise: Promise<any>;
-	}>();
+	private activeOperations = new Map<
+		string,
+		{
+			startTime: number;
+			timeout: NodeJS.Timeout;
+			operation: string;
+			promise: Promise<any>;
+		}
+	>();
 
 	private metrics: TimeoutMetrics = {
 		totalOperations: 0,
 		timedOutOperations: 0,
 		retriedOperations: 0,
 		averageExecutionTime: 0,
-		operationsByType: new Map()
+		operationsByType: new Map(),
 	};
 
 	private totalExecutionTime = 0;
@@ -57,7 +66,13 @@ export class TimeoutManager {
 		operationName: string,
 		options: TimeoutOptions
 	): Promise<T> {
-		const { timeout, retries = 0, retryDelay = 1000, onTimeout, onRetry } = options;
+		const {
+			timeout,
+			retries = 0,
+			retryDelay = 1000,
+			onTimeout,
+			onRetry,
+		} = options;
 
 		let lastError: Error | null = null;
 
@@ -84,7 +99,7 @@ export class TimeoutManager {
 				// Update metrics on failure
 				this.updateMetrics(operationName, Date.now() - startTime, true);
 
-				if (lastError.message.includes('timeout')) {
+				if (lastError.message.includes("timeout")) {
 					if (onTimeout) {
 						onTimeout(operationName, attempt);
 					}
@@ -93,7 +108,7 @@ export class TimeoutManager {
 						operation: operationName,
 						attempt,
 						timeout,
-						operationId
+						operationId,
 					});
 				}
 
@@ -113,11 +128,11 @@ export class TimeoutManager {
 					operation: operationName,
 					attempt,
 					delay: retryDelay,
-					error: lastError.message
+					error: lastError.message,
 				});
 
 				// Wait before retry
-				await new Promise(resolve => setTimeout(resolve, retryDelay));
+				await new Promise((resolve) => setTimeout(resolve, retryDelay));
 			}
 		}
 
@@ -142,7 +157,7 @@ export class TimeoutManager {
 			this.logger.warn("Operation aborted due to timeout", {
 				operation: operationName,
 				timeout,
-				operationId
+				operationId,
 			});
 		}, timeout);
 
@@ -163,7 +178,9 @@ export class TimeoutManager {
 			this.updateMetrics(operationName, Date.now() - startTime, true);
 
 			if (abortController.signal.aborted) {
-				throw new Error(`Operation '${operationName}' timed out after ${timeout}ms`);
+				throw new Error(
+					`Operation '${operationName}' timed out after ${timeout}ms`
+				);
 			}
 
 			throw error;
@@ -180,14 +197,14 @@ export class TimeoutManager {
 			timeout: number;
 		}>,
 		options: {
-			mode: 'parallel' | 'sequential';
+			mode: "parallel" | "sequential";
 			failFast?: boolean;
 			retries?: number;
-		} = { mode: 'parallel' }
+		} = { mode: "parallel" }
 	): Promise<T[]> {
 		const { mode, failFast = true, retries = 0 } = options;
 
-		if (mode === 'parallel') {
+		if (mode === "parallel") {
 			const promises = operations.map(({ operation, name, timeout }) =>
 				this.executeWithTimeout(operation, name, { timeout, retries })
 			);
@@ -196,8 +213,8 @@ export class TimeoutManager {
 				return Promise.all(promises);
 			} else {
 				const results = await Promise.allSettled(promises);
-				return results.map(result => {
-					if (result.status === 'fulfilled') {
+				return results.map((result) => {
+					if (result.status === "fulfilled") {
 						return result.value;
 					} else {
 						throw result.reason;
@@ -210,7 +227,10 @@ export class TimeoutManager {
 
 			for (const { operation, name, timeout } of operations) {
 				try {
-					const result = await this.executeWithTimeout(operation, name, { timeout, retries });
+					const result = await this.executeWithTimeout(operation, name, {
+						timeout,
+						retries,
+					});
 					results.push(result);
 				} catch (error) {
 					if (failFast) {
@@ -233,11 +253,9 @@ export class TimeoutManager {
 		defaultTimeout: number
 	): T {
 		return (async (...args: any[]) => {
-			return this.executeWithTimeout(
-				() => fn(...args),
-				operationName,
-				{ timeout: defaultTimeout }
-			);
+			return this.executeWithTimeout(() => fn(...args), operationName, {
+				timeout: defaultTimeout,
+			});
 		}) as T;
 	}
 
@@ -256,7 +274,7 @@ export class TimeoutManager {
 		this.logger.info("Operation cancelled", {
 			operationId,
 			operation: operation.operation,
-			duration: Date.now() - operation.startTime
+			duration: Date.now() - operation.startTime,
 		});
 
 		return true;
@@ -272,7 +290,9 @@ export class TimeoutManager {
 			this.cancelOperation(operationId);
 		}
 
-		this.logger.info("All operations cancelled", { count: operationIds.length });
+		this.logger.info("All operations cancelled", {
+			count: operationIds.length,
+		});
 	}
 
 	/**
@@ -284,7 +304,7 @@ export class TimeoutManager {
 			timedOutOperations: this.metrics.timedOutOperations,
 			retriedOperations: this.metrics.retriedOperations,
 			averageExecutionTime: this.metrics.averageExecutionTime,
-			operationsByType: new Map(this.metrics.operationsByType)
+			operationsByType: new Map(this.metrics.operationsByType),
 		};
 	}
 
@@ -309,7 +329,7 @@ export class TimeoutManager {
 			id,
 			operation: op.operation,
 			startTime: op.startTime,
-			duration: now - op.startTime
+			duration: now - op.startTime,
 		}));
 	}
 
@@ -322,7 +342,7 @@ export class TimeoutManager {
 			timedOutOperations: 0,
 			retriedOperations: 0,
 			averageExecutionTime: 0,
-			operationsByType: new Map()
+			operationsByType: new Map(),
 		};
 		this.totalExecutionTime = 0;
 	}
@@ -346,7 +366,9 @@ export class TimeoutManager {
 			// Set up timeout
 			const timeoutId = setTimeout(() => {
 				this.activeOperations.delete(operationId);
-				reject(new Error(`Operation '${operationName}' timed out after ${timeout}ms`));
+				reject(
+					new Error(`Operation '${operationName}' timed out after ${timeout}ms`)
+				);
 			}, timeout);
 
 			// Execute operation
@@ -357,17 +379,17 @@ export class TimeoutManager {
 				startTime,
 				timeout: timeoutId,
 				operation: operationName,
-				promise: operationPromise
+				promise: operationPromise,
 			});
 
 			// Handle resolution
 			operationPromise
-				.then(result => {
+				.then((result) => {
 					clearTimeout(timeoutId);
 					this.activeOperations.delete(operationId);
 					resolve(result);
 				})
-				.catch(error => {
+				.catch((error) => {
 					clearTimeout(timeoutId);
 					this.activeOperations.delete(operationId);
 					reject(error);
@@ -375,10 +397,15 @@ export class TimeoutManager {
 		});
 	}
 
-	private updateMetrics(operationName: string, duration: number, timedOut: boolean): void {
+	private updateMetrics(
+		operationName: string,
+		duration: number,
+		timedOut: boolean
+	): void {
 		this.metrics.totalOperations++;
 		this.totalExecutionTime += duration;
-		this.metrics.averageExecutionTime = this.totalExecutionTime / this.metrics.totalOperations;
+		this.metrics.averageExecutionTime =
+			this.totalExecutionTime / this.metrics.totalOperations;
 
 		if (timedOut) {
 			this.metrics.timedOutOperations++;
@@ -390,13 +417,15 @@ export class TimeoutManager {
 			operationMetrics = {
 				count: 0,
 				timeouts: 0,
-				averageTime: 0
+				averageTime: 0,
 			};
 			this.metrics.operationsByType.set(operationName, operationMetrics);
 		}
 
 		operationMetrics.count++;
-		operationMetrics.averageTime = (operationMetrics.averageTime * (operationMetrics.count - 1) + duration) / operationMetrics.count;
+		operationMetrics.averageTime =
+			(operationMetrics.averageTime * (operationMetrics.count - 1) + duration) /
+			operationMetrics.count;
 
 		if (timedOut) {
 			operationMetrics.timeouts++;
@@ -411,11 +440,11 @@ export class TimeoutManager {
 			/network/i,
 			/temporarily unavailable/i,
 			/rate limit/i,
-			/service unavailable/i
+			/service unavailable/i,
 		];
 
-		const message = error.message || '';
-		return retryablePatterns.some(pattern => pattern.test(message));
+		const message = error.message || "";
+		return retryablePatterns.some((pattern) => pattern.test(message));
 	}
 }
 
@@ -424,7 +453,10 @@ export class TimeoutManager {
  */
 let globalTimeoutManager: TimeoutManager | null = null;
 
-export function initializeGlobalTimeoutManager(logger: ILogger, errorHandler?: EnhancedErrorHandler): TimeoutManager {
+export function initializeGlobalTimeoutManager(
+	logger: ILogger,
+	errorHandler?: EnhancedErrorHandler
+): TimeoutManager {
 	if (!globalTimeoutManager) {
 		globalTimeoutManager = new TimeoutManager(logger, errorHandler);
 	}
@@ -448,9 +480,14 @@ export function withTimeout(
 		operationName?: string;
 	} = {}
 ) {
-	return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+	return function (
+		target: any,
+		propertyKey: string,
+		descriptor: PropertyDescriptor
+	) {
 		const originalMethod = descriptor.value;
-		const operationName = options.operationName || `${target.constructor.name}.${propertyKey}`;
+		const operationName =
+			options.operationName || `${target.constructor.name}.${propertyKey}`;
 
 		descriptor.value = async function (...args: any[]) {
 			const timeoutManager = getGlobalTimeoutManager();

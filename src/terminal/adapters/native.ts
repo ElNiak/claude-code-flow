@@ -4,7 +4,7 @@ import { getErrorMessage as _getErrorMessage } from "../../utils/error-handler.j
  * Native terminal adapter implementation
  */
 
-import { type ChildProcess, spawn } from "child_process";
+import { type ChildProcess, spawn, spawnSync } from "child_process";
 import { platform } from "os";
 import type { ILogger } from "../../core/logger.js";
 import { TerminalCommandError, TerminalError } from "../../utils/errors.js";
@@ -404,7 +404,7 @@ export class NativeAdapter implements ITerminalAdapter {
 		// Verify shell is available,
 		try {
 			const testConfig = this.getTestCommand();
-			const { spawnSync } = require("child_process");
+			// spawnSync already imported at top
 			const result = spawnSync(testConfig.cmd, testConfig.args, {
 				stdio: "ignore",
 			});
@@ -457,7 +457,7 @@ export class NativeAdapter implements ITerminalAdapter {
 
 			// Check if PowerShell is available,
 			try {
-				const { spawnSync } = require("child_process");
+				// spawnSync already imported at top
 				const result = spawnSync("powershell", ["-Version"], {
 					stdio: "ignore",
 				});
@@ -483,7 +483,7 @@ export class NativeAdapter implements ITerminalAdapter {
 			const shells = ["bash", "zsh", "sh"];
 			for (const shell of shells) {
 				try {
-					const { spawnSync } = require("child_process");
+					// spawnSync already imported at top
 					const result = spawnSync("which", [shell], { stdio: "ignore" });
 					if (result.status === 0) {
 						return shell;

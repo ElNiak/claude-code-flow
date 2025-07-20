@@ -1,241 +1,241 @@
 {
-  "name": "Node.js Memory Optimization Configuration",
-  "version": "1.0.0",
-  "description": "Optimized memory settings for multi-agent systems",
-  "nodeFlags": {
-    "production": [
-      "--max-old-space-size=4096",
-      "--initial-old-space-size=1024",
-      "--max-semi-space-size=128",
-      "--max-executable-size=2048",
-      "--expose-gc",
-      "--incremental-marking",
-      "--concurrent-marking",
-      "--parallel-gc-threads=4",
-      "--use-idle-notification",
-      "--optimize-for-size",
-      "--enable-precise-gc"
-    ],
-    "development": [
-      "--max-old-space-size=2048",
-      "--initial-old-space-size=512",
-      "--expose-gc",
-      "--trace-gc",
-      "--trace-gc-verbose",
-      "--track-heap-objects",
-      "--incremental-marking"
-    ],
-    "testing": [
-      "--max-old-space-size=1024",
-      "--initial-old-space-size=256",
-      "--expose-gc",
-      "--trace-gc",
-      "--incremental-marking"
-    ]
-  },
+	"name": "Node.js Memory Optimization Configuration",
+	"version": "1.0.0",
+	"description": "Optimized memory settings for multi-agent systems",
+	"nodeFlags": {
+		"production": [
+			"--max-old-space-size=4096",
+			"--initial-old-space-size=1024",
+			"--max-semi-space-size=128",
+			"--max-executable-size=2048",
+			"--expose-gc",
+			"--incremental-marking",
+			"--concurrent-marking",
+			"--parallel-gc-threads=4",
+			"--use-idle-notification",
+			"--optimize-for-size",
+			"--enable-precise-gc"
+		],
+		"development": [
+			"--max-old-space-size=2048",
+			"--initial-old-space-size=512",
+			"--expose-gc",
+			"--trace-gc",
+			"--trace-gc-verbose",
+			"--track-heap-objects",
+			"--incremental-marking"
+		],
+		"testing": [
+			"--max-old-space-size=1024",
+			"--initial-old-space-size=256",
+			"--expose-gc",
+			"--trace-gc",
+			"--incremental-marking"
+		]
+	},
 
-  "environmentVariables": {
-    "production": {
-      "NODE_OPTIONS": "--max-old-space-size=4096 --expose-gc --incremental-marking --concurrent-marking",
-      "UV_THREADPOOL_SIZE": "16",
-      "NODE_ENV": "production",
-      "MALLOC_ARENA_MAX": "2",
-      "MALLOC_MMAP_THRESHOLD_": "131072",
-      "MALLOC_TRIM_THRESHOLD_": "131072",
-      "MALLOC_TOP_PAD_": "131072",
-      "MALLOC_MMAP_MAX_": "65536"
-    },
-    "development": {
-      "NODE_OPTIONS": "--max-old-space-size=2048 --expose-gc --trace-gc",
-      "UV_THREADPOOL_SIZE": "8",
-      "NODE_ENV": "development"
-    }
-  },
+	"environmentVariables": {
+		"production": {
+			"NODE_OPTIONS": "--max-old-space-size=4096 --expose-gc --incremental-marking --concurrent-marking",
+			"UV_THREADPOOL_SIZE": "16",
+			"NODE_ENV": "production",
+			"MALLOC_ARENA_MAX": "2",
+			"MALLOC_MMAP_THRESHOLD_": "131072",
+			"MALLOC_TRIM_THRESHOLD_": "131072",
+			"MALLOC_TOP_PAD_": "131072",
+			"MALLOC_MMAP_MAX_": "65536"
+		},
+		"development": {
+			"NODE_OPTIONS": "--max-old-space-size=2048 --expose-gc --trace-gc",
+			"UV_THREADPOOL_SIZE": "8",
+			"NODE_ENV": "development"
+		}
+	},
 
-  "heapOptimization": {
-    "multiAgent": {
-      "agentCount": 8,
-      "heapSizePerAgent": 512,
-      "totalHeapSize": 4096,
-      "sharedHeapSize": 1024,
-      "workerHeapSize": 256
-    },
-    "systemMemoryUsage": {
-      "targetUtilization": 0.7,
-      "reservedForSystem": 0.2,
-      "reservedForBuffers": 0.1
-    },
-    "adaptiveScaling": {
-      "enabled": true,
-      "scaleUpThreshold": 0.8,
-      "scaleDownThreshold": 0.3,
-      "maxScaleSize": 8192,
-      "minScaleSize": 1024
-    }
-  },
+	"heapOptimization": {
+		"multiAgent": {
+			"agentCount": 8,
+			"heapSizePerAgent": 512,
+			"totalHeapSize": 4096,
+			"sharedHeapSize": 1024,
+			"workerHeapSize": 256
+		},
+		"systemMemoryUsage": {
+			"targetUtilization": 0.7,
+			"reservedForSystem": 0.2,
+			"reservedForBuffers": 0.1
+		},
+		"adaptiveScaling": {
+			"enabled": true,
+			"scaleUpThreshold": 0.8,
+			"scaleDownThreshold": 0.3,
+			"maxScaleSize": 8192,
+			"minScaleSize": 1024
+		}
+	},
 
-  "garbageCollection": {
-    "strategy": "balanced",
-    "settings": {
-      "throughput": {
-        "youngGenerationSize": 256,
-        "oldGenerationSize": 2048,
-        "gcInterval": 30000,
-        "incrementalMarking": true,
-        "concurrentMarking": true
-      },
-      "latency": {
-        "youngGenerationSize": 64,
-        "oldGenerationSize": 1024,
-        "gcInterval": 5000,
-        "incrementalMarking": true,
-        "concurrentMarking": true
-      },
-      "balanced": {
-        "youngGenerationSize": 128,
-        "oldGenerationSize": 1536,
-        "gcInterval": 15000,
-        "incrementalMarking": true,
-        "concurrentMarking": true
-      }
-    }
-  },
+	"garbageCollection": {
+		"strategy": "balanced",
+		"settings": {
+			"throughput": {
+				"youngGenerationSize": 256,
+				"oldGenerationSize": 2048,
+				"gcInterval": 30000,
+				"incrementalMarking": true,
+				"concurrentMarking": true
+			},
+			"latency": {
+				"youngGenerationSize": 64,
+				"oldGenerationSize": 1024,
+				"gcInterval": 5000,
+				"incrementalMarking": true,
+				"concurrentMarking": true
+			},
+			"balanced": {
+				"youngGenerationSize": 128,
+				"oldGenerationSize": 1536,
+				"gcInterval": 15000,
+				"incrementalMarking": true,
+				"concurrentMarking": true
+			}
+		}
+	},
 
-  "processIsolation": {
-    "enabled": true,
-    "workerThreads": {
-      "maxWorkers": 8,
-      "workerHeapSize": 1024,
-      "isolateAgents": true,
-      "sharedMemorySize": 512
-    },
-    "childProcesses": {
-      "maxProcesses": 4,
-      "processHeapSize": 2048,
-      "ipcBufferSize": 1024
-    }
-  },
+	"processIsolation": {
+		"enabled": true,
+		"workerThreads": {
+			"maxWorkers": 8,
+			"workerHeapSize": 1024,
+			"isolateAgents": true,
+			"sharedMemorySize": 512
+		},
+		"childProcesses": {
+			"maxProcesses": 4,
+			"processHeapSize": 2048,
+			"ipcBufferSize": 1024
+		}
+	},
 
-  "memoryMonitoring": {
-    "enabled": true,
-    "interval": 5000,
-    "thresholds": {
-      "warning": 0.75,
-      "critical": 0.9,
-      "emergency": 0.95
-    },
-    "profiling": {
-      "enabled": false,
-      "samplingInterval": 1000,
-      "heapSnapshotInterval": 300000
-    },
-    "metrics": {
-      "trackGC": true,
-      "trackHeapSpaces": true,
-      "trackEventLoop": true,
-      "trackCPUUsage": true
-    }
-  },
+	"memoryMonitoring": {
+		"enabled": true,
+		"interval": 5000,
+		"thresholds": {
+			"warning": 0.75,
+			"critical": 0.9,
+			"emergency": 0.95
+		},
+		"profiling": {
+			"enabled": false,
+			"samplingInterval": 1000,
+			"heapSnapshotInterval": 300000
+		},
+		"metrics": {
+			"trackGC": true,
+			"trackHeapSpaces": true,
+			"trackEventLoop": true,
+			"trackCPUUsage": true
+		}
+	},
 
-  "memoryLeakPrevention": {
-    "enabled": true,
-    "maxObjects": 100000,
-    "maxEventListeners": 1000,
-    "maxTimers": 10000,
-    "cleanupInterval": 30000,
-    "clearRequireCache": true,
-    "clearModuleCache": true
-  },
+	"memoryLeakPrevention": {
+		"enabled": true,
+		"maxObjects": 100000,
+		"maxEventListeners": 1000,
+		"maxTimers": 10000,
+		"cleanupInterval": 30000,
+		"clearRequireCache": true,
+		"clearModuleCache": true
+	},
 
-  "bufferOptimization": {
-    "pooling": {
-      "enabled": true,
-      "bufferSizes": [1024, 4096, 16384, 65536],
-      "maxPoolSize": 1000,
-      "reuseThreshold": 0.8
-    },
-    "allocation": {
-      "preferUnsafe": true,
-      "zeroFill": false,
-      "preallocate": true
-    }
-  },
+	"bufferOptimization": {
+		"pooling": {
+			"enabled": true,
+			"bufferSizes": [1024, 4096, 16384, 65536],
+			"maxPoolSize": 1000,
+			"reuseThreshold": 0.8
+		},
+		"allocation": {
+			"preferUnsafe": true,
+			"zeroFill": false,
+			"preallocate": true
+		}
+	},
 
-  "agentCoordination": {
-    "memorySharing": {
-      "enabled": true,
-      "sharedArrayBuffers": true,
-      "messageCompression": true,
-      "compressionThreshold": 1024
-    },
-    "caching": {
-      "strategy": "adaptive",
-      "maxCacheSize": 256,
-      "ttl": 300000,
-      "compressionEnabled": true
-    }
-  },
+	"agentCoordination": {
+		"memorySharing": {
+			"enabled": true,
+			"sharedArrayBuffers": true,
+			"messageCompression": true,
+			"compressionThreshold": 1024
+		},
+		"caching": {
+			"strategy": "adaptive",
+			"maxCacheSize": 256,
+			"ttl": 300000,
+			"compressionEnabled": true
+		}
+	},
 
-  "optimizationProfiles": {
-    "highThroughput": {
-      "heapSize": 8192,
-      "gcStrategy": "throughput",
-      "workerCount": 16,
-      "bufferPoolSize": 2000
-    },
-    "lowLatency": {
-      "heapSize": 2048,
-      "gcStrategy": "latency",
-      "workerCount": 4,
-      "bufferPoolSize": 500
-    },
-    "balanced": {
-      "heapSize": 4096,
-      "gcStrategy": "balanced",
-      "workerCount": 8,
-      "bufferPoolSize": 1000
-    },
-    "memoryConstrained": {
-      "heapSize": 1024,
-      "gcStrategy": "latency",
-      "workerCount": 2,
-      "bufferPoolSize": 200
-    }
-  },
+	"optimizationProfiles": {
+		"highThroughput": {
+			"heapSize": 8192,
+			"gcStrategy": "throughput",
+			"workerCount": 16,
+			"bufferPoolSize": 2000
+		},
+		"lowLatency": {
+			"heapSize": 2048,
+			"gcStrategy": "latency",
+			"workerCount": 4,
+			"bufferPoolSize": 500
+		},
+		"balanced": {
+			"heapSize": 4096,
+			"gcStrategy": "balanced",
+			"workerCount": 8,
+			"bufferPoolSize": 1000
+		},
+		"memoryConstrained": {
+			"heapSize": 1024,
+			"gcStrategy": "latency",
+			"workerCount": 2,
+			"bufferPoolSize": 200
+		}
+	},
 
-  "systemRequirements": {
-    "minimum": {
-      "ram": "2GB",
-      "heapSize": 1024,
-      "agents": 2
-    },
-    "recommended": {
-      "ram": "8GB",
-      "heapSize": 4096,
-      "agents": 8
-    },
-    "optimal": {
-      "ram": "16GB",
-      "heapSize": 8192,
-      "agents": 16
-    }
-  },
+	"systemRequirements": {
+		"minimum": {
+			"ram": "2GB",
+			"heapSize": 1024,
+			"agents": 2
+		},
+		"recommended": {
+			"ram": "8GB",
+			"heapSize": 4096,
+			"agents": 8
+		},
+		"optimal": {
+			"ram": "16GB",
+			"heapSize": 8192,
+			"agents": 16
+		}
+	},
 
-  "troubleshooting": {
-    "outOfMemory": {
-      "increaseHeapSize": "--max-old-space-size=8192",
-      "enableGCLogging": "--trace-gc --trace-gc-verbose",
-      "profileMemory": "--inspect --inspect-brk"
-    },
-    "slowGC": {
-      "increaseYoungGenSize": "--max-semi-space-size=256",
-      "enableConcurrentGC": "--concurrent-marking",
-      "tuneGCThreads": "--parallel-gc-threads=8"
-    },
-    "memoryLeaks": {
-      "trackObjects": "--track-heap-objects",
-      "enableInspector": "--inspect",
-      "heapSnapshot": "process.writeHeapSnapshot()"
-    }
-  }
+	"troubleshooting": {
+		"outOfMemory": {
+			"increaseHeapSize": "--max-old-space-size=8192",
+			"enableGCLogging": "--trace-gc --trace-gc-verbose",
+			"profileMemory": "--inspect --inspect-brk"
+		},
+		"slowGC": {
+			"increaseYoungGenSize": "--max-semi-space-size=256",
+			"enableConcurrentGC": "--concurrent-marking",
+			"tuneGCThreads": "--parallel-gc-threads=8"
+		},
+		"memoryLeaks": {
+			"trackObjects": "--track-heap-objects",
+			"enableInspector": "--inspect",
+			"heapSnapshot": "process.writeHeapSnapshot()"
+		}
+	}
 }

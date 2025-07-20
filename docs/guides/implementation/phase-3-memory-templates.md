@@ -27,9 +27,9 @@ This guide provides detailed implementation procedures for Phase 3 of the compre
 7. **Documentation**: Complete memory management and template system documentation
 
 ### **🔧 OPTIMIZATION REQUIREMENTS**
-- **Memory Optimizations**: Apply patterns from docs/guides/improvements/memory-optimizations.md
-- **Performance Tuning**: Apply patterns from docs/guides/improvements/performance-tuning.md
-- **Build Optimization**: Apply patterns from docs/guides/improvements/build-optimization.md
+- **Memory Optimizations**: Apply patterns from docs/guides/docs/guides/optimization/memory-optimizations.md
+- **Performance Tuning**: Apply patterns from docs/guides/docs/guides/optimization/performance-tuning.md
+- **Build Optimization**: Apply patterns from docs/guides/docs/guides/optimization/build-optimization.md
 - **Zero Tolerance**: No memory leaks, no inefficient queries, no template duplication
 
 ## 📅 DETAILED DAILY IMPLEMENTATION PLAN
@@ -724,9 +724,9 @@ cat > src/memory/unified/unified-memory-backend.ts << 'EOF'
  * Unified Memory Backend - Consolidates all memory implementations with optimization patterns
  *
  * Integration Points:
- * - docs/guides/improvements/memory-optimizations.md
- * - docs/guides/improvements/performance-tuning.md
- * - docs/guides/improvements/build-optimization.md
+ * - docs/guides/docs/guides/optimization/memory-optimizations.md
+ * - docs/guides/docs/guides/optimization/performance-tuning.md
+ * - docs/guides/docs/guides/optimization/build-optimization.md
  *
  * // Memory optimization applied
  * // Performance optimization applied
@@ -1891,9 +1891,9 @@ echo "✅ Day 22 completed successfully" >> DAY22_MEMORY_LOG.md
 - **Build Validation**: docs/guides/usage/BUILD_VALIDATION_FRAMEWORK.md
 
 ### **Optimization Patterns**
-- **Memory Optimizations**: docs/guides/improvements/memory-optimizations.md
-- **Performance Tuning**: docs/guides/improvements/performance-tuning.md
-- **Build Optimization**: docs/guides/improvements/build-optimization.md
+- **Memory Optimizations**: docs/guides/docs/guides/optimization/memory-optimizations.md
+- **Performance Tuning**: docs/guides/docs/guides/optimization/performance-tuning.md
+- **Build Optimization**: docs/guides/docs/guides/optimization/build-optimization.md
 
 ---
 

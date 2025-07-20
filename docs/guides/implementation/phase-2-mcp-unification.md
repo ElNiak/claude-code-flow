@@ -26,9 +26,9 @@ This guide provides detailed implementation procedures for Phase 2 of the compre
 7. **Error Handling**: Robust MCP error handling and recovery procedures
 
 ### **🔧 OPTIMIZATION REQUIREMENTS**
-- **MCP Server Optimizations**: Apply patterns from docs/guides/improvements/mcp-server-optimizations.md
-- **Performance Tuning**: Apply patterns from docs/guides/improvements/performance-tuning.md
-- **Memory Optimization**: Apply patterns from docs/guides/improvements/memory-optimizations.md
+- **MCP Server Optimizations**: Apply patterns from docs/guides/docs/guides/optimization/mcp-server-optimizations.md
+- **Performance Tuning**: Apply patterns from docs/guides/docs/guides/optimization/performance-tuning.md
+- **Memory Optimization**: Apply patterns from docs/guides/docs/guides/optimization/memory-optimizations.md
 - **Zero Tolerance**: No duplicated MCP tools, no incomplete implementations
 
 ## 📅 DETAILED DAILY IMPLEMENTATION PLAN
@@ -745,9 +745,9 @@ cat > src/mcp/unified/unified-mcp-server.ts << 'EOF'
  * Unified MCP Server - Consolidates all MCP tools with optimization patterns
  *
  * Integration Points:
- * - docs/guides/improvements/mcp-server-optimizations.md
- * - docs/guides/improvements/performance-tuning.md
- * - docs/guides/improvements/memory-optimizations.md
+ * - docs/guides/docs/guides/optimization/mcp-server-optimizations.md
+ * - docs/guides/docs/guides/optimization/performance-tuning.md
+ * - docs/guides/docs/guides/optimization/memory-optimizations.md
  *
  * // MCP optimization applied
  * // Performance optimization applied
@@ -1297,9 +1297,9 @@ echo "✅ Day 12 completed successfully" >> DAY12_MCP_LOG.md
 - **Quality Control**: docs/guides/usage/CODE_QUALITY_CONTROL.md
 
 ### **Optimization Patterns**
-- **MCP Server Optimizations**: docs/guides/improvements/mcp-server-optimizations.md
-- **Performance Tuning**: docs/guides/improvements/performance-tuning.md
-- **Memory Optimizations**: docs/guides/improvements/memory-optimizations.md
+- **MCP Server Optimizations**: docs/guides/docs/guides/optimization/mcp-server-optimizations.md
+- **Performance Tuning**: docs/guides/docs/guides/optimization/performance-tuning.md
+- **Memory Optimizations**: docs/guides/docs/guides/optimization/memory-optimizations.md
 
 ---
 

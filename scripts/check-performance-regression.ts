@@ -41,7 +41,7 @@ async function loadCurrentResults(): Promise<PerformanceReport> {
 		return JSON.parse(currentData);
 	} catch (error) {
 		console.error("Failed to load current performance results:", error.message);
-		Deno.exit(1);
+		process.exit(1);
 	}
 }
 
@@ -187,7 +187,7 @@ async function main(): Promise<void> {
 		console.error(
 			"Performance regressions detected! Please investigate and fix before merging.",
 		);
-		Deno.exit(1);
+		process.exit(1);
 	} else {
 		console.log("Performance check passed! 🎉");
 

@@ -60,10 +60,10 @@ elif [ -f "$ROOT_DIR/scripts/memory-optimized-start.sh" ] && [ -f "$ROOT_DIR/dis
   exec "$ROOT_DIR/scripts/memory-optimized-start.sh" "$ROOT_DIR/dist/cli/simple-cli.js" "$@"
 elif [ -f "$ROOT_DIR/dist/cli/simple-cli.js" ]; then
   # Fallback to node with basic memory optimization
-  NODE_OPTIONS="--max-old-space-size=12288 --expose-gc --incremental-marking" exec node "$ROOT_DIR/dist/cli/simple-cli.js" "$@"
+  NODE_OPTIONS="--max-old-space-size=12288 --expose-gc" exec node "$ROOT_DIR/dist/cli/simple-cli.js" "$@"
 elif command -v tsx >/dev/null 2>&1 && [ -f "$ROOT_DIR/dist/cli/simple-cli.ts" ]; then
   # Use tsx for TypeScript functionality with memory optimization
-  NODE_OPTIONS="--max-old-space-size=12288 --expose-gc --incremental-marking" exec tsx "$ROOT_DIR/dist/cli/simple-cli.ts" "$@"
+  NODE_OPTIONS="--max-old-space-size=12288 --expose-gc" exec tsx "$ROOT_DIR/dist/cli/simple-cli.ts" "$@"
 elif [ -f "$ROOT_DIR/dist/cli/simple-cli.ts" ]; then
   # Try to use npx tsx as fallback
   exec npx tsx "$ROOT_DIR/dist/cli/simple-cli.ts" "$@"

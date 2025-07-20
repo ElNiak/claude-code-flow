@@ -1,4 +1,5 @@
 import chalk from "chalk";
+import * as readline from "readline";
 import { getErrorMessage as _getErrorMessage } from "../../utils/error-handler.js";
 import type { CommandContext } from "../cli-core.js";
 import { _error, info, success, warning } from "../cli-core.js";
@@ -352,7 +353,7 @@ async function runSparcWorkflow(ctx: CommandContext): Promise<void> {
 					"Step completed. Press Enter to continue, or Ctrl+C to stop..."
 				);
 				await new Promise<void>((resolve) => {
-					const readline = require("readline");
+					// readline already imported at top
 					const rl = readline.createInterface({
 						input: process.stdin,
 						output: process.stdout,

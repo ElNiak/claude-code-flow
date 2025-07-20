@@ -353,7 +353,7 @@ echo "Optimization pattern enforcement started: $(date)" > "$ENFORCEMENT_LOG"
 
 # 1. CLI Optimization Enforcement
 echo "🔍 Enforcing CLI optimization patterns..."
-if [ -f "docs/guides/improvements/cli-enhancements.md" ]; then
+if [ -f "docs/guides/docs/guides/optimization/cli-enhancements.md" ]; then
     # Check if CLI optimizations are applied
     CLI_OPTIMIZATIONS_APPLIED=$(grep -r "// CLI optimization applied" src/cli/ 2>/dev/null | wc -l)
     CLI_FILES=$(find src/cli/ -name "*.js" -o -name "*.ts" | wc -l)
@@ -369,7 +369,7 @@ fi
 
 # 2. MCP Optimization Enforcement
 echo "🔍 Enforcing MCP optimization patterns..."
-if [ -f "docs/guides/improvements/mcp-server-optimizations.md" ]; then
+if [ -f "docs/guides/docs/guides/optimization/mcp-server-optimizations.md" ]; then
     # Check if MCP optimizations are applied
     MCP_OPTIMIZATIONS_APPLIED=$(grep -r "// MCP optimization applied" src/mcp/ 2>/dev/null | wc -l)
     MCP_FILES=$(find src/mcp/ -name "*.js" -o -name "*.ts" | wc -l)
@@ -385,7 +385,7 @@ fi
 
 # 3. Memory Optimization Enforcement
 echo "🔍 Enforcing memory optimization patterns..."
-if [ -f "docs/guides/improvements/memory-optimizations.md" ]; then
+if [ -f "docs/guides/docs/guides/optimization/memory-optimizations.md" ]; then
     # Check if memory optimizations are applied
     MEMORY_OPTIMIZATIONS_APPLIED=$(grep -r "// Memory optimization applied" src/memory/ 2>/dev/null | wc -l)
     MEMORY_FILES=$(find src/memory/ -name "*.js" -o -name "*.ts" | wc -l)
@@ -401,7 +401,7 @@ fi
 
 # 4. Performance Optimization Enforcement
 echo "🔍 Enforcing performance optimization patterns..."
-if [ -f "docs/guides/improvements/performance-tuning.md" ]; then
+if [ -f "docs/guides/docs/guides/optimization/performance-tuning.md" ]; then
     # Check if performance optimizations are applied
     PERFORMANCE_OPTIMIZATIONS_APPLIED=$(grep -r "// Performance optimization applied" src/ 2>/dev/null | wc -l)
     TOTAL_FILES=$(find src/ -name "*.js" -o -name "*.ts" | wc -l)
@@ -702,10 +702,10 @@ repos:
 - **Comprehensive Modernization Plan**: docs/guides/COMPREHENSIVE_STEP_BY_STEP_GUIDE_MODERNIZATION_PLAN.md
 
 ### **Optimization Patterns**
-- **CLI Enhancements**: docs/guides/improvements/cli-enhancements.md
-- **MCP Server Optimizations**: docs/guides/improvements/mcp-server-optimizations.md
-- **Memory Optimizations**: docs/guides/improvements/memory-optimizations.md
-- **Performance Tuning**: docs/guides/improvements/performance-tuning.md
+- **CLI Enhancements**: docs/guides/docs/guides/optimization/cli-enhancements.md
+- **MCP Server Optimizations**: docs/guides/docs/guides/optimization/mcp-server-optimizations.md
+- **Memory Optimizations**: docs/guides/docs/guides/optimization/memory-optimizations.md
+- **Performance Tuning**: docs/guides/docs/guides/optimization/performance-tuning.md
 
 ### **Implementation Guides**
 - **Phase 1**: docs/guides/implementation/phase-1-cli-unification.md

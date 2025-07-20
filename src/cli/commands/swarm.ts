@@ -30,15 +30,20 @@ export async function swarmAction(ctx: CommandContext): Promise<void> {
 	}
 
 	// Check Node.js environment variables for configuration
-	const envMaxAgents = process.env.CLAUDE_FLOW_MAX_AGENTS ? parseInt(process.env.CLAUDE_FLOW_MAX_AGENTS, 10) : null;
+	const envMaxAgents = process.env.CLAUDE_FLOW_MAX_AGENTS
+		? parseInt(process.env.CLAUDE_FLOW_MAX_AGENTS, 10)
+		: null;
 	const envStrategy = process.env.CLAUDE_FLOW_STRATEGY || null;
 	const envMemoryNamespace = process.env.CLAUDE_FLOW_MEMORY_NAMESPACE || null;
-	const envTimeout = process.env.CLAUDE_FLOW_TIMEOUT ? parseInt(process.env.CLAUDE_FLOW_TIMEOUT, 10) : null;
+	const envTimeout = process.env.CLAUDE_FLOW_TIMEOUT
+		? parseInt(process.env.CLAUDE_FLOW_TIMEOUT, 10)
+		: null;
 
 	// Parse command line arguments for additional context
 	const processArgs = process.argv.slice(2);
-	const commandIndex = processArgs.indexOf('swarm');
-	const swarmArgs = commandIndex >= 0 ? processArgs.slice(commandIndex + 1) : [];
+	const commandIndex = processArgs.indexOf("swarm");
+	const swarmArgs =
+		commandIndex >= 0 ? processArgs.slice(commandIndex + 1) : [];
 
 	// The objective should be all the non-flag arguments joined together,
 	const objective = ctx.args.join(" ").trim();
@@ -92,8 +97,12 @@ export async function swarmAction(ctx: CommandContext): Promise<void> {
 	const options = {
 		strategy: strategy || envStrategy || "auto",
 		maxAgents:
-			(ctx.flags.maxAgents ? parseInt(ctx.flags.maxAgents as string, 10) : undefined) ||
-			(ctx.flags["max-agents"] ? parseInt(ctx.flags["max-agents"] as string, 10) : undefined) ||
+			(ctx.flags.maxAgents
+				? parseInt(ctx.flags.maxAgents as string, 10)
+				: undefined) ||
+			(ctx.flags["max-agents"]
+				? parseInt(ctx.flags["max-agents"] as string, 10)
+				: undefined) ||
 			envMaxAgents ||
 			5,
 		maxDepth:
@@ -140,8 +149,12 @@ export async function swarmAction(ctx: CommandContext): Promise<void> {
 		console.log(`Timeout: ${options.timeout} minutes`);
 		console.log(`Node.js Version: ${process.version}`);
 		console.log(`Process ID: ${process.pid}`);
-		console.log(`Command Args: ${swarmArgs.join(' ')}`);
-		console.log(`Environment Variables Used: ${Object.keys(process.env).filter(k => k.startsWith('CLAUDE_FLOW_')).join(', ')}`);
+		console.log(`Command Args: ${swarmArgs.join(" ")}`);
+		console.log(
+			`Environment Variables Used: ${Object.keys(process.env)
+				.filter((k) => k.startsWith("CLAUDE_FLOW_"))
+				.join(", ")}`
+		);
 		return;
 	}
 
@@ -690,15 +703,9 @@ exit \${PIPESTATUS[0]}`;
 			const { code, stdout, stderr } = result;
 
 			// Save output,
-			await fs.writeFile(
-				`${agentDir}/output.txt`,
-				stdout
-			);
+			await fs.writeFile(`${agentDir}/output.txt`, stdout);
 			if (stderr.length > 0) {
-				await fs.writeFile(
-					`${agentDir}/error.txt`,
-					stderr
-				);
+				await fs.writeFile(`${agentDir}/error.txt`, stderr);
 			}
 
 			if (code !== 0) {

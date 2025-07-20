@@ -9,7 +9,7 @@ import {
 	handleError,
 	registerCleanupResource,
 	setExitLogger,
-	setupSignalHandlers
+	setupSignalHandlers,
 } from "../../utils/graceful-exit.js";
 import { ConfigManager as WorkConfigManager } from "./config-manager.js";
 import { PresetManager } from "./preset-manager.js";
@@ -55,7 +55,7 @@ export class WorkCommand {
 			name: "Work Command EventBus",
 			cleanup: async () => {
 				this.eventBus.shutdown();
-			}
+			},
 		});
 
 		registerCleanupResource({
@@ -64,7 +64,7 @@ export class WorkCommand {
 				if (this.orchestrator) {
 					await this.orchestrator.shutdown();
 				}
-			}
+			},
 		});
 	}
 
@@ -178,11 +178,7 @@ Examples:
 			this.logger.info(chalk.green.bold("✅ Work completed successfully!"));
 		} catch (error) {
 			// Use enhanced error handling with cleanup
-			await handleError(
-				error as Error,
-				"Work execution failed",
-				options.debug
-			);
+			await handleError(error as Error, "Work execution failed", options.debug);
 		}
 	}
 

@@ -226,7 +226,7 @@ export class ClaudeConnectionPool extends EventEmitter {
 					resolve(conn);
 				},
 				reject,
-				timeout
+				timeout,
 			});
 		});
 	}
@@ -357,15 +357,24 @@ export class ClaudeConnectionPool extends EventEmitter {
 
 	getStats() {
 		const connections = Array.from(this.connections.values());
-		const avgAcquireTime = this.performanceMetrics.acquireTime.length > 0
-			? this.performanceMetrics.acquireTime.reduce((sum, time) => sum + time, 0) / this.performanceMetrics.acquireTime.length
-			: 0;
-		const avgQueueWaitTime = this.performanceMetrics.queueWaitTime.length > 0
-			? this.performanceMetrics.queueWaitTime.reduce((sum, time) => sum + time, 0) / this.performanceMetrics.queueWaitTime.length
-			: 0;
-		const utilization = connections.length > 0
-			? connections.filter((c) => c.inUse).length / connections.length
-			: 0;
+		const avgAcquireTime =
+			this.performanceMetrics.acquireTime.length > 0
+				? this.performanceMetrics.acquireTime.reduce(
+						(sum, time) => sum + time,
+						0
+					) / this.performanceMetrics.acquireTime.length
+				: 0;
+		const avgQueueWaitTime =
+			this.performanceMetrics.queueWaitTime.length > 0
+				? this.performanceMetrics.queueWaitTime.reduce(
+						(sum, time) => sum + time,
+						0
+					) / this.performanceMetrics.queueWaitTime.length
+				: 0;
+		const utilization =
+			connections.length > 0
+				? connections.filter((c) => c.inUse).length / connections.length
+				: 0;
 
 		return {
 			total: connections.length,
@@ -379,8 +388,14 @@ export class ClaudeConnectionPool extends EventEmitter {
 			avgQueueWaitTime: Math.round(avgQueueWaitTime),
 			loadHistory: this.loadHistory.slice(-20), // Last 20 samples
 			performanceMetrics: {
-				acquireTimeP95: this.calculatePercentile(this.performanceMetrics.acquireTime, 0.95),
-				queueWaitTimeP95: this.calculatePercentile(this.performanceMetrics.queueWaitTime, 0.95),
+				acquireTimeP95: this.calculatePercentile(
+					this.performanceMetrics.acquireTime,
+					0.95
+				),
+				queueWaitTimeP95: this.calculatePercentile(
+					this.performanceMetrics.queueWaitTime,
+					0.95
+				),
 				throughput: this.calculateThroughput(),
 			},
 		};
@@ -403,7 +418,10 @@ export class ClaudeConnectionPool extends EventEmitter {
 		}
 
 		// Don't resize too frequently
-		if (now - this.performanceMetrics.lastResizeTime < this.config.resizeInterval) {
+		if (
+			now - this.performanceMetrics.lastResizeTime <
+			this.config.resizeInterval
+		) {
 			return;
 		}
 
@@ -415,7 +433,10 @@ export class ClaudeConnectionPool extends EventEmitter {
 		if (avgLoad > this.config.loadThresholdHigh && queueLength > 0) {
 			const newSize = Math.min(
 				this.config.max,
-				Math.min(this.config.maxAutoResize, connectionCount + Math.ceil(queueLength / 2))
+				Math.min(
+					this.config.maxAutoResize,
+					connectionCount + Math.ceil(queueLength / 2)
+				)
 			);
 
 			if (newSize > connectionCount) {
@@ -423,8 +444,13 @@ export class ClaudeConnectionPool extends EventEmitter {
 			}
 		}
 		// Scale down if low load and excess connections
-		else if (avgLoad < this.config.loadThresholdLow && connectionCount > this.config.min) {
-			const idleConnections = Array.from(this.connections.values()).filter(c => !c.inUse).length;
+		else if (
+			avgLoad < this.config.loadThresholdLow &&
+			connectionCount > this.config.min
+		) {
+			const idleConnections = Array.from(this.connections.values()).filter(
+				(c) => !c.inUse
+			).length;
 			const connectionsToRemove = Math.min(
 				idleConnections,
 				Math.floor((connectionCount - this.config.min) / 2)
@@ -450,7 +476,10 @@ export class ClaudeConnectionPool extends EventEmitter {
 			}
 		}
 
-		this.emit("pool:scaled-up", { count, totalConnections: this.connections.size });
+		this.emit("pool:scaled-up", {
+			count,
+			totalConnections: this.connections.size,
+		});
 	}
 
 	private scaleDown(count: number): void {
@@ -464,22 +493,32 @@ export class ClaudeConnectionPool extends EventEmitter {
 			}
 		}
 
-		this.emit("pool:scaled-down", { count: removed, totalConnections: this.connections.size });
+		this.emit("pool:scaled-down", {
+			count: removed,
+			totalConnections: this.connections.size,
+		});
 	}
 
 	private calculateCurrentLoad(): number {
 		const totalConnections = this.connections.size;
-		const activeConnections = Array.from(this.connections.values()).filter(c => c.inUse).length;
+		const activeConnections = Array.from(this.connections.values()).filter(
+			(c) => c.inUse
+		).length;
 		const queuePressure = Math.min(1, this.waitingQueue.length / 10);
 
-		return totalConnections > 0 ? (activeConnections / totalConnections) + queuePressure : 0;
+		return totalConnections > 0
+			? activeConnections / totalConnections + queuePressure
+			: 0;
 	}
 
 	private calculateAverageLoad(): number {
 		if (this.loadHistory.length === 0) return 0;
 
 		const recentHistory = this.loadHistory.slice(-10); // Last 10 measurements
-		return recentHistory.reduce((sum, entry) => sum + entry.load, 0) / recentHistory.length;
+		return (
+			recentHistory.reduce((sum, entry) => sum + entry.load, 0) /
+			recentHistory.length
+		);
 	}
 
 	private recordAcquireTime(time: number): void {
@@ -517,6 +556,6 @@ export class ClaudeConnectionPool extends EventEmitter {
 		const oneMinuteAgo = Date.now() - 60000;
 		const recentMetrics = this.performanceMetrics.acquireTime.length;
 
-		return recentMetrics > 0 ? (recentMetrics / 60) : 0;
+		return recentMetrics > 0 ? recentMetrics / 60 : 0;
 	}
 }

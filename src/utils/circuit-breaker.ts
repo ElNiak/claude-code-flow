@@ -22,9 +22,9 @@ export interface CircuitBreakerMetrics {
 }
 
 export enum CircuitBreakerState {
-	CLOSED = 'CLOSED',
-	OPEN = 'OPEN',
-	HALF_OPEN = 'HALF_OPEN'
+	CLOSED = "CLOSED",
+	OPEN = "OPEN",
+	HALF_OPEN = "HALF_OPEN",
 }
 
 export class CircuitBreaker {
@@ -44,7 +44,7 @@ export class CircuitBreaker {
 			failureThreshold: 5,
 			resetTimeout: 60000, // 1 minute
 			successThreshold: 2,
-			monitoringWindow: 300000 // 5 minutes
+			monitoringWindow: 300000, // 5 minutes
 		}
 	) {}
 
@@ -146,7 +146,9 @@ export class CircuitBreaker {
 	getMetrics(): CircuitBreakerMetrics {
 		this.cleanupOldOperations();
 
-		const recentFailures = this.recentOperations.filter(op => !op.success).length;
+		const recentFailures = this.recentOperations.filter(
+			(op) => !op.success
+		).length;
 		const recentTotal = this.recentOperations.length;
 
 		return {
@@ -157,7 +159,7 @@ export class CircuitBreaker {
 			failureRate: recentTotal > 0 ? (recentFailures / recentTotal) * 100 : 0,
 			lastFailureTime: this.lastFailureTime,
 			lastSuccessTime: this.lastSuccessTime,
-			stateChanges: this.stateChanges
+			stateChanges: this.stateChanges,
 		};
 	}
 
@@ -197,7 +199,9 @@ export class CircuitBreaker {
 
 		if (this.state === CircuitBreakerState.CLOSED) {
 			this.cleanupOldOperations();
-			const recentFailures = this.recentOperations.filter(op => !op.success).length;
+			const recentFailures = this.recentOperations.filter(
+				(op) => !op.success
+			).length;
 
 			if (recentFailures >= this.options.failureThreshold) {
 				this.transitionToOpen();
@@ -210,7 +214,7 @@ export class CircuitBreaker {
 	private recordOperation(success: boolean): void {
 		this.recentOperations.push({
 			timestamp: Date.now(),
-			success
+			success,
 		});
 
 		// Keep only recent operations
@@ -220,7 +224,7 @@ export class CircuitBreaker {
 	private cleanupOldOperations(): void {
 		const cutoffTime = Date.now() - this.options.monitoringWindow;
 		this.recentOperations = this.recentOperations.filter(
-			op => op.timestamp > cutoffTime
+			(op) => op.timestamp > cutoffTime
 		);
 	}
 
@@ -253,7 +257,10 @@ export class CircuitBreakerManager {
 	/**
 	 * Get or create circuit breaker
 	 */
-	getCircuitBreaker(name: string, options?: CircuitBreakerOptions): CircuitBreaker {
+	getCircuitBreaker(
+		name: string,
+		options?: CircuitBreakerOptions
+	): CircuitBreaker {
 		let circuitBreaker = this.circuitBreakers.get(name);
 
 		if (!circuitBreaker) {
@@ -352,11 +359,18 @@ export function withCircuitBreaker(
 	name: string,
 	options?: CircuitBreakerOptions
 ) {
-	return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+	return function (
+		target: any,
+		propertyKey: string,
+		descriptor: PropertyDescriptor
+	) {
 		const originalMethod = descriptor.value;
 
 		descriptor.value = async function (...args: any[]) {
-			const circuitBreaker = globalCircuitBreakerManager.getCircuitBreaker(name, options);
+			const circuitBreaker = globalCircuitBreakerManager.getCircuitBreaker(
+				name,
+				options
+			);
 
 			return circuitBreaker.execute(() => originalMethod.apply(this, args));
 		};
@@ -373,11 +387,18 @@ export function withCircuitBreakerAndTimeout(
 	timeoutMs: number,
 	options?: CircuitBreakerOptions
 ) {
-	return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+	return function (
+		target: any,
+		propertyKey: string,
+		descriptor: PropertyDescriptor
+	) {
 		const originalMethod = descriptor.value;
 
 		descriptor.value = async function (...args: any[]) {
-			const circuitBreaker = globalCircuitBreakerManager.getCircuitBreaker(name, options);
+			const circuitBreaker = globalCircuitBreakerManager.getCircuitBreaker(
+				name,
+				options
+			);
 
 			return circuitBreaker.executeWithTimeout(
 				() => originalMethod.apply(this, args),

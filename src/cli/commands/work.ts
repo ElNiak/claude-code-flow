@@ -8,7 +8,11 @@ import { getErrorMessage as _getErrorMessage } from "../../utils/error-handler.j
 import chalk from "chalk";
 import type { WorkOptions } from "../../unified/work/types.js";
 import { WorkCommand } from "../../unified/work/work-command.js";
-import { ExitCode, handleError, exitPatterns } from "../../utils/graceful-exit.js";
+import {
+	ExitCode,
+	exitPatterns,
+	handleError,
+} from "../../utils/graceful-exit.js";
 import type { Command, CommandContext } from "../cli-core.js";
 import { _error, info, success, warning } from "../cli-core.js";
 
@@ -142,7 +146,9 @@ export const workCommand: Command = {
 				dryRun: ctx.flags["dry-run"] as boolean,
 				config: ctx.flags.config as string,
 				preset: ctx.flags.preset as string,
-				agents: ctx.flags.agents ? parseInt(ctx.flags.agents as string, 10) : undefined,
+				agents: ctx.flags.agents
+					? parseInt(ctx.flags.agents as string, 10)
+					: undefined,
 				topology: ctx.flags.topology as string,
 				strategy: ctx.flags.strategy as string,
 				output: ctx.flags.output as string,

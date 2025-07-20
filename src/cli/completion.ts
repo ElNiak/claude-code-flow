@@ -502,7 +502,7 @@ complete -f -c claude-flow -n '__fish_claude_flow_using_command completion' -a '
 		for (const path of possiblePaths) {
 			try {
 				const dir = path.substring(0, path.lastIndexOf("/"));
-				await Deno.mkdir(dir, { recursive: true });
+				await fs.mkdir(dir, { recursive: true });
 				await fs.writeFile(path, script);
 
 				console.log(chalk.green("✓ Bash completion installed"));
@@ -530,7 +530,7 @@ complete -f -c claude-flow -n '__fish_claude_flow_using_command completion' -a '
 		for (const path of possiblePaths) {
 			try {
 				const dir = path.substring(0, path.lastIndexOf("/"));
-				await Deno.mkdir(dir, { recursive: true });
+				await fs.mkdir(dir, { recursive: true });
 				await fs.writeFile(path, script);
 
 				console.log(chalk.green("✓ Zsh completion installed"));
@@ -562,7 +562,7 @@ complete -f -c claude-flow -n '__fish_claude_flow_using_command completion' -a '
 		for (const path of possiblePaths) {
 			try {
 				const dir = path.substring(0, path.lastIndexOf("/"));
-				await Deno.mkdir(dir, { recursive: true });
+				await fs.mkdir(dir, { recursive: true });
 				await fs.writeFile(path, script);
 
 				console.log(chalk.green("✓ Fish completion installed"));

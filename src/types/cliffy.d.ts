@@ -71,7 +71,7 @@ declare module "@cliffy/command" {
 		description(desc: string): this;
 		command(name: string, cmd: Command): this;
 		option(flags: string, desc: string, opts?: any): this;
-		action(fn: Function): this;
+		action(fn: (...args: any[]) => void): this;
 		parse(argv?: string[]): Promise<any>;
 		showHelp(): void;
 	}

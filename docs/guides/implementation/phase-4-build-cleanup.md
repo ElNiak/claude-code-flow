@@ -28,9 +28,9 @@ This guide provides detailed implementation procedures for Phase 4 of the compre
 7. **Deployment Preparation**: Prepare for production deployment
 
 ### **🔧 OPTIMIZATION REQUIREMENTS**
-- **Build Optimization**: Apply patterns from docs/guides/improvements/build-optimization.md
-- **Performance Tuning**: Apply patterns from docs/guides/improvements/performance-tuning.md
-- **Deployment Optimization**: Apply patterns from docs/guides/improvements/deployment-optimizations.md
+- **Build Optimization**: Apply patterns from docs/guides/docs/guides/optimization/build-optimization.md
+- **Performance Tuning**: Apply patterns from docs/guides/docs/guides/optimization/performance-tuning.md
+- **Deployment Optimization**: Apply patterns from docs/guides/docs/guides/optimization/deployment-optimizations.md
 - **Zero Tolerance**: No legacy code, no performance regressions, no security issues
 
 ## 📅 DETAILED DAILY IMPLEMENTATION PLAN
@@ -1044,9 +1044,9 @@ echo "✅ Day 31 completed successfully" >> DAY31_BUILD_LOG.md
 - **Build Validation**: docs/guides/usage/BUILD_VALIDATION_FRAMEWORK.md
 
 ### **Optimization Patterns**
-- **Build Optimization**: docs/guides/improvements/build-optimization.md
-- **Performance Tuning**: docs/guides/improvements/performance-tuning.md
-- **Deployment Optimizations**: docs/guides/improvements/deployment-optimizations.md
+- **Build Optimization**: docs/guides/docs/guides/optimization/build-optimization.md
+- **Performance Tuning**: docs/guides/docs/guides/optimization/performance-tuning.md
+- **Deployment Optimizations**: docs/guides/docs/guides/optimization/deployment-optimizations.md
 
 ### **Enterprise Standards**
 - **Security Requirements**: docs/guides/security/security-standards.md

@@ -36,7 +36,11 @@ export class MCPClient extends EventEmitter {
 	private recoveryManager?: RecoveryManager;
 	private pendingRequests = new Map<
 		string,
-		{ resolve: Function; reject: Function; timer: NodeJS.Timeout }
+		{
+			resolve: (value: any) => void;
+			reject: (reason?: any) => void;
+			timer: NodeJS.Timeout;
+		}
 	>();
 	private resourceCleanup: {
 		enabled: boolean;

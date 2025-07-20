@@ -1,4 +1,4 @@
-#!/usr/bin/env -S deno run --allow-all,
+#!/usr/bin/env tsx
 import { getErrorMessage as _getErrorMessage } from "../utils/error-handler.js";
 
 /**
@@ -71,7 +71,7 @@ function printWarning(message: string) {
 }
 
 async function main() {
-	const args = Deno.args;
+	const args = process.argv.slice(2);
 	const command = args[0] || "help";
 	const _subArgs = args.slice(1);
 

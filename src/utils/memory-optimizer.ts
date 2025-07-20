@@ -4,14 +4,17 @@ import { getErrorMessage as _getErrorMessage } from "./error-handler.js";
  */
 
 import type { ILogger } from "../core/logger.js";
-import { EnhancedErrorHandler, ErrorSeverity } from "./enhanced-error-handler.js";
+import {
+	EnhancedErrorHandler,
+	ErrorSeverity,
+} from "./enhanced-error-handler.js";
 
 export interface MemoryThresholds {
-	heapUsed: number;      // MB
-	heapTotal: number;     // MB
-	external: number;      // MB
-	arrayBuffers: number;  // MB
-	rss: number;          // MB
+	heapUsed: number; // MB
+	heapTotal: number; // MB
+	external: number; // MB
+	arrayBuffers: number; // MB
+	rss: number; // MB
 }
 
 export interface MemoryMetrics {
@@ -56,9 +59,9 @@ export class MemoryOptimizer {
 			majorGCs: 0,
 			incrementalGCs: 0,
 			totalGCTime: 0,
-			lastGCTime: 0
+			lastGCTime: 0,
 		},
-		memoryLeaks: []
+		memoryLeaks: [],
 	};
 
 	private memorySnapshots: Array<{
@@ -67,11 +70,11 @@ export class MemoryOptimizer {
 	}> = [];
 
 	private readonly defaultThresholds: MemoryThresholds = {
-		heapUsed: 500,      // 500MB
-		heapTotal: 1000,    // 1GB
-		external: 200,      // 200MB
-		arrayBuffers: 100,  // 100MB
-		rss: 1500          // 1.5GB
+		heapUsed: 500, // 500MB
+		heapTotal: 1000, // 1GB
+		external: 200, // 200MB
+		arrayBuffers: 100, // 100MB
+		rss: 1500, // 1.5GB
 	};
 
 	constructor(
@@ -96,7 +99,7 @@ export class MemoryOptimizer {
 
 		this.logger.info("Starting memory monitoring", {
 			interval: intervalMs,
-			thresholds: this.thresholds
+			thresholds: this.thresholds,
 		});
 
 		this.monitoringInterval = setInterval(() => {
@@ -141,7 +144,7 @@ export class MemoryOptimizer {
 				freedMemory: Math.round(freed / 1024 / 1024),
 				duration,
 				before: this.formatMemoryUsage(before),
-				after: this.formatMemoryUsage(after)
+				after: this.formatMemoryUsage(after),
 			});
 
 			return true;
@@ -161,7 +164,9 @@ export class MemoryOptimizer {
 		let optimized = false;
 
 		// Sort strategies by priority
-		const sortedStrategies = [...this.optimizationStrategies].sort((a, b) => b.priority - a.priority);
+		const sortedStrategies = [...this.optimizationStrategies].sort(
+			(a, b) => b.priority - a.priority
+		);
 
 		for (const strategy of sortedStrategies) {
 			if (strategy.canExecute(this.metrics)) {
@@ -171,13 +176,13 @@ export class MemoryOptimizer {
 						optimized = true;
 						this.logger.info("Memory optimization strategy executed", {
 							strategy: strategy.name,
-							duration: Date.now() - startTime
+							duration: Date.now() - startTime,
 						});
 					}
 				} catch (error) {
 					this.logger.error("Memory optimization strategy failed", {
 						strategy: strategy.name,
-						error: error instanceof Error ? error.message : String(error)
+						error: error instanceof Error ? error.message : String(error),
 					});
 				}
 			}
@@ -191,7 +196,7 @@ export class MemoryOptimizer {
 		this.logger.info("Memory optimization completed", {
 			optimized,
 			duration: Date.now() - startTime,
-			finalMemory: this.formatMemoryUsage(process.memoryUsage())
+			finalMemory: this.formatMemoryUsage(process.memoryUsage()),
 		});
 
 		return optimized;
@@ -219,7 +224,7 @@ export class MemoryOptimizer {
 	getMemoryUsageSummary(): {
 		current: MemoryMetrics;
 		thresholds: MemoryThresholds;
-		status: 'healthy' | 'warning' | 'critical';
+		status: "healthy" | "warning" | "critical";
 		recommendations: string[];
 	} {
 		const current = this.getMetrics();
@@ -230,7 +235,7 @@ export class MemoryOptimizer {
 			current,
 			thresholds: this.thresholds,
 			status,
-			recommendations
+			recommendations,
 		};
 	}
 
@@ -239,13 +244,13 @@ export class MemoryOptimizer {
 	 */
 	detectMemoryLeaks(): Array<{
 		type: string;
-		severity: 'low' | 'medium' | 'high';
+		severity: "low" | "medium" | "high";
 		description: string;
 		recommendation: string;
 	}> {
 		const leaks: Array<{
 			type: string;
-			severity: 'low' | 'medium' | 'high';
+			severity: "low" | "medium" | "high";
 			description: string;
 			recommendation: string;
 		}> = [];
@@ -255,12 +260,13 @@ export class MemoryOptimizer {
 			const recent = this.memorySnapshots.slice(-5);
 			const growthRate = this.calculateGrowthRate(recent);
 
-			if (growthRate > 0.1) { // 10% growth
+			if (growthRate > 0.1) {
+				// 10% growth
 				leaks.push({
-					type: 'memory_growth',
-					severity: 'high',
+					type: "memory_growth",
+					severity: "high",
 					description: `Memory usage growing at ${(growthRate * 100).toFixed(2)}% per interval`,
-					recommendation: 'Investigate object retention and optimize cleanup'
+					recommendation: "Investigate object retention and optimize cleanup",
 				});
 			}
 		}
@@ -268,20 +274,20 @@ export class MemoryOptimizer {
 		// Check for high external memory
 		if (this.metrics.external > this.thresholds.external * 0.8) {
 			leaks.push({
-				type: 'external_memory',
-				severity: 'medium',
+				type: "external_memory",
+				severity: "medium",
 				description: `High external memory usage: ${Math.round(this.metrics.external)}MB`,
-				recommendation: 'Review Buffer and ArrayBuffer usage'
+				recommendation: "Review Buffer and ArrayBuffer usage",
 			});
 		}
 
 		// Check for high array buffer usage
 		if (this.metrics.arrayBuffers > this.thresholds.arrayBuffers * 0.8) {
 			leaks.push({
-				type: 'array_buffers',
-				severity: 'medium',
+				type: "array_buffers",
+				severity: "medium",
 				description: `High ArrayBuffer usage: ${Math.round(this.metrics.arrayBuffers)}MB`,
-				recommendation: 'Review ArrayBuffer cleanup and disposal'
+				recommendation: "Review ArrayBuffer cleanup and disposal",
 			});
 		}
 
@@ -294,7 +300,7 @@ export class MemoryOptimizer {
 	createSnapshot(): void {
 		const snapshot = {
 			timestamp: new Date(),
-			metrics: this.getMetrics()
+			metrics: this.getMetrics(),
 		};
 
 		this.memorySnapshots.push(snapshot);
@@ -320,20 +326,20 @@ export class MemoryOptimizer {
 
 		const status = this.getMemoryStatus(this.metrics);
 
-		if (status === 'critical') {
+		if (status === "critical") {
 			this.logger.error("Critical memory usage detected", {
 				metrics: this.formatMemoryUsage(process.memoryUsage()),
-				thresholds: this.thresholds
+				thresholds: this.thresholds,
 			});
 
 			// Trigger immediate optimization
-			this.optimizeMemory().catch(error => {
+			this.optimizeMemory().catch((error) => {
 				this.logger.error("Emergency memory optimization failed", error);
 			});
-		} else if (status === 'warning') {
+		} else if (status === "warning") {
 			this.logger.warn("High memory usage detected", {
 				metrics: this.formatMemoryUsage(process.memoryUsage()),
-				thresholds: this.thresholds
+				thresholds: this.thresholds,
 			});
 		}
 
@@ -354,14 +360,16 @@ export class MemoryOptimizer {
 		this.metrics.rss = Math.round(memUsage.rss / 1024 / 1024);
 	}
 
-	private getMemoryStatus(metrics: MemoryMetrics): 'healthy' | 'warning' | 'critical' {
+	private getMemoryStatus(
+		metrics: MemoryMetrics
+	): "healthy" | "warning" | "critical" {
 		// Check critical thresholds
 		if (
 			metrics.heapUsed > this.thresholds.heapUsed ||
 			metrics.heapTotal > this.thresholds.heapTotal ||
 			metrics.rss > this.thresholds.rss
 		) {
-			return 'critical';
+			return "critical";
 		}
 
 		// Check warning thresholds (80% of limits)
@@ -370,21 +378,25 @@ export class MemoryOptimizer {
 			metrics.heapTotal > this.thresholds.heapTotal * 0.8 ||
 			metrics.rss > this.thresholds.rss * 0.8
 		) {
-			return 'warning';
+			return "warning";
 		}
 
-		return 'healthy';
+		return "healthy";
 	}
 
 	private getRecommendations(metrics: MemoryMetrics): string[] {
 		const recommendations: string[] = [];
 
 		if (metrics.heapUsed > this.thresholds.heapUsed * 0.7) {
-			recommendations.push("Consider increasing heap size or optimizing object lifecycle");
+			recommendations.push(
+				"Consider increasing heap size or optimizing object lifecycle"
+			);
 		}
 
 		if (metrics.external > this.thresholds.external * 0.7) {
-			recommendations.push("Review external memory usage (Buffers, ArrayBuffers)");
+			recommendations.push(
+				"Review external memory usage (Buffers, ArrayBuffers)"
+			);
 		}
 
 		if (metrics.arrayBuffers > this.thresholds.arrayBuffers * 0.7) {
@@ -392,7 +404,9 @@ export class MemoryOptimizer {
 		}
 
 		if (this.metrics.gcStats.majorGCs > 10) {
-			recommendations.push("High GC activity detected - consider object pooling");
+			recommendations.push(
+				"High GC activity detected - consider object pooling"
+			);
 		}
 
 		return recommendations;
@@ -402,7 +416,9 @@ export class MemoryOptimizer {
 		return this.metrics.heapUsed > this.thresholds.heapUsed * 0.6;
 	}
 
-	private calculateGrowthRate(snapshots: Array<{ timestamp: Date; metrics: MemoryMetrics }>): number {
+	private calculateGrowthRate(
+		snapshots: Array<{ timestamp: Date; metrics: MemoryMetrics }>
+	): number {
 		if (snapshots.length < 2) return 0;
 
 		const first = snapshots[0].metrics.heapUsed;
@@ -411,13 +427,15 @@ export class MemoryOptimizer {
 		return last > first ? (last - first) / first : 0;
 	}
 
-	private formatMemoryUsage(memUsage: NodeJS.MemoryUsage): Record<string, string> {
+	private formatMemoryUsage(
+		memUsage: NodeJS.MemoryUsage
+	): Record<string, string> {
 		return {
 			heapUsed: `${Math.round(memUsage.heapUsed / 1024 / 1024)}MB`,
 			heapTotal: `${Math.round(memUsage.heapTotal / 1024 / 1024)}MB`,
 			external: `${Math.round(memUsage.external / 1024 / 1024)}MB`,
 			arrayBuffers: `${Math.round(memUsage.arrayBuffers / 1024 / 1024)}MB`,
-			rss: `${Math.round(memUsage.rss / 1024 / 1024)}MB`
+			rss: `${Math.round(memUsage.rss / 1024 / 1024)}MB`,
 		};
 	}
 
@@ -426,16 +444,17 @@ export class MemoryOptimizer {
 		this.registerOptimizationStrategy({
 			name: "cache-cleanup",
 			priority: 100,
-			canExecute: (metrics) => metrics.heapUsed > this.thresholds.heapUsed * 0.7,
+			canExecute: (metrics) =>
+				metrics.heapUsed > this.thresholds.heapUsed * 0.7,
 			execute: async () => {
 				// Implement cache cleanup logic
 				this.logger.info("Executing cache cleanup strategy");
 
 				// Simulate cache cleanup
-				await new Promise(resolve => setTimeout(resolve, 100));
+				await new Promise((resolve) => setTimeout(resolve, 100));
 
 				return true;
-			}
+			},
 		});
 
 		// Object pool optimization
@@ -447,36 +466,38 @@ export class MemoryOptimizer {
 				this.logger.info("Executing object pool optimization strategy");
 
 				// Simulate object pool cleanup
-				await new Promise(resolve => setTimeout(resolve, 100));
+				await new Promise((resolve) => setTimeout(resolve, 100));
 
 				return true;
-			}
+			},
 		});
 
 		// External memory cleanup
 		this.registerOptimizationStrategy({
 			name: "external-memory-cleanup",
 			priority: 80,
-			canExecute: (metrics) => metrics.external > this.thresholds.external * 0.7,
+			canExecute: (metrics) =>
+				metrics.external > this.thresholds.external * 0.7,
 			execute: async () => {
 				this.logger.info("Executing external memory cleanup strategy");
 
 				// Simulate external memory cleanup
-				await new Promise(resolve => setTimeout(resolve, 100));
+				await new Promise((resolve) => setTimeout(resolve, 100));
 
 				return true;
-			}
+			},
 		});
 
 		// Emergency GC strategy
 		this.registerOptimizationStrategy({
 			name: "emergency-gc",
 			priority: 70,
-			canExecute: (metrics) => metrics.heapUsed > this.thresholds.heapUsed * 0.9,
+			canExecute: (metrics) =>
+				metrics.heapUsed > this.thresholds.heapUsed * 0.9,
 			execute: async () => {
 				this.logger.info("Executing emergency GC strategy");
 				return this.forceGarbageCollection();
-			}
+			},
 		});
 	}
 }
@@ -492,7 +513,11 @@ export function initializeGlobalMemoryOptimizer(
 	errorHandler?: EnhancedErrorHandler
 ): MemoryOptimizer {
 	if (!globalMemoryOptimizer) {
-		globalMemoryOptimizer = new MemoryOptimizer(logger, thresholds, errorHandler);
+		globalMemoryOptimizer = new MemoryOptimizer(
+			logger,
+			thresholds,
+			errorHandler
+		);
 	}
 	return globalMemoryOptimizer;
 }
@@ -514,7 +539,11 @@ export function memoryOptimized(
 		forceGC?: boolean;
 	} = {}
 ) {
-	return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+	return function (
+		target: any,
+		propertyKey: string,
+		descriptor: PropertyDescriptor
+	) {
 		const originalMethod = descriptor.value;
 
 		descriptor.value = async function (...args: any[]) {
@@ -523,7 +552,7 @@ export function memoryOptimized(
 			// Check memory before operation
 			if (options.checkBefore) {
 				const status = optimizer.getMemoryUsageSummary().status;
-				if (status === 'critical') {
+				if (status === "critical") {
 					await optimizer.optimizeMemory();
 				}
 			}
@@ -534,7 +563,7 @@ export function memoryOptimized(
 			// Check memory after operation
 			if (options.checkAfter) {
 				const status = optimizer.getMemoryUsageSummary().status;
-				if (status === 'critical') {
+				if (status === "critical") {
 					await optimizer.optimizeMemory();
 				}
 			}

@@ -1,6 +1,7 @@
 #!/usr/bin/env node,
 
 import { Command } from "commander";
+import { promises as fs } from "fs";
 import * as path from "path";
 import { logger } from "../core/logger.js";
 import { getErrorMessage as _getErrorMessage } from "../utils/error-handler.js";
@@ -149,7 +150,7 @@ program
 	.option("--recursive", "Validate recursively")
 	.action(async (filePath, options) => {
 		try {
-			const stats = await require("fs").promises.stat(filePath);
+			const stats = await fs.stat(filePath);
 			const files: string[] = [];
 
 			if (stats.isFile()) {
@@ -157,7 +158,7 @@ program
 			} else if (stats.isDirectory()) {
 				// Scan directory for prompt files,
 				const scanDir = async (dir: string) => {
-					const entries = await require("fs").promises.readdir(dir, {
+					const entries = await fs.readdir(dir, {
 						withFileTypes: true,
 					});
 

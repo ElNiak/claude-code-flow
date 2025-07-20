@@ -667,7 +667,7 @@ async function startMonitorDashboard(options: any): Promise<void> {
 		// Check if export path is writable,
 		try {
 			await fs.writeFile(options.export, "");
-			await Deno.remove(options.export);
+			await fs.unlink(options.export);
 		} catch {
 			console.error(
 				chalk.red(`Cannot write to export file: ${options.export}`)

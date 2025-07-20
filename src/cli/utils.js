@@ -1,9 +1,17 @@
 // utils.js - Shared CLI utility functions
 
-import chalk from "chalk";
-import { existsSync } from "node:fs";
-import { mkdir, readdir, readFile, stat, unlink, writeFile, chmod } from "node:fs/promises";
 import { spawn } from "node:child_process";
+import { existsSync } from "node:fs";
+import {
+	chmod,
+	mkdir,
+	readdir,
+	readFile,
+	stat,
+	unlink,
+	writeFile,
+} from "node:fs/promises";
+import chalk from "chalk";
 
 // Color formatting functions
 export function printSuccess(message) {
@@ -30,7 +38,7 @@ export function validateArgs(args, minLength, usage) {
 
 	if (actualArgs.length < minLength) {
 		printError(`Usage: ${usage}`);
-		printInfo(`Process args: ${processArgs.join(' ')}`);
+		printInfo(`Process args: ${processArgs.join(" ")}`);
 		return false;
 	}
 	return true;
@@ -257,7 +265,12 @@ export async function runCommand(command, args = [], options = {}) {
 }
 
 // Process execution with timeout
-export async function runCommandWithTimeout(command, args = [], options = {}, timeoutMs = 20000) {
+export async function runCommandWithTimeout(
+	command,
+	args = [],
+	options = {},
+	timeoutMs = 20000
+) {
 	try {
 		// Check if we're in Node.js or Deno environment
 		if (
@@ -282,12 +295,12 @@ export async function runCommandWithTimeout(command, args = [], options = {}, ti
 				// Set up timeout
 				const timeoutId = setTimeout(() => {
 					isTimedOut = true;
-					child.kill('SIGTERM');
+					child.kill("SIGTERM");
 
 					// Force kill after 5 seconds
 					setTimeout(() => {
 						if (!child.killed) {
-							child.kill('SIGKILL');
+							child.kill("SIGKILL");
 						}
 					}, 5000);
 
@@ -347,12 +360,12 @@ export async function runCommandWithTimeout(command, args = [], options = {}, ti
 				// Set up timeout
 				const timeoutId = setTimeout(() => {
 					isTimedOut = true;
-					child.kill('SIGTERM');
+					child.kill("SIGTERM");
 
 					// Force kill after 5 seconds
 					setTimeout(() => {
 						if (!child.killed) {
-							child.kill('SIGKILL');
+							child.kill("SIGKILL");
 						}
 					}, 5000);
 
@@ -470,13 +483,15 @@ export function getProcessInfo() {
 		platform: process.platform,
 		arch: process.arch,
 		args: process.argv,
-		env: Object.keys(process.env).filter(k => k.startsWith('CLAUDE_FLOW_')).reduce((acc, key) => {
-			acc[key] = process.env[key];
-			return acc;
-		}, {}),
+		env: Object.keys(process.env)
+			.filter((k) => k.startsWith("CLAUDE_FLOW_"))
+			.reduce((acc, key) => {
+				acc[key] = process.env[key];
+				return acc;
+			}, {}),
 		cwd: process.cwd(),
 		memoryUsage: process.memoryUsage(),
-		uptime: process.uptime()
+		uptime: process.uptime(),
 	};
 }
 
@@ -827,22 +842,27 @@ export async function execRuvSwarmHook(hookName, params = {}) {
 
 		// Hook-specific timeout configuration
 		const hookTimeouts = {
-			'pre-task': 30000,      // 30 seconds
-			'post-edit': 15000,     // 15 seconds
-			'post-task': 45000,     // 45 seconds
-			'pre-bash': 10000,      // 10 seconds
-			'notify': 5000,         // 5 seconds
-			'session-restore': 60000, // 1 minute
-			'session-end': 90000     // 1.5 minutes
+			"pre-task": 30000, // 30 seconds
+			"post-edit": 15000, // 15 seconds
+			"post-task": 45000, // 45 seconds
+			"pre-bash": 10000, // 10 seconds
+			notify: 5000, // 5 seconds
+			"session-restore": 60000, // 1 minute
+			"session-end": 90000, // 1.5 minutes
 		};
 
 		const timeout = hookTimeouts[hookName] || 20000; // Default 20 seconds
 
 		// Execute with timeout
-		const result = await runCommandWithTimeout(command, args, {
-			stdout: "piped",
-			stderr: "piped",
-		}, timeout);
+		const result = await runCommandWithTimeout(
+			command,
+			args,
+			{
+				stdout: "piped",
+				stderr: "piped",
+			},
+			timeout
+		);
 
 		if (!result.success) {
 			throw new Error(`ruv-swarm hook failed: ${result.stderr}`);
@@ -886,15 +906,15 @@ export async function cleanupOrphanedProcesses() {
 			return;
 		}
 
-		const lines = result.stdout.split('\n');
+		const lines = result.stdout.split("\n");
 		const processesToKill = [];
 
 		for (const line of lines) {
-			if (line.includes('claude-flow') || line.includes('ruv-swarm')) {
+			if (line.includes("claude-flow") || line.includes("ruv-swarm")) {
 				const parts = line.split(/\s+/);
 				if (parts.length >= 11) {
 					const pid = parseInt(parts[1]);
-					const command = parts.slice(10).join(' ');
+					const command = parts.slice(10).join(" ");
 
 					// Skip current process
 					if (pid === process.pid) continue;
@@ -913,13 +933,13 @@ export async function cleanupOrphanedProcesses() {
 		// Kill hung processes
 		for (const { pid, command } of processesToKill) {
 			try {
-				process.kill(pid, 'SIGTERM');
+				process.kill(pid, "SIGTERM");
 				printInfo(`Killed hung process: ${pid} - ${command}`);
 
 				// Force kill after 5 seconds if needed
 				setTimeout(() => {
 					try {
-						process.kill(pid, 'SIGKILL');
+						process.kill(pid, "SIGKILL");
 					} catch (e) {
 						// Process already dead
 					}
@@ -939,7 +959,7 @@ export async function cleanupOrphanedProcesses() {
 
 export async function cleanupLockFiles() {
 	try {
-		const lockDirectory = './.claude-flow/locks';
+		const lockDirectory = "./.claude-flow/locks";
 
 		// Check if lock directory exists
 		if (await fileExists(lockDirectory)) {
@@ -948,7 +968,7 @@ export async function cleanupLockFiles() {
 			let cleanedCount = 0;
 
 			for (const file of files) {
-				if (file.isFile() && file.name.endsWith('.lock')) {
+				if (file.isFile() && file.name.endsWith(".lock")) {
 					const filePath = `${lockDirectory}/${file.name}`;
 					const stats = await stat(filePath);
 
@@ -982,7 +1002,7 @@ export async function emergencyRecovery() {
 	// 3. Reset database connections if possible
 	try {
 		// Close any open database connections
-		if (typeof globalThis.claudeFlowDB !== 'undefined') {
+		if (typeof globalThis.claudeFlowDB !== "undefined") {
 			globalThis.claudeFlowDB.close();
 			delete globalThis.claudeFlowDB;
 		}

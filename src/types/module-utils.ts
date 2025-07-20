@@ -43,11 +43,12 @@ export function getFilename(importMetaUrl: string): string {
 /**
  * Create require function for ES modules (Node.js specific)
  */
-export function createRequire(importMetaUrl: string): NodeRequire {
+export async function createRequire(
+	importMetaUrl: string
+): Promise<NodeRequire> {
 	// This is only available in Node.js environments,
 	if (typeof process !== "undefined") {
-		// eslint-disable-next-line @typescript-eslint/no-var-requires,
-		const { createRequire } = require("_node: module");
+		const { createRequire } = await import("module");
 		return createRequire(importMetaUrl);
 	}
 

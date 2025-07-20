@@ -338,15 +338,15 @@ export class AsyncFileManager {
 		const start = Date.now();
 		this.logger.info("Starting batch write operation", {
 			count: files.length,
-			totalSize: files.reduce((sum, f) => sum + Buffer.byteLength(f.data), 0)
+			totalSize: files.reduce((sum, f) => sum + Buffer.byteLength(f.data), 0),
 		});
 
 		const results = await Promise.allSettled(
-			files.map(file => this.writeFile(file.path, file.data))
+			files.map((file) => this.writeFile(file.path, file.data))
 		);
 
 		const processedResults = results.map((result, index) => {
-			if (result.status === 'fulfilled') {
+			if (result.status === "fulfilled") {
 				return result.value;
 			} else {
 				this.metrics.errors++;
@@ -361,12 +361,12 @@ export class AsyncFileManager {
 		});
 
 		const duration = Date.now() - start;
-		const successCount = processedResults.filter(r => r.success).length;
+		const successCount = processedResults.filter((r) => r.success).length;
 		this.logger.info("Batch write operation completed", {
 			count: files.length,
 			successful: successCount,
 			failed: files.length - successCount,
-			duration
+			duration,
 		});
 
 		return processedResults;
@@ -382,11 +382,11 @@ export class AsyncFileManager {
 		this.logger.info("Starting batch read operation", { count: paths.length });
 
 		const results = await Promise.allSettled(
-			paths.map(path => this.readFile(path))
+			paths.map((path) => this.readFile(path))
 		);
 
 		const processedResults = results.map((result, index) => {
-			if (result.status === 'fulfilled') {
+			if (result.status === "fulfilled") {
 				return result.value;
 			} else {
 				this.metrics.errors++;
@@ -401,12 +401,12 @@ export class AsyncFileManager {
 		});
 
 		const duration = Date.now() - start;
-		const successCount = processedResults.filter(r => r.success).length;
+		const successCount = processedResults.filter((r) => r.success).length;
 		this.logger.info("Batch read operation completed", {
 			count: paths.length,
 			successful: successCount,
 			failed: paths.length - successCount,
-			duration
+			duration,
 		});
 
 		return processedResults;
@@ -417,14 +417,16 @@ export class AsyncFileManager {
 	 */
 	async batchDeleteFiles(paths: string[]): Promise<FileOperationResult[]> {
 		const start = Date.now();
-		this.logger.info("Starting batch delete operation", { count: paths.length });
+		this.logger.info("Starting batch delete operation", {
+			count: paths.length,
+		});
 
 		const results = await Promise.allSettled(
-			paths.map(path => this.deleteFile(path))
+			paths.map((path) => this.deleteFile(path))
 		);
 
 		const processedResults = results.map((result, index) => {
-			if (result.status === 'fulfilled') {
+			if (result.status === "fulfilled") {
 				return result.value;
 			} else {
 				this.metrics.errors++;
@@ -439,12 +441,12 @@ export class AsyncFileManager {
 		});
 
 		const duration = Date.now() - start;
-		const successCount = processedResults.filter(r => r.success).length;
+		const successCount = processedResults.filter((r) => r.success).length;
 		this.logger.info("Batch delete operation completed", {
 			count: paths.length,
 			successful: successCount,
 			failed: paths.length - successCount,
-			duration
+			duration,
 		});
 
 		return processedResults;
@@ -456,11 +458,12 @@ export class AsyncFileManager {
 	async batchWriteJSON(
 		files: Array<{ path: string; data: any; pretty?: boolean }>
 	): Promise<FileOperationResult[]> {
-		const processedFiles = files.map(file => ({
+		const processedFiles = files.map((file) => ({
 			path: file.path,
-			data: file.pretty !== false
-				? JSON.stringify(file.data, null, 2)
-				: JSON.stringify(file.data)
+			data:
+				file.pretty !== false
+					? JSON.stringify(file.data, null, 2)
+					: JSON.stringify(file.data),
 		}));
 
 		return this.batchWriteFiles(processedFiles);

@@ -4,6 +4,7 @@
  */
 
 import chalk from "chalk";
+import { accessSync, readFileSync as fsReadFileSync } from "fs";
 
 export interface ExecutionEnvironment {
 	isInteractive: boolean;
@@ -339,7 +340,7 @@ export function shouldUseNonInteractiveMode(options?: {
 // Helper functions (these would normally be imported)
 function existsSync(path: string): boolean {
 	try {
-		require("fs").accessSync(path);
+		accessSync(path);
 		return true;
 	} catch {
 		return false;
@@ -348,7 +349,7 @@ function existsSync(path: string): boolean {
 
 function readFileSync(path: string, encoding: string): string {
 	try {
-		return require("fs").readFileSync(path, encoding);
+		return fsReadFileSync(path, encoding);
 	} catch {
 		return "";
 	}

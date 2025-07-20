@@ -4,8 +4,8 @@
  */
 
 import { EventEmitter } from "node:events";
-import { SwarmMemory } from "./swarm-memory.js";
 import { Logger } from "../core/logger.js";
+import { SwarmMemory } from "./swarm-memory.js";
 
 export interface DistributedMemoryConfig {
 	// Node configuration
@@ -96,8 +96,16 @@ export class DistributedMemoryManager extends EventEmitter {
 	private syncTimer?: NodeJS.Timeout;
 
 	// Performance tracking
-	private operationHistory: Array<{ timestamp: number; latency: number; type: string }> = [];
-	private errorLog: Array<{ timestamp: number; error: string; operation: string }> = [];
+	private operationHistory: Array<{
+		timestamp: number;
+		latency: number;
+		type: string;
+	}> = [];
+	private errorLog: Array<{
+		timestamp: number;
+		error: string;
+		operation: string;
+	}> = [];
 
 	constructor(config: Partial<DistributedMemoryConfig> = {}) {
 		super();
@@ -193,11 +201,14 @@ export class DistributedMemoryManager extends EventEmitter {
 
 	// === CORE OPERATIONS ===
 
-	async get(key: string, options: {
-		consistency?: "strong" | "eventual";
-		timeout?: number;
-		fallback?: boolean;
-	} = {}): Promise<any> {
+	async get(
+		key: string,
+		options: {
+			consistency?: "strong" | "eventual";
+			timeout?: number;
+			fallback?: boolean;
+		} = {}
+	): Promise<any> {
 		const startTime = Date.now();
 		const operationId = this.generateOperationId();
 
@@ -219,7 +230,10 @@ export class DistributedMemoryManager extends EventEmitter {
 			}
 
 			// Fetch from distributed nodes
-			const distributedValue = await this.fetchFromDistributedNodes(key, options);
+			const distributedValue = await this.fetchFromDistributedNodes(
+				key,
+				options
+			);
 			if (distributedValue) {
 				// Cache locally and in memory
 				this.cacheValue(key, distributedValue);
@@ -230,7 +244,6 @@ export class DistributedMemoryManager extends EventEmitter {
 
 			this.recordCacheMiss(key);
 			return null;
-
 		} catch (error) {
 			this.recordError(operationId, "get", error);
 			throw error;
@@ -239,12 +252,16 @@ export class DistributedMemoryManager extends EventEmitter {
 		}
 	}
 
-	async set(key: string, value: any, options: {
-		ttl?: number;
-		replicate?: boolean;
-		compression?: boolean;
-		batch?: boolean;
-	} = {}): Promise<void> {
+	async set(
+		key: string,
+		value: any,
+		options: {
+			ttl?: number;
+			replicate?: boolean;
+			compression?: boolean;
+			batch?: boolean;
+		} = {}
+	): Promise<void> {
 		const startTime = Date.now();
 		const operationId = this.generateOperationId();
 
@@ -256,8 +273,11 @@ export class DistributedMemoryManager extends EventEmitter {
 			}
 
 			// Compress value if enabled
-			const compressed = options.compression !== false && this.config.compressionEnabled;
-			const processedValue = compressed ? await this.compressValue(value) : value;
+			const compressed =
+				options.compression !== false && this.config.compressionEnabled;
+			const processedValue = compressed
+				? await this.compressValue(value)
+				: value;
 
 			// Store locally
 			await this.localMemory.store(key, processedValue);
@@ -274,7 +294,6 @@ export class DistributedMemoryManager extends EventEmitter {
 			if (this.config.intelligentPrefetch) {
 				this.scheduleRelatedPrefetch(key, value);
 			}
-
 		} catch (error) {
 			this.recordError(operationId, "set", error);
 			throw error;
@@ -283,10 +302,13 @@ export class DistributedMemoryManager extends EventEmitter {
 		}
 	}
 
-	async delete(key: string, options: {
-		cascadeDelete?: boolean;
-		replicate?: boolean;
-	} = {}): Promise<void> {
+	async delete(
+		key: string,
+		options: {
+			cascadeDelete?: boolean;
+			replicate?: boolean;
+		} = {}
+	): Promise<void> {
 		const startTime = Date.now();
 		const operationId = this.generateOperationId();
 
@@ -306,7 +328,6 @@ export class DistributedMemoryManager extends EventEmitter {
 			if (options.cascadeDelete) {
 				await this.cascadeDelete(key);
 			}
-
 		} catch (error) {
 			this.recordError(operationId, "delete", error);
 			throw error;
@@ -317,11 +338,14 @@ export class DistributedMemoryManager extends EventEmitter {
 
 	// === BATCH OPERATIONS ===
 
-	async getBatch(keys: string[], options: {
-		consistency?: "strong" | "eventual";
-		timeout?: number;
-		parallelism?: number;
-	} = {}): Promise<Map<string, any>> {
+	async getBatch(
+		keys: string[],
+		options: {
+			consistency?: "strong" | "eventual";
+			timeout?: number;
+			parallelism?: number;
+		} = {}
+	): Promise<Map<string, any>> {
 		const startTime = Date.now();
 		const results = new Map<string, any>();
 		const parallelism = options.parallelism || 10;
@@ -353,10 +377,13 @@ export class DistributedMemoryManager extends EventEmitter {
 		return results;
 	}
 
-	async setBatch(entries: Array<{ key: string; value: any; options?: any }>, options: {
-		parallelism?: number;
-		atomic?: boolean;
-	} = {}): Promise<void> {
+	async setBatch(
+		entries: Array<{ key: string; value: any; options?: any }>,
+		options: {
+			parallelism?: number;
+			atomic?: boolean;
+		} = {}
+	): Promise<void> {
 		const startTime = Date.now();
 		const parallelism = options.parallelism || 10;
 
@@ -388,7 +415,10 @@ export class DistributedMemoryManager extends EventEmitter {
 
 	// === INTELLIGENT PREFETCHING ===
 
-	private async scheduleRelatedPrefetch(key: string, value: any): Promise<void> {
+	private async scheduleRelatedPrefetch(
+		key: string,
+		value: any
+	): Promise<void> {
 		// Analyze value for related keys
 		const relatedKeys = this.analyzeRelatedKeys(key, value);
 
@@ -405,10 +435,13 @@ export class DistributedMemoryManager extends EventEmitter {
 		if (this.prefetchQueue.size === 0) return;
 
 		const maxPrefetchBatch = 5;
-		const prefetchKeys = Array.from(this.prefetchQueue).slice(0, maxPrefetchBatch);
+		const prefetchKeys = Array.from(this.prefetchQueue).slice(
+			0,
+			maxPrefetchBatch
+		);
 
 		// Clear prefetched keys from queue
-		prefetchKeys.forEach(key => this.prefetchQueue.delete(key));
+		prefetchKeys.forEach((key) => this.prefetchQueue.delete(key));
 
 		// Execute prefetch
 		for (const key of prefetchKeys) {
@@ -521,7 +554,12 @@ export class DistributedMemoryManager extends EventEmitter {
 		return `op-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 	}
 
-	private recordOperation(id: string, type: string, key: string, latency: number): void {
+	private recordOperation(
+		id: string,
+		type: string,
+		key: string,
+		latency: number
+	): void {
 		this.operations.set(id, {
 			id,
 			type: type as any,
@@ -546,7 +584,11 @@ export class DistributedMemoryManager extends EventEmitter {
 		if (type === "write") this.metrics.writeOps++;
 	}
 
-	private recordError(operationId: string, operation: string, error: any): void {
+	private recordError(
+		operationId: string,
+		operation: string,
+		error: any
+	): void {
 		this.errorLog.push({
 			timestamp: Date.now(),
 			error: error.message || String(error),
@@ -572,7 +614,11 @@ export class DistributedMemoryManager extends EventEmitter {
 		this.metrics.cacheMisses++;
 	}
 
-	private cacheValue(key: string, value: any, compressed: boolean = false): void {
+	private cacheValue(
+		key: string,
+		value: any,
+		compressed: boolean = false
+	): void {
 		const entry: CacheEntry = {
 			key,
 			value,
@@ -620,30 +666,41 @@ export class DistributedMemoryManager extends EventEmitter {
 		// Calculate average latency
 		const recentOps = this.operationHistory.slice(-100);
 		if (recentOps.length > 0) {
-			this.metrics.avgLatency = recentOps.reduce((sum, op) => sum + op.latency, 0) / recentOps.length;
+			this.metrics.avgLatency =
+				recentOps.reduce((sum, op) => sum + op.latency, 0) / recentOps.length;
 		}
 
 		// Calculate error rate
-		const recentErrors = this.errorLog.filter(e => Date.now() - e.timestamp < 60000); // Last minute
-		this.metrics.errorRate = recentErrors.length / Math.max(1, recentOps.length);
+		const recentErrors = this.errorLog.filter(
+			(e) => Date.now() - e.timestamp < 60000
+		); // Last minute
+		this.metrics.errorRate =
+			recentErrors.length / Math.max(1, recentOps.length);
 
 		// Calculate throughput
 		this.metrics.throughput = recentOps.length / 60; // Operations per second
 
 		// Calculate cache hit rate
 		const totalCacheOps = this.metrics.cacheHits + this.metrics.cacheMisses;
-		const cacheHitRate = totalCacheOps > 0 ? this.metrics.cacheHits / totalCacheOps : 0;
+		const cacheHitRate =
+			totalCacheOps > 0 ? this.metrics.cacheHits / totalCacheOps : 0;
 
 		// Update memory usage
 		this.metrics.memoryUsage = this.distributedCache.size;
 
 		// Check performance thresholds
 		if (this.metrics.avgLatency > this.config.performanceThreshold) {
-			this.emit("performance-warning", { type: "high-latency", value: this.metrics.avgLatency });
+			this.emit("performance-warning", {
+				type: "high-latency",
+				value: this.metrics.avgLatency,
+			});
 		}
 
 		if (this.metrics.errorRate > this.config.errorThreshold) {
-			this.emit("performance-warning", { type: "high-error-rate", value: this.metrics.errorRate });
+			this.emit("performance-warning", {
+				type: "high-error-rate",
+				value: this.metrics.errorRate,
+			});
 		}
 
 		this.emit("metrics", this.metrics);
@@ -666,12 +723,19 @@ export class DistributedMemoryManager extends EventEmitter {
 		this.logger.debug("Metrics collection started");
 	}
 
-	private async fetchFromDistributedNodes(key: string, options: any): Promise<any> {
+	private async fetchFromDistributedNodes(
+		key: string,
+		options: any
+	): Promise<any> {
 		// Implementation for distributed node fetching
 		return null;
 	}
 
-	private async replicateToNodes(key: string, value: any, options: any): Promise<void> {
+	private async replicateToNodes(
+		key: string,
+		value: any,
+		options: any
+	): Promise<void> {
 		// Implementation for node replication
 	}
 
@@ -683,7 +747,12 @@ export class DistributedMemoryManager extends EventEmitter {
 		// Implementation for cascade deletion
 	}
 
-	private addToBatch(operation: string, key: string, value: any, options: any): void {
+	private addToBatch(
+		operation: string,
+		key: string,
+		value: any,
+		options: any
+	): void {
 		// Implementation for batch operation queuing
 	}
 
@@ -691,7 +760,9 @@ export class DistributedMemoryManager extends EventEmitter {
 		// Implementation for batch operation flushing
 	}
 
-	private async atomicBatchSet(entries: Array<{ key: string; value: any; options?: any }>): Promise<void> {
+	private async atomicBatchSet(
+		entries: Array<{ key: string; value: any; options?: any }>
+	): Promise<void> {
 		// Implementation for atomic batch operations
 	}
 

@@ -294,7 +294,9 @@ export class TaskExecutor extends EventEmitter {
 			CLAUDE_SESSION_ID: sessionId,
 			CLAUDE_WORKING_DIR: context.workingDirectory,
 			// INHERIT MEMORY PROTECTION - Option B: 12GB heap with emergency management
-			NODE_OPTIONS: process.env.NODE_OPTIONS || "--max-old-space-size=12288 --expose-gc --incremental-marking",
+			NODE_OPTIONS:
+				process.env.NODE_OPTIONS ||
+				"--max-old-space-size=12288 --expose-gc --incremental-marking",
 			EMERGENCY_MEMORY_ACTIVE: "true",
 		};
 

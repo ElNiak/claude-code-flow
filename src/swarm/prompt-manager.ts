@@ -1,4 +1,5 @@
 import { EventEmitter } from "events";
+import { promises as fs } from "fs";
 import * as path from "path";
 import { logger } from "../core/logger.js";
 import { getErrorMessage as _getErrorMessage } from "../utils/error-handler.js";
@@ -225,7 +226,7 @@ export class PromptManager extends EventEmitter {
 		dirPath: string,
 		issues: ValidationReport["issues"]
 	): Promise<void> {
-		const fs = require("fs").promises;
+		// fs already imported at top
 
 		try {
 			const entries = await fs.readdir(dirPath, { withFileTypes: true });
@@ -342,7 +343,7 @@ export class PromptManager extends EventEmitter {
 		const sources = await Promise.all(
 			resolved.sources.map(async (sourcePath) => {
 				try {
-					const fs = require("fs").promises;
+					// fs already imported at top
 					const stats = await fs.stat(sourcePath);
 
 					if (!stats.isDirectory()) {

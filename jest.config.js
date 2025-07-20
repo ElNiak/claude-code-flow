@@ -2,7 +2,7 @@ export default {
 	preset: "ts-jest/presets/default-esm",
 	extensionsToTreatAsEsm: [".ts"],
 	testEnvironment: "node",
-	roots: ["<rootDir>/src", "<rootDir>/tests"],
+	roots: ["<rootDir>/src", "<rootDir>/tests", "<rootDir>/migration-tests"],
 	testMatch: [
 		"<rootDir>/tests/**/*.test.ts",
 		"<rootDir>/tests/**/*.test.js",
@@ -12,6 +12,8 @@ export default {
 		"<rootDir>/src/**/*.test.js",
 		"<rootDir>/src/**/*.spec.ts",
 		"<rootDir>/src/**/*.spec.js",
+		"<rootDir>/migration-tests/**/*.test.ts",
+		"<rootDir>/migration-tests/**/*.test.js",
 	],
 	transform: {
 		"^.+\\.ts$": [
@@ -39,6 +41,8 @@ export default {
 		"^~/(.*)$": "<rootDir>/src/$1",
 		"^@/(.*)$": "<rootDir>/src/$1",
 		"^@tests/(.*)$": "<rootDir>/tests/$1",
+		"^@migration/(.*)$": "<rootDir>/migration-tests/$1",
+		"^@utils/(.*)$": "<rootDir>/migration-tests/utils/$1",
 	},
 	modulePathIgnorePatterns: [
 		"<rootDir>/dist/",

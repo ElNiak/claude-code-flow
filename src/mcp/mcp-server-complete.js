@@ -32,7 +32,7 @@ class ClaudeFlowMCPServer {
 		this.memoryStore = new SwarmMemory({
 			swarmId: this.sessionId,
 			directory: ".swarm",
-			filename: "mcp-memory.db"
+			filename: "mcp-memory.db",
 		});
 		this.sessions = new Map();
 		this.swarms = new Map();
@@ -236,7 +236,10 @@ class ClaudeFlowMCPServer {
 				try {
 					content = await this.memoryStore.getSwarmStats();
 				} catch (error) {
-					content = { error: "Failed to get memory stats", message: error.message };
+					content = {
+						error: "Failed to get memory stats",
+						message: error.message,
+					};
 				}
 			} else if (uri === "claude-flow://performance/metrics") {
 				content = {
@@ -646,8 +649,8 @@ class ClaudeFlowMCPServer {
 						ttl: args.ttl,
 						metadata: {
 							timestamp: new Date().toISOString(),
-							source: "mcp-server"
-						}
+							source: "mcp-server",
+						},
 					});
 
 					console.error(
@@ -722,8 +725,10 @@ class ClaudeFlowMCPServer {
 
 			case "list": {
 				try {
-					const entries = await this.memoryStore.list(namespace, { limit: 100 });
-					const keys = entries.map(entry => entry.key);
+					const entries = await this.memoryStore.list(namespace, {
+						limit: 100,
+					});
+					const keys = entries.map((entry) => entry.key);
 
 					return {
 						success: true,

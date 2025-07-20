@@ -18,6 +18,14 @@ export class ProcessUI {
 		this.setupEventListeners();
 	}
 
+	private async readStdin(): Promise<string> {
+		return new Promise((resolve) => {
+			process.stdin.once("data", (data) => {
+				resolve(data.toString().trim());
+			});
+		});
+	}
+
 	private setupEventListeners(): void {
 		this.processManager.on(
 			"statusChanged",
@@ -57,14 +65,13 @@ export class ProcessUI {
 
 		while (this.running) {
 			// Show prompt,
-			await Deno.stdout.write(encoder.encode("\nCommand: "));
+			process.stdout.write("\nCommand: ");
 
 			// Read single character,
 			const buf = new Uint8Array(1024);
-			const n = await Deno.stdin.read(buf);
+			const n = await this.readStdin();
 			if (n === null) break;
-
-			const input = decoder.decode(buf.subarray(0, n)).trim();
+			const input = n;
 
 			if (input.length > 0) {
 				await this.handleCommand(input);
@@ -187,13 +194,12 @@ export class ProcessUI {
 		const decoder = new TextDecoder();
 		const encoder = new TextEncoder();
 
-		await Deno.stdout.write(encoder.encode("\nAction: "));
+		process.stdout.write("\nAction: ");
 
 		const buf = new Uint8Array(1024);
-		const n = await Deno.stdin.read(buf);
+		const n = await this.readStdin();
 		if (n === null) return;
-
-		const action = decoder.decode(buf.subarray(0, n)).trim().toLowerCase();
+		const action = n.trim().toLowerCase();
 
 		switch (action) {
 			case "s":
@@ -268,7 +274,7 @@ export class ProcessUI {
 
 	private async waitForKey(): Promise<void> {
 		const buf = new Uint8Array(1);
-		await Deno.stdin.read(buf);
+		await this.readStdin();
 	}
 
 	private getStatusDisplay(status: ProcessStatus): string {
@@ -411,12 +417,9 @@ export class ProcessUI {
 
 			const decoder = new TextDecoder();
 			const buf = new Uint8Array(1024);
-			const n = await Deno.stdin.read(buf);
+			const input = await this.readStdin();
 
-			if (
-				n &&
-				decoder.decode(buf.subarray(0, n)).trim().toLowerCase() === "y"
-			) {
+			if (input && input.trim().toLowerCase() === "y") {
 				await this.stopAll();
 			}
 		}

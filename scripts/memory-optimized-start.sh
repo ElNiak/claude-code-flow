@@ -39,7 +39,7 @@ NODE_FLAGS="$NODE_FLAGS --max-semi-space-size=$SEMI_SPACE_SIZE"
 NODE_FLAGS="$NODE_FLAGS --initial-old-space-size=$INITIAL_HEAP_SIZE"
 NODE_FLAGS="$NODE_FLAGS --max-executable-size=$EXECUTABLE_SIZE"
 NODE_FLAGS="$NODE_FLAGS --expose-gc"
-NODE_FLAGS="$NODE_FLAGS --incremental-marking"
+# NODE_FLAGS="$NODE_FLAGS --incremental-marking"  # Not allowed in NODE_OPTIONS, enabled by default
 
 # Memory-constrained systems
 if [ $TOTAL_MEMORY -lt 8192 ]; then
@@ -84,11 +84,14 @@ if [ "$1" = "--debug" ]; then
 fi
 
 # Start the main application with additional flags not allowed in NODE_OPTIONS
-EXTRA_FLAGS="--max-semi-space-size=$SEMI_SPACE_SIZE --incremental-marking"
+EXTRA_FLAGS="--max-semi-space-size=$SEMI_SPACE_SIZE"
 
 # Only use valid GC flags that are supported
 if [ $AGENT_COUNT -gt 8 ]; then
     EXTRA_FLAGS="$EXTRA_FLAGS --concurrent-marking"
 fi
+
+# Note: --incremental-marking removed as it's not allowed in NODE_OPTIONS
+# and can cause startup errors. It's enabled by default in modern Node.js anyway.
 
 exec node $EXTRA_FLAGS "$@"

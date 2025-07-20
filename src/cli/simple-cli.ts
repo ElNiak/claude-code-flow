@@ -6,20 +6,20 @@ import { getErrorMessage as _getErrorMessage } from "../utils/error-handler.js";
  * This version avoids TypeScript issues in node_modules
  */
 
+import { spawn } from "node:child_process";
 import { randomUUID as generateId } from "node:crypto";
 import { promises as fs } from "node:fs";
 import { join } from "node:path";
-import { spawn } from "node:child_process";
 import { createInterface } from "node:readline";
 
 import {
-   executeCommand,
-   hasCommand,
-   showCommandHelp,
-   showAllCommands,
-   listCommands
-} from './command-registry.js';
- import { parseFlags } from './utils.js';
+	executeCommand,
+	hasCommand,
+	listCommands,
+	showAllCommands,
+	showCommandHelp,
+} from "./command-registry.js";
+import { parseFlags } from "./utils.js";
 
 // Node.js-only implementation (removed Deno compatibility)
 
@@ -229,7 +229,9 @@ async function main() {
 		try {
 			await executeCommand(command, parsedArgs, _flags);
 		} catch (error) {
-			printError(`Failed to execute command "${command}": ${error instanceof Error ? error.message : String(error)}`);
+			printError(
+				`Failed to execute command "${command}": ${error instanceof Error ? error.message : String(error)}`
+			);
 		}
 		return;
 	}
@@ -1575,27 +1577,27 @@ ${flags.mode === "full" || !flags.mode ? `Full-stack development covering all as
 							const command = spawn("claude", claudeArgs, {
 								env: {
 									...process.env,
-								CLAUDE_INSTANCE_ID: instanceId,
-								CLAUDE_FLOW_MODE: flags.mode || "full",
-								CLAUDE_FLOW_COVERAGE: (flags.coverage || 80).toString(),
-								CLAUDE_FLOW_COMMIT: flags.commit || "phase",
-								// Add claude-flow specific features,
-								CLAUDE_FLOW_MEMORY_ENABLED: "true",
-								CLAUDE_FLOW_MEMORY_NAMESPACE: "default",
-								CLAUDE_FLOW_COORDINATION_ENABLED: flags.parallel
-												? "true"
-												: "false",
-								CLAUDE_FLOW_FEATURES: "memory,coordination,swarm",
-						},
-						stdio: "inherit",
-					});
+									CLAUDE_INSTANCE_ID: instanceId,
+									CLAUDE_FLOW_MODE: flags.mode || "full",
+									CLAUDE_FLOW_COVERAGE: (flags.coverage || 80).toString(),
+									CLAUDE_FLOW_COMMIT: flags.commit || "phase",
+									// Add claude-flow specific features,
+									CLAUDE_FLOW_MEMORY_ENABLED: "true",
+									CLAUDE_FLOW_MEMORY_NAMESPACE: "default",
+									CLAUDE_FLOW_COORDINATION_ENABLED: flags.parallel
+										? "true"
+										: "false",
+									CLAUDE_FLOW_FEATURES: "memory,coordination,swarm",
+								},
+								stdio: "inherit",
+							});
 
 							// Handle command execution with Node.js spawn
 							const exitCode = await new Promise<number>((resolve) => {
-								command.on('close', (code: number) => {
+								command.on("close", (code: number) => {
 									resolve(code || 0);
 								});
-								command.on('error', (err: Error) => {
+								command.on("error", (err: Error) => {
 									console.error(`Failed to spawn Claude: ${err.message}`);
 									resolve(1);
 								});
@@ -2444,19 +2446,19 @@ Shortcuts:
 				});
 
 				// Handle command output with Node.js spawn
-				let stdout = '';
-				let stderr = '';
+				let stdout = "";
+				let stderr = "";
 
-				command.stdout?.on('data', (data) => {
+				command.stdout?.on("data", (data) => {
 					stdout += data.toString();
 				});
 
-				command.stderr?.on('data', (data) => {
+				command.stderr?.on("data", (data) => {
 					stderr += data.toString();
 				});
 
 				await new Promise<void>((resolve, reject) => {
-					command.on('close', (code) => {
+					command.on("close", (code) => {
 						if (stdout.length > 0) {
 							console.log(stdout);
 						}
@@ -2465,7 +2467,7 @@ Shortcuts:
 						}
 						resolve();
 					});
-					command.on('error', reject);
+					command.on("error", reject);
 				});
 			} catch (err: unknown) {
 				console.error(`Shell error: ${(err as Error).message}`);
@@ -2786,7 +2788,7 @@ Shortcuts:
 	});
 
 	// Handle line input
-	rl.on('line', async (input) => {
+	rl.on("line", async (input) => {
 		const trimmed = input.trim();
 
 		// Process command,
@@ -2798,8 +2800,8 @@ Shortcuts:
 		rl.prompt();
 	});
 
-	rl.on('close', () => {
-		console.log('\n👋 Exiting Claude-Flow REPL...');
+	rl.on("close", () => {
+		console.log("\n👋 Exiting Claude-Flow REPL...");
 		process.exit(0);
 	});
 
@@ -3137,7 +3139,7 @@ async function createSparcStructureManually() {
 				await fs.mkdir(dir, { recursive: true });
 				console.log(`  ✓ Created ${dir}/`);
 			} catch (err: any) {
-				if (err.code !== 'EEXIST') {
+				if (err.code !== "EEXIST") {
 					throw err;
 				}
 			}

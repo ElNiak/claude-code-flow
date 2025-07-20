@@ -4,12 +4,12 @@ import { getErrorMessage as _getErrorMessage } from "../utils/error-handler.js";
  * Fixed orchestrator implementation for Claude-Flow
  */
 
+import { NodeMemoryOptimizer } from "../optimization/node-memory-optimizer.js";
+import { EmergencyMemoryManager } from "../utils/emergency-memory-limits.js";
 import type { ConfigManager } from "./config.js";
 import type { EventBus } from "./event-bus.js";
 import { JsonPersistenceManager } from "./json-persistence.js";
 import type { Logger } from "./logger.js";
-import { EmergencyMemoryManager } from "../utils/emergency-memory-limits.js";
-import { NodeMemoryOptimizer } from "../optimization/node-memory-optimizer.js";
 
 export interface AgentInfo {
 	id: string;

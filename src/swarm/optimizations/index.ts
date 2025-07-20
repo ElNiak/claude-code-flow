@@ -17,15 +17,15 @@ export type { TTLMapOptions } from "./ttl-map.js";
 export { TTLMap } from "./ttl-map.js";
 
 // Re-export commonly used together,
-export const createOptimizedSwarmStack = (config?: {
+export const createOptimizedSwarmStack = async (config?: {
 	connectionPool?: any;
 	executor?: any;
 	fileManager?: any;
 }) => {
 	// Import classes at runtime to avoid circular dependency issues
-	const { ClaudeConnectionPool } = require("./connection-pool.js");
-	const { AsyncFileManager } = require("./async-file-manager.js");
-	const { OptimizedExecutor } = require("./optimized-executor.js");
+	const { ClaudeConnectionPool } = await import("./connection-pool.js");
+	const { AsyncFileManager } = await import("./async-file-manager.js");
+	const { OptimizedExecutor } = await import("./optimized-executor.js");
 
 	const connectionPool = new ClaudeConnectionPool(config?.connectionPool);
 	const fileManager = new AsyncFileManager(config?.fileManager);

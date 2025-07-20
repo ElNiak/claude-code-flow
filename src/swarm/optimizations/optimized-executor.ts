@@ -566,9 +566,17 @@ export class OptimizedExecutor extends EventEmitter {
 		setImmediate(async () => {
 			for (const task of batch) {
 				try {
-					await this.executeTask(task, { id: "batch-processor", instance: 1, swarmId: "default", type: "coordinator" });
+					await this.executeTask(task, {
+						id: "batch-processor",
+						instance: 1,
+						swarmId: "default",
+						type: "coordinator",
+					});
 				} catch (error) {
-					this.logger.error("Batch task execution failed", { taskId: task.id.id, error });
+					this.logger.error("Batch task execution failed", {
+						taskId: task.id.id,
+						error,
+					});
 				}
 			}
 		});
@@ -593,7 +601,8 @@ export class OptimizedExecutor extends EventEmitter {
 		this.metrics.batchesProcessed++;
 		const batchDuration = Date.now() - batchStartTime;
 		const efficiency = tasks.length / (batchDuration / 1000); // tasks per second
-		this.metrics.batchEfficiency = (this.metrics.batchEfficiency + efficiency) / 2;
+		this.metrics.batchEfficiency =
+			(this.metrics.batchEfficiency + efficiency) / 2;
 
 		this.logger.debug("Batch execution completed", {
 			totalTasks: tasks.length,
@@ -654,7 +663,8 @@ export class OptimizedExecutor extends EventEmitter {
 		});
 
 		// Preallocate memory pool
-		const preallocationSize = this.config.memoryOptimization?.preallocationSize || 1000;
+		const preallocationSize =
+			this.config.memoryOptimization?.preallocationSize || 1000;
 		for (let i = 0; i < preallocationSize; i++) {
 			this.memoryPool.set(`pool-${i}`, { available: true, data: null });
 		}
@@ -703,7 +713,8 @@ export class OptimizedExecutor extends EventEmitter {
 			this.metrics.memoryUsage = memUsage.heapUsed;
 
 			// Check if memory usage is too high
-			const maxMemory = this.config.memoryOptimization?.maxMemoryUsage || 1024 * 1024 * 1024; // 1GB
+			const maxMemory =
+				this.config.memoryOptimization?.maxMemoryUsage || 1024 * 1024 * 1024; // 1GB
 			if (memUsage.heapUsed > maxMemory) {
 				this.logger.warn("High memory usage detected", {
 					heapUsed: memUsage.heapUsed,
@@ -754,13 +765,21 @@ export class OptimizedExecutor extends EventEmitter {
 
 	// === DISTRIBUTED CACHE METHODS ===
 
-	private async updateDistributedCache(key: string, result: ExecutionTaskResult): Promise<void> {
+	private async updateDistributedCache(
+		key: string,
+		result: ExecutionTaskResult
+	): Promise<void> {
 		// Implementation for distributed cache update
 		// This could integrate with Redis, Memcached, etc.
-		this.logger.debug("Updating distributed cache", { key, resultId: result.id });
+		this.logger.debug("Updating distributed cache", {
+			key,
+			resultId: result.id,
+		});
 	}
 
-	private async getFromDistributedCache(key: string): Promise<ExecutionTaskResult | null> {
+	private async getFromDistributedCache(
+		key: string
+	): Promise<ExecutionTaskResult | null> {
 		// Implementation for distributed cache retrieval
 		this.logger.debug("Checking distributed cache", { key });
 		return null;

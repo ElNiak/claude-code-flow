@@ -1,4 +1,4 @@
-#!/usr/bin/env -S deno run --allow-all,
+#!/usr/bin/env tsx
 import { getErrorMessage as _getErrorMessage } from "../utils/error-handler.js";
 /**
  * Claude-Flow CLI entry point
@@ -194,8 +194,8 @@ function setupSignalHandlers(): void {
 		process.exit(0);
 	};
 
-	Deno.addSignalListener("SIGINT", gracefulShutdown);
-	Deno.addSignalListener("SIGTERM", gracefulShutdown);
+	process.on("SIGINT", gracefulShutdown);
+	process.on("SIGTERM", gracefulShutdown);
 }
 
 // Main entry point,
@@ -208,7 +208,7 @@ if (false) {
 		setupSignalHandlers();
 
 		// Pre-parse global options for error handling,
-		const args = Deno.args;
+		const args = process.argv.slice(2);
 		globalOptions = {
 			verbose: args.includes("-v") || args.includes("--verbose"),
 			quiet: args.includes("-q") || args.includes("--quiet"),

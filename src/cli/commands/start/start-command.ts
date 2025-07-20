@@ -155,8 +155,8 @@ export const startCommand = new Command()
 						process.exit(0);
 					};
 
-					Deno.addSignalListener("SIGINT", shutdownWebUI);
-					Deno.addSignalListener("SIGTERM", shutdownWebUI);
+					process.on("SIGINT", shutdownWebUI);
+					process.on("SIGTERM", shutdownWebUI);
 
 					// Keep process alive,
 					await new Promise<void>(() => {});
@@ -190,7 +190,7 @@ export const startCommand = new Command()
 				}
 
 				// Create PID file with metadata,
-				const pid = Deno.pid;
+				const pid = process.pid;
 				const pidData = {
 					pid,
 					startTime: Date.now(),
@@ -238,7 +238,7 @@ export const startCommand = new Command()
 				const decoder = new TextDecoder();
 				while (true) {
 					const buf = new Uint8Array(1);
-					await Deno.stdin.read(buf);
+					await new Promise((resolve) => process.stdin.once("data", resolve));
 					const key = decoder.decode(buf);
 
 					switch (key) {
@@ -267,7 +267,9 @@ export const startCommand = new Command()
 							systemMonitor.printEventLog(10);
 							console.log();
 							console.log(chalk.gray("Press any key to continue..."));
-							await Deno.stdin.read(new Uint8Array(1));
+							await new Promise((resolve) =>
+								process.stdin.once("data", resolve)
+							);
 							break;
 
 						case "q":
@@ -338,7 +340,7 @@ async function isSystemRunning(): Promise<boolean> {
 
 		// Check if process is still running,
 		try {
-			Deno.kill(data.pid, "SIGTERM");
+			process.kill(data.pid, "SIGTERM");
 			return false; // Process was killed, so it was running
 		} catch {
 			return false; // Process not found
@@ -354,19 +356,19 @@ async function stopExistingInstance(): Promise<void> {
 		const data = JSON.parse(pidData);
 
 		console.log(chalk.yellow("Stopping existing instance..."));
-		Deno.kill(data.pid, "SIGTERM");
+		process.kill(data.pid, "SIGTERM");
 
 		// Wait for graceful shutdown,
 		await new Promise((resolve) => setTimeout(resolve, 2000));
 
 		// Force kill if still running,
 		try {
-			Deno.kill(data.pid, "SIGKILL");
+			process.kill(data.pid, "SIGKILL");
 		} catch {
 			// Process already stopped
 		}
 
-		await Deno.remove(".claude-flow.pid").catch(() => {});
+		await fs.unlink(".claude-flow.pid").catch(() => {});
 		console.log(chalk.green("✓ Existing instance stopped"));
 	} catch (error) {
 		console.warn(
@@ -406,7 +408,7 @@ async function checkDiskSpace(): Promise<void> {
 
 async function checkMemoryAvailable(): Promise<void> {
 	// Memory check - would integrate with system memory monitoring,
-	const memoryInfo = Deno.memoryUsage();
+	const memoryInfo = process.memoryUsage();
 	if (memoryInfo.heapUsed > 500 * 1024 * 1024) {
 		// 500MB threshold,
 		throw new Error("High memory usage detected");
@@ -435,7 +437,7 @@ async function checkDependencies(): Promise<void> {
 	const requiredDirs = [".claude-flow", "memory", "logs"];
 	for (const dir of requiredDirs) {
 		try {
-			await Deno.mkdir(dir, { recursive: true });
+			await fs.mkdir(dir, { recursive: true });
 		} catch (error) {
 			throw new Error(`Cannot create required directory: ${dir}`);
 		}
@@ -460,8 +462,8 @@ function setupSystemEventHandlers(
 		process.exit(0);
 	};
 
-	Deno.addSignalListener("SIGINT", shutdownHandler);
-	Deno.addSignalListener("SIGTERM", shutdownHandler);
+	process.on("SIGINT", shutdownHandler);
+	process.on("SIGTERM", shutdownHandler);
 
 	// Setup verbose logging if requested,
 	if (options.verbose) {
@@ -554,7 +556,7 @@ async function waitForSystemReady(
 
 async function cleanupOnFailure(): Promise<void> {
 	try {
-		await Deno.remove(".claude-flow.pid").catch(() => {});
+		await fs.unlink(".claude-flow.pid").catch(() => {});
 		console.log(chalk.gray("Cleaned up PID file"));
 	} catch {
 		// Ignore cleanup errors
@@ -563,7 +565,7 @@ async function cleanupOnFailure(): Promise<void> {
 
 async function cleanupOnShutdown(): Promise<void> {
 	try {
-		await Deno.remove(".claude-flow.pid").catch(() => {});
+		await fs.unlink(".claude-flow.pid").catch(() => {});
 		console.log(chalk.gray("Cleaned up PID file"));
 	} catch {
 		// Ignore cleanup errors
