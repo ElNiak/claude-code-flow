@@ -10,6 +10,15 @@
 default_language_version:
   node: system
 
+# Global exclusions
+exclude: |
+  (?x)^(
+    backup/.*|
+    memory/backups/.*|
+    .*\.backup$|
+    .*\.bak$
+  )$
+
 repos:
   # =================================================================
   # PHASE 1: ESSENTIAL QUALITY (Always Active)
@@ -36,6 +45,13 @@ repos:
       - id: biome-check
         name: Biome Format + Lint (Phase 1 - Gentle)
         types_or: [javascript, jsx, ts, tsx, json]
+        exclude: |
+          (?x)^(
+            backup/.*|
+            memory/backups/.*|
+            .*\.backup$|
+            .*\.bak$
+          )$
 
   # TypeScript checking (errors only, warnings OK)
   - repo: local
@@ -45,7 +61,12 @@ repos:
         entry: npx tsc --noEmit --skipLibCheck
         language: system
         types: [ts, tsx]
-        exclude: node_modules/
+        exclude: |
+          (?x)^(
+            node_modules/.*|
+            backup/.*|
+            memory/backups/.*
+          )$
 
   # Conventional commits (already working)
   - repo: local
@@ -67,7 +88,14 @@ repos:
       - id: detect-secrets
         name: Detect Secrets
         args: ['--baseline', '.secrets.baseline']
-        exclude: package-lock.json
+        exclude: |
+          (?x)^(
+            package-lock\.json|
+            backup/.*|
+            memory/backups/.*|
+            .*\.backup$|
+            .*\.bak$
+          )$
 
   # =================================================================
   # DOCKER VALIDATION (Always Active)
@@ -106,6 +134,11 @@ repos:
         language: system
         files: \.(md|json|ts|js)$
         args: ['--batch', '--quick']
+        exclude: |
+          (?x)^(
+            backup/.*|
+            memory/backups/.*
+          )$
 
   # =================================================================
   # PHASE 2: STRUCTURE ENFORCEMENT (Weeks 3-4 of Merger)

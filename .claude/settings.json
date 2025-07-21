@@ -7,7 +7,7 @@
     "CLAUDE_FLOW_REMOTE_EXECUTION": "true",
     "CLAUDE_FLOW_GITHUB_INTEGRATION": "true",
     "EMERGENCY_MEMORY_ACTIVE": "true",
-    "NODE_OPTIONS": "--max-old-space-size=12288 --expose-gc --incremental-marking"
+    "NODE_OPTIONS": "--max-old-space-size=12288 --expose-gc"
   },
   "permissions": {
     "allow": [
@@ -62,7 +62,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "npx claude-flow hooks pre-read --file \"${file_path}\" --symbols-overview false"
+            "command": "npx claude-flow hooks pre-task --description \"Reading files\" --auto-spawn-agents false"
           }
         ]
       }

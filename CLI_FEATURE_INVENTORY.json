@@ -1,0 +1,898 @@
+{
+  "timestamp": "2025-07-21T08:20:54.086Z",
+  "totalFiles": 11,
+  "files": {
+    "src/cli/simple-cli.ts": {
+      "fileName": "simple-cli.ts",
+      "filePath": "src/cli/simple-cli.ts",
+      "lineCount": 3601,
+      "imports": [
+        {
+          "source": "../utils/error-handler.js",
+          "statement": "import { getErrorMessage as _getErrorMessage } from \"../utils/error-handler.js\""
+        },
+        {
+          "source": "node:child_process",
+          "statement": "import { spawn } from \"node:child_process\""
+        },
+        {
+          "source": "node:crypto",
+          "statement": "import { randomUUID as generateId } from \"node:crypto\""
+        },
+        {
+          "source": "node:fs",
+          "statement": "import { promises as fs } from \"node:fs\""
+        },
+        {
+          "source": "node:path",
+          "statement": "import { join } from \"node:path\""
+        },
+        {
+          "source": "node:readline",
+          "statement": "import { createInterface } from \"node:readline\""
+        },
+        {
+          "source": "./command-registry.js",
+          "statement": "import {\n\texecuteCommand,\n\thasCommand,\n\tlistCommands,\n\tshowAllCommands,\n\tshowCommandHelp,\n} from \"./command-registry.js\""
+        },
+        {
+          "source": "./utils.js",
+          "statement": "import { parseFlags } from \"./utils.js\""
+        }
+      ],
+      "exports": [],
+      "commands": [],
+      "functions": [
+        "printHelp",
+        "printVersion",
+        "printError",
+        "printSuccess",
+        "printWarning",
+        "showHelpWithCommands",
+        "main",
+        "startRepl",
+        "processReplCommand",
+        "handleAgentCommand",
+        "handleTaskCommand",
+        "handleMemoryCommand",
+        "handleTerminalCommand",
+        "createMinimalClaudeMd",
+        "createFullClaudeMd",
+        "createMinimalMemoryBankMd",
+        "createFullMemoryBankMd",
+        "createMinimalCoordinationMd",
+        "createFullCoordinationMd",
+        "createAgentsReadme",
+        "createSessionsReadme",
+        "createSparcStructureManually",
+        "createBasicRoomodesConfig",
+        "createBasicSparcWorkflow",
+        "createRooReadme",
+        "createSparcClaudeMd"
+      ],
+      "classes": [],
+      "interfaces": [
+        "for",
+        "compatibility"
+      ],
+      "types": [],
+      "constants": [
+        "VERSION"
+      ],
+      "configuration": {
+        "hasArgParsing": true,
+        "hasEnvVars": true,
+        "hasConfigFile": true,
+        "hasVersionInfo": true,
+        "hasHelpText": true
+      },
+      "dependencies": {
+        "internal": [
+          "../utils/error-handler.js",
+          "./command-registry.js",
+          "./utils.js"
+        ],
+        "external": [
+          "node:child_process",
+          "node:crypto",
+          "node:fs",
+          "node:path",
+          "node:readline"
+        ]
+      }
+    },
+    "src/cli/cli-core.ts": {
+      "fileName": "cli-core.ts",
+      "filePath": "src/cli/cli-core.ts",
+      "lineCount": 329,
+      "imports": [
+        {
+          "source": "../utils/error-handler.js",
+          "statement": "import { getErrorMessage as _getErrorMessage } from \"../utils/error-handler.js\""
+        },
+        {
+          "source": "chalk",
+          "statement": "import chalk from \"chalk\""
+        },
+        {
+          "source": "fs-extra",
+          "statement": "import fs from \"fs-extra\""
+        },
+        {
+          "source": "path",
+          "statement": "import _path from \"path\""
+        }
+      ],
+      "exports": [
+        "VERSION"
+      ],
+      "commands": [],
+      "functions": [
+        "success",
+        "_error",
+        "warning",
+        "info",
+        "main"
+      ],
+      "classes": [
+        "CLI"
+      ],
+      "interfaces": [
+        "CommandContext",
+        "Command",
+        "Option",
+        "and"
+      ],
+      "types": [],
+      "constants": [
+        "VERSION"
+      ],
+      "configuration": {
+        "hasArgParsing": true,
+        "hasEnvVars": false,
+        "hasConfigFile": true,
+        "hasVersionInfo": true,
+        "hasHelpText": true
+      },
+      "dependencies": {
+        "internal": [
+          "../utils/error-handler.js"
+        ],
+        "external": [
+          "chalk",
+          "fs-extra",
+          "path"
+        ]
+      }
+    },
+    "src/cli/main.ts": {
+      "fileName": "main.ts",
+      "filePath": "src/cli/main.ts",
+      "lineCount": 35,
+      "imports": [
+        {
+          "source": "../utils/error-handler.js",
+          "statement": "import { getErrorMessage as _getErrorMessage } from \"../utils/error-handler.js\""
+        },
+        {
+          "source": "node:path",
+          "statement": "import { dirname } from \"node:path\""
+        },
+        {
+          "source": "node:url",
+          "statement": "import { fileURLToPath } from \"node:url\""
+        },
+        {
+          "source": "./cli-core.js",
+          "statement": "import { CLI, VERSION } from \"./cli-core.js\""
+        },
+        {
+          "source": "./commands/index.js",
+          "statement": "import { setupCommands } from \"./commands/index.js\""
+        }
+      ],
+      "exports": [],
+      "commands": [],
+      "functions": [
+        "main"
+      ],
+      "classes": [],
+      "interfaces": [],
+      "types": [],
+      "constants": [],
+      "configuration": {
+        "hasArgParsing": true,
+        "hasEnvVars": false,
+        "hasConfigFile": false,
+        "hasVersionInfo": true,
+        "hasHelpText": true
+      },
+      "dependencies": {
+        "internal": [
+          "../utils/error-handler.js",
+          "./cli-core.js",
+          "./commands/index.js"
+        ],
+        "external": [
+          "node:path",
+          "node:url"
+        ]
+      }
+    },
+    "src/cli/index.ts": {
+      "fileName": "index.ts",
+      "filePath": "src/cli/index.ts",
+      "lineCount": 229,
+      "imports": [
+        {
+          "source": "../utils/error-handler.js",
+          "statement": "import { getErrorMessage as _getErrorMessage } from \"../utils/error-handler.js\""
+        },
+        {
+          "source": "chalk",
+          "statement": "import chalk from \"chalk\""
+        },
+        {
+          "source": "commander",
+          "statement": "import removed - not available in current cliffy version,\nimport { Command } from \"commander\""
+        },
+        {
+          "source": "../core/config.js",
+          "statement": "import { configManager } from \"../core/config.js\""
+        },
+        {
+          "source": "../core/logger.js",
+          "statement": "import { logger } from \"../core/logger.js\""
+        },
+        {
+          "source": "./commands/agent.js",
+          "statement": "import { agentCommand } from \"./commands/agent.js\""
+        },
+        {
+          "source": "./commands/config.js",
+          "statement": "import { configCommand } from \"./commands/config.js\""
+        },
+        {
+          "source": "./commands/help.js",
+          "statement": "import { helpCommand } from \"./commands/help.js\""
+        },
+        {
+          "source": "./commands/mcp.js",
+          "statement": "import { mcpCommand } from \"./commands/mcp.js\""
+        },
+        {
+          "source": "./commands/memory.js",
+          "statement": "import { memoryCommand } from \"./commands/memory.js\""
+        },
+        {
+          "source": "./commands/monitor.js",
+          "statement": "import { monitorCommand } from \"./commands/monitor.js\""
+        },
+        {
+          "source": "./commands/session.js",
+          "statement": "import { sessionCommand } from \"./commands/session.js\""
+        },
+        {
+          "source": "./commands/start/start-command.js",
+          "statement": "import { startCommand } from \"./commands/start/start-command.js\""
+        },
+        {
+          "source": "./commands/status.js",
+          "statement": "import { statusCommand } from \"./commands/status.js\""
+        },
+        {
+          "source": "./commands/task.js",
+          "statement": "import { taskCommand } from \"./commands/task.js\""
+        },
+        {
+          "source": "./commands/workflow.js",
+          "statement": "import { workflowCommand } from \"./commands/workflow.js\""
+        },
+        {
+          "source": "./completion.js",
+          "statement": "import { CompletionGenerator } from \"./completion.js\""
+        },
+        {
+          "source": "./formatter.js",
+          "statement": "import { displayBanner, displayVersion, formatError } from \"./formatter.js\""
+        },
+        {
+          "source": "./repl.js",
+          "statement": "import { startREPL } from \"./repl.js\""
+        }
+      ],
+      "exports": [],
+      "commands": [],
+      "functions": [
+        "handleError",
+        "setupLogging",
+        "setupSignalHandlers",
+        "gracefulShutdown"
+      ],
+      "classes": [],
+      "interfaces": [],
+      "types": [],
+      "constants": [
+        "VERSION",
+        "BUILD_DATE"
+      ],
+      "configuration": {
+        "hasArgParsing": true,
+        "hasEnvVars": true,
+        "hasConfigFile": true,
+        "hasVersionInfo": true,
+        "hasHelpText": true
+      },
+      "dependencies": {
+        "internal": [
+          "../utils/error-handler.js",
+          "../core/config.js",
+          "../core/logger.js",
+          "./commands/agent.js",
+          "./commands/config.js",
+          "./commands/help.js",
+          "./commands/mcp.js",
+          "./commands/memory.js",
+          "./commands/monitor.js",
+          "./commands/session.js",
+          "./commands/start/start-command.js",
+          "./commands/status.js",
+          "./commands/task.js",
+          "./commands/workflow.js",
+          "./completion.js",
+          "./formatter.js",
+          "./repl.js"
+        ],
+        "external": [
+          "chalk",
+          "commander"
+        ]
+      }
+    },
+    "src/cli/index-remote.ts": {
+      "fileName": "index-remote.ts",
+      "filePath": "src/cli/index-remote.ts",
+      "lineCount": 156,
+      "imports": [
+        {
+          "source": "../utils/error-handler.js",
+          "statement": "import { getErrorMessage as _getErrorMessage } from \"../utils/error-handler.js\""
+        }
+      ],
+      "exports": [],
+      "commands": [],
+      "functions": [
+        "printHelp",
+        "printSuccess",
+        "printError",
+        "printWarning",
+        "main"
+      ],
+      "classes": [],
+      "interfaces": [],
+      "types": [],
+      "constants": [
+        "VERSION"
+      ],
+      "configuration": {
+        "hasArgParsing": true,
+        "hasEnvVars": false,
+        "hasConfigFile": false,
+        "hasVersionInfo": true,
+        "hasHelpText": true
+      },
+      "dependencies": {
+        "internal": [
+          "../utils/error-handler.js"
+        ],
+        "external": []
+      }
+    },
+    "src/cli/formatter.ts": {
+      "fileName": "formatter.ts",
+      "filePath": "src/cli/formatter.ts",
+      "lineCount": 347,
+      "imports": [
+        {
+          "source": "../utils/error-handler.js",
+          "statement": "import { getErrorMessage as _getErrorMessage } from \"../utils/error-handler.js\""
+        },
+        {
+          "source": "chalk",
+          "statement": "import chalk from \"chalk\""
+        },
+        {
+          "source": "cli-table3",
+          "statement": "import Table from \"cli-table3\""
+        },
+        {
+          "source": "process",
+          "statement": "import * as process from \"process\""
+        },
+        {
+          "source": "../utils/types.js",
+          "statement": "import type {\n\tAgentProfile,\n\tHealthStatus,\n\tMemoryEntry,\n\tTask,\n} from \"../utils/types.js\""
+        }
+      ],
+      "exports": [
+        "formatError",
+        "formatAgent",
+        "formatTask",
+        "formatMemoryEntry",
+        "formatHealthStatus",
+        "createAgentTable",
+        "createTaskTable",
+        "formatDuration",
+        "displayBanner",
+        "displayVersion",
+        "formatProgressBar",
+        "formatStatusIndicator",
+        "formatSuccess",
+        "formatInfo",
+        "formatWarning",
+        "formatSpinner"
+      ],
+      "commands": [],
+      "functions": [
+        "formatError",
+        "formatAgent",
+        "formatTask",
+        "formatMemoryEntry",
+        "formatHealthStatus",
+        "createAgentTable",
+        "createTaskTable",
+        "formatDuration",
+        "displayBanner",
+        "displayVersion",
+        "formatProgressBar",
+        "formatStatusIndicator",
+        "formatSuccess",
+        "formatInfo",
+        "formatWarning",
+        "formatSpinner"
+      ],
+      "classes": [],
+      "interfaces": [],
+      "types": [],
+      "constants": [],
+      "configuration": {
+        "hasArgParsing": false,
+        "hasEnvVars": false,
+        "hasConfigFile": false,
+        "hasVersionInfo": true,
+        "hasHelpText": true
+      },
+      "dependencies": {
+        "internal": [
+          "../utils/error-handler.js",
+          "../utils/types.js"
+        ],
+        "external": [
+          "chalk",
+          "cli-table3",
+          "process"
+        ]
+      }
+    },
+    "src/cli/node-repl.ts": {
+      "fileName": "node-repl.ts",
+      "filePath": "src/cli/node-repl.ts",
+      "lineCount": 787,
+      "imports": [
+        {
+          "source": "../utils/error-handler.js",
+          "statement": "import { getErrorMessage as _getErrorMessage } from \"../utils/error-handler.js\""
+        },
+        {
+          "source": "chalk",
+          "statement": "import chalk from \"chalk\""
+        },
+        {
+          "source": "chalk",
+          "statement": "import colors from \"chalk\""
+        },
+        {
+          "source": "child_process",
+          "statement": "import { spawn } from \"child_process\""
+        },
+        {
+          "source": "cli-table3",
+          "statement": "import Table from \"cli-table3\""
+        },
+        {
+          "source": "fs/promises",
+          "statement": "import fs from \"fs/promises\""
+        },
+        {
+          "source": "inquirer",
+          "statement": "import inquirer from \"inquirer\""
+        },
+        {
+          "source": "path",
+          "statement": "import path from \"path\""
+        },
+        {
+          "source": "readline",
+          "statement": "import readline from \"readline\""
+        },
+        {
+          "source": "../utils/helpers.js",
+          "statement": "import { generateId as _generateId } from \"../utils/helpers.js\""
+        }
+      ],
+      "exports": [],
+      "commands": [],
+      "functions": [
+        "startNodeREPL",
+        "displayBanner",
+        "createPrompt",
+        "getConnectionStatusIcon",
+        "parseCommand",
+        "showHelp",
+        "showCommandHelp",
+        "showSystemStatus",
+        "connectToOrchestrator",
+        "executeCliCommand",
+        "handleAgentCommand",
+        "handleTaskCommand",
+        "handleMemoryCommand",
+        "handleSessionCommand",
+        "handleWorkflowCommand",
+        "findSimilarCommands",
+        "processCommand",
+        "showPrompt"
+      ],
+      "classes": [
+        "CommandHistory"
+      ],
+      "interfaces": [
+        "REPLCommand",
+        "REPLContext"
+      ],
+      "types": [],
+      "constants": [],
+      "configuration": {
+        "hasArgParsing": false,
+        "hasEnvVars": true,
+        "hasConfigFile": false,
+        "hasVersionInfo": false,
+        "hasHelpText": true
+      },
+      "dependencies": {
+        "internal": [
+          "../utils/error-handler.js",
+          "../utils/helpers.js"
+        ],
+        "external": [
+          "chalk",
+          "chalk",
+          "child_process",
+          "cli-table3",
+          "fs/promises",
+          "inquirer",
+          "path",
+          "readline"
+        ]
+      }
+    },
+    "src/cli/repl.ts": {
+      "fileName": "repl.ts",
+      "filePath": "src/cli/repl.ts",
+      "lineCount": 1255,
+      "imports": [
+        {
+          "source": "node:fs",
+          "statement": "import { promises as fs } from \"node:fs\""
+        },
+        {
+          "source": "../utils/error-handler.js",
+          "statement": "import { getErrorMessage as _getErrorMessage } from \"../utils/error-handler.js\""
+        },
+        {
+          "source": "chalk",
+          "statement": "import chalk from \"chalk\""
+        },
+        {
+          "source": "cli-table3",
+          "statement": "import Table from \"cli-table3\""
+        },
+        {
+          "source": "inquirer",
+          "statement": "import inquirer from \"inquirer\""
+        },
+        {
+          "source": "../utils/helpers.js",
+          "statement": "import { generateId } from \"../utils/helpers.js\""
+        },
+        {
+          "source": "../utils/types.js",
+          "statement": "import type { AgentProfile, Task } from \"../utils/types.js\""
+        },
+        {
+          "source": "./formatter.js",
+          "statement": "import {\n\tformatDuration,\n\tformatProgressBar,\n\tformatStatusIndicator,\n} from \"./formatter.js\""
+        }
+      ],
+      "exports": [],
+      "commands": [],
+      "functions": [
+        "startREPL",
+        "createPrompt",
+        "getConnectionStatusIcon",
+        "parseCommand",
+        "showHelp",
+        "showCommandHelp",
+        "showSystemStatus",
+        "connectToOrchestrator",
+        "handleAgentCommand",
+        "showAgentList",
+        "handleAgentSpawn",
+        "handleAgentTerminate",
+        "showAgentInfo",
+        "handleTaskCommand",
+        "showTaskList",
+        "handleTaskCreate",
+        "showTaskStatus",
+        "handleTaskCancel",
+        "handleMemoryCommand",
+        "showMemoryStats",
+        "handleSessionCommand",
+        "showSessionList",
+        "handleSessionSave",
+        "handleSessionRestore",
+        "handleWorkflowCommand",
+        "showWorkflowList",
+        "handleWorkflowRun",
+        "showWorkflowStatus",
+        "findSimilarCommands"
+      ],
+      "classes": [
+        "CommandHistory",
+        "CommandCompleter"
+      ],
+      "interfaces": [
+        "REPLCommand",
+        "REPLContext"
+      ],
+      "types": [],
+      "constants": [],
+      "configuration": {
+        "hasArgParsing": false,
+        "hasEnvVars": true,
+        "hasConfigFile": false,
+        "hasVersionInfo": false,
+        "hasHelpText": true
+      },
+      "dependencies": {
+        "internal": [
+          "../utils/error-handler.js",
+          "../utils/helpers.js",
+          "../utils/types.js",
+          "./formatter.js"
+        ],
+        "external": [
+          "node:fs",
+          "chalk",
+          "cli-table3",
+          "inquirer"
+        ]
+      }
+    },
+    "src/cli/simple-mcp.ts": {
+      "fileName": "simple-mcp.ts",
+      "filePath": "src/cli/simple-mcp.ts",
+      "lineCount": 126,
+      "imports": [
+        {
+          "source": "../utils/error-handler.js",
+          "statement": "import { getErrorMessage } from \"../utils/error-handler.js\""
+        },
+        {
+          "source": "commander",
+          "statement": "import { Command } from \"commander\""
+        },
+        {
+          "source": "http",
+          "statement": "import http from \"http\""
+        }
+      ],
+      "exports": [
+        "createMCPCommand"
+      ],
+      "commands": [
+        {
+          "name": "start",
+          "description": "Start the MCP server"
+        },
+        {
+          "name": "status",
+          "description": "Show MCP server status"
+        },
+        {
+          "name": "tools",
+          "description": "List available MCP tools"
+        },
+        {
+          "name": "stop",
+          "description": "Stop the MCP server"
+        }
+      ],
+      "functions": [
+        "printSuccess",
+        "printError",
+        "checkMCPStatus",
+        "createMCPCommand"
+      ],
+      "classes": [],
+      "interfaces": [],
+      "types": [],
+      "constants": [],
+      "configuration": {
+        "hasArgParsing": true,
+        "hasEnvVars": false,
+        "hasConfigFile": false,
+        "hasVersionInfo": false,
+        "hasHelpText": true
+      },
+      "dependencies": {
+        "internal": [
+          "../utils/error-handler.js"
+        ],
+        "external": [
+          "commander",
+          "http"
+        ]
+      }
+    },
+    "src/cli/simple-orchestrator.ts": {
+      "fileName": "simple-orchestrator.ts",
+      "filePath": "src/cli/simple-orchestrator.ts",
+      "lineCount": 927,
+      "imports": [
+        {
+          "source": "../utils/error-handler.js",
+          "statement": "import { getErrorMessage } from \"../utils/error-handler.js\""
+        },
+        {
+          "source": "child_process",
+          "statement": "import { spawn } from \"child_process\""
+        },
+        {
+          "source": "cors",
+          "statement": "import cors from \"cors\""
+        },
+        {
+          "source": "events",
+          "statement": "import { EventEmitter } from \"events\""
+        },
+        {
+          "source": "express",
+          "statement": "import express from \"express\""
+        },
+        {
+          "source": "http",
+          "statement": "import { createServer } from \"http\""
+        },
+        {
+          "source": "path",
+          "statement": "import path from \"path\""
+        },
+        {
+          "source": "url",
+          "statement": "import { fileURLToPath } from \"url\""
+        },
+        {
+          "source": "ws",
+          "statement": "import { WebSocketServer } from \"ws\""
+        }
+      ],
+      "exports": [
+        "getComponentStatus",
+        "getStores"
+      ],
+      "commands": [],
+      "functions": [
+        "startMCPServer",
+        "startWebUI",
+        "getReconnectDelay",
+        "connect",
+        "handleMessage",
+        "appendOutput",
+        "updateStatus",
+        "sendCommand",
+        "sendResponse",
+        "handleCliCommand",
+        "executeCliCommand",
+        "broadcastToClients",
+        "convertAnsiToHtml",
+        "startOrchestrator",
+        "getComponentStatus",
+        "getStores"
+      ],
+      "classes": [],
+      "interfaces": [
+        "function",
+        "for"
+      ],
+      "types": [],
+      "constants": [
+        "MAX_RECONNECT_ATTEMPTS",
+        "BASE_RECONNECT_DELAY"
+      ],
+      "configuration": {
+        "hasArgParsing": false,
+        "hasEnvVars": true,
+        "hasConfigFile": false,
+        "hasVersionInfo": true,
+        "hasHelpText": true
+      },
+      "dependencies": {
+        "internal": [
+          "../utils/error-handler.js"
+        ],
+        "external": [
+          "child_process",
+          "cors",
+          "events",
+          "express",
+          "http",
+          "path",
+          "url",
+          "ws"
+        ]
+      }
+    },
+    "src/cli/completion.ts": {
+      "fileName": "completion.ts",
+      "filePath": "src/cli/completion.ts",
+      "lineCount": 585,
+      "imports": [
+        {
+          "source": "../utils/error-handler.js",
+          "statement": "import { getErrorMessage as _getErrorMessage } from \"../utils/error-handler.js\""
+        },
+        {
+          "source": "node:fs",
+          "statement": "import { promises as fs } from \"node:fs\""
+        },
+        {
+          "source": "chalk",
+          "statement": "import chalk from \"chalk\""
+        }
+      ],
+      "exports": [
+        "CompletionGenerator"
+      ],
+      "commands": [],
+      "functions": [],
+      "classes": [
+        "CompletionGenerator"
+      ],
+      "interfaces": [],
+      "types": [],
+      "constants": [],
+      "configuration": {
+        "hasArgParsing": false,
+        "hasEnvVars": true,
+        "hasConfigFile": false,
+        "hasVersionInfo": true,
+        "hasHelpText": true
+      },
+      "dependencies": {
+        "internal": [
+          "../utils/error-handler.js"
+        ],
+        "external": [
+          "node:fs",
+          "chalk"
+        ]
+      }
+    }
+  },
+  "summary": {
+    "totalLines": 8377,
+    "totalCommands": 4,
+    "totalFunctions": 124,
+    "averageLinesPerFile": 762
+  }
+}

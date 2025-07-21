@@ -1,0 +1,338 @@
+{
+  "commands": {
+    "start": [
+      "src/cli/simple-mcp.ts"
+    ],
+    "status": [
+      "src/cli/simple-mcp.ts"
+    ],
+    "tools": [
+      "src/cli/simple-mcp.ts"
+    ],
+    "stop": [
+      "src/cli/simple-mcp.ts"
+    ]
+  },
+  "functions": {
+    "printHelp": [
+      "src/cli/simple-cli.ts",
+      "src/cli/index-remote.ts"
+    ],
+    "printVersion": [
+      "src/cli/simple-cli.ts"
+    ],
+    "printError": [
+      "src/cli/simple-cli.ts",
+      "src/cli/index-remote.ts",
+      "src/cli/simple-mcp.ts"
+    ],
+    "printSuccess": [
+      "src/cli/simple-cli.ts",
+      "src/cli/index-remote.ts",
+      "src/cli/simple-mcp.ts"
+    ],
+    "printWarning": [
+      "src/cli/simple-cli.ts",
+      "src/cli/index-remote.ts"
+    ],
+    "showHelpWithCommands": [
+      "src/cli/simple-cli.ts"
+    ],
+    "main": [
+      "src/cli/simple-cli.ts",
+      "src/cli/cli-core.ts",
+      "src/cli/main.ts",
+      "src/cli/index-remote.ts"
+    ],
+    "startRepl": [
+      "src/cli/simple-cli.ts"
+    ],
+    "processReplCommand": [
+      "src/cli/simple-cli.ts"
+    ],
+    "handleAgentCommand": [
+      "src/cli/simple-cli.ts",
+      "src/cli/node-repl.ts",
+      "src/cli/repl.ts"
+    ],
+    "handleTaskCommand": [
+      "src/cli/simple-cli.ts",
+      "src/cli/node-repl.ts",
+      "src/cli/repl.ts"
+    ],
+    "handleMemoryCommand": [
+      "src/cli/simple-cli.ts",
+      "src/cli/node-repl.ts",
+      "src/cli/repl.ts"
+    ],
+    "handleTerminalCommand": [
+      "src/cli/simple-cli.ts"
+    ],
+    "createMinimalClaudeMd": [
+      "src/cli/simple-cli.ts"
+    ],
+    "createFullClaudeMd": [
+      "src/cli/simple-cli.ts"
+    ],
+    "createMinimalMemoryBankMd": [
+      "src/cli/simple-cli.ts"
+    ],
+    "createFullMemoryBankMd": [
+      "src/cli/simple-cli.ts"
+    ],
+    "createMinimalCoordinationMd": [
+      "src/cli/simple-cli.ts"
+    ],
+    "createFullCoordinationMd": [
+      "src/cli/simple-cli.ts"
+    ],
+    "createAgentsReadme": [
+      "src/cli/simple-cli.ts"
+    ],
+    "createSessionsReadme": [
+      "src/cli/simple-cli.ts"
+    ],
+    "createSparcStructureManually": [
+      "src/cli/simple-cli.ts"
+    ],
+    "createBasicRoomodesConfig": [
+      "src/cli/simple-cli.ts"
+    ],
+    "createBasicSparcWorkflow": [
+      "src/cli/simple-cli.ts"
+    ],
+    "createRooReadme": [
+      "src/cli/simple-cli.ts"
+    ],
+    "createSparcClaudeMd": [
+      "src/cli/simple-cli.ts"
+    ],
+    "success": [
+      "src/cli/cli-core.ts"
+    ],
+    "_error": [
+      "src/cli/cli-core.ts"
+    ],
+    "warning": [
+      "src/cli/cli-core.ts"
+    ],
+    "info": [
+      "src/cli/cli-core.ts"
+    ],
+    "handleError": [
+      "src/cli/index.ts"
+    ],
+    "setupLogging": [
+      "src/cli/index.ts"
+    ],
+    "setupSignalHandlers": [
+      "src/cli/index.ts"
+    ],
+    "gracefulShutdown": [
+      "src/cli/index.ts"
+    ],
+    "formatError": [
+      "src/cli/formatter.ts"
+    ],
+    "formatAgent": [
+      "src/cli/formatter.ts"
+    ],
+    "formatTask": [
+      "src/cli/formatter.ts"
+    ],
+    "formatMemoryEntry": [
+      "src/cli/formatter.ts"
+    ],
+    "formatHealthStatus": [
+      "src/cli/formatter.ts"
+    ],
+    "createAgentTable": [
+      "src/cli/formatter.ts"
+    ],
+    "createTaskTable": [
+      "src/cli/formatter.ts"
+    ],
+    "formatDuration": [
+      "src/cli/formatter.ts"
+    ],
+    "displayBanner": [
+      "src/cli/formatter.ts",
+      "src/cli/node-repl.ts"
+    ],
+    "displayVersion": [
+      "src/cli/formatter.ts"
+    ],
+    "formatProgressBar": [
+      "src/cli/formatter.ts"
+    ],
+    "formatStatusIndicator": [
+      "src/cli/formatter.ts"
+    ],
+    "formatSuccess": [
+      "src/cli/formatter.ts"
+    ],
+    "formatInfo": [
+      "src/cli/formatter.ts"
+    ],
+    "formatWarning": [
+      "src/cli/formatter.ts"
+    ],
+    "formatSpinner": [
+      "src/cli/formatter.ts"
+    ],
+    "startNodeREPL": [
+      "src/cli/node-repl.ts"
+    ],
+    "createPrompt": [
+      "src/cli/node-repl.ts",
+      "src/cli/repl.ts"
+    ],
+    "getConnectionStatusIcon": [
+      "src/cli/node-repl.ts",
+      "src/cli/repl.ts"
+    ],
+    "parseCommand": [
+      "src/cli/node-repl.ts",
+      "src/cli/repl.ts"
+    ],
+    "showHelp": [
+      "src/cli/node-repl.ts",
+      "src/cli/repl.ts"
+    ],
+    "showCommandHelp": [
+      "src/cli/node-repl.ts",
+      "src/cli/repl.ts"
+    ],
+    "showSystemStatus": [
+      "src/cli/node-repl.ts",
+      "src/cli/repl.ts"
+    ],
+    "connectToOrchestrator": [
+      "src/cli/node-repl.ts",
+      "src/cli/repl.ts"
+    ],
+    "executeCliCommand": [
+      "src/cli/node-repl.ts",
+      "src/cli/simple-orchestrator.ts"
+    ],
+    "handleSessionCommand": [
+      "src/cli/node-repl.ts",
+      "src/cli/repl.ts"
+    ],
+    "handleWorkflowCommand": [
+      "src/cli/node-repl.ts",
+      "src/cli/repl.ts"
+    ],
+    "findSimilarCommands": [
+      "src/cli/node-repl.ts",
+      "src/cli/repl.ts"
+    ],
+    "processCommand": [
+      "src/cli/node-repl.ts"
+    ],
+    "showPrompt": [
+      "src/cli/node-repl.ts"
+    ],
+    "startREPL": [
+      "src/cli/repl.ts"
+    ],
+    "showAgentList": [
+      "src/cli/repl.ts"
+    ],
+    "handleAgentSpawn": [
+      "src/cli/repl.ts"
+    ],
+    "handleAgentTerminate": [
+      "src/cli/repl.ts"
+    ],
+    "showAgentInfo": [
+      "src/cli/repl.ts"
+    ],
+    "showTaskList": [
+      "src/cli/repl.ts"
+    ],
+    "handleTaskCreate": [
+      "src/cli/repl.ts"
+    ],
+    "showTaskStatus": [
+      "src/cli/repl.ts"
+    ],
+    "handleTaskCancel": [
+      "src/cli/repl.ts"
+    ],
+    "showMemoryStats": [
+      "src/cli/repl.ts"
+    ],
+    "showSessionList": [
+      "src/cli/repl.ts"
+    ],
+    "handleSessionSave": [
+      "src/cli/repl.ts"
+    ],
+    "handleSessionRestore": [
+      "src/cli/repl.ts"
+    ],
+    "showWorkflowList": [
+      "src/cli/repl.ts"
+    ],
+    "handleWorkflowRun": [
+      "src/cli/repl.ts"
+    ],
+    "showWorkflowStatus": [
+      "src/cli/repl.ts"
+    ],
+    "checkMCPStatus": [
+      "src/cli/simple-mcp.ts"
+    ],
+    "createMCPCommand": [
+      "src/cli/simple-mcp.ts"
+    ],
+    "startMCPServer": [
+      "src/cli/simple-orchestrator.ts"
+    ],
+    "startWebUI": [
+      "src/cli/simple-orchestrator.ts"
+    ],
+    "getReconnectDelay": [
+      "src/cli/simple-orchestrator.ts"
+    ],
+    "connect": [
+      "src/cli/simple-orchestrator.ts"
+    ],
+    "handleMessage": [
+      "src/cli/simple-orchestrator.ts"
+    ],
+    "appendOutput": [
+      "src/cli/simple-orchestrator.ts"
+    ],
+    "updateStatus": [
+      "src/cli/simple-orchestrator.ts"
+    ],
+    "sendCommand": [
+      "src/cli/simple-orchestrator.ts"
+    ],
+    "sendResponse": [
+      "src/cli/simple-orchestrator.ts"
+    ],
+    "handleCliCommand": [
+      "src/cli/simple-orchestrator.ts"
+    ],
+    "broadcastToClients": [
+      "src/cli/simple-orchestrator.ts"
+    ],
+    "convertAnsiToHtml": [
+      "src/cli/simple-orchestrator.ts"
+    ],
+    "startOrchestrator": [
+      "src/cli/simple-orchestrator.ts"
+    ],
+    "getComponentStatus": [
+      "src/cli/simple-orchestrator.ts"
+    ],
+    "getStores": [
+      "src/cli/simple-orchestrator.ts"
+    ]
+  },
+  "interfaces": {},
+  "dependencies": {}
+}
