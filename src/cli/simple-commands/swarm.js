@@ -602,7 +602,7 @@ The swarm should be self-documenting - use memory_store to save all important in
 			const logHandle = await open(logFile, "w");
 
 			// Create a script to run the swarm without background flag
-			const scriptContent = `#!/usr/bin/env -S deno run --allow-all
+			const scriptContent = `#!/usr/bin/env node
 import { swarmCommand } from "${import.meta.url}";
 import { Deno, cwd, exit, existsSync } from '../node-compat.js';
 import process from 'process';

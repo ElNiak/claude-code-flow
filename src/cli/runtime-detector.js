@@ -3,10 +3,10 @@
  * Cross-platform detection and compatibility layer for Node.js and Deno
  */
 
-// Runtime detection
+// Runtime detection - Node.js only now
 const isNode =
 	typeof process !== "undefined" && process.versions && process.versions.node;
-const isDeno = typeof Deno !== "undefined";
+const isDeno = false; // Deno support removed - Node.js only
 
 // Environment-specific imports
 let runtime;
@@ -14,18 +14,7 @@ let stdin, stdout, stderr;
 let TextEncoder, TextDecoder;
 let exit, pid, addSignalListener;
 
-if (isDeno) {
-	// Deno environment
-	runtime = "deno";
-	stdin = Deno.stdin;
-	stdout = Deno.stdout;
-	stderr = Deno.stderr;
-	TextEncoder = globalThis.TextEncoder;
-	TextDecoder = globalThis.TextDecoder;
-	exit = Deno.exit;
-	pid = Deno.pid;
-	addSignalListener = Deno.addSignalListener;
-} else if (isNode) {
+if (isNode) {
 	// Node.js environment
 	runtime = "node";
 	stdin = process.stdin;
@@ -39,7 +28,7 @@ if (isDeno) {
 		process.on(signal, handler);
 	};
 } else {
-	throw new Error("Unsupported runtime environment");
+	throw new Error("Unsupported runtime environment - Node.js required");
 }
 
 /**
@@ -60,22 +49,16 @@ export class UnifiedTerminalIO {
 			data = this.encoder.encode(data);
 		}
 
-		if (runtime === "deno") {
-			await stdout.write(data);
-		} else {
-			return new Promise((resolve) => {
-				stdout.write(data, resolve);
-			});
-		}
+		return new Promise((resolve) => {
+			stdout.write(data, resolve);
+		});
 	}
 
 	/**
 	 * Read from stdin
 	 */
 	async read(buffer) {
-		if (runtime === "deno") {
-			return await stdin.read(buffer);
-		} else {
+		{
 			return new Promise((resolve) => {
 				let data = "";
 				const onData = (chunk) => {
@@ -111,11 +94,7 @@ export class UnifiedTerminalIO {
 	 * Set up signal handlers
 	 */
 	onSignal(signal, handler) {
-		if (runtime === "deno") {
-			addSignalListener(signal, handler);
-		} else {
-			process.on(signal, handler);
-		}
+		process.on(signal, handler);
 	}
 
 	/**
@@ -136,11 +115,7 @@ export class UnifiedTerminalIO {
 	 * Set raw mode for stdin (Node.js only)
 	 */
 	setRawMode(enabled) {
-		if (
-			runtime === "node" &&
-			stdin.setRawMode &&
-			typeof stdin.setRawMode === "function"
-		) {
+		if (stdin.setRawMode && typeof stdin.setRawMode === "function") {
 			try {
 				stdin.setRawMode(enabled);
 			} catch (err) {
@@ -153,7 +128,7 @@ export class UnifiedTerminalIO {
 	 * Resume stdin (Node.js only)
 	 */
 	resume() {
-		if (runtime === "node" && stdin.resume) {
+		if (stdin.resume) {
 			stdin.resume();
 		}
 	}
@@ -162,7 +137,7 @@ export class UnifiedTerminalIO {
 	 * Pause stdin (Node.js only)
 	 */
 	pause() {
-		if (runtime === "node" && stdin.pause) {
+		if (stdin.pause) {
 			stdin.pause();
 		}
 	}
@@ -180,26 +155,18 @@ export const RuntimeDetector = {
 	 * Get platform-specific information
 	 */
 	getPlatform: () => {
-		if (runtime === "deno") {
-			return {
-				os: Deno.build.os,
-				arch: Deno.build.arch,
-				target: Deno.build.target,
-			};
-		} else {
-			return {
-				os:
-					process.platform === "win32"
-						? "windows"
-						: process.platform === "darwin"
-							? "darwin"
-							: process.platform === "linux"
-								? "linux"
-								: process.platform,
-				arch: process.arch,
-				target: `${process.arch}-${process.platform}`,
-			};
-		}
+		return {
+			os:
+				process.platform === "win32"
+					? "windows"
+					: process.platform === "darwin"
+						? "darwin"
+						: process.platform === "linux"
+							? "linux"
+							: process.platform,
+			arch: process.arch,
+			target: `${process.arch}-${process.platform}`,
+		};
 	},
 
 	/**
@@ -208,19 +175,13 @@ export const RuntimeDetector = {
 	hasAPI: (apiName) => {
 		switch (apiName) {
 			case "deno":
-				return isDeno;
+				return false; // Deno no longer supported
 			case "node":
 				return isNode;
 			case "fs":
-				return (
-					runtime === "node" ||
-					(runtime === "deno" && typeof Deno.readFile !== "undefined")
-				);
+				return runtime === "node";
 			case "process":
-				return (
-					runtime === "node" ||
-					(runtime === "deno" && typeof Deno.run !== "undefined")
-				);
+				return runtime === "node";
 			default:
 				return false;
 		}
@@ -230,22 +191,14 @@ export const RuntimeDetector = {
 	 * Get environment variables
 	 */
 	getEnv: (key) => {
-		if (runtime === "deno") {
-			return Deno.env.get(key);
-		} else {
-			return process.env[key];
-		}
+		return process.env[key];
 	},
 
 	/**
 	 * Set environment variables
 	 */
 	setEnv: (key, value) => {
-		if (runtime === "deno") {
-			Deno.env.set(key, value);
-		} else {
-			process.env[key] = value;
-		}
+		process.env[key] = value;
 	},
 };
 

@@ -1,4 +1,4 @@
-#!/usr/bin/env -S deno run --allow-all
+#!/usr/bin/env node
 
 /**
  * Manual test script for ProcessManager functionality

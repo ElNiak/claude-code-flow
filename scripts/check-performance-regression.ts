@@ -1,4 +1,4 @@
-#!/usr/bin/env deno run --allow-read --allow-write
+#!/usr/bin/env node
 
 /**
  * Performance Regression Checker

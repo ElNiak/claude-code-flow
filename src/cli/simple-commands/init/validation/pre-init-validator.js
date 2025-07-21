@@ -20,13 +20,13 @@ export class PreInitValidator {
 		try {
 			// Test write permission in working directory
 			const testFile = `${this.workingDir}/.claude-flow-permission-test`;
-			await Deno.writeTextFile(testFile, "test");
-			await Deno.remove(testFile);
+			writeFileSync(testFile, "test", "utf8");
+			await fs.rm(testFile);
 
 			// Test directory creation permission
 			const testDir = `${this.workingDir}/.claude-flow-dir-test`;
-			await Deno.mkdir(testDir);
-			await Deno.remove(testDir);
+			await fs.mkdir(testDir);
+			await fs.rm(testDir);
 		} catch (error) {
 			result.success = false;
 			result.errors.push(
@@ -49,7 +49,7 @@ export class PreInitValidator {
 
 		try {
 			// Get disk usage information
-			const command = new Deno.Command("df", {
+			const command = spawn("df", {
 				args: ["-k", this.workingDir],
 				stdout: "piped",
 				stderr: "piped",
@@ -115,7 +115,7 @@ export class PreInitValidator {
 		// Check critical files
 		for (const file of criticalFiles) {
 			try {
-				const stat = await Deno.stat(`${this.workingDir}/${file}`);
+				const stat = await fs.stat(`${this.workingDir}/${file}`);
 				if (stat.isFile) {
 					result.conflicts.push(file);
 					if (!force) {
@@ -133,11 +133,11 @@ export class PreInitValidator {
 		// Check critical directories
 		for (const dir of criticalDirs) {
 			try {
-				const stat = await Deno.stat(`${this.workingDir}/${dir}`);
+				const stat = await fs.stat(`${this.workingDir}/${dir}`);
 				if (stat.isDirectory) {
 					// Check if directory has important content
 					const entries = [];
-					for await (const entry of Deno.readDir(`${this.workingDir}/${dir}`)) {
+					for await (const entry of fs.readdir(`${this.workingDir}/${dir}`)) {
 						entries.push(entry.name);
 					}
 
@@ -176,7 +176,7 @@ export class PreInitValidator {
 
 		for (const dep of dependencies) {
 			try {
-				const command = new Deno.Command(dep.command, {
+				const command = spawn(dep.command, {
 					args: dep.args,
 					stdout: "piped",
 					stderr: "piped",
@@ -235,7 +235,7 @@ export class PreInitValidator {
 		];
 
 		for (const envVar of envVars) {
-			const value = Deno.env.get(envVar.name);
+			const value = process.env[envVar.name];
 
 			if (value) {
 				result.environment[envVar.name] = "set";
@@ -253,7 +253,7 @@ export class PreInitValidator {
 
 		// Check if we're in a git repository
 		try {
-			const command = new Deno.Command("git", {
+			const command = spawn("git", {
 				args: ["rev-parse", "--git-dir"],
 				cwd: this.workingDir,
 				stdout: "piped",

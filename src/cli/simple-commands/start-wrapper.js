@@ -97,7 +97,7 @@ export async function startCommand(subArgs, flags) {
 
 		for (const dir of requiredDirs) {
 			try {
-				await Deno.stat(dir);
+				await fs.stat(dir);
 			} catch {
 				missingDirs.push(dir);
 			}
@@ -160,7 +160,7 @@ export async function startCommand(subArgs, flags) {
 			const pid = compat.terminal.getPid();
 			await compat.safeCall(async () => {
 				if (compat.runtime === "deno") {
-					await Deno.writeTextFile(".claude-flow.pid", pid.toString());
+					writeFileSync(".claude-flow.pid", pid.toString(), "utf8");
 				} else {
 					const fs = await import("fs/promises");
 					await fs.writeFile(".claude-flow.pid", pid.toString());
@@ -240,7 +240,7 @@ async function cleanup() {
 	try {
 		await compat.safeCall(async () => {
 			if (compat.runtime === "deno") {
-				await Deno.remove(".claude-flow.pid");
+				await fs.rm(".claude-flow.pid");
 			} else {
 				const fs = await import("fs/promises");
 				await fs.unlink(".claude-flow.pid");

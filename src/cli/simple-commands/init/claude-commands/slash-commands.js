@@ -12,7 +12,7 @@ export async function createClaudeSlashCommands(workingDir) {
 		console.log("\n📝 Creating Claude Code slash commands...");
 
 		// Parse .roomodes to get all SPARC modes
-		const roomodesContent = await Deno.readTextFile(`${workingDir}/.roomodes`);
+		const roomodesContent = readFileSync(`${workingDir}/.roomodes`, "utf8");
 		const roomodes = JSON.parse(roomodesContent);
 
 		// Create slash commands for each SPARC mode
@@ -20,15 +20,16 @@ export async function createClaudeSlashCommands(workingDir) {
 			const commandPath = `${workingDir}/.claude/commands/sparc/${mode.slug}.md`;
 			const commandContent = createSparcSlashCommand(mode);
 
-			await Deno.writeTextFile(commandPath, commandContent);
+			writeFileSync(commandPath, commandContent, "utf8");
 			console.log(`  ✓ Created slash command: /sparc-${mode.slug}`);
 		}
 
 		// Create main SPARC command
 		const mainSparcCommand = createMainSparcCommand(roomodes.customModes);
-		await Deno.writeTextFile(
+		writeFileSync(
 			`${workingDir}/.claude/commands/sparc.md`,
-			mainSparcCommand
+			mainSparcCommand,
+			"utf8"
 		);
 		console.log("  ✓ Created main slash command: /sparc");
 

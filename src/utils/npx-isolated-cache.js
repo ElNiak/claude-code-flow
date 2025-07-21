@@ -45,9 +45,8 @@ export function createIsolatedCache() {
 	}
 
 	// Return environment with isolated cache
-	// Use Deno.env if available (Deno environment), otherwise use process.env (Node.js environment)
-	const baseEnv =
-		typeof Deno !== "undefined" && Deno.env ? Deno.env.toObject() : process.env;
+	// Use process.env (Node.js only - Deno support removed)
+	const baseEnv = process.env;
 
 	return {
 		...baseEnv,

@@ -45,7 +45,7 @@ async function createBatchConfig(args, flags) {
 	};
 
 	try {
-		await Deno.writeTextFile(outputFile, JSON.stringify(config, null, 2));
+		writeFileSync(outputFile, JSON.stringify(config, null, 2, "utf8"));
 		printSuccess(`Created batch configuration template: ${outputFile}`);
 		console.log("Edit the file to customize your batch initialization setup.");
 	} catch (error) {
@@ -99,7 +99,7 @@ async function createInteractiveConfig(outputFile) {
 	};
 
 	try {
-		await Deno.writeTextFile(outputFile, JSON.stringify(config, null, 2));
+		writeFileSync(outputFile, JSON.stringify(config, null, 2, "utf8"));
 		printSuccess(`Created interactive batch configuration: ${outputFile}`);
 		console.log("\nNext steps:");
 		console.log("1. Edit the configuration file to match your needs");
@@ -120,7 +120,7 @@ async function validateBatchConfig(args, flags) {
 	}
 
 	try {
-		const content = await Deno.readTextFile(configFile);
+		const content = readFileSync(configFile, "utf8");
 		const config = JSON.parse(content);
 
 		console.log(`📋 Validating batch configuration: ${configFile}`);
@@ -280,7 +280,7 @@ async function estimateBatchOperation(args, flags) {
 	}
 
 	try {
-		const content = await Deno.readTextFile(configFile);
+		const content = readFileSync(configFile, "utf8");
 		const config = JSON.parse(content);
 
 		console.log("⏱️  Batch Operation Estimation");

@@ -1,4 +1,4 @@
-#!/usr/bin/env -S deno run --allow-all
+#!/usr/bin/env node
 /**
  * Batch Initialization Demo Script
  * Demonstrates all batch initialization features

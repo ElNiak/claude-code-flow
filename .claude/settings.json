@@ -99,57 +99,5 @@
       }
     ]
   },
-  "mcpServers": {
-    "claude-flow": {
-      "command": "node",
-      "args": [
-        "/Users/elniak/Documents/Project/claude-code-flow/dist/cli/simple-cli.js",
-        "mcp",
-        "start"
-      ],
-      "env": {
-        "NODE_ENV": "production",
-        "CLAUDE_FLOW_MCP_MODE": "stdio",
-        "CLAUDE_FLOW_HOOKS_ENABLED": "true",
-        "CLAUDE_FLOW_TELEMETRY_ENABLED": "true",
-        "CLAUDE_FLOW_DEBUG": "false"
-      }
-    },
-    "serena": {
-      "command": "uvx",
-      "args": [
-        "--from",
-        "git+https://github.com/oraios/serena",
-        "serena-mcp-server",
-        "--context",
-        "ide-assistant",
-        "--tool-timeout",
-        "30000",
-        "--project",
-        "${pwd}"
-      ],
-      "env": {
-        "SERENA_LOG_LEVEL": "INFO"
-      }
-    }
-  },
-  "includeCoAuthoredBy": false,
-  "features": {
-    "autoTopologySelection": true,
-    "parallelExecution": true,
-    "neuralTraining": true,
-    "bottleneckAnalysis": true,
-    "smartAutoSpawning": true,
-    "selfHealingWorkflows": true,
-    "crossSessionMemory": true,
-    "githubIntegration": true
-  },
-  "performance": {
-    "maxAgents": 10,
-    "defaultTopology": "hierarchical",
-    "executionStrategy": "parallel",
-    "tokenOptimization": true,
-    "cacheEnabled": true,
-    "telemetryLevel": "detailed"
-  }
+  "includeCoAuthoredBy": false
 }

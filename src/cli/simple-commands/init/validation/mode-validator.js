@@ -1,3 +1,4 @@
+import { readFileSync } from "fs";
 // mode-validator.js - SPARC mode functionality testing
 
 export class ModeValidator {
@@ -112,7 +113,7 @@ export class ModeValidator {
 		try {
 			// Check for .roomodes file
 			try {
-				const stat = await Deno.stat(`${this.workingDir}/.roomodes`);
+				const stat = await fs.stat(`${this.workingDir}/.roomodes`);
 				result.hasRoomodes = stat.isFile;
 			} catch {
 				result.error = ".roomodes file not found";
@@ -120,7 +121,7 @@ export class ModeValidator {
 
 			// Check for claude-flow executable
 			try {
-				const stat = await Deno.stat(`${this.workingDir}/claude-flow`);
+				const stat = await fs.stat(`${this.workingDir}/claude-flow`);
 				result.hasExecutable = stat.isFile;
 			} catch {
 				result.error = "claude-flow executable not found";
@@ -143,7 +144,7 @@ export class ModeValidator {
 		try {
 			// Try to get modes from .roomodes
 			const roomodesPath = `${this.workingDir}/.roomodes`;
-			const content = await Deno.readTextFile(roomodesPath);
+			const content = readFileSync(roomodesPath, "utf8");
 			const config = JSON.parse(content);
 
 			if (config.modes && typeof config.modes === "object") {
@@ -176,7 +177,7 @@ export class ModeValidator {
 
 		try {
 			// Test with sparc info command
-			const command = new Deno.Command("./claude-flow", {
+			const command = spawn("./claude-flow", {
 				args: ["sparc", "info", modeName],
 				cwd: this.workingDir,
 				stdout: "piped",
@@ -210,7 +211,7 @@ export class ModeValidator {
 		try {
 			// Read .roomodes and validate mode config
 			const roomodesPath = `${this.workingDir}/.roomodes`;
-			const content = await Deno.readTextFile(roomodesPath);
+			const content = readFileSync(roomodesPath, "utf8");
 			const config = JSON.parse(content);
 
 			if (!config.modes || !config.modes[modeName]) {
@@ -254,7 +255,7 @@ export class ModeValidator {
 
 		try {
 			// Test with a safe, non-destructive command
-			const command = new Deno.Command("./claude-flow", {
+			const command = spawn("./claude-flow", {
 				args: ["sparc", "run", modeName, "test validation", "--dry-run"],
 				cwd: this.workingDir,
 				stdout: "piped",
@@ -273,7 +274,7 @@ export class ModeValidator {
 					errorOutput.includes("unknown flag")
 				) {
 					// Try without dry-run but with a safe test task
-					const testCommand = new Deno.Command("./claude-flow", {
+					const testCommand = spawn("./claude-flow", {
 						args: ["sparc", "modes"],
 						cwd: this.workingDir,
 						stdout: "piped",
@@ -318,7 +319,7 @@ export class ModeValidator {
 
 			try {
 				const entries = [];
-				for await (const entry of Deno.readDir(workflowDir)) {
+				for await (const entry of fs.readdir(workflowDir)) {
 					if (entry.isFile && entry.name.endsWith(".json")) {
 						entries.push(entry.name);
 					}
@@ -360,7 +361,7 @@ export class ModeValidator {
 
 		try {
 			const workflowPath = `${this.workingDir}/.roo/workflows/${filename}`;
-			const content = await Deno.readTextFile(workflowPath);
+			const content = readFileSync(workflowPath, "utf8");
 
 			// Parse JSON
 			const workflow = JSON.parse(content);

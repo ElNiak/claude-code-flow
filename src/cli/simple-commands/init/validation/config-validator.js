@@ -20,7 +20,7 @@ export class ConfigValidator {
 
 		try {
 			// Check if file exists
-			const stat = await Deno.stat(roomodesPath);
+			const stat = await fs.stat(roomodesPath);
 			if (!stat.isFile) {
 				result.success = false;
 				result.errors.push(".roomodes exists but is not a file");
@@ -28,7 +28,7 @@ export class ConfigValidator {
 			}
 
 			// Read and parse JSON
-			const content = await Deno.readTextFile(roomodesPath);
+			const content = readFileSync(roomodesPath, "utf8");
 
 			try {
 				const config = JSON.parse(content);
@@ -73,7 +73,7 @@ export class ConfigValidator {
 		const claudeMdPath = `${this.workingDir}/CLAUDE.md`;
 
 		try {
-			const content = await Deno.readTextFile(claudeMdPath);
+			const content = readFileSync(claudeMdPath, "utf8");
 			result.content = content;
 
 			// Check for required sections
@@ -131,7 +131,7 @@ export class ConfigValidator {
 		const memoryDataPath = `${this.workingDir}/memory/claude-flow-data.json`;
 
 		try {
-			const content = await Deno.readTextFile(memoryDataPath);
+			const content = readFileSync(memoryDataPath, "utf8");
 
 			try {
 				const data = JSON.parse(content);
@@ -170,7 +170,7 @@ export class ConfigValidator {
 		const coordinationPath = `${this.workingDir}/coordination.md`;
 
 		try {
-			const content = await Deno.readTextFile(coordinationPath);
+			const content = readFileSync(coordinationPath, "utf8");
 			result.content = content;
 
 			// Check for required sections
@@ -213,7 +213,7 @@ export class ConfigValidator {
 		const executablePath = `${this.workingDir}/claude-flow`;
 
 		try {
-			const stat = await Deno.stat(executablePath);
+			const stat = await fs.stat(executablePath);
 
 			if (!stat.isFile) {
 				result.success = false;
@@ -222,7 +222,7 @@ export class ConfigValidator {
 			}
 
 			// Check if executable (on Unix systems)
-			if (Deno.build.os !== "windows") {
+			if (process.platform !== "windows") {
 				const isExecutable = (stat.mode & 0o111) !== 0;
 				if (!isExecutable) {
 					result.warnings.push("claude-flow file is not executable");
@@ -230,7 +230,7 @@ export class ConfigValidator {
 			}
 
 			// Read and validate content
-			const content = await Deno.readTextFile(executablePath);
+			const content = readFileSync(executablePath, "utf8");
 
 			// Check for required elements
 			if (content.includes("#!/usr/bin/env")) {

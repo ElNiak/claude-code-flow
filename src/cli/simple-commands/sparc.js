@@ -83,7 +83,7 @@ async function listSparcModes(subArgs) {
 		const configPath = `${workingDir}/.roomodes`;
 		let configContent;
 		try {
-			configContent = await Deno.readTextFile(configPath);
+			configContent = readFileSync(configPath, "utf8");
 		} catch (error) {
 			printError("SPARC configuration file (.roomodes) not found");
 			console.log(`Please ensure .roomodes file exists in: ${workingDir}`);
@@ -135,7 +135,7 @@ async function showModeInfo(subArgs) {
 		const configPath = `${workingDir}/.roomodes`;
 		let configContent;
 		try {
-			configContent = await Deno.readTextFile(configPath);
+			configContent = readFileSync(configPath, "utf8");
 		} catch (error) {
 			printError("SPARC configuration file (.roomodes) not found");
 			console.log(`Please ensure .roomodes file exists in: ${workingDir}`);
@@ -192,7 +192,7 @@ async function runSparcMode(subArgs, flags) {
 		const configPath = `${workingDir}/.roomodes`;
 		let configContent;
 		try {
-			configContent = await Deno.readTextFile(configPath);
+			configContent = readFileSync(configPath, "utf8");
 		} catch (error) {
 			printError("SPARC configuration file (.roomodes) not found");
 			console.log(`Please ensure .roomodes file exists in: ${workingDir}`);
@@ -459,7 +459,7 @@ async function executeClaude(
 
 		// Check if claude command exists
 		try {
-			const checkCommand = new Deno.Command("which", {
+			const checkCommand = spawn("which", {
 				args: ["claude"],
 				stdout: "piped",
 				stderr: "piped",
@@ -476,11 +476,11 @@ async function executeClaude(
 			console.warn("⚠️  Could not verify claude command location");
 		}
 
-		const command = new Deno.Command("claude", {
+		const command = spawn("claude", {
 			args: claudeArgs,
 			cwd: cwd(), // Explicitly set working directory to current directory
 			env: {
-				...Deno.env.toObject(),
+				...process.env,
 				CLAUDE_INSTANCE_ID: instanceId,
 				CLAUDE_SPARC_MODE: "true",
 				CLAUDE_FLOW_MEMORY_ENABLED: "true",

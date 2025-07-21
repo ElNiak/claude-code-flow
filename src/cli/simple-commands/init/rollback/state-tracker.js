@@ -431,7 +431,7 @@ export class StateTracker {
 
 	async loadState() {
 		try {
-			const content = await Deno.readTextFile(this.stateFile);
+			const content = readFileSync(this.stateFile, "utf8");
 			return JSON.parse(content);
 		} catch {
 			// Return default state if file doesn't exist or is invalid
@@ -453,7 +453,7 @@ export class StateTracker {
 		state.lastActivity = Date.now();
 		state.version = "1.0";
 
-		await Deno.writeTextFile(this.stateFile, JSON.stringify(state, null, 2));
+		writeFileSync(this.stateFile, JSON.stringify(state, null, 2, "utf8"));
 	}
 
 	generateId() {

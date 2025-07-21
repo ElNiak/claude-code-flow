@@ -345,7 +345,7 @@ async function initializeProject(projectPath, options = {}) {
 			: `${currentDir}/${projectPath}`;
 
 		// Create project directory
-		await Deno.mkdir(absoluteProjectPath, { recursive: true });
+		await fs.mkdir(absoluteProjectPath, { recursive: true });
 
 		// Change to project directory
 		const originalDir = cwd();
@@ -377,7 +377,7 @@ async function initializeProject(projectPath, options = {}) {
 		// Create all directories in parallel
 		await Promise.all(
 			directories.map((dir) =>
-				Deno.mkdir(dir, { recursive: true }).catch(() => {})
+				fs.mkdir(dir, { recursive: true }).catch(() => {})
 			)
 		);
 
@@ -390,26 +390,24 @@ async function initializeProject(projectPath, options = {}) {
 			: minimal
 				? createMinimalClaudeMd()
 				: createFullClaudeMd();
-		fileCreationTasks.push(Deno.writeTextFile("CLAUDE.md", claudeMd));
+		fileCreationTasks.push(fs.writeFileSync("CLAUDE.md", claudeMd));
 
 		// memory-bank.md
 		const memoryBankMd = minimal
 			? createMinimalMemoryBankMd()
 			: createFullMemoryBankMd();
-		fileCreationTasks.push(Deno.writeTextFile("memory-bank.md", memoryBankMd));
+		fileCreationTasks.push(fs.writeFileSync("memory-bank.md", memoryBankMd));
 
 		// coordination.md
 		const coordinationMd = minimal
 			? createMinimalCoordinationMd()
 			: createFullCoordinationMd();
-		fileCreationTasks.push(
-			Deno.writeTextFile("coordination.md", coordinationMd)
-		);
+		fileCreationTasks.push(fs.writeFileSync("coordination.md", coordinationMd));
 
 		// README files
 		fileCreationTasks.push(
-			Deno.writeTextFile("memory/agents/README.md", createAgentsReadme()),
-			Deno.writeTextFile("memory/sessions/README.md", createSessionsReadme())
+			fs.writeFileSync("memory/agents/README.md", createAgentsReadme()),
+			fs.writeFileSync("memory/sessions/README.md", createSessionsReadme())
 		);
 
 		// Persistence database
@@ -422,7 +420,7 @@ async function initializeProject(projectPath, options = {}) {
 			lastUpdated: Date.now(),
 		};
 		fileCreationTasks.push(
-			Deno.writeTextFile(
+			fs.writeFileSync(
 				"memory/claude-flow-data.json",
 				JSON.stringify(initialData, null, 2)
 			)
@@ -434,7 +432,7 @@ async function initializeProject(projectPath, options = {}) {
 			const envContent = Object.entries(envConfig.config)
 				.map(([key, value]) => `${key}=${value}`)
 				.join("\n");
-			fileCreationTasks.push(Deno.writeTextFile(".env", envContent));
+			fileCreationTasks.push(fs.writeFileSync(".env", envContent));
 		}
 
 		// Template-specific files
@@ -455,7 +453,7 @@ async function initializeProject(projectPath, options = {}) {
 						.replace(/{{PROJECT_DESCRIPTION}}/g, templateConfig.description)
 						.replace(/{{ENVIRONMENT}}/g, environment);
 
-					fileCreationTasks.push(Deno.writeTextFile(filePath, fileContent));
+					fileCreationTasks.push(fs.writeFileSync(filePath, fileContent));
 				}
 			}
 		}
@@ -646,7 +644,7 @@ export async function batchInitCommand(projects, options = {}) {
 // Parse batch initialization config from file
 export async function parseBatchConfig(configFile) {
 	try {
-		const content = await Deno.readTextFile(configFile);
+		const content = readFileSync(configFile, "utf8");
 		return JSON.parse(content);
 	} catch (error) {
 		printError(`Failed to read batch config file: ${error.message}`);

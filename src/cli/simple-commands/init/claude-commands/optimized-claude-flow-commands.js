@@ -238,9 +238,10 @@ npx -y claude-flow@latest init --sparc --force
 For comprehensive documentation and optimization guides, see the resources above.
 `;
 
-	await Deno.writeTextFile(
+	writeFileSync(
 		`${workingDir}/.claude/commands/claude-flow-help.md`,
-		helpCommand
+		helpCommand,
+		"utf8"
 	);
 	console.log(
 		"  ✓ Created optimized slash command: /claude-flow-help (Batchtools enhanced)"
@@ -534,9 +535,10 @@ The memory system provides persistent storage for cross-session and cross-agent 
 For comprehensive memory system documentation and optimization guides, see: https://github.com/ruvnet/claude-code-flow/docs/memory-batchtools.md
 `;
 
-	await Deno.writeTextFile(
+	writeFileSync(
 		`${workingDir}/.claude/commands/claude-flow-memory.md`,
-		memoryCommand
+		memoryCommand,
+		"utf8"
 	);
 	console.log(
 		"  ✓ Created optimized slash command: /claude-flow-memory (Batchtools enhanced)"
@@ -880,9 +882,10 @@ Swarms automatically use distributed memory with parallel processing for collabo
 For detailed documentation and optimization guides, see: https://github.com/ruvnet/claude-code-flow/docs/swarm-batchtools.md
 `;
 
-	await Deno.writeTextFile(
+	writeFileSync(
 		`${workingDir}/.claude/commands/claude-flow-swarm.md`,
-		swarmCommand
+		swarmCommand,
+		"utf8"
 	);
 	console.log(
 		"  ✓ Created optimized slash command: /claude-flow-swarm (Batchtools enhanced)"

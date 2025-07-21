@@ -1,3 +1,4 @@
+import { readFileSync, writeFileSync } from "fs";
 // rollback-executor.js - Execute rollback operations
 
 export class RollbackExecutor {
@@ -123,13 +124,13 @@ export class RollbackExecutor {
 				const itemPath = `${this.workingDir}/${item}`;
 
 				try {
-					const stat = await Deno.stat(itemPath);
+					const stat = await fs.stat(itemPath);
 
 					if (stat.isFile) {
-						await Deno.remove(itemPath);
+						await fs.rm(itemPath);
 						result.actions.push(`Removed file: ${item}`);
 					} else if (stat.isDirectory) {
-						await Deno.remove(itemPath, { recursive: true });
+						await fs.rm(itemPath, { recursive: true });
 						result.actions.push(`Removed directory: ${item}`);
 					}
 				} catch {
@@ -165,12 +166,12 @@ export class RollbackExecutor {
 
 			try {
 				// Remove all command files
-				for await (const entry of Deno.readDir(commandsDir)) {
+				for await (const entry of fs.readdir(commandsDir)) {
 					if (entry.isFile && entry.name.endsWith(".js")) {
-						await Deno.remove(`${commandsDir}/${entry.name}`);
+						await fs.rm(`${commandsDir}/${entry.name}`);
 						result.actions.push(`Removed command: ${entry.name}`);
 					} else if (entry.isDirectory) {
-						await Deno.remove(`${commandsDir}/${entry.name}`, {
+						await fs.rm(`${commandsDir}/${entry.name}`, {
 							recursive: true,
 						});
 						result.actions.push(`Removed command directory: ${entry.name}`);
@@ -209,13 +210,13 @@ export class RollbackExecutor {
 				const itemPath = `${this.workingDir}/${item}`;
 
 				try {
-					const stat = await Deno.stat(itemPath);
+					const stat = await fs.stat(itemPath);
 
 					if (stat.isFile) {
-						await Deno.remove(itemPath);
+						await fs.rm(itemPath);
 						result.actions.push(`Removed memory file: ${item}`);
 					} else if (stat.isDirectory) {
-						await Deno.remove(itemPath, { recursive: true });
+						await fs.rm(itemPath, { recursive: true });
 						result.actions.push(`Removed memory directory: ${item}`);
 					}
 				} catch {
@@ -225,7 +226,7 @@ export class RollbackExecutor {
 
 			// Keep memory directory but clean it
 			try {
-				await Deno.mkdir(`${this.workingDir}/memory`, { recursive: true });
+				await fs.mkdir(`${this.workingDir}/memory`, { recursive: true });
 				result.actions.push("Recreated clean memory directory");
 			} catch {
 				result.warnings.push("Could not recreate memory directory");
@@ -253,7 +254,7 @@ export class RollbackExecutor {
 			const coordinationDir = `${this.workingDir}/coordination`;
 
 			try {
-				await Deno.remove(coordinationDir, { recursive: true });
+				await fs.rm(coordinationDir, { recursive: true });
 				result.actions.push("Removed coordination directory");
 			} catch {
 				result.actions.push("Coordination directory was already clean");
@@ -261,7 +262,7 @@ export class RollbackExecutor {
 
 			// Remove coordination.md
 			try {
-				await Deno.remove(`${this.workingDir}/coordination.md`);
+				await fs.rm(`${this.workingDir}/coordination.md`);
 				result.actions.push("Removed coordination.md");
 			} catch {
 				result.actions.push("coordination.md was already clean");
@@ -291,7 +292,7 @@ export class RollbackExecutor {
 			const executablePath = `${this.workingDir}/claude-flow`;
 
 			try {
-				await Deno.remove(executablePath);
+				await fs.rm(executablePath);
 				result.actions.push("Removed claude-flow executable");
 			} catch {
 				result.actions.push("claude-flow executable was already clean");
@@ -365,13 +366,13 @@ export class RollbackExecutor {
 				const artifactPath = `${this.workingDir}/${artifact}`;
 
 				try {
-					const stat = await Deno.stat(artifactPath);
+					const stat = await fs.stat(artifactPath);
 
 					if (stat.isFile) {
-						await Deno.remove(artifactPath);
+						await fs.rm(artifactPath);
 						result.actions.push(`Removed file: ${artifact}`);
 					} else if (stat.isDirectory) {
-						await Deno.remove(artifactPath, { recursive: true });
+						await fs.rm(artifactPath, { recursive: true });
 						result.actions.push(`Removed directory: ${artifact}`);
 					}
 				} catch {
@@ -438,7 +439,7 @@ export class RollbackExecutor {
 			let foundArtifacts = 0;
 			for (const item of expectedCleanItems) {
 				try {
-					await Deno.stat(`${this.workingDir}/${item}`);
+					await fs.stat(`${this.workingDir}/${item}`);
 					foundArtifacts++;
 				} catch {
 					// Item doesn't exist - good
@@ -469,7 +470,7 @@ export class RollbackExecutor {
 			const claudePath = `${this.workingDir}/CLAUDE.md`;
 
 			try {
-				const content = await Deno.readTextFile(claudePath);
+				const content = readFileSync(claudePath, "utf8");
 
 				// Remove SPARC-specific sections
 				const cleanedContent = content
@@ -478,7 +479,7 @@ export class RollbackExecutor {
 					.replace(/\n{3,}/g, "\n\n") // Clean up multiple newlines
 					.trim();
 
-				await Deno.writeTextFile(claudePath, cleanedContent);
+				writeFileSync(claudePath, cleanedContent, "utf8");
 			} catch {
 				// File doesn't exist or can't be modified
 			}
@@ -499,18 +500,18 @@ export class RollbackExecutor {
 		try {
 			switch (action.type) {
 				case "file_created":
-					await Deno.remove(action.path);
+					await fs.rm(action.path);
 					result.description = `Removed created file: ${action.path}`;
 					break;
 
 				case "directory_created":
-					await Deno.remove(action.path, { recursive: true });
+					await fs.rm(action.path, { recursive: true });
 					result.description = `Removed created directory: ${action.path}`;
 					break;
 
 				case "file_modified":
 					if (action.backup) {
-						await Deno.writeTextFile(action.path, action.backup);
+						writeFileSync(action.path, action.backup, "utf8");
 						result.description = `Restored modified file: ${action.path}`;
 					}
 					break;

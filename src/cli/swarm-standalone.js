@@ -1,4 +1,4 @@
-#!/usr/bin/env -S deno run --allow-all
+#!/usr/bin/env node
 /**
  * Standalone swarm executable for npm package
  * This handles swarm execution when installed via npm
@@ -17,11 +17,11 @@ const __dirname = dirname(__filename);
 const args = [];
 const flags = {};
 
-for (let i = 0; i < Deno.args.length; i++) {
-	const arg = Deno.args[i];
+for (let i = 0; i < process.argv.slice(2).length; i++) {
+	const arg = process.argv.slice(2)[i];
 	if (arg.startsWith("--")) {
 		const flagName = arg.substring(2);
-		const nextArg = Deno.args[i + 1];
+		const nextArg = process.argv.slice(2)[i + 1];
 
 		if (nextArg && !nextArg.startsWith("--")) {
 			flags[flagName] = nextArg;
@@ -52,7 +52,7 @@ EXAMPLES:
 
 Run 'claude-flow swarm --help' for full options
 `);
-	Deno.exit(1);
+	process.exit(1);
 }
 
 // Try to find the swarm implementation
@@ -109,7 +109,7 @@ if (!swarmPath) {
 		console.log(`  • Fault Tolerance: ${flags["fault-tolerance"] || "retry"}`);
 		console.log(`  • Communication: ${flags.communication || "event-driven"}`);
 		console.log("⚠️  DRY RUN - Advanced Swarm Configuration");
-		Deno.exit(0);
+		process.exit(0);
 	}
 
 	// Try to use Claude wrapper approach
@@ -133,7 +133,7 @@ if (!swarmPath) {
 			console.log("3. Memory sharing between agents");
 			console.log("4. Progress monitoring and reporting");
 			console.log("5. Result aggregation and quality checks");
-			Deno.exit(0);
+			process.exit(0);
 		}
 
 		// Claude is available, use it to run swarm
@@ -222,7 +222,7 @@ Use all available tools including file operations, web search, and code executio
 		console.log("5. Result aggregation and quality checks");
 	}
 
-	Deno.exit(0);
+	process.exit(0);
 } else {
 	// Run the swarm demo directly
 	const swarmArgs = [objective];
@@ -233,15 +233,11 @@ Use all available tools including file operations, web search, and code executio
 		}
 	}
 
-	const deno = spawn(
-		Deno.execPath(),
-		["run", "--allow-all", swarmPath, ...swarmArgs],
-		{
-			stdio: "inherit",
-		}
-	);
+	const nodeProcess = spawn("node", [swarmPath, ...swarmArgs], {
+		stdio: "inherit",
+	});
 
-	deno.on("exit", (code) => {
-		Deno.exit(code || 0);
+	nodeProcess.on("exit", (code) => {
+		process.exit(code || 0);
 	});
 }

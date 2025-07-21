@@ -17,7 +17,7 @@ export async function createOptimizedClaudeSlashCommands(
 		);
 
 		// Parse .roomodes to get all SPARC modes
-		const roomodesContent = await Deno.readTextFile(`${workingDir}/.roomodes`);
+		const roomodesContent = readFileSync(`${workingDir}/.roomodes`, "utf8");
 		const roomodes = JSON.parse(roomodesContent);
 
 		// Filter modes if selective initialization is requested
@@ -34,7 +34,7 @@ export async function createOptimizedClaudeSlashCommands(
 			const commandPath = `${workingDir}/.claude/commands/sparc/${mode.slug}.md`;
 			const commandContent = createOptimizedSparcSlashCommand(mode);
 
-			await Deno.writeTextFile(commandPath, commandContent);
+			writeFileSync(commandPath, commandContent, "utf8");
 			console.log(
 				`  ✓ Created optimized slash command: /sparc-${mode.slug} (Batchtools enhanced)`
 			);
@@ -47,9 +47,10 @@ export async function createOptimizedClaudeSlashCommands(
 		const mainSparcCommand = createOptimizedMainSparcCommand(
 			roomodes.customModes
 		);
-		await Deno.writeTextFile(
+		writeFileSync(
 			`${workingDir}/.claude/commands/sparc.md`,
-			mainSparcCommand
+			mainSparcCommand,
+			"utf8"
 		);
 		console.log(
 			"  ✅ Created optimized main slash command: /sparc (Batchtools enhanced)"
@@ -245,9 +246,10 @@ Chain operations with parallel execution at each stage:
 For detailed documentation, see: https://github.com/ruvnet/claude-code-flow/docs/batchtools.md
 `;
 
-	await Deno.writeTextFile(
+	writeFileSync(
 		`${workingDir}/.claude/commands/batchtools.md`,
-		batchtoolsCommand
+		batchtoolsCommand,
+		"utf8"
 	);
 	console.log("  ✓ Created slash command: /batchtools");
 
@@ -346,9 +348,10 @@ Real-time performance monitoring and optimization tools for Claude-Flow operatio
 For comprehensive performance guides, see: https://github.com/ruvnet/claude-code-flow/docs/performance.md
 `;
 
-	await Deno.writeTextFile(
+	writeFileSync(
 		`${workingDir}/.claude/commands/performance.md`,
-		performanceCommand
+		performanceCommand,
+		"utf8"
 	);
 	console.log("  ✓ Created slash command: /performance");
 }

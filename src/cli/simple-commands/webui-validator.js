@@ -65,8 +65,8 @@ export class WebUIValidator {
 			try {
 				await compat.safeCall(async () => {
 					if (compat.runtime === "deno") {
-						await Deno.writeTextFile(".webui-test", "test");
-						await Deno.remove(".webui-test");
+						writeFileSync(".webui-test", "test", "utf8");
+						await fs.rm(".webui-test");
 					} else {
 						const fs = await import("fs/promises");
 						await fs.writeFile(".webui-test", "test");

@@ -289,13 +289,13 @@ if (import.meta.main) {
 	const args = [];
 	const flags = {};
 
-	// Parse arguments and flags from Deno.args if available
-	if (typeof Deno !== "undefined" && Deno.args) {
-		for (let i = 0; i < Deno.args.length; i++) {
-			const arg = Deno.args[i];
+	// Parse arguments and flags from process.argv.slice(2) if available
+	if (typeof Deno !== "undefined" && process.argv.slice(2)) {
+		for (let i = 0; i < process.argv.slice(2).length; i++) {
+			const arg = process.argv.slice(2)[i];
 			if (arg.startsWith("--")) {
 				const flagName = arg.substring(2);
-				const nextArg = Deno.args[i + 1];
+				const nextArg = process.argv.slice(2)[i + 1];
 
 				if (nextArg && !nextArg.startsWith("--")) {
 					flags[flagName] = nextArg;

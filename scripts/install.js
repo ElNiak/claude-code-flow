@@ -114,7 +114,7 @@ async function registerAllMCPServers(resolve) {
 			name: "context7",
 			description:
 				"Official library documentation & code examples | Research standards",
-			command: ["mcp", "add", "context7", "npx", "-y", "server-context7"],
+			command: ["mcp", "add", "context7", "npx", "server-context7"],
 			priority: "medium",
 		},
 		{
@@ -125,7 +125,6 @@ async function registerAllMCPServers(resolve) {
 				"add",
 				"perplexity",
 				"npx",
-				"-y",
 				"server-perplexity-ask",
 			],
 			priority: "medium",
@@ -138,7 +137,6 @@ async function registerAllMCPServers(resolve) {
 				"add",
 				"sequential-thinking",
 				"npx",
-				"-y",
 				"@modelcontextprotocol/server-sequential-thinking",
 			],
 			priority: "low",

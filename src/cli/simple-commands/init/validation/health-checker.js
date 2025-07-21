@@ -89,7 +89,7 @@ export class HealthChecker {
 				const dirPath = `${this.workingDir}/${dir}`;
 
 				try {
-					const stat = await Deno.stat(dirPath);
+					const stat = await fs.stat(dirPath);
 					if (stat.isDirectory) {
 						const templateCheck = await this.checkTemplateDirectory(dirPath);
 						result.templates.found.push(...templateCheck.found);
@@ -108,7 +108,7 @@ export class HealthChecker {
 				const templatePath = `${this.workingDir}/${template}`;
 
 				try {
-					const content = await Deno.readTextFile(templatePath);
+					const content = readFileSync(templatePath, "utf8");
 					if (content.length < 50) {
 						result.templates.corrupted.push(template);
 					} else {
@@ -287,7 +287,7 @@ export class HealthChecker {
 		try {
 			// Check if mode exists in .roomodes
 			const roomodesPath = `${this.workingDir}/.roomodes`;
-			const content = await Deno.readTextFile(roomodesPath);
+			const content = readFileSync(roomodesPath, "utf8");
 			const config = JSON.parse(content);
 
 			return !!(config.modes && config.modes[mode]);
@@ -304,12 +304,12 @@ export class HealthChecker {
 		};
 
 		try {
-			for await (const entry of Deno.readDir(dirPath)) {
+			for await (const entry of fs.readdir(dirPath)) {
 				if (entry.isFile) {
 					const filePath = `${dirPath}/${entry.name}`;
 
 					try {
-						const stat = await Deno.stat(filePath);
+						const stat = await fs.stat(filePath);
 						if (stat.size === 0) {
 							result.corrupted.push(entry.name);
 						} else {
@@ -336,7 +336,7 @@ export class HealthChecker {
 		try {
 			// Compare .roomodes with slash commands
 			const roomodesPath = `${this.workingDir}/.roomodes`;
-			const content = await Deno.readTextFile(roomodesPath);
+			const content = readFileSync(roomodesPath, "utf8");
 			const config = JSON.parse(content);
 
 			if (config.modes) {
@@ -344,7 +344,7 @@ export class HealthChecker {
 
 				try {
 					const commandFiles = [];
-					for await (const entry of Deno.readDir(commandsDir)) {
+					for await (const entry of fs.readdir(commandsDir)) {
 						if (entry.isFile && entry.name.endsWith(".js")) {
 							commandFiles.push(entry.name.replace(".js", ""));
 						}
@@ -378,7 +378,7 @@ export class HealthChecker {
 
 		try {
 			const claudePath = `${this.workingDir}/CLAUDE.md`;
-			const content = await Deno.readTextFile(claudePath);
+			const content = readFileSync(claudePath, "utf8");
 
 			// Check if mentioned commands exist
 			const mentionedCommands = [
@@ -394,7 +394,7 @@ export class HealthChecker {
 					if (parts[0] === "claude-flow") {
 						const executablePath = `${this.workingDir}/claude-flow`;
 						try {
-							await Deno.stat(executablePath);
+							await fs.stat(executablePath);
 						} catch {
 							result.consistent = false;
 							result.issues.push(
@@ -421,7 +421,7 @@ export class HealthChecker {
 		try {
 			// Check if memory structure matches documentation
 			const memoryDataPath = `${this.workingDir}/memory/claude-flow-data.json`;
-			const data = JSON.parse(await Deno.readTextFile(memoryDataPath));
+			const data = JSON.parse(readFileSync(memoryDataPath, "utf8"));
 
 			// Basic structure validation
 			if (!data.agents || !data.tasks) {
@@ -433,7 +433,7 @@ export class HealthChecker {
 			const expectedDirs = ["agents", "sessions"];
 			for (const dir of expectedDirs) {
 				try {
-					await Deno.stat(`${this.workingDir}/memory/${dir}`);
+					await fs.stat(`${this.workingDir}/memory/${dir}`);
 				} catch {
 					result.consistent = false;
 					result.issues.push(`Memory directory missing: ${dir}`);
@@ -455,7 +455,7 @@ export class HealthChecker {
 		};
 
 		try {
-			const command = new Deno.Command("df", {
+			const command = spawn("df", {
 				args: ["-k", this.workingDir],
 				stdout: "piped",
 			});
@@ -492,7 +492,7 @@ export class HealthChecker {
 
 		try {
 			// This is a simplified check - could be enhanced
-			const command = new Deno.Command("free", {
+			const command = spawn("free", {
 				args: ["-m"],
 				stdout: "piped",
 			});
@@ -532,7 +532,7 @@ export class HealthChecker {
 
 		try {
 			// Check current process file descriptors
-			const command = new Deno.Command("sh", {
+			const command = spawn("sh", {
 				args: ["-c", "lsof -p $$ | wc -l"],
 				stdout: "piped",
 			});
@@ -559,7 +559,7 @@ export class HealthChecker {
 		};
 
 		try {
-			const command = new Deno.Command("ulimit", {
+			const command = spawn("ulimit", {
 				args: ["-a"],
 				stdout: "piped",
 			});

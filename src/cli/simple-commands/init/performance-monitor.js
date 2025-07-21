@@ -182,8 +182,8 @@ export class PerformanceMonitor {
 			: 0;
 
 		let currentMemory = "—";
-		if (typeof Deno !== "undefined" && Deno.memoryUsage) {
-			const memUsage = Deno.memoryUsage();
+		if (typeof process !== "undefined" && process.memoryUsage) {
+			const memUsage = process.memoryUsage();
 			currentMemory = `${(memUsage.rss / 1024 / 1024).toFixed(1)}MB`;
 		}
 
@@ -229,8 +229,8 @@ export class ResourceThresholdMonitor {
 	}
 
 	checkResources() {
-		if (typeof Deno !== "undefined" && Deno.memoryUsage) {
-			const memUsage = Deno.memoryUsage();
+		if (typeof process !== "undefined" && process.memoryUsage) {
+			const memUsage = process.memoryUsage();
 			const memoryMB = memUsage.rss / 1024 / 1024;
 
 			const warningThreshold = this.maxMemoryMB * 0.8;

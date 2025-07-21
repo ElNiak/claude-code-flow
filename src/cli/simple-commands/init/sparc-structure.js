@@ -1,5 +1,6 @@
 // sparc-structure.js - Create SPARC development structure
 
+import { promises as fs } from "fs";
 import process from "process";
 import { cwd, Deno } from "../../node-compat.js";
 import { createClaudeSlashCommands } from "./claude-commands/slash-commands.js";
@@ -24,10 +25,10 @@ export async function createSparcStructureManually() {
 
 		for (const dir of rooDirectories) {
 			try {
-				await Deno.mkdir(dir, { recursive: true });
+				await fs.mkdir(dir, { recursive: true });
 				console.log(`  ✓ Created ${dir}/`);
 			} catch (err) {
-				if (!(err instanceof Deno.errors.AlreadyExists)) {
+				if (err.code !== "EEXIST") {
 					throw err;
 				}
 			}
@@ -37,26 +38,27 @@ export async function createSparcStructureManually() {
 		let roomodesContent;
 		try {
 			// Check if .roomodes already exists and read it
-			roomodesContent = await Deno.readTextFile(`${workingDir}/.roomodes`);
+			roomodesContent = readFileSync(`${workingDir}/.roomodes`, "utf8");
 			console.log("  ✓ Using existing .roomodes configuration");
 		} catch {
 			// Create basic .roomodes configuration
 			roomodesContent = createBasicRoomodesConfig();
-			await Deno.writeTextFile(`${workingDir}/.roomodes`, roomodesContent);
+			writeFileSync(`${workingDir}/.roomodes`, roomodesContent, "utf8");
 			console.log("  ✓ Created .roomodes configuration");
 		}
 
 		// Create basic workflow templates
 		const basicWorkflow = createBasicSparcWorkflow();
-		await Deno.writeTextFile(
+		writeFileSync(
 			`${workingDir}/.roo/workflows/basic-tdd.json`,
-			basicWorkflow
+			basicWorkflow,
+			"utf8"
 		);
 		console.log("  ✓ Created .roo/workflows/basic-tdd.json");
 
 		// Create README for .roo directory
 		const rooReadme = createRooReadme();
-		await Deno.writeTextFile(`${workingDir}/.roo/README.md`, rooReadme);
+		writeFileSync(`${workingDir}/.roo/README.md`, rooReadme, "utf8");
 		console.log("  ✓ Created .roo/README.md");
 
 		// Create Claude Code slash commands for SPARC modes

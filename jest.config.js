@@ -1,7 +1,6 @@
 export default {
-	preset: "ts-jest/presets/default-esm",
-	extensionsToTreatAsEsm: [".ts"],
 	testEnvironment: "node",
+	extensionsToTreatAsEsm: [".ts"],
 	roots: ["<rootDir>/src", "<rootDir>/tests", "<rootDir>/migration-tests"],
 	testMatch: [
 		"<rootDir>/tests/**/*.test.ts",
@@ -17,16 +16,12 @@ export default {
 	],
 	transform: {
 		"^.+\\.ts$": [
-			"ts-jest",
+			"babel-jest",
 			{
-				useESM: true,
-				tsconfig: {
-					module: "es2022",
-					moduleResolution: "node",
-					allowSyntheticDefaultImports: true,
-					esModuleInterop: true,
-					target: "es2022",
-				},
+				presets: [
+					["@babel/preset-env", { modules: false }],
+					["@babel/preset-typescript"]
+				],
 			},
 		],
 		"^.+\\.js$": [
@@ -64,7 +59,7 @@ export default {
 	],
 	coverageDirectory: "coverage",
 	coverageReporters: ["text", "lcov", "html"],
-	setupFilesAfterEnv: ["<rootDir>/jest.setup.js"],
+	setupFilesAfterEnv: ["<rootDir>/jest.setup.js", "<rootDir>/jest.migration.setup.js"],
 	testTimeout: 30000,
 	verbose: true,
 	// Enhanced error handling

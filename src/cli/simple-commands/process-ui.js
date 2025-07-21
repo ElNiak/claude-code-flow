@@ -182,7 +182,7 @@ export class ProcessUI {
 				this.running = false;
 				console.clear();
 				printSuccess("Goodbye!");
-				Deno.exit(0); // Exit immediately
+				process.exit(0); // Exit immediately
 				break;
 
 			case "a":

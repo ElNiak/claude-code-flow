@@ -87,9 +87,9 @@ export class RecoveryManager {
 
 		try {
 			// Try to fix permissions on the working directory
-			if (Deno.build.os !== "windows") {
+			if (process.platform !== "windows") {
 				try {
-					const command = new Deno.Command("chmod", {
+					const command = spawn("chmod", {
 						args: ["-R", "755", this.workingDir],
 						stdout: "piped",
 						stderr: "piped",
@@ -110,8 +110,8 @@ export class RecoveryManager {
 			// Try to create a test file to verify permissions
 			try {
 				const testFile = `${this.workingDir}/.permission-test`;
-				await Deno.writeTextFile(testFile, "test");
-				await Deno.remove(testFile);
+				writeFileSync(testFile, "test", "utf8");
+				await fs.rm(testFile);
 				result.actions.push("Verified write permissions restored");
 			} catch {
 				result.success = false;
@@ -345,7 +345,7 @@ export class RecoveryManager {
 
 			// Remove corrupted executable if it exists
 			try {
-				await Deno.remove(executablePath);
+				await fs.rm(executablePath);
 				result.actions.push("Removed corrupted executable");
 			} catch {
 				// File doesn't exist
@@ -357,9 +357,9 @@ export class RecoveryManager {
 				result.actions.push("Recreated claude-flow executable");
 
 				// Set permissions
-				if (Deno.build.os !== "windows") {
+				if (process.platform !== "windows") {
 					try {
-						const command = new Deno.Command("chmod", {
+						const command = spawn("chmod", {
 							args: ["+x", executablePath],
 						});
 						await command.output();
@@ -397,7 +397,7 @@ export class RecoveryManager {
 
 			for (const dir of memoryDirs) {
 				try {
-					await Deno.mkdir(`${this.workingDir}/${dir}`, { recursive: true });
+					await fs.mkdir(`${this.workingDir}/${dir}`, { recursive: true });
 					result.actions.push(`Created directory: ${dir}`);
 				} catch {
 					result.warnings.push(`Could not create directory: ${dir}`);
@@ -413,9 +413,9 @@ export class RecoveryManager {
 			};
 
 			try {
-				await Deno.writeTextFile(
+				writeFileSync(
 					memoryDataPath,
-					JSON.stringify(initialData, null, 2)
+					JSON.stringify(initialData, null, 2, "utf8")
 				);
 				result.actions.push("Recreated memory data file");
 			} catch {
@@ -438,9 +438,10 @@ export class RecoveryManager {
 
 			for (const readme of readmeFiles) {
 				try {
-					await Deno.writeTextFile(
+					writeFileSync(
 						`${this.workingDir}/${readme.path}`,
-						readme.content
+						readme.content,
+						"utf8"
 					);
 					result.actions.push(`Created ${readme.path}`);
 				} catch {
@@ -565,7 +566,7 @@ export class RecoveryManager {
 
 	async checkAvailableSpace() {
 		try {
-			const command = new Deno.Command("df", {
+			const command = spawn("df", {
 				args: ["-m", this.workingDir],
 				stdout: "piped",
 			});
@@ -610,7 +611,7 @@ export class RecoveryManager {
 
 		for (const dep of dependencies) {
 			try {
-				const command = new Deno.Command(dep, {
+				const command = spawn(dep, {
 					args: ["--version"],
 					stdout: "piped",
 					stderr: "piped",
@@ -652,7 +653,7 @@ export class RecoveryManager {
 
 		for (const file of checkFiles) {
 			try {
-				await Deno.stat(`${this.workingDir}/${file}`);
+				await fs.stat(`${this.workingDir}/${file}`);
 				items.push({ name: file, type: "file" });
 			} catch {
 				// File doesn't exist
@@ -674,7 +675,7 @@ export class RecoveryManager {
 
 		for (const file of requiredFiles) {
 			try {
-				await Deno.stat(`${this.workingDir}/${file}`);
+				await fs.stat(`${this.workingDir}/${file}`);
 			} catch {
 				missing.push({ name: file, type: "file" });
 			}
@@ -719,9 +720,9 @@ export class RecoveryManager {
 		};
 
 		try {
-			await Deno.writeTextFile(
+			writeFileSync(
 				`${this.workingDir}/.roomodes`,
-				JSON.stringify(basicRoomodes, null, 2)
+				JSON.stringify(basicRoomodes, null, 2, "utf8")
 			);
 		} catch {
 			result.success = false;
@@ -744,7 +745,7 @@ export class RecoveryManager {
 			];
 
 			for (const dir of rooDirs) {
-				await Deno.mkdir(`${this.workingDir}/${dir}`, { recursive: true });
+				await fs.mkdir(`${this.workingDir}/${dir}`, { recursive: true });
 			}
 		} catch {
 			result.success = false;
@@ -774,9 +775,10 @@ exec deno run --allow-all --unstable-kv --unstable-cron \\
 `;
 
 		try {
-			await Deno.writeTextFile(
+			writeFileSync(
 				`${this.workingDir}/claude-flow`,
-				executableContent
+				executableContent,
+				"utf8"
 			);
 		} catch {
 			result.success = false;
@@ -792,8 +794,8 @@ exec deno run --allow-all --unstable-kv --unstable-cron \\
 
 		try {
 			const testFile = `${this.workingDir}/.permission-test`;
-			await Deno.writeTextFile(testFile, "test");
-			await Deno.remove(testFile);
+			writeFileSync(testFile, "test", "utf8");
+			await fs.rm(testFile);
 		} catch {
 			result.adequate = false;
 		}
