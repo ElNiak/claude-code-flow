@@ -13,8 +13,8 @@ import {
 	exitPatterns,
 	handleError,
 } from "../../utils/graceful-exit.js";
-import type { Command, CommandContext } from "../cli-core.js";
-import { _error, info, success, warning } from "../cli-core.js";
+import type { Command, CommandContext } from "../optimized-cli-core.js";
+import { _error, info, success, warning } from "../optimized-cli-core.js";
 
 // Initialize the unified work command instance,
 let workCommandInstance: WorkCommand | null = null;

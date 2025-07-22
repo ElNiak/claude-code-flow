@@ -10,8 +10,8 @@ import { EventBus } from "../../core/event-bus.js";
 import { Logger } from "../../core/logger.js";
 import type { IMemoryManager } from "../../memory/manager.js";
 import { MemoryManager as _MemoryManager } from "../../memory/manager.js";
-import type { Command, CommandContext } from "../cli-core.js";
-import { _error, info, success, warning } from "../cli-core.js";
+import type { Command, CommandContext } from "../optimized-cli-core.js";
+import { _error, info, success, warning } from "../optimized-cli-core.js";
 
 // Unified agent command that integrates with both ruv-swarm and intrinsic coordination,
 const agentUnifiedCommand: Command = {

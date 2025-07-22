@@ -22,8 +22,8 @@ import {
 	SecurityManager,
 } from "../../enterprise/security-manager.js";
 import { getErrorMessage as _getErrorMessage } from "../../utils/error-handler.js";
-import type { Command, CommandContext } from "../cli-core.js";
-import { _error, info, success, warning } from "../cli-core.js";
+import type { Command, CommandContext } from "../optimized-cli-core.js";
+import { _error, info, success, warning } from "../optimized-cli-core.js";
 
 const { bold, blue, green, yellow, red, cyan, magenta: _magenta } = colors;
 

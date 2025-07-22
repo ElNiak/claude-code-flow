@@ -182,3 +182,4 @@ unified-work-prompt-*.txt
 # Serena cache files
 .serena/cache/
 *.tgz
+migration-tests

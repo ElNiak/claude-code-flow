@@ -1,0 +1,355 @@
+{
+  "metadata": {
+    "generatedAt": "2025-07-21T09:13:10.924Z",
+    "totalFiles": 11,
+    "strategy": "Unified CLI with preserved functionality",
+    "analysisVersion": "2.0"
+  },
+
+  "extractionPlan": {
+    "interfaces": {
+      "source": "src/cli/cli-core.ts",
+      "target": "src/cli/types/interfaces.ts",
+      "items": ["CommandContext", "Command", "Option"],
+      "purpose": "Standardize type definitions across all CLI components"
+    },
+    "utilities": {
+      "source": "Multiple files",
+      "target": "src/cli/utils/formatting.ts",
+      "items": [
+        "printError", "printSuccess", "printWarning", "printHelp",
+        "success", "_error", "warning", "info"
+      ],
+      "consolidationRules": {
+        "colorScheme": "Standardize using chalk",
+        "outputFormat": "Consistent prefix and styling",
+        "errorHandling": "Unified error message formatting"
+      }
+    },
+    "constants": {
+      "source": "Multiple files",
+      "target": "src/cli/constants.ts",
+      "items": ["VERSION", "BUILD_DATE", "DEFAULT_PORT", "DEFAULT_CONFIG"],
+      "versionStrategy": "Single source of truth for version info"
+    }
+  },
+
+  "consolidationPlan": {
+    "commands": {
+      "agent": {
+        "strategy": "MERGE",
+        "targetFile": "src/cli/commands/agent.ts",
+        "sourceFiles": ["agent.ts", "agent-simple.ts"],
+        "preserveFeatures": {
+          "fromAdvanced": [
+            "Profile-based agent spawning",
+            "Advanced monitoring capabilities",
+            "Rich agent communication",
+            "Detailed status reporting"
+          ],
+          "fromSimple": [
+            "Quick spawn syntax",
+            "Basic agent operations",
+            "Minimal dependency approach",
+            "Direct command execution"
+          ]
+        },
+        "implementationApproach": "Progressive enhancement with mode detection"
+      },
+      "task": {
+        "strategy": "KEEP_ADVANCED",
+        "reasoning": "Advanced implementation has complete feature set",
+        "enhancements": [
+          "Add simple mode shortcuts",
+          "Preserve minimal dependency path"
+        ]
+      },
+      "memory": {
+        "strategy": "KEEP_ADVANCED",
+        "reasoning": "Advanced implementation has better persistence",
+        "additions": [
+          "Simple in-memory fallback",
+          "Basic key-value operations"
+        ]
+      },
+      "swarm": {
+        "strategy": "UNIFY",
+        "targetFile": "src/cli/commands/swarm.ts",
+        "sourceFiles": ["swarm.ts", "swarm-new.ts", "swarm-spawn.ts"],
+        "features": [
+          "Topology management",
+          "Agent orchestration",
+          "Performance monitoring",
+          "Neural optimization"
+        ]
+      },
+      "hooks": {
+        "strategy": "EXTRACT_AND_ENHANCE",
+        "targetFile": "src/cli/commands/hooks.ts",
+        "source": "Embedded in simple-cli.ts",
+        "enhancements": [
+          "Modular hook system",
+          "Plugin architecture",
+          "Event-driven coordination"
+        ]
+      }
+    },
+
+    "repl": {
+      "strategy": "MERGE",
+      "targetFile": "src/cli/repl.ts",
+      "sourceFiles": ["repl.ts", "node-repl.ts", "simple-cli.ts (REPL portions)"],
+      "features": [
+        "Command history management",
+        "Tab auto-completion",
+        "Interactive mode with colors",
+        "Session persistence",
+        "Context-aware suggestions"
+      ],
+      "unifiedApproach": "Single REPL implementation with feature flags"
+    },
+
+    "commandRegistry": {
+      "strategy": "ENHANCE",
+      "currentLocation": "src/cli/command-registry.js",
+      "improvements": [
+        "Type safety with TypeScript",
+        "Dynamic command loading",
+        "Plugin system support",
+        "Command aliasing",
+        "Middleware support"
+      ],
+      "backwardCompatibility": "Maintain existing command structure"
+    },
+
+    "mainEntry": {
+      "strategy": "REFACTOR",
+      "targetFile": "src/cli/index.ts",
+      "approach": "Unified entry point with mode detection",
+      "modes": {
+        "simple": {
+          "trigger": "--simple flag or CLAUDE_FLOW_MODE=simple",
+          "features": "Minimal dependencies, basic commands only"
+        },
+        "advanced": {
+          "trigger": "Default mode",
+          "features": "Full feature set with all integrations"
+        },
+        "auto": {
+          "trigger": "Automatic based on available dependencies",
+          "features": "Progressive enhancement"
+        }
+      },
+      "implementation": [
+        "Detect execution mode at startup",
+        "Conditionally load features",
+        "Graceful degradation for missing dependencies"
+      ]
+    }
+  },
+
+  "migrationSteps": [
+    {
+      "step": 1,
+      "description": "Extract shared interfaces and types",
+      "files": ["src/cli/types/interfaces.ts", "src/cli/types/index.ts"],
+      "priority": "HIGH",
+      "dependencies": []
+    },
+    {
+      "step": 2,
+      "description": "Extract utility functions",
+      "files": ["src/cli/utils/formatting.ts", "src/cli/utils/validation.ts", "src/cli/utils/parsing.ts"],
+      "priority": "HIGH",
+      "dependencies": ["step-1"]
+    },
+    {
+      "step": 3,
+      "description": "Consolidate constants and configuration",
+      "files": ["src/cli/constants.ts", "src/cli/config/defaults.ts"],
+      "priority": "MEDIUM",
+      "dependencies": ["step-1"]
+    },
+    {
+      "step": 4,
+      "description": "Merge command implementations",
+      "files": ["src/cli/commands/agent.ts", "src/cli/commands/task.ts", "src/cli/commands/swarm.ts"],
+      "priority": "HIGH",
+      "dependencies": ["step-1", "step-2"]
+    },
+    {
+      "step": 5,
+      "description": "Unify REPL implementations",
+      "files": ["src/cli/repl.ts", "src/cli/repl/history.ts", "src/cli/repl/completer.ts"],
+      "priority": "MEDIUM",
+      "dependencies": ["step-2", "step-3"]
+    },
+    {
+      "step": 6,
+      "description": "Enhance command registry",
+      "files": ["src/cli/command-registry.ts", "src/cli/registry/loader.ts"],
+      "priority": "HIGH",
+      "dependencies": ["step-1", "step-4"]
+    },
+    {
+      "step": 7,
+      "description": "Create unified entry point",
+      "files": ["src/cli/index.ts", "src/cli/main.ts", "src/cli/bootstrap.ts"],
+      "priority": "CRITICAL",
+      "dependencies": ["step-4", "step-5", "step-6"]
+    },
+    {
+      "step": 8,
+      "description": "Update build configuration",
+      "files": ["tsconfig.cli.json", "build-tools/cli-builder.js"],
+      "priority": "HIGH",
+      "dependencies": ["step-7"]
+    },
+    {
+      "step": 9,
+      "description": "Create compatibility layer",
+      "files": ["src/cli/compat/legacy.ts", "src/cli/compat/aliases.ts"],
+      "priority": "MEDIUM",
+      "dependencies": ["step-7"]
+    },
+    {
+      "step": 10,
+      "description": "Testing and validation",
+      "files": ["tests/cli/unified.test.ts", "tests/cli/compatibility.test.ts"],
+      "priority": "CRITICAL",
+      "dependencies": ["step-1-9"]
+    }
+  ],
+
+  "featurePreservation": {
+    "simple": {
+      "minimalDependencies": {
+        "approach": "Conditional imports",
+        "implementation": "Feature detection at runtime",
+        "fallbacks": "In-memory implementations for missing deps"
+      },
+      "quickCommands": {
+        "approach": "Command aliases and shortcuts",
+        "examples": ["cf agent spawn", "cf task run", "cf memory set"]
+      },
+      "templateGeneration": {
+        "approach": "Extract to dedicated template module",
+        "location": "src/cli/templates/",
+        "lazy": true
+      },
+      "basicRepl": {
+        "approach": "Core REPL features always available",
+        "enhancements": "Progressive feature loading"
+      }
+    },
+    "advanced": {
+      "commanderIntegration": {
+        "status": "Primary command framework",
+        "fallback": "Simple argument parser for minimal mode"
+      },
+      "richFormatting": {
+        "status": "Default in advanced mode",
+        "dependencies": ["chalk", "cli-table3"],
+        "fallback": "Plain text output"
+      },
+      "pluginSystem": {
+        "status": "Full plugin support",
+        "location": "src/cli/plugins/",
+        "api": "Stable plugin API"
+      },
+      "mcpIntegration": {
+        "status": "Core feature when available",
+        "gracefulDegradation": true
+      }
+    }
+  },
+
+  "commandMappingDetails": {
+    "simple-commands": {
+      "location": "src/cli/simple-commands/",
+      "count": 27,
+      "strategy": "Gradually migrate to unified commands",
+      "priority": [
+        "agent.js - High priority merge",
+        "swarm.js - Consolidate with advanced",
+        "hooks.js - Extract and enhance",
+        "init/index.js - Preserve as-is"
+      ]
+    },
+    "advanced-commands": {
+      "location": "src/cli/commands/",
+      "count": 45,
+      "duplicates": [
+        "agent.ts vs agent-simple.ts",
+        "swarm.ts vs swarm-new.ts vs swarm-spawn.ts",
+        "config.ts vs config-integration.ts"
+      ],
+      "consolidationTargets": {
+        "agent": "Unified agent command with modes",
+        "swarm": "Single swarm command with subcommands",
+        "config": "Merged configuration management"
+      }
+    }
+  },
+
+  "dependencies": {
+    "toRemove": [
+      "Duplicate utility libraries",
+      "Redundant parsing libraries"
+    ],
+    "toAdd": [
+      "@types/node - for better type safety",
+      "Plugin loader dependencies"
+    ],
+    "toConsolidate": [
+      {
+        "package": "chalk",
+        "reason": "Standardize color output across all commands"
+      },
+      {
+        "package": "commander",
+        "reason": "Primary CLI framework for advanced mode"
+      },
+      {
+        "package": "better-sqlite3",
+        "reason": "Unified database for memory and persistence"
+      }
+    ]
+  },
+
+  "testingStrategy": {
+    "unitTests": {
+      "approach": "Test each extracted module independently",
+      "coverage": "Maintain 80%+ coverage"
+    },
+    "integrationTests": {
+      "approach": "Test command flows in both modes",
+      "scenarios": [
+        "Simple mode basic operations",
+        "Advanced mode full features",
+        "Mode switching",
+        "Backward compatibility"
+      ]
+    },
+    "e2eTests": {
+      "approach": "Full CLI workflow testing",
+      "tools": ["Jest", "CLI testing utilities"]
+    }
+  },
+
+  "backwardCompatibility": {
+    "commandAliases": {
+      "oldCommand": "newCommand mapping",
+      "deprecationWarnings": true,
+      "removalTimeline": "v3.0.0"
+    },
+    "configMigration": {
+      "approach": "Automatic config file migration",
+      "validator": "Config schema validation"
+    },
+    "apiStability": {
+      "publicApi": "Maintain stable API surface",
+      "internalChanges": "Allowed with proper abstraction"
+    }
+  }
+}

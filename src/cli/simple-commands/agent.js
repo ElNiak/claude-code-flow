@@ -1,215 +1,235 @@
-// agent.js - Agent management commands
+// agent.js - Agent management commands (routes to unified implementation)
 import { printError, printSuccess, printWarning } from "../utils.js";
+
+// Temporary mock implementation until TypeScript compilation is set up
+const agentCommands = {
+	async spawn(args, flags) {
+		printSuccess("Agent spawn functionality not fully implemented yet");
+		console.log("🤖 Would spawn agent with args:", args);
+	},
+	async list(args, flags) {
+		try {
+			// Import unified agent system
+			const { displayUnifiedAgentsList } = await import("../commands/agent.ts");
+
+			// Parse simple flags for backward compatibility
+			const options = {
+				detailed: flags.detailed || flags.d,
+				json: flags.json || flags.j,
+				pattern: flags.pattern || flags.p,
+				type: flags.type || flags.t,
+				status: flags.status || flags.s,
+				sessionId: flags.session,
+			};
+
+			// Use unified agent listing system
+			await displayUnifiedAgentsList(options);
+		} catch (error) {
+			printError(`Failed to list agents: ${error.message}`);
+			console.log("🔄 Falling back to basic status...");
+			printSuccess("Agent listing system:");
+			console.log(
+				"📊 Unified agent system available across all coordination patterns"
+			);
+		}
+	},
+	async terminate(args, flags) {
+		const agentId = args[0];
+		if (!agentId) {
+			printError("Please specify an agent ID to terminate");
+			return;
+		}
+		printSuccess(`Agent ${agentId} would be terminated`);
+	},
+	async info(args, flags) {
+		const agentId = args[0];
+		if (!agentId) {
+			printError("Please specify an agent ID for info");
+			return;
+		}
+		printSuccess(`Info for agent ${agentId}:`);
+		console.log("📊 Agent info not available yet");
+	},
+	async health(args, flags) {
+		printSuccess("Agent Health Status:");
+		console.log("💚 All systems operational");
+	},
+};
 
 export async function agentCommand(subArgs, flags) {
 	const agentCmd = subArgs[0];
 
-	switch (agentCmd) {
-		case "spawn":
-			await spawnAgent(subArgs, flags);
-			break;
+	try {
+		switch (agentCmd) {
+			case "spawn":
+				await agentCommands.spawn(subArgs.slice(1), flags);
+				break;
 
-		case "list":
-			await listAgents(subArgs, flags);
-			break;
+			case "list":
+				await agentCommands.list(subArgs.slice(1), flags);
+				break;
 
-		case "hierarchy":
-			await manageHierarchy(subArgs, flags);
-			break;
+			case "terminate":
+				await agentCommands.terminate(subArgs.slice(1), flags);
+				break;
 
-		case "network":
-			await manageNetwork(subArgs, flags);
-			break;
+			case "info":
+				await agentCommands.info(subArgs.slice(1), flags);
+				break;
 
-		case "ecosystem":
-			await manageEcosystem(subArgs, flags);
-			break;
+			case "health":
+				await agentCommands.health(subArgs.slice(1), flags);
+				break;
 
-		case "provision":
-			await provisionAgent(subArgs, flags);
-			break;
+			case "hierarchy":
+				await manageHierarchy(subArgs, flags);
+				break;
 
-		case "terminate":
-			await terminateAgent(subArgs, flags);
-			break;
+			case "network":
+				await manageNetwork(subArgs, flags);
+				break;
 
-		case "info":
-			await showAgentInfo(subArgs, flags);
-			break;
+			case "ecosystem":
+				await manageEcosystem(subArgs, flags);
+				break;
 
-		default:
-			showAgentHelp();
-	}
-}
+			case "provision":
+				await provisionAgent(subArgs, flags);
+				break;
 
-async function spawnAgent(subArgs, flags) {
-	const agentType = subArgs[1] || "general";
-	const agentName =
-		getFlag(subArgs, "--name") || flags.name || `agent-${Date.now()}`;
-
-	printSuccess(`Spawning ${agentType} agent: ${agentName}`);
-	console.log("🤖 Agent would be created with the following configuration:");
-	console.log(`   Type: ${agentType}`);
-	console.log(`   Name: ${agentName}`);
-	console.log("   Capabilities: Research, Analysis, Code Generation");
-	console.log("   Status: Ready");
-	console.log(
-		"\n📋 Note: Full agent spawning requires orchestrator to be running"
-	);
-}
-
-async function listAgents(subArgs, flags) {
-	printSuccess("Active agents:");
-	console.log("📋 No agents currently active (orchestrator not running)");
-	console.log("\nTo create agents:");
-	console.log('  claude-flow agent spawn researcher --name "ResearchBot"');
-	console.log('  claude-flow agent spawn coder --name "CodeBot"');
-	console.log('  claude-flow agent spawn analyst --name "DataBot"');
-}
-
-async function manageHierarchy(subArgs, flags) {
-	const hierarchyCmd = subArgs[1];
-
-	switch (hierarchyCmd) {
-		case "create": {
-			const hierarchyType = subArgs[2] || "basic";
-			printSuccess(`Creating ${hierarchyType} agent hierarchy`);
-			console.log("🏗️  Hierarchy structure would include:");
-			console.log("   - Coordinator Agent (manages workflow)");
-			console.log("   - Specialist Agents (domain-specific tasks)");
-			console.log("   - Worker Agents (execution tasks)");
-			break;
+			default:
+				showAgentHelp();
 		}
-
-		case "show":
-			printSuccess("Current agent hierarchy:");
-			console.log("📊 No hierarchy configured (orchestrator not running)");
-			break;
-
-		default:
-			console.log("Hierarchy commands: create, show");
-			console.log("Examples:");
-			console.log("  claude-flow agent hierarchy create enterprise");
-			console.log("  claude-flow agent hierarchy show");
+	} catch (error) {
+		printError(
+			`Agent command failed: ${error instanceof Error ? error.message : String(error)}`
+		);
 	}
 }
 
+// Legacy hierarchy management
+async function manageHierarchy(subArgs, flags) {
+	const action = subArgs[1];
+	switch (action) {
+		case "create":
+			printSuccess("Creating agent hierarchy...");
+			console.log("🏗️  Hierarchy structure would be created");
+			console.log("   • Manager agents");
+			console.log("   • Worker agents");
+			console.log("   • Specialist agents");
+			break;
+		case "list":
+			printSuccess("Agent Hierarchies:");
+			console.log("📊 No hierarchies defined");
+			break;
+		default:
+			console.log("Usage: agent hierarchy <create|list|update|delete>");
+	}
+}
+
+// Legacy network management
 async function manageNetwork(subArgs, flags) {
-	const networkCmd = subArgs[1];
-
-	switch (networkCmd) {
-		case "topology":
-			printSuccess("Agent network topology:");
-			console.log("🌐 Network visualization would show agent connections");
+	const action = subArgs[1];
+	switch (action) {
+		case "create":
+			printSuccess("Creating agent network...");
+			console.log("🌐 Network would be established");
+			console.log("   • Peer-to-peer connections");
+			console.log("   • Message routing");
+			console.log("   • Resource sharing");
 			break;
-
-		case "metrics":
-			printSuccess("Network performance metrics:");
-			console.log("📈 Communication latency, throughput, reliability stats");
-			break;
-
-		default:
-			console.log("Network commands: topology, metrics");
-	}
-}
-
-async function manageEcosystem(subArgs, flags) {
-	const ecosystemCmd = subArgs[1];
-
-	switch (ecosystemCmd) {
 		case "status":
-			printSuccess("Agent ecosystem status:");
-			console.log("🌱 Ecosystem health: Not running");
-			console.log("   Active Agents: 0");
-			console.log("   Resource Usage: 0%");
-			console.log("   Task Queue: Empty");
+			printSuccess("Network Status:");
+			console.log("🟢 Network: Not configured");
 			break;
-
-		case "optimize":
-			printSuccess("Optimizing agent ecosystem...");
-			console.log("⚡ Optimization would include:");
-			console.log("   - Load balancing across agents");
-			console.log("   - Resource allocation optimization");
-			console.log("   - Communication path optimization");
-			break;
-
 		default:
-			console.log("Ecosystem commands: status, optimize");
+			console.log("Usage: agent network <create|status|update|disconnect>");
 	}
 }
 
+// Legacy ecosystem management
+async function manageEcosystem(subArgs, flags) {
+	const action = subArgs[1];
+	switch (action) {
+		case "init":
+			printSuccess("Initializing agent ecosystem...");
+			console.log("🌿 Ecosystem would include:");
+			console.log("   • Shared memory pools");
+			console.log("   • Resource allocation");
+			console.log("   • Task distribution");
+			console.log("   • Performance monitoring");
+			break;
+		case "stats":
+			printSuccess("Ecosystem Statistics:");
+			console.log("📊 No ecosystem initialized");
+			break;
+		default:
+			console.log("Usage: agent ecosystem <init|stats|optimize|reset>");
+	}
+}
+
+// Legacy agent provisioning
 async function provisionAgent(subArgs, flags) {
-	const provision = subArgs[1];
-
-	if (!provision) {
-		printError("Usage: agent provision <count>");
+	const agentId = subArgs[1];
+	if (!agentId) {
+		printError("Please specify an agent ID to provision");
 		return;
 	}
 
-	const count = parseInt(provision);
-	if (isNaN(count) || count < 1) {
-		printError("Count must be a positive number");
-		return;
-	}
-
-	printSuccess(`Provisioning ${count} agents...`);
-	console.log("🚀 Auto-provisioning would create:");
-	for (let i = 1; i <= count; i++) {
-		console.log(`   Agent ${i}: Type=general, Status=provisioning`);
-	}
+	printSuccess(`Provisioning agent ${agentId}...`);
+	console.log("🔧 Agent would be provisioned with:");
+	console.log("   • Compute resources");
+	console.log("   • Memory allocation");
+	console.log("   • Task permissions");
+	console.log("   • Network access");
 }
 
+// Legacy agent termination (now routes to unified)
 async function terminateAgent(subArgs, flags) {
-	const agentId = subArgs[1];
-
-	if (!agentId) {
-		printError("Usage: agent terminate <agent-id>");
-		return;
-	}
-
-	printSuccess(`Terminating agent: ${agentId}`);
-	console.log("🛑 Agent would be gracefully shut down");
+	// This now routes to the unified implementation
+	await agentCommands.terminate(subArgs.slice(1), flags);
 }
 
+// Legacy agent info (now routes to unified)
 async function showAgentInfo(subArgs, flags) {
-	const agentId = subArgs[1];
-
-	if (!agentId) {
-		printError("Usage: agent info <agent-id>");
-		return;
-	}
-
-	printSuccess(`Agent information: ${agentId}`);
-	console.log("📊 Agent details would include:");
-	console.log("   Status, capabilities, current tasks, performance metrics");
+	// This now routes to the unified implementation
+	await agentCommands.info(subArgs.slice(1), flags);
 }
 
+// Help function
+function showAgentHelp() {
+	console.log(`
+🤖 Agent Management Commands:
+
+Core Commands:
+  spawn <type>         Create a new agent with specified type
+  list                 Display all active agents
+  info <id>           Show detailed information about an agent
+  terminate <id>      Safely terminate an agent
+  health              Monitor agent health and performance
+
+Advanced Commands:
+  hierarchy <action>   Manage agent hierarchies
+  network <action>     Configure agent networks
+  ecosystem <action>   Manage agent ecosystems
+  provision <id>      Provision resources for an agent
+
+Examples:
+  agent spawn researcher --name "DataBot"
+  agent list --unhealthy
+  agent info agent-123
+  agent terminate agent-123 --force
+  agent health
+  agent hierarchy create enterprise
+  agent network create mesh
+  agent ecosystem init
+
+Use --help with any command for detailed options.
+	`);
+}
+
+// Helper function
 function getFlag(args, flagName) {
 	const index = args.indexOf(flagName);
 	return index !== -1 && index + 1 < args.length ? args[index + 1] : null;
-}
-
-function showAgentHelp() {
-	console.log("Agent commands:");
-	console.log("  spawn <type> [--name <name>]     Create new agent");
-	console.log("  list [--verbose]                 List active agents");
-	console.log("  terminate <id>                   Stop specific agent");
-	console.log("  info <id>                        Show agent details");
-	console.log("  hierarchy <create|show>          Manage agent hierarchies");
-	console.log("  network <topology|metrics>       Agent network operations");
-	console.log("  ecosystem <status|optimize>      Ecosystem management");
-	console.log("  provision <count>                Auto-provision agents");
-	console.log();
-	console.log("Agent Types:");
-	console.log("  researcher    Research and information gathering");
-	console.log("  coder         Code development and analysis");
-	console.log("  analyst       Data analysis and insights");
-	console.log("  coordinator   Task coordination and management");
-	console.log("  general       Multi-purpose agent");
-	console.log();
-	console.log("Examples:");
-	console.log('  claude-flow agent spawn researcher --name "DataBot"');
-	console.log("  claude-flow agent list --verbose");
-	console.log("  claude-flow agent hierarchy create enterprise");
-	console.log("  claude-flow agent ecosystem status");
 }

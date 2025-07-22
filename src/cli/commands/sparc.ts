@@ -1,8 +1,8 @@
 import chalk from "chalk";
 import * as readline from "readline";
 import { getErrorMessage as _getErrorMessage } from "../../utils/error-handler.js";
-import type { CommandContext } from "../cli-core.js";
-import { _error, info, success, warning } from "../cli-core.js";
+import type { CommandContext } from "../optimized-cli-core.js";
+import { _error, info, success, warning } from "../optimized-cli-core.js";
 
 const { blue, yellow, green, cyan } = chalk;
 

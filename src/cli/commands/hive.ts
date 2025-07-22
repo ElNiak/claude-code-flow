@@ -11,7 +11,7 @@ import {
 	_error as error,
 	info,
 	success,
-} from "../cli-core.js";
+} from "../optimized-cli-core.js";
 
 interface HiveOptions {
 	objective: string;

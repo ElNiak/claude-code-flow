@@ -3,7 +3,7 @@
  * Integration with existing CLI system for progress configuration
  */
 
-import type { Command, CommandContext } from "../cli-core.js";
+import type { Command, CommandContext } from "../optimized-cli-core.js";
 
 // Placeholder for progress CLI functionality
 const progressCLI = {

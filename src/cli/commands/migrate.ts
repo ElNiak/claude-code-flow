@@ -16,13 +16,13 @@ import { UnifiedMigrationManager } from "../../migration/unified-migration.js";
 import type {
 	Command as _CLICommand,
 	CommandContext as _CommandContext,
-} from "../cli-core.js";
+} from "../optimized-cli-core.js";
 import {
 	_error,
 	info as _info,
 	success as _success,
 	warning as _warning,
-} from "../cli-core.js";
+} from "../optimized-cli-core.js";
 
 export function createMigrateCommand(): Command {
 	const command = new Command("migrate");

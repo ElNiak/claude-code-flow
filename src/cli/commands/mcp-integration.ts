@@ -7,7 +7,12 @@
  */
 
 import { Logger } from "../../core/logger.js";
-import { _error as error, info, success, warning } from "../cli-core.js";
+import {
+	_error as error,
+	info,
+	success,
+	warning,
+} from "../optimized-cli-core.js";
 
 // TODO: Re-enable when hook integration wrapper is implemented
 // import { initializeHookIntegration, getHookSystem, enhancedPreToolUse, enhancedPostToolUse, enhancedNotification, verifyCodeWithSerena, coordinateWithClaudeFlow, researchWithContext7, getHookSystemStatus, cleanupHookIntegration, type HookEnhancementConfig } from "../../hooks/hook-integration-wrapper.js";

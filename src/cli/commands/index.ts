@@ -4,7 +4,10 @@ import { getErrorMessage as _getErrorMessage } from "../../utils/error-handler.j
 const getErrorMessage = _getErrorMessage;
 
 import colors from "chalk";
-import type { Command as _Command, CommandContext } from "../cli-core.js";
+import type {
+	Command as _Command,
+	CommandContext,
+} from "../optimized-cli-core.js";
 import {
 	VERSION as _VERSION,
 	type CLI,
@@ -12,7 +15,7 @@ import {
 	info,
 	success,
 	warning,
-} from "../cli-core.js";
+} from "../optimized-cli-core.js";
 
 const { bold, blue, yellow } = colors;
 

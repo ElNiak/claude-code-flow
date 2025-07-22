@@ -90,3 +90,18 @@ export async function monitorSwarm(swarmId: string): Promise<void> {
 export function getSwarmState(swarmId: string): SwarmState | undefined {
 	return swarmStates.get(swarmId);
 }
+
+/**
+ * Get the first available swarm state (useful for adapters that need to check if any swarm exists)
+ */
+export function getFirstSwarmState(): SwarmState | undefined {
+	const values = Array.from(swarmStates.values());
+	return values.length > 0 ? values[0] : undefined;
+}
+
+/**
+ * Check if any swarm states exist
+ */
+export function hasActiveSwarms(): boolean {
+	return swarmStates.size > 0;
+}

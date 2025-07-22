@@ -244,6 +244,12 @@ export interface CliMiddleware {
 	) => Promise<void>;
 }
 
+// Parsed command line arguments
+export interface ParsedArgs {
+	_: string[];
+	[key: string]: any;
+}
+
 // Auto-updater types
 export interface UpdateInfo {
 	available: boolean;

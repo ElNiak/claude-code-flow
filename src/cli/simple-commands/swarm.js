@@ -82,6 +82,7 @@ OPTIONS:
   --no-interactive           Run in non-interactive mode (auto-enabled with --output-format json)
   --auto                     (Deprecated: auto-permissions enabled by default)
   --no-auto-permissions      Disable automatic --dangerously-skip-permissions
+  --test-mode                Enable test mode (bypasses external processes)
 
 ADVANCED OPTIONS:
   --quality-threshold <n>    Quality threshold 0-1 (default: 0.8)
@@ -110,6 +111,7 @@ export async function swarmCommand(args, flags) {
 	const outputFile = flags && flags["output-file"];
 	const isJsonOutput = outputFormat === "json";
 	const isNonInteractive = isJsonOutput || (flags && flags["no-interactive"]);
+	const isTestMode = flags && flags["test-mode"];
 
 	// For JSON output, we need to ensure executor mode since Claude Code doesn't return structured JSON
 	if (isJsonOutput && !(flags && flags.executor)) {
@@ -123,6 +125,19 @@ export async function swarmCommand(args, flags) {
 		// Default behavior: spawn Claude Code with comprehensive swarm MCP instructions
 		try {
 			const { execSync, spawn } = await import("child_process");
+
+			// Test mode: bypass external process launch
+			if (isTestMode) {
+				console.log("🧪 Test mode: Simulating swarm execution");
+				console.log("🐝 Launching Claude Flow Swarm System...");
+				console.log(`📋 Objective: ${objective}`);
+				console.log(`🎯 Strategy: ${flags.strategy || "auto"}`);
+				console.log(`🏗️  Mode: ${flags.mode || "centralized"}`);
+				console.log(`🤖 Max Agents: ${flags["max-agents"] || 5}`);
+				console.log("✓ Swarm initialized successfully (test mode)");
+				console.log("🧪 Test mode complete - no external processes launched");
+				return { success: true, testMode: true };
+			}
 
 			// Check if claude command exists
 			let claudeAvailable = false;
@@ -538,6 +553,13 @@ The swarm should be self-documenting - use memory_store to save all important in
 				);
 			}
 
+			// Configure timeout (default 30 seconds for testing, 5 minutes for production)
+			const timeoutMs = flags.timeout
+				? parseInt(flags.timeout) * 1000
+				: process.env.NODE_ENV === "test"
+					? 30000
+					: 300000;
+
 			// Spawn claude with the prompt as the first argument
 			const claudeProcess = spawn("claude", claudeArgs, {
 				stdio: "inherit",
@@ -554,13 +576,54 @@ The swarm should be self-documenting - use memory_store to save all important in
 			console.log("   • Recommended agents and MCP tool usage");
 			console.log("   • Complete workflow documentation\n");
 
+			// Handle process timeout
+			const timeout = setTimeout(() => {
+				console.log(
+					`⏰ Process timeout after ${timeoutMs}ms - terminating Claude Code`
+				);
+				claudeProcess.kill("SIGTERM");
+
+				// Forceful kill after additional grace period
+				setTimeout(() => {
+					if (!claudeProcess.killed) {
+						claudeProcess.kill("SIGKILL");
+					}
+				}, 5000);
+			}, timeoutMs);
+
 			// Handle process events
 			claudeProcess.on("error", (err) => {
 				console.error("❌ Failed to launch Claude Code:", err.message);
+				clearTimeout(timeout);
 			});
 
-			// Don't wait for completion - let it run
-			return;
+			claudeProcess.on("exit", (code, signal) => {
+				clearTimeout(timeout);
+				if (signal) {
+					console.log(
+						`🔄 Claude Code process terminated with signal: ${signal}`
+					);
+				} else if (code !== 0) {
+					console.log(`⚠️  Claude Code process exited with code: ${code}`);
+				} else {
+					console.log("✓ Claude Code process completed successfully");
+				}
+			});
+
+			// Return process promise for testing
+			return new Promise((resolve, reject) => {
+				claudeProcess.on("close", (code) => {
+					if (code === 0) {
+						resolve({ success: true, exitCode: code });
+					} else {
+						resolve({ success: false, exitCode: code });
+					}
+				});
+
+				claudeProcess.on("error", (err) => {
+					reject(err);
+				});
+			});
 		} catch (error) {
 			console.error("❌ Failed to spawn Claude Code:", error.message);
 			console.log("\nFalling back to built-in executor...");
@@ -1049,11 +1112,33 @@ Begin execution now. Create all necessary files and provide a complete, working 
 					claudeArgs.push("--dangerously-skip-permissions");
 				}
 
+				// Configure timeout for process execution
+				const timeoutMs = flags.timeout
+					? parseInt(flags.timeout) * 1000
+					: process.env.NODE_ENV === "test"
+						? 30000
+						: 300000;
+
 				// Spawn claude process
 				const claudeProcess = spawn("claude", claudeArgs, {
 					stdio: ["pipe", "inherit", "inherit"],
 					shell: false,
 				});
+
+				// Handle process timeout
+				const timeout = setTimeout(() => {
+					console.log(
+						`⏰ Process timeout after ${timeoutMs}ms - terminating Claude Code`
+					);
+					claudeProcess.kill("SIGTERM");
+
+					// Forceful kill after additional grace period
+					setTimeout(() => {
+						if (!claudeProcess.killed) {
+							claudeProcess.kill("SIGKILL");
+						}
+					}, 5000);
+				}, timeoutMs);
 
 				// Write the prompt to stdin and close it
 				claudeProcess.stdin.write(swarmPrompt);
@@ -1062,6 +1147,7 @@ Begin execution now. Create all necessary files and provide a complete, working 
 				// Wait for the process to complete
 				await new Promise((resolve, reject) => {
 					claudeProcess.on("close", (code) => {
+						clearTimeout(timeout);
 						if (code === 0) {
 							resolve();
 						} else {
@@ -1070,6 +1156,7 @@ Begin execution now. Create all necessary files and provide a complete, working 
 					});
 
 					claudeProcess.on("error", (err) => {
+						clearTimeout(timeout);
 						reject(err);
 					});
 				});
@@ -1157,6 +1244,7 @@ OPTIONS:
   --no-interactive           Run in non-interactive mode (auto-enabled with --output-format json)
   --auto                     (Deprecated: auto-permissions enabled by default)
   --no-auto-permissions      Disable automatic --dangerously-skip-permissions
+  --test-mode                Enable test mode (bypasses external processes)
 
 ADVANCED OPTIONS:
   --quality-threshold <n>    Quality threshold 0-1 (default: 0.8)

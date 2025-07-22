@@ -10,7 +10,7 @@ import { githubCommand } from "./simple-commands/github.js";
 import { hiveMindCommand } from "./simple-commands/hive-mind.js";
 import hiveMindOptimizeCommand from "./simple-commands/hive-mind-optimize.js";
 import { hookSafetyCommand } from "./simple-commands/hook-safety.js";
-import { hooksAction } from "./simple-commands/hooks.js";
+// import { hooksAction } from "./simple-commands/hooks.js"; // Temporarily disabled - TypeScript file
 import { initCommand } from "./simple-commands/init/index.js";
 import { mcpCommand } from "./simple-commands/mcp.js";
 import { memoryCommand } from "./simple-commands/memory.js";
@@ -418,7 +418,14 @@ Enables intelligent task distribution, agent synchronization, and shared memory 
 	});
 
 	commandRegistry.set("hooks", {
-		handler: hooksAction,
+		handler: async (args, flags) => {
+			console.log(
+				"⚠️ Hooks command temporarily unavailable (TypeScript compilation needed)"
+			);
+			console.log(
+				"Available hooks: pre-task, post-task, pre-edit, post-edit, session-end"
+			);
+		},
 		description: "Lifecycle event management",
 		usage: "hooks <command> [options]",
 		examples: [

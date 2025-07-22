@@ -1,0 +1,47 @@
+{
+  "timestamp": "2025-07-21T11:11:03.794Z",
+  "baseline": {
+    "timestamp": "2025-07-21T11:08:09.663Z",
+    "cliVersion": "🔍 [DEEP DEBUG] parseFlags called with args: [--version]\n🔍 [DEEP DEBUG] Original process.argv: [/opt/homebrew/Cellar/node/23.11.0/bin/node, /Users/elniak/Documents/Project/claude-code-flow/dist/cli/simple-cli.js, --version]\n  Processing arg[0]: \"--version\"\n    Flag detected: \"version\", next arg: \"undefined\"\n    ✅ Set boolean flag \"version\" = true\n🎯 [DEEP DEBUG] parseFlags result:\n  flags: {\n  \"version\": true\n}\n  args: []\nClaude-Flow v2.0.0-alpha.50"
+  },
+  "current": {
+    "timestamp": "2025-07-21T11:10:51.538Z",
+    "cliVersion": "🔍 [DEEP DEBUG] parseFlags called with args: [--version]\n🔍 [DEEP DEBUG] Original process.argv: [/opt/homebrew/Cellar/node/23.11.0/bin/node, /Users/elniak/Documents/Project/claude-code-flow/dist/cli/simple-cli.js, --version]\n  Processing arg[0]: \"--version\"\n    Flag detected: \"version\", next arg: \"undefined\"\n    ✅ Set boolean flag \"version\" = true\n🎯 [DEEP DEBUG] parseFlags result:\n  flags: {\n  \"version\": true\n}\n  args: []\nClaude-Flow v2.0.0-alpha.50"
+  },
+  "summary": {
+    "totalRegressions": 1,
+    "totalImprovements": 1,
+    "highSeverityRegressions": 0,
+    "overallStatus": "WARNING"
+  },
+  "regressions": [
+    {
+      "metric": "Startup Time",
+      "baseline": "125.30ms",
+      "current": "132.88ms",
+      "change": "+6.1%",
+      "severity": "low"
+    }
+  ],
+  "improvements": [
+    {
+      "metric": "Command: agents-list",
+      "baseline": "136.05ms",
+      "current": "122.30ms",
+      "change": "-10.1%",
+      "severity": "low"
+    }
+  ],
+  "recommendations": [
+    {
+      "category": "Startup Performance",
+      "recommendation": "Review recent changes affecting CLI initialization and import costs",
+      "priority": "high"
+    },
+    {
+      "category": "Performance Improvements",
+      "recommendation": "1 performance improvements detected. Document successful optimizations.",
+      "priority": "low"
+    }
+  ]
+}

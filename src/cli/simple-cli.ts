@@ -11,14 +11,12 @@ import { randomUUID as generateId } from "node:crypto";
 import { promises as fs } from "node:fs";
 import { join } from "node:path";
 import { createInterface } from "node:readline";
-
+import { showAllCommands, showCommandHelp } from "./command-registry.js";
 import {
 	executeCommand,
 	hasCommand,
 	listCommands,
-	showAllCommands,
-	showCommandHelp,
-} from "./command-registry.js";
+} from "./unified-cli-core.js";
 import { parseFlags } from "./utils.js";
 
 // Node.js-only implementation (removed Deno compatibility)

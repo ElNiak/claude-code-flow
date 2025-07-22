@@ -13,8 +13,8 @@ import {
 	initializeRuvSwarmIntegration,
 	RuvSwarmConfigHelpers,
 } from "../../config/ruv-swarm-integration.js";
-import type { CommandContext } from "../cli-core.js";
-import { _error, info, success, warning } from "../cli-core.js";
+import type { CommandContext } from "../optimized-cli-core.js";
+import { _error, info, success, warning } from "../optimized-cli-core.js";
 
 /**
  * Enhanced configuration command with ruv-swarm integration

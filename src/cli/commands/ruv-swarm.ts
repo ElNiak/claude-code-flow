@@ -14,8 +14,13 @@ import {
 	isRuvSwarmAvailable,
 } from "../../mcp/ruv-swarm-tools.js";
 import { execAsync } from "../../utils/helpers.js";
-import type { CommandContext } from "../cli-core.js";
-import { _error as error, info, success, warning } from "../cli-core.js";
+import type { CommandContext } from "../optimized-cli-core.js";
+import {
+	_error as error,
+	info,
+	success,
+	warning,
+} from "../optimized-cli-core.js";
 
 // Create logger for CLI commands,
 const logger = new Logger({

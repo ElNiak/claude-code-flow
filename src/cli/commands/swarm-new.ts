@@ -14,8 +14,8 @@ import { SwarmCoordinator } from "../../swarm/coordinator.js";
 import { SwarmMemoryManager } from "../../swarm/memory.js";
 import type { AgentType, SwarmMode, SwarmStrategy } from "../../swarm/types.js";
 import { generateId as _generateId } from "../../utils/helpers.js";
-import type { CommandContext } from "../cli-core.js";
-import { _error, info, success, warning } from "../cli-core.js";
+import type { CommandContext } from "../optimized-cli-core.js";
+import { _error, info, success, warning } from "../optimized-cli-core.js";
 
 async function launchClaudeCodeWithSwarm(
 	objective: string,

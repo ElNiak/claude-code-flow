@@ -1,5 +1,6 @@
 // memory.js - Memory management commands
 
+import { promises as fs, readFileSync, writeFileSync } from "fs";
 import { cwd, Deno, existsSync, exit } from "../node-compat.js";
 import { printError, printSuccess, printWarning } from "../utils.js";
 
@@ -20,7 +21,7 @@ export async function memoryCommand(subArgs, flags) {
 	// Helper to save memory data
 	async function saveMemory(data) {
 		await fs.mkdir("./memory", { recursive: true });
-		writeFileSync(memoryStore, JSON.stringify(data, null, 2, "utf8"));
+		writeFileSync(memoryStore, JSON.stringify(data, null, 2), "utf8");
 	}
 
 	switch (memorySubcommand) {
@@ -186,7 +187,7 @@ async function exportMemory(subArgs, loadMemory) {
 			exportData = { [namespace]: data[namespace] || [] };
 		}
 
-		writeFileSync(filename, JSON.stringify(exportData, null, 2, "utf8"));
+		writeFileSync(filename, JSON.stringify(exportData, null, 2), "utf8");
 		printSuccess(`Memory exported to ${filename}`);
 
 		let totalEntries = 0;

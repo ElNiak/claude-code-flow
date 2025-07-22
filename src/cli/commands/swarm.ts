@@ -9,8 +9,13 @@ import { SwarmCoordinator } from "../../coordination/swarm-coordinator.js";
 import { SwarmMemoryManager } from "../../memory/swarm-memory.js";
 import { getErrorMessage } from "../../utils/error-handler.js";
 import { generateId } from "../../utils/helpers.js";
-import type { CommandContext } from "../cli-core.js";
-import { _error as error, info, success, warning } from "../cli-core.js";
+import type { CommandContext } from "../optimized-cli-core.js";
+import {
+	_error as error,
+	info,
+	success,
+	warning,
+} from "../optimized-cli-core.js";
 
 // Type definitions for Promise results
 interface ProcessResult {

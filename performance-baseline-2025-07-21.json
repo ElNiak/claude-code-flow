@@ -1,0 +1,205 @@
+{
+  "timestamp": "2025-07-21T11:08:09.663Z",
+  "day": "Day 1 Baseline",
+  "environment": {
+    "nodeVersion": "v23.11.0",
+    "platform": "darwin",
+    "arch": "arm64",
+    "cliVersion": "🔍 [DEEP DEBUG] parseFlags called with args: [--version]\n🔍 [DEEP DEBUG] Original process.argv: [/opt/homebrew/Cellar/node/23.11.0/bin/node, /Users/elniak/Documents/Project/claude-code-flow/dist/cli/simple-cli.js, --version]\n  Processing arg[0]: \"--version\"\n    Flag detected: \"version\", next arg: \"undefined\"\n    ✅ Set boolean flag \"version\" = true\n🎯 [DEEP DEBUG] parseFlags result:\n  flags: {\n  \"version\": true\n}\n  args: []\nClaude-Flow v2.0.0-alpha.50"
+  },
+  "metrics": {
+    "startup": {
+      "samples": [
+        125.859125,
+        124.07175000000001,
+        123.83670800000004,
+        123.28662499999996,
+        121.13175000000001,
+        128.54529200000002,
+        122.98412500000006,
+        124.23175000000003,
+        126.30983300000003,
+        128.60874999999987,
+        136.64641600000004,
+        121.00395800000001,
+        121.83691700000008,
+        122.89395800000011,
+        128.18395800000008
+      ],
+      "statistics": {
+        "count": 15,
+        "mean": 125.29539433333336,
+        "median": 124.07175000000001,
+        "min": 121.00395800000001,
+        "max": 136.64641600000004,
+        "stdDev": 3.896069679365317,
+        "p95": 130.61816649999992,
+        "p99": 135.44076610000002
+      }
+    },
+    "commands": {
+      "help": {
+        "command": "--help",
+        "critical": true,
+        "samples": [
+          125.40041700000006,
+          123.20091700000012,
+          130.0344170000003,
+          131.9314999999997,
+          123.6341669999997,
+          118.93404199999986,
+          124.15395799999988,
+          124.42974999999979
+        ],
+        "statistics": {
+          "mean": 125.21489599999992,
+          "median": 124.29185399999983,
+          "min": 118.93404199999986,
+          "max": 131.9314999999997,
+          "stdDev": 3.8098713271916664
+        }
+      },
+      "config-get": {
+        "command": "config get",
+        "critical": true,
+        "samples": [
+          123.28345800000034,
+          139.11816700000008,
+          132.03458299999966,
+          124.8330420000002,
+          124.04691699999967,
+          121.2013750000001,
+          124.35191700000041,
+          127.57579200000009
+        ],
+        "statistics": {
+          "mean": 127.05565637500007,
+          "median": 124.59247950000031,
+          "min": 121.2013750000001,
+          "max": 139.11816700000008,
+          "stdDev": 5.4814372986966395
+        }
+      },
+      "status": {
+        "command": "status --json",
+        "critical": false,
+        "samples": [
+          127.82037499999979,
+          122.8608750000003,
+          124.60487499999999,
+          125.84549999999945,
+          123.26558300000033,
+          121.34587499999998,
+          121.03204199999982,
+          128.2674589999997
+        ],
+        "statistics": {
+          "mean": 124.38032299999992,
+          "median": 123.93522900000016,
+          "min": 121.03204199999982,
+          "max": 128.2674589999997,
+          "stdDev": 2.5766057881250517
+        }
+      },
+      "memory": {
+        "command": "memory stats",
+        "critical": false,
+        "samples": [
+          145.17891599999984,
+          127.29575000000023,
+          128.10862499999985,
+          126.12004199999956,
+          124.12854199999947,
+          121.74279100000058,
+          122.49287499999991,
+          130.2483749999992
+        ],
+        "statistics": {
+          "mean": 128.16448949999983,
+          "median": 126.70789599999989,
+          "min": 121.74279100000058,
+          "max": 145.17891599999984,
+          "stdDev": 6.96836761306718
+        }
+      },
+      "agents-list": {
+        "command": "agents list",
+        "critical": false,
+        "samples": [
+          145.34608300000036,
+          136.47400000000016,
+          124.84737499999937,
+          163.71008300000085,
+          126.89570900000035,
+          131.99316699999963,
+          125.16716699999961,
+          133.95579200000066
+        ],
+        "statistics": {
+          "mean": 136.04867200000012,
+          "median": 132.97447950000014,
+          "min": 124.84737499999937,
+          "max": 163.71008300000085,
+          "stdDev": 12.248758194443244
+        }
+      }
+    },
+    "buildTime": {
+      "error": "Command failed: npm run build:tsx 2>/dev/null\n"
+    },
+    "memory": {
+      "initial": {
+        "rss": 30162944,
+        "heapTotal": 5029888,
+        "heapUsed": 3428000,
+        "external": 1234377,
+        "arrayBuffers": 10515
+      },
+      "heapUsedMB": 3.269195556640625,
+      "heapTotalMB": 4.796875,
+      "rssMB": 28.765625,
+      "externalMB": 1.1771936416625977
+    },
+    "fileSize": {
+      "dist/cli/simple-cli.js": {
+        "bytes": null,
+        "kilobytes": null,
+        "megabytes": "NaN"
+      },
+      "dist/cli/command-registry.js": {
+        "bytes": null,
+        "kilobytes": null,
+        "megabytes": "NaN"
+      },
+      "dist/cli/simple-orchestrator.js": {
+        "bytes": null,
+        "kilobytes": null,
+        "megabytes": "NaN"
+      },
+      "package.json": {
+        "bytes": null,
+        "kilobytes": null,
+        "megabytes": "NaN"
+      },
+      "package-lock.json": {
+        "bytes": null,
+        "kilobytes": null,
+        "megabytes": "NaN"
+      }
+    }
+  },
+  "recommendations": [
+    {
+      "category": "Optimization Opportunities",
+      "severity": "low",
+      "issue": "Performance baseline established",
+      "recommendation": "Implement dynamic imports, command caching, and build optimizations",
+      "threshold": "Continuous improvement"
+    }
+  ],
+  "regressionThresholds": {
+    "startupTimeMs": 200,
+    "commandTimeMs": 300,
+    "memoryUsageMB": 100
+  }
+}

@@ -6,8 +6,8 @@ import { getErrorMessage as _getErrorMessage } from "../../utils/error-handler.j
  */
 
 import chalk from "chalk";
-import type { Command, CommandContext } from "../cli-core.js";
-import { _error, info, success, warning } from "../cli-core.js";
+import type { Command, CommandContext } from "../optimized-cli-core.js";
+import { _error, info, success, warning } from "../optimized-cli-core.js";
 
 export function createCompatibilityWrapper(
 	legacyCommand: string,

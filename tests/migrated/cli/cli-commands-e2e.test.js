@@ -9,7 +9,6 @@ import path from 'path';
 
 import { generateId } from "../../src/utils/helpers";
 import { cleanupTestEnv, setupTestEnv } from "../test.config";
-import { describe, it, expect, beforeEach, afterEach } from "@jest/globals";
 
 describe("CLI Commands E2E", () => {
 	let testDir: string;

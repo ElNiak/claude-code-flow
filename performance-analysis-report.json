@@ -1,0 +1,124 @@
+{
+  "timestamp": "2025-07-21T09:25:35.604Z",
+  "summary": {
+    "averageStartupTime": 121.46054179999999,
+    "totalRecommendations": 5,
+    "criticalIssues": 0
+  },
+  "details": {
+    "startupTime": {
+      "times": [
+        128.936542,
+        115.953,
+        117.518958,
+        118.75691699999999,
+        126.13729199999995
+      ],
+      "average": 121.46054179999999,
+      "min": 115.953,
+      "max": 128.936542
+    },
+    "commandExecutionTime": {
+      "--version": {
+        "average": 120.95641700000003,
+        "min": 117.78970900000002,
+        "max": 124.11291700000004
+      },
+      "--help": {
+        "average": 120.48883333333329,
+        "min": 118.31700000000001,
+        "max": 123.72124999999994
+      },
+      "status --json": {
+        "average": 120.45904166666666,
+        "min": 116.03179099999988,
+        "max": 125.53150000000005
+      },
+      "config get": {
+        "average": 119.66716666666669,
+        "min": 117.27812500000005,
+        "max": 124.16100000000006
+      },
+      "memory stats": {
+        "average": 121.43984733333339,
+        "min": 120,
+        "max": 122.44995800000015
+      }
+    },
+    "importAnalysis": {
+      "src/cli/simple-cli.ts": {
+        "totalImports": 8,
+        "externalImports": 5,
+        "localImports": 3,
+        "heavyImports": []
+      },
+      "src/cli/cli-core.ts": {
+        "totalImports": 4,
+        "externalImports": 3,
+        "localImports": 1,
+        "heavyImports": []
+      },
+      "src/cli/command-registry.js": {
+        "totalImports": 25,
+        "externalImports": 1,
+        "localImports": 24,
+        "heavyImports": []
+      },
+      "src/cli/commands/index.ts": {
+        "totalImports": 24,
+        "externalImports": 3,
+        "localImports": 21,
+        "heavyImports": []
+      }
+    },
+    "memoryUsage": {
+      "initial": {
+        "rss": 37240832,
+        "heapTotal": 8355840,
+        "heapUsed": 5806944,
+        "external": 2137690,
+        "arrayBuffers": 271215
+      },
+      "afterLoad": {
+        "rss": 45481984,
+        "heapTotal": 11255808,
+        "heapUsed": 7709632,
+        "external": 1968857,
+        "arrayBuffers": 10655
+      },
+      "delta": {
+        "heapUsed": 1.814544677734375,
+        "heapTotal": 2.765625,
+        "external": -0.1610116958618164,
+        "rss": 7.859375
+      }
+    },
+    "recommendations": [
+      {
+        "category": "Import Count",
+        "issue": "src/cli/command-registry.js has 25 imports",
+        "recommendation": "Consider consolidating imports or using barrel exports"
+      },
+      {
+        "category": "Import Count",
+        "issue": "src/cli/commands/index.ts has 24 imports",
+        "recommendation": "Consider consolidating imports or using barrel exports"
+      },
+      {
+        "category": "Build Optimization",
+        "issue": "Multiple entry points and complex import chains",
+        "recommendation": "Use tree-shaking and dead code elimination in build process"
+      },
+      {
+        "category": "Lazy Loading",
+        "issue": "All commands loaded at startup",
+        "recommendation": "Implement dynamic import() for command handlers"
+      },
+      {
+        "category": "Caching",
+        "issue": "No caching of configuration or command registry",
+        "recommendation": "Cache parsed configurations and command metadata"
+      }
+    ]
+  }
+}
