@@ -11,6 +11,7 @@ import type {
 	AgentEnvironment,
 	TaskDefinition,
 } from "../../swarm/types.js";
+import { debugLogger } from "../../utils/debug-logger.js";
 import { BaseAgent } from "./base-agent.js";
 
 // Type definitions for coordinator activities,
@@ -34,7 +35,7 @@ export class CoordinatorAgent extends BaseAgent {
 		environment: AgentEnvironment,
 		logger: ILogger,
 		eventBus: IEventBus,
-		memory: DistributedMemorySystem
+		memory: DistributedMemorySystem,
 	) {
 		super(id, "coordinator", config, environment, logger, eventBus, memory);
 	}
@@ -116,13 +117,18 @@ export class CoordinatorAgent extends BaseAgent {
 	}
 
 	override async executeTask(task: TaskDefinition): Promise<any> {
-		this.logger.info("Coordinator executing task", {
-			agentId: this.id,
-			taskType: task.type,
-			taskId: task.id,
-		});
-
+		const debugId = debugLogger.logFunctionEntry(
+			"CoordinatorAgent",
+			"executeTask",
+			[task],
+			"agent-coordination",
+		);
 		try {
+			this.logger.info("Coordinator executing task", {
+				agentId: this.id,
+				taskType: task.type,
+				taskId: task.id,
+			});
 			switch (task.type) {
 				case "task-orchestration":
 					return await this.orchestrateTasks(task);
@@ -136,10 +142,22 @@ export class CoordinatorAgent extends BaseAgent {
 					return await this.coordinateTeam(task);
 				case "status-reporting":
 					return await this.generateStatusReport(task);
-				default:
-					return await this.performGeneralCoordination(task);
+				default: {
+					const result = await this.performGeneralCoordination(task);
+					debugLogger.logFunctionExit(
+						debugId,
+						JSON.stringify({ taskId: task.id, result }),
+						"agent-coordination",
+					);
+					return result;
+				}
 			}
 		} catch (error) {
+			debugLogger.logFunctionError(
+				debugId,
+				String(error),
+				"agent-coordination",
+			);
 			this.logger.error("Coordination task failed", {
 				agentId: this.id,
 				taskId: task.id,
@@ -487,7 +505,7 @@ export const createCoordinatorAgent = (
 	environment: Partial<AgentEnvironment>,
 	logger: ILogger,
 	eventBus: IEventBus,
-	memory: DistributedMemorySystem
+	memory: DistributedMemorySystem,
 ): CoordinatorAgent => {
 	const defaultConfig = {
 		autonomyLevel: 0.9,
@@ -547,6 +565,6 @@ export const createCoordinatorAgent = (
 		{ ...defaultEnv, ...environment } as AgentEnvironment,
 		logger,
 		eventBus,
-		memory
+		memory,
 	);
 };

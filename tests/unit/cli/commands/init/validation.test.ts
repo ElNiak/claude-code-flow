@@ -36,7 +36,7 @@ describe("Init Command Validation Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 				],
 				cwd: testDir,
@@ -73,7 +73,7 @@ describe("Init Command Validation Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 					"--sparc",
 				],
@@ -133,7 +133,7 @@ describe("Init Command Validation Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 				],
 				cwd: testDir,
@@ -190,7 +190,7 @@ describe("Init Command Validation Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 				],
 				cwd: testDir,
@@ -222,7 +222,7 @@ describe("Init Command Validation Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 				],
 				cwd: testDir,
@@ -276,7 +276,7 @@ describe("Init Command Validation Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 					"--sparc",
 				],
@@ -320,7 +320,7 @@ describe("Init Command Validation Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 				],
 				cwd: testDir,
@@ -354,7 +354,7 @@ describe("Init Command Validation Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 					"--sparc",
 				],
@@ -416,7 +416,7 @@ describe("Init Command Validation Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 				],
 				cwd: testDir,
@@ -446,7 +446,7 @@ describe("Init Command Validation Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 				],
 				cwd: testDir,
@@ -472,7 +472,7 @@ describe("Init Command Validation Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 				],
 				cwd: testDir,
@@ -506,7 +506,7 @@ describe("Init Command Validation Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 				],
 				cwd: testDir,
@@ -539,7 +539,7 @@ describe("Init Command Validation Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 					"--sparc",
 				],
@@ -575,7 +575,7 @@ describe("Init Command Validation Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 					"--sparc",
 				],
@@ -609,7 +609,7 @@ describe("Init Command Validation Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 				],
 				cwd: testDir,
@@ -639,7 +639,7 @@ describe("Init Command Validation Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 					"--sparc",
 				],

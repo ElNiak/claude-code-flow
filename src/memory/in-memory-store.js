@@ -3,6 +3,8 @@
  * Provides the same API as SQLite store but data is not persistent
  */
 
+import { debugLogger } from "../utils/debug-logger.js";
+
 class InMemoryStore {
 	constructor(options = {}) {
 		this.options = options;
@@ -12,7 +14,21 @@ class InMemoryStore {
 	}
 
 	async initialize() {
-		if (this.isInitialized) return;
+		const correlationId = debugLogger.logFunctionEntry(
+			"InMemoryStore",
+			"initialize",
+			[],
+			"memory-backend",
+		);
+
+		if (this.isInitialized) {
+			debugLogger.logFunctionExit(
+				correlationId,
+				{ alreadyInitialized: true },
+				"memory-backend",
+			);
+			return;
+		}
 
 		// Initialize default namespace
 		this.data.set("default", new Map());
@@ -22,14 +38,19 @@ class InMemoryStore {
 			this.cleanup().catch((err) =>
 				console.error(
 					`[${new Date().toISOString()}] ERROR [in-memory-store] Cleanup failed:`,
-					err
-				)
+					err,
+				),
 			);
 		}, 60000); // Run cleanup every minute
 
 		this.isInitialized = true;
 		console.error(
-			`[${new Date().toISOString()}] INFO [in-memory-store] Initialized in-memory store`
+			`[${new Date().toISOString()}] INFO [in-memory-store] Initialized in-memory store`,
+		);
+		debugLogger.logFunctionExit(
+			correlationId,
+			{ initialized: true },
+			"memory-backend",
 		);
 	}
 
@@ -41,6 +62,13 @@ class InMemoryStore {
 	}
 
 	async store(key, value, options = {}) {
+		const correlationId = debugLogger.logFunctionEntry(
+			"InMemoryStore",
+			"store",
+			[key, value, options],
+			"memory-crud",
+		);
+
 		await this.initialize();
 
 		const namespace = options.namespace || "default";
@@ -68,14 +96,27 @@ class InMemoryStore {
 
 		namespaceMap.set(key, entry);
 
-		return {
+		const result = {
 			success: true,
 			id: `${namespace}:${key}`,
 			size: valueStr.length,
 		};
+		debugLogger.logFunctionExit(
+			correlationId,
+			{ key, namespace, size: valueStr.length },
+			"memory-crud",
+		);
+		return result;
 	}
 
 	async retrieve(key, options = {}) {
+		const correlationId = debugLogger.logFunctionEntry(
+			"InMemoryStore",
+			"retrieve",
+			[key, options],
+			"memory-crud",
+		);
+
 		await this.initialize();
 
 		const namespace = options.namespace || "default";
@@ -84,12 +125,28 @@ class InMemoryStore {
 		const entry = namespaceMap.get(key);
 
 		if (!entry) {
+			debugLogger.logFunctionExit(
+				correlationId,
+				{ key, namespace, found: false },
+				"memory-crud",
+			);
 			return null;
 		}
 
 		// Check if expired
 		if (entry.expiresAt && entry.expiresAt < Date.now()) {
 			namespaceMap.delete(key);
+			debugLogger.logEvent(
+				"InMemoryStore",
+				"entry-expired",
+				{ key, namespace },
+				"memory-crud",
+			);
+			debugLogger.logFunctionExit(
+				correlationId,
+				{ key, namespace, found: false, reason: "expired" },
+				"memory-crud",
+			);
 			return null;
 		}
 
@@ -98,14 +155,28 @@ class InMemoryStore {
 		entry.accessCount++;
 
 		// Try to parse as JSON, fall back to raw string
+		let parsedValue;
 		try {
-			return JSON.parse(entry.value);
+			parsedValue = JSON.parse(entry.value);
 		} catch {
-			return entry.value;
+			parsedValue = entry.value;
 		}
+		debugLogger.logFunctionExit(
+			correlationId,
+			{ key, namespace, found: true, accessCount: entry.accessCount },
+			"memory-crud",
+		);
+		return parsedValue;
 	}
 
 	async list(options = {}) {
+		const correlationId = debugLogger.logFunctionEntry(
+			"InMemoryStore",
+			"list",
+			[options],
+			"memory-crud",
+		);
+
 		await this.initialize();
 
 		const namespace = options.namespace || "default";
@@ -117,7 +188,7 @@ class InMemoryStore {
 			.sort((a, b) => b.updatedAt - a.updatedAt)
 			.slice(0, limit);
 
-		return entries.map((entry) => ({
+		const result = entries.map((entry) => ({
 			key: entry.key,
 			value: this._tryParseJson(entry.value),
 			namespace: entry.namespace,
@@ -126,18 +197,44 @@ class InMemoryStore {
 			updatedAt: new Date(entry.updatedAt),
 			accessCount: entry.accessCount,
 		}));
+		debugLogger.logFunctionExit(
+			correlationId,
+			{ namespace, count: result.length, limit },
+			"memory-crud",
+		);
+		return result;
 	}
 
 	async delete(key, options = {}) {
+		const correlationId = debugLogger.logFunctionEntry(
+			"InMemoryStore",
+			"delete",
+			[key, options],
+			"memory-crud",
+		);
+
 		await this.initialize();
 
 		const namespace = options.namespace || "default";
 		const namespaceMap = this._getNamespaceMap(namespace);
 
-		return namespaceMap.delete(key);
+		const deleted = namespaceMap.delete(key);
+		debugLogger.logFunctionExit(
+			correlationId,
+			{ key, namespace, deleted },
+			"memory-crud",
+		);
+		return deleted;
 	}
 
 	async search(pattern, options = {}) {
+		const correlationId = debugLogger.logFunctionEntry(
+			"InMemoryStore",
+			"search",
+			[pattern, options],
+			"memory-crud",
+		);
+
 		await this.initialize();
 
 		const namespace = options.namespace || "default";
@@ -173,13 +270,26 @@ class InMemoryStore {
 		}
 
 		// Sort by score (access count) and updated time
-		return results.sort((a, b) => {
+		const sortedResults = results.sort((a, b) => {
 			if (a.score !== b.score) return b.score - a.score;
 			return b.updatedAt - a.updatedAt;
 		});
+		debugLogger.logFunctionExit(
+			correlationId,
+			{ pattern, namespace, count: sortedResults.length },
+			"memory-crud",
+		);
+		return sortedResults;
 	}
 
 	async cleanup() {
+		const correlationId = debugLogger.logFunctionEntry(
+			"InMemoryStore",
+			"cleanup",
+			[],
+			"memory-backend",
+		);
+
 		await this.initialize();
 
 		let cleaned = 0;
@@ -194,6 +304,7 @@ class InMemoryStore {
 			}
 		}
 
+		debugLogger.logFunctionExit(correlationId, { cleaned }, "memory-backend");
 		return cleaned;
 	}
 
@@ -206,12 +317,24 @@ class InMemoryStore {
 	}
 
 	close() {
+		const correlationId = debugLogger.logFunctionEntry(
+			"InMemoryStore",
+			"close",
+			[],
+			"memory-backend",
+		);
+
 		if (this.cleanupInterval) {
 			clearInterval(this.cleanupInterval);
 			this.cleanupInterval = null;
 		}
 		this.data.clear();
 		this.isInitialized = false;
+		debugLogger.logFunctionExit(
+			correlationId,
+			{ closed: true },
+			"memory-backend",
+		);
 	}
 }
 

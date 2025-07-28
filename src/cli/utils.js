@@ -12,22 +12,87 @@ import {
 	writeFile,
 } from "node:fs/promises";
 import chalk from "chalk";
+import { debugLogger } from "../utils/debug-logger.js";
 
 // Color formatting functions
 export function printSuccess(message) {
-	console.log(`✅ ${message}`);
+	const correlationId = debugLogger.logFunctionEntry(
+		"CLI",
+		"utils.printSuccess",
+		[message],
+		"cli-util",
+	);
+	try {
+		console.log(`✅ ${message}`);
+		debugLogger.logFunctionExit(
+			correlationId,
+			`success message printed: ${message}`,
+			"cli-util",
+		);
+	} catch (error) {
+		debugLogger.logFunctionError(correlationId, error, "cli-util");
+		throw error;
+	}
 }
 
 export function printError(message) {
-	console.log(`❌ ${message}`);
+	const correlationId = debugLogger.logFunctionEntry(
+		"CLI",
+		"utils.printError",
+		[message],
+		"cli-util",
+	);
+	try {
+		console.log(`❌ ${message}`);
+		debugLogger.logFunctionExit(
+			correlationId,
+			`error message printed: ${message}`,
+			"cli-util",
+		);
+	} catch (error) {
+		debugLogger.logFunctionError(correlationId, error, "cli-util");
+		throw error;
+	}
 }
 
 export function printWarning(message) {
-	console.log(`⚠️  ${message}`);
+	const correlationId = debugLogger.logFunctionEntry(
+		"CLI",
+		"utils.printWarning",
+		[message],
+		"cli-util",
+	);
+	try {
+		console.log(`⚠️  ${message}`);
+		debugLogger.logFunctionExit(
+			correlationId,
+			`warning message printed: ${message}`,
+			"cli-util",
+		);
+	} catch (error) {
+		debugLogger.logFunctionError(correlationId, error, "cli-util");
+		throw error;
+	}
 }
 
 export function printInfo(message) {
-	console.log(`ℹ️  ${message}`);
+	const correlationId = debugLogger.logFunctionEntry(
+		"CLI",
+		"utils.printInfo",
+		[message],
+		"cli-util",
+	);
+	try {
+		console.log(`ℹ️  ${message}`);
+		debugLogger.logFunctionExit(
+			correlationId,
+			`info message printed: ${message}`,
+			"cli-util",
+		);
+	} catch (error) {
+		debugLogger.logFunctionError(correlationId, error, "cli-util");
+		throw error;
+	}
 }
 
 // Command validation helpers
@@ -102,68 +167,236 @@ export function formatBytes(bytes) {
 	return `${size.toFixed(2)} ${units[unitIndex]}`;
 }
 
+// Security validation utilities
+function sanitizeFileName(filename) {
+	// Only allow alphanumeric, dash, underscore, and dot
+	return filename.replace(/[^a-zA-Z0-9._-]/g, "");
+}
+
+function sanitizeShellArg(arg) {
+	// Escape shell special characters and quotes
+	return arg.replace(/[`$()\\"';&|<>]/g, "\\$&");
+}
+
+function validateTempPath(path) {
+	// Ensure temp file path is safe and contains no injection attempts
+	if (
+		!path.startsWith("/tmp/") ||
+		path.includes("..") ||
+		path.includes(";") ||
+		path.includes("|")
+	) {
+		throw new Error("Invalid temp file path detected");
+	}
+	return path;
+}
+
+function isValidCommand(command) {
+	// Whitelist of allowed commands
+	const allowedCommands = ["npx", "node", "bash", "ps", "timeout"];
+	return allowedCommands.includes(command.split(" ")[0]);
+}
+
+// Secure command execution with controlled input
+export async function runCommandWithControlledInput(
+	command,
+	args = [],
+	inputData = "",
+	options = {},
+) {
+	try {
+		const { spawn } = await import("node:child_process");
+
+		return new Promise((resolve) => {
+			const child = spawn(command, args, {
+				stdio: ["pipe", "pipe", "pipe"],
+				shell: false, // SECURITY: Never use shell
+				...options,
+			});
+
+			let stdout = "";
+			let stderr = "";
+
+			// Feed input data via stdin if provided
+			if (inputData && child.stdin) {
+				child.stdin.write(inputData);
+				child.stdin.end();
+			}
+
+			child.stdout?.on("data", (data) => {
+				stdout += data.toString();
+			});
+
+			child.stderr?.on("data", (data) => {
+				stderr += data.toString();
+			});
+
+			child.on("close", (code) => {
+				resolve({
+					success: code === 0,
+					code: code || 0,
+					stdout: stdout,
+					stderr: stderr,
+				});
+			});
+
+			child.on("error", (err) => {
+				resolve({
+					success: false,
+					code: -1,
+					stdout: "",
+					stderr: err.message,
+				});
+			});
+		});
+	} catch (err) {
+		return {
+			success: false,
+			code: -1,
+			stdout: "",
+			stderr: err.message,
+		};
+	}
+}
+
 // Command execution helpers
 export function parseFlags(args) {
-	// Use process.argv if no args provided
-	const argsToProcess = args.length > 0 ? args : process.argv.slice(2);
-
-	console.log(
-		chalk.blue(
-			`🔍 [DEEP DEBUG] parseFlags called with args: [${argsToProcess.join(", ")}]`
-		)
+	const correlationId = debugLogger.logFunctionEntry(
+		"CLI",
+		"utils.parseFlags",
+		[args],
+		"cli-util",
 	);
-	console.log(
-		chalk.gray(
-			`🔍 [DEEP DEBUG] Original process.argv: [${process.argv.join(", ")}]`
-		)
-	);
+	try {
+		// Use process.argv if no args provided
+		const argsToProcess = args.length > 0 ? args : process.argv.slice(2);
 
-	const flags = {};
-	const filteredArgs = [];
+		// Disabled excessive debug logging to prevent memory issues
+		// Enable only when DEBUG=true environment variable is set
+		const DEBUG = process.env.DEBUG === "true";
 
-	for (let i = 0; i < argsToProcess.length; i++) {
-		const arg = argsToProcess[i];
-		console.log(chalk.gray(`  Processing arg[${i}]: "${arg}"`));
-
-		if (arg.startsWith("--")) {
-			const flagName = arg.substring(2);
-			const nextArg = argsToProcess[i + 1];
-
+		if (DEBUG) {
 			console.log(
-				chalk.gray(`    Flag detected: "${flagName}", next arg: "${nextArg}"`)
+				chalk.blue(
+					`🔍 [DEEP DEBUG] parseFlags called with args: [${argsToProcess.join(", ")}]`,
+				),
 			);
-
-			if (nextArg && !nextArg.startsWith("--")) {
-				flags[flagName] = nextArg;
-				console.log(
-					chalk.green(`    ✅ Set flag "${flagName}" = "${nextArg}"`)
-				);
-				i++; // Skip next arg since we consumed it
-			} else {
-				flags[flagName] = true;
-				console.log(
-					chalk.green(`    ✅ Set boolean flag "${flagName}" = true`)
-				);
-			}
-		} else if (arg.startsWith("-") && arg.length > 1) {
-			// Short flags
-			const shortFlags = arg.substring(1);
-			console.log(chalk.gray(`    Short flags detected: "${shortFlags}"`));
-			for (const flag of shortFlags) {
-				flags[flag] = true;
-				console.log(chalk.green(`    ✅ Set short flag "${flag}" = true`));
-			}
-		} else {
-			filteredArgs.push(arg);
-			console.log(chalk.gray(`    ✅ Added to args: "${arg}"`));
+			console.log(
+				chalk.gray(
+					`🔍 [DEEP DEBUG] Original process.argv: [${process.argv.join(", ")}]`,
+				),
+			);
 		}
+
+		const flags = {};
+		const filteredArgs = [];
+
+		for (let i = 0; i < argsToProcess.length; i++) {
+			const arg = argsToProcess[i];
+			if (DEBUG) {
+				console.log(chalk.gray(`  Processing arg[${i}]: "${arg}"`));
+			}
+
+			if (arg.startsWith("--")) {
+				const flagName = arg.substring(2);
+				const nextArg = argsToProcess[i + 1];
+
+				if (DEBUG) {
+					console.log(
+						chalk.gray(
+							`    Flag detected: "${flagName}", next arg: "${nextArg}"`,
+						),
+					);
+				}
+
+				// Enhanced parameter assignment with hook variable substitution handling
+				if (nextArg && !nextArg.startsWith("--") && !nextArg.startsWith("-")) {
+					// Special handling for hook variable substitution failures
+					if (
+						flagName === "command" &&
+						(nextArg === "true" || nextArg === "false")
+					) {
+						// This indicates a ${command} substitution failure in Claude Code hooks
+						// Set as empty string to avoid boolean value assignment
+						flags[flagName] = "";
+						if (DEBUG) {
+							console.log(
+								chalk.yellow(
+									`    ⚠️  Hook variable substitution failure detected for "${flagName}", setting to empty string`,
+								),
+							);
+						}
+						i++; // Still consume the next arg to maintain parsing order
+					} else {
+						flags[flagName] = nextArg;
+						if (DEBUG) {
+							console.log(
+								chalk.green(`    ✅ Set flag "${flagName}" = "${nextArg}"`),
+							);
+						}
+						i++; // Skip next arg since we consumed it
+					}
+				} else {
+					// Special case: if this is a command flag with no value, set empty string
+					if (flagName === "command") {
+						flags[flagName] = "";
+						if (DEBUG) {
+							console.log(
+								chalk.yellow(
+									`    ⚠️  Empty command flag detected, setting to empty string`,
+								),
+							);
+						}
+					} else {
+						flags[flagName] = true;
+						if (DEBUG) {
+							console.log(
+								chalk.green(`    ✅ Set boolean flag "${flagName}" = true`),
+							);
+						}
+					}
+				}
+			} else if (arg.startsWith("-") && arg.length > 1) {
+				// Short flags
+				const shortFlags = arg.substring(1);
+				if (DEBUG) {
+					console.log(chalk.gray(`    Short flags detected: "${shortFlags}"`));
+				}
+				for (const flag of shortFlags) {
+					flags[flag] = true;
+					if (DEBUG) {
+						console.log(chalk.green(`    ✅ Set short flag "${flag}" = true`));
+					}
+				}
+			} else {
+				filteredArgs.push(arg);
+				if (DEBUG) {
+					console.log(chalk.gray(`    ✅ Added to args: "${arg}"`));
+				}
+			}
+		}
+
+		if (DEBUG) {
+			console.log(chalk.green(`🎯 [DEEP DEBUG] parseFlags result:`));
+			console.log(chalk.green(`  flags: ${JSON.stringify(flags, null, 2)}`));
+			console.log(chalk.green(`  args: [${filteredArgs.join(", ")}]`));
+		}
+
+		const result = {
+			flags,
+			args: filteredArgs,
+			processArgs: process.argv.slice(2),
+		};
+		debugLogger.logFunctionExit(
+			correlationId,
+			`parsed ${Object.keys(flags).length} flags and ${filteredArgs.length} args`,
+			"cli-util",
+		);
+		return result;
+	} catch (error) {
+		debugLogger.logFunctionError(correlationId, error, "cli-util");
+		throw error;
 	}
-
-	console.log(chalk.green(`🎯 [DEEP DEBUG] parseFlags result:`));
-	console.log(chalk.green(`  flags: ${JSON.stringify(flags, null, 2)}`));
-	console.log(chalk.green(`  args: [${filteredArgs.join(", ")}]`));
-
-	return { flags, args: filteredArgs, processArgs: process.argv.slice(2) };
 }
 
 // Process execution helpers
@@ -180,9 +413,14 @@ export async function runCommand(command, args = [], options = {}) {
 			const { promisify } = await import("node:util");
 
 			return new Promise((resolve) => {
+				// SECURITY FIX: Validate command and disable shell
+				if (!isValidCommand(command)) {
+					throw new Error(`Command not allowed: ${command}`);
+				}
+
 				const child = spawn(command, args, {
 					stdio: ["pipe", "pipe", "pipe"],
-					shell: true,
+					shell: false, // SECURITY FIX: Disable shell to prevent injection
 					...options,
 				});
 
@@ -218,9 +456,14 @@ export async function runCommand(command, args = [], options = {}) {
 		} else {
 			// Node.js environment fallback
 			return new Promise((resolve) => {
+				// SECURITY FIX: Validate command and disable shell
+				if (!isValidCommand(command)) {
+					throw new Error(`Command not allowed: ${command}`);
+				}
+
 				const child = spawn(command, args, {
 					stdio: ["pipe", "pipe", "pipe"],
-					shell: true,
+					shell: false, // SECURITY FIX: Disable shell to prevent injection
 					...options,
 				});
 
@@ -265,11 +508,28 @@ export async function runCommand(command, args = [], options = {}) {
 }
 
 // Process execution with timeout
+// Global registry to track child processes for cleanup
+const activeChildProcesses = new Set();
+
+// Cleanup handler for process exit
+if (typeof process !== "undefined" && process.on) {
+	process.on("exit", () => {
+		// Kill all tracked child processes on exit
+		for (const childPid of activeChildProcesses) {
+			try {
+				process.kill(childPid, "SIGKILL");
+			} catch {
+				// Process already dead, ignore
+			}
+		}
+	});
+}
+
 export async function runCommandWithTimeout(
 	command,
 	args = [],
 	options = {},
-	timeoutMs = 20000
+	timeoutMs = 20000,
 ) {
 	try {
 		// Check if we're in Node.js or Deno environment
@@ -282,11 +542,22 @@ export async function runCommandWithTimeout(
 			const { spawn } = await import("node:child_process");
 
 			return new Promise((resolve, reject) => {
+				// SECURITY FIX: Validate command and disable shell
+				if (!isValidCommand(command)) {
+					throw new Error(`Command not allowed: ${command}`);
+				}
+
 				const child = spawn(command, args, {
 					stdio: ["pipe", "pipe", "pipe"],
-					shell: true,
+					shell: false, // SECURITY FIX: Disable shell to prevent injection
+					detached: false, // Keep as child process
 					...options,
 				});
+
+				// Track this child process for cleanup
+				if (child.pid) {
+					activeChildProcesses.add(child.pid);
+				}
 
 				let stdout = "";
 				let stderr = "";
@@ -296,6 +567,11 @@ export async function runCommandWithTimeout(
 				const timeoutId = setTimeout(() => {
 					isTimedOut = true;
 					child.kill("SIGTERM");
+
+					// Remove from tracking immediately on timeout
+					if (child.pid) {
+						activeChildProcesses.delete(child.pid);
+					}
 
 					// Force kill after 5 seconds
 					setTimeout(() => {
@@ -347,9 +623,14 @@ export async function runCommandWithTimeout(
 		} else {
 			// Node.js environment with timeout fallback
 			return new Promise((resolve, reject) => {
+				// SECURITY FIX: Validate command and disable shell
+				if (!isValidCommand(command)) {
+					throw new Error(`Command not allowed: ${command}`);
+				}
+
 				const child = spawn(command, args, {
 					stdio: ["pipe", "pipe", "pipe"],
-					shell: true,
+					shell: false, // SECURITY FIX: Disable shell to prevent injection
 					...options,
 				});
 
@@ -361,6 +642,11 @@ export async function runCommandWithTimeout(
 				const timeoutId = setTimeout(() => {
 					isTimedOut = true;
 					child.kill("SIGTERM");
+
+					// Remove from tracking immediately on timeout
+					if (child.pid) {
+						activeChildProcesses.delete(child.pid);
+					}
 
 					// Force kill after 5 seconds
 					setTimeout(() => {
@@ -579,17 +865,31 @@ export async function callRuvSwarmMCP(tool, params = {}) {
 			JSON.stringify(initMessage) + "\n" + JSON.stringify(toolMessage);
 		await writeFile(tempFile, messages, "utf-8");
 
-		// Create a script that feeds the file to the REAL ruv-swarm MCP server
+		// SECURITY FIX: Validate and sanitize temp file paths
+		validateTempPath(tempFile);
+		validateTempPath(tempScript);
+
+		// SECURITY FIX: Use secure script without file redirection
 		const script = `#!/bin/bash
-timeout 30s npx ruv-swarm mcp start --stdio < "${tempFile}" 2>/dev/null | tail -1
+set -euo pipefail
+timeout 30s npx ruv-swarm mcp start --stdio 2>/dev/null | tail -1
 `;
 		await writeFile(tempScript, script, "utf-8");
 		await chmod(tempScript, 0o755);
 
-		const result = await runCommand("bash", [tempScript], {
-			stdout: "piped",
-			stderr: "piped",
-		});
+		// SECURITY FIX: Feed input via stdin instead of shell redirection
+		const tempFileContent = await readFile(tempFile, "utf-8");
+
+		// SECURITY FIX: Use spawn with controlled stdin instead of file redirection
+		const result = await runCommandWithControlledInput(
+			"bash",
+			[tempScript],
+			tempFileContent,
+			{
+				stdout: "piped",
+				stderr: "piped",
+			},
+		);
 
 		// Clean up temp files
 		try {
@@ -666,7 +966,7 @@ export async function callRuvSwarmDirectNeural(params = {}) {
 
 		console.log(`🧠 Using REAL ruv-swarm WASM neural training...`);
 		console.log(
-			`🚀 Executing: npx ruv-swarm neural train --model ${modelName} --iterations ${epochs} --data-source ${dataSource}`
+			`🚀 Executing: npx ruv-swarm neural train --model ${modelName} --iterations ${epochs} --data-source ${dataSource}`,
 		);
 		console.log(`📺 LIVE TRAINING OUTPUT:\n`);
 
@@ -681,6 +981,15 @@ export async function callRuvSwarmDirectNeural(params = {}) {
 			const { spawn } = await import("node:child_process");
 
 			result = await new Promise((resolve) => {
+				// SECURITY FIX: Validate and sanitize parameters
+				const sanitizedModelName = sanitizeShellArg(modelName);
+				const sanitizedDataSource = sanitizeShellArg(dataSource);
+				const sanitizedEpochs = parseInt(epochs) || 50; // Ensure numeric
+
+				if (!sanitizedModelName || !sanitizedDataSource) {
+					throw new Error("Invalid model name or data source parameters");
+				}
+
 				const child = spawn(
 					"npx",
 					[
@@ -688,18 +997,18 @@ export async function callRuvSwarmDirectNeural(params = {}) {
 						"neural",
 						"train",
 						"--model",
-						modelName,
+						sanitizedModelName,
 						"--iterations",
-						epochs.toString(),
+						sanitizedEpochs.toString(),
 						"--data-source",
-						dataSource,
+						sanitizedDataSource,
 						"--output-format",
 						"json",
 					],
 					{
 						stdio: "inherit", // This will show live output in Node.js
-						shell: true,
-					}
+						shell: false, // SECURITY FIX: Disable shell to prevent injection
+					},
 				);
 
 				child.on("close", (code) => {
@@ -722,6 +1031,15 @@ export async function callRuvSwarmDirectNeural(params = {}) {
 			});
 		} else {
 			// Deno environment - fallback to regular command
+			// SECURITY FIX: Validate and sanitize parameters for Deno environment
+			const sanitizedModelName = sanitizeShellArg(modelName);
+			const sanitizedDataSource = sanitizeShellArg(dataSource);
+			const sanitizedEpochs = parseInt(epochs) || 50;
+
+			if (!sanitizedModelName || !sanitizedDataSource) {
+				throw new Error("Invalid model name or data source parameters");
+			}
+
 			result = await runCommand(
 				"npx",
 				[
@@ -729,18 +1047,18 @@ export async function callRuvSwarmDirectNeural(params = {}) {
 					"neural",
 					"train",
 					"--model",
-					modelName,
+					sanitizedModelName,
 					"--iterations",
-					epochs.toString(),
+					sanitizedEpochs.toString(),
 					"--data-source",
-					dataSource,
+					sanitizedDataSource,
 					"--output-format",
 					"json",
 				],
 				{
 					stdout: "piped",
 					stderr: "piped",
-				}
+				},
 			);
 
 			// Show the output manually in Deno
@@ -753,7 +1071,7 @@ export async function callRuvSwarmDirectNeural(params = {}) {
 		}
 
 		console.log(
-			`\n🎯 ruv-swarm training completed with exit code: ${result.code}`
+			`\n🎯 ruv-swarm training completed with exit code: ${result.code}`,
 		);
 
 		// Since we used 'inherit', we need to get the training results from the saved JSON file
@@ -801,7 +1119,7 @@ export async function callRuvSwarmDirectNeural(params = {}) {
 			}
 		} catch (fileError) {
 			console.log(
-				`⚠️ Could not read training results file: ${fileError.message}`
+				`⚠️ Could not read training results file: ${fileError.message}`,
 			);
 		}
 
@@ -830,13 +1148,20 @@ export async function callRuvSwarmDirectNeural(params = {}) {
 export async function execRuvSwarmHook(hookName, params = {}) {
 	try {
 		const command = "npx";
-		const args = ["ruv-swarm", "hook", hookName];
+		const args = ["ruv-swarm", "hooks", hookName];
 
-		// Add parameters as CLI arguments
+		// SECURITY FIX: Validate and sanitize parameters
 		Object.entries(params).forEach(([key, value]) => {
+			// Validate key name (only allow alphanumeric and dashes)
+			if (!/^[a-zA-Z0-9-]+$/.test(key)) {
+				throw new Error(`Invalid parameter key: ${key}`);
+			}
+
 			args.push(`--${key}`);
 			if (value !== true && value !== false) {
-				args.push(String(value));
+				// Sanitize the value to prevent injection
+				const sanitizedValue = sanitizeShellArg(String(value));
+				args.push(sanitizedValue);
 			}
 		});
 
@@ -854,14 +1179,20 @@ export async function execRuvSwarmHook(hookName, params = {}) {
 		const timeout = hookTimeouts[hookName] || 20000; // Default 20 seconds
 
 		// Execute with timeout
+		// SECURITY FIX: Validate command before execution
+		if (!isValidCommand(command)) {
+			throw new Error(`Command not allowed: ${command}`);
+		}
+
 		const result = await runCommandWithTimeout(
 			command,
 			args,
 			{
 				stdout: "piped",
 				stderr: "piped",
+				shell: false, // SECURITY FIX: Disable shell to prevent injection
 			},
-			timeout
+			timeout,
 		);
 
 		if (!result.success) {
@@ -881,35 +1212,129 @@ export async function execRuvSwarmHook(hookName, params = {}) {
 
 export async function checkRuvSwarmAvailable() {
 	try {
-		const result = await runCommand("npx", ["ruv-swarm", "--version"], {
-			stdout: "piped",
-			stderr: "piped",
-		});
+		// SECURITY FIX: Use secure command execution
+		const result = await runCommandWithTimeout(
+			"npx",
+			["ruv-swarm", "--version"],
+			{
+				stdout: "piped",
+				stderr: "piped",
+				shell: false, // SECURITY FIX: Disable shell to prevent injection
+			},
+			10000,
+		); // 10 second timeout for version check
 
 		return result.success;
-	} catch {
+	} catch (error) {
+		// Log timeout/error for debugging but don't throw
+		if (error.message && error.message.includes("timeout")) {
+			console.warn(`⚠️  ruv-swarm availability check timed out after 10s`);
+		}
 		return false;
 	}
 }
 
-// Process cleanup utilities
+// Process cleanup utilities - only cleans up children of current process
 export async function cleanupOrphanedProcesses() {
 	try {
-		// Find claude-flow and ruv-swarm processes
-		const result = await runCommand("ps", ["aux"], {
-			stdout: "piped",
-			stderr: "piped",
-		});
+		console.log("🧹 Cleaning up orphaned child processes...");
 
-		if (!result.success) {
+		const currentPid = process.pid;
+		const currentPpid = process.ppid || currentPid;
+
+		// Get process tree to find only our children
+		const psResult = await runCommandWithTimeout(
+			"ps",
+			["-eo", "pid,ppid,command"],
+			{
+				stdout: "piped",
+				stderr: "piped",
+			},
+			10000,
+		);
+
+		if (!psResult.success) {
+			console.warn("⚠️  Could not get process list for cleanup");
+			return;
+		}
+
+		const lines = psResult.stdout.split("\n").slice(1); // Skip header
+		const childProcesses = [];
+
+		// Find child processes that are ruv-swarm related
+		for (const line of lines) {
+			const match = line.trim().match(/^(\d+)\s+(\d+)\s+(.+)$/);
+			if (!match) continue;
+
+			const [, pid, ppid, command] = match;
+			const pidNum = parseInt(pid);
+			const ppidNum = parseInt(ppid);
+
+			// Skip if it's the current process
+			if (pidNum === currentPid) continue;
+
+			// Check if it's a child of current process or related process tree
+			if (ppidNum === currentPid || ppidNum === currentPpid) {
+				if (
+					command.includes("ruv-swarm") ||
+					command.includes("npm exec ruv-swarm")
+				) {
+					childProcesses.push({
+						pid: pidNum,
+						command: command.substring(0, 60) + "...",
+					});
+				}
+			}
+		}
+
+		// Kill only our child processes
+		if (childProcesses.length > 0) {
+			console.log(
+				`🎯 Found ${childProcesses.length} orphaned child processes to clean up`,
+			);
+
+			for (const child of childProcesses) {
+				try {
+					process.kill(child.pid, "SIGTERM");
+					console.log(`   ✅ Terminated PID ${child.pid}: ${child.command}`);
+
+					// Force kill after 3 seconds if still alive
+					setTimeout(() => {
+						try {
+							process.kill(child.pid, "SIGKILL");
+						} catch {
+							// Process already dead, ignore
+						}
+					}, 3000);
+				} catch (error) {
+					// Process might already be dead
+					console.log(`   ⚠️  Process ${child.pid} already terminated`);
+				}
+			}
+		} else {
+			console.log("✅ No orphaned child processes found");
+		}
+
+		// Continue with existing process analysis for reporting
+		const psAuxResult = await runCommandWithTimeout(
+			"ps",
+			["aux"],
+			{
+				stdout: "piped",
+				stderr: "piped",
+			},
+			10000,
+		);
+
+		if (!psAuxResult.success || !psAuxResult.stdout) {
 			printWarning("Could not list processes for cleanup");
 			return;
 		}
 
-		const lines = result.stdout.split("\n");
+		const psAuxLines = psAuxResult.stdout.split("\n");
 		const processesToKill = [];
 
-		for (const line of lines) {
+		for (const line of psAuxLines) {
 			if (line.includes("claude-flow") || line.includes("ruv-swarm")) {
 				const parts = line.split(/\s+/);
 				if (parts.length >= 11) {

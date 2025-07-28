@@ -1,8 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
-import { spawn } from 'child_process';
-import { promises as fs } from 'fs';
-import path from 'path';
-
+import { afterEach, beforeEach, describe, expect, it } from '@jest/globals';
 import {
 	assertEquals,
 	assertExists,
@@ -11,6 +7,9 @@ import {
 import { exists } from "@std/fs/mod.ts";
 import { join } from "@std/path/mod.ts";
 import { afterEach, beforeEach, describe, it } from "@std/testing/bdd.ts";
+import { spawn } from 'child_process';
+import { promises as fs } from 'fs';
+import path from 'path';
 
 describe("End-to-End Init Workflow Tests", () => {
 	let testDir: string;
@@ -40,7 +39,7 @@ describe("End-to-End Init Workflow Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 				],
 				cwd: testDir,
@@ -121,7 +120,7 @@ describe("End-to-End Init Workflow Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 					"--sparc",
 				],
@@ -174,7 +173,7 @@ describe("End-to-End Init Workflow Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 					"--minimal",
 				],
@@ -194,7 +193,7 @@ describe("End-to-End Init Workflow Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 					"--force",
 				],
@@ -216,7 +215,7 @@ describe("End-to-End Init Workflow Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 					"--sparc",
 					"--force",
@@ -266,7 +265,7 @@ describe("End-to-End Init Workflow Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 				],
 				cwd: testDir,
@@ -341,7 +340,7 @@ describe("End-to-End Init Workflow Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 				],
 				cwd: testDir,
@@ -417,7 +416,7 @@ describe("End-to-End Init Workflow Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 				],
 				cwd: testDir,
@@ -457,7 +456,7 @@ describe("End-to-End Init Workflow Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 				],
 				cwd: testDir,
@@ -495,7 +494,7 @@ describe("End-to-End Init Workflow Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 					"--sparc",
 				],
@@ -524,7 +523,7 @@ describe("End-to-End Init Workflow Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 					"--help",
 				],
@@ -556,7 +555,7 @@ describe("End-to-End Init Workflow Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 				],
 				cwd: testDir,

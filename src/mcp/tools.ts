@@ -34,6 +34,14 @@ export interface ToolMetrics {
 	averageExecutionTime: number;
 	lastInvoked?: Date;
 	totalExecutionTime: number;
+	// Additional properties used in implementation
+	totalCalls: number;
+	successfulCalls: number;
+	failedCalls: number;
+	totalResponseTime: number;
+	averageResponseTime: number;
+	lastUsed: Date | null;
+	errors: Array<{ timestamp: Date; error: string; input: any }>;
 }
 
 export interface ToolDiscoveryQuery {
@@ -54,53 +62,143 @@ export class ToolRegistry extends EventEmitter {
 	private metrics = new Map<string, ToolMetrics>();
 	private categories = new Set<string>();
 	private tags = new Set<string>();
+	private debugLogger: any;
+	private logger: any;
 
-	constructor(private logger: ILogger) {
+	constructor(logger?: any) {
 		super();
+		// Import debug logger
+		const { debugLogger } = require("../utils/debug-logger.js");
+		this.debugLogger = debugLogger;
+
+		const correlationId = this.debugLogger.logFunctionEntry(
+			"ToolRegistry",
+			"constructor",
+			[logger],
+			"mcp-registry",
+		);
+
+		try {
+			this.logger = logger || console;
+
+			this.debugLogger.logEvent(
+				"ToolRegistry",
+				"tool-registry-initialized",
+				{
+					hasLogger: !!logger,
+					toolsCount: this.tools.size,
+					capabilitiesCount: this.capabilities.size,
+				},
+				"mcp-registry",
+			);
+
+			this.debugLogger.logFunctionExit(
+				correlationId,
+				{ success: true },
+				"mcp-registry",
+			);
+		} catch (error: unknown) {
+			this.debugLogger.logFunctionError(correlationId, error, "mcp-registry");
+			throw error;
+		}
 	}
 
 	/**
 	 * Registers a new tool with enhanced capability information
 	 */
-	register(tool: MCPTool, capability?: ToolCapability): void {
-		if (this.tools.has(tool.name)) {
-			throw new MCPError(`Tool already registered: ${tool.name}`);
-		}
+	register(tool: any, capability?: ToolCapability): void {
+		const correlationId = this.debugLogger.logFunctionEntry(
+			"ToolRegistry",
+			"register",
+			[tool, capability],
+			"mcp-registry",
+		);
 
-		// Validate tool schema,
-		this.validateTool(tool);
+		try {
+			this.debugLogger.logEvent(
+				"ToolRegistry",
+				"tool-registration-start",
+				{
+					toolName: tool.name,
+					toolType: typeof tool,
+					hasCapability: !!capability,
+					currentToolsCount: this.tools.size,
+				},
+				"mcp-registry",
+			);
 
-		// Register tool,
-		this.tools.set(tool.name, tool);
+			this.validateTool(tool);
 
-		// Register capability if provided,
-		if (capability) {
-			this.registerCapability(tool.name, capability);
-		} else {
-			// Create default capability,
-			const defaultCapability: ToolCapability = {
+			if (this.tools.has(tool.name)) {
+				const error = new Error(`Tool '${tool.name}' is already registered`);
+				this.debugLogger.logEvent(
+					"ToolRegistry",
+					"tool-already-registered",
+					{ toolName: tool.name },
+					"mcp-registry",
+				);
+				this.debugLogger.logFunctionError(correlationId, error, "mcp-registry");
+				throw error;
+			}
+
+			this.tools.set(tool.name, tool);
+
+			// Extract and store metadata
+			const category = this.extractCategory(tool);
+			if (category) {
+				this.categories.add(category);
+			}
+
+			const tags = this.extractTags(tool);
+			tags.forEach((tag) => this.tags.add(tag));
+
+			// Register capability if provided
+			if (capability) {
+				this.registerCapability(tool.name, capability);
+			}
+
+			// Initialize metrics
+			this.metrics.set(tool.name, {
 				name: tool.name,
-				version: "1.0.0",
-				description: tool.description,
-				category: this.extractCategory(tool.name),
-				tags: this.extractTags(tool),
-				supportedProtocolVersions: [{ major: 2024, minor: 11, patch: 5 }],
-			};
-			this.registerCapability(tool.name, defaultCapability);
+				totalInvocations: 0,
+				successfulInvocations: 0,
+				failedInvocations: 0,
+				averageExecutionTime: 0,
+				lastInvoked: undefined,
+				totalExecutionTime: 0,
+				// Implementation-specific properties
+				totalCalls: 0,
+				successfulCalls: 0,
+				failedCalls: 0,
+				totalResponseTime: 0,
+				averageResponseTime: 0,
+				lastUsed: null,
+				errors: [],
+			});
+
+			this.debugLogger.logEvent(
+				"ToolRegistry",
+				"tool-registered-successfully",
+				{
+					toolName: tool.name,
+					category,
+					tags,
+					totalTools: this.tools.size,
+					totalCategories: this.categories.size,
+				},
+				"mcp-registry",
+			);
+
+			this.logger.info(`Tool '${tool.name}' registered successfully`);
+			this.debugLogger.logFunctionExit(
+				correlationId,
+				{ toolName: tool.name, success: true },
+				"mcp-registry",
+			);
+		} catch (error: unknown) {
+			this.debugLogger.logFunctionError(correlationId, error, "mcp-registry");
+			throw error;
 		}
-
-		// Initialize metrics,
-		this.metrics.set(tool.name, {
-			name: tool.name,
-			totalInvocations: 0,
-			successfulInvocations: 0,
-			failedInvocations: 0,
-			averageExecutionTime: 0,
-			totalExecutionTime: 0,
-		});
-
-		this.logger.debug("Tool registered", { name: tool.name });
-		this.emit("toolRegistered", { name: tool.name, capability });
 	}
 
 	/**
@@ -142,76 +240,154 @@ export class ToolRegistry extends EventEmitter {
 	/**
 	 * Executes a tool with metrics tracking
 	 */
-	async executeTool(
-		name: string,
-		input: unknown,
-		context?: any
-	): Promise<unknown> {
-		const tool = this.tools.get(name);
-		if (!tool) {
-			throw new MCPError(`Tool not found: ${name}`);
-		}
-
-		const startTime = Date.now();
-		const metrics = this.metrics.get(name);
-
-		this.logger.debug("Executing tool", { name, input });
+	async executeTool(name: string, input: any, context?: any): Promise<any> {
+		const correlationId = this.debugLogger.logFunctionEntry(
+			"ToolRegistry",
+			"executeTool",
+			[name, input],
+			"mcp-registry",
+		);
 
 		try {
-			// Validate input against schema,
+			this.debugLogger.logEvent(
+				"ToolRegistry",
+				"tool-execution-start",
+				{
+					toolName: name,
+					hasInput: !!input,
+					hasContext: !!context,
+					inputKeys: input ? Object.keys(input) : [],
+				},
+				"mcp-registry",
+			);
+
+			const tool = this.tools.get(name);
+			if (!tool) {
+				const error = new Error(`Tool '${name}' not found`);
+				this.debugLogger.logEvent(
+					"ToolRegistry",
+					"tool-not-found",
+					{
+						toolName: name,
+						availableTools: Array.from(this.tools.keys()),
+					},
+					"mcp-registry",
+				);
+				this.debugLogger.logFunctionError(correlationId, error, "mcp-registry");
+				throw error;
+			}
+
+			// Validate input
 			this.validateInput(tool, input);
 
-			// Check tool capabilities and permissions,
-			await this.checkToolCapabilities(name, context);
-
-			// Execute tool handler,
-			const result = await tool.handler(input, context);
-
-			// Update success metrics,
+			const metrics = this.metrics.get(name);
 			if (metrics) {
-				const executionTime = Date.now() - startTime;
+				metrics.totalCalls++;
 				metrics.totalInvocations++;
-				metrics.successfulInvocations++;
-				metrics.totalExecutionTime += executionTime;
-				metrics.averageExecutionTime =
-					metrics.totalExecutionTime / metrics.totalInvocations;
+				metrics.lastUsed = new Date();
 				metrics.lastInvoked = new Date();
 			}
 
-			this.logger.debug("Tool executed successfully", {
-				name,
-				executionTime: Date.now() - startTime,
-			});
-			this.emit("toolExecuted", {
-				name,
-				success: true,
-				executionTime: Date.now() - startTime,
-			});
+			const startTime = Date.now();
 
-			return result;
-		} catch (error) {
-			// Update failure metrics,
-			if (metrics) {
-				const executionTime = Date.now() - startTime;
-				metrics.totalInvocations++;
-				metrics.failedInvocations++;
-				metrics.totalExecutionTime += executionTime;
-				metrics.averageExecutionTime =
-					metrics.totalExecutionTime / metrics.totalInvocations;
-				metrics.lastInvoked = new Date();
+			try {
+				this.debugLogger.logEvent(
+					"ToolRegistry",
+					"tool-handler-executing",
+					{
+						toolName: name,
+						handlerType: typeof tool.handler,
+					},
+					"mcp-registry",
+				);
+
+				let result;
+				if (typeof tool.handler === "function") {
+					result = await tool.handler(input, context);
+				} else {
+					const error = new Error(`Tool '${name}' has no valid handler`);
+					this.debugLogger.logEvent(
+						"ToolRegistry",
+						"tool-no-handler",
+						{ toolName: name },
+						"mcp-registry",
+					);
+					throw error;
+				}
+
+				const responseTime = Date.now() - startTime;
+
+				if (metrics) {
+					metrics.successfulCalls++;
+					metrics.successfulInvocations++;
+					metrics.totalResponseTime += responseTime;
+					metrics.totalExecutionTime += responseTime;
+					metrics.averageResponseTime =
+						metrics.totalResponseTime / metrics.totalCalls;
+					metrics.averageExecutionTime =
+						metrics.totalExecutionTime / metrics.totalInvocations;
+				}
+
+				this.debugLogger.logEvent(
+					"ToolRegistry",
+					"tool-execution-success",
+					{
+						toolName: name,
+						responseTime,
+						resultSize: JSON.stringify(result || {}).length,
+					},
+					"mcp-registry",
+				);
+
+				this.debugLogger.logFunctionExit(
+					correlationId,
+					{
+						success: true,
+						responseTime,
+						toolName: name,
+					},
+					"mcp-registry",
+				);
+				return result;
+			} catch (error: unknown) {
+				const responseTime = Date.now() - startTime;
+
+				// Type guard for error handling
+				const errorMessage = this.getErrorMessage(error);
+				const errorType = this.getErrorType(error);
+
+				if (metrics) {
+					metrics.failedCalls++;
+					metrics.failedInvocations++;
+					metrics.errors.push({
+						timestamp: new Date(),
+						error: errorMessage,
+						input,
+					});
+
+					// Keep only last 10 errors
+					if (metrics.errors.length > 10) {
+						metrics.errors = metrics.errors.slice(-10);
+					}
+				}
+
+				this.debugLogger.logEvent(
+					"ToolRegistry",
+					"tool-execution-error",
+					{
+						toolName: name,
+						responseTime,
+						error: errorMessage,
+						errorType,
+					},
+					"mcp-registry",
+				);
+
+				this.debugLogger.logFunctionError(correlationId, error, "mcp-registry");
+				throw error;
 			}
-
-			this.logger.error("Tool execution failed", {
-				name,
-				error,
-				executionTime: Date.now() - startTime,
-			});
-			this.emit("toolExecuted", {
-				name,
-				success: false,
-				error,
-				executionTime: Date.now() - startTime,
-			});
+		} catch (error: unknown) {
+			this.debugLogger.logFunctionError(correlationId, error, "mcp-registry");
 			throw error;
 		}
 	}
@@ -273,7 +449,7 @@ export class ToolRegistry extends EventEmitter {
 
 					if (expectedType && !this.checkType(value, expectedType)) {
 						throw new MCPError(
-							`Invalid type for property ${prop}: expected ${expectedType}`
+							`Invalid type for property ${prop}: expected ${expectedType}`,
 						);
 					}
 				}
@@ -310,7 +486,7 @@ export class ToolRegistry extends EventEmitter {
 	 */
 	private registerCapability(
 		toolName: string,
-		capability: ToolCapability
+		capability: ToolCapability,
 	): void {
 		this.capabilities.set(toolName, capability);
 		this.categories.add(capability.category);
@@ -318,10 +494,10 @@ export class ToolRegistry extends EventEmitter {
 	}
 
 	/**
-	 * Extract category from tool name
+	 * Extract category from tool
 	 */
-	private extractCategory(toolName: string): string {
-		const parts = toolName.split("/");
+	private extractCategory(tool: MCPTool): string {
+		const parts = tool.name.split("/");
 		return parts.length > 1 ? parts[0] : "general";
 	}
 
@@ -348,7 +524,7 @@ export class ToolRegistry extends EventEmitter {
 	 */
 	private async checkToolCapabilities(
 		toolName: string,
-		context?: any
+		context?: any,
 	): Promise<void> {
 		const capability = this.capabilities.get(toolName);
 		if (!capability) {
@@ -366,12 +542,12 @@ export class ToolRegistry extends EventEmitter {
 		// Check required permissions,
 		if (capability.requiredPermissions && context?.permissions) {
 			const hasAllPermissions = capability.requiredPermissions.every(
-				(permission) => context.permissions.includes(permission)
+				(permission) => context.permissions.includes(permission),
 			);
 
 			if (!hasAllPermissions) {
 				throw new MCPError(
-					`Insufficient permissions for tool ${toolName}. Required: ${capability.requiredPermissions.join(", ")}`
+					`Insufficient permissions for tool ${toolName}. Required: ${capability.requiredPermissions.join(", ")}`,
 				);
 			}
 		}
@@ -380,12 +556,12 @@ export class ToolRegistry extends EventEmitter {
 		if (context?.protocolVersion) {
 			const isCompatible = capability.supportedProtocolVersions.some(
 				(version) =>
-					this.isProtocolVersionCompatible(context.protocolVersion, version)
+					this.isProtocolVersionCompatible(context.protocolVersion, version),
 			);
 
 			if (!isCompatible) {
 				throw new MCPError(
-					`Tool ${toolName} is not compatible with protocol version ${context.protocolVersion.major}.${context.protocolVersion.minor}.${context.protocolVersion.patch}`
+					`Tool ${toolName} is not compatible with protocol version ${context.protocolVersion.major}.${context.protocolVersion.minor}.${context.protocolVersion.patch}`,
 				);
 			}
 		}
@@ -396,7 +572,7 @@ export class ToolRegistry extends EventEmitter {
 	 */
 	private isProtocolVersionCompatible(
 		client: MCPProtocolVersion,
-		supported: MCPProtocolVersion
+		supported: MCPProtocolVersion,
 	): boolean {
 		if (client.major !== supported.major) {
 			return false;
@@ -413,7 +589,7 @@ export class ToolRegistry extends EventEmitter {
 	 * Discover tools based on query criteria
 	 */
 	discoverTools(
-		query: ToolDiscoveryQuery = {}
+		query: ToolDiscoveryQuery = {},
 	): Array<{ tool: MCPTool; capability: ToolCapability }> {
 		const results: Array<{ tool: MCPTool; capability: ToolCapability }> = [];
 
@@ -446,7 +622,7 @@ export class ToolRegistry extends EventEmitter {
 			if (query.protocolVersion) {
 				const isCompatible = capability.supportedProtocolVersions.some(
 					(version) =>
-						this.isProtocolVersionCompatible(query.protocolVersion!, version)
+						this.isProtocolVersionCompatible(query.protocolVersion!, version),
 				);
 				if (!isCompatible) continue;
 			}
@@ -459,7 +635,7 @@ export class ToolRegistry extends EventEmitter {
 			// Filter by permissions,
 			if (query.permissions && capability.requiredPermissions) {
 				const hasAllPermissions = capability.requiredPermissions.every(
-					(permission) => query.permissions!.includes(permission)
+					(permission) => query.permissions!.includes(permission),
 				);
 				if (!hasAllPermissions) continue;
 			}
@@ -584,5 +760,40 @@ export class ToolRegistry extends EventEmitter {
 		}
 
 		return stats;
+	}
+
+	/**
+	 * Type-safe error message extraction
+	 */
+	private getErrorMessage(error: unknown): string {
+		if (error instanceof Error) {
+			return error.message;
+		}
+		if (typeof error === "string") {
+			return error;
+		}
+		if (error && typeof error === "object" && "message" in error) {
+			return String((error as any).message);
+		}
+		return "Unknown error occurred";
+	}
+
+	/**
+	 * Type-safe error type extraction
+	 */
+	private getErrorType(error: unknown): string {
+		if (error instanceof Error) {
+			return error.constructor.name;
+		}
+		if (typeof error === "string") {
+			return "String";
+		}
+		if (error === null) {
+			return "Null";
+		}
+		if (error === undefined) {
+			return "Undefined";
+		}
+		return typeof error;
 	}
 }

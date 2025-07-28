@@ -9,6 +9,7 @@
 import Database from "better-sqlite3";
 import fs from "fs/promises";
 import path from "path";
+import { debugLogger } from "../utils/debug-logger.js";
 import { SharedMemory } from "./shared-memory.js";
 import { SwarmMemory } from "./swarm-memory.js";
 
@@ -35,6 +36,13 @@ export class MemoryMigration {
 	 * Run the migration
 	 */
 	async migrate() {
+		const correlationId = debugLogger.logFunctionEntry(
+			"MemoryMigration",
+			"migrate",
+			{ oldDbPath: this.options.oldDbPath, dryRun: this.options.dryRun },
+			"memory-backend",
+		);
+
 		console.log("Starting memory migration...");
 
 		try {
@@ -87,17 +95,21 @@ export class MemoryMigration {
 			console.log(`Skipped: ${this.stats.skipped}`);
 			console.log(`Errors: ${this.stats.errors}`);
 
-			return {
+			const result = {
 				success: true,
 				stats: this.stats,
 			};
+			debugLogger.logFunctionExit(correlationId, result, "memory-backend");
+			return result;
 		} catch (error) {
 			console.error("Migration failed:", error);
-			return {
+			const errorResult = {
 				success: false,
 				error: error.message,
 				stats: this.stats,
 			};
+			debugLogger.logFunctionError(correlationId, error, "memory-backend");
+			return errorResult;
 		}
 	}
 
@@ -105,6 +117,13 @@ export class MemoryMigration {
 	 * Migrate collective_memory table
 	 */
 	async _migrateCollectiveMemory(oldDb, sharedMemory) {
+		const correlationId = debugLogger.logFunctionEntry(
+			"MemoryMigration",
+			"_migrateCollectiveMemory",
+			{},
+			"memory-sync",
+		);
+
 		console.log("\nMigrating collective_memory entries...");
 
 		try {
@@ -159,10 +178,27 @@ export class MemoryMigration {
 					process.stdout.write(".");
 				}
 			}
+			debugLogger.logFunctionExit(
+				correlationId,
+				{ migrated: this.stats.migrated, errors: this.stats.errors },
+				"memory-sync",
+			);
 		} catch (error) {
 			if (error.message.includes("no such table")) {
 				console.log("collective_memory table not found, skipping...");
+				debugLogger.logEvent(
+					"MemoryMigration",
+					"table-not-found",
+					{ table: "collective_memory" },
+					"memory-sync",
+				);
+				debugLogger.logFunctionExit(
+					correlationId,
+					{ skipped: true },
+					"memory-sync",
+				);
 			} else {
+				debugLogger.logFunctionError(correlationId, error, "memory-sync");
 				throw error;
 			}
 		}
@@ -172,6 +208,13 @@ export class MemoryMigration {
 	 * Migrate memory table (from hive-mind schema)
 	 */
 	async _migrateMemoryTable(oldDb, sharedMemory) {
+		const correlationId = debugLogger.logFunctionEntry(
+			"MemoryMigration",
+			"_migrateMemoryTable",
+			{},
+			"memory-sync",
+		);
+
 		console.log("\n\nMigrating memory table entries...");
 
 		try {
@@ -209,10 +252,27 @@ export class MemoryMigration {
 					process.stdout.write(".");
 				}
 			}
+			debugLogger.logFunctionExit(
+				correlationId,
+				{ migrated: this.stats.migrated, errors: this.stats.errors },
+				"memory-sync",
+			);
 		} catch (error) {
 			if (error.message.includes("no such table")) {
 				console.log("memory table not found, skipping...");
+				debugLogger.logEvent(
+					"MemoryMigration",
+					"table-not-found",
+					{ table: "memory" },
+					"memory-sync",
+				);
+				debugLogger.logFunctionExit(
+					correlationId,
+					{ skipped: true },
+					"memory-sync",
+				);
 			} else {
+				debugLogger.logFunctionError(correlationId, error, "memory-sync");
 				throw error;
 			}
 		}
@@ -222,6 +282,13 @@ export class MemoryMigration {
 	 * Migrate swarm-specific data
 	 */
 	async _migrateSwarmData(oldDb, swarmMemory) {
+		const correlationId = debugLogger.logFunctionEntry(
+			"MemoryMigration",
+			"_migrateSwarmData",
+			{},
+			"memory-sync",
+		);
+
 		console.log("\n\nMigrating swarm-specific data...");
 
 		// Migrate agents
@@ -235,6 +302,12 @@ export class MemoryMigration {
 
 		// Migrate consensus data
 		await this._migrateConsensus(oldDb, swarmMemory);
+
+		debugLogger.logFunctionExit(
+			correlationId,
+			{ completed: true },
+			"memory-sync",
+		);
 	}
 
 	/**
@@ -446,8 +519,21 @@ export class MemoryMigration {
  * CLI interface for migration
  */
 export async function runMigration(options = {}) {
+	const correlationId = debugLogger.logFunctionEntry(
+		"MemoryMigration",
+		"runMigration",
+		options,
+		"memory-backend",
+	);
+
 	const migration = new MemoryMigration(options);
-	return await migration.migrate();
+	const result = await migration.migrate();
+	debugLogger.logFunctionExit(
+		correlationId,
+		{ success: result.success, stats: result.stats },
+		"memory-backend",
+	);
+	return result;
 }
 
 // Export default

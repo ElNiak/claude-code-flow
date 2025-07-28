@@ -131,7 +131,7 @@ export class MCPIntegrationFactory {
 				...orchestrationConfig,
 			},
 			components,
-			logger
+			logger,
 		);
 
 		return integration;
@@ -164,10 +164,18 @@ export class MCPIntegrationFactory {
 		let performanceMonitor: MCPPerformanceMonitor | undefined;
 
 		if (enableLifecycleManagement) {
-			lifecycleManager = new MCPLifecycleManager(
-				mcpConfig,
+			const lifecycleConfig = {
+				healthCheckInterval: 30000,
+				gracefulShutdownTimeout: 10000,
+				maxRestartAttempts: 3,
+				restartDelay: 5000,
+				enableAutoRestart: true,
+				enableHealthChecks: true,
 				logger,
-				() => server
+			};
+			lifecycleManager = new MCPLifecycleManager(
+				lifecycleConfig,
+				async () => server,
 			);
 		}
 
@@ -186,7 +194,7 @@ export class MCPIntegrationFactory {
 	 * Create a development/testing MCP setup
 	 */
 	static async createDevelopmentSetup(
-		logger: import("../core/logger.js").ILogger
+		logger: import("../core/logger.js").ILogger,
 	): Promise<{
 		server: MCPServer;
 		lifecycleManager: MCPLifecycleManager;
@@ -280,7 +288,7 @@ export const MCPUtils = {
 	 * Validate MCP protocol version
 	 */
 	isValidProtocolVersion(
-		version: import("../utils/types.js").MCPProtocolVersion
+		version: import("../utils/types.js").MCPProtocolVersion,
 	): boolean {
 		return (
 			typeof version.major === "number" &&
@@ -295,7 +303,7 @@ export const MCPUtils = {
 	 */
 	compareVersions(
 		a: import("../utils/types.js").MCPProtocolVersion,
-		b: import("../utils/types.js").MCPProtocolVersion
+		b: import("../utils/types.js").MCPProtocolVersion,
 	): number {
 		if (a.major !== b.major) return a.major - b.major;
 		if (a.minor !== b.minor) return a.minor - b.minor;
@@ -306,7 +314,7 @@ export const MCPUtils = {
 	 * Format protocol version as string
 	 */
 	formatVersion(
-		version: import("../utils/types.js").MCPProtocolVersion
+		version: import("../utils/types.js").MCPProtocolVersion,
 	): string {
 		return `${version.major}.${version.minor}.${version.patch}`;
 	},
@@ -315,7 +323,7 @@ export const MCPUtils = {
 	 * Parse protocol version from string
 	 */
 	parseVersion(
-		versionString: string
+		versionString: string,
 	): import("../utils/types.js").MCPProtocolVersion {
 		const parts = versionString.split(".").map((p) => parseInt(p, 10));
 		if (parts.length !== 3 || parts.some((p) => isNaN(p))) {

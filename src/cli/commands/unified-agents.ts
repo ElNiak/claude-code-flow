@@ -10,8 +10,9 @@ import { EventBus } from "../../core/event-bus.js";
 import { Logger } from "../../core/logger.js";
 import type { IMemoryManager } from "../../memory/manager.js";
 import { MemoryManager as _MemoryManager } from "../../memory/manager.js";
-import type { Command, CommandContext } from "../optimized-cli-core.js";
-import { _error, info, success, warning } from "../optimized-cli-core.js";
+import type { CliCommand as Command } from "../../types/cli-types.js";
+import type { CommandContext } from "../../types/core.js";
+import { _error, info, success, warning } from "../cli-utils.js";
 
 // Unified agent command that integrates with both ruv-swarm and intrinsic coordination,
 const agentUnifiedCommand: Command = {
@@ -88,7 +89,7 @@ const intrinsicCommand: Command = {
 				(ctx.flags["session-id"] as string) || `intrinsic-${Date.now()}`;
 
 			info(
-				`🧠 Initializing intrinsic coordination for ${agentCount} agents...`
+				`🧠 Initializing intrinsic coordination for ${agentCount} agents...`,
 			);
 			console.log(`   • Topology: ${topology}`);
 			console.log(`   • Memory Hooks: ${memoryHooks ? "✅" : "❌"}`);
@@ -104,7 +105,7 @@ const intrinsicCommand: Command = {
 			success("🎉 Intrinsic coordination initialized successfully!");
 		} catch (err) {
 			_error(
-				`Failed to initialize intrinsic coordination: ${_getErrorMessage(err)}`
+				`Failed to initialize intrinsic coordination: ${_getErrorMessage(err)}`,
 			);
 		}
 	},
@@ -255,12 +256,12 @@ async function handleAgentList(ctx: CommandContext): Promise<void> {
 			const intrinsic = agent.metadata?.coordinationHooks ? "🧠" : "📝";
 
 			console.log(
-				`   ${intrinsic} ${agentName} (${agentType}) - Session: ${session}`
+				`   ${intrinsic} ${agentName} (${agentType}) - Session: ${session}`,
 			);
 
 			if (ctx.flags.verbose) {
 				console.log(
-					`      Spawned: ${new Date(content.spawnedAt || 0).toLocaleString()}`
+					`      Spawned: ${new Date(content.spawnedAt || 0).toLocaleString()}`,
 				);
 				console.log(`      Unified: ${agent.metadata?.unified ? "Yes" : "No"}`);
 			}
@@ -302,7 +303,7 @@ ${generateAgentDistribution(agents)}
 
 Recent Coordination Activity:
 ${generateCoordinationActivity(coordinationEntries)}
-    `)
+    `),
 		);
 	} catch (err) {
 		_error(`Failed to get agent status: ${_getErrorMessage(err)}`);
@@ -327,7 +328,7 @@ async function handleAgentCoordinate(ctx: CommandContext): Promise<void> {
 
 		if (agents.length < 2) {
 			warning(
-				"Need at least 2 agents for coordination. Spawn more agents first."
+				"Need at least 2 agents for coordination. Spawn more agents first.",
 			);
 			return;
 		}
@@ -371,7 +372,7 @@ async function handleAgentCoordinate(ctx: CommandContext): Promise<void> {
 						return a.id;
 					}
 				})
-				.join(", ")}`
+				.join(", ")}`,
 		);
 	} catch (err) {
 		_error(`Failed to coordinate agents: ${_getErrorMessage(err)}`);
@@ -426,7 +427,7 @@ Examples:
   claude-flow agent list --session-id "my-session"
   claude-flow agent coordinate --strategy collaborative,
   claude-flow intrinsic --agents 5 --topology hierarchical
-  `)
+  `),
 	);
 }
 
@@ -438,7 +439,7 @@ interface IntrinsicCoordinationConfig {
 }
 
 async function initializeIntrinsicCoordination(
-	config: IntrinsicCoordinationConfig
+	config: IntrinsicCoordinationConfig,
 ): Promise<void> {
 	const { agentCount, topology, memoryHooks, sessionId } = config;
 
@@ -506,7 +507,7 @@ interface IntrinsicAgentConfig {
 }
 
 async function spawnIntrinsicAgent(
-	config: IntrinsicAgentConfig
+	config: IntrinsicAgentConfig,
 ): Promise<void> {
 	const { type, name, sessionId, capabilities, memoryHooks } = config;
 
@@ -548,7 +549,7 @@ async function spawnIntrinsicAgent(
 async function setupCoordinationTopology(
 	sessionId: string,
 	topology: string,
-	agentCount: number
+	agentCount: number,
 ): Promise<void> {
 	const memoryManager = await getMemoryManager();
 
@@ -580,7 +581,7 @@ async function setupCoordinationTopology(
 
 async function handleMemoryCoordination(
 	sessionId: string,
-	action: string
+	action: string,
 ): Promise<void> {
 	const memoryManager = await getMemoryManager();
 
@@ -698,7 +699,7 @@ function generateCoordinationActivity(entries: any[]): string {
 		.map((entry) => {
 			const content = entry.content as any;
 			const time = new Date(
-				content.coordinationStarted || entry.timestamp
+				content.coordinationStarted || entry.timestamp,
 			).toLocaleTimeString();
 			return `  • ${time}: ${content.strategy || "coordination"} (${content.participatingAgents?.length || 0} agents)`;
 		})
@@ -723,7 +724,7 @@ async function getMemoryManager(): Promise<IMemoryManager> {
 			sqlitePath: "./memory/claude-flow-memory.db",
 		},
 		eventBus,
-		logger
+		logger,
 	);
 
 	await memoryManager.initialize();

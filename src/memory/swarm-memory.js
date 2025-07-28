@@ -6,6 +6,7 @@
  */
 
 import path from "path";
+import { debugLogger } from "../utils/debug-logger.js";
 import { SharedMemory } from "./shared-memory.js";
 
 /**
@@ -46,6 +47,13 @@ export class SwarmMemory extends SharedMemory {
 	 * Initialize with swarm-specific setup
 	 */
 	async initialize() {
+		const correlationId = debugLogger.logFunctionEntry(
+			"SwarmMemory",
+			"initialize",
+			{ swarmId: this.swarmId, directory: this.options.directory },
+			"memory-backend",
+		);
+
 		await super.initialize();
 
 		// Initialize swarm-specific namespaces
@@ -55,12 +63,28 @@ export class SwarmMemory extends SharedMemory {
 		await this._loadSwarmState();
 
 		this.emit("swarm:initialized", { swarmId: this.swarmId });
+		debugLogger.logFunctionExit(
+			correlationId,
+			{
+				swarmId: this.swarmId,
+				agentCacheSize: this.agentCache.size,
+				taskCacheSize: this.taskCache.size,
+			},
+			"memory-backend",
+		);
 	}
 
 	/**
 	 * Store agent information
 	 */
 	async storeAgent(agentId, agentData) {
+		const correlationId = debugLogger.logFunctionEntry(
+			"SwarmMemory",
+			"storeAgent",
+			{ agentId, type: agentData.type, status: agentData.status },
+			"memory-ops",
+		);
+
 		const key = `agent:${agentId}`;
 		const enrichedData = {
 			...agentData,
@@ -82,16 +106,37 @@ export class SwarmMemory extends SharedMemory {
 
 		this.emit("swarm:agentStored", { agentId, type: agentData.type });
 
-		return { agentId, stored: true };
+		const result = { agentId, stored: true };
+		debugLogger.logFunctionExit(correlationId, result, "memory-ops");
+		return result;
 	}
 
 	/**
 	 * Retrieve agent information
 	 */
 	async getAgent(agentId) {
+		const correlationId = debugLogger.logFunctionEntry(
+			"SwarmMemory",
+			"getAgent",
+			{ agentId },
+			"memory-ops",
+		);
+
 		// Check cache first
 		if (this.agentCache.has(agentId)) {
-			return this.agentCache.get(agentId);
+			const cachedAgent = this.agentCache.get(agentId);
+			debugLogger.logEvent(
+				"SwarmMemory",
+				"agent-cache-hit",
+				{ agentId },
+				"memory-ops",
+			);
+			debugLogger.logFunctionExit(
+				correlationId,
+				{ agentId, found: true, source: "cache" },
+				"memory-ops",
+			);
+			return cachedAgent;
 		}
 
 		const key = `agent:${agentId}`;
@@ -101,6 +146,11 @@ export class SwarmMemory extends SharedMemory {
 			this.agentCache.set(agentId, agent);
 		}
 
+		debugLogger.logFunctionExit(
+			correlationId,
+			{ agentId, found: !!agent, source: "database" },
+			"memory-ops",
+		);
 		return agent;
 	}
 
@@ -108,11 +158,18 @@ export class SwarmMemory extends SharedMemory {
 	 * List all agents in swarm
 	 */
 	async listAgents(filter = {}) {
+		const correlationId = debugLogger.logFunctionEntry(
+			"SwarmMemory",
+			"listAgents",
+			filter,
+			"memory-ops",
+		);
+
 		const agents = await this.list(SWARM_NAMESPACES.AGENTS, {
 			limit: filter.limit || 100,
 		});
 
-		return agents
+		const filteredAgents = agents
 			.map((entry) => entry.value)
 			.filter((agent) => {
 				if (filter.type && agent.type !== filter.type) return false;
@@ -120,12 +177,26 @@ export class SwarmMemory extends SharedMemory {
 				if (filter.swarmId && agent.swarmId !== filter.swarmId) return false;
 				return true;
 			});
+
+		debugLogger.logFunctionExit(
+			correlationId,
+			{ total: agents.length, filtered: filteredAgents.length },
+			"memory-ops",
+		);
+		return filteredAgents;
 	}
 
 	/**
 	 * Store task information
 	 */
 	async storeTask(taskId, taskData) {
+		const correlationId = debugLogger.logFunctionEntry(
+			"SwarmMemory",
+			"storeTask",
+			{ taskId, status: taskData.status, priority: taskData.priority },
+			"memory-ops",
+		);
+
 		const key = `task:${taskId}`;
 		const enrichedData = {
 			...taskData,
@@ -148,16 +219,27 @@ export class SwarmMemory extends SharedMemory {
 
 		this.emit("swarm:taskStored", { taskId, status: taskData.status });
 
-		return { taskId, stored: true };
+		const result = { taskId, stored: true };
+		debugLogger.logFunctionExit(correlationId, result, "memory-ops");
+		return result;
 	}
 
 	/**
 	 * Update task status
 	 */
 	async updateTaskStatus(taskId, status, result = null) {
+		const correlationId = debugLogger.logFunctionEntry(
+			"SwarmMemory",
+			"updateTaskStatus",
+			{ taskId, status, hasResult: !!result },
+			"memory-ops",
+		);
+
 		const task = await this.getTask(taskId);
 		if (!task) {
-			throw new Error(`Task ${taskId} not found`);
+			const error = new Error(`Task ${taskId} not found`);
+			debugLogger.logFunctionError(correlationId, error, "memory-ops");
+			throw error;
 		}
 
 		task.status = status;
@@ -175,16 +257,37 @@ export class SwarmMemory extends SharedMemory {
 
 		this.emit("swarm:taskStatusUpdated", { taskId, status });
 
-		return { taskId, status, updated: true };
+		const updateResult = { taskId, status, updated: true };
+		debugLogger.logFunctionExit(correlationId, updateResult, "memory-ops");
+		return updateResult;
 	}
 
 	/**
 	 * Get task information
 	 */
 	async getTask(taskId) {
+		const correlationId = debugLogger.logFunctionEntry(
+			"SwarmMemory",
+			"getTask",
+			{ taskId },
+			"memory-ops",
+		);
+
 		// Check cache first
 		if (this.taskCache.has(taskId)) {
-			return this.taskCache.get(taskId);
+			const cachedTask = this.taskCache.get(taskId);
+			debugLogger.logEvent(
+				"SwarmMemory",
+				"task-cache-hit",
+				{ taskId },
+				"memory-ops",
+			);
+			debugLogger.logFunctionExit(
+				correlationId,
+				{ taskId, found: true, source: "cache" },
+				"memory-ops",
+			);
+			return cachedTask;
 		}
 
 		const key = `task:${taskId}`;
@@ -194,6 +297,11 @@ export class SwarmMemory extends SharedMemory {
 			this.taskCache.set(taskId, task);
 		}
 
+		debugLogger.logFunctionExit(
+			correlationId,
+			{ taskId, found: !!task, source: "database" },
+			"memory-ops",
+		);
 		return task;
 	}
 
@@ -201,6 +309,13 @@ export class SwarmMemory extends SharedMemory {
 	 * Store inter-agent communication
 	 */
 	async storeCommunication(fromAgent, toAgent, message) {
+		const correlationId = debugLogger.logFunctionEntry(
+			"SwarmMemory",
+			"storeCommunication",
+			{ fromAgent, toAgent, messageType: message.type },
+			"memory-ops",
+		);
+
 		const commId = `comm:${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 		const communication = {
 			id: commId,
@@ -228,7 +343,9 @@ export class SwarmMemory extends SharedMemory {
 			type: message.type,
 		});
 
-		return { id: commId, stored: true };
+		const result = { id: commId, stored: true };
+		debugLogger.logFunctionExit(correlationId, result, "memory-ops");
+		return result;
 	}
 
 	/**
@@ -412,7 +529,7 @@ export class SwarmMemory extends SharedMemory {
 
 		// Get active agents
 		const activeAgents = Array.from(this.agentCache.values()).filter(
-			(agent) => agent.status === "active" || agent.status === "busy"
+			(agent) => agent.status === "active" || agent.status === "busy",
 		).length;
 
 		// Get task statistics
@@ -555,27 +672,62 @@ export class SwarmMemory extends SharedMemory {
 	 */
 
 	async _initializeSwarmNamespaces() {
+		const correlationId = debugLogger.logFunctionEntry(
+			"SwarmMemory",
+			"_initializeSwarmNamespaces",
+			{ swarmId: this.swarmId },
+			"memory-backend",
+		);
+
 		// Create swarm metadata
-		await this.store(
-			"swarm:metadata",
+		const key = "swarm:metadata";
+		const value = {
+			swarmId: this.swarmId,
+			createdAt: new Date().toISOString(),
+			version: "1.0.0",
+			namespaces: Object.values(SWARM_NAMESPACES),
+		};
+		const options = {
+			namespace: "swarm:system",
+		};
+
+		debugLogger.logEvent(
+			"SwarmMemory",
+			"namespace-init",
 			{
 				swarmId: this.swarmId,
-				createdAt: new Date().toISOString(),
-				version: "1.0.0",
-				namespaces: Object.values(SWARM_NAMESPACES),
+				namespacesCount: Object.keys(SWARM_NAMESPACES).length,
 			},
+			"memory-backend",
+		);
+
+		await super.store(key, value, options);
+
+		debugLogger.logFunctionExit(
+			correlationId,
 			{
-				namespace: "swarm:system",
-			}
+				swarmId: this.swarmId,
+				namespacesInitialized: Object.keys(SWARM_NAMESPACES).length,
+			},
+			"memory-backend",
 		);
 	}
 
 	async _loadSwarmState() {
+		const correlationId = debugLogger.logFunctionEntry(
+			"SwarmMemory",
+			"_loadSwarmState",
+			{},
+			"memory-backend",
+		);
+
 		// Load active agents
 		const agents = await this.list(SWARM_NAMESPACES.AGENTS, { limit: 100 });
+		let activeAgentsLoaded = 0;
 		for (const entry of agents) {
 			if (entry.value.status === "active" || entry.value.status === "busy") {
 				this.agentCache.set(entry.value.id, entry.value);
+				activeAgentsLoaded++;
 			}
 		}
 
@@ -591,11 +743,25 @@ export class SwarmMemory extends SharedMemory {
 
 		// Load high-confidence patterns
 		const patterns = await this.list(SWARM_NAMESPACES.PATTERNS, { limit: 50 });
+		let highConfidencePatternsLoaded = 0;
 		for (const entry of patterns) {
 			if (entry.value.confidence > 0.7 || entry.value.successRate > 0.8) {
 				this.patternCache.set(entry.value.id, entry.value);
+				highConfidencePatternsLoaded++;
 			}
 		}
+
+		debugLogger.logFunctionExit(
+			correlationId,
+			{
+				totalAgents: agents.length,
+				activeAgentsLoaded,
+				inProgressTasks: tasks.length,
+				totalPatterns: patterns.length,
+				highConfidencePatternsLoaded,
+			},
+			"memory-backend",
+		);
 	}
 
 	async _countNamespace(namespace) {
@@ -607,31 +773,98 @@ export class SwarmMemory extends SharedMemory {
 	 * Interface methods for MemoryCoordinator compatibility
 	 */
 
-	// Store with MemoryEntry and context interface
-	async store(entry, context) {
-		const options = {
-			namespace: context?.namespace || "default",
-			tags: entry?.tags || [],
-			ttl: context?.ttl,
-			metadata: {
-				...context?.metadata,
-				agentId: context?.agentId,
-				sessionId: context?.sessionId,
-				swarmId: context?.swarmId || this.swarmId,
-			},
-		};
-
-		return await super.store(
-			entry.key || entry.id,
-			entry.value || entry,
-			options
+	// Store with MemoryEntry and context interface - Compatible with SharedMemory
+	async store(keyOrEntry, valueOrContext, options = {}) {
+		const correlationId = debugLogger.logFunctionEntry(
+			"SwarmMemory",
+			"store",
+			{ keyOrEntry: typeof keyOrEntry, valueOrContext: typeof valueOrContext },
+			"memory-crud",
 		);
+
+		// Handle both interfaces: (key, value, options) and (entry, context)
+		let key, value, finalOptions;
+
+		if (typeof keyOrEntry === "string") {
+			// SharedMemory interface: store(key, value, options)
+			key = keyOrEntry;
+			value = valueOrContext;
+			finalOptions = {
+				namespace: options.namespace || "default",
+				tags: options.tags || [],
+				ttl: options.ttl,
+				metadata: {
+					...options.metadata,
+					swarmId: this.swarmId,
+				},
+			};
+		} else if (keyOrEntry && typeof keyOrEntry === "object") {
+			// MemoryEntry interface: store(entry, context)
+			const entry = keyOrEntry;
+			const context = valueOrContext || {};
+			key = entry.key || entry.id;
+			value = entry.value || entry;
+			finalOptions = {
+				namespace: context?.namespace || "default",
+				tags: entry?.tags || [],
+				ttl: context?.ttl,
+				metadata: {
+					...context?.metadata,
+					agentId: context?.agentId,
+					sessionId: context?.sessionId,
+					swarmId: context?.swarmId || this.swarmId,
+				},
+			};
+		} else {
+			// Invalid input - log and reject
+			const error = new Error(
+				`Invalid store() parameters: expected (string, any) or (object, object) but got (${typeof keyOrEntry}, ${typeof valueOrContext})`,
+			);
+			console.error(
+				`[SwarmMemory] Invalid store() input: keyOrEntry=${JSON.stringify(keyOrEntry)}, valueOrContext=${JSON.stringify(valueOrContext)}`,
+			);
+			debugLogger.logFunctionError(correlationId, error, "memory-crud");
+			throw error;
+		}
+
+		// Final validation
+		if (!key || key === null || key === undefined) {
+			const error = new Error(
+				`Store operation failed: key cannot be null or undefined. Got: ${JSON.stringify(key)}`,
+			);
+			console.error(
+				`[SwarmMemory] Invalid key after processing: ${JSON.stringify(key)}`,
+			);
+			debugLogger.logFunctionError(correlationId, error, "memory-crud");
+			throw error;
+		}
+
+		const result = await super.store(key, value, finalOptions);
+		debugLogger.logFunctionExit(
+			correlationId,
+			{ key, namespace: finalOptions.namespace, success: !!result },
+			"memory-crud",
+		);
+		return result;
 	}
 
 	// Retrieve with context interface
 	async retrieve(id, context) {
+		const correlationId = debugLogger.logFunctionEntry(
+			"SwarmMemory",
+			"retrieve",
+			{ id, namespace: context?.namespace },
+			"memory-crud",
+		);
+
 		const namespace = context?.namespace || "default";
-		return await super.retrieve(id, namespace);
+		const result = await super.retrieve(id, namespace);
+		debugLogger.logFunctionExit(
+			correlationId,
+			{ id, namespace, found: !!result },
+			"memory-crud",
+		);
+		return result;
 	}
 
 	// Query with MemoryQuery and context interface

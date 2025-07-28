@@ -31,7 +31,7 @@ describe("Init Command Performance Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 				],
 				cwd: testDir,
@@ -64,7 +64,7 @@ describe("Init Command Performance Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 					"--minimal",
 				],
@@ -90,7 +90,7 @@ describe("Init Command Performance Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 				],
 				cwd: testDir,
@@ -117,7 +117,7 @@ describe("Init Command Performance Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 					"--sparc",
 				],
@@ -152,7 +152,7 @@ describe("Init Command Performance Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 					"--sparc",
 				],
@@ -202,7 +202,7 @@ describe("Init Command Performance Tests", () => {
 					args: [
 						"run",
 						"--allow-all",
-						join(originalCwd, "src/cli/simple-cli.ts"),
+						join(originalCwd, "src/cli/cli.ts"),
 						"init",
 					],
 					cwd: dir,
@@ -274,7 +274,7 @@ describe("Init Command Performance Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 				],
 				cwd: testDir,
@@ -311,7 +311,7 @@ describe("Init Command Performance Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 					"--sparc",
 				],
@@ -355,7 +355,7 @@ describe("Init Command Performance Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 					"--force",
 				],
@@ -389,7 +389,7 @@ describe("Init Command Performance Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 				],
 				cwd: testDir,
@@ -439,7 +439,7 @@ describe("Init Command Performance Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 				],
 				cwd: testDir,

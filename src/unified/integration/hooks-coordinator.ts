@@ -157,7 +157,7 @@ export class HooksCoordinator {
 	constructor(
 		private config: HooksCoordinatorConfig,
 		private eventBus: IEventBus,
-		private logger: ILogger
+		private logger: ILogger,
 	) {}
 
 	async initialize(): Promise<void> {
@@ -227,7 +227,7 @@ export class HooksCoordinator {
 	 */
 	async executePreTask(
 		options: PreTaskOptions,
-		context: HookExecutionContext
+		context: HookExecutionContext,
 	): Promise<HookExecutionResult> {
 		return this.executeHookWithIntelligence("pre-task", options, context);
 	}
@@ -237,7 +237,7 @@ export class HooksCoordinator {
 	 */
 	async executePostTask(
 		options: PostTaskOptions,
-		context: HookExecutionContext
+		context: HookExecutionContext,
 	): Promise<HookExecutionResult> {
 		return this.executeHookWithIntelligence("post-task", options, context);
 	}
@@ -247,7 +247,7 @@ export class HooksCoordinator {
 	 */
 	async executePreEdit(
 		options: PreEditOptions,
-		context: HookExecutionContext
+		context: HookExecutionContext,
 	): Promise<HookExecutionResult> {
 		return this.executeHookWithIntelligence("pre-edit", options, context);
 	}
@@ -257,7 +257,7 @@ export class HooksCoordinator {
 	 */
 	async executePostEdit(
 		options: PostEditOptions,
-		context: HookExecutionContext
+		context: HookExecutionContext,
 	): Promise<HookExecutionResult> {
 		return this.executeHookWithIntelligence("post-edit", options, context);
 	}
@@ -267,7 +267,7 @@ export class HooksCoordinator {
 	 */
 	async executePreCommand(
 		options: PreCommandOptions,
-		context: HookExecutionContext
+		context: HookExecutionContext,
 	): Promise<HookExecutionResult> {
 		return this.executeHookWithIntelligence("pre-command", options, context);
 	}
@@ -277,7 +277,7 @@ export class HooksCoordinator {
 	 */
 	async executePostCommand(
 		options: PostCommandOptions,
-		context: HookExecutionContext
+		context: HookExecutionContext,
 	): Promise<HookExecutionResult> {
 		return this.executeHookWithIntelligence("post-command", options, context);
 	}
@@ -287,26 +287,26 @@ export class HooksCoordinator {
 	 */
 	async executeSessionStart(
 		options: SessionStartOptions,
-		context: HookExecutionContext
+		context: HookExecutionContext,
 	): Promise<HookExecutionResult> {
 		return this.executeHookWithIntelligence("session-start", options, context);
 	}
 
 	async executeSessionEnd(
 		options: SessionEndOptions,
-		context: HookExecutionContext
+		context: HookExecutionContext,
 	): Promise<HookExecutionResult> {
 		return this.executeHookWithIntelligence("session-end", options, context);
 	}
 
 	async executeSessionRestore(
 		options: SessionRestoreOptions,
-		context: HookExecutionContext
+		context: HookExecutionContext,
 	): Promise<HookExecutionResult> {
 		return this.executeHookWithIntelligence(
 			"session-restore",
 			options,
-			context
+			context,
 		);
 	}
 
@@ -315,35 +315,35 @@ export class HooksCoordinator {
 	 */
 	async executePreSearch(
 		options: PreSearchOptions,
-		context: HookExecutionContext
+		context: HookExecutionContext,
 	): Promise<HookExecutionResult> {
 		return this.executeHookWithIntelligence("pre-search", options, context);
 	}
 
 	async executeNotification(
 		options: NotificationOptions,
-		context: HookExecutionContext
+		context: HookExecutionContext,
 	): Promise<HookExecutionResult> {
 		return this.executeHookWithIntelligence("notification", options, context);
 	}
 
 	async executePerformance(
 		options: PerformanceOptions,
-		context: HookExecutionContext
+		context: HookExecutionContext,
 	): Promise<HookExecutionResult> {
 		return this.executeHookWithIntelligence("performance", options, context);
 	}
 
 	async executeMemorySync(
 		options: MemorySyncOptions,
-		context: HookExecutionContext
+		context: HookExecutionContext,
 	): Promise<HookExecutionResult> {
 		return this.executeHookWithIntelligence("memory-sync", options, context);
 	}
 
 	async executeTelemetry(
 		options: TelemetryOptions,
-		context: HookExecutionContext
+		context: HookExecutionContext,
 	): Promise<HookExecutionResult> {
 		return this.executeHookWithIntelligence("telemetry", options, context);
 	}
@@ -354,7 +354,7 @@ export class HooksCoordinator {
 	private async executeHookWithIntelligence(
 		hookType: string,
 		options: any,
-		context: HookExecutionContext
+		context: HookExecutionContext,
 	): Promise<HookExecutionResult> {
 		const startTime = Date.now();
 		const hookId = `${hookType}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -362,7 +362,7 @@ export class HooksCoordinator {
 		this.activeHooks.add(hookId);
 
 		try {
-			this.logger.debug("Executing intelligent hook", {
+			this.logger.debug("[HOOKS COORDINATOR] Executing intelligent hook", {
 				hookType,
 				context: context.agentId,
 				priority: context.priority,
@@ -394,7 +394,7 @@ export class HooksCoordinator {
 				const enrichedContext = await this.enrichContext(
 					hookType,
 					options,
-					context
+					context,
 				);
 				result.metrics.contextEnrichment = enrichedContext.metrics;
 				options = { ...options, ...enrichedContext.data };
@@ -406,7 +406,7 @@ export class HooksCoordinator {
 					hookType,
 					"pre",
 					options,
-					context
+					context,
 				);
 				result.metrics.automation.triggered.push(...automationResult.triggered);
 				result.metrics.automation.completed.push(...automationResult.completed);
@@ -418,7 +418,7 @@ export class HooksCoordinator {
 				const optimizedOptions = await this.applyNeuralOptimizations(
 					hookType,
 					options,
-					context
+					context,
 				);
 				options = optimizedOptions;
 			}
@@ -435,10 +435,10 @@ export class HooksCoordinator {
 					hookType,
 					"post",
 					options,
-					context
+					context,
 				);
 				result.metrics.automation.completed.push(
-					...postAutomationResult.completed
+					...postAutomationResult.completed,
 				);
 				result.metrics.automation.failed.push(...postAutomationResult.failed);
 			}
@@ -449,7 +449,7 @@ export class HooksCoordinator {
 					hookType,
 					options,
 					result,
-					context
+					context,
 				);
 				result.metrics.neuralTraining = trainingResult;
 			}
@@ -498,7 +498,7 @@ export class HooksCoordinator {
 	 */
 	private async executeRawHook(
 		hookType: string,
-		options: any
+		options: any,
 	): Promise<{ success: boolean; data?: any; error?: string }> {
 		return new Promise((resolve) => {
 			const args = this.buildHookArgs(hookType, options);
@@ -559,7 +559,7 @@ export class HooksCoordinator {
 	private async enrichContext(
 		hookType: string,
 		options: any,
-		context: HookExecutionContext
+		context: HookExecutionContext,
 	): Promise<{ data: any; metrics: any }> {
 		const enriched: any = {};
 		let dataPointsAdded = 0;
@@ -632,7 +632,7 @@ export class HooksCoordinator {
 		hookType: string,
 		phase: "pre" | "post",
 		options: any,
-		context: HookExecutionContext
+		context: HookExecutionContext,
 	): Promise<{ triggered: string[]; completed: string[]; failed: string[] }> {
 		const result = {
 			triggered: [] as string[],
@@ -647,7 +647,7 @@ export class HooksCoordinator {
 		}
 
 		const actions = automation.autoActions.filter((action) =>
-			this.shouldTriggerAutomation(action, phase, options, context)
+			this.shouldTriggerAutomation(action, phase, options, context),
 		);
 
 		for (const action of actions) {
@@ -671,7 +671,7 @@ export class HooksCoordinator {
 	private async applyNeuralOptimizations(
 		hookType: string,
 		options: any,
-		context: HookExecutionContext
+		context: HookExecutionContext,
 	): Promise<any> {
 		const patterns = this.neuralPatterns.get(hookType);
 		if (!patterns) {
@@ -700,7 +700,7 @@ export class HooksCoordinator {
 		hookType: string,
 		options: any,
 		result: HookExecutionResult,
-		context: HookExecutionContext
+		context: HookExecutionContext,
 	): Promise<{ patternsLearned: number; performanceImprovement: number }> {
 		if (!this.config.neuralTraining.enabled) {
 			return { patternsLearned: 0, performanceImprovement: 0 };
@@ -721,7 +721,7 @@ export class HooksCoordinator {
 				if (historicalAvg > 0) {
 					performanceImprovement = Math.max(
 						0,
-						(historicalAvg - result.metrics.executionTime) / historicalAvg
+						(historicalAvg - result.metrics.executionTime) / historicalAvg,
 					);
 				}
 			}
@@ -732,7 +732,7 @@ export class HooksCoordinator {
 					hookType,
 					options,
 					result.error,
-					context
+					context,
 				);
 				patternsLearned += 0.5; // Partial learning from failures
 			}
@@ -786,7 +786,7 @@ export class HooksCoordinator {
 		action: string,
 		phase: "pre" | "post",
 		options: any,
-		context: HookExecutionContext
+		context: HookExecutionContext,
 	): boolean {
 		// Implement logic to determine if automation should trigger
 		const rules = this.automationRules.get(action);
@@ -795,7 +795,7 @@ export class HooksCoordinator {
 		}
 
 		return rules.some((rule) =>
-			this.evaluateRule(rule, phase, options, context)
+			this.evaluateRule(rule, phase, options, context),
 		);
 	}
 
@@ -803,7 +803,7 @@ export class HooksCoordinator {
 		rule: any,
 		phase: string,
 		options: any,
-		context: HookExecutionContext
+		context: HookExecutionContext,
 	): boolean {
 		// Simple rule evaluation logic
 		return (
@@ -816,7 +816,7 @@ export class HooksCoordinator {
 		action: string,
 		hookType: string,
 		options: any,
-		context: HookExecutionContext
+		context: HookExecutionContext,
 	): Promise<void> {
 		// Implementation would execute specific automation actions
 		this.logger.debug("Executing automation action", { action, hookType });
@@ -829,7 +829,7 @@ export class HooksCoordinator {
 		hookType: string,
 		options: any,
 		result: HookExecutionResult,
-		context: HookExecutionContext
+		context: HookExecutionContext,
 	): any {
 		return {
 			timestamp: Date.now(),
@@ -845,7 +845,7 @@ export class HooksCoordinator {
 
 	private async updateNeuralPattern(
 		hookType: string,
-		pattern: any
+		pattern: any,
 	): Promise<void> {
 		const existing = this.neuralPatterns.get(hookType) || {
 			patterns: [],
@@ -866,7 +866,7 @@ export class HooksCoordinator {
 		hookType: string,
 		options: any,
 		error: string,
-		context: HookExecutionContext
+		context: HookExecutionContext,
 	): Promise<void> {
 		const pattern = {
 			timestamp: Date.now(),
@@ -967,7 +967,7 @@ export class HooksCoordinator {
 	private recordHookPerformance(
 		hookType: string,
 		executionTime: number,
-		success: boolean
+		success: boolean,
 	): void {
 		if (!success) {
 			return; // Only record successful executions

@@ -1,4 +1,5 @@
 import { promises as fs } from "node:fs";
+import { debugLogger } from "../../utils/debug-logger.js";
 import { getErrorMessage as _getErrorMessage } from "../../utils/error-handler.js";
 
 /**
@@ -20,6 +21,7 @@ export const statusCommand = new Command()
 	.option("-w, --watch", "Watch mode - continuously update status")
 	.option("-i, --interval <seconds>", "Update interval in seconds", "5")
 	.option("-c, --component <name>", "Show status for specific component")
+	.option("-v, --verbose", "Show detailed status information")
 	.option("--json", "Output in JSON format")
 	.action(async (options: any) => {
 		if (options.watch) {
@@ -29,34 +31,44 @@ export const statusCommand = new Command()
 		}
 	});
 
-async function showStatus(options: any): Promise<void> {
+export async function showStatus(
+	options: {
+		watch?: boolean;
+		verbose?: boolean;
+		json?: boolean;
+		component?: string;
+	} = {},
+) {
+	const correlationId = debugLogger.logFunctionEntry(
+		"CLI",
+		"commands.status.showStatus",
+		[options],
+		"cli-command",
+	);
 	try {
-		// In a real implementation, this would connect to the running orchestrator,
-		const status = await getSystemStatus();
-
-		if (options.json) {
-			console.log(JSON.stringify(status, null, 2));
-			return;
-		}
-
-		if (options.component) {
-			showComponentStatus(status, options.component);
+		if (options.watch) {
+			await watchStatus(options);
 		} else {
-			showFullStatus(status);
+			const status = await getSystemStatus();
+
+			if (options.json) {
+				console.log(JSON.stringify(status, null, 2));
+			} else if (options.component) {
+				showComponentStatus(status, options.component);
+			} else if (options.verbose) {
+				showFullStatus(status);
+			} else {
+				showBriefStatus(status);
+			}
 		}
+		debugLogger.logFunctionExit(
+			correlationId,
+			`status displayed (watch: ${options.watch}, verbose: ${options.verbose}, json: ${options.json})`,
+			"cli-command",
+		);
 	} catch (error) {
-		if (
-			(error as Error).message.includes("ECONNREFUSED") ||
-			(error as Error).message.includes("connection refused")
-		) {
-			console.error(chalk.red("✗ Claude-Flow is not running"));
-			console.log(chalk.gray("Start it with: claude-flow start"));
-		} else {
-			console.error(
-				chalk.red("Error getting status:"),
-				(error as Error).message
-			);
-		}
+		debugLogger.logFunctionError(correlationId, error, "cli-command");
+		throw error;
 	}
 }
 
@@ -73,7 +85,7 @@ async function watchStatus(options: any): Promise<void> {
 		console.clear();
 		console.log(chalk.cyan.bold("Claude-Flow Status Monitor"));
 		console.log(
-			chalk.gray(`Last updated: ${new Date().toLocaleTimeString()}\n`)
+			chalk.gray(`Last updated: ${new Date().toLocaleTimeString()}\n`),
 		);
 
 		try {
@@ -81,11 +93,39 @@ async function watchStatus(options: any): Promise<void> {
 		} catch (error) {
 			console.error(
 				chalk.red("Status update failed:"),
-				(error as Error).message
+				(error as Error).message,
 			);
 		}
 
 		await new Promise((resolve) => setTimeout(resolve, interval));
+	}
+}
+
+function showBriefStatus(status: any): void {
+	console.log(chalk.cyan.bold("Claude-Flow Status"));
+	console.log("─".repeat(30));
+
+	const statusIcon = formatStatusIndicator(status.overall);
+	console.log(
+		`${statusIcon} Overall: ${getStatusColor(status.overall)(status.overall.toUpperCase())}`,
+	);
+	console.log(`${chalk.white("Version:")} ${status.version}`);
+	console.log(`${chalk.white("Uptime:")} ${formatDuration(status.uptime)}`);
+
+	if (status.components) {
+		console.log();
+		console.log(chalk.cyan("Components:"));
+		for (const [name, component] of Object.entries(status.components)) {
+			const comp = component as any;
+			const compIcon = formatStatusIndicator(comp.status);
+			const compStatus = getStatusColor(comp.status)(comp.status);
+			console.log(`  ${compIcon} ${chalk.white(name)}: ${compStatus}`);
+		}
+	}
+
+	if (status.agents && status.agents.length > 0) {
+		console.log();
+		console.log(`${chalk.cyan("Agents:")} ${status.agents.length} active`);
 	}
 }
 
@@ -96,12 +136,12 @@ function showFullStatus(status: any): void {
 
 	const statusIcon = formatStatusIndicator(status.overall);
 	console.log(
-		`${statusIcon} Overall Status: ${getStatusColor(status.overall)(status.overall.toUpperCase())}`
+		`${statusIcon} Overall Status: ${getStatusColor(status.overall)(status.overall.toUpperCase())}`,
 	);
 	console.log(`${chalk.white("Uptime:")} ${formatDuration(status.uptime)}`);
 	console.log(`${chalk.white("Version:")} ${status.version}`);
 	console.log(
-		`${chalk.white("Started:")} ${new Date(status.startTime).toLocaleString()}`
+		`${chalk.white("Started:")} ${new Date(status.startTime).toLocaleString()}`,
 	);
 	console.log();
 
@@ -230,8 +270,8 @@ function showComponentStatus(status: any, componentName: string): void {
 		console.error(chalk.red(`Component '${componentName}' not found`));
 		console.log(
 			chalk.gray(
-				`Available components: ${Object.keys(status.components).join(", ")}`
-			)
+				`Available components: ${Object.keys(status.components).join(", ")}`,
+			),
 		);
 		return;
 	}
@@ -241,10 +281,10 @@ function showComponentStatus(status: any, componentName: string): void {
 
 	const statusIcon = formatStatusIndicator(component.status);
 	console.log(
-		`${statusIcon} Status: ${getStatusColor(component.status)(component.status.toUpperCase())}`
+		`${statusIcon} Status: ${getStatusColor(component.status)(component.status.toUpperCase())}`,
 	);
 	console.log(
-		`${chalk.white("Uptime:")} ${formatDuration(component.uptime || 0)}`
+		`${chalk.white("Uptime:")} ${formatDuration(component.uptime || 0)}`,
 	);
 
 	if (component.details) {

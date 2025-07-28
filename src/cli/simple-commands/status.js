@@ -1,14 +1,144 @@
 // status.js - System status and monitoring commands
 
+import {
+	generateCommandHelp,
+	parseCommandArgs,
+	validateCommandArgs,
+} from "../command-metadata.js";
 import { Deno } from "../node-compat.js";
 import { printError, printSuccess, printWarning } from "../utils.js";
 
-export async function statusCommand(subArgs, flags) {
-	const verbose =
-		subArgs.includes("--verbose") || subArgs.includes("-v") || flags.verbose;
-	const json = subArgs.includes("--json") || flags.json;
+// Status command metadata
+export const statusCommandMetadata = {
+	category: "core",
+	helpDescription:
+		"Display comprehensive system health and component status information",
+	priority: "high",
+	options: [
+		{
+			name: "verbose",
+			short: "v",
+			type: "boolean",
+			description:
+				"Show detailed status including resource usage and performance metrics",
+			default: false,
+		},
+		{
+			name: "json",
+			short: "j",
+			type: "boolean",
+			description: "Output status information in JSON format",
+			default: false,
+		},
+		{
+			name: "watch",
+			short: "w",
+			type: "boolean",
+			description:
+				"Continuously monitor and update status (refresh every 2 seconds)",
+			default: false,
+		},
+		{
+			name: "component",
+			short: "c",
+			type: "string",
+			description: "Show status for specific component only",
+			choices: ["orchestrator", "agents", "memory", "mcp", "terminal", "tasks"],
+		},
+	],
+	examples: [
+		"claude-flow status                    # Show basic system status",
+		"claude-flow status --verbose          # Detailed status with metrics",
+		"claude-flow status --json             # JSON format output",
+		"claude-flow status --watch            # Continuous monitoring",
+		"claude-flow status --component memory # Show only memory status",
+		"claude-flow status -v --component mcp # Verbose MCP status only",
+	],
+	details: `
+The status command provides comprehensive system health information:
 
+System Components:
+  • Orchestrator: Main coordination system status and uptime
+  • Agents: Active agents, types, and coordination status
+  • Tasks: Queued, running, completed, and failed task counts
+  • Memory: Persistence layer status and storage statistics
+  • Terminal: Terminal pool status and active sessions
+  • MCP: Model Context Protocol server status and connections
+
+Output Modes:
+  • Default: Human-readable formatted status
+  • --json: Machine-readable JSON format
+  • --verbose: Additional resource usage and performance metrics
+  • --watch: Continuous monitoring with auto-refresh
+
+Use --component to focus on specific system areas for debugging.`,
+};
+
+export async function statusCommand(subArgs, flags) {
+	// Parse arguments using metadata
+	const parsed = parseCommandArgs(subArgs, flags, statusCommandMetadata);
+
+	// Show help if requested
+	if (parsed.help) {
+		console.log(generateCommandHelp("status", statusCommandMetadata));
+		return;
+	}
+
+	// Validate arguments
+	const errors = validateCommandArgs(parsed, statusCommandMetadata);
+	if (errors.length > 0) {
+		printError("Invalid arguments:");
+		errors.forEach((error) => console.error(`  • ${error}`));
+		console.log("\nUse --help for usage information");
+		return;
+	}
+
+	// Extract validated options
+	const { verbose, json, watch, component } = parsed.options;
+
+	// Handle watch mode
+	if (watch) {
+		console.log("📊 Continuous status monitoring (Press Ctrl+C to exit)\n");
+
+		const displayContinuousStatus = async () => {
+			process.stdout.write("\x1b[2J\x1b[0f"); // Clear screen
+			console.log(`🔄 Status Updated: ${new Date().toLocaleTimeString()}\n`);
+
+			const status = await getSystemStatus(verbose);
+
+			if (component) {
+				displayComponentStatus(status, component, verbose);
+			} else if (json) {
+				console.log(JSON.stringify(status, null, 2));
+			} else {
+				displayStatus(status, verbose);
+			}
+		};
+
+		// Initial display
+		await displayContinuousStatus();
+
+		// Set up interval for updates
+		const interval = setInterval(displayContinuousStatus, 2000);
+
+		// Handle Ctrl+C gracefully
+		process.on("SIGINT", () => {
+			clearInterval(interval);
+			console.log("\n\n👋 Status monitoring stopped");
+			process.exit(0);
+		});
+
+		return;
+	}
+
+	// Get status once
 	const status = await getSystemStatus(verbose);
+
+	// Handle component-specific display
+	if (component) {
+		displayComponentStatus(status, component, verbose);
+		return;
+	}
 
 	if (json) {
 		console.log(JSON.stringify(status, null, 2));
@@ -56,6 +186,54 @@ async function getSystemStatus(verbose = false) {
 	};
 
 	return status;
+}
+
+function displayComponentStatus(status, componentName, verbose) {
+	console.log(
+		`📊 ${componentName.charAt(0).toUpperCase() + componentName.slice(1)} Status:\n`,
+	);
+
+	const component = status[componentName];
+	if (!component) {
+		printError(`Unknown component: ${componentName}`);
+		console.log(
+			`Available components: ${Object.keys(status)
+				.filter(
+					(k) => k !== "timestamp" && k !== "version" && k !== "resources",
+				)
+				.join(", ")}`,
+		);
+		return;
+	}
+
+	// Display component-specific information
+	switch (componentName) {
+		case "orchestrator":
+			console.log(
+				`  Status: ${component.running ? "🟢 Running" : "🔴 Not Running"}`,
+			);
+			console.log(`  Uptime: ${component.uptime}s`);
+			break;
+		case "agents":
+			console.log(`  Active: ${component.active}`);
+			console.log(`  Total: ${component.total}`);
+			if (Object.keys(component.types).length > 0) {
+				console.log(`  Types: ${JSON.stringify(component.types, null, 2)}`);
+			}
+			break;
+		case "memory":
+			console.log(`  Status: ${component.status}`);
+			console.log(`  Entries: ${component.entries}`);
+			console.log(`  Size: ${component.size}`);
+			break;
+		case "mcp":
+			console.log(`  Status: ${component.status}`);
+			console.log(`  Port: ${component.port || "N/A"}`);
+			console.log(`  Connections: ${component.connections}`);
+			break;
+		default:
+			console.log(JSON.stringify(component, null, 2));
+	}
 }
 
 async function getMemoryStats() {
@@ -155,14 +333,14 @@ function displayStatus(status, verbose) {
 		? "🟢 Running"
 		: "🟡 Not Running";
 	console.log(
-		`${overallStatus} (orchestrator ${status.orchestrator.running ? "active" : "not started"})`
+		`${overallStatus} (orchestrator ${status.orchestrator.running ? "active" : "not started"})`,
 	);
 
 	// Core components
 	console.log(`🤖 Agents: ${status.agents.active} active`);
 	console.log(`📋 Tasks: ${status.tasks.queued} in queue`);
 	console.log(
-		`💾 Memory: ${status.memory.status} (${status.memory.entries} entries)`
+		`💾 Memory: ${status.memory.status} (${status.memory.entries} entries)`,
 	);
 	console.log(`🖥️  Terminal Pool: ${status.terminal.status}`);
 	console.log(`🌐 MCP Server: ${status.mcp.status}`);
@@ -217,7 +395,7 @@ function displayStatus(status, verbose) {
 		if (status.resources) {
 			console.log("\n📈 Resource Usage:");
 			console.log(
-				`   Memory: ${status.resources.memory.usage} of ${status.resources.memory.total}`
+				`   Memory: ${status.resources.memory.usage} of ${status.resources.memory.total}`,
 			);
 			console.log(`   Available: ${status.resources.memory.available}`);
 			console.log(`   CPU Cores: ${status.resources.cpu.cores}`);
@@ -229,7 +407,7 @@ function displayStatus(status, verbose) {
 			if (status.resources.platform) {
 				console.log("\n💻 Platform:");
 				console.log(
-					`   OS: ${status.resources.platform.type} ${status.resources.platform.release}`
+					`   OS: ${status.resources.platform.type} ${status.resources.platform.release}`,
 				);
 				console.log(`   Architecture: ${status.resources.platform.arch}`);
 				console.log(`   System Uptime: ${status.resources.platform.uptime}`);
@@ -238,7 +416,7 @@ function displayStatus(status, verbose) {
 
 		console.log(
 			"\n🕐 Status captured at:",
-			new Date(status.timestamp).toLocaleString()
+			new Date(status.timestamp).toLocaleString(),
 		);
 	}
 
@@ -249,7 +427,7 @@ function displayStatus(status, verbose) {
 	}
 	if (status.agents.active === 0) {
 		console.log(
-			'   Run "claude-flow agent spawn researcher" to create an agent'
+			'   Run "claude-flow agent spawn researcher" to create an agent',
 		);
 	}
 	if (status.memory.entries === 0) {

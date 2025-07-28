@@ -1,0 +1,4 @@
+{
+	"version": "2.0.0",
+	"features": { "swarm": true, "memory": true, "github": false }
+}

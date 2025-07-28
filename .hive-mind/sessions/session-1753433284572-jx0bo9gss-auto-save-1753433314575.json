@@ -1,0 +1,81 @@
+{
+	"sessionId": "session-1753433284572-jx0bo9gss",
+	"checkpointId": "checkpoint-1753433314575-ptr3k00vl",
+	"checkpointName": "auto-save-1753433314575",
+	"timestamp": "2025-07-25T08:48:34.576Z",
+	"data": {
+		"timestamp": "2025-07-25T08:48:34.574Z",
+		"changeCount": 5,
+		"changesByType": {
+			"swarm_created": [
+				{
+					"type": "swarm_created",
+					"data": {
+						"swarmId": "swarm-1753433284572-rb2k9osyq",
+						"swarmName": "hive-1753433284567",
+						"objective": "Claude code just introduce new subagent customization (https://docs.anthropic.com/en/docs/claude-code/sub-agents). Analyse the update, analyse the current code of claude-flow and see how to integrate current agent implementation to the new feature. Think deeply and double check you proposition this task is very complex. Then plan integration to existing code base, focus on update of existing code base (no updated, nor unified etc version -> we must not complexify the code)",
+						"workerCount": 8
+					},
+					"timestamp": "2025-07-25T08:48:04.573Z"
+				}
+			],
+			"agent_activity": [
+				{
+					"type": "agent_activity",
+					"data": {
+						"agentId": "worker-swarm-1753433284572-rb2k9osyq-0",
+						"activity": "spawned",
+						"data": {
+							"type": "researcher",
+							"name": "Researcher Worker 1"
+						}
+					},
+					"timestamp": "2025-07-25T08:48:04.573Z"
+				},
+				{
+					"type": "agent_activity",
+					"data": {
+						"agentId": "worker-swarm-1753433284572-rb2k9osyq-1",
+						"activity": "spawned",
+						"data": {
+							"type": "coder",
+							"name": "Coder Worker 2"
+						}
+					},
+					"timestamp": "2025-07-25T08:48:04.573Z"
+				},
+				{
+					"type": "agent_activity",
+					"data": {
+						"agentId": "worker-swarm-1753433284572-rb2k9osyq-2",
+						"activity": "spawned",
+						"data": {
+							"type": "analyst",
+							"name": "Analyst Worker 3"
+						}
+					},
+					"timestamp": "2025-07-25T08:48:04.574Z"
+				},
+				{
+					"type": "agent_activity",
+					"data": {
+						"agentId": "worker-swarm-1753433284572-rb2k9osyq-3",
+						"activity": "spawned",
+						"data": {
+							"type": "tester",
+							"name": "Tester Worker 4"
+						}
+					},
+					"timestamp": "2025-07-25T08:48:04.574Z"
+				}
+			]
+		},
+		"statistics": {
+			"tasksProcessed": 0,
+			"tasksCompleted": 0,
+			"memoryUpdates": 0,
+			"agentActivities": 4,
+			"consensusDecisions": 0
+		}
+	}
+}

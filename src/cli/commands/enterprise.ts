@@ -21,9 +21,10 @@ import {
 	SecurityScan as _SecurityScan,
 	SecurityManager,
 } from "../../enterprise/security-manager.js";
+import type { CliCommand as Command } from "../../types/cli-types.js";
+import type { CommandContext } from "../../types/core.js";
 import { getErrorMessage as _getErrorMessage } from "../../utils/error-handler.js";
-import type { Command, CommandContext } from "../optimized-cli-core.js";
-import { _error, info, success, warning } from "../optimized-cli-core.js";
+import { _error, info, success, warning } from "../cli-utils.js";
 
 const { bold, blue, green, yellow, red, cyan, magenta: _magenta } = colors;
 
@@ -128,10 +129,10 @@ export const enterpriseCommands: Command[] = [
 
 						if (ctx.flags.verbose) {
 							console.log(
-								`${blue("Timeline:")} ${project.timeline.plannedStart.toLocaleDateString()} - ${project.timeline.plannedEnd.toLocaleDateString()}`
+								`${blue("Timeline:")} ${project.timeline.plannedStart.toLocaleDateString()} - ${project.timeline.plannedEnd.toLocaleDateString()}`,
 							);
 							console.log(
-								`${blue("Budget:")} ${project.budget.total} ${project.budget.currency}`
+								`${blue("Budget:")} ${project.budget.total} ${project.budget.currency}`,
 							);
 						}
 					} catch (err) {
@@ -169,13 +170,13 @@ export const enterpriseCommands: Command[] = [
 											: red;
 
 							console.log(
-								`${bold(project.name)} ${cyan(`(${project.id.substr(0, 8)}...)`)}`
+								`${bold(project.name)} ${cyan(`(${project.id.substr(0, 8)}...)`)}`,
 							);
 							console.log(
-								`  Status: ${statusColor(project.status)} | Type: ${project.type} | Priority: ${project.priority}`
+								`  Status: ${statusColor(project.status)} | Type: ${project.type} | Priority: ${project.priority}`,
 							);
 							console.log(
-								`  Owner: ${project.owner} | Updated: ${project.updatedAt.toLocaleDateString()}`
+								`  Owner: ${project.owner} | Updated: ${project.updatedAt.toLocaleDateString()}`,
 							);
 
 							if (ctx.flags.verbose) {
@@ -183,10 +184,10 @@ export const enterpriseCommands: Command[] = [
 									? await (manager as any).calculateProjectProgress(project)
 									: 0;
 								console.log(
-									`  Progress: ${progress.toFixed(1)}% | Phases: ${project.phases.length}`
+									`  Progress: ${progress.toFixed(1)}% | Phases: ${project.phases.length}`,
 								);
 								console.log(
-									`  Budget: ${project.budget.spent}/${project.budget.total} ${project.budget.currency}`
+									`  Budget: ${project.budget.spent}/${project.budget.total} ${project.budget.currency}`,
 								);
 							}
 							console.log();
@@ -220,31 +221,31 @@ export const enterpriseCommands: Command[] = [
 						console.log(`${blue("Priority:")} ${project.priority}`);
 						console.log(`${blue("Owner:")} ${project.owner}`);
 						console.log(
-							`${blue("Created:")} ${project.createdAt.toLocaleDateString()}`
+							`${blue("Created:")} ${project.createdAt.toLocaleDateString()}`,
 						);
 						console.log(
-							`${blue("Updated:")} ${project.updatedAt.toLocaleDateString()}`
+							`${blue("Updated:")} ${project.updatedAt.toLocaleDateString()}`,
 						);
 
 						console.log(`\n${bold("Timeline:")}`);
 						console.log(
-							`  Planned: ${project.timeline.plannedStart.toLocaleDateString()} - ${project.timeline.plannedEnd.toLocaleDateString()}`
+							`  Planned: ${project.timeline.plannedStart.toLocaleDateString()} - ${project.timeline.plannedEnd.toLocaleDateString()}`,
 						);
 						if (project.timeline.actualStart) {
 							console.log(
-								`  Actual: ${project.timeline.actualStart.toLocaleDateString()} - ${project.timeline.actualEnd?.toLocaleDateString() || "In Progress"}`
+								`  Actual: ${project.timeline.actualStart.toLocaleDateString()} - ${project.timeline.actualEnd?.toLocaleDateString() || "In Progress"}`,
 							);
 						}
 
 						console.log(`\n${bold("Budget:")}`);
 						console.log(
-							`  Total: ${project.budget.total} ${project.budget.currency}`
+							`  Total: ${project.budget.total} ${project.budget.currency}`,
 						);
 						console.log(
-							`  Spent: ${project.budget.spent} ${project.budget.currency}`
+							`  Spent: ${project.budget.spent} ${project.budget.currency}`,
 						);
 						console.log(
-							`  Remaining: ${project.budget.remaining} ${project.budget.currency}`
+							`  Remaining: ${project.budget.remaining} ${project.budget.currency}`,
 						);
 
 						if (project.phases.length > 0) {
@@ -259,7 +260,7 @@ export const enterpriseCommands: Command[] = [
 												? red
 												: blue;
 								console.log(
-									`  ${statusColor(phase.status.padEnd(12))} ${phase.name} (${phase.completionPercentage}%)`
+									`  ${statusColor(phase.status.padEnd(12))} ${phase.name} (${phase.completionPercentage}%)`,
 								);
 							}
 						}
@@ -268,7 +269,7 @@ export const enterpriseCommands: Command[] = [
 							console.log(`\n${bold("Team Members:")}`);
 							for (const member of project.collaboration.teamMembers) {
 								console.log(
-									`  ${member.name} (${member.role}) - ${member.availability}% available`
+									`  ${member.name} (${member.role}) - ${member.availability}% available`,
 								);
 							}
 						}
@@ -287,22 +288,22 @@ export const enterpriseCommands: Command[] = [
 						console.log();
 						console.log(`${blue("Total Projects:")} ${metrics.totalProjects}`);
 						console.log(
-							`${blue("Active Projects:")} ${metrics.activeProjects}`
+							`${blue("Active Projects:")} ${metrics.activeProjects}`,
 						);
 						console.log(
-							`${blue("Completed Projects:")} ${metrics.completedProjects}`
+							`${blue("Completed Projects:")} ${metrics.completedProjects}`,
 						);
 						console.log(
-							`${blue("Average Duration:")} ${metrics.averageProjectDuration.toFixed(1)} days`
+							`${blue("Average Duration:")} ${metrics.averageProjectDuration.toFixed(1)} days`,
 						);
 						console.log(
-							`${blue("Budget Variance:")} ${(metrics.budgetVariance * 100).toFixed(1)}%`
+							`${blue("Budget Variance:")} ${(metrics.budgetVariance * 100).toFixed(1)}%`,
 						);
 						console.log(
-							`${blue("Resource Utilization:")} ${(metrics.resourceUtilization * 100).toFixed(1)}%`
+							`${blue("Resource Utilization:")} ${(metrics.resourceUtilization * 100).toFixed(1)}%`,
 						);
 						console.log(
-							`${blue("Quality Score:")} ${metrics.qualityScore.toFixed(1)}%`
+							`${blue("Quality Score:")} ${metrics.qualityScore.toFixed(1)}%`,
 						);
 					} catch (err) {
 						_error(`Failed to get metrics: ${_getErrorMessage(err)}`);
@@ -326,7 +327,7 @@ export const enterpriseCommands: Command[] = [
 						console.log();
 						console.log(`${blue("Summary:")} ${report.summary}`);
 						console.log(
-							`${blue("Generated:")} ${report.generatedAt.toLocaleDateString()}`
+							`${blue("Generated:")} ${report.generatedAt.toLocaleDateString()}`,
 						);
 
 						if (ctx.flags.verbose && Object.keys(report.details).length > 0) {
@@ -356,13 +357,13 @@ export const enterpriseCommands: Command[] = [
 					console.log();
 					console.log(`${bold("Examples:")}`);
 					console.log(
-						`  ${cyan("claude-flow project create")} "E-commerce Platform" --type web-app --priority high`
+						`  ${cyan("claude-flow project create")} "E-commerce Platform" --type web-app --priority high`,
 					);
 					console.log(
-						`  ${cyan("claude-flow project list")} --status active --verbose`
+						`  ${cyan("claude-flow project list")} --status active --verbose`,
 					);
 					console.log(
-						`  ${cyan("claude-flow project report")} proj-123 financial`
+						`  ${cyan("claude-flow project report")} proj-123 financial`,
 					);
 					break;
 				}
@@ -415,7 +416,7 @@ export const enterpriseCommands: Command[] = [
 					const name = ctx.args[1];
 					if (!name) {
 						_error(
-							"Usage: deploy create <name> --environment <env> --strategy <strategy>"
+							"Usage: deploy create <name> --environment <env> --strategy <strategy>",
 						);
 						break;
 					}
@@ -483,16 +484,16 @@ export const enterpriseCommands: Command[] = [
 											: blue;
 
 							console.log(
-								`${bold(deployment.name)} ${cyan(`(${deployment.id.substr(0, 8)}...)`)}`
+								`${bold(deployment.name)} ${cyan(`(${deployment.id.substr(0, 8)}...)`)}`,
 							);
 							console.log(
-								`  Status: ${statusColor(deployment.status)} | Version: ${deployment.version}`
+								`  Status: ${statusColor(deployment.status)} | Version: ${deployment.version}`,
 							);
 							console.log(
-								`  Environment: ${deployment.environmentId} | Strategy: ${deployment.strategyId}`
+								`  Environment: ${deployment.environmentId} | Strategy: ${deployment.strategyId}`,
 							);
 							console.log(
-								`  Started: ${deployment.metrics.startTime.toLocaleDateString()}`
+								`  Started: ${deployment.metrics.startTime.toLocaleDateString()}`,
 							);
 							if (deployment.metrics.endTime) {
 								console.log(`  Duration: ${deployment.metrics.duration}ms`);
@@ -543,35 +544,35 @@ export const enterpriseCommands: Command[] = [
 						success("Deployment Metrics:");
 						console.log();
 						console.log(
-							`${blue("Total Deployments:")} ${metrics.totalDeployments}`
+							`${blue("Total Deployments:")} ${metrics.totalDeployments}`,
 						);
 						console.log(
-							`${blue("Successful:")} ${metrics.successfulDeployments}`
+							`${blue("Successful:")} ${metrics.successfulDeployments}`,
 						);
 						console.log(`${blue("Failed:")} ${metrics.failedDeployments}`);
 						console.log(
-							`${blue("Rolled Back:")} ${metrics.rolledBackDeployments}`
+							`${blue("Rolled Back:")} ${metrics.rolledBackDeployments}`,
 						);
 						console.log(
-							`${blue("Average Duration:")} ${(metrics.averageDeploymentTime / 1000 / 60).toFixed(1)} minutes`
+							`${blue("Average Duration:")} ${(metrics.averageDeploymentTime / 1000 / 60).toFixed(1)} minutes`,
 						);
 						console.log(
-							`${blue("Deployment Frequency:")} ${metrics.deploymentFrequency.toFixed(2)} per day`
+							`${blue("Deployment Frequency:")} ${metrics.deploymentFrequency.toFixed(2)} per day`,
 						);
 						console.log(
-							`${blue("MTTR:")} ${(metrics.meanTimeToRecovery / 1000 / 60).toFixed(1)} minutes`
+							`${blue("MTTR:")} ${(metrics.meanTimeToRecovery / 1000 / 60).toFixed(1)} minutes`,
 						);
 						console.log(
-							`${blue("Change Failure Rate:")} ${metrics.changeFailureRate.toFixed(1)}%`
+							`${blue("Change Failure Rate:")} ${metrics.changeFailureRate.toFixed(1)}%`,
 						);
 
 						if (Object.keys(metrics.environmentMetrics).length > 0) {
 							console.log(`\n${bold("By Environment:")}`);
 							for (const [env, data] of Object.entries(
-								metrics.environmentMetrics
+								metrics.environmentMetrics,
 							)) {
 								console.log(
-									`  ${env}: ${data.deployments} deployments, ${data.successRate.toFixed(1)}% success rate`
+									`  ${env}: ${data.deployments} deployments, ${data.successRate.toFixed(1)}% success rate`,
 								);
 							}
 						}
@@ -589,7 +590,7 @@ export const enterpriseCommands: Command[] = [
 							const name = ctx.args[2];
 							if (!name) {
 								_error(
-									"Usage: deploy environments create <name> --type <type>"
+									"Usage: deploy environments create <name> --type <type>",
 								);
 								break;
 							}
@@ -619,14 +620,14 @@ export const enterpriseCommands: Command[] = [
 								console.log(`${blue("ID:")} ${environment.id}`);
 								console.log(`${blue("Type:")} ${environment.type}`);
 								console.log(
-									`${blue("Region:")} ${environment.configuration.region}`
+									`${blue("Region:")} ${environment.configuration.region}`,
 								);
 								console.log(
-									`${blue("Provider:")} ${environment.configuration.provider}`
+									`${blue("Provider:")} ${environment.configuration.provider}`,
 								);
 							} catch (err) {
 								_error(
-									`Failed to create environment: ${_getErrorMessage(err)}`
+									`Failed to create environment: ${_getErrorMessage(err)}`,
 								);
 							}
 							break;
@@ -656,13 +657,13 @@ export const enterpriseCommands: Command[] = [
 					console.log();
 					console.log(`${bold("Examples:")}`);
 					console.log(
-						`  ${cyan("claude-flow deploy create")} "v2.1.0" --environment production --strategy blue-green`
+						`  ${cyan("claude-flow deploy create")} "v2.1.0" --environment production --strategy blue-green`,
 					);
 					console.log(
-						`  ${cyan("claude-flow deploy rollback")} deploy-123 "Critical bug found"`
+						`  ${cyan("claude-flow deploy rollback")} deploy-123 "Critical bug found"`,
 					);
 					console.log(
-						`  ${cyan("claude-flow deploy metrics")} --environment production`
+						`  ${cyan("claude-flow deploy metrics")} --environment production`,
 					);
 					break;
 				}
@@ -737,7 +738,7 @@ export const enterpriseCommands: Command[] = [
 								console.log(`${blue("Type:")} ${provider.type}`);
 								console.log(`${blue("Status:")} ${provider.status}`);
 								console.log(
-									`${blue("Default Region:")} ${provider.configuration.defaultRegion}`
+									`${blue("Default Region:")} ${provider.configuration.defaultRegion}`,
 								);
 							} catch (err) {
 								_error(`Failed to add provider: ${_getErrorMessage(err)}`);
@@ -769,7 +770,7 @@ export const enterpriseCommands: Command[] = [
 
 							if (!name || !type) {
 								_error(
-									"Usage: cloud resources create <name> <type> --provider <provider-id>"
+									"Usage: cloud resources create <name> <type> --provider <provider-id>",
 								);
 								break;
 							}
@@ -801,7 +802,7 @@ export const enterpriseCommands: Command[] = [
 								console.log(`${blue("Provider:")} ${resource.providerId}`);
 								console.log(`${blue("Region:")} ${resource.region}`);
 								console.log(
-									`${blue("Monthly Cost:")} $${resource.costs.monthlyEstimate.toFixed(2)}`
+									`${blue("Monthly Cost:")} $${resource.costs.monthlyEstimate.toFixed(2)}`,
 								);
 							} catch (err) {
 								_error(`Failed to create resource: ${_getErrorMessage(err)}`);
@@ -819,7 +820,7 @@ export const enterpriseCommands: Command[] = [
 							const resourceId = ctx.args[2];
 							if (!resourceId) {
 								_error(
-									"Usage: cloud resources scale <resource-id> --size <size>"
+									"Usage: cloud resources scale <resource-id> --size <size>",
 								);
 								break;
 							}
@@ -855,7 +856,7 @@ export const enterpriseCommands: Command[] = [
 
 						default: {
 							console.log(
-								"Available resource subcommands: create, list, scale, delete"
+								"Available resource subcommands: create, list, scale, delete",
 							);
 							break;
 						}
@@ -878,36 +879,36 @@ export const enterpriseCommands: Command[] = [
 						}
 
 						success(
-							`Found ${optimizations.length} cost optimization opportunities:`
+							`Found ${optimizations.length} cost optimization opportunities:`,
 						);
 						console.log();
 
 						for (const opt of optimizations) {
 							console.log(
-								`${bold(opt.type.toUpperCase())}: ${opt.description}`
+								`${bold(opt.type.toUpperCase())}: ${opt.description}`,
 							);
 							console.log(
-								`  ${green("Potential Savings:")} $${opt.potentialSavings.toFixed(2)}/month`
+								`  ${green("Potential Savings:")} $${opt.potentialSavings.toFixed(2)}/month`,
 							);
 							console.log(
-								`  ${blue("Effort:")} ${opt.effort} | ${blue("Priority:")} ${opt.priority}`
+								`  ${blue("Effort:")} ${opt.effort} | ${blue("Priority:")} ${opt.priority}`,
 							);
 							console.log(
-								`  ${yellow("Implementation:")} ${opt.implementation}`
+								`  ${yellow("Implementation:")} ${opt.implementation}`,
 							);
 							console.log();
 						}
 
 						const totalSavings = optimizations.reduce(
 							(sum, opt) => sum + opt.potentialSavings,
-							0
+							0,
 						);
 						success(
-							`Total potential savings: $${totalSavings.toFixed(2)}/month`
+							`Total potential savings: $${totalSavings.toFixed(2)}/month`,
 						);
 					} catch (err) {
 						_error(
-							`Failed to analyze cost optimization: ${_getErrorMessage(err)}`
+							`Failed to analyze cost optimization: ${_getErrorMessage(err)}`,
 						);
 					}
 					break;
@@ -927,45 +928,45 @@ export const enterpriseCommands: Command[] = [
 
 						console.log(`${bold("Providers:")}`);
 						console.log(
-							`  Total: ${metrics.providers.total} | Active: ${metrics.providers.active}`
+							`  Total: ${metrics.providers.total} | Active: ${metrics.providers.active}`,
 						);
 						console.log(
-							`  Inactive: ${metrics.providers.inactive} | Errors: ${metrics.providers.errors}`
+							`  Inactive: ${metrics.providers.inactive} | Errors: ${metrics.providers.errors}`,
 						);
 
 						console.log(`\n${bold("Resources:")}`);
 						console.log(
-							`  Total: ${metrics.resources.total} | Running: ${metrics.resources.running}`
+							`  Total: ${metrics.resources.total} | Running: ${metrics.resources.running}`,
 						);
 						console.log(
-							`  Stopped: ${metrics.resources.stopped} | Errors: ${metrics.resources.errors}`
+							`  Stopped: ${metrics.resources.stopped} | Errors: ${metrics.resources.errors}`,
 						);
 
 						console.log(`\n${bold("Costs:")}`);
 						console.log(
-							`  Total Spend: $${metrics.costs.totalSpend.toFixed(2)}`
+							`  Total Spend: $${metrics.costs.totalSpend.toFixed(2)}`,
 						);
 						console.log(
-							`  Monthly Spend: $${metrics.costs.monthlySpend.toFixed(2)}`
+							`  Monthly Spend: $${metrics.costs.monthlySpend.toFixed(2)}`,
 						);
 						console.log(
-							`  Projected Annual: $${metrics.costs.projectedSpend.toFixed(2)}`
+							`  Projected Annual: $${metrics.costs.projectedSpend.toFixed(2)}`,
 						);
 
 						console.log(`\n${bold("Performance:")}`);
 						console.log(
-							`  Average Uptime: ${metrics.performance.averageUptime.toFixed(1)}%`
+							`  Average Uptime: ${metrics.performance.averageUptime.toFixed(1)}%`,
 						);
 						console.log(
-							`  Availability: ${metrics.performance.availability.toFixed(1)}%`
+							`  Availability: ${metrics.performance.availability.toFixed(1)}%`,
 						);
 
 						console.log(`\n${bold("Security:")}`);
 						console.log(
-							`  Encryption Coverage: ${metrics.security.encryptionCoverage.toFixed(1)}%`
+							`  Encryption Coverage: ${metrics.security.encryptionCoverage.toFixed(1)}%`,
 						);
 						console.log(
-							`  Backup Coverage: ${metrics.security.backupCoverage.toFixed(1)}%`
+							`  Backup Coverage: ${metrics.security.backupCoverage.toFixed(1)}%`,
 						);
 					} catch (err) {
 						_error(`Failed to get metrics: ${_getErrorMessage(err)}`);
@@ -978,19 +979,19 @@ export const enterpriseCommands: Command[] = [
 					console.log("  providers         Manage cloud providers");
 					console.log("  resources         Manage cloud resources");
 					console.log(
-						"  optimize          Analyze cost optimization opportunities"
+						"  optimize          Analyze cost optimization opportunities",
 					);
 					console.log("  metrics           Show cloud infrastructure metrics");
 					console.log();
 					console.log(`${bold("Examples:")}`);
 					console.log(
-						`  ${cyan("claude-flow cloud providers add")} "AWS Production" aws --access-key xxx`
+						`  ${cyan("claude-flow cloud providers add")} "AWS Production" aws --access-key xxx`,
 					);
 					console.log(
-						`  ${cyan("claude-flow cloud resources create")} "web-server" compute --provider aws-prod`
+						`  ${cyan("claude-flow cloud resources create")} "web-server" compute --provider aws-prod`,
 					);
 					console.log(
-						`  ${cyan("claude-flow cloud optimize")} --environment production`
+						`  ${cyan("claude-flow cloud optimize")} --environment production`,
 					);
 					break;
 				}
@@ -1035,7 +1036,7 @@ export const enterpriseCommands: Command[] = [
 
 					if (!name || !target) {
 						_error(
-							"Usage: security scan <name> <target-path> --type <scan-type>"
+							"Usage: security scan <name> <target-path> --type <scan-type>",
 						);
 						break;
 					}
@@ -1073,17 +1074,17 @@ export const enterpriseCommands: Command[] = [
 						if (updatedScan) {
 							success(`Scan completed: ${updatedScan.results.length} findings`);
 							console.log(
-								`${blue("Critical:")} ${updatedScan.metrics.criticalFindings}`
+								`${blue("Critical:")} ${updatedScan.metrics.criticalFindings}`,
 							);
 							console.log(
-								`${blue("High:")} ${updatedScan.metrics.highFindings}`
+								`${blue("High:")} ${updatedScan.metrics.highFindings}`,
 							);
 							console.log(
-								`${blue("Medium:")} ${updatedScan.metrics.mediumFindings}`
+								`${blue("Medium:")} ${updatedScan.metrics.mediumFindings}`,
 							);
 							console.log(`${blue("Low:")} ${updatedScan.metrics.lowFindings}`);
 							console.log(
-								`${blue("Duration:")} ${(updatedScan.metrics.scanDuration / 1000).toFixed(1)}s`
+								`${blue("Duration:")} ${(updatedScan.metrics.scanDuration / 1000).toFixed(1)}s`,
 							);
 						}
 					} catch (err) {
@@ -1100,7 +1101,7 @@ export const enterpriseCommands: Command[] = [
 							const title = ctx.args[2];
 							if (!title) {
 								_error(
-									"Usage: security incident create <title> --severity <level>"
+									"Usage: security incident create <title> --severity <level>",
 								);
 								break;
 							}
@@ -1128,7 +1129,7 @@ export const enterpriseCommands: Command[] = [
 								console.log(`${blue("Type:")} ${incident.type}`);
 								console.log(`${blue("Status:")} ${incident.status}`);
 								console.log(
-									`${blue("Assigned To:")} ${incident.response.assignedTo.join(", ")}`
+									`${blue("Assigned To:")} ${incident.response.assignedTo.join(", ")}`,
 								);
 							} catch (err) {
 								_error(`Failed to create incident: ${_getErrorMessage(err)}`);
@@ -1187,16 +1188,16 @@ export const enterpriseCommands: Command[] = [
 							const score = (stats.passed / stats.total) * 100;
 							console.log(`${bold(framework)}:`);
 							console.log(
-								`  Score: ${score.toFixed(1)}% (${stats.passed}/${stats.total})`
+								`  Score: ${score.toFixed(1)}% (${stats.passed}/${stats.total})`,
 							);
 							console.log(
-								`  ${green("Passed:")} ${stats.passed} | ${red("Failed:")} ${stats.failed}`
+								`  ${green("Passed:")} ${stats.passed} | ${red("Failed:")} ${stats.failed}`,
 							);
 							console.log();
 						}
 					} catch (err) {
 						_error(
-							`Failed to run compliance assessment: ${_getErrorMessage(err)}`
+							`Failed to run compliance assessment: ${_getErrorMessage(err)}`,
 						);
 					}
 					break;
@@ -1216,39 +1217,39 @@ export const enterpriseCommands: Command[] = [
 
 						console.log(`${bold("Scans:")}`);
 						console.log(
-							`  Total: ${metrics.scans.total} | Completed: ${metrics.scans.completed}`
+							`  Total: ${metrics.scans.total} | Completed: ${metrics.scans.completed}`,
 						);
 						console.log(
-							`  Failed: ${metrics.scans.failed} | In Progress: ${metrics.scans.inProgress}`
+							`  Failed: ${metrics.scans.failed} | In Progress: ${metrics.scans.inProgress}`,
 						);
 
 						console.log(`\n${bold("Findings:")}`);
 						console.log(
-							`  Total: ${metrics.findings.total} | Open: ${metrics.findings.open}`
+							`  Total: ${metrics.findings.total} | Open: ${metrics.findings.open}`,
 						);
 						console.log(
-							`  Resolved: ${metrics.findings.resolved} | Suppressed: ${metrics.findings.suppressed}`
+							`  Resolved: ${metrics.findings.resolved} | Suppressed: ${metrics.findings.suppressed}`,
 						);
 						console.log(
-							`  Critical: ${metrics.findings.bySeverity.critical || 0} | High: ${metrics.findings.bySeverity.high || 0}`
+							`  Critical: ${metrics.findings.bySeverity.critical || 0} | High: ${metrics.findings.bySeverity.high || 0}`,
 						);
 
 						console.log(`\n${bold("Compliance:")}`);
 						console.log(
-							`  Overall Score: ${metrics.compliance.overallScore.toFixed(1)}%`
+							`  Overall Score: ${metrics.compliance.overallScore.toFixed(1)}%`,
 						);
 						console.log(`  Trending: ${metrics.compliance.trending}`);
 
 						console.log(`\n${bold("Incidents:")}`);
 						console.log(
-							`  Total: ${metrics.incidents.total} | Open: ${metrics.incidents.open}`
+							`  Total: ${metrics.incidents.total} | Open: ${metrics.incidents.open}`,
 						);
 						console.log(`  Resolved: ${metrics.incidents.resolved}`);
 						console.log(
-							`  MTTD: ${(metrics.incidents.meanTimeToDetection / 1000 / 60).toFixed(1)} minutes`
+							`  MTTD: ${(metrics.incidents.meanTimeToDetection / 1000 / 60).toFixed(1)} minutes`,
 						);
 						console.log(
-							`  MTTR: ${(metrics.incidents.meanTimeToResolution / 1000 / 60 / 60).toFixed(1)} hours`
+							`  MTTR: ${(metrics.incidents.meanTimeToResolution / 1000 / 60 / 60).toFixed(1)} hours`,
 						);
 					} catch (err) {
 						_error(`Failed to get security metrics: ${_getErrorMessage(err)}`);
@@ -1265,13 +1266,13 @@ export const enterpriseCommands: Command[] = [
 					console.log();
 					console.log(`${bold("Examples:")}`);
 					console.log(
-						`  ${cyan("claude-flow security scan")} "API Vulnerability Scan" ./api --type vulnerability`
+						`  ${cyan("claude-flow security scan")} "API Vulnerability Scan" ./api --type vulnerability`,
 					);
 					console.log(
-						`  ${cyan("claude-flow security incident create")} "Unauthorized Access" --severity high`
+						`  ${cyan("claude-flow security incident create")} "Unauthorized Access" --severity high`,
 					);
 					console.log(
-						`  ${cyan("claude-flow security compliance")} SOC2 GDPR --project web-app`
+						`  ${cyan("claude-flow security compliance")} SOC2 GDPR --project web-app`,
 					);
 					break;
 				}
@@ -1311,7 +1312,7 @@ export const enterpriseCommands: Command[] = [
 							const name = ctx.args[2];
 							if (!name) {
 								_error(
-									"Usage: analytics dashboard create <name> --type <type>"
+									"Usage: analytics dashboard create <name> --type <type>",
 								);
 								break;
 							}
@@ -1401,11 +1402,11 @@ export const enterpriseCommands: Command[] = [
 											: green;
 
 							console.log(
-								`${bold(insight.title)} ${priorityColor(`[${insight.priority.toUpperCase()}]`)}`
+								`${bold(insight.title)} ${priorityColor(`[${insight.priority.toUpperCase()}]`)}`,
 							);
 							console.log(`  ${insight.description}`);
 							console.log(
-								`  Type: ${insight.type} | Category: ${insight.category} | Confidence: ${insight.confidence}%`
+								`  Type: ${insight.type} | Category: ${insight.category} | Confidence: ${insight.confidence}%`,
 							);
 
 							if (insight.recommendations.length > 0) {
@@ -1434,38 +1435,38 @@ export const enterpriseCommands: Command[] = [
 								console.log();
 								console.log(`${bold("System:")}`);
 								console.log(
-									`  CPU Usage: ${metrics.system.cpu.usage.toFixed(1)}%`
+									`  CPU Usage: ${metrics.system.cpu.usage.toFixed(1)}%`,
 								);
 								console.log(
-									`  Memory Usage: ${metrics.system.memory.usage.toFixed(1)}%`
+									`  Memory Usage: ${metrics.system.memory.usage.toFixed(1)}%`,
 								);
 								console.log(
-									`  Disk Usage: ${metrics.system.disk.usage.toFixed(1)}%`
+									`  Disk Usage: ${metrics.system.disk.usage.toFixed(1)}%`,
 								);
 
 								console.log(`\n${bold("Application:")}`);
 								console.log(
-									`  Response Time: ${metrics.application.responseTime.avg.toFixed(1)}ms (avg)`
+									`  Response Time: ${metrics.application.responseTime.avg.toFixed(1)}ms (avg)`,
 								);
 								console.log(
-									`  Throughput: ${metrics.application.throughput.requestsPerSecond.toFixed(1)} req/s`
+									`  Throughput: ${metrics.application.throughput.requestsPerSecond.toFixed(1)} req/s`,
 								);
 								console.log(
-									`  Error Rate: ${metrics.application.errors.rate.toFixed(2)}%`
+									`  Error Rate: ${metrics.application.errors.rate.toFixed(2)}%`,
 								);
 								console.log(
-									`  Availability: ${metrics.application.availability.uptime.toFixed(2)}%`
+									`  Availability: ${metrics.application.availability.uptime.toFixed(2)}%`,
 								);
 
 								console.log(`\n${bold("Database:")}`);
 								console.log(
-									`  Active Connections: ${metrics.database.connections.active}`
+									`  Active Connections: ${metrics.database.connections.active}`,
 								);
 								console.log(
-									`  Avg Query Time: ${metrics.database.queries.avgExecutionTime.toFixed(1)}ms`
+									`  Avg Query Time: ${metrics.database.queries.avgExecutionTime.toFixed(1)}ms`,
 								);
 								console.log(
-									`  Slow Queries: ${metrics.database.queries.slowQueries}`
+									`  Slow Queries: ${metrics.database.queries.slowQueries}`,
 								);
 								break;
 							}
@@ -1484,17 +1485,17 @@ export const enterpriseCommands: Command[] = [
 								console.log(`\n${bold("Sessions:")}`);
 								console.log(`  Total: ${metrics.sessions.total}`);
 								console.log(
-									`  Avg Duration: ${(metrics.sessions.duration.avg / 60).toFixed(1)} minutes`
+									`  Avg Duration: ${(metrics.sessions.duration.avg / 60).toFixed(1)} minutes`,
 								);
 								console.log(`  Bounce Rate: ${metrics.sessions.bounceRate}%`);
 
 								console.log(`\n${bold("API:")}`);
 								console.log(`  Calls: ${metrics.api.calls.toLocaleString()}`);
 								console.log(
-									`  Unique Consumers: ${metrics.api.uniqueConsumers}`
+									`  Unique Consumers: ${metrics.api.uniqueConsumers}`,
 								);
 								console.log(
-									`  Avg Response Time: ${metrics.api.avgResponseTime}ms`
+									`  Avg Response Time: ${metrics.api.avgResponseTime}ms`,
 								);
 								console.log(`  Error Rate: ${metrics.api.errorRate}%`);
 								break;
@@ -1507,10 +1508,10 @@ export const enterpriseCommands: Command[] = [
 								console.log();
 								console.log(`${bold("Revenue:")}`);
 								console.log(
-									`  Total: $${metrics.revenue.total.toLocaleString()}`
+									`  Total: $${metrics.revenue.total.toLocaleString()}`,
 								);
 								console.log(
-									`  Recurring: $${metrics.revenue.recurring.toLocaleString()}`
+									`  Recurring: $${metrics.revenue.recurring.toLocaleString()}`,
 								);
 								console.log(`  Growth: ${metrics.revenue.growth}%`);
 								console.log(`  ARPU: $${metrics.revenue.arpu}`);
@@ -1520,7 +1521,7 @@ export const enterpriseCommands: Command[] = [
 								console.log(`  New: ${metrics.customers.new}`);
 								console.log(`  Churned: ${metrics.customers.churned}`);
 								console.log(
-									`  Satisfaction: ${metrics.customers.satisfaction}/5`
+									`  Satisfaction: ${metrics.customers.satisfaction}/5`,
 								);
 
 								console.log(`\n${bold("Conversion:")}`);
@@ -1539,7 +1540,7 @@ export const enterpriseCommands: Command[] = [
 						}
 					} catch (err) {
 						_error(
-							`Failed to get ${metricType} metrics: ${_getErrorMessage(err)}`
+							`Failed to get ${metricType} metrics: ${_getErrorMessage(err)}`,
 						);
 					}
 					break;
@@ -1553,7 +1554,7 @@ export const enterpriseCommands: Command[] = [
 							const name = ctx.args[2];
 							if (!name) {
 								_error(
-									"Usage: analytics predict train <name> --features <features> --target <target>"
+									"Usage: analytics predict train <name> --features <features> --target <target>",
 								);
 								break;
 							}
@@ -1583,10 +1584,10 @@ export const enterpriseCommands: Command[] = [
 								console.log(`${blue("Type:")} ${model.type}`);
 								console.log(`${blue("Algorithm:")} ${model.algorithm}`);
 								console.log(
-									`${blue("Accuracy:")} ${model.accuracy.toFixed(1)}%`
+									`${blue("Accuracy:")} ${model.accuracy.toFixed(1)}%`,
 								);
 								console.log(
-									`${blue("Features:")} ${model.features.join(", ")}`
+									`${blue("Features:")} ${model.features.join(", ")}`,
 								);
 							} catch (err) {
 								_error(`Failed to train model: ${_getErrorMessage(err)}`);
@@ -1598,7 +1599,7 @@ export const enterpriseCommands: Command[] = [
 							const modelId = ctx.args[2];
 							if (!modelId) {
 								_error(
-									"Usage: analytics predict predict <model-id> --input <json>"
+									"Usage: analytics predict predict <model-id> --input <json>",
 								);
 								break;
 							}
@@ -1614,10 +1615,10 @@ export const enterpriseCommands: Command[] = [
 								console.log(`${blue("Model:")} ${modelId}`);
 								console.log(`${blue("Input:")} ${JSON.stringify(input)}`);
 								console.log(
-									`${blue("Prediction:")} ${JSON.stringify(prediction.prediction)}`
+									`${blue("Prediction:")} ${JSON.stringify(prediction.prediction)}`,
 								);
 								console.log(
-									`${blue("Confidence:")} ${prediction.confidence.toFixed(1)}%`
+									`${blue("Confidence:")} ${prediction.confidence.toFixed(1)}%`,
 								);
 							} catch (err) {
 								_error(`Failed to make prediction: ${_getErrorMessage(err)}`);
@@ -1638,19 +1639,19 @@ export const enterpriseCommands: Command[] = [
 					console.log("  dashboard         Manage analytics dashboards");
 					console.log("  insights          Generate automated insights");
 					console.log(
-						"  metrics <type>    Show metrics (performance, usage, business)"
+						"  metrics <type>    Show metrics (performance, usage, business)",
 					);
 					console.log(
-						"  predict           Predictive modeling and forecasting"
+						"  predict           Predictive modeling and forecasting",
 					);
 					console.log();
 					console.log(`${bold("Examples:")}`);
 					console.log(
-						`  ${cyan("claude-flow analytics insights")} --timerange 7d`
+						`  ${cyan("claude-flow analytics insights")} --timerange 7d`,
 					);
 					console.log(`  ${cyan("claude-flow analytics metrics")} performance`);
 					console.log(
-						`  ${cyan("claude-flow analytics predict train")} "load-predictor" --features cpu,memory --target response-time`
+						`  ${cyan("claude-flow analytics predict train")} "load-predictor" --features cpu,memory --target response-time`,
 					);
 					break;
 				}
@@ -1693,7 +1694,7 @@ export const enterpriseCommands: Command[] = [
 
 					if (!eventType || !action) {
 						_error(
-							"Usage: audit log <event-type> <action> --resource <resource>"
+							"Usage: audit log <event-type> <action> --resource <resource>",
 						);
 						break;
 					}
@@ -1732,7 +1733,7 @@ export const enterpriseCommands: Command[] = [
 						console.log(`${blue("Severity:")} ${entry.severity}`);
 						console.log(`${blue("Outcome:")} ${entry.outcome}`);
 						console.log(
-							`${blue("Timestamp:")} ${entry.timestamp.toISOString()}`
+							`${blue("Timestamp:")} ${entry.timestamp.toISOString()}`,
 						);
 					} catch (err) {
 						_error(`Failed to log audit event: ${_getErrorMessage(err)}`);
@@ -1785,13 +1786,13 @@ export const enterpriseCommands: Command[] = [
 						console.log(`${blue("Type:")} ${report.type}`);
 						console.log(`${blue("Status:")} ${report.status}`);
 						console.log(
-							`${blue("Events Analyzed:")} ${report.summary.totalEvents}`
+							`${blue("Events Analyzed:")} ${report.summary.totalEvents}`,
 						);
 						console.log(
-							`${blue("Critical Findings:")} ${report.summary.criticalFindings}`
+							`${blue("Critical Findings:")} ${report.summary.criticalFindings}`,
 						);
 						console.log(
-							`${blue("Compliance Score:")} ${report.summary.complianceScore.toFixed(1)}%`
+							`${blue("Compliance Score:")} ${report.summary.complianceScore.toFixed(1)}%`,
 						);
 						console.log(`${blue("Risk Level:")} ${report.summary.riskLevel}`);
 
@@ -1799,7 +1800,7 @@ export const enterpriseCommands: Command[] = [
 							console.log(`\n${bold("Findings:")}`);
 							for (const finding of report.findings.slice(0, 5)) {
 								console.log(
-									`  ${finding.severity.toUpperCase()}: ${finding.title}`
+									`  ${finding.severity.toUpperCase()}: ${finding.title}`,
 								);
 							}
 							if (report.findings.length > 5) {
@@ -1863,10 +1864,10 @@ export const enterpriseCommands: Command[] = [
 						console.log(`${blue("Format:")} ${format}`);
 						console.log(`${blue("Time Range:")} ${timeRange}`);
 						console.log(
-							`${blue("Encrypted:")} ${ctx.flags.encrypt ? "Yes" : "No"}`
+							`${blue("Encrypted:")} ${ctx.flags.encrypt ? "Yes" : "No"}`,
 						);
 						console.log(
-							`${blue("Compressed:")} ${ctx.flags.compress ? "Yes" : "No"}`
+							`${blue("Compressed:")} ${ctx.flags.compress ? "Yes" : "No"}`,
 						);
 					} catch (err) {
 						_error(`Failed to export audit data: ${_getErrorMessage(err)}`);
@@ -1882,34 +1883,34 @@ export const enterpriseCommands: Command[] = [
 							success("Audit integrity verification passed");
 						} else {
 							_error(
-								`Audit integrity verification failed: ${verification.issues.length} issues found`
+								`Audit integrity verification failed: ${verification.issues.length} issues found`,
 							);
 						}
 
 						console.log(
-							`${blue("Total Entries:")} ${verification.summary.totalEntries}`
+							`${blue("Total Entries:")} ${verification.summary.totalEntries}`,
 						);
 						console.log(
-							`${blue("Verified Entries:")} ${verification.summary.verifiedEntries}`
+							`${blue("Verified Entries:")} ${verification.summary.verifiedEntries}`,
 						);
 						console.log(
-							`${blue("Corrupted Entries:")} ${verification.summary.corruptedEntries}`
+							`${blue("Corrupted Entries:")} ${verification.summary.corruptedEntries}`,
 						);
 						console.log(
-							`${blue("Missing Entries:")} ${verification.summary.missingEntries}`
+							`${blue("Missing Entries:")} ${verification.summary.missingEntries}`,
 						);
 
 						if (verification.issues.length > 0 && ctx.flags.verbose) {
 							console.log(`\n${bold("Issues:")}`);
 							for (const issue of verification.issues.slice(0, 5)) {
 								console.log(
-									`  ${issue.severity.toUpperCase()}: ${issue.description}`
+									`  ${issue.severity.toUpperCase()}: ${issue.description}`,
 								);
 							}
 						}
 					} catch (err) {
 						_error(
-							`Failed to verify audit integrity: ${_getErrorMessage(err)}`
+							`Failed to verify audit integrity: ${_getErrorMessage(err)}`,
 						);
 					}
 					break;
@@ -1945,43 +1946,43 @@ export const enterpriseCommands: Command[] = [
 
 						console.log(`${bold("Volume:")}`);
 						console.log(
-							`  Total Entries: ${metrics.volume.totalEntries.toLocaleString()}`
+							`  Total Entries: ${metrics.volume.totalEntries.toLocaleString()}`,
 						);
 						console.log(
-							`  Daily Average: ${metrics.volume.dailyAverage.toFixed(0)}`
+							`  Daily Average: ${metrics.volume.dailyAverage.toFixed(0)}`,
 						);
 						console.log(`  Peak Hourly: ${metrics.volume.peakHourly}`);
 
 						console.log(`\n${bold("Compliance:")}`);
 						console.log(
-							`  Overall Score: ${metrics.compliance.overallScore.toFixed(1)}%`
+							`  Overall Score: ${metrics.compliance.overallScore.toFixed(1)}%`,
 						);
 						console.log(`  Trending: ${metrics.compliance.trending}`);
 
 						console.log(`\n${bold("Integrity:")}`);
 						console.log(
-							`  Verification Success: ${metrics.integrity.verificationSuccess.toFixed(1)}%`
+							`  Verification Success: ${metrics.integrity.verificationSuccess.toFixed(1)}%`,
 						);
 						console.log(
-							`  Tamper Attempts: ${metrics.integrity.tamperAttempts}`
+							`  Tamper Attempts: ${metrics.integrity.tamperAttempts}`,
 						);
 						console.log(`  Data Loss: ${metrics.integrity.dataLoss}`);
 
 						console.log(`\n${bold("Security:")}`);
 						console.log(
-							`  Unauthorized Access: ${metrics.security.unauthorizedAccess}`
+							`  Unauthorized Access: ${metrics.security.unauthorizedAccess}`,
 						);
 						console.log(
-							`  Privileged Actions: ${metrics.security.privilegedActions}`
+							`  Privileged Actions: ${metrics.security.privilegedActions}`,
 						);
 						console.log(
-							`  Escalated Incidents: ${metrics.security.escalatedIncidents}`
+							`  Escalated Incidents: ${metrics.security.escalatedIncidents}`,
 						);
 
 						if (Object.keys(metrics.volume.byCategory).length > 0) {
 							console.log(`\n${bold("By Category:")}`);
 							for (const [category, count] of Object.entries(
-								metrics.volume.byCategory
+								metrics.volume.byCategory,
 							)) {
 								console.log(`  ${category}: ${count.toLocaleString()}`);
 							}
@@ -2002,13 +2003,13 @@ export const enterpriseCommands: Command[] = [
 					console.log();
 					console.log(`${bold("Examples:")}`);
 					console.log(
-						`  ${cyan("claude-flow audit log")} user_login success --user john.doe --resource user-account`
+						`  ${cyan("claude-flow audit log")} user_login success --user john.doe --resource user-account`,
 					);
 					console.log(
-						`  ${cyan("claude-flow audit report")} compliance --framework SOC2 --timerange 90d`
+						`  ${cyan("claude-flow audit report")} compliance --framework SOC2 --timerange 90d`,
 					);
 					console.log(
-						`  ${cyan("claude-flow audit export")} --format csv --timerange 30d --encrypt`
+						`  ${cyan("claude-flow audit export")} --format csv --timerange 30d --encrypt`,
 					);
 					break;
 				}

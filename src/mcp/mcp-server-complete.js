@@ -15,127 +15,301 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 class ClaudeFlowMCPServer {
-	constructor() {
-		this.version = "2.0.0-alpha.50";
-		this.sessionId = `session-cf-${Date.now()}-${nanoid(4)}`;
-		this.capabilities = {
-			tools: {
-				listChanged: true,
-			},
-			resources: {
-				subscribe: true,
-				listChanged: true,
-			},
-		};
+	constructor(options = {}) {
+		// Import debug logger
+		const { debugLogger } = require("../utils/debug-logger.js");
+		this.debugLogger = debugLogger;
 
-		// Initialize SwarmMemory for proper agent coordination
-		this.memoryStore = new SwarmMemory({
-			swarmId: this.sessionId,
-			directory: ".swarm",
-			filename: "mcp-memory.db",
-		});
-		this.sessions = new Map();
-		this.swarms = new Map();
-		this.agents = new Map();
-		this.tools = this.initializeTools();
-		this.resources = this.initializeResources();
-
-		// Initialize memory store
-		this.initializeMemoryStore();
-
-		// Setup stdio communication
-		this.setupStdioProtocol();
-
-		console.error(
-			`[${new Date().toISOString()}] INFO [claude-flow-mcp] Server initialized (${this.sessionId})`
+		const correlationId = this.debugLogger.logFunctionEntry(
+			"ClaudeFlowMCPServer",
+			"constructor",
+			[options],
+			"mcp-server",
 		);
+
+		try {
+			this.config = {
+				name: options.name || "claude-flow-mcp-server-complete",
+				version: options.version || "2.0.0",
+				debug: options.debug || false,
+				...options,
+			};
+
+			this.tools = new Map();
+			this.resources = new Map();
+			this.agents = new Map();
+			this.swarms = new Map();
+			this.tasks = new Map();
+			this.workflows = new Map();
+			this.memoryStore = new Map();
+			this.neuralPatterns = new Map();
+			this.metrics = {
+				requests: 0,
+				errors: 0,
+				performance: {},
+			};
+			this.initialized = false;
+
+			this.debugLogger.logEvent(
+				"ClaudeFlowMCPServer",
+				"constructor-complete",
+				{
+					configName: this.config.name,
+					configVersion: this.config.version,
+					toolsCount: this.tools.size,
+					resourcesCount: this.resources.size,
+					agentsCount: this.agents.size,
+					swarmsCount: this.swarms.size,
+				},
+				"mcp-server",
+			);
+
+			this.debugLogger.logFunctionExit(
+				correlationId,
+				{ initialized: this.initialized },
+				"mcp-server",
+			);
+		} catch (error) {
+			this.debugLogger.logFunctionError(correlationId, error, "mcp-server");
+			throw error;
+		}
 	}
 
 	async initializeMemoryStore() {
 		try {
 			await this.memoryStore.initialize();
 			console.error(
-				`[${new Date().toISOString()}] INFO [claude-flow-mcp] SwarmMemory initialized for coordination`
+				`[${new Date().toISOString()}] INFO [claude-flow-mcp] SwarmMemory initialized for coordination`,
 			);
 		} catch (error) {
 			console.error(
-				`[${new Date().toISOString()}] ERROR [claude-flow-mcp] Failed to initialize SwarmMemory: ${error.message}`
+				`[${new Date().toISOString()}] ERROR [claude-flow-mcp] Failed to initialize SwarmMemory: ${error.message}`,
 			);
 		}
 	}
 
 	setupStdioProtocol() {
-		process.stdin.setEncoding("utf8");
-		process.stdin.on("data", async (data) => {
-			try {
-				const lines = data.trim().split("\n");
-				for (const line of lines) {
-					if (line.trim()) {
-						const message = JSON.parse(line);
-						const response = await this.handleMessage(message);
-						if (response) {
-							console.log(JSON.stringify(response));
+		const correlationId = this.debugLogger.logFunctionEntry(
+			"ClaudeFlowMCPServer",
+			"setupStdioProtocol",
+			[],
+			"mcp-server",
+		);
+
+		try {
+			this.debugLogger.logEvent(
+				"ClaudeFlowMCPServer",
+				"stdio-setup-start",
+				{
+					hasStdin: !!process.stdin,
+					hasStdout: !!process.stdout,
+				},
+				"mcp-server",
+			);
+
+			let buffer = "";
+
+			process.stdin.on("data", async (chunk) => {
+				const dataCorrelationId = this.debugLogger.logFunctionEntry(
+					"ClaudeFlowMCPServer",
+					"handleStdinData",
+					[{ chunkSize: chunk.length }],
+					"mcp-server",
+				);
+
+				try {
+					buffer += chunk.toString();
+					const lines = buffer.split("\n");
+					buffer = lines.pop() || "";
+
+					for (const line of lines) {
+						if (line.trim()) {
+							this.debugLogger.logEvent(
+								"ClaudeFlowMCPServer",
+								"processing-stdin-message",
+								{ lineLength: line.length },
+								"mcp-server",
+							);
+
+							try {
+								const message = JSON.parse(line);
+								const response = await this.handleMessage(message);
+								const responseStr = JSON.stringify(response) + "\n";
+								process.stdout.write(responseStr);
+
+								this.debugLogger.logEvent(
+									"ClaudeFlowMCPServer",
+									"stdin-response-sent",
+									{
+										messageId: message.id,
+										responseSize: responseStr.length,
+									},
+									"mcp-server",
+								);
+							} catch (parseError) {
+								this.debugLogger.logEvent(
+									"ClaudeFlowMCPServer",
+									"stdin-parse-error",
+									{
+										error: parseError.message,
+										line: line.substring(0, 100),
+									},
+									"mcp-server",
+								);
+
+								const errorResponse = this.createErrorResponse(
+									null,
+									-32700,
+									"Parse error",
+									parseError.message,
+								);
+								process.stdout.write(JSON.stringify(errorResponse) + "\n");
+							}
 						}
 					}
+
+					this.debugLogger.logFunctionExit(
+						dataCorrelationId,
+						{ linesProcessed: lines.length - 1 },
+						"mcp-server",
+					);
+				} catch (error) {
+					this.debugLogger.logFunctionError(
+						dataCorrelationId,
+						error,
+						"mcp-server",
+					);
 				}
-			} catch (error) {
-				console.error(
-					`[${new Date().toISOString()}] ERROR [claude-flow-mcp] Protocol error: ${error.message}`
-				);
-				const errorResponse = {
-					jsonrpc: "2.0",
-					id: null,
-					error: {
-						code: -32700,
-						message: "Parse error",
-						data: error.message,
-					},
-				};
-				console.log(JSON.stringify(errorResponse));
-			}
-		});
+			});
+
+			this.debugLogger.logEvent(
+				"ClaudeFlowMCPServer",
+				"stdio-setup-complete",
+				{},
+				"mcp-server",
+			);
+			this.debugLogger.logFunctionExit(
+				correlationId,
+				{ success: true },
+				"mcp-server",
+			);
+		} catch (error) {
+			this.debugLogger.logFunctionError(correlationId, error, "mcp-server");
+			throw error;
+		}
 	}
 
 	async handleMessage(message) {
+		const correlationId = this.debugLogger.logFunctionEntry(
+			"ClaudeFlowMCPServer",
+			"handleMessage",
+			[message],
+			"mcp-server",
+		);
+
 		try {
-			const { jsonrpc, id, method, params } = message;
+			this.metrics.requests++;
 
-			if (jsonrpc !== "2.0") {
-				return this.createErrorResponse(id, -32600, "Invalid Request");
+			this.debugLogger.logEvent(
+				"ClaudeFlowMCPServer",
+				"message-received",
+				{
+					messageId: message.id,
+					method: message.method,
+					hasParams: !!message.params,
+					totalRequests: this.metrics.requests,
+				},
+				"mcp-server",
+			);
+
+			if (!this.initialized && message.method !== "initialize") {
+				const error = new Error("Server not initialized");
+				this.debugLogger.logEvent(
+					"ClaudeFlowMCPServer",
+					"message-rejected-not-initialized",
+					{ method: message.method },
+					"mcp-server",
+				);
+				this.debugLogger.logFunctionError(correlationId, error, "mcp-server");
+				throw error;
 			}
 
-			switch (method) {
+			let result;
+			const startTime = Date.now();
+
+			switch (message.method) {
 				case "initialize":
-					return this.handleInitialize(id, params);
+					result = this.handleInitialize(message);
+					break;
 				case "tools/list":
-					return this.handleToolsList(id);
+					result = this.handleToolsList(message);
+					break;
 				case "tools/call":
-					return this.handleToolCall(id, params);
+					result = await this.handleToolCall(message);
+					break;
 				case "resources/list":
-					return this.handleResourcesList(id);
+					result = this.handleResourcesList(message);
+					break;
 				case "resources/read":
-					return this.handleResourceRead(id, params);
-				case "notifications/initialized":
-					return null; // No response needed
-				default:
-					return this.createErrorResponse(id, -32601, "Method not found");
+					result = await this.handleResourceRead(message);
+					break;
+				default: {
+					const error = new Error(`Unknown method: ${message.method}`);
+					this.debugLogger.logEvent(
+						"ClaudeFlowMCPServer",
+						"unknown-method",
+						{ method: message.method },
+						"mcp-server",
+					);
+					this.debugLogger.logFunctionError(correlationId, error, "mcp-server");
+					throw error;
+				}
 			}
+
+			const duration = Date.now() - startTime;
+			this.metrics.performance[message.method] = (
+				this.metrics.performance[message.method] || []
+			).concat(duration);
+
+			this.debugLogger.logEvent(
+				"ClaudeFlowMCPServer",
+				"message-processed-successfully",
+				{
+					messageId: message.id,
+					method: message.method,
+					duration,
+					resultSize: JSON.stringify(result || {}).length,
+				},
+				"mcp-server",
+			);
+
+			this.debugLogger.logFunctionExit(
+				correlationId,
+				{ duration, success: true },
+				"mcp-server",
+			);
+			return result;
 		} catch (error) {
-			console.error(
-				`[${new Date().toISOString()}] ERROR [claude-flow-mcp] Handler error: ${error.message}`
+			this.metrics.errors++;
+			this.debugLogger.logEvent(
+				"ClaudeFlowMCPServer",
+				"message-processing-error",
+				{
+					messageId: message.id,
+					method: message.method,
+					error: error.message,
+					totalErrors: this.metrics.errors,
+				},
+				"mcp-server",
 			);
-			return this.createErrorResponse(
-				message.id,
-				-32603,
-				"Internal error",
-				error.message
-			);
+			this.debugLogger.logFunctionError(correlationId, error, "mcp-server");
+			throw error;
 		}
 	}
 
 	handleInitialize(id, params) {
 		console.error(
-			`[${new Date().toISOString()}] INFO [claude-flow-mcp] Initialize request from ${params?.clientInfo?.name || "unknown"}`
+			`[${new Date().toISOString()}] INFO [claude-flow-mcp] Initialize request from ${params?.clientInfo?.name || "unknown"}`,
 		);
 
 		return {
@@ -172,7 +346,7 @@ class ClaudeFlowMCPServer {
 		const { name, arguments: args } = params;
 
 		console.error(
-			`[${new Date().toISOString()}] INFO [claude-flow-mcp] Tool call: ${name}`
+			`[${new Date().toISOString()}] INFO [claude-flow-mcp] Tool call: ${name}`,
 		);
 
 		try {
@@ -192,13 +366,13 @@ class ClaudeFlowMCPServer {
 			};
 		} catch (error) {
 			console.error(
-				`[${new Date().toISOString()}] ERROR [claude-flow-mcp] Tool execution failed: ${error.message}`
+				`[${new Date().toISOString()}] ERROR [claude-flow-mcp] Tool execution failed: ${error.message}`,
 			);
 			return this.createErrorResponse(
 				id,
 				-32603,
 				"Tool execution failed",
-				error.message
+				error.message,
 			);
 		}
 	}
@@ -268,7 +442,7 @@ class ClaudeFlowMCPServer {
 				id,
 				-32603,
 				"Resource read failed",
-				error.message
+				error.message,
 			);
 		}
 	}
@@ -370,7 +544,7 @@ class ClaudeFlowMCPServer {
 						namespace: { type: "string", default: "default" },
 						ttl: { type: "number" },
 					},
-					required: ["action"],
+					required: ["action", "key"], // ✅ Fix: key is required for most operations
 				},
 			},
 
@@ -523,79 +697,167 @@ class ClaudeFlowMCPServer {
 	}
 
 	handleSwarmInit(args) {
-		const swarmId = `swarm-${nanoid(8)}`;
-		const swarm = {
-			id: swarmId,
-			topology: args.topology,
-			maxAgents: args.maxAgents || 8,
-			strategy: args.strategy || "auto",
-			agents: [],
-			status: "initialized",
-			created: new Date().toISOString(),
-		};
-
-		this.swarms.set(swarmId, swarm);
-
-		console.error(
-			`[${new Date().toISOString()}] INFO [claude-flow-mcp] Swarm initialized: ${swarmId}`
+		const correlationId = this.debugLogger.logFunctionEntry(
+			"ClaudeFlowMCPServer",
+			"handleSwarmInit",
+			[args],
+			"mcp-server",
 		);
 
-		return {
-			success: true,
-			swarmId,
-			topology: swarm.topology,
-			maxAgents: swarm.maxAgents,
-			strategy: swarm.strategy,
-			status: "initialized",
-			timestamp: swarm.created,
-		};
+		try {
+			const { topology = "mesh", maxAgents = 5, strategy = "balanced" } = args;
+
+			this.debugLogger.logEvent(
+				"ClaudeFlowMCPServer",
+				"swarm-init-start",
+				{
+					topology,
+					maxAgents,
+					strategy,
+					existingSwarmsCount: this.swarms.size,
+				},
+				"mcp-server",
+			);
+
+			const swarmId = `swarm-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+			const swarm = {
+				id: swarmId,
+				topology,
+				maxAgents,
+				strategy,
+				agents: new Map(),
+				tasks: new Map(),
+				status: "initialized",
+				created: Date.now(),
+				metrics: {
+					tasksCompleted: 0,
+					totalExecutionTime: 0,
+					errors: 0,
+				},
+			};
+
+			this.swarms.set(swarmId, swarm);
+
+			this.debugLogger.logEvent(
+				"ClaudeFlowMCPServer",
+				"swarm-created",
+				{
+					swarmId,
+					topology,
+					maxAgents,
+					strategy,
+					totalSwarms: this.swarms.size,
+				},
+				"mcp-server",
+			);
+
+			const result = {
+				success: true,
+				swarmId,
+				topology,
+				maxAgents,
+				strategy,
+				status: "initialized",
+			};
+
+			this.debugLogger.logFunctionExit(correlationId, result, "mcp-server");
+			return result;
+		} catch (error) {
+			this.debugLogger.logFunctionError(correlationId, error, "mcp-server");
+			throw error;
+		}
 	}
 
 	async handleAgentSpawn(args) {
-		const agentId = `agent-${nanoid(8)}`;
-		const agent = {
-			id: agentId,
-			type: args.type,
-			name: args.name || `${args.type}-${agentId}`,
-			capabilities: args.capabilities || [],
-			swarmId: args.swarmId,
-			status: "spawned",
-			created: new Date().toISOString(),
-		};
-
-		// Store in both local cache and SwarmMemory for coordination
-		this.agents.set(agentId, agent);
-
-		// Store in SwarmMemory for coordination
-		try {
-			await this.memoryStore.storeAgent(agentId, agent);
-		} catch (error) {
-			console.error(
-				`[${new Date().toISOString()}] ERROR [claude-flow-mcp] Failed to store agent in SwarmMemory: ${error.message}`
-			);
-		}
-
-		// Add to swarm if specified
-		if (args.swarmId && this.swarms.has(args.swarmId)) {
-			const swarm = this.swarms.get(args.swarmId);
-			swarm.agents.push(agentId);
-			this.swarms.set(args.swarmId, swarm);
-		}
-
-		console.error(
-			`[${new Date().toISOString()}] INFO [claude-flow-mcp] Agent spawned: ${agentId} (${args.type})`
+		const correlationId = this.debugLogger.logFunctionEntry(
+			"ClaudeFlowMCPServer",
+			"handleAgentSpawn",
+			[args],
+			"mcp-server",
 		);
 
-		return {
-			success: true,
-			agentId,
-			type: agent.type,
-			name: agent.name,
-			capabilities: agent.capabilities,
-			swarmId: agent.swarmId,
-			status: "spawned",
-			timestamp: agent.created,
-		};
+		try {
+			const { type = "worker", name, capabilities = [], swarmId } = args;
+
+			this.debugLogger.logEvent(
+				"ClaudeFlowMCPServer",
+				"agent-spawn-start",
+				{
+					type,
+					name,
+					capabilities,
+					swarmId,
+					existingAgentsCount: this.agents.size,
+				},
+				"mcp-server",
+			);
+
+			const agentId = `agent-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+			const agent = {
+				id: agentId,
+				type,
+				name: name || `${type}-${agentId}`,
+				capabilities,
+				swarmId,
+				status: "active",
+				created: Date.now(),
+				tasks: new Map(),
+				metrics: {
+					tasksCompleted: 0,
+					totalExecutionTime: 0,
+					errors: 0,
+					lastActivity: Date.now(),
+				},
+			};
+
+			this.agents.set(agentId, agent);
+
+			// Add agent to swarm if specified
+			if (swarmId && this.swarms.has(swarmId)) {
+				const swarm = this.swarms.get(swarmId);
+				swarm.agents.set(agentId, agent);
+
+				this.debugLogger.logEvent(
+					"ClaudeFlowMCPServer",
+					"agent-added-to-swarm",
+					{
+						agentId,
+						swarmId,
+						swarmAgentsCount: swarm.agents.size,
+					},
+					"mcp-server",
+				);
+			}
+
+			this.debugLogger.logEvent(
+				"ClaudeFlowMCPServer",
+				"agent-spawned",
+				{
+					agentId,
+					type,
+					name: agent.name,
+					swarmId,
+					totalAgents: this.agents.size,
+				},
+				"mcp-server",
+			);
+
+			const result = {
+				success: true,
+				agentId,
+				type,
+				name: agent.name,
+				capabilities,
+				swarmId,
+				status: "active",
+			};
+
+			this.debugLogger.logFunctionExit(correlationId, result, "mcp-server");
+			return result;
+		} catch (error) {
+			this.debugLogger.logFunctionError(correlationId, error, "mcp-server");
+			throw error;
+		}
 	}
 
 	async handleTaskOrchestrate(args) {
@@ -615,12 +877,12 @@ class ClaudeFlowMCPServer {
 			await this.memoryStore.storeTask(taskId, task);
 		} catch (error) {
 			console.error(
-				`[${new Date().toISOString()}] ERROR [claude-flow-mcp] Failed to store task in SwarmMemory: ${error.message}`
+				`[${new Date().toISOString()}] ERROR [claude-flow-mcp] Failed to store task in SwarmMemory: ${error.message}`,
 			);
 		}
 
 		console.error(
-			`[${new Date().toISOString()}] INFO [claude-flow-mcp] Task orchestrated: ${taskId}`
+			`[${new Date().toISOString()}] INFO [claude-flow-mcp] Task orchestrated: ${taskId}`,
 		);
 
 		return {
@@ -638,8 +900,45 @@ class ClaudeFlowMCPServer {
 	}
 
 	async handleMemoryUsage(args) {
+		// ✅ DEBUG: Log all incoming parameters for debugging
+		console.error(
+			`[${new Date().toISOString()}] DEBUG [claude-flow-mcp] handleMemoryUsage called with args:`,
+			JSON.stringify(args, null, 2),
+		);
+
 		const namespace = args.namespace || "default";
 		const key = args.key;
+
+		// ✅ DEBUG: Log extracted parameters
+		console.error(
+			`[${new Date().toISOString()}] DEBUG [claude-flow-mcp] Extracted - key: "${key}" (type: ${typeof key}), namespace: "${namespace}" (type: ${typeof namespace}), action: "${args.action}"`,
+		);
+
+		// ✅ NULL CHECK: Validate required parameters
+		if (!key || key === null || key === undefined) {
+			const errorMsg = `Memory usage key is required but got: ${JSON.stringify(key)} (type: ${typeof key})`;
+			console.error(
+				`[${new Date().toISOString()}] ERROR [claude-flow-mcp] ${errorMsg}`,
+			);
+			return {
+				success: false,
+				action: args.action,
+				error: errorMsg,
+				timestamp: new Date().toISOString(),
+			};
+		}
+
+		if (!args.action) {
+			const errorMsg = `Memory usage action is required but got: ${JSON.stringify(args.action)}`;
+			console.error(
+				`[${new Date().toISOString()}] ERROR [claude-flow-mcp] ${errorMsg}`,
+			);
+			return {
+				success: false,
+				error: errorMsg,
+				timestamp: new Date().toISOString(),
+			};
+		}
 
 		switch (args.action) {
 			case "store": {
@@ -654,7 +953,7 @@ class ClaudeFlowMCPServer {
 					});
 
 					console.error(
-						`[${new Date().toISOString()}] INFO [claude-flow-mcp] Memory stored: ${namespace}:${key}`
+						`[${new Date().toISOString()}] INFO [claude-flow-mcp] Memory stored: ${namespace}:${key}`,
 					);
 
 					return {
@@ -667,7 +966,7 @@ class ClaudeFlowMCPServer {
 					};
 				} catch (error) {
 					console.error(
-						`[${new Date().toISOString()}] ERROR [claude-flow-mcp] Memory store failed: ${error.message}`
+						`[${new Date().toISOString()}] ERROR [claude-flow-mcp] Memory store failed: ${error.message}`,
 					);
 					return {
 						success: false,
@@ -696,7 +995,7 @@ class ClaudeFlowMCPServer {
 					}
 
 					console.error(
-						`[${new Date().toISOString()}] INFO [claude-flow-mcp] Memory retrieved: ${namespace}:${key}`
+						`[${new Date().toISOString()}] INFO [claude-flow-mcp] Memory retrieved: ${namespace}:${key}`,
 					);
 
 					return {
@@ -710,7 +1009,7 @@ class ClaudeFlowMCPServer {
 					};
 				} catch (error) {
 					console.error(
-						`[${new Date().toISOString()}] ERROR [claude-flow-mcp] Memory retrieve failed: ${error.message}`
+						`[${new Date().toISOString()}] ERROR [claude-flow-mcp] Memory retrieve failed: ${error.message}`,
 					);
 					return {
 						success: false,
@@ -740,7 +1039,7 @@ class ClaudeFlowMCPServer {
 					};
 				} catch (error) {
 					console.error(
-						`[${new Date().toISOString()}] ERROR [claude-flow-mcp] Memory list failed: ${error.message}`
+						`[${new Date().toISOString()}] ERROR [claude-flow-mcp] Memory list failed: ${error.message}`,
 					);
 					return {
 						success: false,
@@ -766,7 +1065,7 @@ class ClaudeFlowMCPServer {
 					};
 				} catch (error) {
 					console.error(
-						`[${new Date().toISOString()}] ERROR [claude-flow-mcp] Memory delete failed: ${error.message}`
+						`[${new Date().toISOString()}] ERROR [claude-flow-mcp] Memory delete failed: ${error.message}`,
 					);
 					return {
 						success: false,
@@ -794,7 +1093,7 @@ class ClaudeFlowMCPServer {
 		const estimatedTime = epochs * 0.1; // 100ms per epoch
 
 		console.error(
-			`[${new Date().toISOString()}] INFO [claude-flow-mcp] Neural training started: ${trainingId}`
+			`[${new Date().toISOString()}] INFO [claude-flow-mcp] Neural training started: ${trainingId}`,
 		);
 
 		return {
@@ -919,7 +1218,7 @@ class ClaudeFlowMCPServer {
 						status: "healthy",
 						entries: this.memoryStore.size,
 						namespaces: new Set(
-							Array.from(this.memoryStore.keys()).map((k) => k.split(":")[0])
+							Array.from(this.memoryStore.keys()).map((k) => k.split(":")[0]),
 						).size,
 					};
 					break;
@@ -929,7 +1228,7 @@ class ClaudeFlowMCPServer {
 						active: this.swarms.size,
 						total_agents: Array.from(this.swarms.values()).reduce(
 							(sum, s) => sum + s.agents.length,
-							0
+							0,
 						),
 					};
 					break;
@@ -1004,14 +1303,14 @@ if (import.meta.url === `file://${process.argv[1]}`) {
 
 	process.on("SIGINT", () => {
 		console.error(
-			`[${new Date().toISOString()}] INFO [claude-flow-mcp] Server shutting down`
+			`[${new Date().toISOString()}] INFO [claude-flow-mcp] Server shutting down`,
 		);
 		process.exit(0);
 	});
 
 	process.on("uncaughtException", (error) => {
 		console.error(
-			`[${new Date().toISOString()}] ERROR [claude-flow-mcp] Uncaught exception: ${error.message}`
+			`[${new Date().toISOString()}] ERROR [claude-flow-mcp] Uncaught exception: ${error.message}`,
 		);
 		console.error(error.stack);
 	});
@@ -1021,7 +1320,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
 			`[${new Date().toISOString()}] ERROR [claude-flow-mcp] Unhandled rejection at:`,
 			promise,
 			"reason:",
-			reason
+			reason,
 		);
 	});
 }

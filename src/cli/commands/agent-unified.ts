@@ -64,7 +64,7 @@ async function initializeAgentSystem(): Promise<{
 				cacheTtl: 300000,
 			},
 			logger,
-			eventBus
+			eventBus,
 		);
 
 		await memorySystem.initialize();
@@ -87,7 +87,7 @@ async function initializeAgentSystem(): Promise<{
 			},
 			logger,
 			eventBus,
-			memorySystem
+			memorySystem,
 		);
 
 		await agentManager.initialize();
@@ -95,7 +95,7 @@ async function initializeAgentSystem(): Promise<{
 		return { manager: agentManager, registry: agentRegistry };
 	} catch (error) {
 		throw new Error(
-			`Failed to initialize agent system: ${error instanceof Error ? error.message : String(error)}`
+			`Failed to initialize agent system: ${error instanceof Error ? error.message : String(error)}`,
 		);
 	}
 }
@@ -128,7 +128,7 @@ function formatAgentData(agent: any, detailed: boolean = false): any {
 export const agentCommands = {
 	async spawn(
 		args: string[],
-		options: Record<string, any> = {}
+		options: Record<string, any> = {},
 	): Promise<void> {
 		try {
 			const { manager } = await initializeAgentSystem();
@@ -159,7 +159,7 @@ export const agentCommands = {
 		} catch (error) {
 			console.error(
 				"❌ Error creating agent:",
-				error instanceof Error ? error.message : String(error)
+				error instanceof Error ? error.message : String(error),
 			);
 		}
 	},
@@ -209,8 +209,8 @@ export const agentCommands = {
 					JSON.stringify(
 						agents.map((a) => formatAgentData(a, options.detailed)),
 						null,
-						2
-					)
+						2,
+					),
 				);
 				return;
 			}
@@ -267,14 +267,14 @@ export const agentCommands = {
 		} catch (error) {
 			console.error(
 				"❌ Error listing agents:",
-				error instanceof Error ? error.message : String(error)
+				error instanceof Error ? error.message : String(error),
 			);
 		}
 	},
 
 	async terminate(
 		args: string[],
-		options: Record<string, any> = {}
+		options: Record<string, any> = {},
 	): Promise<void> {
 		try {
 			const { manager } = await initializeAgentSystem();
@@ -310,7 +310,7 @@ export const agentCommands = {
 		} catch (error) {
 			console.error(
 				"❌ Error terminating agent:",
-				error instanceof Error ? error.message : String(error)
+				error instanceof Error ? error.message : String(error),
 			);
 		}
 	},
@@ -341,7 +341,7 @@ export const agentCommands = {
 			console.log(`${chalk.bold("Status:")} ${agent.status}`);
 			console.log(`${chalk.bold("Health:")} ${formatPercentage(agent.health)}`);
 			console.log(
-				`${chalk.bold("Workload:")} ${formatPercentage(agent.workload)}`
+				`${chalk.bold("Workload:")} ${formatPercentage(agent.workload)}`,
 			);
 
 			// Detailed info if requested
@@ -382,14 +382,14 @@ export const agentCommands = {
 		} catch (error) {
 			console.error(
 				"❌ Error getting agent info:",
-				error instanceof Error ? error.message : String(error)
+				error instanceof Error ? error.message : String(error),
 			);
 		}
 	},
 
 	async health(
 		args: string[],
-		options: Record<string, any> = {}
+		options: Record<string, any> = {},
 	): Promise<void> {
 		try {
 			const { manager } = await initializeAgentSystem();
@@ -418,18 +418,18 @@ export const agentCommands = {
 
 			console.log(
 				`${chalk.green("✅ Healthy:")} ${healthy.length} agents (${formatPercentage(
-					healthy.length / agents.length
-				)})`
+					healthy.length / agents.length,
+				)})`,
 			);
 			console.log(
 				`${chalk.yellow("⚠️  Warning:")} ${warning.length} agents (${formatPercentage(
-					warning.length / agents.length
-				)})`
+					warning.length / agents.length,
+				)})`,
 			);
 			console.log(
 				`${chalk.red("❌ Critical:")} ${critical.length} agents (${formatPercentage(
-					critical.length / agents.length
-				)})`
+					critical.length / agents.length,
+				)})`,
 			);
 
 			if (warning.length > 0 || critical.length > 0) {
@@ -439,8 +439,8 @@ export const agentCommands = {
 						agent.healthStatus === "critical" ? chalk.red : chalk.yellow;
 					console.log(
 						`${color("•")} ${agent.name} (${agent.id}): ${formatPercentage(
-							agent.health
-						)} health`
+							agent.health,
+						)} health`,
 					);
 				});
 			}
@@ -448,12 +448,12 @@ export const agentCommands = {
 			const avgHealth =
 				agents.reduce((sum, a) => sum + a.health, 0) / agents.length;
 			console.log(
-				`\n${chalk.bold("Average Health:")} ${formatPercentage(avgHealth)}`
+				`\n${chalk.bold("Average Health:")} ${formatPercentage(avgHealth)}`,
 			);
 		} catch (error) {
 			console.error(
 				"❌ Error checking agent health:",
-				error instanceof Error ? error.message : String(error)
+				error instanceof Error ? error.message : String(error),
 			);
 		}
 	},
@@ -463,23 +463,23 @@ export const agentCommands = {
 export function createAgentCommand(): Command {
 	const agentCommand = new Command("agent")
 		.description(
-			"Comprehensive Claude-Flow agent management with advanced features"
+			"Comprehensive Claude-Flow agent management with advanced features",
 		)
 		.action(() => {
 			console.log(chalk.cyan("🤖 Claude-Flow Agent Management System"));
 			console.log("");
 			console.log("Available commands:");
 			console.log(
-				"  spawn    - Create and start new agents with advanced configuration"
+				"  spawn    - Create and start new agents with advanced configuration",
 			);
 			console.log(
-				"  list     - Display all agents with status, metrics, and resource usage"
+				"  list     - Display all agents with status, metrics, and resource usage",
 			);
 			console.log(
-				"  info     - Get detailed information about a specific agent"
+				"  info     - Get detailed information about a specific agent",
 			);
 			console.log(
-				"  terminate - Safely terminate agents with cleanup and state preservation"
+				"  terminate - Safely terminate agents with cleanup and state preservation",
 			);
 			console.log("  health   - Monitor agent health and performance metrics");
 			console.log("");
@@ -511,7 +511,7 @@ export function createAgentCommand(): Command {
 		.option(
 			"--sort <field>",
 			"Sort by field (name, type, status, health, workload)",
-			"name"
+			"name",
 		)
 		.action(async (options: any) => {
 			await agentCommands.list([], options);
@@ -557,7 +557,7 @@ export const agentCommand = createAgentCommand();
 // Create a proper handler function for the command registry (matching agent.js pattern)
 export async function agentHandler(
 	subArgs: string[],
-	flags: Record<string, any>
+	flags: Record<string, any>,
 ): Promise<void> {
 	const agentCmd = subArgs[0];
 
@@ -649,12 +649,12 @@ Use --help with any command for detailed options.
 		}
 	} catch (error) {
 		console.error(
-			`❌ Agent command failed: ${error instanceof Error ? error.message : String(error)}`
+			`❌ Agent command failed: ${error instanceof Error ? error.message : String(error)}`,
 		);
 	}
 }
 
-// Export individual functions for simple-cli.ts usage
+// Export individual functions for unified CLI usage
 export const {
 	spawn: spawnAgent,
 	list: listAgents,

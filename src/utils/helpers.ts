@@ -1,4 +1,4 @@
-import { getErrorMessage as _getErrorMessage } from "../utils/error-handler.js";
+// import { getErrorMessage as _getErrorMessage } from "../utils/error-handler.js";
 
 /**
  * Utility helper functions for Claude-Flow
@@ -6,6 +6,7 @@ import { getErrorMessage as _getErrorMessage } from "../utils/error-handler.js";
 
 import { exec } from "child_process";
 import { promisify } from "util";
+import { debugLogger } from "./debug-logger.js";
 
 // Utility helper functions
 
@@ -43,7 +44,7 @@ export function generateId(prefix?: string): string {
 export function timeout<T>(
 	promise: Promise<T>,
 	ms: number,
-	message?: string
+	message?: string,
 ): Promise<T> {
 	let timeoutId: ReturnType<typeof setTimeout> | undefined;
 	let completed = false;
@@ -71,7 +72,7 @@ export function timeout<T>(
 				clearTimeout(timeoutId);
 			}
 			throw error;
-		}
+		},
 	);
 
 	return Promise.race([wrappedPromise, timeoutPromise]);
@@ -95,7 +96,7 @@ export async function retry<T>(
 		maxDelay?: number;
 		factor?: number;
 		onRetry?: (attempt: number, error: Error) => void;
-	} = {}
+	} = {},
 ): Promise<T> {
 	const {
 		maxAttempts = 3,
@@ -135,7 +136,7 @@ export async function retry<T>(
  */
 export function debounce<T extends (...args: unknown[]) => unknown>(
 	fn: T,
-	delayMs: number
+	delayMs: number,
 ): (...args: Parameters<T>) => void {
 	let timeoutId: ReturnType<typeof setTimeout> | undefined;
 
@@ -156,7 +157,7 @@ export function debounce<T extends (...args: unknown[]) => unknown>(
  */
 export function throttle<T extends (...args: unknown[]) => unknown>(
 	fn: T,
-	limitMs: number
+	limitMs: number,
 ): (...args: Parameters<T>) => void {
 	let inThrottle = false;
 	let lastArgs: Parameters<T> | null = null;
@@ -244,7 +245,7 @@ export function deepMerge<T extends Record<string, unknown>>(
 			if (isObject(resultValue) && isObject(sourceValue)) {
 				result[key] = deepMerge(
 					resultValue as Record<string, unknown>,
-					sourceValue as Record<string, unknown>
+					sourceValue as Record<string, unknown>,
 				) as T[Extract<keyof T, string>];
 			} else {
 				result[key] = sourceValue as T[Extract<keyof T, string>];
@@ -366,7 +367,7 @@ export function ensureArray<T>(value: T | T[]): T[] {
  */
 export function groupBy<T, K extends string | number | symbol>(
 	items: T[],
-	keyFn: (item: T) => K
+	keyFn: (item: T) => K,
 ): Record<K, T[]> {
 	return items.reduce(
 		(groups, item) => {
@@ -377,7 +378,7 @@ export function groupBy<T, K extends string | number | symbol>(
 			groups[key].push(item);
 			return groups;
 		},
-		{} as Record<K, T[]>
+		{} as Record<K, T[]>,
 	);
 }
 
@@ -444,7 +445,7 @@ export interface CircuitBreaker {
 export function calculator(
 	a: number,
 	b: number,
-	operation: "+" | "-" | "*" | "/" | "^" | "%"
+	operation: "+" | "-" | "*" | "/" | "^" | "%",
 ): number {
 	switch (operation) {
 		case "+":
@@ -475,7 +476,7 @@ export function calculator(
  */
 export function circuitBreaker(
 	name: string,
-	options: CircuitBreakerOptions
+	options: CircuitBreakerOptions,
 ): CircuitBreaker {
 	const state: CircuitBreakerState = {
 		failureCount: 0,
@@ -546,7 +547,7 @@ export function greeting(
 		timeOfDay?: boolean;
 		formal?: boolean;
 		locale?: "en" | "es" | "fr" | "de" | "it" | "pt" | "ja" | "zh";
-	}
+	},
 ): string {
 	const opts = {
 		timeOfDay: false,

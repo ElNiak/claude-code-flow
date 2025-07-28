@@ -5,463 +5,462 @@
 
 export class MCPToolsRegistry {
 	constructor() {
-		this.tools = this.initializeAllTools();
-		this.categories = this.getToolCategories();
+		// Import debug logger
+		const { debugLogger } = require("../utils/debug-logger.js");
+		this.debugLogger = debugLogger;
+
+		const correlationId = this.debugLogger.logFunctionEntry(
+			"MCPToolsRegistry",
+			"constructor",
+			[],
+			"mcp-registry",
+		);
+
+		try {
+			this.tools = new Map();
+			this.debugLogger.logEvent(
+				"MCPToolsRegistry",
+				"tools-registry-initialized",
+				{ toolsCount: this.tools.size },
+				"mcp-registry",
+			);
+			this.debugLogger.logFunctionExit(
+				correlationId,
+				{ success: true },
+				"mcp-registry",
+			);
+		} catch (error) {
+			this.debugLogger.logFunctionError(correlationId, error, "mcp-registry");
+			throw error;
+		}
 	}
 
 	initializeAllTools() {
-		return {
-      // 🐝 Swarm Coordination Tools (12)
-      swarm_init: {,
-        name: "swarm_init",
-        description: "Initialize swarm with topology and configuration",
-        category: "swarm",
-        inputSchema: {,
-          type: "object",
-          properties: {,
-            topology: {,
-              type: "string",
-              enum: ["hierarchical", "mesh", "ring", "star"],
-              description: "Swarm coordination topology"},
-            maxAgents: { ,
-              type: "number",
-              default: 8,
-              minimum: 1,
-              maximum: 50,
-              description: "Maximum number of agents in swarm"},
-            strategy: { ,
-              type: "string",
-              default: "auto",
-              enum: ["auto", "performance", "balanced", "resource-efficient"],
-              description: "Coordination strategy"}},
-          required: ["topology"]}},
+		const correlationId = this.debugLogger.logFunctionEntry(
+			"MCPToolsRegistry",
+			"initializeAllTools",
+			[],
+			"mcp-registry",
+		);
 
-      agent_spawn: {,
-        name: "agent_spawn",
-        description: "Create specialized AI agents",
-        category: "swarm",
-        inputSchema: {,
-          type: "object",
-          properties: {,
-            type: {,
-              type: "string",
-              enum: [,
-                "coordinator", "researcher", "coder", "analyst", "architect",
-                "tester", "reviewer", "optimizer", "documenter", "monitor", "specialist"],
-              description: "Type of agent to spawn"},
-            name: { type: "string", description: "Custom name for the agent" },
-            capabilities: { ,
-              type: "array",
-              items: { type: "string" },
-              description: "Specific capabilities for the agent"},
-            swarmId: { type: "string", description: "ID of swarm to join" }},
-          required: ["type"]}},
+		try {
+			this.debugLogger.logEvent(
+				"MCPToolsRegistry",
+				"tools-initialization-start",
+				{},
+				"mcp-registry",
+			);
 
-      task_orchestrate: {,
-        name: "task_orchestrate",
-        description: "Orchestrate complex task workflows",
-        category: "swarm",
-        inputSchema: {,
-          type: "object",
-          properties: {,
-            task: { type: "string", description: "Task description" },
-            strategy: {,
-              type: "string",
-              enum: ["parallel", "sequential", "adaptive", "balanced"],
-              default: "adaptive",
-              description: "Execution strategy"},
-            priority: {,
-              type: "string",
-              enum: ["low", "medium", "high", "critical"],
-              default: "medium",
-              description: "Task priority level"},
-            dependencies: { ,
-              type: "array",
-              items: { type: "string" },
-              description: "Task dependencies"}},
-          required: ["task"]}},
+			// Swarm Coordination Tools
+			this.tools.set("swarm_init", {
+				name: "swarm_init",
+				description:
+					"Initialize a swarm coordination topology for enhanced parallel processing",
+				inputSchema: {
+					type: "object",
+					properties: {
+						topology: {
+							type: "string",
+							enum: ["mesh", "hierarchical", "ring", "star"],
+							description: "Swarm coordination topology",
+						},
+						maxAgents: {
+							type: "number",
+							minimum: 1,
+							maximum: 50,
+							description: "Maximum number of agents in the swarm",
+						},
+						strategy: {
+							type: "string",
+							enum: ["balanced", "specialized", "adaptive", "parallel"],
+							description: "Coordination strategy",
+						},
+					},
+					required: ["topology"],
+				},
+				category: "coordination",
+			});
 
-      swarm_status: {,
-        name: "swarm_status",
-        description: "Monitor swarm health and performance",
-        category: "swarm",
-        inputSchema: {,
-          type: "object",
-          properties: {,
-            swarmId: { type: "string", description: "Specific swarm ID to check" }}}},
+			this.tools.set("agent_spawn", {
+				name: "agent_spawn",
+				description: "Spawn specialized agents for coordinated task execution",
+				inputSchema: {
+					type: "object",
+					properties: {
+						type: {
+							type: "string",
+							enum: [
+								"coordinator",
+								"researcher",
+								"coder",
+								"analyst",
+								"tester",
+								"reviewer",
+								"architect",
+								"optimizer",
+							],
+							description: "Type of agent to spawn",
+						},
+						name: {
+							type: "string",
+							description: "Human-readable name for the agent",
+						},
+						capabilities: {
+							type: "array",
+							items: { type: "string" },
+							description: "List of agent capabilities",
+						},
+						swarmId: {
+							type: "string",
+							description: "ID of the swarm to join",
+						},
+					},
+					required: ["type"],
+				},
+				category: "coordination",
+			});
 
-      agent_list: {,
-        name: "agent_list",
-        description: "List active agents & capabilities",
-        category: "swarm",
-        inputSchema: {,
-          type: "object",
-          properties: {,
-            swarmId: { type: "string", description: "Filter by swarm ID" }}}},
+			this.tools.set("task_orchestrate", {
+				name: "task_orchestrate",
+				description: "Orchestrate complex tasks across coordinated agents",
+				inputSchema: {
+					type: "object",
+					properties: {
+						task: {
+							type: "string",
+							description: "Main task description",
+						},
+						strategy: {
+							type: "string",
+							enum: ["parallel", "sequential", "adaptive", "pipeline"],
+							description: "Task execution strategy",
+						},
+						agents: {
+							type: "array",
+							items: { type: "string" },
+							description: "List of agent IDs to involve",
+						},
+						priority: {
+							type: "string",
+							enum: ["low", "medium", "high", "critical"],
+							description: "Task priority level",
+						},
+					},
+					required: ["task"],
+				},
+				category: "coordination",
+			});
 
-      agent_metrics: {,
-        name: "agent_metrics",
-        description: "Agent performance metrics",
-        category: "swarm",
-        inputSchema: {,
-          type: "object",
-          properties: {,
-            agentId: { type: "string", description: "Specific agent ID" }}}},
+			// Memory and Neural Tools
+			this.tools.set("memory_usage", {
+				name: "memory_usage",
+				description:
+					"Advanced memory operations for persistent coordination context",
+				inputSchema: {
+					type: "object",
+					properties: {
+						action: {
+							type: "string",
+							enum: [
+								"store",
+								"retrieve",
+								"delete",
+								"list",
+								"search",
+								"clear",
+								"stats",
+							],
+							description: "Memory operation to perform",
+						},
+						key: {
+							type: "string",
+							description: "Memory key for store/retrieve/delete operations",
+						},
+						value: {
+							description: "Value to store (any type)",
+						},
+						pattern: {
+							type: "string",
+							description: "Search pattern for search operations",
+						},
+					},
+					required: ["action"],
+				},
+				category: "memory",
+			});
 
-      swarm_monitor: {,
-        name: "swarm_monitor",
-        description: "Real-time swarm monitoring",
-        category: "swarm",
-        inputSchema: {,
-          type: "object",
-          properties: {,
-            swarmId: { type: "string", description: "Swarm to monitor" },
-            interval: { type: "number", default: 5000, description: "Monitor interval in ms" }}}},
+			this.tools.set("memory_search", {
+				name: "memory_search",
+				description:
+					"Advanced search across memory store with pattern matching",
+				inputSchema: {
+					type: "object",
+					properties: {
+						pattern: {
+							type: "string",
+							description: "Search pattern (regex supported)",
+						},
+						limit: {
+							type: "number",
+							minimum: 1,
+							maximum: 100,
+							description: "Maximum results to return",
+						},
+						sortBy: {
+							type: "string",
+							enum: ["timestamp", "key", "relevance"],
+							description: "Sort results by field",
+						},
+					},
+					required: ["pattern"],
+				},
+				category: "memory",
+			});
 
-      topology_optimize: {,
-        name: "topology_optimize",
-        description: "Auto-optimize swarm topology",
-        category: "swarm",
-        inputSchema: {,
-          type: "object",
-          properties: {,
-            swarmId: { type: "string", description: "Swarm to optimize" }}}},
+			// Status and Monitoring Tools
+			this.tools.set("swarm_status", {
+				name: "swarm_status",
+				description: "Get comprehensive status of swarm coordination",
+				inputSchema: {
+					type: "object",
+					properties: {
+						swarmId: {
+							type: "string",
+							description: "Specific swarm ID to check",
+						},
+						includeMetrics: {
+							type: "boolean",
+							description: "Include performance metrics",
+						},
+					},
+				},
+				category: "monitoring",
+			});
 
-      load_balance: {,
-        name: "load_balance",
-        description: "Distribute tasks efficiently",
-        category: "swarm",
-        inputSchema: {,
-          type: "object",
-          properties: {,
-            swarmId: { type: "string", description: "Target swarm" },
-            tasks: { type: "array", items: { type: "object" }, description: "Tasks to distribute" }}}},
+			this.tools.set("agent_list", {
+				name: "agent_list",
+				description: "List all active agents with their status",
+				inputSchema: {
+					type: "object",
+					properties: {
+						swarmId: {
+							type: "string",
+							description: "Filter by swarm ID",
+						},
+						type: {
+							type: "string",
+							description: "Filter by agent type",
+						},
+						status: {
+							type: "string",
+							enum: ["active", "idle", "busy", "error"],
+							description: "Filter by agent status",
+						},
+					},
+				},
+				category: "monitoring",
+			});
 
-      coordination_sync: {,
-        name: "coordination_sync",
-        description: "Sync agent coordination",
-        category: "swarm",
-        inputSchema: {,
-          type: "object",
-          properties: {,
-            swarmId: { type: "string", description: "Swarm to sync" }}}},
+			this.tools.set("agent_metrics", {
+				name: "agent_metrics",
+				description: "Get detailed performance metrics for agents",
+				inputSchema: {
+					type: "object",
+					properties: {
+						agentId: {
+							type: "string",
+							description: "Specific agent ID for metrics",
+						},
+						timeRange: {
+							type: "string",
+							enum: ["1h", "6h", "24h", "7d"],
+							description: "Time range for metrics",
+						},
+					},
+				},
+				category: "monitoring",
+			});
 
-      swarm_scale: {,
-        name: "swarm_scale",
-        description: "Auto-scale agent count",
-        category: "swarm",
-        inputSchema: {,
-          type: "object",
-          properties: {,
-            swarmId: { type: "string", description: "Target swarm" },
-            targetSize: { type: "number", minimum: 1, maximum: 50, description: "Target agent count" }}}},
+			// Task Management Tools
+			this.tools.set("task_status", {
+				name: "task_status",
+				description: "Get status of orchestrated tasks",
+				inputSchema: {
+					type: "object",
+					properties: {
+						taskId: {
+							type: "string",
+							description: "Specific task ID to check",
+						},
+						includeHistory: {
+							type: "boolean",
+							description: "Include task execution history",
+						},
+					},
+				},
+				category: "tasks",
+			});
 
-      swarm_destroy: {,
-        name: "swarm_destroy",
-        description: "Gracefully shutdown swarm",
-        category: "swarm",
-        inputSchema: {,
-          type: "object",
-          properties: {,
-            swarmId: { type: "string", description: "Swarm to destroy" }},
-          required: ["swarmId"]}},
+			this.tools.set("task_results", {
+				name: "task_results",
+				description: "Retrieve results from completed tasks",
+				inputSchema: {
+					type: "object",
+					properties: {
+						taskId: {
+							type: "string",
+							description: "Task ID to get results for",
+						},
+						format: {
+							type: "string",
+							enum: ["json", "text", "summary"],
+							description: "Result format",
+						},
+					},
+					required: ["taskId"],
+				},
+				category: "tasks",
+			});
 
-      // 🧠 Neural Network Tools (15)
-      neural_status: {,
-        name: "neural_status",
-        description: "Check neural network status",
-        category: "neural",
-        inputSchema: {,
-          type: "object",
-          properties: {,
-            modelId: { type: "string", description: "Model to check" }}}},
+			// Neural and Learning Tools
+			this.tools.set("neural_status", {
+				name: "neural_status",
+				description: "Get status of neural learning patterns",
+				inputSchema: {
+					type: "object",
+					properties: {
+						includePatterns: {
+							type: "boolean",
+							description: "Include learned patterns",
+						},
+					},
+				},
+				category: "neural",
+			});
 
-      neural_train: {,
-        name: "neural_train",
-        description: "Train neural patterns with WASM SIMD acceleration",
-        category: "neural",
-        inputSchema: {,
-          type: "object",
-          properties: {,
-            pattern_type: {,
-              type: "string",
-              enum: ["coordination", "optimization", "prediction"],
-              description: "Type of pattern to train"},
-            training_data: { type: "string", description: "Training data source" },
-            epochs: { type: "number", default: 50, minimum: 1, maximum: 1000, description: "Training epochs" }},
-          required: ["pattern_type", "training_data"]}},
+			this.tools.set("neural_train", {
+				name: "neural_train",
+				description: "Train neural patterns from execution data",
+				inputSchema: {
+					type: "object",
+					properties: {
+						data: {
+							type: "object",
+							description: "Training data for neural patterns",
+						},
+						method: {
+							type: "string",
+							enum: ["supervised", "unsupervised", "reinforcement"],
+							description: "Training method",
+						},
+					},
+					required: ["data"],
+				},
+				category: "neural",
+			});
 
-      neural_patterns: {,
-        name: "neural_patterns",
-        description: "Analyze cognitive patterns",
-        category: "neural",
-        inputSchema: {,
-          type: "object",
-          properties: {,
-            action: {,
-              type: "string",
-              enum: ["analyze", "learn", "predict"],
-              description: "Pattern action"},
-            operation: { type: "string", description: "Operation to analyze" },
-            outcome: { type: "string", description: "Operation outcome" },
-            metadata: { type: "object", description: "Additional metadata" }},
-          required: ["action"]}},
+			this.tools.set("neural_patterns", {
+				name: "neural_patterns",
+				description: "Analyze and retrieve learned neural patterns",
+				inputSchema: {
+					type: "object",
+					properties: {
+						category: {
+							type: "string",
+							description: "Pattern category to filter",
+						},
+						confidence: {
+							type: "number",
+							minimum: 0,
+							maximum: 1,
+							description: "Minimum confidence threshold",
+						},
+					},
+				},
+				category: "neural",
+			});
 
-      neural_predict: {,
-        name: "neural_predict",
-        description: "Make AI predictions",
-        category: "neural",
-        inputSchema: {,
-          type: "object",
-          properties: {,
-            modelId: { type: "string", description: "Model to use for prediction" },
-            input: { type: "string", description: "Input data for prediction" }},
-          required: ["modelId", "input"]}},
+			// Performance and Benchmarking Tools
+			this.tools.set("benchmark_run", {
+				name: "benchmark_run",
+				description: "Run performance benchmarks on coordination system",
+				inputSchema: {
+					type: "object",
+					properties: {
+						type: {
+							type: "string",
+							enum: ["coordination", "memory", "neural", "full"],
+							description: "Benchmark type to run",
+						},
+						duration: {
+							type: "number",
+							minimum: 1,
+							maximum: 300,
+							description: "Benchmark duration in seconds",
+						},
+					},
+					required: ["type"],
+				},
+				category: "performance",
+			});
 
-      // 💾 Memory & Persistence Tools (12)
-      memory_usage: {,
-        name: "memory_usage",
-        description: "Store/retrieve persistent memory with TTL and namespacing",
-        category: "memory",
-        inputSchema: {,
-          type: "object",
-          properties: {,
-            action: {,
-              type: "string",
-              enum: ["store", "retrieve", "list", "delete", "search"],
-              description: "Memory action to perform"},
-            key: { type: "string", description: "Memory key" },
-            value: { type: "string", description: "Value to store" },
-            namespace: { type: "string", default: "default", description: "Memory namespace" },
-            ttl: { type: "number", description: "Time to live in milliseconds" }},
-          required: ["action"]}},
+			this.tools.set("features_detect", {
+				name: "features_detect",
+				description: "Detect available system features and capabilities",
+				inputSchema: {
+					type: "object",
+					properties: {
+						category: {
+							type: "string",
+							enum: ["coordination", "memory", "neural", "performance", "all"],
+							description: "Feature category to detect",
+						},
+					},
+				},
+				category: "system",
+			});
 
-      memory_search: {,
-        name: "memory_search",
-        description: "Search memory with patterns",
-        category: "memory",
-        inputSchema: {,
-          type: "object",
-          properties: {,
-            pattern: { type: "string", description: "Search pattern" },
-            namespace: { type: "string", description: "Search namespace" },
-            limit: { type: "number", default: 10, minimum: 1, maximum: 100, description: "Result limit" }},
-          required: ["pattern"]}},
+			this.tools.set("swarm_monitor", {
+				name: "swarm_monitor",
+				description: "Real-time monitoring of swarm coordination",
+				inputSchema: {
+					type: "object",
+					properties: {
+						interval: {
+							type: "number",
+							minimum: 1,
+							maximum: 60,
+							description: "Monitoring interval in seconds",
+						},
+						metrics: {
+							type: "array",
+							items: { type: "string" },
+							description: "Specific metrics to monitor",
+						},
+					},
+				},
+				category: "monitoring",
+			});
 
-      // 📊 Analysis & Monitoring Tools (13)
-      performance_report: {,
-        name: "performance_report",
-        description: "Generate performance reports with real-time metrics",
-        category: "analysis",
-        inputSchema: {,
-          type: "object",
-          properties: {,
-            timeframe: {,
-              type: "string",
-              enum: ["24h", "7d", "30d"],
-              default: "24h",
-              description: "Analysis timeframe"},
-            format: {,
-              type: "string",
-              enum: ["summary", "detailed", "json"],
-              default: "summary",
-              description: "Report format"}}}},
+			this.debugLogger.logEvent(
+				"MCPToolsRegistry",
+				"tools-initialization-complete",
+				{
+					totalTools: this.tools.size,
+					categories: this.getToolCategories(),
+				},
+				"mcp-registry",
+			);
 
-      bottleneck_analyze: {,
-        name: "bottleneck_analyze",
-        description: "Identify performance bottlenecks",
-        category: "analysis",
-        inputSchema: {,
-          type: "object",
-          properties: {,
-            component: { type: "string", description: "Component to analyze" },
-            metrics: { type: "array", items: { type: "string" }, description: "Metrics to analyze" }}}},
-
-      token_usage: {,
-        name: "token_usage",
-        description: "Analyze token consumption",
-        category: "analysis",
-        inputSchema: {,
-          type: "object",
-          properties: {,
-            operation: { type: "string", description: "Operation to analyze" },
-            timeframe: { type: "string", default: "24h", description: "Analysis timeframe" }}}},
-
-      // 🔄 Workflow & Automation Tools (11)
-      workflow_create: {,
-        name: "workflow_create",
-        description: "Create custom workflows",
-        category: "workflow",
-        inputSchema: {,
-          type: "object",
-          properties: {,
-            name: { type: "string", description: "Workflow name" },
-            steps: { type: "array", items: { type: "object" }, description: "Workflow steps" },
-            triggers: { type: "array", items: { type: "object" }, description: "Workflow triggers" }},
-          required: ["name", "steps"]}},
-
-      sparc_mode: {,
-        name: "sparc_mode",
-        description: "Run SPARC development modes",
-        category: "workflow",
-        inputSchema: {,
-          type: "object",
-          properties: {,
-            mode: {,
-              type: "string",
-              enum: ["dev", "api", "ui", "test", "refactor"],
-              description: "SPARC mode to run"},
-            task_description: { type: "string", description: "Task description" },
-            options: { type: "object", description: "Mode options" }},
-          required: ["mode", "task_description"]}},
-
-      // 🐙 GitHub Integration Tools (8)
-      github_repo_analyze: {,
-        name: "github_repo_analyze",
-        description: "Repository analysis",
-        category: "github",
-        inputSchema: {,
-          type: "object",
-          properties: {,
-            repo: { type: "string", description: "Repository to analyze" },
-            analysis_type: {,
-              type: "string",
-              enum: ["code_quality", "performance", "security"],
-              description: "Type of analysis"}},
-          required: ["repo"]}},
-
-      github_pr_manage: {,
-        name: "github_pr_manage",
-        description: "Pull request management",
-        category: "github",
-        inputSchema: {,
-          type: "object",
-          properties: {,
-            repo: { type: "string", description: "Repository name" },
-            action: {,
-              type: "string",
-              enum: ["review", "merge", "close"],
-              description: "PR action"},
-            pr_number: { type: "number", description: "Pull request number" }},
-          required: ["repo", "action"]}},
-
-      // 🏗️ DAA (Dynamic Agent Architecture) Tools (8)
-      daa_agent_create: {,
-        name: "daa_agent_create",
-        description: "Create dynamic agents",
-        category: "daa",
-        inputSchema: {,
-          type: "object",
-          properties: {,
-            agent_type: { type: "string", description: "Type of agent to create" },
-            capabilities: { type: "array", items: { type: "string" }, description: "Agent capabilities" },
-            resources: { type: "object", description: "Resource requirements" }},
-          required: ["agent_type"]}},
-
-      daa_capability_match: {,
-        name: "daa_capability_match",
-        description: "Match capabilities to tasks",
-        category: "daa",
-        inputSchema: {,
-          type: "object",
-          properties: {,
-            task_requirements: { type: "array", items: { type: "string" }, description: "Task requirements" },
-            available_agents: { type: "array", items: { type: "object" }, description: "Available agents" }},
-          required: ["task_requirements"]}},
-
-      // 🛠️ System & Utilities Tools (8)
-      terminal_execute: {,
-        name: "terminal_execute",
-        description: "Execute terminal commands",
-        category: "system",
-        inputSchema: {,
-          type: "object",
-          properties: {,
-            command: { type: "string", description: "Command to execute" },
-            args: { type: "array", items: { type: "string" }, description: "Command arguments" }},
-          required: ["command"]}},
-
-      config_manage: {,
-        name: "config_manage",
-        description: "Configuration management",
-        category: "system",
-        inputSchema: {,
-          type: "object",
-          properties: {,
-            action: { type: "string", enum: ["get", "set", "list", "reset"], description: "Config action" },
-            config: { type: "object", description: "Configuration data" }},
-          required: ["action"]}},
-
-      features_detect: {,
-        name: "features_detect",
-        description: "Feature detection",
-        category: "system",
-        inputSchema: {,
-          type: "object",
-          properties: {,
-            component: { type: "string", description: "Component to detect features for" }}}},
-
-      security_scan: {,
-        name: "security_scan",
-        description: "Security scanning",
-        category: "system",
-        inputSchema: {,
-          type: "object",
-          properties: {,
-            target: { type: "string", description: "Target to scan" },
-            depth: { type: "string", enum: ["basic", "detailed", "comprehensive"], description: "Scan depth" }},
-          required: ["target"]}},
-
-      health_check: {,
-        name: "health_check",
-        description: "System health monitoring",
-        category: "system",
-        inputSchema: {,
-          type: "object",
-          properties: {,
-            components: { type: "array", items: { type: "string" }, description: "Components to check" }}}},
-
-      // 🔍 Serena Integration Tools (3)
-      serena_find_symbol: {,
-        name: "serena_find_symbol",
-        description: "Find symbol in project using Serena semantic analysis",
-        category: "serena",
-        inputSchema: {,
-          type: "object",
-          properties: {,
-            symbol_name: { type: "string", description: "Symbol name to search for" },
-            project_path: { type: "string", default: process.cwd(), description: "Project path to search in" },
-            file_types: { ,
-              type: "array",
-              items: { type: "string" },
-              default: ["js", "ts", "jsx", "tsx"],
-              description: "File types to include in search"}},
-          required: ["symbol_name"]}},
-
-      serena_symbols_overview: {,
-        name: "serena_symbols_overview",
-        description: "Get project symbols overview using Serena analysis",
-        category: "serena",
-        inputSchema: {,
-          type: "object",
-          properties: {,
-            project_path: { type: "string", default: process.cwd(), description: "Project path to analyze" },
-            include_dependencies: { type: "boolean", default: false, description: "Include node_modules analysis" }}}},
-
-      serena_read_file: {,
-        name: "serena_read_file",
-        description: "Read and analyze file with Serena semantic understanding",
-        category: "serena",
-        inputSchema: {,
-          type: "object",
-          properties: {,
-            file_path: { type: "string", description: "Path to file to read and analyze" },
-            analysis_depth: { ,
-              type: "string",
-              enum: ["basic", "detailed", "full"],
-              default: "basic",
-              description: "Analysis depth"}},
-          required: ["file_path"]}}};
+			this.debugLogger.logFunctionExit(
+				correlationId,
+				{ toolsCount: this.tools.size },
+				"mcp-registry",
+			);
+		} catch (error) {
+			this.debugLogger.logFunctionError(correlationId, error, "mcp-registry");
+			throw error;
+		}
 	}
 
 	getToolCategories() {
@@ -480,35 +479,125 @@ export class MCPToolsRegistry {
 
 	getToolsByCategory(category) {
 		return Object.values(this.tools).filter(
-			(tool) => tool.category === category
+			(tool) => tool.category === category,
 		);
 	}
 
 	getTool(name) {
-		return this.tools[name];
+		const correlationId = this.debugLogger.logFunctionEntry(
+			"MCPToolsRegistry",
+			"getTool",
+			[name],
+			"mcp-registry",
+		);
+
+		try {
+			const tool = this.tools.get(name);
+			this.debugLogger.logEvent(
+				"MCPToolsRegistry",
+				"tool-lookup",
+				{
+					toolName: name,
+					found: !!tool,
+					totalTools: this.tools.size,
+				},
+				"mcp-registry",
+			);
+
+			this.debugLogger.logFunctionExit(
+				correlationId,
+				{ found: !!tool },
+				"mcp-registry",
+			);
+			return tool;
+		} catch (error) {
+			this.debugLogger.logFunctionError(correlationId, error, "mcp-registry");
+			throw error;
+		}
 	}
 
 	getAllTools() {
 		return this.tools;
 	}
 
-	validateToolInput(toolName, input) {
-		const _tool = this.getTool(toolName);
-		if (!tool) {
-			throw new Error(`Unknown tool: ${toolName}`);
-		}
+	validateToolInput(toolName, args) {
+		const correlationId = this.debugLogger.logFunctionEntry(
+			"MCPToolsRegistry",
+			"validateToolInput",
+			[toolName, args],
+			"mcp-registry",
+		);
 
-		// Basic validation - could be enhanced with JSON schema validator
-		const _schema = tool.inputSchema;
-		if (schema.required) {
-			for (const required of schema.required) {
-				if (!(required in input)) {
-					throw new Error(`Missing required parameter: ${required}`);
+		try {
+			this.debugLogger.logEvent(
+				"MCPToolsRegistry",
+				"input-validation-start",
+				{
+					toolName,
+					hasArgs: !!args,
+					argsKeys: args ? Object.keys(args) : [],
+				},
+				"mcp-registry",
+			);
+
+			const tool = this.tools.get(toolName);
+			if (!tool) {
+				const error = new Error(`Tool '${toolName}' not found`);
+				this.debugLogger.logEvent(
+					"MCPToolsRegistry",
+					"tool-not-found-validation",
+					{ toolName },
+					"mcp-registry",
+				);
+				this.debugLogger.logFunctionError(correlationId, error, "mcp-registry");
+				throw error;
+			}
+
+			// Basic validation - could be enhanced with JSON schema validation
+			if (tool.inputSchema && tool.inputSchema.required) {
+				for (const required of tool.inputSchema.required) {
+					if (!(required in args)) {
+						const error = new Error(`Missing required parameter: ${required}`);
+						this.debugLogger.logEvent(
+							"MCPToolsRegistry",
+							"missing-required-param",
+							{
+								toolName,
+								missingParam: required,
+								providedParams: Object.keys(args || {}),
+							},
+							"mcp-registry",
+						);
+						this.debugLogger.logFunctionError(
+							correlationId,
+							error,
+							"mcp-registry",
+						);
+						throw error;
+					}
 				}
 			}
-		}
 
-		return true;
+			this.debugLogger.logEvent(
+				"MCPToolsRegistry",
+				"input-validation-success",
+				{
+					toolName,
+					validatedParams: Object.keys(args || {}),
+				},
+				"mcp-registry",
+			);
+
+			this.debugLogger.logFunctionExit(
+				correlationId,
+				{ valid: true },
+				"mcp-registry",
+			);
+			return true;
+		} catch (error) {
+			this.debugLogger.logFunctionError(correlationId, error, "mcp-registry");
+			throw error;
+		}
 	}
 
 	getToolCount() {

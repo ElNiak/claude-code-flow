@@ -6,12 +6,13 @@ import { getErrorMessage as _getErrorMessage } from "../../utils/error-handler.j
  */
 
 import chalk from "chalk";
-import type { Command, CommandContext } from "../optimized-cli-core.js";
-import { _error, info, success, warning } from "../optimized-cli-core.js";
+import type { CliCommand as Command } from "../../types/cli-types.js";
+import type { CommandContext } from "../../types/core.js";
+import { _error, info, success, warning } from "../cli-utils.js";
 
 export function createCompatibilityWrapper(
 	legacyCommand: string,
-	newCommand: string
+	newCommand: string,
 ): Command {
 	return {
 		name: `${legacyCommand}-legacy`,
@@ -38,7 +39,7 @@ Benefits of new unified system:
   ✅ Better performance and reliability,
 
 Would you like to use the new command instead? (Recommended)
-      `)
+      `),
 			);
 
 			// For now, continue with legacy behavior but show the migration notice,
@@ -47,14 +48,14 @@ Would you like to use the new command instead? (Recommended)
 			// You would implement the actual legacy command execution here
 			// For this demo, we'll just show what would happen,
 			console.log(
-				`[Legacy Mode] Executing: ${legacyCommand} with args: ${ctx.args.join(", ")}`
+				`[Legacy Mode] Executing: ${legacyCommand} with args: ${ctx.args.join(", ")}`,
 			);
 
 			success(`✅ Legacy command completed`);
 			console.log(
 				chalk.yellow(
-					`💡 Next time, try: claude-flow ${newCommand} for enhanced functionality`
-				)
+					`💡 Next time, try: claude-flow ${newCommand} for enhanced functionality`,
+				),
 			);
 		},
 	};
@@ -93,7 +94,7 @@ Benefits of unified system:
   🧠 Intrinsic agent coordination with memory hooks
   🐝 Ruv-swarm integration when available
   💾 Persistent coordination across sessions
-      `)
+      `),
 			);
 
 			switch (subcommand) {
@@ -104,7 +105,7 @@ Benefits of unified system:
 				case "spawn":
 					info("🔄 Redirecting to unified agent spawning...");
 					console.log(
-						"Recommended: claude-flow agent spawn [type] --intrinsic"
+						"Recommended: claude-flow agent spawn [type] --intrinsic",
 					);
 					break;
 				case "status":
@@ -114,7 +115,7 @@ Benefits of unified system:
 				default:
 					warning(`Unknown legacy swarm subcommand: ${subcommand}`);
 					console.log(
-						"Run 'claude-flow help' to see available unified commands"
+						"Run 'claude-flow help' to see available unified commands",
 					);
 			}
 		},
@@ -147,11 +148,11 @@ Your command will work, but consider these enhancements:
 
   Basic:    claude-flow agent list,
   Enhanced: claude-flow agent status --detailed --session-id [ID]
-      `)
+      `),
 			);
 
 			info(
-				"🔄 Executing with basic coordination (consider using enhanced features)"
+				"🔄 Executing with basic coordination (consider using enhanced features)",
 			);
 			// Continue with legacy agent behavior
 		},
@@ -187,7 +188,7 @@ Migration examples:
 
 Enhanced coordination:
   claude-flow memory-coord --action coordinate --session-id [ID]
-      `)
+      `),
 			);
 		},
 	},
@@ -258,7 +259,7 @@ BENEFITS OF MIGRATION:
 ✅ Cross-session memory persistence
 ✅ Ruv-swarm integration
 ✅ Better error handling and recovery
-  `)
+  `),
 	);
 }
 

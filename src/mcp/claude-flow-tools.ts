@@ -22,47 +22,85 @@ export interface ClaudeFlowToolContext extends MCPContext {
  * Create all Claude-Flow specific MCP tools
  */
 export function createClaudeFlowTools(logger: ILogger): MCPTool[] {
-	return [
-		// Agent management tools,
-		createSpawnAgentTool(logger),
-		createListAgentsTool(logger),
-		createTerminateAgentTool(logger),
-		createGetAgentInfoTool(logger),
+	// Import debug logger
+	const { debugLogger } = require("../utils/debug-logger.js");
+	const correlationId = debugLogger.logFunctionEntry(
+		"ClaudeFlowTools",
+		"createClaudeFlowTools",
+		[logger],
+		"mcp-tools",
+	);
 
-		// Task management tools,
-		createCreateTaskTool(logger),
-		createListTasksTool(logger),
-		createGetTaskStatusTool(logger),
-		createCancelTaskTool(logger),
-		createAssignTaskTool(logger),
+	try {
+		debugLogger.logEvent(
+			"ClaudeFlowTools",
+			"tools-creation-start",
+			{
+				hasLogger: !!logger,
+			},
+			"mcp-tools",
+		);
 
-		// Memory management tools,
-		createQueryMemoryTool(logger),
-		createStoreMemoryTool(logger),
-		createDeleteMemoryTool(logger),
-		createExportMemoryTool(logger),
-		createImportMemoryTool(logger),
+		const tools = [
+			// Agent management tools,
+			createSpawnAgentTool(logger),
+			createListAgentsTool(logger),
+			createTerminateAgentTool(logger),
+			createGetAgentInfoTool(logger),
 
-		// System monitoring tools,
-		createGetSystemStatusTool(logger),
-		createGetMetricsTool(logger),
-		createHealthCheckTool(logger),
+			// Task management tools,
+			createCreateTaskTool(logger),
+			createListTasksTool(logger),
+			createGetTaskStatusTool(logger),
+			createCancelTaskTool(logger),
+			createAssignTaskTool(logger),
 
-		// Configuration tools,
-		createGetConfigTool(logger),
-		createUpdateConfigTool(logger),
-		createValidateConfigTool(logger),
+			// Memory management tools,
+			createQueryMemoryTool(logger),
+			createStoreMemoryTool(logger),
+			createDeleteMemoryTool(logger),
+			createExportMemoryTool(logger),
+			createImportMemoryTool(logger),
 
-		// Workflow tools,
-		createExecuteWorkflowTool(logger),
-		createCreateWorkflowTool(logger),
-		createListWorkflowsTool(logger),
+			// System monitoring tools,
+			createGetSystemStatusTool(logger),
+			createGetMetricsTool(logger),
+			// createHealthCheckTool(logger), // Removed - conflicts with JavaScript implementation
 
-		// Terminal management tools,
-		createExecuteCommandTool(logger),
-		createListTerminalsTool(logger),
-		createCreateTerminalTool(logger),
-	];
+			// Configuration tools,
+			createGetConfigTool(logger),
+			createUpdateConfigTool(logger),
+			createValidateConfigTool(logger),
+
+			// Terminal and workflow tools,
+			createCreateTerminalTool(logger),
+			createListTerminalsTool(logger),
+			createExecuteCommandTool(logger),
+			createCreateWorkflowTool(logger),
+			createListWorkflowsTool(logger),
+			createExecuteWorkflowTool(logger),
+		];
+
+		debugLogger.logEvent(
+			"ClaudeFlowTools",
+			"tools-creation-complete",
+			{
+				toolsCount: tools.length,
+				toolNames: tools.map((t) => t.name),
+			},
+			"mcp-tools",
+		);
+
+		debugLogger.logFunctionExit(
+			correlationId,
+			{ toolsCount: tools.length },
+			"mcp-tools",
+		);
+		return tools;
+	} catch (error) {
+		debugLogger.logFunctionError(correlationId, error, "mcp-tools");
+		throw error;
+	}
 }
 
 function createSpawnAgentTool(logger: ILogger): MCPTool {
@@ -124,33 +162,77 @@ function createSpawnAgentTool(logger: ILogger): MCPTool {
 			required: ["type", "name"],
 		},
 		handler: async (input: any, context?: ClaudeFlowToolContext) => {
-			logger.info("Spawning agent", { input, sessionId: context?.sessionId });
+			// Import debug logger
+			const { debugLogger } = require("../utils/debug-logger.js");
+			const correlationId = debugLogger.logFunctionEntry(
+				"ClaudeFlowTools",
+				"spawnAgentHandler",
+				[input],
+				"mcp-tools",
+			);
 
-			if (!context?.orchestrator) {
-				throw new Error("Orchestrator not available");
+			try {
+				logger.info("Spawning agent", { input, sessionId: context?.sessionId });
+
+				debugLogger.logEvent(
+					"ClaudeFlowTools",
+					"spawn-agent-start",
+					{
+						agentType: input.type,
+						agentName: input.name,
+						sessionId: context?.sessionId,
+						hasCapabilities: !!input.capabilities,
+					},
+					"mcp-tools",
+				);
+
+				if (!context?.orchestrator) {
+					const error = new Error("Orchestrator not available");
+					debugLogger.logFunctionError(correlationId, error, "mcp-tools");
+					throw error;
+				}
+
+				const profile: AgentProfile = {
+					id: `agent_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+					name: input.name,
+					type: input.type,
+					capabilities: input.capabilities || [],
+					systemPrompt:
+						input.systemPrompt || getDefaultSystemPrompt(input.type),
+					maxConcurrentTasks: input.maxConcurrentTasks || 3,
+					priority: input.priority || 5,
+					environment: input.environment,
+					workingDirectory: input.workingDirectory,
+				};
+
+				const sessionId = await context.orchestrator.spawnAgent(profile);
+
+				debugLogger.logEvent(
+					"ClaudeFlowTools",
+					"agent-spawned-successfully",
+					{
+						agentId: profile.id,
+						sessionId,
+						agentType: profile.type,
+						agentName: profile.name,
+					},
+					"mcp-tools",
+				);
+
+				const result = {
+					agentId: profile.id,
+					sessionId,
+					profile,
+					status: "spawned",
+					timestamp: new Date().toISOString(),
+				};
+
+				debugLogger.logFunctionExit(correlationId, result, "mcp-tools");
+				return result;
+			} catch (error) {
+				debugLogger.logFunctionError(correlationId, error, "mcp-tools");
+				throw error;
 			}
-
-			const profile: AgentProfile = {
-				id: `agent_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-				name: input.name,
-				type: input.type,
-				capabilities: input.capabilities || [],
-				systemPrompt: input.systemPrompt || getDefaultSystemPrompt(input.type),
-				maxConcurrentTasks: input.maxConcurrentTasks || 3,
-				priority: input.priority || 5,
-				environment: input.environment,
-				workingDirectory: input.workingDirectory,
-			};
-
-			const sessionId = await context.orchestrator.spawnAgent(profile);
-
-			return {
-				agentId: profile.id,
-				sessionId,
-				profile,
-				status: "spawned",
-				timestamp: new Date().toISOString(),
-			};
 		},
 	};
 }
@@ -199,13 +281,13 @@ function createListAgentsTool(logger: ILogger): MCPTool {
 
 			if (!input.includeTerminated) {
 				filteredAgents = filteredAgents.filter(
-					(agent: any) => agent.status !== "terminated"
+					(agent: any) => agent.status !== "terminated",
 				);
 			}
 
 			if (input.filterByType) {
 				filteredAgents = filteredAgents.filter(
-					(agent: any) => agent.type === input.filterByType
+					(agent: any) => agent.type === input.filterByType,
 				);
 			}
 
@@ -386,7 +468,7 @@ function createCreateTaskTool(logger: ILogger): MCPTool {
 			} else if (input.assignToAgentType) {
 				await context.orchestrator.assignTaskToType(
 					taskId,
-					input.assignToAgentType
+					input.assignToAgentType,
 				);
 			}
 
@@ -528,7 +610,7 @@ function createCancelTaskTool(logger: ILogger): MCPTool {
 
 			await context.orchestrator.cancelTask(
 				input.taskId,
-				input.reason || "Manual cancellation"
+				input.reason || "Manual cancellation",
 			);
 
 			return {
@@ -916,7 +998,7 @@ function createGetMetricsTool(logger: ILogger): MCPTool {
 			}
 
 			const metrics = await context.orchestrator.getMetrics(
-				input.timeRange || "1h"
+				input.timeRange || "1h",
 			);
 
 			return {
@@ -953,7 +1035,7 @@ function createHealthCheckTool(logger: ILogger): MCPTool {
 			}
 
 			const healthCheck = await context.orchestrator.performHealthCheck(
-				input.deep || false
+				input.deep || false,
 			);
 
 			return {
@@ -1050,7 +1132,7 @@ function createUpdateConfigTool(logger: ILogger): MCPTool {
 			const result = await context.orchestrator.updateConfig(
 				input.section,
 				input.config,
-				input.restart || false
+				input.restart || false,
 			);
 
 			return {
@@ -1086,7 +1168,7 @@ function createValidateConfigTool(logger: ILogger): MCPTool {
 			}
 
 			const validation = await context.orchestrator.validateConfig(
-				input.config
+				input.config,
 			);
 
 			return {
@@ -1205,7 +1287,7 @@ function createCreateWorkflowTool(logger: ILogger): MCPTool {
 
 			const result = await context.orchestrator.createWorkflow(
 				workflow,
-				input.savePath
+				input.savePath,
 			);
 
 			return {
@@ -1241,7 +1323,7 @@ function createListWorkflowsTool(logger: ILogger): MCPTool {
 			}
 
 			const workflows = await context.orchestrator.listWorkflows(
-				input.directory
+				input.directory,
 			);
 
 			return {
@@ -1341,7 +1423,7 @@ function createListTerminalsTool(logger: ILogger): MCPTool {
 			}
 
 			const terminals = await context.orchestrator.listTerminals(
-				input.includeIdle !== false
+				input.includeIdle !== false,
 			);
 
 			return {

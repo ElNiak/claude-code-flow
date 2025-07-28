@@ -1,9 +1,11 @@
 # GitHub Repository Architect
 
 ## Purpose
+
 Repository structure optimization and multi-repo management with ruv-swarm coordination for scalable project architecture and development workflows.
 
 ## Capabilities
+
 - **Repository structure optimization** with best practices
 - **Multi-repository coordination** and synchronization
 - **Template management** for consistent project setup
@@ -11,6 +13,7 @@ Repository structure optimization and multi-repo management with ruv-swarm coord
 - **Cross-repo workflow** coordination and management
 
 ## Tools Available
+
 - `mcp__github__create_repository`
 - `mcp__github__fork_repository`
 - `mcp__github__search_repositories`
@@ -22,6 +25,7 @@ Repository structure optimization and multi-repo management with ruv-swarm coord
 ## Usage Patterns
 
 ### 1. Repository Structure Analysis and Optimization
+
 ```javascript
 // Initialize architecture analysis swarm
 mcp__claude-flow__swarm_init { topology: "mesh", maxAgents: 4 }
@@ -50,6 +54,7 @@ mcp__claude-flow__task_orchestrate {
 ```
 
 ### 2. Multi-Repository Template Creation
+
 ```javascript
 // Create standardized repository template
 mcp__github__create_repository {
@@ -85,9 +90,9 @@ mcp__github__push_files {
           }
         },
         hooks: {
-          pre_task: "npx ruv-swarm hook pre-task",
-          post_edit: "npx ruv-swarm hook post-edit",
-          notification: "npx ruv-swarm hook notification"
+          pre_task: "npx ruv-swarm hooks pre-task",
+          post_edit: "npx ruv-swarm hooks post-edit",
+          notification: "npx ruv-swarm hooks notification"
         }
       }, null, 2)
     },
@@ -133,6 +138,7 @@ See CLAUDE.md for complete integration instructions.`
 ```
 
 ### 3. Cross-Repository Synchronization
+
 ```javascript
 // Synchronize structure across related repositories
 const repositories = [
@@ -165,7 +171,8 @@ jobs:
 
 ## Batch Architecture Operations
 
-### Complete Repository Architecture Optimization:
+### Complete Repository Architecture Optimization
+
 ```javascript
 [Single Message - Repository Architecture Review]:
   // Initialize comprehensive architecture swarm
@@ -239,6 +246,7 @@ jobs:
 ## Architecture Patterns
 
 ### 1. **Monorepo Structure Pattern**
+
 ```
 ruv-FANN/
 ├── packages/
@@ -269,6 +277,7 @@ ruv-FANN/
 ```
 
 ### 2. **Command Structure Pattern**
+
 ```
 .claude/
 ├── commands/
@@ -292,6 +301,7 @@ ruv-FANN/
 ```
 
 ### 3. **Integration Pattern**
+
 ```javascript
 const integrationPattern = {
   packages: {
@@ -315,24 +325,28 @@ const integrationPattern = {
 ## Best Practices
 
 ### 1. **Structure Optimization**
+
 - Consistent directory organization across repositories
 - Standardized configuration files and formats
 - Clear separation of concerns and responsibilities
 - Scalable architecture for future growth
 
 ### 2. **Template Management**
+
 - Reusable project templates for consistency
 - Standardized issue and PR templates
 - Workflow templates for common operations
 - Documentation templates for clarity
 
 ### 3. **Multi-Repository Coordination**
+
 - Cross-repository dependency management
 - Synchronized version and release management
 - Consistent coding standards and practices
 - Automated cross-repo validation
 
 ### 4. **Documentation Architecture**
+
 - Comprehensive architecture documentation
 - Clear integration guides and examples
 - Maintainable and up-to-date documentation
@@ -340,13 +354,15 @@ const integrationPattern = {
 
 ## Monitoring and Analysis
 
-### Architecture Health Metrics:
+### Architecture Health Metrics
+
 - Repository structure consistency score
 - Documentation coverage percentage
 - Cross-repository integration success rate
 - Template adoption and usage statistics
 
-### Automated Analysis:
+### Automated Analysis
+
 - Structure drift detection
 - Best practices compliance checking
 - Performance impact analysis
@@ -354,13 +370,15 @@ const integrationPattern = {
 
 ## Integration with Development Workflow
 
-### Seamless integration with:
+### Seamless integration with
+
 - `/github sync-coordinator` - For cross-repo synchronization
 - `/github release-manager` - For coordinated releases
 - `/sparc architect` - For detailed architecture design
 - `/sparc optimizer` - For performance optimization
 
-### Workflow Enhancement:
+### Workflow Enhancement
+
 - Automated structure validation
 - Continuous architecture improvement
 - Best practices enforcement

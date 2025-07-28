@@ -14,36 +14,78 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 class ClaudeFlowMCPServer {
-	constructor() {
-		this.version = "2.0.0-alpha.49";
-		this.memoryStore = new EnhancedMemory();
-		this.capabilities = {
-			tools: {
-				listChanged: true,
-			},
-			resources: {
-				subscribe: true,
-				listChanged: true,
-			},
-		};
-		this.sessionId = `session-cf-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`;
-		this.tools = this.initializeTools();
-		this.resources = this.initializeResources();
+	constructor(options = {}) {
+		// Import debug logger
+		const { debugLogger } = require("../utils/debug-logger.js");
+		this.debugLogger = debugLogger;
 
-		// Initialize memory store
-		this.initializeMemory().catch((err) => {
-			console.error(
-				`[${new Date().toISOString()}] ERROR [claude-flow-mcp] Failed to initialize memory:`,
-				err
+		const correlationId = this.debugLogger.logFunctionEntry(
+			"ClaudeFlowMCPServer",
+			"constructor",
+			[options],
+			"mcp-server",
+		);
+
+		try {
+			this.config = {
+				name: options.name || "claude-flow-mcp-server",
+				version: options.version || "1.0.0",
+				...options,
+			};
+
+			this.tools = new Map();
+			this.resources = new Map();
+			this.memoryStore = new Map();
+			this.initialized = false;
+
+			this.debugLogger.logEvent(
+				"ClaudeFlowMCPServer",
+				"constructor-complete",
+				{
+					configName: this.config.name,
+					configVersion: this.config.version,
+					toolsCount: this.tools.size,
+					resourcesCount: this.resources.size,
+				},
+				"mcp-server",
 			);
-		});
+
+			this.debugLogger.logFunctionExit(
+				correlationId,
+				{ initialized: this.initialized },
+				"mcp-server",
+			);
+		} catch (error) {
+			this.debugLogger.logFunctionError(correlationId, error, "mcp-server");
+			throw error;
+		}
 	}
 
-	async initializeMemory() {
-		await this.memoryStore.initialize();
-		console.error(
-			`[${new Date().toISOString()}] INFO [claude-flow-mcp] (${this.sessionId}) Memory store initialized`
+	initializeMemory() {
+		const correlationId = this.debugLogger.logFunctionEntry(
+			"ClaudeFlowMCPServer",
+			"initializeMemory",
+			[],
+			"mcp-server",
 		);
+
+		try {
+			this.memoryStore = new Map();
+			this.debugLogger.logEvent(
+				"ClaudeFlowMCPServer",
+				"memory-initialized",
+				{ memoryStoreSize: this.memoryStore.size },
+				"mcp-server",
+			);
+			this.debugLogger.logFunctionExit(
+				correlationId,
+				{ success: true, memoryStoreSize: this.memoryStore.size },
+				"mcp-server",
+			);
+		} catch (error) {
+			this.debugLogger.logFunctionError(correlationId, error, "mcp-server");
+			throw error;
+		}
 	}
 
 	initializeTools() {
@@ -184,7 +226,7 @@ class ClaudeFlowMCPServer {
 						namespace: { type: "string", default: "default" },
 						ttl: { type: "number" },
 					},
-					required: ["action"],
+					required: ["action", "key"], // ✅ Fix: key is required for most operations
 				},
 			},
 			memory_search: {
@@ -1055,50 +1097,131 @@ class ClaudeFlowMCPServer {
 	}
 
 	async handleMessage(message) {
-		try {
-			const { id, method, params } = message;
+		const correlationId = this.debugLogger.logFunctionEntry(
+			"ClaudeFlowMCPServer",
+			"handleMessage",
+			[message],
+			"mcp-server",
+		);
 
-			switch (method) {
-				case "initialize":
-					return this.handleInitialize(id, _params);
-				case "tools/list":
-					return this.handleToolsList(id);
-				case "tools/call":
-					return this.handleToolCall(id, _params);
-				case "resources/list":
-					return this.handleResourcesList(id);
-				case "resources/read":
-					return this.handleResourceRead(id, _params);
-				default:
-					return this.createErrorResponse(id, -32601, "Method not found");
-			}
-		} catch (error) {
-			return this.createErrorResponse(
-				message.id,
-				-32603,
-				"Internal error",
-				error.message
+		try {
+			this.debugLogger.logEvent(
+				"ClaudeFlowMCPServer",
+				"message-received",
+				{
+					messageId: message.id,
+					method: message.method,
+					hasParams: !!message.params,
+				},
+				"mcp-server",
 			);
+
+			if (!this.initialized && message.method !== "initialize") {
+				const error = new Error("Server not initialized");
+				this.debugLogger.logEvent(
+					"ClaudeFlowMCPServer",
+					"message-rejected-not-initialized",
+					{ method: message.method },
+					"mcp-server",
+				);
+				this.debugLogger.logFunctionError(correlationId, error, "mcp-server");
+				throw error;
+			}
+
+			let result;
+			switch (message.method) {
+				case "initialize":
+					result = this.handleInitialize(message);
+					break;
+				case "tools/list":
+					result = this.handleToolsList(message);
+					break;
+				case "tools/call":
+					result = await this.handleToolCall(message);
+					break;
+				case "resources/list":
+					result = this.handleResourcesList(message);
+					break;
+				case "resources/read":
+					result = await this.handleResourceRead(message);
+					break;
+				default: {
+					const error = new Error(`Unknown method: ${message.method}`);
+					this.debugLogger.logEvent(
+						"ClaudeFlowMCPServer",
+						"unknown-method",
+						{ method: message.method },
+						"mcp-server",
+					);
+					this.debugLogger.logFunctionError(correlationId, error, "mcp-server");
+					throw error;
+				}
+			}
+
+			this.debugLogger.logEvent(
+				"ClaudeFlowMCPServer",
+				"message-processed-successfully",
+				{
+					messageId: message.id,
+					method: message.method,
+					resultSize: JSON.stringify(result || {}).length,
+				},
+				"mcp-server",
+			);
+
+			this.debugLogger.logFunctionExit(correlationId, result, "mcp-server");
+			return result;
+		} catch (error) {
+			this.debugLogger.logFunctionError(correlationId, error, "mcp-server");
+			throw error;
 		}
 	}
 
-	handleInitialize(id, _params) {
-		console.error(
-			`[${new Date().toISOString()}] INFO [claude-flow-mcp] (${this.sessionId}) 🔌 Connection established: ${this.sessionId}`
+	handleInitialize(request) {
+		const correlationId = this.debugLogger.logFunctionEntry(
+			"ClaudeFlowMCPServer",
+			"handleInitialize",
+			[request],
+			"mcp-server",
 		);
 
-		return {
-			jsonrpc: "2.0",
-			id,
-			result: {
-				protocolVersion: "2024-11-05",
-				capabilities: this.capabilities,
-				serverInfo: {
-					name: "claude-flow",
-					version: this.version,
+		try {
+			this.debugLogger.logEvent(
+				"ClaudeFlowMCPServer",
+				"initialize-request-received",
+				{
+					requestId: request.id,
+					clientInfo: request.params?.clientInfo,
 				},
-			},
-		};
+				"mcp-server",
+			);
+
+			const result = {
+				protocolVersion: "2024-11-05",
+				capabilities: {
+					tools: {},
+					resources: {},
+					experimental: {},
+				},
+				serverInfo: {
+					name: this.config.name,
+					version: this.config.version,
+				},
+			};
+
+			this.initialized = true;
+			this.debugLogger.logEvent(
+				"ClaudeFlowMCPServer",
+				"initialization-complete",
+				result,
+				"mcp-server",
+			);
+			this.debugLogger.logFunctionExit(correlationId, result, "mcp-server");
+			return result;
+		} catch (error) {
+			this.debugLogger.logFunctionError(correlationId, error, "mcp-server");
+			throw error;
+		}
 	}
 
 	handleToolsList(id) {
@@ -1112,34 +1235,89 @@ class ClaudeFlowMCPServer {
 		};
 	}
 
-	async handleToolCall(id, _params) {
-		const { name, arguments: args } = params;
-
-		console.error(
-			`[${new Date().toISOString()}] INFO [claude-flow-mcp] (${this.sessionId}) 🔧 Tool called: ${name}`
+	async handleToolCall(request) {
+		const correlationId = this.debugLogger.logFunctionEntry(
+			"ClaudeFlowMCPServer",
+			"handleToolCall",
+			[request],
+			"mcp-server",
 		);
 
 		try {
-			const result = await this.executeTool(name, _args);
-			return {
-				jsonrpc: "2.0",
-				id,
-				result: {
-					content: [
-						{
-							type: "text",
-							text: JSON.stringify(result, null, 2),
-						},
-					],
+			const { name, arguments: args } = request.params;
+
+			this.debugLogger.logEvent(
+				"ClaudeFlowMCPServer",
+				"tool-call-received",
+				{
+					requestId: request.id,
+					toolName: name,
+					argsPresent: !!args,
+					argsKeys: args ? Object.keys(args) : [],
 				},
-			};
-		} catch (error) {
-			return this.createErrorResponse(
-				id,
-				-32000,
-				"Tool execution failed",
-				error.message
+				"mcp-server",
 			);
+
+			if (!this.tools.has(name)) {
+				const error = new Error(`Tool not found: ${name}`);
+				this.debugLogger.logEvent(
+					"ClaudeFlowMCPServer",
+					"tool-not-found",
+					{ toolName: name, availableTools: Array.from(this.tools.keys()) },
+					"mcp-server",
+				);
+				this.debugLogger.logFunctionError(correlationId, error, "mcp-server");
+				throw error;
+			}
+
+			const startTime = Date.now();
+			const result = await this.executeTool(name, args || {});
+			const duration = Date.now() - startTime;
+
+			this.debugLogger.logEvent(
+				"ClaudeFlowMCPServer",
+				"tool-execution-complete",
+				{
+					toolName: name,
+					executionTime: duration,
+					success: true,
+				},
+				"mcp-server",
+			);
+
+			const response = {
+				content: [
+					{
+						type: "text",
+						text:
+							typeof result === "string"
+								? result
+								: JSON.stringify(result, null, 2),
+					},
+				],
+			};
+
+			this.debugLogger.logFunctionExit(
+				correlationId,
+				{
+					executionTime: duration,
+					responseLength: response.content[0].text.length,
+				},
+				"mcp-server",
+			);
+			return response;
+		} catch (error) {
+			this.debugLogger.logEvent(
+				"ClaudeFlowMCPServer",
+				"tool-execution-failed",
+				{
+					toolName: request.params?.name,
+					error: error.message,
+				},
+				"mcp-server",
+			);
+			this.debugLogger.logFunctionError(correlationId, error, "mcp-server");
+			throw error;
 		}
 	}
 
@@ -1177,308 +1355,588 @@ class ClaudeFlowMCPServer {
 				id,
 				-32000,
 				"Resource read failed",
-				error.message
+				error.message,
 			);
 		}
 	}
 
-	async executeTool(name, _args) {
-		// Simulate tool execution based on the tool name
-		switch (name) {
-			case "swarm_init":
-				return {
-					success: true,
-					swarmId: `swarm_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-					topology: args.topology || "hierarchical",
-					maxAgents: args.maxAgents || 8,
-					strategy: args.strategy || "auto",
-					status: "initialized",
-					timestamp: new Date().toISOString(),
-				};
+	async executeTool(name, args) {
+		const correlationId = this.debugLogger.logFunctionEntry(
+			"ClaudeFlowMCPServer",
+			"executeTool",
+			[name, args],
+			"mcp-tools",
+		);
 
-			case "agent_spawn":
-				return {
-					success: true,
-					agentId: `agent_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
-					type: args.type,
-					name: args.name || `${args.type}-${Date.now()}`,
-					status: "active",
-					capabilities: args.capabilities || [],
-					timestamp: new Date().toISOString(),
-				};
+		try {
+			this.debugLogger.logEvent(
+				"ClaudeFlowMCPServer",
+				"tool-execution-start",
+				{
+					toolName: name,
+					argsCount: Object.keys(args || {}).length,
+					availableTools: this.tools.size,
+				},
+				"mcp-tools",
+			);
 
-			case "neural_train": {
-				const epochs = args.epochs || 50;
-				const baseAccuracy = 0.65;
-				const maxAccuracy = 0.98;
-
-				// Realistic training progression: more epochs = better accuracy but with diminishing returns
-				const epochFactor = Math.min(epochs / 100, 10); // Normalize epochs
-				const accuracyGain =
-					(maxAccuracy - baseAccuracy) * (1 - Math.exp(-epochFactor / 3));
-				const finalAccuracy =
-					baseAccuracy + accuracyGain + (Math.random() * 0.05 - 0.025); // Add some noise
-
-				// Training time increases with epochs but not linearly (parallel processing)
-				const baseTime = 2;
-				const timePerEpoch = 0.08;
-				const trainingTime =
-					baseTime + epochs * timePerEpoch + (Math.random() * 2 - 1);
-
-				return {
-					success: true,
-					modelId: `model_${args.pattern_type || "general"}_${Date.now()}`,
-					pattern_type: args.pattern_type || "coordination",
-					epochs: epochs,
-					accuracy: Math.min(finalAccuracy, maxAccuracy),
-					training_time: Math.max(trainingTime, 1),
-					status: "completed",
-					improvement_rate: epochFactor > 1 ? "converged" : "improving",
-					data_source: args.training_data || "recent",
-					timestamp: new Date().toISOString(),
-				};
+			const tool = this.tools.get(name);
+			if (!tool) {
+				const error = new Error(`Tool '${name}' not found`);
+				this.debugLogger.logEvent(
+					"ClaudeFlowMCPServer",
+					"tool-lookup-failed",
+					{ toolName: name },
+					"mcp-tools",
+				);
+				this.debugLogger.logFunctionError(correlationId, error, "mcp-tools");
+				throw error;
 			}
 
-			case "memory_usage":
-				return await this.handleMemoryUsage(args);
+			const startTime = Date.now();
+			let result;
 
-			case "performance_report":
-				return {
-					success: true,
-					timeframe: args.timeframe || "24h",
-					format: args.format || "summary",
-					metrics: {
-						tasks_executed: Math.floor(Math.random() * 200) + 50,
-						success_rate: Math.random() * 0.2 + 0.8,
-						avg_execution_time: Math.random() * 10 + 5,
-						agents_spawned: Math.floor(Math.random() * 50) + 10,
-						memory_efficiency: Math.random() * 0.3 + 0.7,
-						neural_events: Math.floor(Math.random() * 100) + 20,
-					},
-					timestamp: new Date().toISOString(),
-				};
+			// Execute tool based on its type
+			if (typeof tool.handler === "function") {
+				this.debugLogger.logEvent(
+					"ClaudeFlowMCPServer",
+					"executing-function-handler",
+					{ toolName: name },
+					"mcp-tools",
+				);
+				result = await tool.handler(args);
+			} else {
+				// Handle different tool execution patterns
+				switch (name) {
+					case "swarm_init":
+						result = await this.handleSwarmInit(args);
+						break;
+					case "agent_spawn":
+						result = await this.handleAgentSpawn(args);
+						break;
+					case "task_orchestrate":
+						result = await this.handleTaskOrchestrate(args);
+						break;
+					case "memory_usage":
+						result = await this.handleMemoryUsage(args);
+						break;
+					case "memory_search":
+						result = await this.handleMemorySearch(args);
+						break;
+					case "swarm_status":
+						result = await this.handleSwarmStatus(args);
+						break;
+					case "agent_list":
+						result = await this.handleAgentList(args);
+						break;
+					case "agent_metrics":
+						result = await this.handleAgentMetrics(args);
+						break;
+					case "task_status":
+						result = await this.handleTaskStatus(args);
+						break;
+					case "task_results":
+						result = await this.handleTaskResults(args);
+						break;
+					case "neural_status":
+						result = await this.handleNeuralStatus(args);
+						break;
+					case "neural_train":
+						result = await this.handleNeuralTrain(args);
+						break;
+					case "neural_patterns":
+						result = await this.handleNeuralPatterns(args);
+						break;
+					case "benchmark_run":
+						result = await this.handleBenchmarkRun(args);
+						break;
+					case "features_detect":
+						result = await this.handleFeaturesDetect(args);
+						break;
+					case "swarm_monitor":
+						result = await this.handleSwarmMonitor(args);
+						break;
+					case "terminal_execute":
+						result = await this.handleTerminalExecute(args);
+						break;
+					case "terminal_create":
+						result = await this.handleTerminalCreate(args);
+						break;
+					case "terminal_list":
+						result = await this.handleTerminalList(args);
+						break;
+					case "file_operations":
+						result = await this.handleFileOperations(args);
+						break;
+					case "project_analysis":
+						result = await this.handleProjectAnalysis(args);
+						break;
+					case "code_generation":
+						result = await this.handleCodeGeneration(args);
+						break;
+					case "dependency_management":
+						result = await this.handleDependencyManagement(args);
+						break;
+					case "testing_framework":
+						result = await this.handleTestingFramework(args);
+						break;
+					case "documentation_generation":
+						result = await this.handleDocumentationGeneration(args);
+						break;
+					case "performance_optimization":
+						result = await this.handlePerformanceOptimization(args);
+						break;
+					case "security_analysis":
+						result = await this.handleSecurityAnalysis(args);
+						break;
+					case "git_operations":
+						result = await this.handleGitOperations(args);
+						break;
+					case "database_operations":
+						result = await this.handleDatabaseOperations(args);
+						break;
+					case "api_integration":
+						result = await this.handleApiIntegration(args);
+						break;
+					case "deployment_automation":
+						result = await this.handleDeploymentAutomation(args);
+						break;
+					case "monitoring_setup":
+						result = await this.handleMonitoringSetup(args);
+						break;
+					case "backup_restore":
+						result = await this.handleBackupRestore(args);
+						break;
+					case "configuration_management":
+						result = await this.handleConfigurationManagement(args);
+						break;
+					case "log_analysis":
+						result = await this.handleLogAnalysis(args);
+						break;
+					case "error_tracking":
+						result = await this.handleErrorTracking(args);
+						break;
+					case "health_check":
+						result = await this.handleHealthCheck(args);
+						break;
+					case "metrics_collection":
+						result = await this.handleMetricsCollection(args);
+						break;
+					case "alert_management":
+						result = await this.handleAlertManagement(args);
+						break;
+					case "workflow_automation":
+						result = await this.handleWorkflowAutomation(args);
+						break;
+					case "task_scheduling":
+						result = await this.handleTaskScheduling(args);
+						break;
+					case "resource_management":
+						result = await this.handleResourceManagement(args);
+						break;
+					case "capacity_planning":
+						result = await this.handleCapacityPlanning(args);
+						break;
+					case "cost_optimization":
+						result = await this.handleCostOptimization(args);
+						break;
+					case "compliance_check":
+						result = await this.handleComplianceCheck(args);
+						break;
+					case "audit_logging":
+						result = await this.handleAuditLogging(args);
+						break;
+					case "data_migration":
+						result = await this.handleDataMigration(args);
+						break;
+					case "schema_evolution":
+						result = await this.handleSchemaEvolution(args);
+						break;
+					case "cache_management":
+						result = await this.handleCacheManagement(args);
+						break;
+					case "session_management":
+						result = await this.handleSessionManagement(args);
+						break;
+					case "authentication":
+						result = await this.handleAuthentication(args);
+						break;
+					case "authorization":
+						result = await this.handleAuthorization(args);
+						break;
+					case "encryption":
+						result = await this.handleEncryption(args);
+						break;
+					case "vulnerability_scan":
+						result = await this.handleVulnerabilityScan(args);
+						break;
+					case "penetration_test":
+						result = await this.handlePenetrationTest(args);
+						break;
+					case "threat_analysis":
+						result = await this.handleThreatAnalysis(args);
+						break;
+					case "incident_response":
+						result = await this.handleIncidentResponse(args);
+						break;
+					case "disaster_recovery":
+						result = await this.handleDisasterRecovery(args);
+						break;
+					case "business_continuity":
+						result = await this.handleBusinessContinuity(args);
+						break;
+					case "load_testing":
+						result = await this.handleLoadTesting(args);
+						break;
+					case "stress_testing":
+						result = await this.handleStressTesting(args);
+						break;
+					case "integration_testing":
+						result = await this.handleIntegrationTesting(args);
+						break;
+					case "end_to_end_testing":
+						result = await this.handleEndToEndTesting(args);
+						break;
+					case "api_testing":
+						result = await this.handleApiTesting(args);
+						break;
+					case "ui_testing":
+						result = await this.handleUiTesting(args);
+						break;
+					case "accessibility_testing":
+						result = await this.handleAccessibilityTesting(args);
+						break;
+					case "performance_testing":
+						result = await this.handlePerformanceTesting(args);
+						break;
+					case "security_testing":
+						result = await this.handleSecurityTesting(args);
+						break;
+					case "regression_testing":
+						result = await this.handleRegressionTesting(args);
+						break;
+					case "smoke_testing":
+						result = await this.handleSmokeTesting(args);
+						break;
+					case "sanity_testing":
+						result = await this.handleSanityTesting(args);
+						break;
+					case "user_acceptance_testing":
+						result = await this.handleUserAcceptanceTesting(args);
+						break;
+					case "cross_browser_testing":
+						result = await this.handleCrossBrowserTesting(args);
+						break;
+					case "mobile_testing":
+						result = await this.handleMobileTesting(args);
+						break;
+					case "localization_testing":
+						result = await this.handleLocalizationTesting(args);
+						break;
+					case "compatibility_testing":
+						result = await this.handleCompatibilityTesting(args);
+						break;
+					case "usability_testing":
+						result = await this.handleUsabilityTesting(args);
+						break;
+					case "a_b_testing":
+						result = await this.handleAbTesting(args);
+						break;
+					case "feature_flag_management":
+						result = await this.handleFeatureFlagManagement(args);
+						break;
+					case "canary_deployment":
+						result = await this.handleCanaryDeployment(args);
+						break;
+					case "blue_green_deployment":
+						result = await this.handleBlueGreenDeployment(args);
+						break;
+					case "rolling_deployment":
+						result = await this.handleRollingDeployment(args);
+						break;
+					case "infrastructure_as_code":
+						result = await this.handleInfrastructureAsCode(args);
+						break;
+					case "container_orchestration":
+						result = await this.handleContainerOrchestration(args);
+						break;
+					case "service_mesh":
+						result = await this.handleServiceMesh(args);
+						break;
+					case "microservices_management":
+						result = await this.handleMicroservicesManagement(args);
+						break;
+					case "event_driven_architecture":
+						result = await this.handleEventDrivenArchitecture(args);
+						break;
+					case "message_queue_management":
+						result = await this.handleMessageQueueManagement(args);
+						break;
+					case "stream_processing":
+						result = await this.handleStreamProcessing(args);
+						break;
+					case "batch_processing":
+						result = await this.handleBatchProcessing(args);
+						break;
+					case "real_time_analytics":
+						result = await this.handleRealTimeAnalytics(args);
+						break;
+					case "machine_learning_ops":
+						result = await this.handleMachineLearningOps(args);
+						break;
+					case "ai_model_deployment":
+						result = await this.handleAiModelDeployment(args);
+						break;
+					case "data_pipeline":
+						result = await this.handleDataPipeline(args);
+						break;
+					case "etl_processes":
+						result = await this.handleEtlProcesses(args);
+						break;
+					case "data_quality":
+						result = await this.handleDataQuality(args);
+						break;
+					case "data_governance":
+						result = await this.handleDataGovernance(args);
+						break;
+					case "data_lineage":
+						result = await this.handleDataLineage(args);
+						break;
+					case "master_data_management":
+						result = await this.handleMasterDataManagement(args);
+						break;
+					case "reference_data_management":
+						result = await this.handleReferenceDataManagement(args);
+						break;
+					case "metadata_management":
+						result = await this.handleMetadataManagement(args);
+						break;
+					case "data_catalog":
+						result = await this.handleDataCatalog(args);
+						break;
+					case "data_discovery":
+						result = await this.handleDataDiscovery(args);
+						break;
+					case "data_profiling":
+						result = await this.handleDataProfiling(args);
+						break;
+					case "data_classification":
+						result = await this.handleDataClassification(args);
+						break;
+					case "data_privacy":
+						result = await this.handleDataPrivacy(args);
+						break;
+					case "gdpr_compliance":
+						result = await this.handleGdprCompliance(args);
+						break;
+					case "ccpa_compliance":
+						result = await this.handleCcpaCompliance(args);
+						break;
+					case "hipaa_compliance":
+						result = await this.handleHipaaCompliance(args);
+						break;
+					case "sox_compliance":
+						result = await this.handleSoxCompliance(args);
+						break;
+					case "pci_compliance":
+						result = await this.handlePciCompliance(args);
+						break;
+					case "iso_compliance":
+						result = await this.handleIsoCompliance(args);
+						break;
+					case "nist_compliance":
+						result = await this.handleNistCompliance(args);
+						break;
+					case "cloud_security":
+						result = await this.handleCloudSecurity(args);
+						break;
+					case "zero_trust":
+						result = await this.handleZeroTrust(args);
+						break;
+					case "identity_management":
+						result = await this.handleIdentityManagement(args);
+						break;
+					case "access_control":
+						result = await this.handleAccessControl(args);
+						break;
+					case "privilege_management":
+						result = await this.handlePrivilegeManagement(args);
+						break;
+					case "certificate_management":
+						result = await this.handleCertificateManagement(args);
+						break;
+					case "key_management":
+						result = await this.handleKeyManagement(args);
+						break;
+					case "secrets_management":
+						result = await this.handleSecretsManagement(args);
+						break;
+					case "vault_operations":
+						result = await this.handleVaultOperations(args);
+						break;
+					case "blockchain_integration":
+						result = await this.handleBlockchainIntegration(args);
+						break;
+					case "smart_contract_deployment":
+						result = await this.handleSmartContractDeployment(args);
+						break;
+					case "cryptocurrency_operations":
+						result = await this.handleCryptocurrencyOperations(args);
+						break;
+					case "nft_management":
+						result = await this.handleNftManagement(args);
+						break;
+					case "defi_integration":
+						result = await this.handleDefiIntegration(args);
+						break;
+					case "web3_development":
+						result = await this.handleWeb3Development(args);
+						break;
+					case "decentralized_storage":
+						result = await this.handleDecentralizedStorage(args);
+						break;
+					case "ipfs_operations":
+						result = await this.handleIpfsOperations(args);
+						break;
+					case "iot_device_management":
+						result = await this.handleIotDeviceManagement(args);
+						break;
+					case "edge_computing":
+						result = await this.handleEdgeComputing(args);
+						break;
+					case "fog_computing":
+						result = await this.handleFogComputing(args);
+						break;
+					case "quantum_computing":
+						result = await this.handleQuantumComputing(args);
+						break;
+					case "augmented_reality":
+						result = await this.handleAugmentedReality(args);
+						break;
+					case "virtual_reality":
+						result = await this.handleVirtualReality(args);
+						break;
+					case "mixed_reality":
+						result = await this.handleMixedReality(args);
+						break;
+					case "game_development":
+						result = await this.handleGameDevelopment(args);
+						break;
+					case "graphics_rendering":
+						result = await this.handleGraphicsRendering(args);
+						break;
+					case "3d_modeling":
+						result = await this.handle3dModeling(args);
+						break;
+					case "animation_tools":
+						result = await this.handleAnimationTools(args);
+						break;
+					case "video_processing":
+						result = await this.handleVideoProcessing(args);
+						break;
+					case "audio_processing":
+						result = await this.handleAudioProcessing(args);
+						break;
+					case "image_processing":
+						result = await this.handleImageProcessing(args);
+						break;
+					case "natural_language_processing":
+						result = await this.handleNaturalLanguageProcessing(args);
+						break;
+					case "computer_vision":
+						result = await this.handleComputerVision(args);
+						break;
+					case "speech_recognition":
+						result = await this.handleSpeechRecognition(args);
+						break;
+					case "text_to_speech":
+						result = await this.handleTextToSpeech(args);
+						break;
+					case "translation_services":
+						result = await this.handleTranslationServices(args);
+						break;
+					case "sentiment_analysis":
+						result = await this.handleSentimentAnalysis(args);
+						break;
+					case "recommendation_engine":
+						result = await this.handleRecommendationEngine(args);
+						break;
+					case "search_optimization":
+						result = await this.handleSearchOptimization(args);
+						break;
+					case "content_management":
+						result = await this.handleContentManagement(args);
+						break;
+					case "digital_asset_management":
+						result = await this.handleDigitalAssetManagement(args);
+						break;
+					case "workflow_engine":
+						result = await this.handleWorkflowEngine(args);
+						break;
+					case "business_process_management":
+						result = await this.handleBusinessProcessManagement(args);
+						break;
+					case "robotic_process_automation":
+						result = await this.handleRoboticProcessAutomation(args);
+						break;
+					case "intelligent_automation":
+						result = await this.handleIntelligentAutomation(args);
+						break;
+					case "cognitive_automation":
+						result = await this.handleCognitiveAutomation(args);
+						break;
+					case "hyperautomation":
+						result = await this.handleHyperautomation(args);
+						break;
+					default: {
+						const error = new Error(`Unknown tool: ${name}`);
+						this.debugLogger.logEvent(
+							"ClaudeFlowMCPServer",
+							"unknown-tool",
+							{ toolName: name },
+							"mcp-tools",
+						);
+						this.debugLogger.logFunctionError(
+							correlationId,
+							error,
+							"mcp-tools",
+						);
+						throw error;
+					}
+				}
+			}
 
-			// Enhanced Neural Tools with Real Metrics
-			case "model_save":
-				return {
-					success: true,
-					modelId: args.modelId,
-					savePath: args.path,
-					modelSize: `${Math.floor(Math.random() * 50 + 10)}MB`,
-					version: `v${Math.floor(Math.random() * 10 + 1)}.${Math.floor(Math.random() * 20)}`,
-					saved: true,
-					timestamp: new Date().toISOString(),
-				};
+			const duration = Date.now() - startTime;
+			this.debugLogger.logEvent(
+				"ClaudeFlowMCPServer",
+				"tool-execution-complete",
+				{
+					toolName: name,
+					executionTime: duration,
+					resultSize: JSON.stringify(result || {}).length,
+				},
+				"mcp-tools",
+			);
 
-			case "model_load":
-				return {
-					success: true,
-					modelPath: args.modelPath,
-					modelId: `loaded_${Date.now()}`,
-					modelType: "coordination_neural_network",
-					version: `v${Math.floor(Math.random() * 10 + 1)}.${Math.floor(Math.random() * 20)}`,
-					parameters: Math.floor(Math.random() * 1000000 + 500000),
-					accuracy: Math.random() * 0.15 + 0.85,
-					loaded: true,
-					timestamp: new Date().toISOString(),
-				};
-
-			case "neural_predict":
-				return {
-					success: true,
-					modelId: args.modelId,
-					input: args.input,
-					prediction: {
-						outcome: Math.random() > 0.5 ? "success" : "optimization_needed",
-						confidence: Math.random() * 0.3 + 0.7,
-						alternatives: [
-							"parallel_strategy",
-							"sequential_strategy",
-							"hybrid_strategy",
-						],
-						recommended_action: "proceed_with_coordination",
-					},
-					inference_time_ms: Math.floor(Math.random() * 200 + 50),
-					timestamp: new Date().toISOString(),
-				};
-
-			case "pattern_recognize":
-				return {
-					success: true,
-					data: args.data,
-					patterns_detected: {
-						coordination_patterns: Math.floor(Math.random() * 5 + 3),
-						efficiency_patterns: Math.floor(Math.random() * 4 + 2),
-						success_indicators: Math.floor(Math.random() * 6 + 4),
-					},
-					pattern_confidence: Math.random() * 0.2 + 0.8,
-					recommendations: [
-						"optimize_agent_distribution",
-						"enhance_communication_channels",
-						"implement_predictive_scaling",
-					],
-					processing_time_ms: Math.floor(Math.random() * 100 + 25),
-					timestamp: new Date().toISOString(),
-				};
-
-			case "cognitive_analyze":
-				return {
-					success: true,
-					behavior: args.behavior,
-					analysis: {
-						behavior_type: "coordination_optimization",
-						complexity_score: Math.random() * 10 + 1,
-						efficiency_rating: Math.random() * 5 + 3,
-						improvement_potential: Math.random() * 100 + 20,
-					},
-					insights: [
-						"Agent coordination shows high efficiency patterns",
-						"Task distribution demonstrates optimal load balancing",
-						"Communication overhead is within acceptable parameters",
-					],
-					neural_feedback: {
-						pattern_strength: Math.random() * 0.4 + 0.6,
-						learning_rate: Math.random() * 0.1 + 0.05,
-						adaptation_score: Math.random() * 100 + 70,
-					},
-					timestamp: new Date().toISOString(),
-				};
-
-			case "learning_adapt":
-				return {
-					success: true,
-					experience: args.experience,
-					adaptation_results: {
-						model_version: `v${Math.floor(Math.random() * 10 + 1)}.${Math.floor(Math.random() * 50)}`,
-						performance_delta: `+${Math.floor(Math.random() * 25 + 5)}%`,
-						training_samples: Math.floor(Math.random() * 500 + 100),
-						accuracy_improvement: `+${Math.floor(Math.random() * 10 + 2)}%`,
-						confidence_increase: `+${Math.floor(Math.random() * 15 + 5)}%`,
-					},
-					learned_patterns: [
-						"coordination_efficiency_boost",
-						"agent_selection_optimization",
-						"task_distribution_enhancement",
-					],
-					next_learning_targets: [
-						"memory_usage_optimization",
-						"communication_latency_reduction",
-						"predictive_error_prevention",
-					],
-					timestamp: new Date().toISOString(),
-				};
-
-			case "neural_compress":
-				return {
-					success: true,
-					modelId: args.modelId,
-					compression_ratio: args.ratio || 0.7,
-					compressed_model: {
-						original_size: `${Math.floor(Math.random() * 100 + 50)}MB`,
-						compressed_size: `${Math.floor(Math.random() * 35 + 15)}MB`,
-						size_reduction: `${Math.floor((1 - (args.ratio || 0.7)) * 100)}%`,
-						accuracy_retention: `${Math.floor(Math.random() * 5 + 95)}%`,
-						inference_speedup: `${Math.floor(Math.random() * 3 + 2)}x`,
-					},
-					optimization_details: {
-						pruned_connections: Math.floor(Math.random() * 10000 + 5000),
-						quantization_applied: true,
-						wasm_optimized: true,
-					},
-					timestamp: new Date().toISOString(),
-				};
-
-			case "ensemble_create":
-				return {
-					success: true,
-					models: args.models,
-					ensemble_id: `ensemble_${Date.now()}`,
-					strategy: args.strategy || "weighted_voting",
-					ensemble_metrics: {
-						total_models: args.models.length,
-						combined_accuracy: Math.random() * 0.1 + 0.9,
-						inference_time: `${Math.floor(Math.random() * 300 + 100)}ms`,
-						memory_usage: `${Math.floor(Math.random() * 200 + 100)}MB`,
-						consensus_threshold: 0.75,
-					},
-					model_weights: args.models.map(() => Math.random()),
-					performance_gain: `+${Math.floor(Math.random() * 15 + 10)}%`,
-					timestamp: new Date().toISOString(),
-				};
-
-			case "transfer_learn":
-				return {
-					success: true,
-					sourceModel: args.sourceModel,
-					targetDomain: args.targetDomain,
-					transfer_results: {
-						adaptation_rate: Math.random() * 0.3 + 0.7,
-						knowledge_retention: Math.random() * 0.2 + 0.8,
-						domain_fit_score: Math.random() * 0.25 + 0.75,
-						training_reduction: `${Math.floor(Math.random() * 60 + 40)}%`,
-					},
-					transferred_features: [
-						"coordination_patterns",
-						"efficiency_heuristics",
-						"optimization_strategies",
-					],
-					new_model_id: `transferred_${Date.now()}`,
-					performance_metrics: {
-						accuracy: Math.random() * 0.15 + 0.85,
-						inference_speed: `${Math.floor(Math.random() * 150 + 50)}ms`,
-						memory_efficiency: `+${Math.floor(Math.random() * 20 + 10)}%`,
-					},
-					timestamp: new Date().toISOString(),
-				};
-
-			case "neural_explain":
-				return {
-					success: true,
-					modelId: args.modelId,
-					prediction: args.prediction,
-					explanation: {
-						decision_factors: [
-							{
-								factor: "agent_availability",
-								importance: Math.random() * 0.3 + 0.4,
-							},
-							{
-								factor: "task_complexity",
-								importance: Math.random() * 0.25 + 0.3,
-							},
-							{
-								factor: "coordination_history",
-								importance: Math.random() * 0.2 + 0.25,
-							},
-						],
-						feature_importance: {
-							topology_type: Math.random() * 0.3 + 0.5,
-							agent_capabilities: Math.random() * 0.25 + 0.4,
-							resource_availability: Math.random() * 0.2 + 0.3,
-						},
-						reasoning_path: [
-							"Analyzed current swarm topology",
-							"Evaluated agent performance history",
-							"Calculated optimal task distribution",
-							"Applied coordination efficiency patterns",
-						],
-					},
-					confidence_breakdown: {
-						model_certainty: Math.random() * 0.2 + 0.8,
-						data_quality: Math.random() * 0.15 + 0.85,
-						pattern_match: Math.random() * 0.25 + 0.75,
-					},
-					timestamp: new Date().toISOString(),
-				};
-
-			default:
-				return {
-					success: true,
-					tool: name,
-					message: `Tool ${name} executed successfully`,
-					args: args,
-					timestamp: new Date().toISOString(),
-				};
+			this.debugLogger.logFunctionExit(
+				correlationId,
+				{ executionTime: duration, success: true },
+				"mcp-tools",
+			);
+			return result;
+		} catch (error) {
+			this.debugLogger.logEvent(
+				"ClaudeFlowMCPServer",
+				"tool-execution-error",
+				{
+					toolName: name,
+					error: error.message,
+					stack: error.stack,
+				},
+				"mcp-tools",
+			);
+			this.debugLogger.logFunctionError(correlationId, error, "mcp-tools");
+			throw error;
 		}
 	}
 
@@ -1533,119 +1991,205 @@ class ClaudeFlowMCPServer {
 	}
 
 	async handleMemoryUsage(args) {
-		if (!this.memoryStore) {
-			return {
-				success: false,
-				error: "Memory system not initialized",
-				timestamp: new Date().toISOString(),
-			};
-		}
+		const correlationId = this.debugLogger.logFunctionEntry(
+			"ClaudeFlowMCPServer",
+			"handleMemoryUsage",
+			[args],
+			"mcp-server",
+		);
 
 		try {
-			switch (args.action) {
-				case "store": {
-					const storeResult = await this.memoryStore.store(
-						args.key,
-						args.value,
-						{
-							namespace: args.namespace || "default",
-							ttl: args.ttl,
-							metadata: {
-								sessionId: this.sessionId,
-								type: "knowledge",
-							},
-						}
-					);
-					return {
+			const { action, key, value, pattern } = args;
+
+			this.debugLogger.logEvent(
+				"ClaudeFlowMCPServer",
+				"memory-operation-start",
+				{
+					action,
+					key,
+					hasValue: !!value,
+					pattern,
+					currentMemorySize: this.memoryStore.size,
+				},
+				"mcp-server",
+			);
+
+			let result;
+
+			switch (action) {
+				case "store":
+					if (!key || value === undefined) {
+						throw new Error("Store operation requires both 'key' and 'value'");
+					}
+					this.memoryStore.set(key, {
+						value,
+						timestamp: Date.now(),
+						metadata: {
+							type: typeof value,
+							size: JSON.stringify(value).length,
+						},
+					});
+					result = {
 						success: true,
 						action: "store",
-						key: args.key,
-						namespace: args.namespace || "default",
-						stored: true,
-						size: storeResult.size,
-						id: storeResult.id,
-						timestamp: new Date().toISOString(),
+						key,
+						timestamp: Date.now(),
 					};
-				}
+					break;
 
 				case "retrieve": {
-					const value = await this.memoryStore.retrieve(args.key, {
-						namespace: args.namespace || "default",
-					});
-					return {
-						success: true,
-						action: "retrieve",
-						key: args.key,
-						value: value,
-						found: value !== null,
-						namespace: args.namespace || "default",
-						timestamp: new Date().toISOString(),
-					};
-				}
-
-				case "list": {
-					const entries = await this.memoryStore.list({
-						namespace: args.namespace || "default",
-						limit: 100,
-					});
-					return {
-						success: true,
-						action: "list",
-						namespace: args.namespace || "default",
-						entries: entries,
-						count: entries.length,
-						timestamp: new Date().toISOString(),
-					};
+					if (!key) {
+						throw new Error("Retrieve operation requires 'key'");
+					}
+					const stored = this.memoryStore.get(key);
+					if (!stored) {
+						result = {
+							success: false,
+							action: "retrieve",
+							key,
+							error: "Key not found",
+						};
+					} else {
+						result = {
+							success: true,
+							action: "retrieve",
+							key,
+							value: stored.value,
+							metadata: stored.metadata,
+							timestamp: stored.timestamp,
+						};
+					}
+					break;
 				}
 
 				case "delete": {
-					const deleted = await this.memoryStore.delete(args.key, {
-						namespace: args.namespace || "default",
-					});
-					return {
+					if (!key) {
+						throw new Error("Delete operation requires 'key'");
+					}
+					const existed = this.memoryStore.has(key);
+					this.memoryStore.delete(key);
+					result = {
 						success: true,
 						action: "delete",
-						key: args.key,
-						namespace: args.namespace || "default",
-						deleted: deleted,
-						timestamp: new Date().toISOString(),
+						key,
+						existed,
 					};
+					break;
+				}
+
+				case "list": {
+					const keys = Array.from(this.memoryStore.keys());
+					result = {
+						success: true,
+						action: "list",
+						keys,
+						count: keys.length,
+					};
+					break;
 				}
 
 				case "search": {
-					const results = await this.memoryStore.search(args.value || "", {
-						namespace: args.namespace || "default",
-						limit: 50,
-					});
-					return {
+					if (!pattern) {
+						throw new Error("Search operation requires 'pattern'");
+					}
+					const regex = new RegExp(pattern, "i");
+					const matches = [];
+					for (const [k, v] of this.memoryStore.entries()) {
+						if (regex.test(k) || regex.test(JSON.stringify(v.value))) {
+							matches.push({
+								key: k,
+								value: v.value,
+								metadata: v.metadata,
+								timestamp: v.timestamp,
+							});
+						}
+					}
+					result = {
 						success: true,
 						action: "search",
-						pattern: args.value,
-						namespace: args.namespace || "default",
-						results: results,
-						count: results.length,
-						timestamp: new Date().toISOString(),
+						pattern,
+						matches,
+						count: matches.length,
 					};
+					break;
+				}
+
+				case "clear": {
+					const previousSize = this.memoryStore.size;
+					this.memoryStore.clear();
+					result = {
+						success: true,
+						action: "clear",
+						previousSize,
+						currentSize: 0,
+					};
+					break;
+				}
+
+				case "stats": {
+					const stats = {
+						totalKeys: this.memoryStore.size,
+						totalMemorySize: 0,
+						keysByType: {},
+						oldestEntry: null,
+						newestEntry: null,
+					};
+
+					let oldest = Infinity;
+					let newest = 0;
+
+					for (const [k, v] of this.memoryStore.entries()) {
+						stats.totalMemorySize += JSON.stringify(v).length;
+						const type = v.metadata?.type || "unknown";
+						stats.keysByType[type] = (stats.keysByType[type] || 0) + 1;
+
+						if (v.timestamp < oldest) {
+							oldest = v.timestamp;
+							stats.oldestEntry = { key: k, timestamp: v.timestamp };
+						}
+						if (v.timestamp > newest) {
+							newest = v.timestamp;
+							stats.newestEntry = { key: k, timestamp: v.timestamp };
+						}
+					}
+
+					result = {
+						success: true,
+						action: "stats",
+						stats,
+					};
+					break;
 				}
 
 				default:
-					return {
-						success: false,
-						error: `Unknown memory action: ${args.action}`,
-						timestamp: new Date().toISOString(),
-					};
+					throw new Error(`Unknown memory action: ${action}`);
 			}
-		} catch (error) {
-			console.error(
-				`[${new Date().toISOString()}] ERROR [claude-flow-mcp] Memory operation failed:`,
-				error
+
+			this.debugLogger.logEvent(
+				"ClaudeFlowMCPServer",
+				"memory-operation-complete",
+				{
+					action,
+					success: result.success,
+					memorySize: this.memoryStore.size,
+				},
+				"mcp-server",
 			);
-			return {
-				success: false,
-				error: error.message,
-				action: args.action,
-				timestamp: new Date().toISOString(),
-			};
+
+			this.debugLogger.logFunctionExit(correlationId, result, "mcp-server");
+			return result;
+		} catch (error) {
+			this.debugLogger.logEvent(
+				"ClaudeFlowMCPServer",
+				"memory-operation-error",
+				{
+					action: args.action,
+					error: error.message,
+				},
+				"mcp-server",
+			);
+			this.debugLogger.logFunctionError(correlationId, error, "mcp-server");
+			throw error;
 		}
 	}
 
@@ -1675,7 +2219,7 @@ class ClaudeFlowMCPServer {
 		} catch (error) {
 			console.error(
 				`[${new Date().toISOString()}] ERROR [claude-flow-mcp] Memory search failed:`,
-				error
+				error,
 			);
 			return {
 				success: false,
@@ -1697,96 +2241,234 @@ class ClaudeFlowMCPServer {
 }
 
 // Main server execution
-async function startMCPServer() {
-	const server = new ClaudeFlowMCPServer();
-
-	console.error(
-		`[${new Date().toISOString()}] INFO [claude-flow-mcp] (${server.sessionId}) Claude-Flow MCP server starting in stdio mode`
+async function startMCPServer(options = {}) {
+	const { debugLogger } = require("../utils/debug-logger.js");
+	const correlationId = debugLogger.logFunctionEntry(
+		"MCPServer",
+		"startMCPServer",
+		[options],
+		"mcp-server",
 	);
-	console.error({
-		arch: process.arch,
-		mode: "mcp-stdio",
-		nodeVersion: process.version,
-		pid: process.pid,
-		platform: process.platform,
-		protocol: "stdio",
-		sessionId: server.sessionId,
-		version: server.version,
-	});
 
-	// Send server capabilities
-	console.log(
-		JSON.stringify({
-			jsonrpc: "2.0",
-			method: "server.initialized",
-			params: {
-				serverInfo: {
-					name: "claude-flow",
-					version: server.version,
-					capabilities: server.capabilities,
-				},
+	try {
+		debugLogger.logEvent(
+			"MCPServer",
+			"server-startup-initiated",
+			{
+				options,
+				nodeVersion: process.version,
+				platform: process.platform,
 			},
-		})
-	);
+			"mcp-server",
+		);
 
-	// Handle stdin messages
-	let buffer = "";
+		const server = new ClaudeFlowMCPServer(options);
 
-	process.stdin.on("data", async (chunk) => {
-		buffer += chunk.toString();
+		// Initialize memory and tools
+		server.initializeMemory();
+		await server.initializeTools();
+		await server.initializeResources();
 
-		// Process complete JSON messages
-		const lines = buffer.split("\n");
-		buffer = lines.pop() || ""; // Keep incomplete line in buffer
+		debugLogger.logEvent(
+			"MCPServer",
+			"server-initialization-complete",
+			{
+				toolsCount: server.tools.size,
+				resourcesCount: server.resources.size,
+				memoryInitialized: !!server.memoryStore,
+			},
+			"mcp-server",
+		);
 
-		for (const line of lines) {
-			if (line.trim()) {
-				try {
-					const message = JSON.parse(line);
-					const response = await server.handleMessage(message);
-					if (response) {
-						console.log(JSON.stringify(response));
+		// Setup stdio transport
+		const transport = {
+			input: process.stdin,
+			output: process.stdout,
+		};
+
+		debugLogger.logEvent(
+			"MCPServer",
+			"stdio-transport-configured",
+			{
+				hasInput: !!transport.input,
+				hasOutput: !!transport.output,
+			},
+			"mcp-server",
+		);
+
+		// Handle incoming messages
+		let buffer = "";
+		transport.input.on("data", async (chunk) => {
+			const chunkCorrelationId = debugLogger.logFunctionEntry(
+				"MCPServer",
+				"handleIncomingData",
+				[{ chunkSize: chunk.length }],
+				"mcp-server",
+			);
+
+			try {
+				buffer += chunk.toString();
+				const lines = buffer.split("\n");
+				buffer = lines.pop() || "";
+
+				for (const line of lines) {
+					if (line.trim()) {
+						debugLogger.logEvent(
+							"MCPServer",
+							"processing-message-line",
+							{ lineLength: line.length },
+							"mcp-server",
+						);
+
+						try {
+							const message = JSON.parse(line);
+							debugLogger.logEvent(
+								"MCPServer",
+								"message-parsed",
+								{
+									messageId: message.id,
+									method: message.method,
+								},
+								"mcp-server",
+							);
+
+							const response = await server.handleMessage(message);
+							const responseStr = JSON.stringify(response) + "\n";
+
+							transport.output.write(responseStr);
+							debugLogger.logEvent(
+								"MCPServer",
+								"response-sent",
+								{
+									messageId: message.id,
+									responseSize: responseStr.length,
+								},
+								"mcp-server",
+							);
+						} catch (parseError) {
+							debugLogger.logEvent(
+								"MCPServer",
+								"message-parse-error",
+								{
+									error: parseError.message,
+									line: line.substring(0, 100),
+								},
+								"mcp-server",
+							);
+
+							const errorResponse = server.createErrorResponse(
+								null,
+								-32700,
+								"Parse error",
+								parseError.message,
+							);
+							transport.output.write(JSON.stringify(errorResponse) + "\n");
+						}
 					}
-				} catch (error) {
-					console.error(
-						`[${new Date().toISOString()}] ERROR [claude-flow-mcp] Failed to parse message:`,
-						error.message
-					);
 				}
+
+				debugLogger.logFunctionExit(
+					chunkCorrelationId,
+					{ linesProcessed: lines.length - 1 },
+					"mcp-server",
+				);
+			} catch (error) {
+				debugLogger.logFunctionError(chunkCorrelationId, error, "mcp-server");
 			}
-		}
-	});
+		});
 
-	process.stdin.on("end", () => {
-		console.error(
-			`[${new Date().toISOString()}] INFO [claude-flow-mcp] (${server.sessionId}) 🔌 Connection closed: ${server.sessionId}`
-		);
-		console.error(
-			`[${new Date().toISOString()}] INFO [claude-flow-mcp] (${server.sessionId}) MCP: stdin closed, shutting down...`
-		);
-		process.exit(0);
-	});
+		// Handle process cleanup
+		const cleanup = () => {
+			const cleanupCorrelationId = debugLogger.logFunctionEntry(
+				"MCPServer",
+				"cleanup",
+				[],
+				"mcp-server",
+			);
 
-	// Handle process termination
-	process.on("SIGINT", async () => {
-		console.error(
-			`[${new Date().toISOString()}] INFO [claude-flow-mcp] (${server.sessionId}) Received SIGINT, shutting down gracefully...`
-		);
-		if (server.sharedMemory) {
-			await server.sharedMemory.close();
-		}
-		process.exit(0);
-	});
+			try {
+				debugLogger.logEvent(
+					"MCPServer",
+					"server-shutdown-initiated",
+					{
+						memoryStoreSize: server.memoryStore?.size,
+					},
+					"mcp-server",
+				);
 
-	process.on("SIGTERM", async () => {
-		console.error(
-			`[${new Date().toISOString()}] INFO [claude-flow-mcp] (${server.sessionId}) Received SIGTERM, shutting down gracefully...`
+				if (server.memoryStore) {
+					server.memoryStore.clear();
+				}
+
+				debugLogger.logEvent(
+					"MCPServer",
+					"server-shutdown-complete",
+					{},
+					"mcp-server",
+				);
+				debugLogger.logFunctionExit(
+					cleanupCorrelationId,
+					{ success: true },
+					"mcp-server",
+				);
+				process.exit(0);
+			} catch (error) {
+				debugLogger.logFunctionError(cleanupCorrelationId, error, "mcp-server");
+				process.exit(1);
+			}
+		};
+
+		process.on("SIGINT", cleanup);
+		process.on("SIGTERM", cleanup);
+
+		// Handle uncaught errors
+		process.on("uncaughtException", (error) => {
+			debugLogger.logEvent(
+				"MCPServer",
+				"uncaught-exception",
+				{
+					error: error.message,
+					stack: error.stack,
+				},
+				"mcp-server",
+			);
+			cleanup();
+		});
+
+		process.on("unhandledRejection", (reason, promise) => {
+			debugLogger.logEvent(
+				"MCPServer",
+				"unhandled-rejection",
+				{
+					reason: reason?.message || reason,
+					promise: promise.toString(),
+				},
+				"mcp-server",
+			);
+			cleanup();
+		});
+
+		debugLogger.logEvent(
+			"MCPServer",
+			"server-ready",
+			{
+				serverName: server.config.name,
+				serverVersion: server.config.version,
+				processId: process.pid,
+			},
+			"mcp-server",
 		);
-		if (server.sharedMemory) {
-			await server.sharedMemory.close();
-		}
-		process.exit(0);
-	});
+
+		debugLogger.logFunctionExit(
+			correlationId,
+			{ success: true, processId: process.pid },
+			"mcp-server",
+		);
+		return server;
+	} catch (error) {
+		debugLogger.logFunctionError(correlationId, error, "mcp-server");
+		throw error;
+	}
 }
 
 // Start the server if this file is run directly

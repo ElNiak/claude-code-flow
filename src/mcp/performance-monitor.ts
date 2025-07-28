@@ -104,43 +104,150 @@ export class MCPPerformanceMonitor extends EventEmitter {
 	private alertCheckTimer?: NodeJS.Timeout;
 	private cleanupTimer?: NodeJS.Timeout;
 
+	// Required properties
+	private debugLogger: any;
+	private logger: any;
+
 	private readonly config = {
 		metricsInterval: 10000, // 10 seconds,
 		alertCheckInterval: 5000, // 5 seconds,
 		maxHistorySize: 1000,
 		maxResponseTimeHistory: 10000,
 		cleanupInterval: 300000, // 5 minutes,
-		requestTimeout: 30000, // 30 seconds
+		requestTimeout: 30000, // 30 seconds,
+		performanceThresholds: {
+			responseTime: 1000,
+			errorRate: 0.05,
+			requestRate: 100,
+		},
 	};
 
-	constructor(private logger: ILogger) {
+	constructor(config: any) {
 		super();
-		this.setupDefaultAlertRules();
-		this.startMonitoring();
+
+		// Import debug logger
+		const { debugLogger } = require("../utils/debug-logger.js");
+		this.debugLogger = debugLogger;
+
+		const correlationId = this.debugLogger.logFunctionEntry(
+			"MCPPerformanceMonitor",
+			"constructor",
+			[config],
+			"mcp-performance",
+		);
+
+		try {
+			this.logger = config.logger || console;
+			this.requestMetrics = new Map();
+			this.historicalMetrics = [];
+			this.responseTimes = [];
+			this.alertRules = new Map();
+			this.activeAlerts = new Map();
+			this.optimizationSuggestions = [];
+
+			this.metricsTimer = undefined;
+			this.alertCheckTimer = undefined;
+			this.cleanupTimer = undefined;
+
+			// Merge with base config
+			this.config = {
+				...this.config,
+				metricsInterval: config.metricsInterval || 30000, // 30 seconds
+				alertCheckInterval: config.alertCheckInterval || 60000, // 1 minute
+				maxHistorySize: config.maxHistorySize || 1000,
+				maxResponseTimeHistory: config.maxResponseTimeHistory || 10000,
+				cleanupInterval: config.cleanupInterval || 300000, // 5 minutes
+				performanceThresholds: {
+					responseTime: config.performanceThresholds?.responseTime || 1000, // 1s
+					errorRate: config.performanceThresholds?.errorRate || 0.05, // 5%
+					requestRate: config.performanceThresholds?.requestRate || 100, // 100 req/min
+					...config.performanceThresholds,
+				},
+			};
+
+			this.debugLogger.logEvent(
+				"MCPPerformanceMonitor",
+				"performance-monitor-initialized",
+				{
+					metricsInterval: this.config.metricsInterval,
+					alertCheckInterval: this.config.alertCheckInterval,
+					maxHistorySize: this.config.maxHistorySize,
+					performanceThresholds: this.config.performanceThresholds,
+				},
+				"mcp-performance",
+			);
+
+			this.debugLogger.logFunctionExit(
+				correlationId,
+				{ success: true },
+				"mcp-performance",
+			);
+		} catch (error) {
+			this.debugLogger.logFunctionError(
+				correlationId,
+				error,
+				"mcp-performance",
+			);
+			throw error;
+		}
 	}
 
 	/**
 	 * Record the start of a request
 	 */
-	recordRequestStart(request: MCPRequest, session: MCPSession): string {
-		const requestId = `${request.id}_${Date.now()}`;
-		const metrics: RequestMetrics = {
-			id: requestId,
-			method: request.method,
-			sessionId: session.id,
-			startTime: performance.now(),
-			requestSize: this.calculateRequestSize(request),
-		};
+	recordRequestStart(
+		requestId: string,
+		method: string,
+		parameters?: any,
+	): void {
+		const correlationId = this.debugLogger.logFunctionEntry(
+			"MCPPerformanceMonitor",
+			"recordRequestStart",
+			[requestId, method],
+			"mcp-performance",
+		);
 
-		this.requestMetrics.set(requestId, metrics);
+		try {
+			const metrics: RequestMetrics = {
+				id: requestId,
+				method,
+				sessionId: "default",
+				startTime: Date.now(),
+				endTime: undefined,
+				duration: undefined,
+				success: undefined,
+				error: undefined,
+				requestSize: undefined,
+				responseSize: undefined,
+			};
 
-		this.logger.debug("Request started", {
-			requestId,
-			method: request.method,
-			sessionId: session.id,
-		});
+			this.requestMetrics.set(requestId, metrics);
 
-		return requestId;
+			this.debugLogger.logEvent(
+				"MCPPerformanceMonitor",
+				"request-started",
+				{
+					requestId,
+					method,
+					requestSize: metrics.requestSize,
+					activeRequests: this.requestMetrics.size,
+				},
+				"mcp-performance",
+			);
+
+			this.debugLogger.logFunctionExit(
+				correlationId,
+				{ requestId, activeRequests: this.requestMetrics.size },
+				"mcp-performance",
+			);
+		} catch (error) {
+			this.debugLogger.logFunctionError(
+				correlationId,
+				error,
+				"mcp-performance",
+			);
+			throw error;
+		}
 	}
 
 	/**
@@ -148,43 +255,98 @@ export class MCPPerformanceMonitor extends EventEmitter {
 	 */
 	recordRequestEnd(
 		requestId: string,
-		response?: MCPResponse,
-		error?: Error
+		success: boolean,
+		response?: any,
+		error?: Error,
 	): void {
-		const metrics = this.requestMetrics.get(requestId);
-		if (!metrics) {
-			this.logger.warn("Request metrics not found", { requestId });
-			return;
-		}
+		const correlationId = this.debugLogger.logFunctionEntry(
+			"MCPPerformanceMonitor",
+			"recordRequestEnd",
+			[requestId, success],
+			"mcp-performance",
+		);
 
-		const endTime = performance.now();
-		const duration = endTime - metrics.startTime;
+		try {
+			const metrics = this.requestMetrics.get(requestId);
+			if (!metrics) {
+				this.debugLogger.logEvent(
+					"MCPPerformanceMonitor",
+					"request-metrics-not-found",
+					{ requestId },
+					"mcp-performance",
+				);
+				this.debugLogger.logFunctionExit(
+					correlationId,
+					{ found: false },
+					"mcp-performance",
+				);
+				return;
+			}
 
-		metrics.endTime = endTime;
-		metrics.duration = duration;
-		metrics.success = !error;
-		metrics.error = error?.message;
-		metrics.responseSize = response ? this.calculateResponseSize(response) : 0;
+			const endTime = Date.now();
+			metrics.endTime = endTime;
+			metrics.duration = endTime - metrics.startTime;
+			metrics.success = success;
+			metrics.error = error ? error.message : undefined;
+			metrics.responseSize = this.calculateResponseSize(response);
 
-		// Add to response time history,
-		this.responseTimes.push(duration);
-		if (this.responseTimes.length > this.config.maxResponseTimeHistory) {
-			this.responseTimes.shift();
-		}
+			// Store response time for analysis
+			this.responseTimes.push(metrics.duration || 0);
 
-		this.logger.debug("Request completed", {
-			requestId,
-			duration,
-			success: metrics.success,
-			error: metrics.error,
-		});
+			// Limit response times array size
+			if (this.responseTimes.length > this.config.maxResponseTimeHistory) {
+				this.responseTimes = this.responseTimes.slice(
+					-this.config.maxResponseTimeHistory,
+				);
+			}
 
-		this.emit("requestCompleted", metrics);
+			// Move to historical metrics
+			const historicalMetric = this.getCurrentMetrics();
+			this.historicalMetrics.push(historicalMetric);
 
-		// Remove from active metrics after some time,
-		setTimeout(() => {
+			// Limit historical metrics size
+			if (this.historicalMetrics.length > this.config.maxHistorySize) {
+				this.historicalMetrics = this.historicalMetrics.slice(
+					-this.config.maxHistorySize,
+				);
+			}
+
+			// Remove from active requests
 			this.requestMetrics.delete(requestId);
-		}, 60000); // Keep for 1 minute
+
+			this.debugLogger.logEvent(
+				"MCPPerformanceMonitor",
+				"request-completed",
+				{
+					requestId,
+					duration: metrics.duration,
+					success,
+					method: metrics.method,
+					requestSize: metrics.requestSize,
+					responseSize: metrics.responseSize,
+					activeRequests: this.requestMetrics.size,
+					historicalMetricsCount: this.historicalMetrics.length,
+				},
+				"mcp-performance",
+			);
+
+			this.debugLogger.logFunctionExit(
+				correlationId,
+				{
+					duration: metrics.duration,
+					success,
+					activeRequests: this.requestMetrics.size,
+				},
+				"mcp-performance",
+			);
+		} catch (error) {
+			this.debugLogger.logFunctionError(
+				correlationId,
+				error,
+				"mcp-performance",
+			);
+			throw error;
+		}
 	}
 
 	/**
@@ -193,7 +355,7 @@ export class MCPPerformanceMonitor extends EventEmitter {
 	getCurrentMetrics(): PerformanceMetrics {
 		const now = Date.now();
 		const completedRequests = Array.from(this.requestMetrics.values()).filter(
-			(m) => m.endTime !== undefined
+			(m) => m.endTime !== undefined,
 		);
 
 		const successfulRequests = completedRequests.filter((m) => m.success);
@@ -213,7 +375,7 @@ export class MCPPerformanceMonitor extends EventEmitter {
 		// Calculate throughput (requests per second over last minute)
 		const oneMinuteAgo = now - 60000;
 		const recentRequests = completedRequests.filter(
-			(m) => m.endTime && m.startTime + oneMinuteAgo > 0
+			(m) => m.endTime && m.startTime + oneMinuteAgo > 0,
 		);
 		const throughput = recentRequests.length / 60;
 
@@ -468,11 +630,11 @@ export class MCPPerformanceMonitor extends EventEmitter {
 			const triggered = this.evaluateCondition(
 				value,
 				rule.operator,
-				rule.threshold
+				rule.threshold,
 			);
 
 			const existingAlert = Array.from(this.activeAlerts.values()).find(
-				(a) => a.ruleId === rule.id && !a.resolvedAt
+				(a) => a.ruleId === rule.id && !a.resolvedAt,
 			);
 
 			if (triggered && !existingAlert) {
@@ -521,7 +683,7 @@ export class MCPPerformanceMonitor extends EventEmitter {
 	private evaluateCondition(
 		value: number,
 		operator: string,
-		threshold: number
+		threshold: number,
 	): boolean {
 		switch (operator) {
 			case "gt":
@@ -568,7 +730,7 @@ export class MCPPerformanceMonitor extends EventEmitter {
 			responseTime: this.getTrend(
 				first.averageResponseTime,
 				last.averageResponseTime,
-				true
+				true,
 			),
 			throughput: this.getTrend(first.throughput, last.throughput, false),
 			errorRate: this.getTrend(first.errorRate, last.errorRate, true),
@@ -578,7 +740,7 @@ export class MCPPerformanceMonitor extends EventEmitter {
 	private getTrend(
 		oldValue: number,
 		newValue: number,
-		lowerIsBetter: boolean
+		lowerIsBetter: boolean,
 	): "improving" | "degrading" | "stable" {
 		const change = (newValue - oldValue) / oldValue;
 		const threshold = 0.1; // 10% change threshold,
@@ -650,7 +812,7 @@ export class MCPPerformanceMonitor extends EventEmitter {
 		// Add only new suggestions,
 		for (const suggestion of suggestions) {
 			const exists = this.optimizationSuggestions.some(
-				(s) => s.type === suggestion.type && s.title === suggestion.title
+				(s) => s.type === suggestion.type && s.title === suggestion.title,
 			);
 
 			if (!exists) {
@@ -662,7 +824,7 @@ export class MCPPerformanceMonitor extends EventEmitter {
 		// Keep only recent suggestions (last 24 hours)
 		const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
 		this.optimizationSuggestions = this.optimizationSuggestions.filter(
-			(s) => s.detectedAt > dayAgo
+			(s) => s.detectedAt > dayAgo,
 		);
 	}
 
@@ -679,7 +841,7 @@ export class MCPPerformanceMonitor extends EventEmitter {
 		// Clean up old response times,
 		if (this.responseTimes.length > this.config.maxResponseTimeHistory) {
 			this.responseTimes = this.responseTimes.slice(
-				-this.config.maxResponseTimeHistory
+				-this.config.maxResponseTimeHistory,
 			);
 		}
 	}

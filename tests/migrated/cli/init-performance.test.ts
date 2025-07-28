@@ -1,12 +1,11 @@
-import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
-import { spawn } from 'child_process';
-import { promises as fs } from 'fs';
-import path from 'path';
-
+import { afterEach, beforeEach, describe, expect, it } from '@jest/globals';
 import { assertEquals, assertExists } from "@std/assert/mod.ts";
 import { exists } from "@std/fs/mod.ts";
 import { join } from "@std/path/mod.ts";
 import { afterEach, beforeEach, describe, it } from "@std/testing/bdd.ts";
+import { spawn } from 'child_process';
+import { promises as fs } from 'fs';
+import path from 'path';
 
 describe("Init Command Performance Tests", () => {
 	let testDir: string;
@@ -37,7 +36,7 @@ describe("Init Command Performance Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 				],
 				cwd: testDir,
@@ -71,7 +70,7 @@ describe("Init Command Performance Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 					"--minimal",
 				],
@@ -98,7 +97,7 @@ describe("Init Command Performance Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 				],
 				cwd: testDir,
@@ -126,7 +125,7 @@ describe("Init Command Performance Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 					"--sparc",
 				],
@@ -161,7 +160,7 @@ describe("Init Command Performance Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 					"--sparc",
 				],
@@ -212,7 +211,7 @@ describe("Init Command Performance Tests", () => {
 					args: [
 						"run",
 						"--allow-all",
-						join(originalCwd, "src/cli/simple-cli.ts"),
+						join(originalCwd, "src/cli/cli.ts"),
 						"init",
 					],
 					cwd: dir,
@@ -283,7 +282,7 @@ describe("Init Command Performance Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 				],
 				cwd: testDir,
@@ -321,7 +320,7 @@ describe("Init Command Performance Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 					"--sparc",
 				],
@@ -363,7 +362,7 @@ describe("Init Command Performance Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 					"--force",
 				],
@@ -398,7 +397,7 @@ describe("Init Command Performance Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 				],
 				cwd: testDir,
@@ -449,7 +448,7 @@ describe("Init Command Performance Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 				],
 				cwd: testDir,

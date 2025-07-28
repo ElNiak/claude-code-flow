@@ -10,6 +10,7 @@ export interface CliCommand {
 	examples?: string[];
 	options?: CliOption[];
 	subcommands?: CliCommand[];
+	aliases?: string[];
 	action?: (context: CommandContext) => Promise<void> | void;
 	beforeAction?: (context: CommandContext) => Promise<void> | void;
 	afterAction?: (context: CommandContext) => Promise<void> | void;
@@ -24,6 +25,7 @@ export interface CliOption {
 	default?: any;
 	choices?: string[];
 	alias?: string;
+	short?: string;
 	multiple?: boolean;
 }
 
@@ -117,7 +119,7 @@ export interface PluginHooks {
 	beforeCommand?: (context: CommandContext) => Promise<void>;
 	afterCommand?: (
 		context: CommandContext,
-		result: CommandResult
+		result: CommandResult,
 	) => Promise<void>;
 	onError?: (error: CliError, context: CommandContext) => Promise<void>;
 	onInit?: (config: CliConfig) => Promise<void>;
@@ -230,17 +232,17 @@ export interface CliMiddleware {
 	priority?: number;
 	beforeCommand?: (
 		context: CommandContext,
-		next: () => Promise<void>
+		next: () => Promise<void>,
 	) => Promise<void>;
 	afterCommand?: (
 		context: CommandContext,
 		result: CommandResult,
-		next: () => Promise<void>
+		next: () => Promise<void>,
 	) => Promise<void>;
 	onError?: (
 		error: CliError,
 		context: CommandContext,
-		next: (error?: Error) => Promise<void>
+		next: (error?: Error) => Promise<void>,
 	) => Promise<void>;
 }
 

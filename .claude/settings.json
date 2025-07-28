@@ -1,103 +1,105 @@
 {
-  "env": {
-    "CLAUDE_FLOW_AUTO_COMMIT": "false",
-    "CLAUDE_FLOW_AUTO_PUSH": "false",
-    "CLAUDE_FLOW_HOOKS_ENABLED": "true",
-    "CLAUDE_FLOW_TELEMETRY_ENABLED": "true",
-    "CLAUDE_FLOW_REMOTE_EXECUTION": "true",
-    "CLAUDE_FLOW_GITHUB_INTEGRATION": "true",
-    "EMERGENCY_MEMORY_ACTIVE": "true",
-    "NODE_OPTIONS": "--max-old-space-size=12288 --expose-gc"
-  },
-  "permissions": {
-    "allow": [
-      "Bash(npx claude-flow *)",
-      "Bash(npm run *)",
-      "Bash(npm test *)",
-      "Bash(./start-optimized.sh *)",
-      "Bash(./scripts/memory-optimized-start.sh *)",
-      "Bash(git status)",
-      "Bash(git diff *)",
-      "Bash(git log *)",
-      "Bash(git add *)",
-      "Bash(git commit *)",
-      "Bash(git push)",
-      "Bash(git config *)",
-      "Bash(gh *)",
-      "Bash(node *)",
-      "Bash(which *)",
-      "Bash(pwd)",
-      "Bash(ls *)",
-      "Bash(pkill *)"
-    ],
-    "deny": [
-      "Bash(rm -rf /)",
-      "Bash(curl * | bash)",
-      "Bash(wget * | sh)",
-      "Bash(eval *)"
-    ]
-  },
-  "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "npx claude-flow hooks pre-bash --command \"${command}\" --validate-safety true --prepare-resources true"
-          }
-        ]
-      },
-      {
-        "matcher": "Write|Edit|MultiEdit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "npx claude-flow hooks pre-edit --file \"${file_path}\" --auto-assign-agents false --load-context false --serena-verify false --block-on-fail false"
-          }
-        ]
-      },
-      {
-        "matcher": "Read|Glob|Grep",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "npx claude-flow hooks pre-task --description \"Reading files\" --auto-spawn-agents false"
-          }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "npx claude-flow hooks post-bash --command \"${command}\" --track-metrics true --store-results true"
-          }
-        ]
-      },
-      {
-        "matcher": "Write|Edit|MultiEdit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "npx claude-flow hooks post-edit --file \"${file_path}\" --format false --update-memory false --train-neural false --validate-changes false --store-verified-structure false"
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "npx claude-flow hooks session-end --generate-summary true --persist-state true --export-metrics true"
-          }
-        ]
-      }
-    ]
-  },
-  "includeCoAuthoredBy": false
+	"env": {
+		"CLAUDE_FLOW_AUTO_COMMIT": "false",
+		"CLAUDE_FLOW_AUTO_PUSH": "false",
+		"CLAUDE_FLOW_HOOKS_ENABLED": "true",
+		"CLAUDE_FLOW_TELEMETRY_ENABLED": "true",
+		"CLAUDE_FLOW_REMOTE_EXECUTION": "true",
+		"CLAUDE_FLOW_GITHUB_INTEGRATION": "true",
+		"EMERGENCY_MEMORY_ACTIVE": "true",
+		"NODE_OPTIONS": "--max-old-space-size=12288 --expose-gc",
+		"DEBUG": "true",
+		"DEBUG_CATEGORIES": "all"
+	},
+	"permissions": {
+		"allow": [
+			"Bash(npx claude-flow *)",
+			"Bash(npm run *)",
+			"Bash(npm test *)",
+			"Bash(./start-optimized.sh *)",
+			"Bash(./scripts/memory-optimized-start.sh *)",
+			"Bash(git status)",
+			"Bash(git diff *)",
+			"Bash(git log *)",
+			"Bash(git add *)",
+			"Bash(git commit *)",
+			"Bash(git push)",
+			"Bash(git config *)",
+			"Bash(gh *)",
+			"Bash(node *)",
+			"Bash(which *)",
+			"Bash(pwd)",
+			"Bash(ls *)",
+			"Bash(pkill *)"
+		],
+		"deny": [
+			"Bash(rm -rf /)",
+			"Bash(curl * | bash)",
+			"Bash(wget * | sh)",
+			"Bash(eval *)"
+		]
+	},
+	"hooks": {
+		"PreToolUse": [
+			{
+				"matcher": "Bash",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "npx claude-flow hooks pre-bash"
+					}
+				]
+			},
+			{
+				"matcher": "Write|Edit|MultiEdit",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "npx claude-flow hooks pre-edit"
+					}
+				]
+			},
+			{
+				"matcher": "Read|Glob|Grep",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "npx claude-flow hooks pre-task --description \"Reading files\" --auto-spawn-agents false"
+					}
+				]
+			}
+		],
+		"PostToolUse": [
+			{
+				"matcher": "Bash",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "npx claude-flow hooks post-bash"
+					}
+				]
+			},
+			{
+				"matcher": "Write|Edit|MultiEdit",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "npx claude-flow hooks post-edit"
+					}
+				]
+			}
+		],
+		"Stop": [
+			{
+				"matcher": "",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "npx claude-flow hooks session-end --generate-summary true --persist-state true --export-metrics true"
+					}
+				]
+			}
+		]
+	},
+	"includeCoAuthoredBy": false
 }

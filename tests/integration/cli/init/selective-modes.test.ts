@@ -37,7 +37,7 @@ describe("Selective Mode Initialization Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 				],
 				cwd: standardDir,
@@ -55,7 +55,7 @@ describe("Selective Mode Initialization Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 					"--minimal",
 				],
@@ -99,7 +99,7 @@ describe("Selective Mode Initialization Tests", () => {
 				const args = [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 				];
 				if (mode === "minimal") args.push("--minimal");
@@ -146,7 +146,7 @@ describe("Selective Mode Initialization Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 				],
 				cwd: regularDir,
@@ -164,7 +164,7 @@ describe("Selective Mode Initialization Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 					"--sparc",
 				],
@@ -207,7 +207,7 @@ describe("Selective Mode Initialization Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 					"--sparc",
 				],
@@ -252,7 +252,7 @@ describe("Selective Mode Initialization Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 					"--sparc",
 					"--minimal",
@@ -294,7 +294,7 @@ describe("Selective Mode Initialization Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 					"--minimal",
 				],
@@ -312,7 +312,7 @@ describe("Selective Mode Initialization Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 					"--sparc",
 					"--minimal",
@@ -345,7 +345,7 @@ describe("Selective Mode Initialization Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 					"--minimal",
 				],
@@ -366,7 +366,7 @@ describe("Selective Mode Initialization Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 					"--force",
 				],
@@ -395,7 +395,7 @@ describe("Selective Mode Initialization Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 				],
 				cwd: testDir,
@@ -414,7 +414,7 @@ describe("Selective Mode Initialization Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 					"--sparc",
 					"--force",
@@ -445,7 +445,7 @@ describe("Selective Mode Initialization Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 					"--minimal",
 				],
@@ -481,7 +481,7 @@ describe("Selective Mode Initialization Tests", () => {
 				args: [
 					"run",
 					"--allow-all",
-					join(originalCwd, "src/cli/simple-cli.ts"),
+					join(originalCwd, "src/cli/cli.ts"),
 					"init",
 					"--sparc",
 				],

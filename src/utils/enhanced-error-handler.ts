@@ -1,9 +1,10 @@
-import { getErrorMessage as _getErrorMessage } from "./error-handler.js";
+// import { getErrorMessage as _getErrorMessage } from "./error-handler.js";
 /**
  * Enhanced Error Handler with consistent error patterns and recovery strategies
  */
 
 import type { ILogger } from "../core/logger.js";
+import { debugLogger } from "./debug-logger.js";
 import { SystemEvents } from "./types.js";
 
 export interface ErrorContext {
@@ -75,9 +76,25 @@ export class EnhancedErrorHandler {
 
 	constructor(
 		private logger: ILogger,
-		private eventBus?: any
+		private eventBus?: any,
 	) {
-		this.registerDefaultRecoveryStrategies();
+		const correlationId = debugLogger.logFunctionEntry(
+			"EnhancedErrorHandler",
+			"constructor",
+			[logger, eventBus],
+			"utils-error",
+		);
+		try {
+			this.registerDefaultRecoveryStrategies();
+			debugLogger.logFunctionExit(
+				correlationId,
+				"EnhancedErrorHandler initialized",
+				"utils-error",
+			);
+		} catch (error) {
+			debugLogger.logFunctionError(correlationId, error, "utils-error");
+			throw error;
+		}
 	}
 
 	/**
@@ -88,108 +105,137 @@ export class EnhancedErrorHandler {
 		context: ErrorContext,
 		severity: ErrorSeverity = ErrorSeverity.MEDIUM,
 		originalError?: Error,
-		userMessage?: string
+		userMessage?: string,
 	): EnhancedError {
-		const error = new Error(message) as EnhancedError;
+		const correlationId = debugLogger.logFunctionEntry(
+			"EnhancedErrorHandler",
+			"createError",
+			[message, context, severity, originalError, userMessage],
+			"utils-error",
+		);
+		try {
+			const error = new Error(message) as EnhancedError;
 
-		// Add enhanced properties
-		Object.defineProperty(error, "id", {
-			value: `err_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-			writable: false,
-			enumerable: true,
-		});
-
-		Object.defineProperty(error, "severity", {
-			value: severity,
-			writable: false,
-			enumerable: true,
-		});
-
-		Object.defineProperty(error, "context", {
-			value: context,
-			writable: false,
-			enumerable: true,
-		});
-
-		Object.defineProperty(error, "retryable", {
-			value: this.isRetryableError(originalError || error),
-			writable: false,
-			enumerable: true,
-		});
-
-		Object.defineProperty(error, "recoveryAttempts", {
-			value: 0,
-			writable: true,
-			enumerable: true,
-		});
-
-		if (originalError) {
-			Object.defineProperty(error, "originalError", {
-				value: originalError,
+			// Add enhanced properties
+			Object.defineProperty(error, "id", {
+				value: `err_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
 				writable: false,
 				enumerable: true,
 			});
-		}
 
-		Object.defineProperty(error, "stackTrace", {
-			value: error.stack,
-			writable: false,
-			enumerable: true,
-		});
-
-		if (userMessage) {
-			Object.defineProperty(error, "userMessage", {
-				value: userMessage,
+			Object.defineProperty(error, "severity", {
+				value: severity,
 				writable: false,
 				enumerable: true,
 			});
-		}
 
-		return error;
+			Object.defineProperty(error, "context", {
+				value: context,
+				writable: false,
+				enumerable: true,
+			});
+
+			Object.defineProperty(error, "retryable", {
+				value: this.isRetryableError(originalError || error),
+				writable: false,
+				enumerable: true,
+			});
+
+			Object.defineProperty(error, "recoveryAttempts", {
+				value: 0,
+				writable: true,
+				enumerable: true,
+			});
+
+			if (originalError) {
+				Object.defineProperty(error, "originalError", {
+					value: originalError,
+					writable: false,
+					enumerable: true,
+				});
+			}
+
+			Object.defineProperty(error, "stackTrace", {
+				value: error.stack,
+				writable: false,
+				enumerable: true,
+			});
+
+			if (userMessage) {
+				Object.defineProperty(error, "userMessage", {
+					value: userMessage,
+					writable: false,
+					enumerable: true,
+				});
+			}
+
+			debugLogger.logFunctionExit(
+				correlationId,
+				`Error created: ${error.id}`,
+				"utils-error",
+			);
+			return error;
+		} catch (innerError) {
+			debugLogger.logFunctionError(correlationId, innerError, "utils-error");
+			throw innerError;
+		}
 	}
 
 	/**
 	 * Handle error with recovery strategies and consistent logging
 	 */
 	async handleError(error: Error, context: ErrorContext): Promise<boolean> {
-		// Create enhanced error if needed
-		const enhancedError = this.isEnhancedError(error)
-			? (error as EnhancedError)
-			: this.createError(error.message, context, ErrorSeverity.MEDIUM, error);
+		return await debugLogger.logAsyncFunction(
+			"EnhancedErrorHandler",
+			"handleError",
+			async () => {
+				// Create enhanced error if needed
+				const enhancedError = this.isEnhancedError(error)
+					? (error as EnhancedError)
+					: this.createError(
+							error.message,
+							context,
+							ErrorSeverity.MEDIUM,
+							error,
+						);
 
-		// Update metrics
-		this.updateMetrics(enhancedError);
+				// Update metrics
+				this.updateMetrics(enhancedError);
 
-		// Check circuit breaker
-		const circuitKey = `${context.component}:${context.operation}`;
-		if (this.isCircuitOpen(circuitKey)) {
-			this.logger.warn("Circuit breaker open, skipping operation", {
-				error: enhancedError.id,
-				circuit: circuitKey,
-				context,
-			});
-			return false;
-		}
+				// Check circuit breaker
+				const circuitKey = `${context.component}:${context.operation}`;
+				if (this.isCircuitOpen(circuitKey)) {
+					this.logger.warn("Circuit breaker open, skipping operation", {
+						error: enhancedError.id,
+						circuit: circuitKey,
+						context,
+					});
+					return false;
+				}
 
-		// Log error consistently
-		this.logError(enhancedError);
+				// Log error consistently
+				this.logError(enhancedError);
 
-		// Emit system event
-		if (this.eventBus) {
-			this.eventBus.emit(SystemEvents.SYSTEM_ERROR, {
-				error: enhancedError,
-				context,
-				timestamp: new Date(),
-			});
-		}
+				// Emit system event
+				if (this.eventBus) {
+					this.eventBus.emit(SystemEvents.SYSTEM_ERROR, {
+						error: enhancedError,
+						context,
+						timestamp: new Date(),
+					});
+				}
 
-		// Attempt recovery
-		const recovered = await this.attemptRecovery(enhancedError);
+				// Attempt recovery
+				const recovered = await this.attemptRecovery(enhancedError);
 
-		// Update circuit breaker
-		this.updateCircuitBreaker(circuitKey, !recovered);
+				// Update circuit breaker
+				this.updateCircuitBreaker(circuitKey, !recovered);
 
-		return recovered;
+				return recovered;
+			},
+			[error, context],
+			"utils-error",
+		);
 	}
 
 	/**
@@ -202,7 +248,7 @@ export class EnhancedErrorHandler {
 			retries?: number;
 			timeout?: number;
 			fallback?: () => Promise<T>;
-		} = {}
+		} = {},
 	): Promise<T> {
 		const { retries = 3, timeout = 30000, fallback } = options;
 
@@ -213,7 +259,7 @@ export class EnhancedErrorHandler {
 					return await Promise.race([
 						operation(),
 						new Promise<never>((_, reject) =>
-							setTimeout(() => reject(new Error("Operation timeout")), timeout)
+							setTimeout(() => reject(new Error("Operation timeout")), timeout),
 						),
 					]);
 				}
@@ -227,7 +273,7 @@ export class EnhancedErrorHandler {
 					`Operation failed: ${error instanceof Error ? error.message : String(error)}`,
 					{ ...context, metadata: { ...context.metadata, attempt } },
 					isLastAttempt ? ErrorSeverity.HIGH : ErrorSeverity.MEDIUM,
-					error instanceof Error ? error : undefined
+					error instanceof Error ? error : undefined,
 				);
 
 				// Handle error
@@ -242,7 +288,7 @@ export class EnhancedErrorHandler {
 								"Both operation and fallback failed",
 								context,
 								ErrorSeverity.CRITICAL,
-								fallbackError instanceof Error ? fallbackError : undefined
+								fallbackError instanceof Error ? fallbackError : undefined,
 							);
 						}
 					}
@@ -255,7 +301,7 @@ export class EnhancedErrorHandler {
 				// Wait before retry
 				if (!isLastAttempt) {
 					await new Promise((resolve) =>
-						setTimeout(resolve, Math.pow(2, attempt) * 1000)
+						setTimeout(resolve, 2 ** attempt * 1000),
 					);
 				}
 			}
@@ -264,7 +310,7 @@ export class EnhancedErrorHandler {
 		throw this.createError(
 			"Operation failed after all retries",
 			context,
-			ErrorSeverity.CRITICAL
+			ErrorSeverity.CRITICAL,
 		);
 	}
 
@@ -272,23 +318,47 @@ export class EnhancedErrorHandler {
 	 * Register a recovery strategy
 	 */
 	registerRecoveryStrategy(strategy: ErrorRecoveryStrategy): void {
-		this.recoveryStrategies.push(strategy);
-		this.recoveryStrategies.sort((a, b) => b.priority - a.priority);
+		const correlationId = debugLogger.logFunctionEntry(
+			"EnhancedErrorHandler",
+			"registerRecoveryStrategy",
+			[strategy],
+			"utils-error",
+		);
+		try {
+			this.recoveryStrategies.push(strategy);
+			this.recoveryStrategies.sort((a, b) => b.priority - a.priority);
+			debugLogger.logFunctionExit(
+				correlationId,
+				`Strategy '${strategy.name}' registered`,
+				"utils-error",
+			);
+		} catch (error) {
+			debugLogger.logFunctionError(correlationId, error, "utils-error");
+			throw error;
+		}
 	}
 
 	/**
 	 * Get error metrics
 	 */
 	getMetrics(): ErrorMetrics {
-		return {
-			total: this.metrics.total,
-			byType: new Map(this.metrics.byType),
-			byComponent: new Map(this.metrics.byComponent),
-			byOperation: new Map(this.metrics.byOperation),
-			recoveryAttempts: this.metrics.recoveryAttempts,
-			recoverySuccesses: this.metrics.recoverySuccesses,
-			criticalErrors: this.metrics.criticalErrors,
-		};
+		return debugLogger.logSyncFunction(
+			"EnhancedErrorHandler",
+			"getMetrics",
+			() => {
+				return {
+					total: this.metrics.total,
+					byType: new Map(this.metrics.byType),
+					byComponent: new Map(this.metrics.byComponent),
+					byOperation: new Map(this.metrics.byOperation),
+					recoveryAttempts: this.metrics.recoveryAttempts,
+					recoverySuccesses: this.metrics.recoverySuccesses,
+					criticalErrors: this.metrics.criticalErrors,
+				};
+			},
+			[],
+			"utils-error",
+		);
 	}
 
 	/**
@@ -335,21 +405,21 @@ export class EnhancedErrorHandler {
 		const errorType = error.constructor.name;
 		this.metrics.byType.set(
 			errorType,
-			(this.metrics.byType.get(errorType) || 0) + 1
+			(this.metrics.byType.get(errorType) || 0) + 1,
 		);
 
 		// By component
 		const component = error.context.component;
 		this.metrics.byComponent.set(
 			component,
-			(this.metrics.byComponent.get(component) || 0) + 1
+			(this.metrics.byComponent.get(component) || 0) + 1,
 		);
 
 		// By operation
 		const operation = error.context.operation;
 		this.metrics.byOperation.set(
 			operation,
-			(this.metrics.byOperation.get(operation) || 0) + 1
+			(this.metrics.byOperation.get(operation) || 0) + 1,
 		);
 
 		// Critical errors
@@ -387,7 +457,7 @@ export class EnhancedErrorHandler {
 	}
 
 	private getLogLevel(
-		severity: ErrorSeverity
+		severity: ErrorSeverity,
 	): "error" | "warn" | "info" | "debug" {
 		switch (severity) {
 			case ErrorSeverity.CRITICAL:
@@ -515,8 +585,8 @@ export class EnhancedErrorHandler {
 
 				// Exponential backoff
 				const delay = Math.min(
-					1000 * Math.pow(2, (error as EnhancedError).recoveryAttempts),
-					10000
+					1000 * 2 ** (error as EnhancedError).recoveryAttempts,
+					10000,
 				);
 				await new Promise((resolve) => setTimeout(resolve, delay));
 
@@ -559,7 +629,7 @@ let globalErrorHandler: EnhancedErrorHandler | null = null;
 
 export function initializeGlobalErrorHandler(
 	logger: ILogger,
-	eventBus?: any
+	eventBus?: any,
 ): EnhancedErrorHandler {
 	if (!globalErrorHandler) {
 		globalErrorHandler = new EnhancedErrorHandler(logger, eventBus);
@@ -583,13 +653,9 @@ export function withErrorHandling(
 		retries?: number;
 		timeout?: number;
 		severity?: ErrorSeverity;
-	} = {}
+	} = {},
 ) {
-	return function (
-		target: any,
-		propertyKey: string,
-		descriptor: PropertyDescriptor
-	) {
+	return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
 		const originalMethod = descriptor.value;
 
 		descriptor.value = async function (...args: any[]) {
@@ -604,7 +670,7 @@ export function withErrorHandling(
 			return errorHandler.withErrorHandling(
 				() => originalMethod.apply(this, args),
 				fullContext,
-				options
+				options,
 			);
 		};
 

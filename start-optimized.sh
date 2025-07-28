@@ -1,11 +1,5 @@
 #!/bin/bash
-# Quick startup script with memory optimization
-# HIGH PRIORITY - Immediate use
+# Simple optimized startup script that bypasses problematic memory optimization
 
-echo "🚀 Starting Claude Flow with EMERGENCY MEMORY OPTIMIZATION..."
-
-# Set emergency memory active
-export EMERGENCY_MEMORY_ACTIVE=true
-
-# Use the memory-optimized startup script
-exec ./scripts/memory-optimized-start.sh "$@"
+# Just run the CLI directly with basic memory settings
+NODE_OPTIONS="--max-old-space-size=4096" exec node "$@"

@@ -13,13 +13,13 @@ import { Logger } from "../../core/logger.js";
 import { SwarmCoordinator } from "../../swarm/coordinator.js";
 import { SwarmMemoryManager } from "../../swarm/memory.js";
 import type { AgentType, SwarmMode, SwarmStrategy } from "../../swarm/types.js";
+import type { CommandContext } from "../../types/core.js";
 import { generateId as _generateId } from "../../utils/helpers.js";
-import type { CommandContext } from "../optimized-cli-core.js";
-import { _error, info, success, warning } from "../optimized-cli-core.js";
+import { _error, info, success, warning } from "../cli-utils.js";
 
 async function launchClaudeCodeWithSwarm(
 	objective: string,
-	options: any
+	options: any,
 ): Promise<void> {
 	console.log("\n🤖 Launching Claude Code with swarm configuration...\n");
 
@@ -426,7 +426,7 @@ The swarm should be self-documenting - use memory_store to save all important in
 		execSync("which claude", { stdio: "pipe" });
 	} catch {
 		_error(
-			"Claude command not found. Please ensure Claude is installed and in your PATH."
+			"Claude command not found. Please ensure Claude is installed and in your PATH.",
 		);
 		console.log("\nTo install Claude, run:");
 		console.log("  npm install -g @anthropic/claude-cli");
@@ -439,7 +439,7 @@ The swarm should be self-documenting - use memory_store to save all important in
 		console.log(`👤 Reviewer: ${options.reviewer}`);
 		console.log(`\n⚠️  Claude will present a plan before making any changes.`);
 		console.log(
-			`You must explicitly approve with "APPROVED" or request modifications.\n`
+			`You must explicitly approve with "APPROVED" or request modifications.\n`,
 		);
 	}
 
@@ -600,7 +600,7 @@ export async function swarmAction(ctx: CommandContext) {
 				killTimeout: 30000,
 			},
 			logger,
-			eventBus
+			eventBus,
 		);
 
 		await executor.initialize();
@@ -647,7 +647,7 @@ export async function swarmAction(ctx: CommandContext) {
 				reviewCoverage: options.review ? 1.0 : 0.0,
 				testCoverage: options.testing ? 0.8 : 0.0,
 				reliabilityTarget: 0.95,
-			}
+			},
 		);
 
 		console.log(`\n📝 Objective created: ${objectiveId}`);
@@ -667,7 +667,7 @@ export async function swarmAction(ctx: CommandContext) {
 			const agentId = await coordinator.registerAgent(
 				agentName,
 				agentType,
-				getAgentCapabilities(agentType)
+				getAgentCapabilities(agentType),
 			);
 
 			agents.push(agentId);
@@ -693,8 +693,8 @@ export async function swarmAction(ctx: CommandContext) {
 					},
 				},
 				null,
-				2
-			)
+				2,
+			),
 		);
 
 		// Set up event monitoring if requested (or always in background mode)
@@ -727,8 +727,8 @@ export async function swarmAction(ctx: CommandContext) {
 						swarmId: coordinator.getSwarmId(),
 					},
 					null,
-					2
-				)
+					2,
+				),
 			);
 
 			console.log(`\n🌙 Running in background mode`);
@@ -767,10 +767,10 @@ export async function swarmAction(ctx: CommandContext) {
 						.find((o) => o.id === objectiveId);
 
 					const activeTasks = tasks.filter(
-						(t) => (t.status as string) === "in_progress"
+						(t) => (t.status as string) === "in_progress",
 					);
 					const activeAgents = agents.filter(
-						(a) => (a.status as string) === "active"
+						(a) => (a.status as string) === "active",
 					);
 
 					// Build status string,
@@ -787,7 +787,7 @@ export async function swarmAction(ctx: CommandContext) {
 							taskStartTime = Date.now();
 						}
 						const taskDuration = Math.floor(
-							(Date.now() - taskStartTime) / 1000
+							(Date.now() - taskStartTime) / 1000,
 						);
 						statusLine += ` | ${taskInfo} (${taskDuration}s)`;
 					}
@@ -829,8 +829,8 @@ export async function swarmAction(ctx: CommandContext) {
 						command: process.argv.join(" "),
 					},
 					null,
-					2
-				)
+					2,
+				),
 			);
 
 			// Use the swarm-background script,
@@ -843,7 +843,7 @@ export async function swarmAction(ctx: CommandContext) {
 				[objective, ...buildBackgroundArgs(options)],
 				{
 					stdio: ["ignore", "pipe", "pipe"],
-				}
+				},
 			);
 
 			const bgProcess = bgCommand;
@@ -883,14 +883,14 @@ function parseSwarmOptions(flags: any) {
 		maxTasks: parseInt(flags.maxTasks || flags["max-tasks"] || "100"),
 		timeout: parseInt(flags.timeout || "60"), // minutes,
 		taskTimeout: parseInt(
-			flags.taskTimeout || flags["task-timeout"] || "300000"
+			flags.taskTimeout || flags["task-timeout"] || "300000",
 		), // ms,
 		taskTimeoutMinutes: parseInt(
-			flags.taskTimeoutMinutes || flags["task-timeout-minutes"] || "59"
+			flags.taskTimeoutMinutes || flags["task-timeout-minutes"] || "59",
 		), // minutes,
 		maxRetries: parseInt(flags.maxRetries || flags["max-retries"] || "3"),
 		qualityThreshold: parseFloat(
-			flags.qualityThreshold || flags["quality-threshold"] || "0.8"
+			flags.qualityThreshold || flags["quality-threshold"] || "0.8",
 		),
 
 		// Execution options,
@@ -1106,7 +1106,7 @@ let globalStatusInterval: NodeJS.Timeout | undefined;
 
 async function setupIncrementalUpdates(
 	coordinator: SwarmCoordinator,
-	swarmDir: string
+	swarmDir: string,
 ): Promise<void> {
 	const statusFile = `${swarmDir}/status.json`;
 	const tasksDir = `${swarmDir}/tasks`;
@@ -1138,7 +1138,7 @@ async function setupIncrementalUpdates(
 					agents: {
 						total: initialAgents.length,
 						active: initialAgents.filter(
-							(a) => (a.status as string) === "active"
+							(a) => (a.status as string) === "active",
 						).length,
 						list: initialAgents.map((a) => ({
 							id: a.id,
@@ -1152,22 +1152,22 @@ async function setupIncrementalUpdates(
 					tasks: {
 						total: initialTasks.length,
 						completed: initialTasks.filter(
-							(t) => (t.status as string) === "completed"
+							(t) => (t.status as string) === "completed",
 						).length,
 						inProgress: initialTasks.filter(
-							(t) => (t.status as string) === "in_progress"
+							(t) => (t.status as string) === "in_progress",
 						).length,
 						pending: initialTasks.filter(
-							(t) => (t.status as string) === "pending"
+							(t) => (t.status as string) === "pending",
 						).length,
 						failed: initialTasks.filter(
-							(t) => (t.status as string) === "failed"
+							(t) => (t.status as string) === "failed",
 						).length,
 					},
 				},
 				null,
-				2
-			)
+				2,
+			),
 		);
 
 		// Create initial progress file,
@@ -1233,10 +1233,10 @@ Agents Summary:
 						tasks: {
 							total: tasks.length,
 							completed: tasks.filter(
-								(t) => (t.status as string) === "completed"
+								(t) => (t.status as string) === "completed",
 							).length,
 							inProgress: tasks.filter(
-								(t) => (t.status as string) === "in_progress"
+								(t) => (t.status as string) === "in_progress",
 							).length,
 							pending: tasks.filter((t) => (t.status as string) === "pending")
 								.length,
@@ -1245,8 +1245,8 @@ Agents Summary:
 						},
 					},
 					null,
-					2
-				)
+					2,
+				),
 			);
 
 			// Update individual task files for completed tasks,
@@ -1264,8 +1264,8 @@ Agents Summary:
 								completedAt: new Date().toISOString(),
 							},
 							null,
-							2
-						)
+							2,
+						),
 					);
 				}
 			}
@@ -1307,7 +1307,7 @@ function setupSwarmMonitoring(
 	coordinator: SwarmCoordinator,
 	executor: TaskExecutor,
 	memory: SwarmMemoryManager,
-	swarmDir: string
+	swarmDir: string,
 ): void {
 	console.log("\n📊 Monitoring enabled - collecting metrics...");
 
@@ -1377,7 +1377,7 @@ function setupSwarmMonitoring(
 async function waitForSwarmCompletion(
 	coordinator: SwarmCoordinator,
 	objectiveId: string,
-	options: any
+	options: any,
 ): Promise<void> {
 	const maxDuration = options.timeout * 60 * 1000;
 	const startTime = Date.now();
@@ -1427,7 +1427,7 @@ async function showSwarmResults(
 	coordinator: SwarmCoordinator,
 	executor: TaskExecutor,
 	memory: SwarmMemoryManager,
-	swarmDir: string
+	swarmDir: string,
 ): Promise<void> {
 	const swarmStatus = coordinator.getSwarmStatus();
 	// Note: getStats methods need to be implemented in TaskExecutor and SwarmMemoryManager
@@ -1468,7 +1468,7 @@ async function showSwarmResults(
 
 	await fs.writeFile(
 		`${swarmDir}/results.json`,
-		JSON.stringify(results, null, 2)
+		JSON.stringify(results, null, 2),
 	);
 
 	// Show summary,
@@ -1478,12 +1478,12 @@ async function showSwarmResults(
 	console.log(`  • Tasks Completed: ${swarmStatus.tasks.completed}`);
 	console.log(`  • Tasks Failed: ${swarmStatus.tasks.failed}`);
 	console.log(
-		`  • Success Rate: ${((swarmStatus.tasks.completed / (swarmStatus.tasks.completed + swarmStatus.tasks.failed)) * 100).toFixed(1)}%`
+		`  • Success Rate: ${((swarmStatus.tasks.completed / (swarmStatus.tasks.completed + swarmStatus.tasks.failed)) * 100).toFixed(1)}%`,
 	);
 	console.log(`  • Agents Used: ${swarmStatus.agents.total}`);
 	console.log(`  • Memory Entries: ${memoryStats.totalEntries}`);
 	console.log(
-		`  • Execution Time: ${(coordinator.getUptime() / 1000).toFixed(1)}s`
+		`  • Execution Time: ${(coordinator.getUptime() / 1000).toFixed(1)}s`,
 	);
 	console.log(`  • Results saved to: ${swarmDir}`);
 
@@ -1559,7 +1559,7 @@ async function launchSwarmUI(objective: string, options: any): Promise<void> {
 			[uiScriptPath, objective, ...buildUIArgs(options)],
 			{
 				stdio: "inherit",
-			}
+			},
 		);
 
 		const process = command;
@@ -1630,7 +1630,7 @@ function buildBackgroundArgs(options: any): string[] {
 function showDryRunConfiguration(
 	swarmId: string,
 	objective: string,
-	options: any
+	options: any,
 ): void {
 	warning("DRY RUN - Advanced Swarm Configuration:");
 	console.log(`🆔 Swarm ID: ${swarmId}`);
@@ -1653,7 +1653,7 @@ function showDryRunConfiguration(
 	if (options.interactive || options.approvalRequired) {
 		console.log(`\n🔸 Interactive Approval:`);
 		console.log(
-			`  • Enabled: ${options.interactive || options.approvalRequired}`
+			`  • Enabled: ${options.interactive || options.approvalRequired}`,
 		);
 		console.log(`  • Reviewer: ${options.reviewer}`);
 	}
@@ -1746,7 +1746,7 @@ For more information, see: https://github.com/ruvnet/claude-flow
  */
 async function outputJsonResults(
 	coordinator: SwarmCoordinator,
-	options: any
+	options: any,
 ): Promise<void> {
 	try {
 		// Get the final status from coordinator,

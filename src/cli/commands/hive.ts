@@ -4,14 +4,9 @@
 
 import { SwarmCoordinator } from "../../coordination/swarm-coordinator.js";
 import { SwarmMemoryManager } from "../../memory/swarm-memory.js";
+import type { CommandContext } from "../../types/core.js";
 import { generateId } from "../../utils/helpers.js";
-import {
-	warning as _warning,
-	type CommandContext,
-	_error as error,
-	info,
-	success,
-} from "../optimized-cli-core.js";
+import { _error as error, info, success, warning } from "../cli-utils.js";
 
 interface HiveOptions {
 	objective: string;
@@ -152,7 +147,7 @@ export async function hiveAction(ctx: CommandContext) {
 		const queenId = await coordinator.registerAgent(
 			"Queen-Genesis",
 			"coordinator",
-			["orchestration", "consensus", "decision-making", "delegation"]
+			["orchestration", "consensus", "decision-making", "delegation"],
 		);
 
 		// Create specialized agents based on topology,
@@ -171,7 +166,7 @@ export async function hiveAction(ctx: CommandContext) {
 		// Create objective with Hive consensus,
 		const objectiveId = await coordinator.createObjective(
 			objective,
-			"development"
+			"development",
 		);
 
 		// Execute with consensus mechanisms,
@@ -187,14 +182,14 @@ export async function hiveAction(ctx: CommandContext) {
 			const status = coordinator.getSwarmStatus();
 			console.log(`\n📊 Hive Mind Summary:`);
 			console.log(
-				`  - Consensus Rounds: ${(status as any).customMetrics?.consensusRounds || 0}`
+				`  - Consensus Rounds: ${(status as any).customMetrics?.consensusRounds || 0}`,
 			);
 			console.log(
-				`  - Decisions Made: ${(status as any).customMetrics?.decisions || 0}`
+				`  - Decisions Made: ${(status as any).customMetrics?.decisions || 0}`,
 			);
 			console.log(`  - Tasks Completed: ${status.tasks.completed}`);
 			console.log(
-				`  - Quality Score: ${(status as any).customMetrics?.qualityScore || 0}%`
+				`  - Quality Score: ${(status as any).customMetrics?.qualityScore || 0}%`,
 			);
 
 			success(`✅ Hive Mind ${hiveId} completed successfully`);
@@ -233,7 +228,7 @@ export async function hiveAction(ctx: CommandContext) {
 
 async function spawnHiveAgents(
 	coordinator: SwarmCoordinator,
-	options: HiveOptions
+	options: HiveOptions,
 ): Promise<HiveAgent[]> {
 	const agents: HiveAgent[] = [];
 
@@ -249,7 +244,7 @@ async function spawnHiveAgents(
 		const agentId = await coordinator.registerAgent(
 			`${config.type}-${i + 1}`,
 			config.role as any,
-			config.capabilities
+			config.capabilities,
 		);
 
 		agents.push({
@@ -366,7 +361,7 @@ async function executeHive(
 	memory: SwarmMemoryManager,
 	objectiveId: string,
 	agents: HiveAgent[],
-	options: HiveOptions
+	options: HiveOptions,
 ) {
 	// Phase 1: Task decomposition with consensus,
 	console.log("\n🧩 Phase 1: Task Decomposition");
@@ -375,7 +370,7 @@ async function executeHive(
 		memory,
 		options.objective,
 		agents,
-		options
+		options,
 	);
 
 	// Phase 2: Task assignment with voting,
@@ -385,7 +380,7 @@ async function executeHive(
 		memory,
 		tasks,
 		agents,
-		options
+		options,
 	);
 
 	// Phase 3: Parallel execution with monitoring,
@@ -395,7 +390,7 @@ async function executeHive(
 		memory,
 		assignments,
 		agents,
-		options
+		options,
 	);
 
 	// Phase 4: Result aggregation with quality checks,
@@ -405,7 +400,7 @@ async function executeHive(
 		memory,
 		objectiveId,
 		agents,
-		options
+		options,
 	);
 }
 
@@ -414,7 +409,7 @@ async function executeSparcHive(
 	memory: SwarmMemoryManager,
 	objectiveId: string,
 	agents: HiveAgent[],
-	options: HiveOptions
+	options: HiveOptions,
 ) {
 	console.log("\n🧪 SPARC Hive Execution Mode");
 
@@ -458,7 +453,7 @@ async function conductConsensusRound(
 	memory: SwarmMemoryManager,
 	agents: HiveAgent[],
 	phase: string,
-	context: any
+	context: any,
 ) {
 	const roundId = generateId("round");
 
@@ -476,7 +471,7 @@ async function conductConsensusRound(
 		const vote = Math.random() > 0.2; // 80% approval rate,
 		votes.set(agent.id, vote);
 		console.log(
-			`  🗳️ ${agent.type}-${agent.id}: ${vote ? "✅ Approve" : "❌ Reject"}`
+			`  🗳️ ${agent.type}-${agent.id}: ${vote ? "✅ Approve" : "❌ Reject"}`,
 		);
 	});
 
@@ -485,7 +480,7 @@ async function conductConsensusRound(
 	const consensus = approvals / agents.length;
 
 	console.log(
-		`  📊 Consensus: ${(consensus * 100).toFixed(1)}% (${approvals}/${agents.length})`
+		`  📊 Consensus: ${(consensus * 100).toFixed(1)}% (${approvals}/${agents.length})`,
 	);
 
 	// Store results,
@@ -502,7 +497,7 @@ async function decomposeWithConsensus(
 	memory: SwarmMemoryManager,
 	objective: string,
 	agents: HiveAgent[],
-	options: HiveOptions
+	options: HiveOptions,
 ): Promise<any[]> {
 	// Queen proposes task decomposition,
 	const proposedTasks = [
@@ -534,7 +529,7 @@ async function assignTasksWithVoting(
 	memory: SwarmMemoryManager,
 	tasks: any[],
 	agents: HiveAgent[],
-	options: HiveOptions
+	options: HiveOptions,
 ): Promise<Map<string, string>> {
 	const assignments = new Map<string, string>();
 
@@ -552,7 +547,7 @@ async function assignTasksWithVoting(
 		assignments.set(task.description, winner.id);
 
 		console.log(
-			`  📌 ${task.type} → ${winner.type}-${winner.id} (score: ${bids[0].score})`
+			`  📌 ${task.type} → ${winner.type}-${winner.id} (score: ${bids[0].score})`,
 		);
 	}
 
@@ -589,7 +584,7 @@ async function executeTasksWithMonitoring(
 	memory: SwarmMemoryManager,
 	assignments: Map<string, string>,
 	agents: HiveAgent[],
-	options: HiveOptions
+	options: HiveOptions,
 ) {
 	const executions = Array.from(assignments.entries()).map(
 		async ([task, agentId]) => {
@@ -600,7 +595,7 @@ async function executeTasksWithMonitoring(
 
 			// Simulate execution,
 			await new Promise((resolve) =>
-				setTimeout(resolve, 1000 + Math.random() * 2000)
+				setTimeout(resolve, 1000 + Math.random() * 2000),
 			);
 
 			agent.status = "idle";
@@ -613,7 +608,7 @@ async function executeTasksWithMonitoring(
 				status: "completed",
 				timestamp: new Date().toISOString(),
 			});
-		}
+		},
 	);
 
 	await Promise.all(executions);
@@ -624,7 +619,7 @@ async function aggregateResultsWithQuality(
 	memory: SwarmMemoryManager,
 	objectiveId: string,
 	agents: HiveAgent[],
-	options: HiveOptions
+	options: HiveOptions,
 ) {
 	// Collect all execution results,
 	const results = [];
@@ -640,7 +635,7 @@ async function aggregateResultsWithQuality(
 	console.log(`  📊 Quality Score: ${qualityScore.toFixed(1)}%`);
 	console.log(`  ✅ Threshold: ${options.qualityThreshold * 100}%`);
 	console.log(
-		`  ${qualityScore >= options.qualityThreshold * 100 ? "✅ PASSED" : "❌ FAILED"}`
+		`  ${qualityScore >= options.qualityThreshold * 100 ? "✅ PASSED" : "❌ FAILED"}`,
 	);
 
 	// Store aggregated results,

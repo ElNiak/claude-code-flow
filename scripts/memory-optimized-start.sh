@@ -16,11 +16,14 @@ echo "   Total Memory: ${TOTAL_MEMORY}MB"
 echo "   CPU Cores: ${CPU_CORES}"
 echo "   Target Agents: ${AGENT_COUNT}"
 
-# Calculate optimal heap size (60% of system memory, max 12GB for Option B)
-MAX_HEAP_SIZE=$(node -e "console.log(Math.min(Math.floor($TOTAL_MEMORY * 0.6), 12288))")
+# Calculate much more conservative heap size to prevent overflow
+MAX_HEAP_SIZE=$(node -e "console.log(Math.min(Math.floor($TOTAL_MEMORY * 0.25), 4096))")
+# Use 25% of max heap for initial size to prevent excessive allocation
 INITIAL_HEAP_SIZE=$(node -e "console.log(Math.floor($MAX_HEAP_SIZE / 4))")
-SEMI_SPACE_SIZE=$(node -e "console.log(Math.min(192, Math.floor($MAX_HEAP_SIZE / 64)))")
-EXECUTABLE_SIZE=$(node -e "console.log(Math.min(2048, Math.floor($MAX_HEAP_SIZE / 8)))")
+# Conservative semi-space sizing
+SEMI_SPACE_SIZE=$(node -e "console.log(Math.min(128, Math.floor($MAX_HEAP_SIZE / 32)))")
+# Conservative executable size
+EXECUTABLE_SIZE=$(node -e "console.log(Math.min(1024, Math.floor($MAX_HEAP_SIZE / 4)))")
 
 echo "🧠 Memory Configuration:"
 echo "   Max Heap Size: ${MAX_HEAP_SIZE}MB"
@@ -41,41 +44,51 @@ NODE_FLAGS="$NODE_FLAGS --max-executable-size=$EXECUTABLE_SIZE"
 NODE_FLAGS="$NODE_FLAGS --expose-gc"
 # NODE_FLAGS="$NODE_FLAGS --incremental-marking"  # Not allowed in NODE_OPTIONS, enabled by default
 
-# Memory-constrained systems
+# Memory-constrained systems - Avoid flag conflicts
 if [ $TOTAL_MEMORY -lt 8192 ]; then
-    NODE_FLAGS="$NODE_FLAGS --optimize-for-size"
-    echo "💾 Memory-constrained system detected - optimizing for size"
+    # Only use --optimize-for-size for very low memory systems, and don't combine with concurrent marking
+    if [ $AGENT_COUNT -le 4 ]; then
+        NODE_FLAGS="$NODE_FLAGS --optimize-for-size"
+        echo "💾 Memory-constrained system detected - optimizing for size"
+    else
+        echo "💾 Memory-constrained system detected - using concurrent GC instead of size optimization"
+    fi
 fi
 
-# GC strategy based on agent count
+# GC strategy based on agent count - Fixed aggressive intervals
 if [ $AGENT_COUNT -le 4 ]; then
-    NODE_FLAGS="$NODE_FLAGS --gc-interval=100"
+    NODE_FLAGS="$NODE_FLAGS --gc-interval=2000"
     echo "🎯 Using throughput-optimized GC strategy"
 elif [ $AGENT_COUNT -le 8 ]; then
-    NODE_FLAGS="$NODE_FLAGS --gc-interval=50 --concurrent-marking"
+    NODE_FLAGS="$NODE_FLAGS --gc-interval=1500 --concurrent-marking"
     echo "⚖️ Using balanced GC strategy"
 else
-    NODE_FLAGS="$NODE_FLAGS --gc-interval=25 --concurrent-marking --concurrent-sweeping"
+    NODE_FLAGS="$NODE_FLAGS --gc-interval=1000 --concurrent-marking --concurrent-sweeping"
     echo "⚡ Using latency-optimized GC strategy"
 fi
 
 echo "🔧 Node.js Flags: $NODE_FLAGS"
 
-# Emergency memory management
-echo "🚨 Activating emergency memory management..."
-export EMERGENCY_MEMORY_ACTIVE=true
+# Removed emergency memory management overhead
+echo "🔧 Memory optimization configured (no emergency overhead)"
 
 # Start the application
 echo "🚀 Starting application..."
 
 # Some flags are not allowed in NODE_OPTIONS, so we'll use them directly
 ALLOWED_NODE_OPTIONS="--max-old-space-size=$MAX_HEAP_SIZE --expose-gc"
-if [ $TOTAL_MEMORY -lt 12288 ]; then
-    ALLOWED_NODE_OPTIONS="$ALLOWED_NODE_OPTIONS --optimize-for-size"
-fi
+# Size optimization moved to earlier section to avoid conflicts
 
 # Only include flags that are allowed in NODE_OPTIONS
 export NODE_OPTIONS="$ALLOWED_NODE_OPTIONS"
+
+# Remove conflicting flags from EXTRA_FLAGS when using size optimization
+EXTRA_FLAGS="--max-semi-space-size=$SEMI_SPACE_SIZE"
+
+# Only add concurrent marking for higher agent counts and when not using size optimization
+if [ $AGENT_COUNT -gt 4 ] && [ $TOTAL_MEMORY -ge 8192 ]; then
+    EXTRA_FLAGS="$EXTRA_FLAGS --concurrent-marking"
+fi
 
 # Check if debug mode is requested
 if [ "$1" = "--debug" ]; then
@@ -83,13 +96,7 @@ if [ "$1" = "--debug" ]; then
     export NODE_OPTIONS="$NODE_OPTIONS --inspect=0.0.0.0:9229"
 fi
 
-# Start the main application with additional flags not allowed in NODE_OPTIONS
-EXTRA_FLAGS="--max-semi-space-size=$SEMI_SPACE_SIZE"
-
-# Only use valid GC flags that are supported
-if [ $AGENT_COUNT -gt 8 ]; then
-    EXTRA_FLAGS="$EXTRA_FLAGS --concurrent-marking"
-fi
+# EXTRA_FLAGS already configured above - remove duplicate section
 
 # Note: --incremental-marking removed as it's not allowed in NODE_OPTIONS
 # and can cause startup errors. It's enabled by default in modern Node.js anyway.

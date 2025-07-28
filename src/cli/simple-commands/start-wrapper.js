@@ -1,33 +1,107 @@
 // start-wrapper.js - Wrapper to maintain backward compatibility with the new modular start command
 
+import {
+	generateCommandHelp,
+	parseCommandArgs,
+	validateCommandArgs,
+} from "../command-metadata.js";
 import { cwd, Deno, existsSync, exit } from "../node-compat.js";
 import { compat } from "../runtime-detector.js";
 import { printError, printInfo, printSuccess, printWarning } from "../utils.js";
 
+// Start command metadata
+export const startCommandMetadata = {
+	category: "core",
+	helpDescription:
+		"Launch the Claude-Flow orchestration system with optional UI and background daemon modes",
+	priority: "high",
+	options: [
+		{
+			name: "daemon",
+			short: "d",
+			type: "boolean",
+			description: "Run as background daemon process",
+			default: false,
+		},
+		{
+			name: "port",
+			short: "p",
+			type: "number",
+			description: "Specify port number for web interface",
+			default: 3000,
+		},
+		{
+			name: "verbose",
+			short: "v",
+			type: "boolean",
+			description: "Enable verbose output with detailed logging",
+			default: false,
+		},
+		{
+			name: "ui",
+			short: "u",
+			type: "boolean",
+			description: "Launch user interface (web UI by default)",
+			default: false,
+		},
+		{
+			name: "web",
+			short: "w",
+			type: "boolean",
+			description: "Launch web-based user interface",
+			default: false,
+		},
+		{
+			name: "swarm",
+			type: "boolean",
+			description: "Enable swarm intelligence coordination",
+			default: false,
+		},
+	],
+	examples: [
+		"claude-flow start                     # Start in interactive mode",
+		"claude-flow start --daemon            # Start as background daemon",
+		"claude-flow start --port 8080         # Use custom port",
+		"claude-flow start --verbose           # Show detailed system activity",
+		"claude-flow start --ui                # Launch web-based UI",
+		"claude-flow start --web --port 3000   # Web UI on specific port",
+	],
+	details: `
+The start command launches the Claude-Flow orchestration system with various modes:
+
+UI Modes:
+  • --ui: Launch web-based UI by default (recommended)
+  • --web: Explicitly launch web interface
+
+System Options:
+  • --daemon: Run as background process (useful for server deployments)
+  • --verbose: Show detailed system activity and coordination logs
+  • --swarm: Enable advanced swarm intelligence coordination
+
+The system will automatically check for required directories and guide setup.`,
+};
+
 export async function startCommand(subArgs, flags) {
+	// Parse arguments using metadata
+	const parsed = parseCommandArgs(subArgs, flags, startCommandMetadata);
+
 	// Show help if requested
-	if (
-		flags.help ||
-		flags.h ||
-		subArgs.includes("--help") ||
-		subArgs.includes("-h")
-	) {
-		showStartHelp();
+	if (parsed.help) {
+		console.log(generateCommandHelp("start", startCommandMetadata));
 		return;
 	}
 
-	// Parse start options
-	const daemon =
-		subArgs.includes("--daemon") || subArgs.includes("-d") || flags.daemon;
-	const port =
-		flags.port ||
-		getArgValue(subArgs, "--port") ||
-		getArgValue(subArgs, "-p") ||
-		3000;
-	const verbose =
-		subArgs.includes("--verbose") || subArgs.includes("-v") || flags.verbose;
-	const ui = subArgs.includes("--ui") || subArgs.includes("-u") || flags.ui;
-	const web = subArgs.includes("--web") || subArgs.includes("-w") || flags.web;
+	// Validate arguments
+	const errors = validateCommandArgs(parsed, startCommandMetadata);
+	if (errors.length > 0) {
+		printError("Invalid arguments:");
+		errors.forEach((error) => console.error(`  • ${error}`));
+		console.log("\nUse --help for usage information");
+		return;
+	}
+
+	// Extract validated options (metadata ensures these are properly parsed)
+	const { daemon, port, verbose, ui, web, swarm } = parsed.options;
 
 	try {
 		printSuccess("Starting Claude-Flow Orchestration System...");
@@ -42,7 +116,7 @@ export async function startCommand(subArgs, flags) {
 
 				printSuccess(`🌐 Web UI is running!`);
 				console.log(
-					`📍 Open your browser to: http://localhost:${port}/console`
+					`📍 Open your browser to: http://localhost:${port}/console`,
 				);
 				console.log("   Press Ctrl+C to stop the server");
 				console.log();
@@ -67,7 +141,7 @@ export async function startCommand(subArgs, flags) {
 
 				printSuccess("🌐 Claude Flow Web UI is running!");
 				console.log(
-					`📍 Open your browser to: http://localhost:${port}/console`
+					`📍 Open your browser to: http://localhost:${port}/console`,
 				);
 				console.log("   Press Ctrl+C to stop the server");
 				console.log();
@@ -106,7 +180,7 @@ export async function startCommand(subArgs, flags) {
 		if (missingDirs.length > 0) {
 			printWarning("Missing required directories: " + missingDirs.join(", "));
 			console.log(
-				'Run "claude-flow init" first to create the necessary structure'
+				'Run "claude-flow init" first to create the necessary structure',
 			);
 			return;
 		}
@@ -133,7 +207,7 @@ export async function startCommand(subArgs, flags) {
 		console.log("     - Pool Size: 5");
 		console.log(
 			"     - Shell: " +
-				(compat.platform.os === "windows" ? "cmd.exe" : "/bin/bash")
+				(compat.platform.os === "windows" ? "cmd.exe" : "/bin/bash"),
 		);
 
 		// Task queue
@@ -153,7 +227,7 @@ export async function startCommand(subArgs, flags) {
 			printInfo("Starting in daemon mode...");
 			console.log("Note: Full daemon mode requires the TypeScript version");
 			console.log(
-				"The orchestrator would run in the background on port " + port
+				"The orchestrator would run in the background on port " + port,
 			);
 
 			// Create a simple PID file to simulate daemon
@@ -191,7 +265,7 @@ export async function startCommand(subArgs, flags) {
 				console.log("📊 Verbose Mode - Showing system activity:");
 				console.log("[" + new Date().toISOString() + "] System initialized");
 				console.log(
-					"[" + new Date().toISOString() + "] Waiting for commands..."
+					"[" + new Date().toISOString() + "] Waiting for commands...",
 				);
 			}
 
@@ -212,7 +286,7 @@ export async function startCommand(subArgs, flags) {
 				const heartbeat = setInterval(() => {
 					if (verbose) {
 						console.log(
-							"[" + new Date().toISOString() + "] Heartbeat - System healthy"
+							"[" + new Date().toISOString() + "] Heartbeat - System healthy",
 						);
 					}
 				}, 30000); // Every 30 seconds
@@ -265,7 +339,7 @@ function showStartHelp() {
 	console.log("  -d, --daemon        Run as daemon in background");
 	console.log("  -p, --port <port>   Server port (default: 3000)");
 	console.log(
-		"  -u, --ui            Launch terminal-based process management UI"
+		"  -u, --ui            Launch terminal-based process management UI",
 	);
 	console.log("  -w, --web           Launch web-based UI server");
 	console.log("  -v, --verbose       Show detailed system activity");
@@ -273,16 +347,16 @@ function showStartHelp() {
 	console.log();
 	console.log("Examples:");
 	console.log(
-		"  claude-flow start                    # Start in interactive mode"
+		"  claude-flow start                    # Start in interactive mode",
 	);
 	console.log(
-		"  claude-flow start --daemon           # Start as background daemon"
+		"  claude-flow start --daemon           # Start as background daemon",
 	);
 	console.log(
-		"  claude-flow start --port 8080        # Use custom server port"
+		"  claude-flow start --port 8080        # Use custom server port",
 	);
 	console.log(
-		"  claude-flow start --ui               # Launch terminal-based UI"
+		"  claude-flow start --ui               # Launch terminal-based UI",
 	);
 	console.log("  claude-flow start --web              # Launch web-based UI");
 	console.log("  claude-flow start --verbose          # Show detailed logs");
@@ -290,7 +364,7 @@ function showStartHelp() {
 	console.log("Web-based UI:");
 	console.log("  The --web flag starts a web server with:");
 	console.log(
-		"    - Full-featured web console at http://localhost:3000/console"
+		"    - Full-featured web console at http://localhost:3000/console",
 	);
 	console.log("    - Real-time WebSocket communication");
 	console.log("    - Mobile-responsive design");
@@ -299,7 +373,7 @@ function showStartHelp() {
 	console.log();
 	console.log("Terminal-based UI:");
 	console.log(
-		"  The --ui flag launches an advanced multi-view interface with:"
+		"  The --ui flag launches an advanced multi-view interface with:",
 	);
 	console.log();
 	console.log("  Views (press 1-6 to switch):");

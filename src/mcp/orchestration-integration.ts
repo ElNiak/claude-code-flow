@@ -94,7 +94,7 @@ export class MCPOrchestrationIntegration extends EventEmitter {
 		private mcpConfig: MCPConfig,
 		private orchestrationConfig: MCPOrchestrationConfig,
 		private components: OrchestrationComponents,
-		private logger: ILogger
+		private logger: ILogger,
 	) {
 		super();
 
@@ -131,14 +131,22 @@ export class MCPOrchestrationIntegration extends EventEmitter {
 				this.components.agentManager,
 				this.components.resourceManager,
 				this.components.messageBus,
-				this.components.monitor
+				this.components.monitor,
 			);
 
 			// Initialize lifecycle manager,
+			const lifecycleConfig = {
+				healthCheckInterval: 30000,
+				gracefulShutdownTimeout: 10000,
+				maxRestartAttempts: 3,
+				restartDelay: 5000,
+				enableAutoRestart: true,
+				enableHealthChecks: true,
+				logger: this.logger,
+			};
 			this.lifecycleManager = new MCPLifecycleManager(
-				this.mcpConfig,
-				this.logger,
-				() => this.server!
+				lifecycleConfig,
+				async () => this.server!,
 			);
 
 			// Setup lifecycle event handlers,
@@ -270,7 +278,7 @@ export class MCPOrchestrationIntegration extends EventEmitter {
 	 */
 	async setComponentEnabled(
 		component: string,
-		enabled: boolean
+		enabled: boolean,
 	): Promise<void> {
 		const status = this.integrationStatus.get(component);
 		if (!status) {
@@ -550,7 +558,7 @@ export class MCPOrchestrationIntegration extends EventEmitter {
 					if (typeof this.components.agentManager?.spawnAgent === "function") {
 						return await this.components.agentManager.spawnAgent(
 							input.profile,
-							input.config
+							input.config,
 						);
 					}
 					throw new MCPError("Agent spawning not available");
@@ -706,7 +714,7 @@ export class MCPOrchestrationIntegration extends EventEmitter {
 					if (typeof this.components.terminalManager?.execute === "function") {
 						return await this.components.terminalManager.execute(
 							input.command,
-							input.sessionId
+							input.sessionId,
 						);
 					}
 					throw new MCPError("Terminal execution not available");

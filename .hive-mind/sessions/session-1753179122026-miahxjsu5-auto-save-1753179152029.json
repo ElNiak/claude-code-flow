@@ -1,0 +1,81 @@
+{
+	"sessionId": "session-1753179122026-miahxjsu5",
+	"checkpointId": "checkpoint-1753179152030-w9l9w4w7w",
+	"checkpointName": "auto-save-1753179152029",
+	"timestamp": "2025-07-22T10:12:32.030Z",
+	"data": {
+		"timestamp": "2025-07-22T10:12:32.029Z",
+		"changeCount": 5,
+		"changesByType": {
+			"swarm_created": [
+				{
+					"type": "swarm_created",
+					"data": {
+						"swarmId": "swarm-1753179122025-lbe4koqzo",
+						"swarmName": "hive-1753179122018",
+						"objective": "Analyse all the files of the project, idendify duplicate modules, enhanced, unified etc versions and propose a plan to merge all these duplicates files into single version to reduce complexity and code base size. This task is very complex so think deeply and analayse and double check all codes related to reach steps.  Be complete, only provide plan now",
+						"workerCount": 4
+					},
+					"timestamp": "2025-07-22T10:12:02.028Z"
+				}
+			],
+			"agent_activity": [
+				{
+					"type": "agent_activity",
+					"data": {
+						"agentId": "worker-swarm-1753179122025-lbe4koqzo-0",
+						"activity": "spawned",
+						"data": {
+							"type": "researcher",
+							"name": "Researcher Worker 1"
+						}
+					},
+					"timestamp": "2025-07-22T10:12:02.029Z"
+				},
+				{
+					"type": "agent_activity",
+					"data": {
+						"agentId": "worker-swarm-1753179122025-lbe4koqzo-1",
+						"activity": "spawned",
+						"data": {
+							"type": "coder",
+							"name": "Coder Worker 2"
+						}
+					},
+					"timestamp": "2025-07-22T10:12:02.029Z"
+				},
+				{
+					"type": "agent_activity",
+					"data": {
+						"agentId": "worker-swarm-1753179122025-lbe4koqzo-2",
+						"activity": "spawned",
+						"data": {
+							"type": "analyst",
+							"name": "Analyst Worker 3"
+						}
+					},
+					"timestamp": "2025-07-22T10:12:02.030Z"
+				},
+				{
+					"type": "agent_activity",
+					"data": {
+						"agentId": "worker-swarm-1753179122025-lbe4koqzo-3",
+						"activity": "spawned",
+						"data": {
+							"type": "tester",
+							"name": "Tester Worker 4"
+						}
+					},
+					"timestamp": "2025-07-22T10:12:02.030Z"
+				}
+			]
+		},
+		"statistics": {
+			"tasksProcessed": 0,
+			"tasksCompleted": 0,
+			"memoryUpdates": 0,
+			"agentActivities": 4,
+			"consensusDecisions": 0
+		}
+	}
+}

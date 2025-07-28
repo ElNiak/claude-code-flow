@@ -74,7 +74,7 @@ test_environment() {
     run_test "NPM version check" "npm --version | grep -E '[0-9]+\.[0-9]+\.[0-9]+'"
     run_test "Package.json exists" "[ -f package.json ]"
     run_test "CLI binary exists" "[ -f cli.js ]"
-    run_test "TypeScript source exists" "[ -f src/cli/simple-cli.ts ] || [ -f src/cli/main.ts ]"
+    run_test "TypeScript source exists" "[ -f src/cli/cli.ts ] || [ -f src/cli/main.ts ]"
     run_test "Dist directory exists" "[ -d dist ] || [ -d src ]"
 }
 

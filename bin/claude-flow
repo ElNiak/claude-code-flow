@@ -15,14 +15,14 @@ else
 fi
 
 # Handle global npm installation vs local execution
-if [ -f "$SCRIPT_DIR/../dist/cli/simple-cli.js" ]; then
+if [ -f "$SCRIPT_DIR/../dist/cli/cli.js" ]; then
   # Local development or properly structured installation
   ROOT_DIR=$(cd "$SCRIPT_DIR/.." && pwd)
 else
   # Global npm installation - files might be in different location
   # Try to find the module root
   NODE_ROOT=$(npm root -g 2>/dev/null)
-  if [ -n "$NODE_ROOT" ] && [ -f "$NODE_ROOT/claude-flow/dist/cli/simple-cli.js" ]; then
+  if [ -n "$NODE_ROOT" ] && [ -f "$NODE_ROOT/claude-flow/dist/cli/cli.js" ]; then
     ROOT_DIR="$NODE_ROOT/claude-flow"
   else
     # Fallback to relative path
@@ -52,21 +52,21 @@ done
 
 
 # Use Node.js with Memory Optimization
-if [ -f "$ROOT_DIR/start-optimized.sh" ] && [ -f "$ROOT_DIR/dist/cli/simple-cli.js" ]; then
+if [ -f "$ROOT_DIR/start-optimized.sh" ] && [ -f "$ROOT_DIR/dist/cli/cli.js" ]; then
   # Use memory-optimized startup script
-  exec "$ROOT_DIR/start-optimized.sh" "$ROOT_DIR/dist/cli/simple-cli.js" "$@"
-elif [ -f "$ROOT_DIR/scripts/memory-optimized-start.sh" ] && [ -f "$ROOT_DIR/dist/cli/simple-cli.js" ]; then
+  exec "$ROOT_DIR/start-optimized.sh" "$ROOT_DIR/dist/cli/cli.js" "$@"
+elif [ -f "$ROOT_DIR/scripts/memory-optimized-start.sh" ] && [ -f "$ROOT_DIR/dist/cli/cli.js" ]; then
   # Use memory-optimized startup script from scripts directory
-  exec "$ROOT_DIR/scripts/memory-optimized-start.sh" "$ROOT_DIR/dist/cli/simple-cli.js" "$@"
-elif [ -f "$ROOT_DIR/dist/cli/simple-cli.js" ]; then
+  exec "$ROOT_DIR/scripts/memory-optimized-start.sh" "$ROOT_DIR/dist/cli/cli.js" "$@"
+elif [ -f "$ROOT_DIR/dist/cli/cli.js" ]; then
   # Fallback to node with basic memory optimization
-  NODE_OPTIONS="--max-old-space-size=12288 --expose-gc" exec node "$ROOT_DIR/dist/cli/simple-cli.js" "$@"
-elif command -v tsx >/dev/null 2>&1 && [ -f "$ROOT_DIR/dist/cli/simple-cli.ts" ]; then
+  NODE_OPTIONS="--max-old-space-size=12288 --expose-gc" exec node "$ROOT_DIR/dist/cli/cli.js" "$@"
+elif command -v tsx >/dev/null 2>&1 && [ -f "$ROOT_DIR/src/cli/cli.ts" ]; then
   # Use tsx for TypeScript functionality with memory optimization
-  NODE_OPTIONS="--max-old-space-size=12288 --expose-gc" exec tsx "$ROOT_DIR/dist/cli/simple-cli.ts" "$@"
-elif [ -f "$ROOT_DIR/dist/cli/simple-cli.ts" ]; then
+  NODE_OPTIONS="--max-old-space-size=12288 --expose-gc" exec tsx "$ROOT_DIR/src/cli/cli.ts" "$@"
+elif [ -f "$ROOT_DIR/src/cli/cli.ts" ]; then
   # Try to use npx tsx as fallback
-  exec npx tsx "$ROOT_DIR/dist/cli/simple-cli.ts" "$@"
+  exec npx tsx "$ROOT_DIR/src/cli/cli.ts" "$@"
 else
   # No runtime available, show help
   echo "🧠 Claude-Flow v$VERSION - Advanced AI Agent Orchestration System"
@@ -83,7 +83,7 @@ else
   echo "  npm run dev:optimized <command>  # Memory-optimized with tsx"
   echo ""
   echo "Or use memory-optimized startup directly:"
-  echo "  ./start-optimized.sh dist/cli/simple-cli.js <command>"
+  echo "  ./start-optimized.sh dist/cli/cli.js <command>"
   echo ""
   echo "Documentation: https://github.com/ruvnet/claude-code-flow"
   exit 1

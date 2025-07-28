@@ -1,12 +1,15 @@
 # Self-Healing Workflows
 
 ## Purpose
+
 Automatically detect and recover from errors without interrupting your flow.
 
 ## Self-Healing Features
 
 ### 1. Error Detection
+
 Monitors for:
+
 - Failed commands
 - Syntax errors
 - Missing dependencies
@@ -15,6 +18,7 @@ Monitors for:
 ### 2. Automatic Recovery
 
 **Missing Dependencies:**
+
 ```
 Error: Cannot find module 'express'
 → Automatically runs: npm install express
@@ -22,6 +26,7 @@ Error: Cannot find module 'express'
 ```
 
 **Syntax Errors:**
+
 ```
 Error: Unexpected token
 → Analyzes error location
@@ -30,6 +35,7 @@ Error: Unexpected token
 ```
 
 **Test Failures:**
+
 ```
 Test failed: "user authentication"
 → Spawns debugger agent
@@ -39,22 +45,26 @@ Test failed: "user authentication"
 ```
 
 ### 3. Learning from Failures
+
 Each recovery improves future prevention:
+
 - Patterns saved to knowledge base
 - Similar errors prevented proactively
 - Recovery strategies optimized
 
-## Hook Integration
+## hooks Integration
+
 ```json
 {
   "PostToolUse": [{
     "matcher": "^Bash$",
-    "command": "npx ruv-swarm hook post-bash --exit-code '${tool.result.exitCode}' --auto-recover"
+    "command": "npx ruv-swarm hooks post-bash --exit-code '${tool.result.exitCode}' --auto-recover"
   }]
 }
 ```
 
 ## Benefits
+
 - 🛡️ Resilient workflows
 - 🔄 Automatic recovery
 - 📚 Learns from errors

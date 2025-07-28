@@ -268,6 +268,17 @@ export interface MCPConfig {
 	enableMetrics?: boolean;
 	corsEnabled?: boolean;
 	corsOrigins?: string[];
+
+	// Enhanced features configuration (Phase 1 enhancement)
+	enhanced?: {
+		enabled: boolean;
+		comprehensiveTools?: boolean;
+		neuralProcessing?: boolean;
+		workflowManagement?: boolean;
+		githubIntegration?: boolean;
+		debugLogging?: boolean;
+		performanceMonitoring?: boolean;
+	};
 }
 
 export interface LoggingConfig {

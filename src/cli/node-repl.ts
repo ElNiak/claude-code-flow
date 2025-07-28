@@ -235,8 +235,8 @@ export async function startNodeREPL(options: any = {}): Promise<void> {
 
 				console.log(
 					chalk.cyan.bold(
-						`Command History${searchQuery ? ` (search: ${searchQuery})` : ""}`
-					)
+						`Command History${searchQuery ? ` (search: ${searchQuery})` : ""}`,
+					),
 				);
 				console.log("─".repeat(50));
 
@@ -249,7 +249,7 @@ export async function startNodeREPL(options: any = {}): Promise<void> {
 				recent.forEach((cmd, i) => {
 					const lineNumber = historyItems.length - recent.length + i + 1;
 					console.log(
-						`${chalk.gray(lineNumber.toString().padStart(3))} ${cmd}`
+						`${chalk.gray(lineNumber.toString().padStart(3))} ${cmd}`,
 					);
 				});
 			},
@@ -281,7 +281,7 @@ export async function startNodeREPL(options: any = {}): Promise<void> {
 				} catch (error) {
 					console.error(
 						chalk.red("Error:"),
-						error instanceof Error ? error.message : String(error)
+						error instanceof Error ? error.message : String(error),
 					);
 				}
 			},
@@ -321,7 +321,7 @@ export async function startNodeREPL(options: any = {}): Promise<void> {
 
 	await showSystemStatus(context);
 	console.log(
-		chalk.gray('Type "help" for available commands or "exit" to quit.\n')
+		chalk.gray('Type "help" for available commands or "exit" to quit.\n'),
 	);
 
 	// Main REPL loop,
@@ -342,7 +342,8 @@ export async function startNodeREPL(options: any = {}): Promise<void> {
 		// Find and execute command,
 		const command = commands.find(
 			(c) =>
-				c.name === commandName || (c.aliases && c.aliases.includes(commandName))
+				c.name === commandName ||
+				(c.aliases && c.aliases.includes(commandName)),
 		);
 
 		if (command) {
@@ -351,7 +352,7 @@ export async function startNodeREPL(options: any = {}): Promise<void> {
 			} catch (error) {
 				console.error(
 					chalk.red("Command failed:"),
-					error instanceof Error ? error.message : String(error)
+					error instanceof Error ? error.message : String(error),
 				);
 			}
 		} else {
@@ -363,7 +364,7 @@ export async function startNodeREPL(options: any = {}): Promise<void> {
 			if (suggestions.length > 0) {
 				console.log(
 					chalk.gray("Did you mean:"),
-					suggestions.map((s) => chalk.cyan(s)).join(", ")
+					suggestions.map((s) => chalk.cyan(s)).join(", "),
 				);
 			}
 		}
@@ -382,7 +383,7 @@ export async function startNodeREPL(options: any = {}): Promise<void> {
 		} catch (error) {
 			console.error(
 				chalk.red("REPL Error:"),
-				error instanceof Error ? error.message : String(error)
+				error instanceof Error ? error.message : String(error),
 			);
 		}
 		showPrompt();
@@ -505,7 +506,7 @@ function showHelp(commands: REPLCommand[]): void {
 function showCommandHelp(commands: REPLCommand[], commandName: string): void {
 	const command = commands.find(
 		(c) =>
-			c.name === commandName || (c.aliases && c.aliases.includes(commandName))
+			c.name === commandName || (c.aliases && c.aliases.includes(commandName)),
 	);
 
 	if (!command) {
@@ -536,7 +537,7 @@ function showCommandHelp(commands: REPLCommand[], commandName: string): void {
 
 async function showSystemStatus(
 	context: REPLContext,
-	component?: string
+	component?: string,
 ): Promise<void> {
 	console.log(chalk.cyan.bold("System Status"));
 	console.log("─".repeat(30));
@@ -547,10 +548,10 @@ async function showSystemStatus(
 			: chalk.red("✗");
 	console.log(`${statusIcon} Connection: ${context.connectionStatus}`);
 	console.log(
-		`${chalk.white("Working Directory:")} ${context.workingDirectory}`
+		`${chalk.white("Working Directory:")} ${context.workingDirectory}`,
 	);
 	console.log(
-		`${chalk.white("Last Activity:")} ${context.lastActivity.toLocaleTimeString()}`
+		`${chalk.white("Last Activity:")} ${context.lastActivity.toLocaleTimeString()}`,
 	);
 
 	if (context.currentSession) {
@@ -558,7 +559,7 @@ async function showSystemStatus(
 	}
 
 	console.log(
-		`${chalk.white("Commands in History:")} ${context.history.length}`
+		`${chalk.white("Commands in History:")} ${context.history.length}`,
 	);
 
 	if (context.connectionStatus === "disconnected") {
@@ -570,7 +571,7 @@ async function showSystemStatus(
 
 async function connectToOrchestrator(
 	context: REPLContext,
-	target?: string
+	target?: string,
 ): Promise<void> {
 	const host = target || "localhost:3000";
 
@@ -591,24 +592,26 @@ async function connectToOrchestrator(
 			console.log(chalk.red("✗ Connection failed"));
 			console.log(
 				chalk.gray(
-					"Make sure Claude-Flow is running with: npx claude-flow start"
-				)
+					"Make sure Claude-Flow is running with: npx claude-flow start",
+				),
 			);
 		}
 	} catch (error) {
 		context.connectionStatus = "disconnected";
 		console.log(chalk.red("✗ Connection failed"));
 		console.log(
-			chalk.gray("Make sure Claude-Flow is running with: npx claude-flow start")
+			chalk.gray(
+				"Make sure Claude-Flow is running with: npx claude-flow start",
+			),
 		);
 	}
 }
 
 async function executeCliCommand(
-	args: string[]
+	args: string[],
 ): Promise<{ success: boolean; output: string }> {
 	return new Promise((resolve) => {
-		const child = spawn("npx", ["tsx", "src/cli/simple-cli.ts", ...args], {
+		const child = spawn("npx", ["tsx", "src/cli/cli.ts", ...args], {
 			stdio: "pipe",
 			cwd: process.cwd(),
 		});
@@ -642,7 +645,7 @@ async function executeCliCommand(
 
 async function handleAgentCommand(
 	args: string[],
-	context: REPLContext
+	context: REPLContext,
 ): Promise<void> {
 	if (context.connectionStatus !== "connected") {
 		console.log(chalk.yellow("⚠ Not connected to orchestrator"));
@@ -652,7 +655,7 @@ async function handleAgentCommand(
 
 	if (args.length === 0) {
 		console.log(
-			chalk.gray("Usage: agent <spawn|list|terminate|info> [options]")
+			chalk.gray("Usage: agent <spawn|list|terminate|info> [options]"),
 		);
 		return;
 	}
@@ -666,14 +669,14 @@ async function handleAgentCommand(
 	} catch (error) {
 		console.error(
 			chalk.red("Error executing agent command:"),
-			error instanceof Error ? error.message : String(error)
+			error instanceof Error ? error.message : String(error),
 		);
 	}
 }
 
 async function handleTaskCommand(
 	args: string[],
-	context: REPLContext
+	context: REPLContext,
 ): Promise<void> {
 	if (context.connectionStatus !== "connected") {
 		console.log(chalk.yellow("⚠ Not connected to orchestrator"));
@@ -682,7 +685,7 @@ async function handleTaskCommand(
 
 	if (args.length === 0) {
 		console.log(
-			chalk.gray("Usage: task <create|list|status|cancel> [options]")
+			chalk.gray("Usage: task <create|list|status|cancel> [options]"),
 		);
 		return;
 	}
@@ -695,14 +698,14 @@ async function handleTaskCommand(
 	} catch (error) {
 		console.error(
 			chalk.red("Error executing task command:"),
-			error instanceof Error ? error.message : String(error)
+			error instanceof Error ? error.message : String(error),
 		);
 	}
 }
 
 async function handleMemoryCommand(
 	args: string[],
-	context: REPLContext
+	context: REPLContext,
 ): Promise<void> {
 	if (args.length === 0) {
 		console.log(chalk.gray("Usage: memory <query|stats|export> [options]"));
@@ -717,14 +720,14 @@ async function handleMemoryCommand(
 	} catch (error) {
 		console.error(
 			chalk.red("Error executing memory command:"),
-			error instanceof Error ? error.message : String(error)
+			error instanceof Error ? error.message : String(error),
 		);
 	}
 }
 
 async function handleSessionCommand(
 	args: string[],
-	context: REPLContext
+	context: REPLContext,
 ): Promise<void> {
 	if (args.length === 0) {
 		console.log(chalk.gray("Usage: session <list|save|restore> [options]"));
@@ -739,14 +742,14 @@ async function handleSessionCommand(
 	} catch (error) {
 		console.error(
 			chalk.red("Error executing session command:"),
-			error instanceof Error ? error.message : String(error)
+			error instanceof Error ? error.message : String(error),
 		);
 	}
 }
 
 async function handleWorkflowCommand(
 	args: string[],
-	context: REPLContext
+	context: REPLContext,
 ): Promise<void> {
 	if (context.connectionStatus !== "connected") {
 		console.log(chalk.yellow("⚠ Not connected to orchestrator"));
@@ -766,7 +769,7 @@ async function handleWorkflowCommand(
 	} catch (error) {
 		console.error(
 			chalk.red("Error executing workflow command:"),
-			error instanceof Error ? error.message : String(error)
+			error instanceof Error ? error.message : String(error),
 		);
 	}
 }

@@ -22,6 +22,7 @@ import type {
 	AgentType,
 	TaskId,
 } from "../swarm/types.js";
+import { debugLogger } from "../utils/debug-logger.js";
 import { generateId } from "../utils/helpers.js";
 
 export interface AgentManagerConfig {
@@ -165,7 +166,7 @@ export class AgentManager extends EventEmitter {
 		config: Partial<AgentManagerConfig>,
 		logger: ILogger,
 		eventBus: IEventBus,
-		memory: DistributedMemorySystem
+		memory: DistributedMemorySystem,
 	) {
 		super();
 		this.logger = logger;
@@ -413,21 +414,41 @@ export class AgentManager extends EventEmitter {
 	}
 
 	async initialize(): Promise<void> {
-		this.logger.info("Initializing agent manager", {
-			maxAgents: this.config.maxAgents,
-			templates: this.templates.size,
-		});
+		const debugId = debugLogger.logFunctionEntry(
+			"AgentManager",
+			"initialize",
+			[],
+			"agent-lifecycle",
+		);
+		try {
+			this.logger.info("Initializing agent manager", {
+				maxAgents: this.config.maxAgents,
+				templates: this.templates.size,
+			});
 
-		// Start health monitoring,
-		this.startHealthMonitoring();
+			// Start health monitoring,
+			this.startHealthMonitoring();
 
-		// Start heartbeat monitoring,
-		this.startHeartbeatMonitoring();
+			// Start heartbeat monitoring,
+			this.startHeartbeatMonitoring();
 
-		// Initialize default scaling policies,
-		this.initializeScalingPolicies();
+			// Initialize default scaling policies,
+			this.initializeScalingPolicies();
 
-		this.emit("agent-manager:initialized");
+			this.emit("agent-manager:initialized");
+			debugLogger.logFunctionExit(
+				debugId,
+				{ status: "initialized" },
+				"agent-lifecycle",
+			);
+		} catch (error) {
+			debugLogger.logFunctionError(
+				debugId,
+				error instanceof Error ? error : new Error(String(error)),
+				"agent-lifecycle",
+			);
+			throw error;
+		}
 	}
 
 	async shutdown(): Promise<void> {
@@ -439,7 +460,7 @@ export class AgentManager extends EventEmitter {
 
 		// Gracefully shutdown all agents,
 		const shutdownPromises = Array.from(this.agents.keys()).map((agentId) =>
-			this.stopAgent(agentId, "shutdown")
+			this.stopAgent(agentId, "shutdown"),
 		);
 
 		await Promise.all(shutdownPromises);
@@ -455,7 +476,7 @@ export class AgentManager extends EventEmitter {
 			name?: string;
 			config?: Partial<AgentConfig>;
 			environment?: Partial<AgentEnvironment>;
-		} = {}
+		} = {},
 	): Promise<string> {
 		if (this.agents.size >= this.config.maxAgents) {
 			throw new Error("Maximum agent limit reached");
@@ -557,7 +578,7 @@ export class AgentManager extends EventEmitter {
 
 		if (agent.status !== "initializing" && agent.status !== "offline") {
 			throw new Error(
-				`Agent ${agentId} cannot be started from status ${agent.status}`
+				`Agent ${agentId} cannot be started from status ${agent.status}`,
 			);
 		}
 
@@ -597,7 +618,7 @@ export class AgentManager extends EventEmitter {
 
 	async stopAgent(
 		agentId: string,
-		reason: string = "user_request"
+		reason: string = "user_request",
 	): Promise<void> {
 		const agent = this.agents.get(agentId);
 		if (!agent) {
@@ -646,7 +667,7 @@ export class AgentManager extends EventEmitter {
 
 	async restartAgent(
 		agentId: string,
-		reason: string = "restart_requested"
+		reason: string = "restart_requested",
 	): Promise<void> {
 		this.logger.info("Restarting agent", { agentId, reason });
 
@@ -694,7 +715,7 @@ export class AgentManager extends EventEmitter {
 			autoScale?: boolean;
 			scaleUpThreshold?: number;
 			scaleDownThreshold?: number;
-		}
+		},
 	): Promise<string> {
 		const template = this.templates.get(templateName);
 		if (!template) {
@@ -752,7 +773,7 @@ export class AgentManager extends EventEmitter {
 
 		if (targetSize < pool.minSize || targetSize > pool.maxSize) {
 			throw new Error(
-				`Target size ${targetSize} outside pool limits [${pool.minSize}, ${pool.maxSize}]`
+				`Target size ${targetSize} outside pool limits [${pool.minSize}, ${pool.maxSize}]`,
 			);
 		}
 
@@ -779,7 +800,7 @@ export class AgentManager extends EventEmitter {
 			for (const agentId of agentsToRemove) {
 				await this.removeAgent(agentId.id);
 				pool.availableAgents = pool.availableAgents.filter(
-					(a) => a.id !== agentId.id
+					(a) => a.id !== agentId.id,
 				);
 			}
 		}
@@ -822,7 +843,7 @@ export class AgentManager extends EventEmitter {
 
 	private async performHealthChecks(): Promise<void> {
 		const healthPromises = Array.from(this.agents.keys()).map((agentId) =>
-			this.checkAgentHealth(agentId)
+			this.checkAgentHealth(agentId),
 		);
 
 		await Promise.allSettled(healthPromises);
@@ -908,7 +929,7 @@ export class AgentManager extends EventEmitter {
 		const avgTime =
 			recent.reduce(
 				(sum, entry) => sum + entry.metrics.averageExecutionTime,
-				0
+				0,
 			) / recent.length;
 
 		// Normalize based on expected performance (simplified)
@@ -1063,7 +1084,7 @@ export class AgentManager extends EventEmitter {
 
 	private async waitForAgentReady(
 		agentId: string,
-		timeout: number
+		timeout: number,
 	): Promise<void> {
 		return new Promise((resolve, reject) => {
 			const timer = setTimeout(() => {
@@ -1085,7 +1106,7 @@ export class AgentManager extends EventEmitter {
 
 	private async waitForProcessExit(
 		agentId: string,
-		timeout: number
+		timeout: number,
 	): Promise<void> {
 		return new Promise((resolve) => {
 			const process = this.processes.get(agentId);
@@ -1209,7 +1230,7 @@ export class AgentManager extends EventEmitter {
 
 	private updateResourceUsage(
 		agentId: string,
-		usage: { cpu: number; memory: number; disk: number }
+		usage: { cpu: number; memory: number; disk: number },
 	): void {
 		this.resourceUsage.set(agentId, usage);
 	}
@@ -1266,7 +1287,7 @@ export class AgentManager extends EventEmitter {
 		// Remove from pools,
 		for (const pool of Array.from(this.pools.values())) {
 			pool.availableAgents = pool.availableAgents.filter(
-				(a) => a.id !== agentId
+				(a) => a.id !== agentId,
 			);
 			pool.busyAgents = pool.busyAgents.filter((a) => a.id !== agentId);
 			pool.currentSize = pool.availableAgents.length + pool.busyAgents.length;
@@ -1318,13 +1339,13 @@ export class AgentManager extends EventEmitter {
 
 	getAgentsByType(type: AgentType): AgentState[] {
 		return Array.from(this.agents.values()).filter(
-			(agent) => agent.type === type
+			(agent) => agent.type === type,
 		);
 	}
 
 	getAgentsByStatus(status: AgentStatus): AgentState[] {
 		return Array.from(this.agents.values()).filter(
-			(agent) => agent.status === status
+			(agent) => agent.status === status,
 		);
 	}
 
@@ -1375,7 +1396,7 @@ export class AgentManager extends EventEmitter {
 		return {
 			totalAgents: agents.length,
 			activeAgents: agents.filter(
-				(a) => a.status === "idle" || a.status === "busy"
+				(a) => a.status === "idle" || a.status === "busy",
 			).length,
 			healthyAgents,
 			pools: this.pools.size,

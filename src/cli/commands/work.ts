@@ -6,6 +6,8 @@ import { getErrorMessage as _getErrorMessage } from "../../utils/error-handler.j
  */
 
 import chalk from "chalk";
+import type { CliCommand as Command } from "../../types/cli-types.js";
+import type { CommandContext } from "../../types/core.js";
 import type { WorkOptions } from "../../unified/work/types.js";
 import { WorkCommand } from "../../unified/work/work-command.js";
 import {
@@ -13,8 +15,7 @@ import {
 	exitPatterns,
 	handleError,
 } from "../../utils/graceful-exit.js";
-import type { Command, CommandContext } from "../optimized-cli-core.js";
-import { _error, info, success, warning } from "../optimized-cli-core.js";
+import { _error, info, success, warning } from "../cli-utils.js";
 
 // Initialize the unified work command instance,
 let workCommandInstance: WorkCommand | null = null;
@@ -127,13 +128,13 @@ export const workCommand: Command = {
 			if (!task) {
 				_error("Task description is required as the first argument");
 				console.log(
-					'Example: npx claude-flow work "Build a REST API with authentication"'
+					'Example: npx claude-flow work "Build a REST API with authentication"',
 				);
 				console.log(
-					'         npx claude-flow work "research neural architectures" --preset research'
+					'         npx claude-flow work "research neural architectures" --preset research',
 				);
 				console.log(
-					'         npx claude-flow work "deploy to production" --agents 3 --topology hierarchical'
+					'         npx claude-flow work "deploy to production" --agents 3 --topology hierarchical',
 				);
 				exitPatterns.invalidArgs("Task description is required");
 				return;
@@ -170,7 +171,7 @@ export const workCommand: Command = {
 			await handleError(
 				err as Error,
 				"Failed to execute unified work command",
-				ctx.flags.debug as boolean
+				ctx.flags.debug as boolean,
 			);
 		}
 	},

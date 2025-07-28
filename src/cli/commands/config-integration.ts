@@ -13,8 +13,8 @@ import {
 	initializeRuvSwarmIntegration,
 	RuvSwarmConfigHelpers,
 } from "../../config/ruv-swarm-integration.js";
-import type { CommandContext } from "../optimized-cli-core.js";
-import { _error, info, success, warning } from "../optimized-cli-core.js";
+import type { CommandContext } from "../../types/core.js";
+import { _error, info, success, warning } from "../cli-utils.js";
 
 /**
  * Enhanced configuration command with ruv-swarm integration
@@ -58,7 +58,7 @@ export async function configIntegrationAction(ctx: CommandContext) {
 		}
 	} catch (err) {
 		_error(
-			`Configuration integration command failed: ${_getErrorMessage(err)}`
+			`Configuration integration command failed: ${_getErrorMessage(err)}`,
 		);
 	}
 }
@@ -68,7 +68,7 @@ export async function configIntegrationAction(ctx: CommandContext) {
  */
 function showConfigIntegrationHelp() {
 	console.log(
-		"config-integration - Enhanced configuration management with ruv-swarm\\n"
+		"config-integration - Enhanced configuration management with ruv-swarm\\n",
 	);
 
 	console.log("Usage:");
@@ -85,13 +85,13 @@ function showConfigIntegrationHelp() {
 
 	console.log("Presets:");
 	console.log(
-		"  development                Optimized for development workflows"
+		"  development                Optimized for development workflows",
 	);
 	console.log(
-		"  research                   Optimized for research and analysis"
+		"  research                   Optimized for research and analysis",
 	);
 	console.log(
-		"  production                 Optimized for production environments\\n"
+		"  production                 Optimized for production environments\\n",
 	);
 
 	console.log("Examples:");
@@ -210,7 +210,7 @@ async function handleStatus(ctx: CommandContext) {
 		console.log("📊 Overview:");
 		console.log(`  ruv-swarm Enabled: ${status.enabled ? "✅ Yes" : "❌ No"}`);
 		console.log(
-			`  Configurations Synchronized: ${status.synchronized ? "✅ Yes" : "⚠️  No"}`
+			`  Configurations Synchronized: ${status.synchronized ? "✅ Yes" : "⚠️  No"}`,
 		);
 
 		// Main configuration,
@@ -220,45 +220,45 @@ async function handleStatus(ctx: CommandContext) {
 		console.log(`  Default Strategy: ${status.mainConfig.defaultStrategy}`);
 		console.log(`  Auto Init: ${status.mainConfig.autoInit ? "✅" : "❌"}`);
 		console.log(
-			`  Hooks Enabled: ${status.mainConfig.enableHooks ? "✅" : "❌"}`
+			`  Hooks Enabled: ${status.mainConfig.enableHooks ? "✅" : "❌"}`,
 		);
 		console.log(
-			`  Persistence Enabled: ${status.mainConfig.enablePersistence ? "✅" : "❌"}`
+			`  Persistence Enabled: ${status.mainConfig.enablePersistence ? "✅" : "❌"}`,
 		);
 		console.log(
-			`  Neural Training: ${status.mainConfig.enableNeuralTraining ? "✅" : "❌"}`
+			`  Neural Training: ${status.mainConfig.enableNeuralTraining ? "✅" : "❌"}`,
 		);
 
 		if (verbose) {
 			console.log("\\n🧠 ruv-swarm Configuration:");
 			console.log(
-				`  Swarm Max Agents: ${status.ruvSwarmConfig.swarm.maxAgents}`
+				`  Swarm Max Agents: ${status.ruvSwarmConfig.swarm.maxAgents}`,
 			);
 			console.log(
-				`  Memory Persistence: ${status.ruvSwarmConfig.memory.enablePersistence ? "✅" : "❌"}`
+				`  Memory Persistence: ${status.ruvSwarmConfig.memory.enablePersistence ? "✅" : "❌"}`,
 			);
 			console.log(
-				`  Neural Training: ${status.ruvSwarmConfig.neural.enableTraining ? "✅" : "❌"}`
+				`  Neural Training: ${status.ruvSwarmConfig.neural.enableTraining ? "✅" : "❌"}`,
 			);
 			console.log(
-				`  MCP Tools: ${status.ruvSwarmConfig.integration.enableMCPTools ? "✅" : "❌"}`
+				`  MCP Tools: ${status.ruvSwarmConfig.integration.enableMCPTools ? "✅" : "❌"}`,
 			);
 			console.log(
-				`  CLI Commands: ${status.ruvSwarmConfig.integration.enableCLICommands ? "✅" : "❌"}`
+				`  CLI Commands: ${status.ruvSwarmConfig.integration.enableCLICommands ? "✅" : "❌"}`,
 			);
 
 			console.log("\\n📈 Monitoring:");
 			console.log(
-				`  Metrics Enabled: ${status.ruvSwarmConfig.monitoring.enableMetrics ? "✅" : "❌"}`
+				`  Metrics Enabled: ${status.ruvSwarmConfig.monitoring.enableMetrics ? "✅" : "❌"}`,
 			);
 			console.log(
-				`  Alerts Enabled: ${status.ruvSwarmConfig.monitoring.enableAlerts ? "✅" : "❌"}`
+				`  Alerts Enabled: ${status.ruvSwarmConfig.monitoring.enableAlerts ? "✅" : "❌"}`,
 			);
 			console.log(
-				`  CPU Threshold: ${status.ruvSwarmConfig.monitoring.alertThresholds.cpu}%`
+				`  CPU Threshold: ${status.ruvSwarmConfig.monitoring.alertThresholds.cpu}%`,
 			);
 			console.log(
-				`  Memory Threshold: ${status.ruvSwarmConfig.monitoring.alertThresholds.memory}%`
+				`  Memory Threshold: ${status.ruvSwarmConfig.monitoring.alertThresholds.memory}%`,
 			);
 		}
 	} catch (err) {
@@ -388,7 +388,7 @@ async function handlePreset(ctx: CommandContext) {
 			`  Features: ${Object.entries(status.mainConfig)
 				.filter(([key, value]) => key.startsWith("enable") && value)
 				.map(([key]) => key.replace("enable", "").toLowerCase())
-				.join(", ")}`
+				.join(", ")}`,
 		);
 	} catch (err) {
 		_error(`Failed to apply preset: ${_getErrorMessage(err)}`);

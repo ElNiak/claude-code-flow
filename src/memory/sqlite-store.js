@@ -9,6 +9,7 @@ import { promises as fs } from "fs";
 import os from "os";
 import path from "path";
 import { fileURLToPath } from "url";
+import { debugLogger } from "../utils/debug-logger.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -47,7 +48,21 @@ class SqliteMemoryStore {
 	}
 
 	async initialize() {
-		if (this.isInitialized) return;
+		const correlationId = debugLogger.logFunctionEntry(
+			"SqliteMemoryStore",
+			"initialize",
+			[],
+			"memory-backend",
+		);
+
+		if (this.isInitialized) {
+			debugLogger.logFunctionExit(
+				correlationId,
+				{ alreadyInitialized: true },
+				"memory-backend",
+			);
+			return;
+		}
 
 		try {
 			// Ensure directory exists
@@ -70,13 +85,19 @@ class SqliteMemoryStore {
 			this.isInitialized = true;
 
 			console.error(
-				`[${new Date().toISOString()}] INFO [memory-store] Initialized SQLite at: ${dbPath}`
+				`[${new Date().toISOString()}] INFO [memory-store] Initialized SQLite at: ${dbPath}`,
+			);
+			debugLogger.logFunctionExit(
+				correlationId,
+				{ initialized: true, dbPath },
+				"memory-backend",
 			);
 		} catch (error) {
 			console.error(
 				`[${new Date().toISOString()}] ERROR [memory-store] Failed to initialize:`,
-				error
+				error,
 			);
+			debugLogger.logFunctionError(correlationId, error, "memory-backend");
 			throw error;
 		}
 	}
@@ -118,7 +139,7 @@ class SqliteMemoryStore {
         expires_at = excluded.expires_at,
         updated_at = strftime('%s', 'now'),
         access_count = memory_entries.access_count + 1
-    `)
+    `),
 		);
 
 		// Retrieve statement
@@ -127,7 +148,7 @@ class SqliteMemoryStore {
 			this.db.prepare(`
       SELECT * FROM memory_entries
       WHERE key = ? AND namespace = ? AND (expires_at IS NULL OR expires_at > strftime('%s', 'now'))
-    `)
+    `),
 		);
 
 		// List statement
@@ -138,7 +159,7 @@ class SqliteMemoryStore {
       WHERE namespace = ? AND (expires_at IS NULL OR expires_at > strftime('%s', 'now'))
       ORDER BY updated_at DESC
       LIMIT ?
-    `)
+    `),
 		);
 
 		// Delete statement
@@ -146,7 +167,7 @@ class SqliteMemoryStore {
 			"delete",
 			this.db.prepare(`
       DELETE FROM memory_entries WHERE key = ? AND namespace = ?
-    `)
+    `),
 		);
 
 		// Search statement
@@ -158,7 +179,7 @@ class SqliteMemoryStore {
       AND (expires_at IS NULL OR expires_at > strftime('%s', 'now'))
       ORDER BY access_count DESC, updated_at DESC
       LIMIT ?
-    `)
+    `),
 		);
 
 		// Cleanup statement
@@ -166,7 +187,7 @@ class SqliteMemoryStore {
 			"cleanup",
 			this.db.prepare(`
       DELETE FROM memory_entries WHERE expires_at IS NOT NULL AND expires_at <= strftime('%s', 'now')
-    `)
+    `),
 		);
 
 		// Update access statement
@@ -176,11 +197,18 @@ class SqliteMemoryStore {
       UPDATE memory_entries
       SET accessed_at = strftime('%s', 'now'), access_count = access_count + 1
       WHERE key = ? AND namespace = ?
-    `)
+    `),
 		);
 	}
 
 	async store(key, value, options = {}) {
+		const correlationId = debugLogger.logFunctionEntry(
+			"SqliteMemoryStore",
+			"store",
+			[key, value, options],
+			"memory-crud",
+		);
+
 		await this.initialize();
 
 		const namespace = options.namespace || "default";
@@ -194,21 +222,35 @@ class SqliteMemoryStore {
 				.get("upsert")
 				.run(key, valueStr, namespace, metadata, ttl, expiresAt);
 
-			return {
+			const storeResult = {
 				success: true,
 				id: result.lastInsertRowid,
 				size: valueStr.length,
 			};
+			debugLogger.logFunctionExit(
+				correlationId,
+				{ key, namespace, size: valueStr.length },
+				"memory-crud",
+			);
+			return storeResult;
 		} catch (error) {
 			console.error(
 				`[${new Date().toISOString()}] ERROR [memory-store] Store failed:`,
-				error
+				error,
 			);
+			debugLogger.logFunctionError(correlationId, error, "memory-crud");
 			throw error;
 		}
 	}
 
 	async retrieve(key, options = {}) {
+		const correlationId = debugLogger.logFunctionEntry(
+			"SqliteMemoryStore",
+			"retrieve",
+			[key, options],
+			"memory-crud",
+		);
+
 		await this.initialize();
 
 		const namespace = options.namespace || "default";
@@ -217,6 +259,11 @@ class SqliteMemoryStore {
 			const row = this.statements.get("get").get(key, namespace);
 
 			if (!row) {
+				debugLogger.logFunctionExit(
+					correlationId,
+					{ key, namespace, found: false },
+					"memory-crud",
+				);
 				return null;
 			}
 
@@ -224,21 +271,36 @@ class SqliteMemoryStore {
 			this.statements.get("updateAccess").run(key, namespace);
 
 			// Try to parse as JSON, fall back to raw string
+			let parsedValue;
 			try {
-				return JSON.parse(row.value);
+				parsedValue = JSON.parse(row.value);
 			} catch {
-				return row.value;
+				parsedValue = row.value;
 			}
+			debugLogger.logFunctionExit(
+				correlationId,
+				{ key, namespace, found: true, size: row.value?.length },
+				"memory-crud",
+			);
+			return parsedValue;
 		} catch (error) {
 			console.error(
 				`[${new Date().toISOString()}] ERROR [memory-store] Retrieve failed:`,
-				error
+				error,
 			);
+			debugLogger.logFunctionError(correlationId, error, "memory-crud");
 			throw error;
 		}
 	}
 
 	async list(options = {}) {
+		const correlationId = debugLogger.logFunctionEntry(
+			"SqliteMemoryStore",
+			"list",
+			[options],
+			"memory-crud",
+		);
+
 		await this.initialize();
 
 		const namespace = options.namespace || "default";
@@ -247,7 +309,7 @@ class SqliteMemoryStore {
 		try {
 			const rows = this.statements.get("list").all(namespace, limit);
 
-			return rows.map((row) => ({
+			const result = rows.map((row) => ({
 				key: row.key,
 				value: this._tryParseJson(row.value),
 				namespace: row.namespace,
@@ -256,33 +318,61 @@ class SqliteMemoryStore {
 				updatedAt: new Date(row.updated_at * 1000),
 				accessCount: row.access_count,
 			}));
+			debugLogger.logFunctionExit(
+				correlationId,
+				{ namespace, count: result.length, limit },
+				"memory-crud",
+			);
+			return result;
 		} catch (error) {
 			console.error(
 				`[${new Date().toISOString()}] ERROR [memory-store] List failed:`,
-				error
+				error,
 			);
+			debugLogger.logFunctionError(correlationId, error, "memory-crud");
 			throw error;
 		}
 	}
 
 	async delete(key, options = {}) {
+		const correlationId = debugLogger.logFunctionEntry(
+			"SqliteMemoryStore",
+			"delete",
+			[key, options],
+			"memory-crud",
+		);
+
 		await this.initialize();
 
 		const namespace = options.namespace || "default";
 
 		try {
 			const result = this.statements.get("delete").run(key, namespace);
-			return result.changes > 0;
+			const deleted = result.changes > 0;
+			debugLogger.logFunctionExit(
+				correlationId,
+				{ key, namespace, deleted },
+				"memory-crud",
+			);
+			return deleted;
 		} catch (error) {
 			console.error(
 				`[${new Date().toISOString()}] ERROR [memory-store] Delete failed:`,
-				error
+				error,
 			);
+			debugLogger.logFunctionError(correlationId, error, "memory-crud");
 			throw error;
 		}
 	}
 
 	async search(pattern, options = {}) {
+		const correlationId = debugLogger.logFunctionEntry(
+			"SqliteMemoryStore",
+			"search",
+			[pattern, options],
+			"memory-crud",
+		);
+
 		await this.initialize();
 
 		const namespace = options.namespace || "default";
@@ -294,33 +384,53 @@ class SqliteMemoryStore {
 				.get("search")
 				.all(namespace, searchPattern, searchPattern, limit);
 
-			return rows.map((row) => ({
+			const result = rows.map((row) => ({
 				key: row.key,
 				value: this._tryParseJson(row.value),
 				namespace: row.namespace,
 				score: row.access_count,
 				updatedAt: new Date(row.updated_at * 1000),
 			}));
+			debugLogger.logFunctionExit(
+				correlationId,
+				{ pattern, namespace, count: result.length },
+				"memory-crud",
+			);
+			return result;
 		} catch (error) {
 			console.error(
 				`[${new Date().toISOString()}] ERROR [memory-store] Search failed:`,
-				error
+				error,
 			);
+			debugLogger.logFunctionError(correlationId, error, "memory-crud");
 			throw error;
 		}
 	}
 
 	async cleanup() {
+		const correlationId = debugLogger.logFunctionEntry(
+			"SqliteMemoryStore",
+			"cleanup",
+			[],
+			"memory-backend",
+		);
+
 		await this.initialize();
 
 		try {
 			const result = this.statements.get("cleanup").run();
+			debugLogger.logFunctionExit(
+				correlationId,
+				{ cleaned: result.changes },
+				"memory-backend",
+			);
 			return result.changes;
 		} catch (error) {
 			console.error(
 				`[${new Date().toISOString()}] ERROR [memory-store] Cleanup failed:`,
-				error
+				error,
 			);
+			debugLogger.logFunctionError(correlationId, error, "memory-backend");
 			throw error;
 		}
 	}
@@ -334,10 +444,28 @@ class SqliteMemoryStore {
 	}
 
 	close() {
+		const correlationId = debugLogger.logFunctionEntry(
+			"SqliteMemoryStore",
+			"close",
+			[],
+			"memory-backend",
+		);
+
 		if (this.db) {
 			this.db.close();
 			this.db = null;
 			this.isInitialized = false;
+			debugLogger.logFunctionExit(
+				correlationId,
+				{ closed: true },
+				"memory-backend",
+			);
+		} else {
+			debugLogger.logFunctionExit(
+				correlationId,
+				{ alreadyClosed: true },
+				"memory-backend",
+			);
 		}
 	}
 }

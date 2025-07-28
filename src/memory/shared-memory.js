@@ -10,6 +10,8 @@ import { EventEmitter } from "events";
 import fs from "fs/promises";
 import path from "path";
 import { performance } from "perf_hooks";
+import { debugLogger } from "../utils/debug-logger.js";
+import { registerCleanupResource } from "../utils/graceful-exit.js";
 
 /**
  * Migration definitions for schema evolution
@@ -198,7 +200,7 @@ export class SharedMemory extends EventEmitter {
 		this.db = null;
 		this.cache = new LRUCache(
 			this.options.cacheSize,
-			this.options.cacheMemoryMB
+			this.options.cacheMemoryMB,
 		);
 		this.statements = new Map();
 		this.gcTimer = null;
@@ -216,7 +218,21 @@ export class SharedMemory extends EventEmitter {
 	 * Initialize the database and run migrations
 	 */
 	async initialize() {
-		if (this.isInitialized) return;
+		const correlationId = debugLogger.logFunctionEntry(
+			"SharedMemory",
+			"initialize",
+			{ isInitialized: this.isInitialized, directory: this.options.directory },
+			"memory-backend",
+		);
+
+		if (this.isInitialized) {
+			debugLogger.logFunctionExit(
+				correlationId,
+				{ alreadyInitialized: true },
+				"memory-backend",
+			);
+			return;
+		}
 
 		const startTime = performance.now();
 
@@ -226,12 +242,17 @@ export class SharedMemory extends EventEmitter {
 				recursive: true,
 			});
 
-			// Open database
+			// Get database path
 			const dbPath = path.join(
 				process.cwd(),
 				this.options.directory,
-				this.options.filename
+				this.options.filename,
 			);
+
+			// Clean up any stale WAL files before opening database
+			await this._cleanupStaleWALFiles(dbPath);
+
+			// Open database
 			this.db = new Database(dbPath);
 
 			// Configure for performance
@@ -246,13 +267,22 @@ export class SharedMemory extends EventEmitter {
 			// Start garbage collection
 			this._startGarbageCollection();
 
+			// Register database cleanup with graceful exit system
+			this._registerGracefulCleanup();
+
 			this.isInitialized = true;
 
 			const duration = performance.now() - startTime;
 			this._recordMetric("initialize", duration);
 
 			this.emit("initialized", { dbPath, duration });
+			debugLogger.logFunctionExit(
+				correlationId,
+				{ initialized: true, dbPath, duration },
+				"memory-backend",
+			);
 		} catch (error) {
+			debugLogger.logFunctionError(correlationId, error, "memory-backend");
 			this.emit("error", error);
 			throw new Error(`Failed to initialize SharedMemory: ${error.message}`);
 		}
@@ -262,6 +292,18 @@ export class SharedMemory extends EventEmitter {
 	 * Store a value in memory
 	 */
 	async store(key, value, options = {}) {
+		const correlationId = debugLogger.logFunctionEntry(
+			"SharedMemory",
+			"store",
+			{
+				key,
+				keyType: typeof key,
+				namespace: options.namespace,
+				ttl: options.ttl,
+			},
+			"memory-crud",
+		);
+
 		this._ensureInitialized();
 
 		const startTime = performance.now();
@@ -295,6 +337,13 @@ export class SharedMemory extends EventEmitter {
 			// Calculate expiry
 			const expiresAt = ttl ? Math.floor(Date.now() / 1000) + ttl : null;
 
+			debugLogger.logEvent(
+				"SharedMemory",
+				"pre-sql-execution",
+				{ key, namespace, type, size, compressed, expiresAt },
+				"memory-crud",
+			);
+
 			// Store in database
 			this.statements
 				.get("upsert")
@@ -308,7 +357,7 @@ export class SharedMemory extends EventEmitter {
 					ttl,
 					expiresAt,
 					compressed,
-					size
+					size,
 				);
 
 			// Update cache
@@ -320,8 +369,11 @@ export class SharedMemory extends EventEmitter {
 
 			this.emit("stored", { key, namespace, size, compressed: !!compressed });
 
-			return { success: true, key, namespace, size };
+			const result = { success: true, key, namespace, size };
+			debugLogger.logFunctionExit(correlationId, result, "memory-crud");
+			return result;
 		} catch (error) {
+			debugLogger.logFunctionError(correlationId, error, "memory-crud");
 			this.emit("error", error);
 			throw error;
 		}
@@ -331,6 +383,13 @@ export class SharedMemory extends EventEmitter {
 	 * Retrieve a value from memory
 	 */
 	async retrieve(key, namespace = "default") {
+		const correlationId = debugLogger.logFunctionEntry(
+			"SharedMemory",
+			"retrieve",
+			{ key, namespace },
+			"memory-crud",
+		);
+
 		this._ensureInitialized();
 
 		const startTime = performance.now();
@@ -342,6 +401,17 @@ export class SharedMemory extends EventEmitter {
 
 			if (cached !== null) {
 				this._recordMetric("retrieve_cache", performance.now() - startTime);
+				debugLogger.logEvent(
+					"SharedMemory",
+					"cache-hit",
+					{ key, namespace },
+					"memory-crud",
+				);
+				debugLogger.logFunctionExit(
+					correlationId,
+					{ found: true, source: "cache" },
+					"memory-crud",
+				);
 				return cached;
 			}
 
@@ -350,6 +420,17 @@ export class SharedMemory extends EventEmitter {
 
 			if (!row) {
 				this._recordMetric("retrieve_miss", performance.now() - startTime);
+				debugLogger.logEvent(
+					"SharedMemory",
+					"retrieve-miss",
+					{ key, namespace },
+					"memory-crud",
+				);
+				debugLogger.logFunctionExit(
+					correlationId,
+					{ found: false },
+					"memory-crud",
+				);
 				return null;
 			}
 
@@ -358,6 +439,17 @@ export class SharedMemory extends EventEmitter {
 				// Delete expired entry
 				this.statements.get("delete").run(key, namespace);
 				this._recordMetric("retrieve_expired", performance.now() - startTime);
+				debugLogger.logEvent(
+					"SharedMemory",
+					"entry-expired",
+					{ key, namespace, expiresAt: row.expires_at },
+					"memory-crud",
+				);
+				debugLogger.logFunctionExit(
+					correlationId,
+					{ found: false, reason: "expired" },
+					"memory-crud",
+				);
 				return null;
 			}
 
@@ -376,8 +468,14 @@ export class SharedMemory extends EventEmitter {
 			const duration = performance.now() - startTime;
 			this._recordMetric("retrieve_db", duration);
 
+			debugLogger.logFunctionExit(
+				correlationId,
+				{ found: true, type: row.type, size: row.size },
+				"memory-crud",
+			);
 			return value;
 		} catch (error) {
+			debugLogger.logFunctionError(correlationId, error, "memory-crud");
 			this.emit("error", error);
 			throw error;
 		}
@@ -387,6 +485,13 @@ export class SharedMemory extends EventEmitter {
 	 * List entries in a namespace
 	 */
 	async list(namespace = "default", options = {}) {
+		const correlationId = debugLogger.logFunctionEntry(
+			"SharedMemory",
+			"list",
+			{ namespace, limit: options.limit, offset: options.offset },
+			"memory-crud",
+		);
+
 		this._ensureInitialized();
 
 		const limit = options.limit || 100;
@@ -395,7 +500,7 @@ export class SharedMemory extends EventEmitter {
 		try {
 			const rows = this.statements.get("list").all(namespace, limit, offset);
 
-			return rows.map((row) => ({
+			const result = rows.map((row) => ({
 				key: row.key,
 				namespace: row.namespace,
 				type: row.type,
@@ -408,7 +513,14 @@ export class SharedMemory extends EventEmitter {
 				accessCount: row.access_count,
 				expiresAt: row.expires_at ? new Date(row.expires_at * 1000) : null,
 			}));
+			debugLogger.logFunctionExit(
+				correlationId,
+				{ count: result.length },
+				"memory-crud",
+			);
+			return result;
 		} catch (error) {
+			debugLogger.logFunctionError(correlationId, error, "memory-crud");
 			this.emit("error", error);
 			throw error;
 		}
@@ -418,6 +530,13 @@ export class SharedMemory extends EventEmitter {
 	 * Delete an entry
 	 */
 	async delete(key, namespace = "default") {
+		const correlationId = debugLogger.logFunctionEntry(
+			"SharedMemory",
+			"delete",
+			{ key, namespace },
+			"memory-crud",
+		);
+
 		this._ensureInitialized();
 
 		try {
@@ -428,13 +547,18 @@ export class SharedMemory extends EventEmitter {
 			// Remove from database
 			const result = this.statements.get("delete").run(key, namespace);
 
-			if (result.changes > 0) {
+			const deleted = result.changes > 0;
+			if (deleted) {
 				this.emit("deleted", { key, namespace });
-				return true;
 			}
-
-			return false;
+			debugLogger.logFunctionExit(
+				correlationId,
+				{ deleted, changes: result.changes },
+				"memory-crud",
+			);
+			return deleted;
 		} catch (error) {
+			debugLogger.logFunctionError(correlationId, error, "memory-crud");
 			this.emit("error", error);
 			throw error;
 		}
@@ -444,6 +568,13 @@ export class SharedMemory extends EventEmitter {
 	 * Clear all entries in a namespace
 	 */
 	async clear(namespace = "default") {
+		const correlationId = debugLogger.logFunctionEntry(
+			"SharedMemory",
+			"clear",
+			{ namespace },
+			"memory-crud",
+		);
+
 		this._ensureInitialized();
 
 		try {
@@ -459,8 +590,11 @@ export class SharedMemory extends EventEmitter {
 
 			this.emit("cleared", { namespace, count: result.changes });
 
-			return { cleared: result.changes };
+			const clearResult = { cleared: result.changes };
+			debugLogger.logFunctionExit(correlationId, clearResult, "memory-crud");
+			return clearResult;
 		} catch (error) {
+			debugLogger.logFunctionError(correlationId, error, "memory-crud");
 			this.emit("error", error);
 			throw error;
 		}
@@ -470,6 +604,13 @@ export class SharedMemory extends EventEmitter {
 	 * Get statistics
 	 */
 	async getStats() {
+		const correlationId = debugLogger.logFunctionEntry(
+			"SharedMemory",
+			"getStats",
+			{},
+			"memory-ops",
+		);
+
 		this._ensureInitialized();
 
 		try {
@@ -487,22 +628,32 @@ export class SharedMemory extends EventEmitter {
 				};
 			}
 
-			return {
+			const stats = {
 				namespaces: namespaceStats,
 				cache: cacheStats,
 				metrics: this._getMetricsSummary(),
 				database: {
 					totalEntries: Object.values(namespaceStats).reduce(
 						(sum, ns) => sum + ns.count,
-						0
+						0,
 					),
 					totalSize: Object.values(namespaceStats).reduce(
 						(sum, ns) => sum + ns.totalSize,
-						0
+						0,
 					),
 				},
 			};
+			debugLogger.logFunctionExit(
+				correlationId,
+				{
+					namespaceCount: Object.keys(namespaceStats).length,
+					totalEntries: stats.database.totalEntries,
+				},
+				"memory-ops",
+			);
+			return stats;
 		} catch (error) {
+			debugLogger.logFunctionError(correlationId, error, "memory-ops");
 			this.emit("error", error);
 			throw error;
 		}
@@ -512,6 +663,13 @@ export class SharedMemory extends EventEmitter {
 	 * Search entries by pattern or tags
 	 */
 	async search(options = {}) {
+		const correlationId = debugLogger.logFunctionEntry(
+			"SharedMemory",
+			"search",
+			options,
+			"memory-crud",
+		);
+
 		this._ensureInitialized();
 
 		const { pattern, namespace, tags, limit = 50, offset = 0 } = options;
@@ -541,14 +699,21 @@ export class SharedMemory extends EventEmitter {
 			const stmt = this.db.prepare(query);
 			const rows = stmt.all(...params);
 
-			return rows.map((row) => ({
+			const result = rows.map((row) => ({
 				key: row.key,
 				namespace: row.namespace,
 				value: row.type === "json" ? JSON.parse(row.value) : row.value,
 				metadata: row.metadata ? JSON.parse(row.metadata) : null,
 				tags: row.tags ? JSON.parse(row.tags) : [],
 			}));
+			debugLogger.logFunctionExit(
+				correlationId,
+				{ count: result.length, pattern, namespace },
+				"memory-crud",
+			);
+			return result;
 		} catch (error) {
+			debugLogger.logFunctionError(correlationId, error, "memory-crud");
 			this.emit("error", error);
 			throw error;
 		}
@@ -558,23 +723,47 @@ export class SharedMemory extends EventEmitter {
 	 * Backup the database
 	 */
 	async backup(filepath) {
+		const correlationId = debugLogger.logFunctionEntry(
+			"SharedMemory",
+			"backup",
+			{ filepath },
+			"memory-backend",
+		);
+
 		this._ensureInitialized();
 
 		try {
 			await this.db.backup(filepath);
 			this.emit("backup", { filepath });
-			return { success: true, filepath };
+			const result = { success: true, filepath };
+			debugLogger.logFunctionExit(correlationId, result, "memory-backend");
+			return result;
 		} catch (error) {
+			debugLogger.logFunctionError(correlationId, error, "memory-backend");
 			this.emit("error", error);
 			throw error;
 		}
 	}
 
 	/**
-	 * Close the database connection
+	 * Close the database connection with proper WAL cleanup
 	 */
 	async close() {
-		if (!this.isInitialized) return;
+		const correlationId = debugLogger.logFunctionEntry(
+			"SharedMemory",
+			"close",
+			{ isInitialized: this.isInitialized },
+			"memory-backend",
+		);
+
+		if (!this.isInitialized) {
+			debugLogger.logFunctionExit(
+				correlationId,
+				{ alreadyClosed: true },
+				"memory-backend",
+			);
+			return;
+		}
 
 		try {
 			// Stop garbage collection
@@ -588,13 +777,29 @@ export class SharedMemory extends EventEmitter {
 				this.db.pragma("optimize");
 			}
 
+			// Critical: Force WAL checkpoint before closing to prevent corruption
+			if (this.options.enableWAL) {
+				try {
+					// Force a full checkpoint to merge WAL into main database
+					this.db.pragma("wal_checkpoint(FULL)");
+
+					// Truncate WAL file to remove it completely
+					this.db.pragma("wal_checkpoint(TRUNCATE)");
+
+					console.log("✅ SQLite WAL files successfully cleaned up");
+				} catch (walError) {
+					console.warn("⚠️ WAL checkpoint failed:", walError.message);
+					// Continue with close even if WAL cleanup fails
+				}
+			}
+
 			// Close statements
 			for (const stmt of this.statements.values()) {
 				stmt.finalize();
 			}
 			this.statements.clear();
 
-			// Close database
+			// Close database connection
 			this.db.close();
 			this.db = null;
 
@@ -604,7 +809,13 @@ export class SharedMemory extends EventEmitter {
 			this.isInitialized = false;
 
 			this.emit("closed");
+			debugLogger.logFunctionExit(
+				correlationId,
+				{ closed: true },
+				"memory-backend",
+			);
 		} catch (error) {
+			debugLogger.logFunctionError(correlationId, error, "memory-backend");
 			this.emit("error", error);
 			throw error;
 		}
@@ -618,6 +829,64 @@ export class SharedMemory extends EventEmitter {
 		if (!this.isInitialized) {
 			throw new Error("SharedMemory not initialized. Call initialize() first.");
 		}
+	}
+
+	/**
+	 * Clean up stale WAL files before opening database
+	 */
+	async _cleanupStaleWALFiles(dbPath) {
+		const walFile = `${dbPath}-wal`;
+		const shmFile = `${dbPath}-shm`;
+
+		try {
+			// Check and remove WAL file
+			try {
+				await fs.access(walFile);
+				await fs.unlink(walFile);
+				console.log("🧹 Removed stale WAL file:", walFile);
+			} catch (error) {
+				// File doesn't exist, which is fine
+				if (error.code !== "ENOENT") {
+					console.warn("⚠️ Could not remove WAL file:", error.message);
+				}
+			}
+
+			// Check and remove SHM file
+			try {
+				await fs.access(shmFile);
+				await fs.unlink(shmFile);
+				console.log("🧹 Removed stale SHM file:", shmFile);
+			} catch (error) {
+				// File doesn't exist, which is fine
+				if (error.code !== "ENOENT") {
+					console.warn("⚠️ Could not remove SHM file:", error.message);
+				}
+			}
+		} catch (error) {
+			console.warn("⚠️ WAL cleanup failed:", error.message);
+			// Don't throw - continue with database initialization
+		}
+	}
+
+	/**
+	 * Register database cleanup with graceful exit system
+	 */
+	_registerGracefulCleanup() {
+		const dbPath = path.join(
+			process.cwd(),
+			this.options.directory,
+			this.options.filename,
+		);
+
+		registerCleanupResource({
+			name: `sqlite-database-${this.options.directory}`,
+			cleanup: async () => {
+				if (this.isInitialized && this.db) {
+					console.log(`🧹 Gracefully closing database: ${dbPath}`);
+					await this.close();
+				}
+			},
+		});
 	}
 
 	_configureDatabase() {
@@ -655,7 +924,7 @@ export class SharedMemory extends EventEmitter {
 					this.db.exec(migration.sql);
 					this.db
 						.prepare(
-							"INSERT INTO migrations (version, description) VALUES (?, ?)"
+							"INSERT INTO migrations (version, description) VALUES (?, ?)",
 						)
 						.run(migration.version, migration.description);
 				}
@@ -687,7 +956,7 @@ export class SharedMemory extends EventEmitter {
         size = excluded.size,
         updated_at = strftime('%s', 'now'),
         access_count = memory_store.access_count + 1
-    `)
+    `),
 		);
 
 		// Select statement
@@ -695,7 +964,7 @@ export class SharedMemory extends EventEmitter {
 			"select",
 			this.db.prepare(`
       SELECT * FROM memory_store WHERE key = ? AND namespace = ?
-    `)
+    `),
 		);
 
 		// Update access statement
@@ -705,7 +974,7 @@ export class SharedMemory extends EventEmitter {
       UPDATE memory_store
       SET accessed_at = strftime('%s', 'now'), access_count = access_count + 1
       WHERE key = ? AND namespace = ?
-    `)
+    `),
 		);
 
 		// Delete statement
@@ -713,7 +982,7 @@ export class SharedMemory extends EventEmitter {
 			"delete",
 			this.db.prepare(`
       DELETE FROM memory_store WHERE key = ? AND namespace = ?
-    `)
+    `),
 		);
 
 		// List statement
@@ -724,7 +993,7 @@ export class SharedMemory extends EventEmitter {
       WHERE namespace = ?
       ORDER BY accessed_at DESC
       LIMIT ? OFFSET ?
-    `)
+    `),
 		);
 
 		// Clear namespace statement
@@ -732,7 +1001,7 @@ export class SharedMemory extends EventEmitter {
 			"clearNamespace",
 			this.db.prepare(`
       DELETE FROM memory_store WHERE namespace = ?
-    `)
+    `),
 		);
 
 		// Stats statement
@@ -747,7 +1016,7 @@ export class SharedMemory extends EventEmitter {
         SUM(compressed) as compressed_count
       FROM memory_store
       GROUP BY namespace
-    `)
+    `),
 		);
 
 		// Garbage collection statement
@@ -756,7 +1025,7 @@ export class SharedMemory extends EventEmitter {
 			this.db.prepare(`
       DELETE FROM memory_store
       WHERE expires_at IS NOT NULL AND expires_at < strftime('%s', 'now')
-    `)
+    `),
 		);
 	}
 
@@ -767,15 +1036,34 @@ export class SharedMemory extends EventEmitter {
 	}
 
 	_runGarbageCollection() {
+		const correlationId = debugLogger.logFunctionEntry(
+			"SharedMemory",
+			"_runGarbageCollection",
+			{},
+			"memory-backend",
+		);
+
 		try {
 			const result = this.statements.get("gc").run();
 
 			if (result.changes > 0) {
 				this.emit("gc", { expired: result.changes });
+				debugLogger.logEvent(
+					"SharedMemory",
+					"garbage-collection",
+					{ expired: result.changes },
+					"memory-backend",
+				);
 			}
 
 			this.metrics.lastGC = Date.now();
+			debugLogger.logFunctionExit(
+				correlationId,
+				{ expired: result.changes },
+				"memory-backend",
+			);
 		} catch (error) {
+			debugLogger.logFunctionError(correlationId, error, "memory-backend");
 			this.emit("error", error);
 		}
 	}

@@ -3,9 +3,7 @@
  * Automatically adds debug logging to CLI functions
  */
 
-import { DebugLogger } from "./debug-logger.js";
-
-const debugLogger = DebugLogger.getInstance();
+import { debugLogger } from "./debug-logger.js";
 
 interface InstrumentationConfig {
 	_includePrivateFunctions: boolean;
@@ -29,7 +27,7 @@ const defaultConfig: InstrumentationConfig = {
 export function instrumentClass(
 	targetClass: any,
 	moduleName: string,
-	config: Partial<InstrumentationConfig> = {}
+	config: Partial<InstrumentationConfig> = {},
 ): void {
 	const finalConfig = { ...defaultConfig, ...config };
 	const prototype = targetClass.prototype;
@@ -50,7 +48,7 @@ export function instrumentClass(
 export function instrumentObject(
 	obj: any,
 	moduleName: string,
-	config: Partial<InstrumentationConfig> = {}
+	config: Partial<InstrumentationConfig> = {},
 ): void {
 	const finalConfig = { ...defaultConfig, ...config };
 	const methodNames = getAllMethodNames(obj);
@@ -68,7 +66,7 @@ export function instrumentObject(
 export function instrumentFunction<T extends (...args: any[]) => any>(
 	fn: T,
 	functionName: string,
-	moduleName: string
+	moduleName: string,
 ): T {
 	return ((...args: Parameters<T>) => {
 		const callId = debugLogger.logFunctionEntry(moduleName, functionName, args);
@@ -80,34 +78,19 @@ export function instrumentFunction<T extends (...args: any[]) => any>(
 			if (result && typeof result.then === "function") {
 				return result
 					.then((value: any) => {
-						debugLogger.logFunctionExit(
-							callId,
-							moduleName,
-							functionName,
-							value
-						);
+						debugLogger.logFunctionExit(callId, value);
 						return value;
 					})
 					.catch((error: Error) => {
-						debugLogger.logFunctionError(
-							callId,
-							moduleName,
-							functionName,
-							error
-						);
+						debugLogger.logFunctionError(callId, error);
 						throw error;
 					});
 			}
 
-			debugLogger.logFunctionExit(callId, moduleName, functionName, result);
+			debugLogger.logFunctionExit(callId, result);
 			return result;
 		} catch (error) {
-			debugLogger.logFunctionError(
-				callId,
-				moduleName,
-				functionName,
-				error as Error
-			);
+			debugLogger.logFunctionError(callId, error as Error);
 			throw error;
 		}
 	}) as T;
@@ -138,7 +121,7 @@ function getAllMethodNames(obj: any): string[] {
  */
 function shouldInstrumentMethod(
 	methodName: string,
-	config: InstrumentationConfig
+	config: InstrumentationConfig,
 ): boolean {
 	// Skip private methods unless explicitly included
 	if (methodName.startsWith("_") && !config._includePrivateFunctions) {
@@ -157,7 +140,7 @@ function shouldInstrumentMethod(
 	// Check exclude patterns
 	if (
 		config.excludePatterns.some(
-			(pattern) => pattern === methodName || methodName.includes(pattern)
+			(pattern) => pattern === methodName || methodName.includes(pattern),
 		)
 	) {
 		return false;
@@ -169,7 +152,7 @@ function shouldInstrumentMethod(
 	}
 
 	return config.includePatterns.some(
-		(pattern) => pattern === methodName || methodName.includes(pattern)
+		(pattern) => pattern === methodName || methodName.includes(pattern),
 	);
 }
 
@@ -179,7 +162,7 @@ function shouldInstrumentMethod(
 function instrumentMethod(
 	obj: any,
 	methodName: string,
-	moduleName: string
+	moduleName: string,
 ): void {
 	const originalMethod = obj[methodName];
 
@@ -202,24 +185,19 @@ function instrumentMethod(
 			if (result && typeof result.then === "function") {
 				return result
 					.then((value: unknown) => {
-						debugLogger.logFunctionExit(callId, moduleName, methodName, value);
+						debugLogger.logFunctionExit(callId, value);
 						return value;
 					})
 					.catch((error: Error) => {
-						debugLogger.logFunctionError(callId, moduleName, methodName, error);
+						debugLogger.logFunctionError(callId, error);
 						throw error;
 					});
 			}
 
-			debugLogger.logFunctionExit(callId, moduleName, methodName, result);
+			debugLogger.logFunctionExit(callId, result);
 			return result;
 		} catch (error) {
-			debugLogger.logFunctionError(
-				callId,
-				moduleName,
-				methodName,
-				error as Error
-			);
+			debugLogger.logFunctionError(callId, error as Error);
 			throw error;
 		}
 	};
@@ -236,7 +214,7 @@ export function autoInstrumentCLI(): void {
 	// This would be called during CLI initialization
 	// It would scan for command files and instrument them
 
-	if (!debugLogger.getConfig().enabled) {
+	if (!debugLogger.enabled) {
 		return;
 	}
 
@@ -249,7 +227,7 @@ export function autoInstrumentCLI(): void {
  */
 export function withDebugLogging<T extends (...args: any[]) => any>(
 	moduleName: string,
-	functionName: string
+	functionName: string,
 ) {
 	return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
 		const originalMethod = descriptor.value;
@@ -258,7 +236,7 @@ export function withDebugLogging<T extends (...args: any[]) => any>(
 			const callId = debugLogger.logFunctionEntry(
 				moduleName,
 				functionName || propertyKey,
-				args
+				args,
 			);
 
 			try {
@@ -268,39 +246,19 @@ export function withDebugLogging<T extends (...args: any[]) => any>(
 				if (result && typeof result.then === "function") {
 					return result
 						.then((value: unknown) => {
-							debugLogger.logFunctionExit(
-								callId,
-								moduleName,
-								functionName || propertyKey,
-								value
-							);
+							debugLogger.logFunctionExit(callId, value);
 							return value;
 						})
 						.catch((error: Error) => {
-							debugLogger.logFunctionError(
-								callId,
-								moduleName,
-								functionName || propertyKey,
-								error
-							);
+							debugLogger.logFunctionError(callId, error);
 							throw error;
 						});
 				}
 
-				debugLogger.logFunctionExit(
-					callId,
-					moduleName,
-					functionName || propertyKey,
-					result
-				);
+				debugLogger.logFunctionExit(callId, result);
 				return result;
 			} catch (error) {
-				debugLogger.logFunctionError(
-					callId,
-					moduleName,
-					functionName || propertyKey,
-					error as Error
-				);
+				debugLogger.logFunctionError(callId, error as Error);
 				throw error;
 			}
 		};

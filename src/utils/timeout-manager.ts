@@ -1,11 +1,12 @@
-import { getErrorMessage as _getErrorMessage } from "./error-handler.js";
+// import { getErrorMessage as _getErrorMessage } from "./error-handler.js";
 /**
  * Timeout Manager for long-running operations
  */
 
 import type { ILogger } from "../core/logger.js";
+import { debugLogger } from "./debug-logger.js";
 import {
-	EnhancedErrorHandler,
+	type EnhancedErrorHandler,
 	ErrorSeverity,
 } from "./enhanced-error-handler.js";
 
@@ -55,8 +56,25 @@ export class TimeoutManager {
 
 	constructor(
 		private logger: ILogger,
-		private errorHandler?: EnhancedErrorHandler
-	) {}
+		private errorHandler?: EnhancedErrorHandler,
+	) {
+		const correlationId = debugLogger.logFunctionEntry(
+			"TimeoutManager",
+			"constructor",
+			[logger, errorHandler],
+			"utils-system",
+		);
+		try {
+			debugLogger.logFunctionExit(
+				correlationId,
+				"TimeoutManager initialized",
+				"utils-system",
+			);
+		} catch (error) {
+			debugLogger.logFunctionError(correlationId, error, "utils-system");
+			throw error;
+		}
+	}
 
 	/**
 	 * Execute operation with timeout and retry logic
@@ -64,79 +82,87 @@ export class TimeoutManager {
 	async executeWithTimeout<T>(
 		operation: () => Promise<T>,
 		operationName: string,
-		options: TimeoutOptions
+		options: TimeoutOptions,
 	): Promise<T> {
-		const {
-			timeout,
-			retries = 0,
-			retryDelay = 1000,
-			onTimeout,
-			onRetry,
-		} = options;
-
-		let lastError: Error | null = null;
-
-		for (let attempt = 0; attempt <= retries; attempt++) {
-			const operationId = `${operationName}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-			const startTime = Date.now();
-
-			try {
-				const result = await this.executeOperation(
-					operation,
-					operationId,
-					operationName,
+		return await debugLogger.logAsyncFunction(
+			"TimeoutManager",
+			"executeWithTimeout",
+			async () => {
+				const {
 					timeout,
-					startTime
-				);
+					retries = 0,
+					retryDelay = 1000,
+					onTimeout,
+					onRetry,
+				} = options;
 
-				// Update metrics on success
-				this.updateMetrics(operationName, Date.now() - startTime, false);
+				let lastError: Error | null = null;
 
-				return result;
-			} catch (error) {
-				lastError = error as Error;
+				for (let attempt = 0; attempt <= retries; attempt++) {
+					const operationId = `${operationName}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+					const startTime = Date.now();
 
-				// Update metrics on failure
-				this.updateMetrics(operationName, Date.now() - startTime, true);
+					try {
+						const result = await this.executeOperation(
+							operation,
+							operationId,
+							operationName,
+							timeout,
+							startTime,
+						);
 
-				if (lastError.message.includes("timeout")) {
-					if (onTimeout) {
-						onTimeout(operationName, attempt);
+						// Update metrics on success
+						this.updateMetrics(operationName, Date.now() - startTime, false);
+
+						return result;
+					} catch (error) {
+						lastError = error as Error;
+
+						// Update metrics on failure
+						this.updateMetrics(operationName, Date.now() - startTime, true);
+
+						if (lastError.message.includes("timeout")) {
+							if (onTimeout) {
+								onTimeout(operationName, attempt);
+							}
+
+							this.logger.warn("Operation timed out", {
+								operation: operationName,
+								attempt,
+								timeout,
+								operationId,
+							});
+						}
+
+						// If this is the last attempt or error is not retryable, throw
+						if (attempt === retries || !this.isRetryableError(lastError)) {
+							throw lastError;
+						}
+
+						// Notify retry
+						if (onRetry) {
+							onRetry(operationName, attempt, lastError);
+						}
+
+						this.metrics.retriedOperations++;
+
+						this.logger.info("Retrying operation", {
+							operation: operationName,
+							attempt,
+							delay: retryDelay,
+							error: lastError.message,
+						});
+
+						// Wait before retry
+						await new Promise((resolve) => setTimeout(resolve, retryDelay));
 					}
-
-					this.logger.warn("Operation timed out", {
-						operation: operationName,
-						attempt,
-						timeout,
-						operationId,
-					});
 				}
 
-				// If this is the last attempt or error is not retryable, throw
-				if (attempt === retries || !this.isRetryableError(lastError)) {
-					throw lastError;
-				}
-
-				// Notify retry
-				if (onRetry) {
-					onRetry(operationName, attempt, lastError);
-				}
-
-				this.metrics.retriedOperations++;
-
-				this.logger.info("Retrying operation", {
-					operation: operationName,
-					attempt,
-					delay: retryDelay,
-					error: lastError.message,
-				});
-
-				// Wait before retry
-				await new Promise((resolve) => setTimeout(resolve, retryDelay));
-			}
-		}
-
-		throw lastError || new Error("Operation failed after all retries");
+				throw lastError || new Error("Operation failed after all retries");
+			},
+			[operation, operationName, options],
+			"utils-system",
+		);
 	}
 
 	/**
@@ -145,7 +171,7 @@ export class TimeoutManager {
 	async executeWithAbort<T>(
 		operation: (abortSignal: AbortSignal) => Promise<T>,
 		operationName: string,
-		timeout: number
+		timeout: number,
 	): Promise<T> {
 		const operationId = `${operationName}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 		const startTime = Date.now();
@@ -179,7 +205,7 @@ export class TimeoutManager {
 
 			if (abortController.signal.aborted) {
 				throw new Error(
-					`Operation '${operationName}' timed out after ${timeout}ms`
+					`Operation '${operationName}' timed out after ${timeout}ms`,
 				);
 			}
 
@@ -200,13 +226,13 @@ export class TimeoutManager {
 			mode: "parallel" | "sequential";
 			failFast?: boolean;
 			retries?: number;
-		} = { mode: "parallel" }
+		} = { mode: "parallel" },
 	): Promise<T[]> {
 		const { mode, failFast = true, retries = 0 } = options;
 
 		if (mode === "parallel") {
 			const promises = operations.map(({ operation, name, timeout }) =>
-				this.executeWithTimeout(operation, name, { timeout, retries })
+				this.executeWithTimeout(operation, name, { timeout, retries }),
 			);
 
 			if (failFast) {
@@ -250,7 +276,7 @@ export class TimeoutManager {
 	createTimeoutWrapper<T extends (...args: any[]) => Promise<any>>(
 		fn: T,
 		operationName: string,
-		defaultTimeout: number
+		defaultTimeout: number,
 	): T {
 		return (async (...args: any[]) => {
 			return this.executeWithTimeout(() => fn(...args), operationName, {
@@ -263,21 +289,29 @@ export class TimeoutManager {
 	 * Cancel a specific operation
 	 */
 	cancelOperation(operationId: string): boolean {
-		const operation = this.activeOperations.get(operationId);
-		if (!operation) {
-			return false;
-		}
+		return debugLogger.logSyncFunction(
+			"TimeoutManager",
+			"cancelOperation",
+			() => {
+				const operation = this.activeOperations.get(operationId);
+				if (!operation) {
+					return false;
+				}
 
-		clearTimeout(operation.timeout);
-		this.activeOperations.delete(operationId);
+				clearTimeout(operation.timeout);
+				this.activeOperations.delete(operationId);
 
-		this.logger.info("Operation cancelled", {
-			operationId,
-			operation: operation.operation,
-			duration: Date.now() - operation.startTime,
-		});
+				this.logger.info("Operation cancelled", {
+					operationId,
+					operation: operation.operation,
+					duration: Date.now() - operation.startTime,
+				});
 
-		return true;
+				return true;
+			},
+			[operationId],
+			"utils-system",
+		);
 	}
 
 	/**
@@ -299,13 +333,21 @@ export class TimeoutManager {
 	 * Get timeout metrics
 	 */
 	getMetrics(): TimeoutMetrics {
-		return {
-			totalOperations: this.metrics.totalOperations,
-			timedOutOperations: this.metrics.timedOutOperations,
-			retriedOperations: this.metrics.retriedOperations,
-			averageExecutionTime: this.metrics.averageExecutionTime,
-			operationsByType: new Map(this.metrics.operationsByType),
-		};
+		return debugLogger.logSyncFunction(
+			"TimeoutManager",
+			"getMetrics",
+			() => {
+				return {
+					totalOperations: this.metrics.totalOperations,
+					timedOutOperations: this.metrics.timedOutOperations,
+					retriedOperations: this.metrics.retriedOperations,
+					averageExecutionTime: this.metrics.averageExecutionTime,
+					operationsByType: new Map(this.metrics.operationsByType),
+				};
+			},
+			[],
+			"utils-system",
+		);
 	}
 
 	/**
@@ -360,14 +402,16 @@ export class TimeoutManager {
 		operationId: string,
 		operationName: string,
 		timeout: number,
-		startTime: number
+		startTime: number,
 	): Promise<T> {
 		return new Promise<T>((resolve, reject) => {
 			// Set up timeout
 			const timeoutId = setTimeout(() => {
 				this.activeOperations.delete(operationId);
 				reject(
-					new Error(`Operation '${operationName}' timed out after ${timeout}ms`)
+					new Error(
+						`Operation '${operationName}' timed out after ${timeout}ms`,
+					),
 				);
 			}, timeout);
 
@@ -400,7 +444,7 @@ export class TimeoutManager {
 	private updateMetrics(
 		operationName: string,
 		duration: number,
-		timedOut: boolean
+		timedOut: boolean,
 	): void {
 		this.metrics.totalOperations++;
 		this.totalExecutionTime += duration;
@@ -455,7 +499,7 @@ let globalTimeoutManager: TimeoutManager | null = null;
 
 export function initializeGlobalTimeoutManager(
 	logger: ILogger,
-	errorHandler?: EnhancedErrorHandler
+	errorHandler?: EnhancedErrorHandler,
 ): TimeoutManager {
 	if (!globalTimeoutManager) {
 		globalTimeoutManager = new TimeoutManager(logger, errorHandler);
@@ -478,13 +522,9 @@ export function withTimeout(
 	options: {
 		retries?: number;
 		operationName?: string;
-	} = {}
+	} = {},
 ) {
-	return function (
-		target: any,
-		propertyKey: string,
-		descriptor: PropertyDescriptor
-	) {
+	return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
 		const originalMethod = descriptor.value;
 		const operationName =
 			options.operationName || `${target.constructor.name}.${propertyKey}`;
@@ -495,7 +535,7 @@ export function withTimeout(
 			return timeoutManager.executeWithTimeout(
 				() => originalMethod.apply(this, args),
 				operationName,
-				{ timeout: timeoutMs, retries: options.retries || 0 }
+				{ timeout: timeoutMs, retries: options.retries || 0 },
 			);
 		};
 

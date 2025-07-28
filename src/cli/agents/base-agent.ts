@@ -18,6 +18,7 @@ import type {
 	TaskDefinition,
 	TaskId,
 } from "../../swarm/types.js";
+import { debugLogger } from "../../utils/debug-logger.js";
 import { generateId } from "../../utils/helpers.js";
 
 export interface AgentState {
@@ -73,7 +74,7 @@ export abstract class BaseAgent extends EventEmitter {
 		environment: AgentEnvironment,
 		logger: ILogger,
 		eventBus: IEventBus,
-		memory: DistributedMemorySystem
+		memory: DistributedMemorySystem,
 	) {
 		super();
 		this.id = id;
@@ -101,180 +102,253 @@ export abstract class BaseAgent extends EventEmitter {
 
 	// Common agent lifecycle methods,
 	async initialize(): Promise<void> {
-		this.logger.info("Initializing agent", {
-			agentId: this.id,
-			type: this.type,
-		});
+		const debugId = debugLogger.logFunctionEntry(
+			"BaseAgent",
+			"initialize",
+			[],
+			"agent-lifecycle",
+		);
+		try {
+			this.logger.info("Initializing agent", {
+				agentId: this.id,
+				type: this.type,
+			});
 
-		this.status = "initializing";
-		this.emit("agent:status-changed", {
-			agentId: this.id,
-			status: this.status,
-		});
+			this.status = "initializing";
+			this.emit("agent:status-changed", {
+				agentId: this.id,
+				status: this.status,
+			});
 
-		// Start heartbeat,
-		this.startHeartbeat();
+			// Start heartbeat,
+			this.startHeartbeat();
 
-		// Start metrics collection,
-		this.startMetricsCollection();
+			// Start metrics collection,
+			this.startMetricsCollection();
 
-		// Store initial state,
-		await this.saveState();
+			// Store initial state,
+			await this.saveState();
 
-		this.status = "idle";
-		this.emit("agent:status-changed", {
-			agentId: this.id,
-			status: this.status,
-		});
-		this.emit("agent:ready", { agentId: this.id });
+			this.status = "idle";
+			this.emit("agent:status-changed", {
+				agentId: this.id,
+				status: this.status,
+			});
+			this.emit("agent:ready", { agentId: this.id });
 
-		this.logger.info("Agent initialized successfully", {
-			agentId: this.id,
-			type: this.type,
-		});
+			this.logger.info("Agent initialized successfully", {
+				agentId: this.id,
+				type: this.type,
+			});
+			debugLogger.logFunctionExit(
+				debugId,
+				{ agentId: this.id, status: this.status },
+				"agent-lifecycle",
+			);
+		} catch (error) {
+			debugLogger.logFunctionError(
+				debugId,
+				error instanceof Error ? error : new Error(String(error)),
+				"agent-lifecycle",
+			);
+			throw error;
+		}
 	}
 
 	async shutdown(): Promise<void> {
-		this.logger.info("Shutting down agent", {
-			agentId: this.id,
-			type: this.type,
-		});
+		const debugId = debugLogger.logFunctionEntry(
+			"BaseAgent",
+			"shutdown",
+			[],
+			"agent-lifecycle",
+		);
+		try {
+			this.logger.info("Shutting down agent", {
+				agentId: this.id,
+				type: this.type,
+			});
 
-		this.isShuttingDown = true;
-		this.status = "terminating";
-		this.emit("agent:status-changed", {
-			agentId: this.id,
-			status: this.status,
-		});
+			this.isShuttingDown = true;
+			this.status = "terminating";
+			this.emit("agent:status-changed", {
+				agentId: this.id,
+				status: this.status,
+			});
 
-		// Wait for current tasks to complete,
-		await this.waitForTasksCompletion();
+			// Wait for current tasks to complete,
+			await this.waitForTasksCompletion();
 
-		// Stop intervals,
-		if (this.heartbeatInterval) {
-			clearInterval(this.heartbeatInterval);
+			// Stop intervals,
+			if (this.heartbeatInterval) {
+				clearInterval(this.heartbeatInterval);
+			}
+			if (this.metricsInterval) {
+				clearInterval(this.metricsInterval);
+			}
+
+			// Save final state,
+			await this.saveState();
+
+			this.status = "terminated";
+			this.emit("agent:status-changed", {
+				agentId: this.id,
+				status: this.status,
+			});
+			this.emit("agent:shutdown", { agentId: this.id });
+
+			this.logger.info("Agent shutdown complete", {
+				agentId: this.id,
+				type: this.type,
+			});
+			debugLogger.logFunctionExit(
+				debugId,
+				{ agentId: this.id, status: this.status },
+				"agent-lifecycle",
+			);
+		} catch (error) {
+			debugLogger.logFunctionError(
+				debugId,
+				error instanceof Error ? error : new Error(String(error)),
+				"agent-lifecycle",
+			);
+			throw error;
 		}
-		if (this.metricsInterval) {
-			clearInterval(this.metricsInterval);
-		}
-
-		// Save final state,
-		await this.saveState();
-
-		this.status = "terminated";
-		this.emit("agent:status-changed", {
-			agentId: this.id,
-			status: this.status,
-		});
-		this.emit("agent:shutdown", { agentId: this.id });
-
-		this.logger.info("Agent shutdown complete", {
-			agentId: this.id,
-			type: this.type,
-		});
 	}
 
 	async assignTask(task: TaskDefinition): Promise<void> {
-		if (this.status !== "idle") {
-			throw new Error(
-				`Agent ${this.id} is not available (status: ${this.status})`
-			);
-		}
-
-		if (this.currentTasks.length >= this.capabilities.maxConcurrentTasks) {
-			throw new Error(`Agent ${this.id} has reached maximum concurrent tasks`);
-		}
-
-		this.logger.info("Task assigned to agent", {
-			agentId: this.id,
-			taskId: task.id,
-			taskType: task.type,
-		});
-
-		this.currentTasks.push(task.id);
-		this.status = "busy";
-		this.workload =
-			this.currentTasks.length / this.capabilities.maxConcurrentTasks;
-
-		this.emit("agent:task-assigned", { agentId: this.id, taskId: task.id });
-		this.emit("agent:status-changed", {
-			agentId: this.id,
-			status: this.status,
-		});
-
+		const debugId = debugLogger.logFunctionEntry(
+			"BaseAgent",
+			"assignTask",
+			[task],
+			"agent-coordination",
+		);
 		try {
-			const startTime = Date.now();
-			const result = await this.executeTask(task);
-			const executionTime = Date.now() - startTime;
+			if (this.status !== "idle") {
+				throw new Error(
+					`Agent ${this.id} is not available (status: ${this.status})`,
+				);
+			}
 
-			// Update metrics,
-			this.updateTaskMetrics(task.id, executionTime, true);
+			if (this.currentTasks.length >= this.capabilities.maxConcurrentTasks) {
+				throw new Error(
+					`Agent ${this.id} has reached maximum concurrent tasks`,
+				);
+			}
 
-			// Remove from current tasks,
-			this.currentTasks = this.currentTasks.filter((id) => id !== task.id);
-			this.taskHistory.push(task.id);
+			this.logger.info("Task assigned to agent", {
+				agentId: this.id,
+				taskId: task.id,
+				taskType: task.type,
+			});
 
-			// Update status,
-			this.status = this.currentTasks.length > 0 ? "busy" : "idle";
+			this.currentTasks.push(task.id);
+			this.status = "busy";
 			this.workload =
 				this.currentTasks.length / this.capabilities.maxConcurrentTasks;
 
-			this.emit("agent:task-completed", {
+			this.emit("agent:task-assigned", { agentId: this.id, taskId: task.id });
+			this.emit("agent:status-changed", {
 				agentId: this.id,
-				taskId: task.id,
-				result,
-				executionTime,
+				status: this.status,
 			});
 
-			this.logger.info("Task completed successfully", {
-				agentId: this.id,
-				taskId: task.id,
-				executionTime,
-			});
+			try {
+				const startTime = Date.now();
+				const result = await this.executeTask(task);
+				const executionTime = Date.now() - startTime;
 
-			return result;
+				// Update metrics,
+				this.updateTaskMetrics(task.id, executionTime, true);
+
+				// Remove from current tasks,
+				this.currentTasks = this.currentTasks.filter((id) => id !== task.id);
+				this.taskHistory.push(task.id);
+
+				// Update status,
+				this.status = this.currentTasks.length > 0 ? "busy" : "idle";
+				this.workload =
+					this.currentTasks.length / this.capabilities.maxConcurrentTasks;
+
+				this.emit("agent:task-completed", {
+					agentId: this.id,
+					taskId: task.id,
+					result,
+					executionTime,
+				});
+
+				this.logger.info("Task completed successfully", {
+					agentId: this.id,
+					taskId: task.id,
+					executionTime,
+				});
+
+				debugLogger.logFunctionExit(
+					debugId,
+					{ taskId: task.id, result, executionTime },
+					"agent-coordination",
+				);
+				return result;
+			} catch (error) {
+				debugLogger.logFunctionError(
+					debugId,
+					error instanceof Error ? error : new Error(String(error)),
+					"agent-coordination",
+				);
+				const errorMessage =
+					error instanceof Error ? error.message : String(error);
+
+				// Update metrics,
+				this.updateTaskMetrics(task.id, 0, false);
+
+				// Add to error history,
+				this.addError({
+					timestamp: new Date(),
+					type: "task_execution_failed",
+					message: errorMessage,
+					context: { taskId: task.id, taskType: task.type },
+					severity: "high",
+					resolved: false,
+				});
+
+				// Remove from current tasks,
+				this.currentTasks = this.currentTasks.filter((id) => id !== task.id);
+				this.status = this.currentTasks.length > 0 ? "busy" : "idle";
+				this.workload =
+					this.currentTasks.length / this.capabilities.maxConcurrentTasks;
+
+				this.emit("agent:task-failed", {
+					agentId: this.id,
+					taskId: task.id,
+					error: errorMessage,
+				});
+
+				this.logger.error("Task execution failed", {
+					agentId: this.id,
+					taskId: task.id,
+					error: errorMessage,
+				});
+
+				throw error;
+			}
 		} catch (error) {
-			const errorMessage =
-				error instanceof Error ? error.message : String(error);
-
-			// Update metrics,
-			this.updateTaskMetrics(task.id, 0, false);
-
-			// Add to error history,
-			this.addError({
-				timestamp: new Date(),
-				type: "task_execution_failed",
-				message: errorMessage,
-				context: { taskId: task.id, taskType: task.type },
-				severity: "high",
-				resolved: false,
-			});
-
-			// Remove from current tasks,
-			this.currentTasks = this.currentTasks.filter((id) => id !== task.id);
-			this.status = this.currentTasks.length > 0 ? "busy" : "idle";
-			this.workload =
-				this.currentTasks.length / this.capabilities.maxConcurrentTasks;
-
-			this.emit("agent:task-failed", {
-				agentId: this.id,
-				taskId: task.id,
-				error: errorMessage,
-			});
-
-			this.logger.error("Task execution failed", {
-				agentId: this.id,
-				taskId: task.id,
-				error: errorMessage,
-			});
-
+			debugLogger.logFunctionError(
+				debugId,
+				error instanceof Error ? error : new Error(String(error)),
+				"agent-coordination",
+			);
 			throw error;
 		}
 	}
 
 	// Agent information and status methods,
 	getAgentInfo(): AgentState {
-		return {
+		const debugId = debugLogger.logFunctionEntry(
+			"BaseAgent",
+			"getAgentInfo",
+			[],
+			"agent-lifecycle",
+		);
+		const result = {
 			id: {
 				id: this.id,
 				swarmId: "default",
@@ -298,6 +372,12 @@ export abstract class BaseAgent extends EventEmitter {
 			childAgents: this.childAgents,
 			endpoints: this.endpoints,
 		};
+		debugLogger.logFunctionExit(
+			debugId,
+			{ agentId: this.id, status: this.status },
+			"agent-lifecycle",
+		);
+		return result;
 	}
 
 	getAgentStatus(): any {
@@ -459,7 +539,7 @@ export abstract class BaseAgent extends EventEmitter {
 	protected updateTaskMetrics(
 		taskId: TaskId,
 		executionTime: number,
-		success: boolean
+		success: boolean,
 	): void {
 		if (success) {
 			this.metrics.tasksCompleted++;

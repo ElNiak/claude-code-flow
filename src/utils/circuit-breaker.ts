@@ -3,6 +3,8 @@
  * Prevents cascade failures by monitoring operation success rates
  */
 
+import { debugLogger } from "./debug-logger.js";
+
 export interface CircuitBreakerOptions {
 	failureThreshold: number;
 	resetTimeout: number;
@@ -45,7 +47,7 @@ export class CircuitBreaker {
 			resetTimeout: 60000, // 1 minute
 			successThreshold: 2,
 			monitoringWindow: 300000, // 5 minutes
-		}
+		},
 	) {}
 
 	/**
@@ -76,7 +78,7 @@ export class CircuitBreaker {
 	 */
 	async executeWithTimeout<T>(
 		operation: () => Promise<T>,
-		timeoutMs: number
+		timeoutMs: number,
 	): Promise<T> {
 		const timeoutPromise = new Promise<never>((_, reject) => {
 			setTimeout(() => {
@@ -147,7 +149,7 @@ export class CircuitBreaker {
 		this.cleanupOldOperations();
 
 		const recentFailures = this.recentOperations.filter(
-			(op) => !op.success
+			(op) => !op.success,
 		).length;
 		const recentTotal = this.recentOperations.length;
 
@@ -200,7 +202,7 @@ export class CircuitBreaker {
 		if (this.state === CircuitBreakerState.CLOSED) {
 			this.cleanupOldOperations();
 			const recentFailures = this.recentOperations.filter(
-				(op) => !op.success
+				(op) => !op.success,
 			).length;
 
 			if (recentFailures >= this.options.failureThreshold) {
@@ -224,7 +226,7 @@ export class CircuitBreaker {
 	private cleanupOldOperations(): void {
 		const cutoffTime = Date.now() - this.options.monitoringWindow;
 		this.recentOperations = this.recentOperations.filter(
-			(op) => op.timestamp > cutoffTime
+			(op) => op.timestamp > cutoffTime,
 		);
 	}
 
@@ -259,7 +261,7 @@ export class CircuitBreakerManager {
 	 */
 	getCircuitBreaker(
 		name: string,
-		options?: CircuitBreakerOptions
+		options?: CircuitBreakerOptions,
 	): CircuitBreaker {
 		let circuitBreaker = this.circuitBreakers.get(name);
 
@@ -277,7 +279,7 @@ export class CircuitBreakerManager {
 	async executeWithCircuitBreaker<T>(
 		name: string,
 		operation: () => Promise<T>,
-		options?: CircuitBreakerOptions
+		options?: CircuitBreakerOptions,
 	): Promise<T> {
 		const circuitBreaker = this.getCircuitBreaker(name, options);
 		return circuitBreaker.execute(operation);
@@ -290,7 +292,7 @@ export class CircuitBreakerManager {
 		name: string,
 		operation: () => Promise<T>,
 		timeoutMs: number,
-		options?: CircuitBreakerOptions
+		options?: CircuitBreakerOptions,
 	): Promise<T> {
 		const circuitBreaker = this.getCircuitBreaker(name, options);
 		return circuitBreaker.executeWithTimeout(operation, timeoutMs);
@@ -357,19 +359,15 @@ export const globalCircuitBreakerManager = new CircuitBreakerManager();
  */
 export function withCircuitBreaker(
 	name: string,
-	options?: CircuitBreakerOptions
+	options?: CircuitBreakerOptions,
 ) {
-	return function (
-		target: any,
-		propertyKey: string,
-		descriptor: PropertyDescriptor
-	) {
+	return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
 		const originalMethod = descriptor.value;
 
 		descriptor.value = async function (...args: any[]) {
 			const circuitBreaker = globalCircuitBreakerManager.getCircuitBreaker(
 				name,
-				options
+				options,
 			);
 
 			return circuitBreaker.execute(() => originalMethod.apply(this, args));
@@ -385,24 +383,20 @@ export function withCircuitBreaker(
 export function withCircuitBreakerAndTimeout(
 	name: string,
 	timeoutMs: number,
-	options?: CircuitBreakerOptions
+	options?: CircuitBreakerOptions,
 ) {
-	return function (
-		target: any,
-		propertyKey: string,
-		descriptor: PropertyDescriptor
-	) {
+	return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
 		const originalMethod = descriptor.value;
 
 		descriptor.value = async function (...args: any[]) {
 			const circuitBreaker = globalCircuitBreakerManager.getCircuitBreaker(
 				name,
-				options
+				options,
 			);
 
 			return circuitBreaker.executeWithTimeout(
 				() => originalMethod.apply(this, args),
-				timeoutMs
+				timeoutMs,
 			);
 		};
 

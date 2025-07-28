@@ -1,4 +1,4 @@
-#!/usr/bin/env node,
+#!/usr/bin/env node
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import {
@@ -10,6 +10,7 @@ import {
 	TextContent,
 	type Tool,
 } from "@modelcontextprotocol/sdk/types.js";
+import { spawn } from "child_process";
 import * as fs from "fs/promises";
 import * as path from "path";
 import { fileURLToPath } from "url";
@@ -54,7 +55,8 @@ export class ClaudeCodeMCPWrapper {
 	private server: Server;
 	private sparcModes: Map<string, SparcMode> = new Map();
 	private swarmExecutions: Map<string, SwarmExecution> = new Map();
-	private claudeCodeMCP: any; // Reference to Claude Code MCP client,
+	private claudeCodePath: string; // Path to Claude Code executable
+	private memoryStore: Map<string, any> = new Map(); // Simple memory store
 
 	constructor() {
 		this.server = new Server(
@@ -66,11 +68,55 @@ export class ClaudeCodeMCPWrapper {
 				capabilities: {
 					tools: {},
 				},
-			}
+			},
 		);
+
+		// Initialize Claude Code path with validation
+		this.claudeCodePath = this.validateClaudeCodePath();
 
 		this.setupHandlers();
 		this.loadSparcModes();
+		this.setupErrorHandling();
+	}
+
+	/**
+	 * Validate and setup Claude Code executable path
+	 */
+	private validateClaudeCodePath(): string {
+		const envPath = process.env.CLAUDE_CODE_PATH;
+		const defaultPaths = [
+			"claude",
+			"claude-code",
+			"npx claude-code",
+			"./bin/claude-code",
+		];
+
+		if (envPath) {
+			console.error(`Using Claude Code path from environment: ${envPath}`);
+			return envPath;
+		}
+
+		// Default to 'claude' but log the choice
+		console.error(
+			`Using default Claude Code path: claude (set CLAUDE_CODE_PATH to override)`,
+		);
+		return "claude";
+	}
+
+	/**
+	 * Setup global error handling for the wrapper
+	 */
+	private setupErrorHandling(): void {
+		process.on("uncaughtException", (error) => {
+			console.error("Uncaught Exception in Claude Flow MCP Wrapper:", error);
+			// Don't exit, log and continue
+		});
+
+		process.on("unhandledRejection", (reason, promise) => {
+			console.error("Unhandled Rejection in Claude Flow MCP Wrapper:", reason);
+			// Log the promise for debugging
+			console.error("Promise:", promise);
+		});
 	}
 
 	private async loadSparcModes() {
@@ -90,7 +136,7 @@ export class ClaudeCodeMCPWrapper {
 		}));
 
 		this.server.setRequestHandler(CallToolRequestSchema, async (request) =>
-			this.handleToolCall(request.params.name, request.params.arguments || {})
+			this.handleToolCall(request.params.name, request.params.arguments || {}),
 		);
 	}
 
@@ -198,7 +244,7 @@ export class ClaudeCodeMCPWrapper {
 						},
 					},
 				},
-			}
+			},
 		);
 
 		return tools;
@@ -206,21 +252,44 @@ export class ClaudeCodeMCPWrapper {
 
 	private async handleToolCall(
 		toolName: string,
-		args: any
+		args: any,
 	): Promise<CallToolResult> {
-		try {
-			if (toolName.startsWith("sparc_")) {
-				return await this.handleSparcTool(toolName, args);
-			}
-
-			// Pass through to Claude Code MCP,
-			return this.forwardToClaudeCode(toolName, args);
-		} catch (error) {
+		// Input validation
+		if (!toolName || typeof toolName !== "string") {
 			return {
 				content: [
 					{
 						type: "text",
-						text: `Error: ${error instanceof Error ? error.message : String(error)}`,
+						text: "Error: Invalid tool name provided",
+					},
+				],
+				isError: true,
+			};
+		}
+
+		if (!args) {
+			args = {}; // Ensure args is defined
+		}
+
+		try {
+			console.error(`Handling tool call: ${toolName}`);
+
+			if (toolName.startsWith("sparc_")) {
+				return await this.handleSparcTool(toolName, args);
+			}
+
+			// Pass through to Claude Code MCP
+			return this.forwardToClaudeCode(toolName, args);
+		} catch (error) {
+			const errorMessage =
+				error instanceof Error ? error.message : String(error);
+			console.error(`Tool call failed for ${toolName}:`, errorMessage);
+
+			return {
+				content: [
+					{
+						type: "text",
+						text: `Error executing ${toolName}: ${errorMessage}`,
 					},
 				],
 				isError: true,
@@ -230,7 +299,7 @@ export class ClaudeCodeMCPWrapper {
 
 	private async handleSparcTool(
 		toolName: string,
-		args: any
+		args: any,
 	): Promise<CallToolResult> {
 		const mode = toolName.replace("sparc_", "");
 
@@ -251,36 +320,47 @@ export class ClaudeCodeMCPWrapper {
 			throw new Error(`Unknown SPARC mode: ${mode}`);
 		}
 
-		// Execute the SPARC mode directly,
+		// Execute the SPARC mode with Claude Code integration
 		try {
-			// Import the execution function dynamically to avoid circular dependencies
-			// const { executeSparcMode } = await import('../cli/mcp-stdio-server.js');
-			// TODO: Implement proper SPARC mode execution or fix import path,
-			const executeSparcMode = (
-				mode: string,
-				task: string,
-				tools: any[],
-				context: any
-			) => {
-				return {
-					output: `SPARC ${mode} mode execution not yet implemented in wrapper. Task: ${task}`,
-					success: false,
-					metadata: { mode, tools, context },
-				};
-			};
-
-			const result = await executeSparcMode(
-				mode,
+			// Generate enhanced prompt with SPARC methodology
+			const enhancedPrompt = this.buildEnhancedPrompt(
+				sparcMode,
 				args.task,
-				sparcMode.tools || [],
-				args.context || {}
+				args.context,
 			);
 
+			// Execute via Claude Code with enhanced prompt
+			const result = await this.executeWithClaudeCode(
+				enhancedPrompt,
+				args.context,
+			);
+
+			// Store result in memory if context provided
+			if (args.context?.memoryKey) {
+				this.memoryStore.set(args.context.memoryKey, {
+					mode: mode,
+					task: args.task,
+					result: result,
+					timestamp: new Date().toISOString(),
+				});
+			}
+
+			// Return formatted result
 			return {
 				content: [
 					{
 						type: "text",
-						text: result.output,
+						text: JSON.stringify(
+							{
+								mode: mode,
+								task: args.task,
+								status: "completed",
+								result: result,
+								memoryKey: args.context?.memoryKey,
+							},
+							null,
+							2,
+						),
 					},
 				],
 			};
@@ -297,10 +377,120 @@ export class ClaudeCodeMCPWrapper {
 		}
 	}
 
+	/**
+	 * Execute enhanced prompt with Claude Code
+	 */
+	private async executeWithClaudeCode(
+		prompt: string,
+		context?: SparcContext,
+	): Promise<any> {
+		// Input validation
+		if (!prompt || typeof prompt !== "string") {
+			throw new Error("Invalid prompt: must be a non-empty string");
+		}
+
+		if (prompt.length > 50000) {
+			console.warn("Warning: Large prompt detected, may impact performance");
+		}
+
+		const timeout = context?.timeout || 60000; // Default 60 seconds
+		const workingDir = context?.workingDirectory || process.cwd();
+
+		return new Promise((resolve, reject) => {
+			const args = ["--prompt", JSON.stringify(prompt)];
+
+			// Add context parameters if provided
+			if (context?.workingDirectory) {
+				args.push("--cwd", context.workingDirectory);
+			}
+
+			if (context?.timeout) {
+				args.push("--timeout", context.timeout.toString());
+			}
+
+			console.error(`Executing Claude Code with ${args.length} arguments`);
+
+			const claudeProcess = spawn(this.claudeCodePath, args, {
+				stdio: ["pipe", "pipe", "pipe"],
+				cwd: workingDir,
+				env: { ...process.env, CLAUDE_FLOW_WRAPPER: "true" },
+			});
+
+			let stdout = "";
+			let stderr = "";
+			let isTimedOut = false;
+
+			// Set up timeout
+			const timeoutHandle = setTimeout(() => {
+				isTimedOut = true;
+				claudeProcess.kill("SIGTERM");
+				reject(new Error(`Claude Code execution timed out after ${timeout}ms`));
+			}, timeout);
+
+			claudeProcess.stdout?.on("data", (data) => {
+				stdout += data.toString();
+			});
+
+			claudeProcess.stderr?.on("data", (data) => {
+				stderr += data.toString();
+			});
+
+			claudeProcess.on("close", (code) => {
+				clearTimeout(timeoutHandle);
+
+				if (isTimedOut) {
+					return; // Already handled by timeout
+				}
+
+				if (code === 0) {
+					try {
+						// Try to parse JSON response
+						const result = JSON.parse(stdout);
+						resolve(result);
+					} catch (parseError) {
+						// Return raw output if not JSON
+						console.warn(
+							"Claude Code output is not valid JSON, returning raw output",
+						);
+						resolve({
+							output: stdout,
+							raw: true,
+							stderr: stderr || undefined,
+						});
+					}
+				} else {
+					const errorMessage = stderr || stdout || "Unknown error";
+					reject(
+						new Error(
+							`Claude Code execution failed (exit code ${code}): ${errorMessage}`,
+						),
+					);
+				}
+			});
+
+			claudeProcess.on("error", (error) => {
+				clearTimeout(timeoutHandle);
+				if (!isTimedOut) {
+					reject(new Error(`Failed to start Claude Code: ${error.message}`));
+				}
+			});
+
+			// Handle process termination signals
+			const cleanup = () => {
+				if (!isTimedOut && !claudeProcess.killed) {
+					claudeProcess.kill("SIGTERM");
+				}
+			};
+
+			process.on("SIGINT", cleanup);
+			process.on("SIGTERM", cleanup);
+		});
+	}
+
 	private buildEnhancedPrompt(
 		mode: SparcMode,
 		task: string,
-		context?: SparcContext
+		context?: SparcContext,
 	): string {
 		const parts: string[] = [];
 
@@ -320,7 +510,7 @@ export class ClaudeCodeMCPWrapper {
 		// Add usage pattern,
 		if (mode.usagePattern) {
 			parts.push(
-				`## Usage Pattern\n\`\`\`javascript\n${mode.usagePattern}\n\`\`\`\n`
+				`## Usage Pattern\n\`\`\`javascript\n${mode.usagePattern}\n\`\`\`\n`,
 			);
 		}
 
@@ -391,7 +581,7 @@ export class ClaudeCodeMCPWrapper {
 	private getSparcMethodology(
 		mode: string,
 		task: string,
-		context?: SparcContext
+		context?: SparcContext,
 	): string {
 		return `
 # 🎯 SPARC METHODOLOGY EXECUTION FRAMEWORK,
@@ -576,7 +766,7 @@ Use the appropriate tools for each phase and maintain progress in TodoWrite.`;
 		if (mode === "distributed" || mode === "mesh") {
 			// Parallel execution,
 			await Promise.all(
-				agents.map((agent) => this.launchSwarmAgent(agent, execution))
+				agents.map((agent) => this.launchSwarmAgent(agent, execution)),
 			);
 		} else {
 			// Sequential execution,
@@ -603,7 +793,7 @@ Use the appropriate tools for each phase and maintain progress in TodoWrite.`;
 							message: "Swarm coordination initiated",
 						},
 						null,
-						2
+						2,
 					),
 				},
 			],
@@ -613,7 +803,7 @@ Use the appropriate tools for each phase and maintain progress in TodoWrite.`;
 	private planSwarmAgents(
 		objective: string,
 		strategy: string,
-		maxAgents: number
+		maxAgents: number,
 	): SwarmAgent[] {
 		const agents: SwarmAgent[] = [];
 
@@ -638,7 +828,7 @@ Use the appropriate tools for each phase and maintain progress in TodoWrite.`;
 						mode: "documenter",
 						task: `Document research results: ${objective}`,
 						status: "pending",
-					}
+					},
 				);
 				break;
 
@@ -667,7 +857,7 @@ Use the appropriate tools for each phase and maintain progress in TodoWrite.`;
 						mode: "reviewer",
 						task: `Review code: ${objective}`,
 						status: "pending",
-					}
+					},
 				);
 				break;
 
@@ -684,7 +874,7 @@ Use the appropriate tools for each phase and maintain progress in TodoWrite.`;
 						mode: "optimizer",
 						task: `Optimize based on analysis: ${objective}`,
 						status: "pending",
-					}
+					},
 				);
 				break;
 
@@ -701,7 +891,7 @@ Use the appropriate tools for each phase and maintain progress in TodoWrite.`;
 						mode: "debugger",
 						task: `Debug issues: ${objective}`,
 						status: "pending",
-					}
+					},
 				);
 				break;
 
@@ -718,7 +908,7 @@ Use the appropriate tools for each phase and maintain progress in TodoWrite.`;
 						mode: "optimizer",
 						task: `Optimize: ${objective}`,
 						status: "pending",
-					}
+					},
 				);
 				break;
 
@@ -741,7 +931,7 @@ Use the appropriate tools for each phase and maintain progress in TodoWrite.`;
 						mode: "documenter",
 						task: `Update documentation: ${objective}`,
 						status: "pending",
-					}
+					},
 				);
 				break;
 		}
@@ -752,28 +942,134 @@ Use the appropriate tools for each phase and maintain progress in TodoWrite.`;
 
 	private async launchSwarmAgent(
 		agent: SwarmAgent,
-		execution: SwarmExecution
+		execution: SwarmExecution,
 	): Promise<void> {
 		agent.status = "active";
+		const startTime = Date.now();
 
 		try {
-			// Use the SPARC mode handler,
-			const result = await this.handleSparcTool(`sparc_${agent.mode}`, {
+			console.error(
+				`Launching swarm agent ${agent.id} with mode ${agent.mode}`,
+			);
+
+			// Enhanced task prompt with swarm coordination context
+			const enhancedTask = this.buildSwarmAgentPrompt(agent, execution);
+
+			// Execute via SPARC mode with enhanced coordination
+			const result = await this.executeWithClaudeCode(enhancedTask, {
+				memoryKey: `swarm_${execution.id}_${agent.id}`,
+				parallel: execution.mode === "distributed" || execution.mode === "mesh",
+				timeout: 120000, // 2 minutes for swarm agents
+				workingDirectory: process.cwd(),
+			});
+
+			// Store detailed result in memory
+			this.memoryStore.set(`swarm_${execution.id}_${agent.id}_result`, {
+				agentId: agent.id,
+				mode: agent.mode,
 				task: agent.task,
-				context: {
-					memoryKey: `swarm_${execution.id}_${agent.id}`,
-					parallel: execution.mode === "distributed",
-				},
+				result: result,
+				executionTime: Date.now() - startTime,
+				swarmId: execution.id,
+				timestamp: new Date().toISOString(),
 			});
 
 			agent.status = "completed";
 			agent.result = result;
+
+			console.error(
+				`Swarm agent ${agent.id} completed successfully in ${Date.now() - startTime}ms`,
+			);
 		} catch (error) {
+			const errorMessage =
+				error instanceof Error ? error.message : String(error);
+			console.error(`Swarm agent ${agent.id} failed:`, errorMessage);
+
+			// Store error details
+			this.memoryStore.set(`swarm_${execution.id}_${agent.id}_error`, {
+				agentId: agent.id,
+				mode: agent.mode,
+				task: agent.task,
+				error: errorMessage,
+				executionTime: Date.now() - startTime,
+				swarmId: execution.id,
+				timestamp: new Date().toISOString(),
+			});
+
 			agent.status = "failed";
 			agent.result = {
-				error: error instanceof Error ? error.message : String(error),
+				error: errorMessage,
+				executionTime: Date.now() - startTime,
 			};
 		}
+	}
+
+	/**
+	 * Build enhanced prompt for swarm agent execution
+	 */
+	private buildSwarmAgentPrompt(
+		agent: SwarmAgent,
+		execution: SwarmExecution,
+	): string {
+		const sparcMode = this.sparcModes.get(agent.mode);
+		const parts: string[] = [];
+
+		// Add swarm coordination header
+		parts.push(`# 🐝 SWARM AGENT EXECUTION - ${agent.mode.toUpperCase()}`);
+		parts.push("");
+		parts.push(`**Swarm ID:** ${execution.id}`);
+		parts.push(`**Agent ID:** ${agent.id}`);
+		parts.push(`**Coordination Mode:** ${execution.mode}`);
+		parts.push(`**Strategy:** ${execution.strategy}`);
+		parts.push(`**Objective:** ${execution.objective}`);
+		parts.push("");
+
+		// Add SPARC mode context if available
+		if (sparcMode) {
+			parts.push(`## SPARC Mode: ${sparcMode.name}`);
+			parts.push(`**Description:** ${sparcMode.description}`);
+			if (sparcMode.tools && sparcMode.tools.length > 0) {
+				parts.push(`**Available Tools:** ${sparcMode.tools.join(", ")}`);
+			}
+			parts.push("");
+		}
+
+		// Add agent-specific task
+		parts.push(`## Agent Task`);
+		parts.push(agent.task);
+		parts.push("");
+
+		// Add swarm coordination instructions
+		parts.push(`## Swarm Coordination Instructions`);
+		parts.push(
+			`- You are part of a ${execution.mode} swarm working on: ${execution.objective}`,
+		);
+		parts.push(`- Your specific role is: ${agent.mode}`);
+		parts.push(`- Coordinate with other agents through shared memory`);
+		parts.push(
+			`- Store results in memory key: swarm_${execution.id}_${agent.id}`,
+		);
+
+		if (execution.mode === "distributed" || execution.mode === "mesh") {
+			parts.push(`- Execute in parallel with other agents`);
+			parts.push(`- Share findings and coordinate to avoid duplication`);
+		} else {
+			parts.push(`- Execute in sequence, building on previous agent results`);
+			parts.push(`- Check memory for previous agent outputs before starting`);
+		}
+
+		// Add SPARC methodology if mode exists
+		if (sparcMode) {
+			parts.push("");
+			parts.push(
+				this.getSparcMethodology(sparcMode.name, agent.task, {
+					memoryKey: `swarm_${execution.id}_${agent.id}`,
+					parallel: execution.mode === "distributed",
+				}),
+			);
+		}
+
+		return parts.join("\n");
 	}
 
 	private getSwarmStatus(swarmId?: string): CallToolResult {
@@ -822,61 +1118,164 @@ Use the appropriate tools for each phase and maintain progress in TodoWrite.`;
 
 	private async forwardToClaudeCode(
 		toolName: string,
-		args: any
+		args: any,
 	): Promise<CallToolResult> {
-		// For SPARC tools that were already handled, this shouldn't be called
-		// For other tools, we execute them using the existing logic,
+		// Forward non-SPARC tools to Claude Code's native MCP server
+		// This enables full Claude Code tool compatibility through the wrapper
 
-		if (toolName === "Task") {
-			// This is a SPARC task that's been enhanced with prompts
-			// Extract the mode from the description if possible,
-			const modeMatch = args.description?.match(/SPARC (\w+)/);
-			if (modeMatch) {
-				const modeName = modeMatch[1];
-				const mode = this.sparcModes.get(modeName);
-				if (mode) {
-					// Execute using the existing SPARC execution logic,
-					try {
-						// TODO: Implement proper SPARC mode execution
-						const result = {
-							output: `SPARC ${modeName} mode execution not yet implemented. Prompt: ${args.prompt || ""}`,
-							success: false,
-							metadata: { mode: modeName, tools: mode.tools },
-						};
+		try {
+			// Create a tool execution prompt for Claude Code
+			const toolPrompt = this.buildToolExecutionPrompt(toolName, args);
 
-						return {
-							content: [
-								{
-									type: "text",
-									text: result.output,
-								},
-							],
-						};
-					} catch (error) {
-						return {
-							content: [
-								{
-									type: "text",
-									text: `Error executing SPARC ${modeName}: ${error instanceof Error ? error.message : String(error)}`,
-								},
-							],
-							isError: true,
-						};
-					}
-				}
+			// Execute the tool via Claude Code
+			const result = await this.executeWithClaudeCode(toolPrompt, {
+				memoryKey: `tool_execution_${toolName}_${Date.now()}`,
+				workingDirectory: args.workingDirectory || process.cwd(),
+				timeout: args.timeout || 30000,
+			});
+
+			// Store tool execution result in memory
+			this.memoryStore.set(`tool_${toolName}_${Date.now()}`, {
+				tool: toolName,
+				args: args,
+				result: result,
+				timestamp: new Date().toISOString(),
+				success: true,
+			});
+
+			// Return formatted result
+			return {
+				content: [
+					{
+						type: "text",
+						text:
+							typeof result === "string"
+								? result
+								: JSON.stringify(result, null, 2),
+					},
+				],
+			};
+		} catch (error) {
+			const errorMessage =
+				error instanceof Error ? error.message : String(error);
+
+			// Store error in memory for debugging
+			this.memoryStore.set(`tool_error_${toolName}_${Date.now()}`, {
+				tool: toolName,
+				args: args,
+				error: errorMessage,
+				timestamp: new Date().toISOString(),
+				success: false,
+			});
+
+			return {
+				content: [
+					{
+						type: "text",
+						text: `Tool execution failed for ${toolName}: ${errorMessage}`,
+					},
+				],
+				isError: true,
+			};
+		}
+	}
+
+	/**
+	 * Build tool execution prompt for Claude Code
+	 */
+	private buildToolExecutionPrompt(toolName: string, args: any): string {
+		const parts: string[] = [];
+
+		// Add tool execution header
+		parts.push(`# Tool Execution Request: ${toolName}`);
+		parts.push("");
+
+		// Add tool description
+		const toolDescriptions: Record<string, string> = {
+			TodoWrite: "Create and manage task coordination and todo lists",
+			TodoRead: "Read and monitor task progress and status",
+			Task: "Spawn and manage specialized agents for complex workflows",
+			Memory: "Store and retrieve coordination data and context",
+			Bash: "Execute system commands and shell operations",
+			Read: "Read file contents from the filesystem",
+			Write: "Write new files or overwrite existing files",
+			Edit: "Edit existing files with find-and-replace operations",
+			MultiEdit: "Make multiple edits to a single file in one operation",
+			Glob: "Search for files using glob patterns",
+			Grep: "Search file contents using regular expressions",
+			WebSearch: "Search the web for information",
+			WebFetch: "Fetch and analyze web content",
+			NotebookRead: "Read Jupyter notebook files",
+			NotebookEdit: "Edit Jupyter notebook cells",
+		};
+
+		parts.push(`## Tool: ${toolName}`);
+		parts.push(
+			`**Description:** ${toolDescriptions[toolName] || `Execute ${toolName} tool operation`}`,
+		);
+		parts.push("");
+
+		// Add arguments section
+		if (args && Object.keys(args).length > 0) {
+			parts.push("## Arguments:");
+			for (const [key, value] of Object.entries(args)) {
+				const formattedValue =
+					typeof value === "string" ? value : JSON.stringify(value, null, 2);
+				parts.push(`**${key}:** ${formattedValue}`);
 			}
+			parts.push("");
 		}
 
-		// For non-SPARC tools, return a message,
-		return {
-			content: [
-				{
-					type: "text",
-					text: `Tool ${toolName} is not available in this MCP server.`,
-				},
-			],
-			isError: true,
-		};
+		// Add execution instructions
+		parts.push("## Execution Instructions:");
+		parts.push(
+			`Please execute the ${toolName} tool with the provided arguments.`,
+		);
+		parts.push("Return the result in a structured format.");
+
+		if (toolName === "Task") {
+			parts.push("");
+			parts.push("**Special Instructions for Task tool:**");
+			parts.push("- Spawn the specified agent with the given prompt");
+			parts.push("- Use the subagent_type parameter for agent classification");
+			parts.push("- Ensure proper coordination and communication setup");
+		}
+
+		if (toolName === "TodoWrite") {
+			parts.push("");
+			parts.push("**Special Instructions for TodoWrite:**");
+			parts.push(
+				"- Create comprehensive task lists with proper status tracking",
+			);
+			parts.push("- Use appropriate priority levels (high, medium, low)");
+			parts.push("- Include clear, actionable task descriptions");
+		}
+
+		if (["Read", "Write", "Edit", "MultiEdit"].includes(toolName)) {
+			parts.push("");
+			parts.push("**File Operation Guidelines:**");
+			parts.push("- Use absolute file paths when possible");
+			parts.push("- Preserve existing code style and formatting");
+			parts.push("- Follow best practices for the target language");
+		}
+
+		if (["Bash"].includes(toolName)) {
+			parts.push("");
+			parts.push("**Command Execution Guidelines:**");
+			parts.push("- Execute commands safely and securely");
+			parts.push("- Provide clear output and error handling");
+			parts.push("- Use appropriate working directory context");
+		}
+
+		parts.push("");
+		parts.push("## Expected Output:");
+		parts.push("Please provide the tool execution result in JSON format with:");
+		parts.push("- `success`: boolean indicating if operation succeeded");
+		parts.push("- `result`: the actual tool output or result data");
+		parts.push("- `error`: error message if operation failed");
+		parts.push("- `metadata`: any additional context or information");
+
+		return parts.join("\n");
 	}
 
 	async run() {
@@ -885,7 +1284,7 @@ Use the appropriate tools for each phase and maintain progress in TodoWrite.`;
 		// Log startup message,
 		console.error("🚀 Claude-Flow MCP Server (Wrapper Mode)");
 		console.error(
-			"📦 Using Claude Code MCP pass-through with SPARC prompt injection"
+			"📦 Using Claude Code MCP pass-through with SPARC prompt injection",
 		);
 		console.error("🔧 All SPARC tools available with enhanced AI capabilities");
 		console.error("ℹ️  To use legacy mode, set CLAUDE_FLOW_LEGACY_MCP=true");

@@ -7,15 +7,10 @@ import { spawn } from "child_process";
 import { BackgroundExecutor } from "../../coordination/background-executor.js";
 import { SwarmCoordinator } from "../../coordination/swarm-coordinator.js";
 import { SwarmMemoryManager } from "../../memory/swarm-memory.js";
+import type { CommandContext } from "../../types/core.js";
 import { getErrorMessage } from "../../utils/error-handler.js";
 import { generateId } from "../../utils/helpers.js";
-import type { CommandContext } from "../optimized-cli-core.js";
-import {
-	_error as error,
-	info,
-	success,
-	warning,
-} from "../optimized-cli-core.js";
+import { _error as error, info, success, warning } from "../cli-utils.js";
 
 // Type definitions for Promise results
 interface ProcessResult {
@@ -60,13 +55,13 @@ export async function swarmAction(ctx: CommandContext): Promise<void> {
 		console.log('  claude-flow swarm "Research cloud architecture"');
 		console.log("\nOptions:");
 		console.log(
-			"  --dry-run              Show configuration without executing"
+			"  --dry-run              Show configuration without executing",
 		);
 		console.log(
-			"  --strategy <type>      Strategy: auto, research, development, analysis"
+			"  --strategy <type>      Strategy: auto, research, development, analysis",
 		);
 		console.log(
-			"  --max-agents <n>       Maximum number of agents (default: 5)"
+			"  --max-agents <n>       Maximum number of agents (default: 5)",
 		);
 		console.log("  --timeout <minutes>    Timeout in minutes (default: 60)");
 		console.log("  --research             Enable research capabilities");
@@ -74,15 +69,15 @@ export async function swarmAction(ctx: CommandContext): Promise<void> {
 		console.log("  --review               Enable peer review between agents");
 		console.log("  --monitor              Enable real-time monitoring");
 		console.log(
-			"  --ui                   Use blessed terminal UI (requires node.js)"
+			"  --ui                   Use blessed terminal UI (requires node.js)",
 		);
 		console.log("  --background           Run swarm in background mode");
 		console.log("  --distributed          Enable distributed coordination");
 		console.log(
-			"  --memory-namespace     Memory namespace for swarm (default: swarm)"
+			"  --memory-namespace     Memory namespace for swarm (default: swarm)",
 		);
 		console.log(
-			"  --persistence          Enable task persistence (default: true)"
+			"  --persistence          Enable task persistence (default: true)",
 		);
 		return;
 	}
@@ -158,7 +153,7 @@ export async function swarmAction(ctx: CommandContext): Promise<void> {
 		console.log(
 			`Environment Variables Used: ${Object.keys(process.env)
 				.filter((k) => k.startsWith("CLAUDE_FLOW_"))
-				.join(", ")}`
+				.join(", ")}`,
 		);
 		return;
 	}
@@ -249,7 +244,7 @@ export async function swarmAction(ctx: CommandContext): Promise<void> {
 		// Create objective in coordinator,
 		const objectiveId = await coordinator.createObjective(
 			objective,
-			options.strategy
+			options.strategy,
 		);
 
 		console.log(`\n📝 Objective created with ID: ${objectiveId}`);
@@ -263,7 +258,7 @@ export async function swarmAction(ctx: CommandContext): Promise<void> {
 			const agentId = await coordinator.registerAgent(
 				`${agentType}-${i + 1}`,
 				agentType,
-				getCapabilitiesForType(agentType)
+				getCapabilitiesForType(agentType),
 			);
 			agents.push(agentId);
 			console.log(`  🤖 Registered ${agentType} agent: ${agentId}`);
@@ -282,8 +277,8 @@ export async function swarmAction(ctx: CommandContext): Promise<void> {
 					startTime: new Date().toISOString(),
 				},
 				null,
-				2
-			)
+				2,
+			),
 		);
 
 		// Start objective execution,
@@ -292,7 +287,7 @@ export async function swarmAction(ctx: CommandContext): Promise<void> {
 
 		if (options.background) {
 			console.log(
-				`Running in background mode. Check status with: claude-flow swarm status ${swarmId}`
+				`Running in background mode. Check status with: claude-flow swarm status ${swarmId}`,
 			);
 
 			// Save coordinator state and exit,
@@ -305,8 +300,8 @@ export async function swarmAction(ctx: CommandContext): Promise<void> {
 						startTime: new Date().toISOString(),
 					},
 					null,
-					2
-				)
+					2,
+				),
 			);
 		} else {
 			// Wait for completion in foreground,
@@ -321,8 +316,8 @@ export async function swarmAction(ctx: CommandContext): Promise<void> {
 						endTime: new Date().toISOString(),
 					},
 					null,
-					2
-				)
+					2,
+				),
 			);
 
 			// Show summary,
@@ -353,7 +348,7 @@ export async function swarmAction(ctx: CommandContext): Promise<void> {
  */
 async function decomposeObjective(
 	objective: string,
-	options: any
+	options: any,
 ): Promise<any[]> {
 	const subtasks = [];
 
@@ -371,7 +366,7 @@ async function decomposeObjective(
 				{
 					type: "synthesis",
 					description: `Synthesize research into actionable insights`,
-				}
+				},
 			);
 			break;
 
@@ -383,7 +378,7 @@ async function decomposeObjective(
 				},
 				{ type: "implementation", description: `Implement core functionality` },
 				{ type: "testing", description: `Test and validate implementation` },
-				{ type: "documentation", description: `Document the solution` }
+				{ type: "documentation", description: `Document the solution` },
 			);
 			break;
 
@@ -397,7 +392,7 @@ async function decomposeObjective(
 				{
 					type: "visualization",
 					description: `Create visualizations and reports`,
-				}
+				},
 			);
 			break;
 
@@ -410,7 +405,7 @@ async function decomposeObjective(
 				subtasks.push(
 					{ type: "planning", description: `Plan solution for: ${objective}` },
 					{ type: "implementation", description: `Implement the solution` },
-					{ type: "testing", description: `Test and validate` }
+					{ type: "testing", description: `Test and validate` },
 				);
 			} else if (
 				objective.toLowerCase().includes("research") ||
@@ -419,7 +414,7 @@ async function decomposeObjective(
 				subtasks.push(
 					{ type: "research", description: `Research: ${objective}` },
 					{ type: "analysis", description: `Analyze findings` },
-					{ type: "report", description: `Generate report` }
+					{ type: "report", description: `Generate report` },
 				);
 			} else {
 				subtasks.push(
@@ -428,7 +423,7 @@ async function decomposeObjective(
 						description: `Explore requirements for: ${objective}`,
 					},
 					{ type: "execution", description: `Execute main tasks` },
-					{ type: "validation", description: `Validate results` }
+					{ type: "validation", description: `Validate results` },
 				);
 			}
 	}
@@ -443,7 +438,7 @@ async function executeParallelTasks(
 	tasks: any[],
 	options: any,
 	swarmId: string,
-	swarmDir: string
+	swarmDir: string,
 ) {
 	const promises = tasks.map(async (task, index) => {
 		const agentId = generateId("agent");
@@ -465,8 +460,8 @@ async function executeParallelTasks(
 					startTime: new Date().toISOString(),
 				},
 				null,
-				2
-			)
+				2,
+			),
 		);
 
 		// Execute agent task,
@@ -481,8 +476,8 @@ async function executeParallelTasks(
 					endTime: new Date().toISOString(),
 				},
 				null,
-				2
-			)
+				2,
+			),
 		);
 
 		console.log(`  ✅ Agent ${agentId} completed: ${task.type}`);
@@ -498,7 +493,7 @@ async function executeSequentialTasks(
 	tasks: any[],
 	options: any,
 	swarmId: string,
-	swarmDir: string
+	swarmDir: string,
 ) {
 	for (const [index, task] of tasks.entries()) {
 		const agentId = generateId("agent");
@@ -520,8 +515,8 @@ async function executeSequentialTasks(
 					startTime: new Date().toISOString(),
 				},
 				null,
-				2
-			)
+				2,
+			),
 		);
 
 		// Execute agent task,
@@ -536,8 +531,8 @@ async function executeSequentialTasks(
 					endTime: new Date().toISOString(),
 				},
 				null,
-				2
-			)
+				2,
+			),
 		);
 
 		console.log(`  ✅ Agent ${agentId} completed: ${task.type}`);
@@ -551,7 +546,7 @@ async function executeAgentTask(
 	agentId: string,
 	task: any,
 	options: any,
-	agentDir: string
+	agentDir: string,
 ) {
 	console.log(`    → Executing: ${task.type} task`);
 
@@ -610,7 +605,7 @@ When you're done, please end with "TASK COMPLETED" on its own line.`;
 			// Write command to file for tracking,
 			await fs.writeFile(
 				`${agentDir}/command.txt`,
-				`claude ${claudeArgs.join(" ")}`
+				`claude ${claudeArgs.join(" ")}`,
 			);
 
 			console.log(`    → Running: ${task.description}`);
@@ -675,7 +670,7 @@ exit \${PIPESTATUS[0]}`;
 			const claudeFlowPath = new URL(import.meta.url).pathname;
 			const projectRoot = claudeFlowPath.substring(
 				0,
-				claudeFlowPath.indexOf("/src/")
+				claudeFlowPath.indexOf("/src/"),
 			);
 			const claudeFlowBin = `${projectRoot}/bin/claude-flow`;
 
@@ -725,7 +720,7 @@ exit \${PIPESTATUS[0]}`;
 }
 
 function getAgentTypesForStrategy(
-	strategy: string
+	strategy: string,
 ): ("researcher" | "coder" | "analyst" | "coordinator" | "reviewer")[] {
 	switch (strategy) {
 		case "research":
@@ -759,7 +754,7 @@ function getCapabilitiesForType(type: string): string[] {
 async function waitForObjectiveCompletion(
 	coordinator: any,
 	objectiveId: string,
-	options: any
+	options: any,
 ): Promise<void> {
 	return new Promise((resolve) => {
 		const checkInterval = setInterval(() => {
@@ -781,7 +776,7 @@ async function waitForObjectiveCompletion(
 			if (options.verbose) {
 				const swarmStatus = coordinator.getSwarmStatus();
 				console.log(
-					`Progress: ${swarmStatus.tasks.completed}/${swarmStatus.tasks.total} tasks completed`
+					`Progress: ${swarmStatus.tasks.completed}/${swarmStatus.tasks.total} tasks completed`,
 				);
 			}
 		}, 5000); // Check every 5 seconds
@@ -793,7 +788,7 @@ async function waitForObjectiveCompletion(
 				console.log("⚠️  Swarm execution timed out");
 				resolve();
 			},
-			options.timeout * 60 * 1000
+			options.timeout * 60 * 1000,
 		);
 	});
 }

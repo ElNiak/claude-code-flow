@@ -7,12 +7,7 @@
  */
 
 import { Logger } from "../../core/logger.js";
-import {
-	_error as error,
-	info,
-	success,
-	warning,
-} from "../optimized-cli-core.js";
+import { _error as error, info, success, warning } from "../cli-utils.js";
 
 // TODO: Re-enable when hook integration wrapper is implemented
 // import { initializeHookIntegration, getHookSystem, enhancedPreToolUse, enhancedPostToolUse, enhancedNotification, verifyCodeWithSerena, coordinateWithClaudeFlow, researchWithContext7, getHookSystemStatus, cleanupHookIntegration, type HookEnhancementConfig } from "../../hooks/hook-integration-wrapper.js";
@@ -71,7 +66,7 @@ const getHookSystemStatus = async () => ({
 const verifyCodeWithSerena = async (
 	_filePath: string,
 	_content: any,
-	_options: any
+	_options: any,
 ) => ({
 	success: true,
 	message: "Mock verification",
@@ -109,7 +104,7 @@ const createSmartMCPToolSelector = (_config: any, _logger?: any) => ({
 const enhancedPreToolUse = async (
 	_toolName: string,
 	_params: any,
-	_options: any
+	_options: any,
 ) => ({
 	success: true,
 	recommendations: [],
@@ -121,7 +116,7 @@ const enhancedPostToolUse = async (
 	_toolName: string,
 	_params: any,
 	_result: any,
-	_options: any
+	_options: any,
 ) => ({
 	success: true,
 	analysis: {},
@@ -137,7 +132,7 @@ const logger = new Logger(
 		format: "text",
 		destination: "console",
 	},
-	{ prefix: "MCPIntegration" }
+	{ prefix: "MCPIntegration" },
 );
 
 /**
@@ -228,7 +223,7 @@ async function handleInit(_args: string[]): Promise<void> {
 
 		const _initTime = performance.now() - _startTime;
 		logger.info(
-			`MCP integration system initialized successfully in ${_initTime.toFixed(2)}ms`
+			`MCP integration system initialized successfully in ${_initTime.toFixed(2)}ms`,
 		);
 
 		// Show system status,
@@ -255,7 +250,7 @@ async function handleStatus(_args: string[]): Promise<void> {
 		if (_status.initialized) {
 			console.log("\n🖥️  MCP Servers: ");
 			for (const [serverId, serverInfo] of Object.entries(
-				_status.mcpServers || {}
+				_status.mcpServers || {},
 			)) {
 				const _info = serverInfo as any;
 				const _statusIcon =
@@ -265,21 +260,21 @@ async function handleStatus(_args: string[]): Promise<void> {
 							? "🔴"
 							: "🟡";
 				console.log(
-					`  ${_statusIcon} ${serverId}: ${_info.status} (${_info.responseTime?.toFixed(2) || "N/A"}ms)`
+					`  ${_statusIcon} ${serverId}: ${_info.status} (${_info.responseTime?.toFixed(2) || "N/A"}ms)`,
 				);
 				console.log(
-					`     Capabilities: ${_info.capabilities?.join(", ") || "Unknown"}`
+					`     Capabilities: ${_info.capabilities?.join(", ") || "Unknown"}`,
 				);
 				console.log(`     Priority: ${_info.priority || "N/A"}`);
 			}
 
 			console.log("\n⚡ Performance Metrics: ");
 			for (const [operation, metrics] of Object.entries(
-				_status.performance || {}
+				_status.performance || {},
 			)) {
 				const _perf = metrics as any;
 				console.log(
-					`  📈 ${operation}: ${_perf.count} executions, avg ${_perf.averageMs}ms`
+					`  📈 ${operation}: ${_perf.count} executions, avg ${_perf.averageMs}ms`,
 				);
 			}
 
@@ -331,14 +326,14 @@ async function handleTestSerena(args: string[]): Promise<void> {
 		if ((_result.suggestions || []).length > 0) {
 			console.log("\n💡 Suggestions: ");
 			_result.suggestions.forEach((suggestion: any) =>
-				console.log(`  - ${suggestion}`)
+				console.log(`  - ${suggestion}`),
 			);
 		}
 
 		if (Object.keys(_result.symbolsVerified || {}).length > 0) {
 			console.log("\n🔍 Symbol Verification: ");
 			for (const [symbol, verified] of Object.entries(
-				_result.symbolsVerified || {}
+				_result.symbolsVerified || {},
 			)) {
 				console.log(`  ${verified ? "✅" : "❌"} ${symbol}`);
 			}
@@ -391,7 +386,7 @@ async function handleTestContext7(args: string[]): Promise<void> {
 		"library") as any;
 
 	logger.info(
-		`Testing Context7 integration with query: ${query}, type: ${type}`
+		`Testing Context7 integration with query: ${query}, type: ${type}`,
 	);
 
 	try {
@@ -430,7 +425,7 @@ async function handleSmartSelect(args: string[]): Promise<void> {
 	try {
 		const selector = createSmartMCPToolSelector(
 			DefaultMCPConfigForHooks,
-			logger
+			logger,
 		);
 
 		const request: ToolRequest = {
@@ -501,7 +496,7 @@ async function handleVerifyCode(args: string[]): Promise<void> {
 				_enableCodeAnalysis: true,
 				_enableResearch: true,
 				_sessionId: `verify-${Date.now()}`,
-			}
+			},
 		);
 
 		console.log("\n🔍 Enhanced Code Verification Results");
@@ -539,7 +534,7 @@ async function handleCoordinate(args: string[]): Promise<void> {
 			{
 				_enableCoordination: true,
 				_sessionId: `coord-${Date.now()}`,
-			}
+			},
 		);
 
 		console.log("\n🤖 Task Coordination Results");
@@ -572,7 +567,7 @@ async function handleResearch(args: string[]): Promise<void> {
 			{
 				enableResearch: true,
 				sessionId: `research-${Date.now()}`,
-			}
+			},
 		);
 
 		console.log("\n📚 Enhanced Research Results");
@@ -611,7 +606,7 @@ async function handleEnhanceHook(args: string[]): Promise<void> {
 					_enableCoordination: true,
 					_enableResearch: true,
 					_sessionId: `hook-${Date.now()}`,
-				}
+				},
 			);
 		} else {
 			result = await enhancedPostToolUse(
@@ -623,7 +618,7 @@ async function handleEnhanceHook(args: string[]): Promise<void> {
 					_enableOptimization: true,
 					_enableReporting: true,
 					_sessionId: `hook-${Date.now()}`,
-				}
+				},
 			);
 		}
 
@@ -645,7 +640,7 @@ async function handleBenchmark(args: string[]): Promise<void> {
 	const iterations = parseInt(args[0]) || 10;
 
 	logger.info(
-		`Running MCP integration benchmark with ${iterations} iterations...`
+		`Running MCP integration benchmark with ${iterations} iterations...`,
 	);
 
 	try {
@@ -682,7 +677,7 @@ async function handleBenchmark(args: string[]): Promise<void> {
 		// Benchmark Smart Selection
 		const selector = createSmartMCPToolSelector(
 			DefaultMCPConfigForHooks,
-			logger
+			logger,
 		);
 		for (let i = 0; i < iterations; i++) {
 			const start = performance.now();

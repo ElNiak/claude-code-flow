@@ -8,7 +8,7 @@
 import { MCPDeadlockPreventionSystem } from "./deadlock-prevention-system.js";
 import { MCPHealthChecker, SafeMCPOperations } from "./mcp-deadlock-config.js";
 import { MCPMonitoringDashboard } from "./mcp-monitoring-dashboard.js";
-import { runDeadlockPreventionTests } from "./test-deadlock-prevention.js";
+// import { runDeadlockPreventionTests } from "./test-deadlock-prevention.js"; // File does not exist
 
 // ===== INTEGRATION COORDINATOR =====
 
@@ -65,7 +65,7 @@ export class MCPIntegrationCoordinator {
 			if (finalHealth.deadlocks.length > 0) {
 				console.warn(
 					"⚠️ Deadlocks detected during execution:",
-					finalHealth.deadlocks
+					finalHealth.deadlocks,
 				);
 			}
 
@@ -73,10 +73,10 @@ export class MCPIntegrationCoordinator {
 		} catch (error) {
 			console.error(
 				"❌ Task execution failed:",
-				error instanceof Error ? error.message : String(error)
+				error instanceof Error ? error.message : String(error),
 			);
 			await this.handleTaskFailure(
-				error instanceof Error ? error : new Error(String(error))
+				error instanceof Error ? error : new Error(String(error)),
 			);
 			throw error;
 		} finally {
@@ -88,7 +88,7 @@ export class MCPIntegrationCoordinator {
 	}
 
 	private async executeCoordinatedOperations(
-		taskDescription: string
+		taskDescription: string,
 	): Promise<any> {
 		const operationResults = new Map();
 
@@ -119,7 +119,7 @@ export class MCPIntegrationCoordinator {
 				resourceIds: ["coordination", "memory"],
 				priority: "high",
 				retries: 2,
-			}
+			},
 		);
 		operationResults.set("swarm", swarmResults);
 		console.log("🚀 Swarm coordination initialized");
@@ -151,7 +151,7 @@ export class MCPIntegrationCoordinator {
 			{
 				resourceIds: ["memory"],
 				priority: "medium",
-			}
+			},
 		);
 		console.log("💾 Results stored in coordination memory");
 
@@ -177,7 +177,7 @@ export class MCPIntegrationCoordinator {
 
 	private async handleCriticalDeadlock(alert: any): Promise<void> {
 		console.log(
-			"🚨 CRITICAL DEADLOCK DETECTED - Initiating emergency procedures"
+			"🚨 CRITICAL DEADLOCK DETECTED - Initiating emergency procedures",
 		);
 
 		// Emergency procedure: Reset all MCP connections
@@ -187,7 +187,7 @@ export class MCPIntegrationCoordinator {
 		} catch (error) {
 			console.error(
 				"❌ Emergency reset failed:",
-				error instanceof Error ? error.message : String(error)
+				error instanceof Error ? error.message : String(error),
 			);
 		}
 
@@ -270,7 +270,7 @@ export class MCPIntegrationCoordinator {
 			const perf = metrics.performance[serverId];
 			if (perf.responseTime > 5000) {
 				optimizations.push(
-					`Optimize ${serverId} performance (${perf.responseTime}ms)`
+					`Optimize ${serverId} performance (${perf.responseTime}ms)`,
 				);
 			}
 		}
@@ -300,14 +300,14 @@ export class MCPIntegrationCoordinator {
 		console.log("\n📍 Scenario 1: Safe Multi-Server Coordination");
 		try {
 			const result = await this.executeSafeHiveMindTask(
-				"Analyze codebase and generate documentation"
+				"Analyze codebase and generate documentation",
 			);
 			console.log("✅ Multi-server coordination completed successfully");
 			console.log("📊 Results:", Object.keys(result));
 		} catch (error) {
 			console.log(
 				"❌ Multi-server coordination failed:",
-				error instanceof Error ? error.message : String(error)
+				error instanceof Error ? error.message : String(error),
 			);
 		}
 
@@ -334,15 +334,15 @@ export class MCPIntegrationCoordinator {
 					"test-server",
 					async () => {
 						await new Promise((resolve) =>
-							setTimeout(resolve, Math.random() * 2000 + 1000)
+							setTimeout(resolve, Math.random() * 2000 + 1000),
 						);
 						return `Operation ${i} completed`;
 					},
 					{
 						resourceIds: [`resource-${i}`],
 						priority: "medium",
-					}
-				)
+					},
+				),
 			);
 		}
 
@@ -350,12 +350,12 @@ export class MCPIntegrationCoordinator {
 			const results = await Promise.allSettled(operations);
 			const successful = results.filter((r) => r.status === "fulfilled").length;
 			console.log(
-				`✅ ${successful}/${operations.length} concurrent operations completed successfully`
+				`✅ ${successful}/${operations.length} concurrent operations completed successfully`,
 			);
 		} catch (error) {
 			console.log(
 				"❌ Concurrent operations failed:",
-				error instanceof Error ? error.message : String(error)
+				error instanceof Error ? error.message : String(error),
 			);
 		}
 	}
@@ -368,15 +368,15 @@ export class MCPIntegrationCoordinator {
 				async () => {
 					throw new Error("Simulated server failure");
 				},
-				{ retries: 2 }
+				{ retries: 2 },
 			);
 		} catch (error) {
 			console.log(
-				"✅ Error recovery demonstrated - fallback mechanisms activated"
+				"✅ Error recovery demonstrated - fallback mechanisms activated",
 			);
 			console.log(
 				"📋 Error handled:",
-				error instanceof Error ? error.message : String(error)
+				error instanceof Error ? error.message : String(error),
 			);
 		}
 	}
@@ -415,7 +415,7 @@ export class MCPIntegrationCoordinator {
 
 	private generateSystemRecommendations(
 		health: any,
-		systemHealth: any
+		systemHealth: any,
 	): string[] {
 		const recommendations = [];
 
@@ -425,7 +425,7 @@ export class MCPIntegrationCoordinator {
 
 		if (systemHealth.deadlocks.length > 0) {
 			recommendations.push(
-				"Active deadlocks detected - review resource coordination"
+				"Active deadlocks detected - review resource coordination",
 			);
 		}
 
@@ -440,7 +440,10 @@ export class MCPIntegrationCoordinator {
 		console.log("🧪 Running Comprehensive MCP Deadlock Prevention Tests");
 		console.log("======================================================");
 
-		await runDeadlockPreventionTests();
+		// await runDeadlockPreventionTests(); // Function not available - file does not exist
+		console.log(
+			"⚠️ Deadlock prevention tests not available - test file missing",
+		);
 
 		console.log("\n🎯 Running Integration Tests");
 		console.log("============================");
@@ -469,7 +472,7 @@ export async function demonstrateMCPDeadlockPrevention(): Promise<void> {
 	} catch (error) {
 		console.error(
 			"❌ Demonstration failed:",
-			error instanceof Error ? error.message : String(error)
+			error instanceof Error ? error.message : String(error),
 		);
 	}
 }

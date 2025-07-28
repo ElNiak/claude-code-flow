@@ -1,3 +1,4 @@
+import { debugLogger } from "../utils/debug-logger.js";
 import { getErrorMessage as _getErrorMessage } from "../utils/error-handler.js";
 
 /**
@@ -40,7 +41,7 @@ export interface ICoordinationManager {
 	reportConflict(
 		type: "resource" | "task",
 		id: string,
-		agents: string[]
+		agents: string[],
 	): Promise<void>;
 }
 
@@ -60,7 +61,7 @@ export class CoordinationManager implements ICoordinationManager {
 	constructor(
 		private config: CoordinationConfig,
 		private eventBus: IEventBus,
-		private logger: ILogger
+		private logger: ILogger,
 	) {
 		this.scheduler = new TaskScheduler(config, eventBus, logger);
 		this.resourceManager = new ResourceManager(config, eventBus, logger);
@@ -70,13 +71,23 @@ export class CoordinationManager implements ICoordinationManager {
 	}
 
 	async initialize(): Promise<void> {
-		if (this.initialized) {
-			return;
-		}
-
-		this.logger.info("Initializing coordination manager...");
-
+		const debugId = debugLogger.logFunctionEntry(
+			"CoordinationManager",
+			"initialize",
+			{},
+			"coordination",
+		);
 		try {
+			if (this.initialized) {
+				debugLogger.logFunctionExit(
+					debugId,
+					JSON.stringify({ alreadyInitialized: true }),
+					"coordination",
+				);
+				return;
+			}
+
+			this.logger.info("Initializing coordination manager...");
 			// Initialize components,
 			await this.scheduler.initialize();
 			await this.resourceManager.initialize();
@@ -95,11 +106,17 @@ export class CoordinationManager implements ICoordinationManager {
 
 			this.initialized = true;
 			this.logger.info("Coordination manager initialized");
+			debugLogger.logFunctionExit(
+				debugId,
+				JSON.stringify({ initialized: true }),
+				"coordination",
+			);
 		} catch (error) {
+			debugLogger.logFunctionError(debugId, String(error), "coordination");
 			this.logger.error("Failed to initialize coordination manager", error);
 			throw new CoordinationError(
 				"Coordination manager initialization failed",
-				{ error }
+				{ error },
 			);
 		}
 	}
@@ -182,12 +199,12 @@ export class CoordinationManager implements ICoordinationManager {
 	}> {
 		this.logger.info(
 			"🔍 DEADLOCK DEBUG: Coordination manager getHealthStatus called",
-			{}
+			{},
 		);
 		try {
 			this.logger.info(
 				"🔍 DEADLOCK DEBUG: Starting parallel health checks for coordination components",
-				{}
+				{},
 			);
 			const healthStart = Date.now();
 			const [schedulerHealth, resourceHealth, messageHealth] =
@@ -199,7 +216,7 @@ export class CoordinationManager implements ICoordinationManager {
 			const healthDuration = Date.now() - healthStart;
 			this.logger.info(
 				"🔍 DEADLOCK DEBUG: Coordination component health checks completed",
-				{ duration: healthDuration }
+				{ duration: healthDuration },
 			);
 
 			const metrics = {
@@ -305,7 +322,7 @@ export class CoordinationManager implements ICoordinationManager {
 							agentId,
 							method,
 							timeout,
-						}
+						},
 					);
 
 					// Release all resources held by the agent,
@@ -319,7 +336,7 @@ export class CoordinationManager implements ICoordinationManager {
 						{
 							agentId,
 							method,
-						}
+						},
 					);
 				}
 
@@ -337,7 +354,7 @@ export class CoordinationManager implements ICoordinationManager {
 						method,
 						error,
 						timeout,
-					}
+					},
 				);
 			}
 		});
@@ -365,14 +382,14 @@ export class CoordinationManager implements ICoordinationManager {
 					// Emit deadlock event,
 					this.logger.info(
 						"🔍 DEADLOCK DEBUG: Emitting deadlock detected event",
-						{}
+						{},
 					);
 					this.eventBus.emit(SystemEvents.DEADLOCK_DETECTED, deadlock);
 
 					// Attempt to resolve deadlock,
 					this.logger.info(
 						"🔍 DEADLOCK DEBUG: Starting deadlock resolution",
-						{}
+						{},
 					);
 					await this.resolveDeadlock(deadlock);
 				} else {
@@ -384,7 +401,7 @@ export class CoordinationManager implements ICoordinationManager {
 				const detectionDuration = Date.now() - detectionStart;
 				this.logger.error(
 					"🚨 DEADLOCK DEBUG: Error during deadlock detection",
-					{ duration: detectionDuration, error: error }
+					{ duration: detectionDuration, error: error },
 				);
 			}
 		}, 10000); // Check every 10 seconds
@@ -489,7 +506,7 @@ export class CoordinationManager implements ICoordinationManager {
 	}): Promise<void> {
 		this.logger.warn(
 			"🚨 DEADLOCK DEBUG: Attempting to resolve deadlock",
-			deadlock
+			deadlock,
 		);
 
 		// Simple resolution: release resources from the lowest priority agent
@@ -505,20 +522,20 @@ export class CoordinationManager implements ICoordinationManager {
 			// Release all resources held by this agent,
 			this.logger.info(
 				"🔍 DEADLOCK DEBUG: Releasing all resources for preempted agent",
-				{ agentId: agentToPreempt }
+				{ agentId: agentToPreempt },
 			);
 			const releaseStart = Date.now();
 			await this.resourceManager.releaseAllForAgent(agentToPreempt);
 			const releaseDuration = Date.now() - releaseStart;
 			this.logger.info(
 				"🔍 DEADLOCK DEBUG: Released all resources for preempted agent",
-				{ agentId: agentToPreempt, duration: releaseDuration }
+				{ agentId: agentToPreempt, duration: releaseDuration },
 			);
 
 			// Reschedule the agent's tasks,
 			this.logger.info(
 				"🔍 DEADLOCK DEBUG: Rescheduling preempted agent tasks",
-				{ agentId: agentToPreempt }
+				{ agentId: agentToPreempt },
 			);
 			const rescheduleStart = Date.now();
 			await this.scheduler.rescheduleAgentTasks(agentToPreempt);
@@ -535,7 +552,7 @@ export class CoordinationManager implements ICoordinationManager {
 			throw new DeadlockError(
 				"Failed to resolve deadlock",
 				deadlock.agents,
-				deadlock.resources
+				deadlock.resources,
 			);
 		}
 	}
@@ -555,7 +572,7 @@ export class CoordinationManager implements ICoordinationManager {
 
 		await this.scheduler.cancelTask(
 			taskId,
-			reason || "User requested cancellation"
+			reason || "User requested cancellation",
 		);
 	}
 
@@ -604,7 +621,7 @@ export class CoordinationManager implements ICoordinationManager {
 		const advancedScheduler = new AdvancedTaskScheduler(
 			this.config,
 			this.eventBus,
-			this.logger
+			this.logger,
 		);
 
 		// Transfer state if needed (in a real implementation)
@@ -615,7 +632,7 @@ export class CoordinationManager implements ICoordinationManager {
 	async reportConflict(
 		type: "resource" | "task",
 		id: string,
-		agents: string[]
+		agents: string[],
 	): Promise<void> {
 		this.logger.warn("Conflict reported", { type, id, agents });
 
@@ -626,7 +643,7 @@ export class CoordinationManager implements ICoordinationManager {
 			conflict = await this.conflictResolver.reportTaskConflict(
 				id,
 				agents,
-				"assignment"
+				"assignment",
 			);
 		}
 

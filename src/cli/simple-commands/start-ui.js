@@ -21,7 +21,7 @@ export async function launchUI(args = []) {
 
 				printSuccess("🌐 Claude Flow Web UI is running!");
 				console.log(
-					`📍 Open your browser to: http://localhost:${port}/console`
+					`📍 Open your browser to: http://localhost:${port}/console`,
 				);
 				console.log();
 				console.log("Features:");
@@ -102,9 +102,9 @@ async function launchTerminalUI(port) {
 				ProcessUI = puiModule.ProcessUI;
 			} catch (distError) {
 				// If dist version not found, try TypeScript version (for development)
-				const pmModule = await import("../commands/start/process-manager.ts");
+				const pmModule = await import("../commands/start/process-manager.js");
 				const puiModule = await import(
-					"../commands/start/process-ui-simple.ts"
+					"../commands/start/process-ui-simple.js"
 				);
 				ProcessManager = pmModule.ProcessManager;
 				ProcessUI = puiModule.ProcessUI;

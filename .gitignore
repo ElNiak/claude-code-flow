@@ -183,3 +183,7 @@ unified-work-prompt-*.txt
 .serena/cache/
 *.tgz
 migration-tests
+archive-analysis
+.claude-flow
+data
+.archive

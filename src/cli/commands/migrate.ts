@@ -13,16 +13,14 @@ import { MigrationRunner as _MigrationRunner } from "../../migration/migration-r
 import { RollbackManager as _RollbackManager } from "../../migration/rollback-manager.js";
 import type { MigrationStrategy } from "../../migration/types.js";
 import { UnifiedMigrationManager } from "../../migration/unified-migration.js";
-import type {
-	Command as _CLICommand,
-	CommandContext as _CommandContext,
-} from "../optimized-cli-core.js";
+import type { CliCommand as _CLICommand } from "../../types/cli-types.js";
+import type { CommandContext as _CommandContext } from "../../types/core.js";
 import {
 	_error,
 	info as _info,
 	success as _success,
 	warning as _warning,
-} from "../optimized-cli-core.js";
+} from "../cli-utils.js";
 
 export function createMigrateCommand(): Command {
 	const command = new Command("migrate");
@@ -33,7 +31,7 @@ export function createMigrateCommand(): Command {
 		.option(
 			"-s, --strategy <type>",
 			"Migration strategy: full, selective, merge",
-			"selective"
+			"selective",
 		)
 		.option("-b, --backup <dir>", "Backup directory", ".claude-backup")
 		.option("-f, --force", "Force migration without prompts")
@@ -80,7 +78,7 @@ export function createMigrateCommand(): Command {
 			);
 			const rollbackManager = new RollbackManager(
 				path.resolve(projectPath),
-				options.backup
+				options.backup,
 			);
 
 			if (options.list) {
@@ -120,7 +118,7 @@ export function createMigrateCommand(): Command {
 	command
 		.command("to-unified [path]")
 		.description(
-			"🚀 Migrate to unified coordination system with intrinsic agents"
+			"🚀 Migrate to unified coordination system with intrinsic agents",
 		)
 		.option("--backup", "Create backup before migration", true)
 		.option("--dry-run", "Show migration plan without executing")
@@ -134,7 +132,7 @@ export function createMigrateCommand(): Command {
 
 async function analyzeProject(
 	projectPath: string,
-	options: any
+	options: any,
 ): Promise<void> {
 	logger.info(`Analyzing project at ${projectPath}...`);
 
@@ -186,13 +184,13 @@ async function showMigrationStatus(projectPath: string): Promise<void> {
 
 	console.log(`\n${chalk.bold("Project:")} ${projectPath}`);
 	console.log(
-		`${chalk.bold("Status:")} ${analysis.hasOptimizedPrompts ? chalk.green("Migrated") : chalk.yellow("Not Migrated")}`
+		`${chalk.bold("Status:")} ${analysis.hasOptimizedPrompts ? chalk.green("Migrated") : chalk.yellow("Not Migrated")}`,
 	);
 	console.log(
-		`${chalk.bold("Custom Commands:")} ${analysis.customCommands.length}`
+		`${chalk.bold("Custom Commands:")} ${analysis.customCommands.length}`,
 	);
 	console.log(
-		`${chalk.bold("Conflicts:")} ${analysis.conflictingFiles.length}`
+		`${chalk.bold("Conflicts:")} ${analysis.conflictingFiles.length}`,
 	);
 
 	// Backup status,
@@ -207,7 +205,7 @@ async function showMigrationStatus(projectPath: string): Promise<void> {
 	if (backups.length > 0) {
 		const latestBackup = backups[0];
 		console.log(
-			`${chalk.bold("Latest Backup:")} ${latestBackup.timestamp.toLocaleString()}`
+			`${chalk.bold("Latest Backup:")} ${latestBackup.timestamp.toLocaleString()}`,
 		);
 	}
 
@@ -217,7 +215,7 @@ async function showMigrationStatus(projectPath: string): Promise<void> {
 		console.log("  • Run migration analysis: claude-flow migrate analyze");
 		console.log("  • Start with dry run: claude-flow migrate --dry-run");
 		console.log(
-			"  • Use selective strategy: claude-flow migrate --strategy selective"
+			"  • Use selective strategy: claude-flow migrate --strategy selective",
 		);
 	}
 
@@ -226,11 +224,11 @@ async function showMigrationStatus(projectPath: string): Promise<void> {
 
 async function runUnifiedMigration(
 	projectPath: string,
-	options: any
+	options: any,
 ): Promise<void> {
 	try {
 		console.log(
-			chalk.cyan("🚀 Starting Unified Coordination System Migration\n")
+			chalk.cyan("🚀 Starting Unified Coordination System Migration\n"),
 		);
 
 		const migrationManager = new UnifiedMigrationManager(projectPath);
@@ -242,8 +240,8 @@ async function runUnifiedMigration(
 		if (status.migrated && !options.force) {
 			console.log(
 				chalk.green(
-					"✅ Project already migrated to unified coordination system!"
-				)
+					"✅ Project already migrated to unified coordination system!",
+				),
 			);
 			console.log(
 				chalk.cyan(`
@@ -265,7 +263,7 @@ To use the unified system:
   Status:  claude-flow agent status --detailed,
 
 For help: claude-flow migrate-guide
-      `)
+      `),
 			);
 			return;
 		}
@@ -289,7 +287,7 @@ Migration Steps:
 ${plan.commands.map((cmd, i) => `  ${i + 1}. ${cmd.description} ${cmd.required ? "(Required)" : "(Optional)"}`).join("\n")}
 
 ${options.backup ? "💾 Backup will be created before migration" : "⚠️ No backup will be created"}
-    `)
+    `),
 		);
 
 		if (options.dryRun) {
@@ -300,11 +298,15 @@ ${options.backup ? "💾 Backup will be created before migration" : "⚠️ No b
 
 		if (!options.force) {
 			console.log(
-				chalk.yellow("\n⚠️ This will modify your project files. Continue? (y/N)")
+				chalk.yellow(
+					"\n⚠️ This will modify your project files. Continue? (y/N)",
+				),
 			);
 			// In a real implementation, you'd use inquirer for user input,
 			console.log(
-				chalk.gray("Use --force to skip confirmation in automated environments")
+				chalk.gray(
+					"Use --force to skip confirmation in automated environments",
+				),
 			);
 		}
 
@@ -316,8 +318,8 @@ ${options.backup ? "💾 Backup will be created before migration" : "⚠️ No b
 		if (result.success) {
 			console.log(
 				chalk.green(
-					"🎉 Migration to unified coordination system completed successfully!"
-				)
+					"🎉 Migration to unified coordination system completed successfully!",
+				),
 			);
 
 			console.log(
@@ -348,7 +350,7 @@ NEXT STEPS:
      claude-flow agent status --detailed,
 
 For migration guide: claude-flow migrate-guide
-      `)
+      `),
 			);
 
 			if (options.backup) {
@@ -368,7 +370,7 @@ Troubleshooting:
   4. Check migration logs in .claude/migration-summary.json,
 
 For help: https://github.com/ruvnet/claude-code-flow/issues
-      `)
+      `),
 			);
 
 			process.exit(1);
@@ -383,7 +385,7 @@ Unexpected migration error. Please check:
   3. No conflicting processes,
 
 For support: https://github.com/ruvnet/claude-code-flow/issues
-    `)
+    `),
 		);
 		process.exit(1);
 	}

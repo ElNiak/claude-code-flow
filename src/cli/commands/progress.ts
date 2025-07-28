@@ -3,7 +3,8 @@
  * Integration with existing CLI system for progress configuration
  */
 
-import type { Command, CommandContext } from "../optimized-cli-core.js";
+import type { CliCommand as Command } from "../../types/cli-types.js";
+import type { CommandContext } from "../../types/core.js";
 
 // Placeholder for progress CLI functionality
 const progressCLI = {
@@ -234,7 +235,7 @@ async function testProgressIndicator(options: any): Promise<void> {
 async function executeRealWork(
 	progress: any,
 	stepId: string,
-	duration: number
+	duration: number,
 ): Promise<void> {
 	progress.startStep(stepId);
 
@@ -478,7 +479,7 @@ export function enhanceExistingCommand(command: Command): Command {
  */
 export function withProgress(
 	commandName: string,
-	operation: (progress: any) => Promise<any>
+	operation: (progress: any) => Promise<any>,
 ) {
 	return async (options: any) => {
 		const config = progressConfig.getOperationConfig(commandName);
@@ -489,7 +490,7 @@ export function withProgress(
 
 		const progress = createProgressIndicator(
 			commandName,
-			`Executing ${commandName}`
+			`Executing ${commandName}`,
 		);
 
 		try {

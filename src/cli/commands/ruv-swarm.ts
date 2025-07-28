@@ -13,14 +13,9 @@ import {
 	initializeRuvSwarmIntegration,
 	isRuvSwarmAvailable,
 } from "../../mcp/ruv-swarm-tools.js";
+import type { CommandContext } from "../../types/core.js";
 import { execAsync } from "../../utils/helpers.js";
-import type { CommandContext } from "../optimized-cli-core.js";
-import {
-	_error as error,
-	info,
-	success,
-	warning,
-} from "../optimized-cli-core.js";
+import { _error as error, info, success, warning } from "../cli-utils.js";
 
 // Create logger for CLI commands,
 const logger = new Logger({
@@ -102,13 +97,13 @@ export async function ruvSwarmAction(ctx: CommandContext) {
 function showRuvSwarmHelp() {
 	console.log(
 		"ruv-swarm - Advanced AI swarm coordination with neural capabilities\
-"
+",
 	);
 
 	console.log("Usage:");
 	console.log(
 		"  claude-flow ruv-swarm <command> [options]\
-"
+",
 	);
 
 	console.log("Commands:");
@@ -117,7 +112,7 @@ function showRuvSwarmHelp() {
 	console.log("  spawn <type> [--name]      Spawn a new agent");
 	console.log("  list [--filter]           List all agents");
 	console.log(
-		"  orchestrate <task>         Orchestrate a task across the swarm"
+		"  orchestrate <task>         Orchestrate a task across the swarm",
 	);
 	console.log("  monitor [--duration]       Monitor swarm activity");
 	console.log("  neural <subcommand>        Neural capabilities management");
@@ -125,13 +120,13 @@ function showRuvSwarmHelp() {
 	console.log("  config <subcommand>        Configuration management");
 	console.log(
 		"  memory [--detail]          Memory usage and management\
-"
+",
 	);
 
 	console.log("Examples:");
 	console.log("  claude-flow ruv-swarm init --topology mesh --max-agents 8");
 	console.log(
-		'  claude-flow ruv-swarm spawn researcher --name \"AI Researcher\"'
+		'  claude-flow ruv-swarm spawn researcher --name \"AI Researcher\"',
 	);
 	console.log('  claude-flow ruv-swarm orchestrate \"Build a REST API\"');
 	console.log("  claude-flow ruv-swarm neural train --iterations 20");
@@ -177,7 +172,7 @@ async function handleInit(ctx: CommandContext) {
 		// Initialize integration,
 		const integration = await initializeRuvSwarmIntegration(
 			process.cwd(),
-			logger
+			logger,
 		);
 		if (integration.success) {
 			info("Claude Code integration enabled");
@@ -208,7 +203,7 @@ async function handleStatus(ctx: CommandContext) {
 				if (statusData.success && statusData.data) {
 					console.log(
 						"🐝 Swarm Status:\
-"
+",
 					);
 
 					const data = statusData.data;
@@ -220,12 +215,12 @@ async function handleStatus(ctx: CommandContext) {
 					}
 					if (data.agents !== undefined) {
 						console.log(
-							`  Active Agents: ${data.agents.active || 0}/${data.agents.total || 0}`
+							`  Active Agents: ${data.agents.active || 0}/${data.agents.total || 0}`,
 						);
 					}
 					if (data.tasks !== undefined) {
 						console.log(
-							`  Tasks: ${data.tasks.completed || 0} completed, ${data.tasks.running || 0} running`
+							`  Tasks: ${data.tasks.completed || 0} completed, ${data.tasks.running || 0} running`,
 						);
 					}
 					if (data.memory) {
@@ -235,7 +230,7 @@ async function handleStatus(ctx: CommandContext) {
 					if (verbose && data.details) {
 						console.log(
 							"\
-📋 Detailed Status:"
+📋 Detailed Status:",
 						);
 						console.log(JSON.stringify(data.details, null, 2));
 					}
@@ -273,12 +268,12 @@ async function handleSpawn(ctx: CommandContext) {
 
 	if (
 		!["researcher", "coder", "analyst", "optimizer", "coordinator"].includes(
-			type
+			type,
 		)
 	) {
 		error("Invalid agent type");
 		console.log(
-			"Valid types: researcher, coder, analyst, optimizer, coordinator"
+			"Valid types: researcher, coder, analyst, optimizer, coordinator",
 		);
 		return;
 	}
@@ -351,7 +346,7 @@ async function handleList(ctx: CommandContext) {
 						}
 						if (agent.capabilities && agent.capabilities.length > 0) {
 							console.log(
-								`     Capabilities: ${agent.capabilities.join(", ")}`
+								`     Capabilities: ${agent.capabilities.join(", ")}`,
 							);
 						}
 					});
@@ -374,7 +369,7 @@ async function handleOrchestrate(ctx: CommandContext) {
 	if (ctx.args.length === 0) {
 		error("Task description is required");
 		console.log(
-			'Usage: claude-flow ruv-swarm orchestrate \"<task description>\" [options]'
+			'Usage: claude-flow ruv-swarm orchestrate \"<task description>\" [options]',
 		);
 		return;
 	}
@@ -556,7 +551,7 @@ async function handleConfig(ctx: CommandContext) {
 				const config = configManager.getConfig();
 				console.log(
 					"🔧 ruv-swarm Configuration:\
-"
+",
 				);
 				console.log(JSON.stringify(config, null, 2));
 				break;
@@ -633,7 +628,7 @@ async function handleMemory(ctx: CommandContext) {
 				if (memoryData.success) {
 					console.log(
 						"💾 Memory Usage:\
-"
+",
 					);
 
 					const data = memoryData.data;
@@ -653,7 +648,7 @@ async function handleMemory(ctx: CommandContext) {
 					if (detail === "detailed" && data.breakdown) {
 						console.log(
 							"\
-📊 Memory Breakdown:"
+📊 Memory Breakdown:",
 						);
 						console.log(JSON.stringify(data.breakdown, null, 2));
 					}
