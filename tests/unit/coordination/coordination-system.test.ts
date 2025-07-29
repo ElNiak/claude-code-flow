@@ -4,14 +4,14 @@
  */
 
 import { expect } from "@jest/globals";
-import { AdvancedScheduler } from "../../../src/coordination/advanced-scheduler.ts";
-import { CircuitBreaker } from "../../../src/coordination/circuit-breaker.ts";
-import { ConflictResolver } from "../../../src/coordination/conflict-resolution.ts";
-import { DependencyGraph } from "../../../src/coordination/dependency-graph.ts";
-import { CoordinationManager } from "../../../src/coordination/manager.ts";
-import { ResourceManager } from "../../../src/coordination/resources.ts";
-import { TaskScheduler } from "../../../src/coordination/scheduler.ts";
-import { WorkStealingScheduler } from "../../../src/coordination/work-stealing.ts";
+import { CircuitBreaker } from "../../../src/cli/commands/monitor/core/circuit-breaker.ts";
+import { WorkStealingCoordinator as WorkStealingScheduler } from "../../../src/cli/commands/swarm/core/work-stealing.ts";
+import { AdvancedTaskScheduler as AdvancedScheduler } from "../../../src/cli/commands/work/core/advanced-scheduler.ts";
+import { TaskScheduler } from "../../../src/cli/commands/work/core/scheduler.ts";
+import { ConflictResolver } from "../../../src/cli/core/conflict-resolver.ts";
+import { CoordinationManager } from "../../../src/cli/core/coordination-manager.ts";
+import { DependencyGraph } from "../../../src/cli/core/dependency-graph.ts";
+import { ResourceManager } from "../../../src/cli/core/resource-manager.ts";
 import {
 	generateCoordinationTasks,
 	generateErrorScenarios,

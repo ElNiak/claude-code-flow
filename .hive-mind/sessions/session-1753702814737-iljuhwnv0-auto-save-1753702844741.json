@@ -1,0 +1,81 @@
+{
+	"sessionId": "session-1753702814737-iljuhwnv0",
+	"checkpointId": "checkpoint-1753702844741-ilrxz59u3",
+	"checkpointName": "auto-save-1753702844741",
+	"timestamp": "2025-07-28T11:40:44.742Z",
+	"data": {
+		"timestamp": "2025-07-28T11:40:44.741Z",
+		"changeCount": 5,
+		"changesByType": {
+			"swarm_created": [
+				{
+					"type": "swarm_created",
+					"data": {
+						"swarmId": "swarm-1753702814736-uxuaebgh7",
+						"swarmName": "hive-1753702814729",
+						"objective": "Analyse deeply the code and remove all reference to UI/GUI feature, this complexify the code and is notusefull",
+						"workerCount": 8
+					},
+					"timestamp": "2025-07-28T11:40:14.739Z"
+				}
+			],
+			"agent_activity": [
+				{
+					"type": "agent_activity",
+					"data": {
+						"agentId": "worker-swarm-1753702814736-uxuaebgh7-0",
+						"activity": "spawned",
+						"data": {
+							"type": "researcher",
+							"name": "Researcher Worker 1"
+						}
+					},
+					"timestamp": "2025-07-28T11:40:14.740Z"
+				},
+				{
+					"type": "agent_activity",
+					"data": {
+						"agentId": "worker-swarm-1753702814736-uxuaebgh7-1",
+						"activity": "spawned",
+						"data": {
+							"type": "coder",
+							"name": "Coder Worker 2"
+						}
+					},
+					"timestamp": "2025-07-28T11:40:14.740Z"
+				},
+				{
+					"type": "agent_activity",
+					"data": {
+						"agentId": "worker-swarm-1753702814736-uxuaebgh7-2",
+						"activity": "spawned",
+						"data": {
+							"type": "analyst",
+							"name": "Analyst Worker 3"
+						}
+					},
+					"timestamp": "2025-07-28T11:40:14.740Z"
+				},
+				{
+					"type": "agent_activity",
+					"data": {
+						"agentId": "worker-swarm-1753702814736-uxuaebgh7-3",
+						"activity": "spawned",
+						"data": {
+							"type": "tester",
+							"name": "Tester Worker 4"
+						}
+					},
+					"timestamp": "2025-07-28T11:40:14.741Z"
+				}
+			]
+		},
+		"statistics": {
+			"tasksProcessed": 0,
+			"tasksCompleted": 0,
+			"memoryUpdates": 0,
+			"agentActivities": 4,
+			"consensusDecisions": 0
+		}
+	}
+}

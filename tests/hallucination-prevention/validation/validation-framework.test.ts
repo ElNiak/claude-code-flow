@@ -10,9 +10,9 @@ import {
 	it,
 	jest,
 } from "@jest/globals";
+import { VerificationService } from "../../../src/cli/commands/qa/core";
 import { TaskValidator } from "../../../src/verification/task-validator";
 import { TodoWriteValidator } from "../../../src/verification/todowrite-validator";
-import { VerificationEngine } from "../../../src/verification/verification-engine";
 import {
 	EDGE_CASE_DATASET,
 	getAllTestSamples,
@@ -26,7 +26,7 @@ import {
 } from "../datasets/test-datasets";
 
 describe("Hallucination Prevention Validation Framework", () => {
-	let verificationEngine: VerificationEngine;
+	let verificationEngine: VerificationService;
 	let todoValidator: TodoWriteValidator;
 	let taskValidator: TaskValidator;
 
@@ -42,7 +42,7 @@ describe("Hallucination Prevention Validation Framework", () => {
 	};
 
 	beforeEach(() => {
-		verificationEngine = new VerificationEngine();
+		verificationEngine = new VerificationService();
 		todoValidator = new TodoWriteValidator(verificationEngine);
 		taskValidator = new TaskValidator(verificationEngine);
 

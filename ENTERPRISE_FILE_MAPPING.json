@@ -1,0 +1,215 @@
+{
+	"migration_metadata": {
+		"version": "1.0.0",
+		"created": "2025-07-29",
+		"strategy": "enterprise-cli-integration",
+		"status": "design-complete"
+	},
+	"file_mappings": [
+		{
+			"source": "src/enterprise/project-manager.ts",
+			"target": "src/cli/commands/work/project/project-manager.ts",
+			"command_integration": "work",
+			"rationale": "Project management naturally fits work command workflows",
+			"dependencies": [
+				"src/core/config.js",
+				"src/core/logger.js",
+				"src/cli/shared/errors/error-handler.js"
+			],
+			"updated_imports": {
+				"../core/config.js": "../../../../core/config.js",
+				"../core/logger.js": "../../../../core/logger.js",
+				"../cli/shared/errors/error-handler.js": "../../shared/errors/error-handler.js"
+			},
+			"exports": [
+				"ProjectPhase",
+				"ProjectRisk",
+				"ProjectMilestone",
+				"ProjectManager"
+			],
+			"integration_points": [
+				"work command CLI interface",
+				"project lifecycle management",
+				"task coordination"
+			]
+		},
+		{
+			"source": "src/enterprise/deployment-manager.ts",
+			"target": "src/cli/commands/start/deployment/deployment-manager.ts",
+			"command_integration": "start",
+			"rationale": "Deployment orchestration aligns with start command initialization",
+			"dependencies": [
+				"src/core/config.js",
+				"src/core/logger.js",
+				"src/cli/shared/errors/error-handler.js"
+			],
+			"updated_imports": {
+				"../core/config.js": "../../../../core/config.js",
+				"../core/logger.js": "../../../../core/logger.js",
+				"../cli/shared/errors/error-handler.js": "../../shared/errors/error-handler.js"
+			},
+			"exports": [
+				"DeploymentEnvironment",
+				"DeploymentPipeline",
+				"DeploymentManager"
+			],
+			"integration_points": [
+				"start command initialization",
+				"multi-environment orchestration",
+				"CI/CD pipeline management"
+			]
+		},
+		{
+			"source": "src/enterprise/security-manager.ts",
+			"target": "src/cli/commands/config/security/security-manager.ts",
+			"command_integration": "config",
+			"rationale": "Security policies and scanning are configuration concerns",
+			"dependencies": [
+				"src/core/config.js",
+				"src/core/logger.js",
+				"src/cli/shared/errors/error-handler.js"
+			],
+			"updated_imports": {
+				"../core/config.js": "../../../../core/config.js",
+				"../core/logger.js": "../../../../core/logger.js",
+				"../cli/shared/errors/error-handler.js": "../../shared/errors/error-handler.js"
+			},
+			"exports": ["SecurityScan", "SecurityPolicy", "SecurityManager"],
+			"integration_points": [
+				"config command security settings",
+				"vulnerability scanning",
+				"compliance policy management"
+			]
+		},
+		{
+			"source": "src/enterprise/audit-manager.ts",
+			"target": "src/cli/commands/monitor/audit/audit-manager.ts",
+			"command_integration": "monitor",
+			"rationale": "Audit trails and compliance monitoring fit monitoring workflows",
+			"dependencies": [
+				"src/core/config.js",
+				"src/core/logger.js",
+				"src/cli/shared/errors/error-handler.js"
+			],
+			"updated_imports": {
+				"../core/config.js": "../../../../core/config.js",
+				"../core/logger.js": "../../../../core/logger.js",
+				"../cli/shared/errors/error-handler.js": "../../shared/errors/error-handler.js"
+			},
+			"exports": ["AuditEntry", "AuditTrail", "AuditManager"],
+			"integration_points": [
+				"monitor command audit tracking",
+				"compliance reporting",
+				"evidence chain of custody"
+			]
+		},
+		{
+			"source": "src/enterprise/cloud-manager.ts",
+			"target": "src/cli/commands/config/cloud/cloud-manager.ts",
+			"command_integration": "config",
+			"rationale": "Cloud infrastructure configuration is part of system configuration",
+			"dependencies": [
+				"src/core/config.js",
+				"src/core/logger.js",
+				"src/cli/shared/errors/error-handler.js"
+			],
+			"updated_imports": {
+				"../core/config.js": "../../../../core/config.js",
+				"../core/logger.js": "../../../../core/logger.js",
+				"../cli/shared/errors/error-handler.js": "../../shared/errors/error-handler.js"
+			},
+			"exports": ["CloudProvider", "CloudResource", "CloudManager"],
+			"integration_points": [
+				"config command cloud settings",
+				"multi-cloud provider management",
+				"resource optimization"
+			]
+		},
+		{
+			"source": "src/enterprise/analytics-manager.ts",
+			"target": "src/cli/commands/analysis/analytics/analytics-manager.ts",
+			"command_integration": "analysis",
+			"rationale": "Business intelligence and analytics naturally fit analysis workflows",
+			"dependencies": [
+				"src/core/config.js",
+				"src/core/logger.js",
+				"src/cli/shared/errors/error-handler.js"
+			],
+			"updated_imports": {
+				"../core/config.js": "../../../../core/config.js",
+				"../core/logger.js": "../../../../core/logger.js",
+				"../cli/shared/errors/error-handler.js": "../../shared/errors/error-handler.js"
+			},
+			"exports": ["AnalyticsMetric", "AnalyticsDashboard", "AnalyticsManager"],
+			"integration_points": [
+				"analysis command business intelligence",
+				"predictive analytics",
+				"dashboard generation"
+			]
+		}
+	],
+	"directory_structure": {
+		"new_directories": [
+			"src/cli/commands/work/project/",
+			"src/cli/commands/start/deployment/",
+			"src/cli/commands/config/security/",
+			"src/cli/commands/config/cloud/",
+			"src/cli/commands/monitor/audit/",
+			"src/cli/commands/analysis/analytics/"
+		],
+		"integration_files": [
+			"src/cli/commands/work/project/index.ts",
+			"src/cli/commands/start/deployment/index.ts",
+			"src/cli/commands/config/security/index.ts",
+			"src/cli/commands/config/cloud/index.ts",
+			"src/cli/commands/monitor/audit/index.ts",
+			"src/cli/commands/analysis/analytics/index.ts"
+		]
+	},
+	"validation_checklist": {
+		"pre_migration": [
+			"✅ Verify no existing imports from enterprise modules",
+			"✅ Analyze dependency structure",
+			"✅ Document current functionality",
+			"✅ Create backup branch"
+		],
+		"during_migration": [
+			"□ Move files with git mv to preserve history",
+			"□ Update import paths in moved files",
+			"□ Create integration index files",
+			"□ Update CLI command integrations"
+		],
+		"post_migration": [
+			"□ TypeScript compilation passes",
+			"□ All tests pass",
+			"□ CLI commands function correctly",
+			"□ Integration tests validate cross-module coordination",
+			"□ Documentation updated"
+		]
+	},
+	"risk_mitigation": {
+		"backup_strategy": "git tag enterprise-migration-backup",
+		"rollback_plan": "git reset --hard enterprise-migration-backup",
+		"incremental_approach": "Migrate one module at a time with validation",
+		"compatibility_layer": "Temporary deprecation warnings for old import paths"
+	},
+	"success_criteria": {
+		"technical": [
+			"Zero TypeScript compilation errors",
+			"100% test coverage maintained",
+			"All CLI commands functional",
+			"Import resolution successful"
+		],
+		"functional": [
+			"Enterprise features accessible via CLI",
+			"Cross-module coordination working",
+			"Configuration unified",
+			"User experience consistent"
+		],
+		"performance": [
+			"No startup time degradation",
+			"Memory usage stable",
+			"CLI responsiveness maintained"
+		]
+	}
+}

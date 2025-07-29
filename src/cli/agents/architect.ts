@@ -4,13 +4,13 @@
 
 import type { IEventBus } from "../../core/event-bus.js";
 import type { ILogger } from "../../core/logger.js";
-import type { DistributedMemorySystem } from "../../memory/distributed-memory.js";
+import type { DistributedMemorySystem } from "../commands/hive-mind/memory/distributed-memory-enhanced.js";
 import type {
 	AgentCapabilities,
 	AgentConfig,
 	AgentEnvironment,
 	TaskDefinition,
-} from "../../swarm/types.js";
+} from "../commands/swarm/types.js";
 import { BaseAgent } from "./base-agent.js";
 
 // Type definitions for architect analysis,
@@ -72,7 +72,7 @@ export class ArchitectAgent extends BaseAgent {
 		environment: AgentEnvironment,
 		logger: ILogger,
 		eventBus: IEventBus,
-		memory: DistributedMemorySystem
+		memory: DistributedMemorySystem,
 	) {
 		super(id, "architect", config, environment, logger, eventBus, memory);
 	}
@@ -271,7 +271,7 @@ export class ArchitectAgent extends BaseAgent {
 				type: "design-progress",
 				tags: ["architecture", this.id, style],
 				partition: "tasks",
-			}
+			},
 		);
 
 		// Simulate system design,
@@ -832,7 +832,7 @@ export const createArchitectAgent = (
 	environment: Partial<AgentEnvironment>,
 	logger: ILogger,
 	eventBus: IEventBus,
-	memory: DistributedMemorySystem
+	memory: DistributedMemorySystem,
 ): ArchitectAgent => {
 	const defaultConfig = {
 		autonomyLevel: 0.8,
@@ -892,6 +892,6 @@ export const createArchitectAgent = (
 		{ ...defaultEnv, ...environment } as AgentEnvironment,
 		logger,
 		eventBus,
-		memory
+		memory,
 	);
 };

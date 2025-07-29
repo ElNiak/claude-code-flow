@@ -2,8 +2,8 @@
  * Integration tests for Memory Manager and Coordination Manager
  */
 
-import { EventBus } from "../../src/core/event-bus.ts";
-import { Logger } from "../../src/core/logger.ts";
+import { EventBus } from "../../src/cli/core/events/event-bus.ts";
+import { Logger } from "../../src/cli/core/logging/logger.ts";
 import { delay, generateId } from "../../src/utils/helpers.ts";
 import {
 	AgentProfile,

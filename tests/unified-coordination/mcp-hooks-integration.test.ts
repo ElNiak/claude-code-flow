@@ -6,7 +6,7 @@ import {
 	jest,
 	test,
 } from "@jest/globals";
-import { ConfigManager } from "../../src/config/config-manager.js";
+import { ConfigManager } from "../../src/cli/commands/config/manager.js";
 
 // Mock the MCP and hooks systems
 jest.mock("../../src/mcp/server.js");

@@ -2,7 +2,7 @@
  * Unit tests for EventBus
  */
 
-import { EventBus } from "../../../src/core/event-bus.ts";
+import { EventBus } from "../../../src/cli/core/events/event-bus.ts";
 import { SystemEvents } from "../../../src/utils/types.ts";
 import { cleanupTestEnv, setupTestEnv } from "../../test.config.ts";
 import {

@@ -2,8 +2,8 @@
  * Integration tests for terminal functionality
  */
 
-import { EventBus } from "../../src/core/event-bus.ts";
-import { Logger } from "../../src/core/logger.ts";
+import { EventBus } from "../../src/cli/core/events/event-bus.ts";
+import { Logger } from "../../src/cli/core/logging/logger.ts";
 import { NativeAdapter } from "../../src/terminal/adapters/native.ts";
 import { VSCodeAdapter } from "../../src/terminal/adapters/vscode.ts";
 import { TerminalManager } from "../../src/terminal/manager.ts";

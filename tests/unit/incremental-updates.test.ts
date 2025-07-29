@@ -14,11 +14,11 @@ import {
 
 // FakeTime equivalent available in test.utils.ts
 
-import { ConfigurationManager } from "../../src/core/config.ts";
-import { MemoryBackendFactory } from "../../src/memory/backend.ts";
-import { SimpleCache } from "../../src/memory/cache.ts";
-import { MemoryManager } from "../../src/memory/manager.ts";
-import { ResourceManager } from "../../src/resources/resource-manager.ts";
+import { MemoryBackendFactory } from "../../src/cli/commands/memory/core/backend.ts";
+import { MemoryCache as SimpleCache } from "../../src/cli/commands/memory/core/cache.ts";
+import { MemoryManager } from "../../src/cli/commands/memory/core/manager.ts";
+import { ConfigurationManager } from "../../src/cli/core/config/config.ts";
+import { ResourceManager } from "../../src/cli/core/resource-manager.ts";
 import { SwarmMemory } from "../../src/swarm/memory.ts";
 import { deepMerge } from "../../src/utils/helpers.ts";
 import {

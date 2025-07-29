@@ -7,7 +7,7 @@ import type {
 	AgentCapabilities,
 	AgentConfig,
 	TaskDefinition,
-} from "../../swarm/types.js";
+} from "../commands/swarm/types.js";
 import { BaseAgent } from "./base-agent.js";
 
 export interface HiveAgentConfig {
@@ -27,7 +27,7 @@ export class QueenAgent extends BaseAgent {
 		environment: any,
 		logger: any,
 		eventBus: any,
-		memory: any
+		memory: any,
 	) {
 		super(id, "coordinator", config, environment, logger, eventBus, memory);
 	}
@@ -142,7 +142,7 @@ export class WorkerAgent extends BaseAgent {
 		logger: any,
 		eventBus: any,
 		memory: any,
-		specialization: string = "general"
+		specialization: string = "general",
 	) {
 		super(id, "coder", config, environment, logger, eventBus, memory);
 		this.specialization = specialization;
@@ -255,7 +255,7 @@ export class ScoutAgent extends BaseAgent {
 		environment: any,
 		logger: any,
 		eventBus: any,
-		memory: any
+		memory: any,
 	) {
 		super(id, "researcher", config, environment, logger, eventBus, memory);
 	}
@@ -370,7 +370,7 @@ export class GuardianAgent extends BaseAgent {
 		environment: any,
 		logger: any,
 		eventBus: any,
-		memory: any
+		memory: any,
 	) {
 		super(id, "reviewer", config, environment, logger, eventBus, memory);
 	}
@@ -483,7 +483,7 @@ export class ArchitectAgent extends BaseAgent {
 		environment: any,
 		logger: any,
 		eventBus: any,
-		memory: any
+		memory: any,
 	) {
 		super(id, "architect", config, environment, logger, eventBus, memory);
 	}
@@ -596,7 +596,7 @@ export class HiveAgentFactory {
 		environment: any,
 		logger: any,
 		eventBus: any,
-		memory: any
+		memory: any,
 	): BaseAgent {
 		switch (config.type) {
 			case "queen":
@@ -606,7 +606,7 @@ export class HiveAgentFactory {
 					environment,
 					logger,
 					eventBus,
-					memory
+					memory,
 				);
 
 			case "worker":
@@ -617,7 +617,7 @@ export class HiveAgentFactory {
 					logger,
 					eventBus,
 					memory,
-					config.specialization
+					config.specialization,
 				);
 
 			case "scout":
@@ -627,7 +627,7 @@ export class HiveAgentFactory {
 					environment,
 					logger,
 					eventBus,
-					memory
+					memory,
 				);
 
 			case "guardian":
@@ -637,7 +637,7 @@ export class HiveAgentFactory {
 					environment,
 					logger,
 					eventBus,
-					memory
+					memory,
 				);
 
 			case "architect":
@@ -647,7 +647,7 @@ export class HiveAgentFactory {
 					environment,
 					logger,
 					eventBus,
-					memory
+					memory,
 				);
 
 			default:
@@ -665,7 +665,7 @@ export class HiveAgentFactory {
 		environment: any,
 		logger: any,
 		eventBus: any,
-		memory: any
+		memory: any,
 	): BaseAgent[] {
 		const agents: BaseAgent[] = [];
 
@@ -677,8 +677,8 @@ export class HiveAgentFactory {
 				environment,
 				logger,
 				eventBus,
-				memory
-			)
+				memory,
+			),
 		);
 
 		// Determine agent composition based on objective,
@@ -697,8 +697,8 @@ export class HiveAgentFactory {
 					environment,
 					logger,
 					eventBus,
-					memory
-				)
+					memory,
+				),
 			);
 		}
 
@@ -710,8 +710,8 @@ export class HiveAgentFactory {
 					environment,
 					logger,
 					eventBus,
-					memory
-				)
+					memory,
+				),
 			);
 		}
 
@@ -733,8 +733,8 @@ export class HiveAgentFactory {
 					logger,
 					eventBus,
 					memory,
-					spec
-				)
+					spec,
+				),
 			);
 		}
 
@@ -747,8 +747,8 @@ export class HiveAgentFactory {
 					environment,
 					logger,
 					eventBus,
-					memory
-				)
+					memory,
+				),
 			);
 		}
 

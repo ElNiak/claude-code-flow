@@ -1,0 +1,81 @@
+{
+	"sessionId": "session-1753771619201-p1ww45mfx",
+	"checkpointId": "checkpoint-1753771649203-how8wi3gk",
+	"checkpointName": "auto-save-1753771649203",
+	"timestamp": "2025-07-29T06:47:29.204Z",
+	"data": {
+		"timestamp": "2025-07-29T06:47:29.202Z",
+		"changeCount": 5,
+		"changesByType": {
+			"swarm_created": [
+				{
+					"type": "swarm_created",
+					"data": {
+						"swarmId": "swarm-1753771619199-e3f4db80k",
+						"swarmName": "hive-1753771619192",
+						"objective": "What are the usage of the files in /Users/elniak/Documents/Project/claude-code-flow/src/terminal, create a verified list of usages",
+						"workerCount": 16
+					},
+					"timestamp": "2025-07-29T06:46:59.202Z"
+				}
+			],
+			"agent_activity": [
+				{
+					"type": "agent_activity",
+					"data": {
+						"agentId": "worker-swarm-1753771619199-e3f4db80k-0",
+						"activity": "spawned",
+						"data": {
+							"type": "researcher",
+							"name": "Researcher Worker 1"
+						}
+					},
+					"timestamp": "2025-07-29T06:46:59.203Z"
+				},
+				{
+					"type": "agent_activity",
+					"data": {
+						"agentId": "worker-swarm-1753771619199-e3f4db80k-1",
+						"activity": "spawned",
+						"data": {
+							"type": "coder",
+							"name": "Coder Worker 2"
+						}
+					},
+					"timestamp": "2025-07-29T06:46:59.203Z"
+				},
+				{
+					"type": "agent_activity",
+					"data": {
+						"agentId": "worker-swarm-1753771619199-e3f4db80k-2",
+						"activity": "spawned",
+						"data": {
+							"type": "analyst",
+							"name": "Analyst Worker 3"
+						}
+					},
+					"timestamp": "2025-07-29T06:46:59.203Z"
+				},
+				{
+					"type": "agent_activity",
+					"data": {
+						"agentId": "worker-swarm-1753771619199-e3f4db80k-3",
+						"activity": "spawned",
+						"data": {
+							"type": "tester",
+							"name": "Tester Worker 4"
+						}
+					},
+					"timestamp": "2025-07-29T06:46:59.204Z"
+				}
+			]
+		},
+		"statistics": {
+			"tasksProcessed": 0,
+			"tasksCompleted": 0,
+			"memoryUpdates": 0,
+			"agentActivities": 4,
+			"consensusDecisions": 0
+		}
+	}
+}

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
+import { afterEach, beforeEach, describe, expect, it } from '@jest/globals';
 import { spawn } from 'child_process';
 import { promises as fs } from 'fs';
 import path from 'path';
@@ -9,7 +9,7 @@ import path from 'path';
 
 import { ProcessManager } from '../../../../src/cli/commands/start/process-manager.ts';
 import { SystemMonitor } from '../../../../src/cli/commands/start/system-monitor.ts';
-import { eventBus } from '../../../../src/core/event-bus.ts';
+import { eventBus } from '../../../../src/cli/core/events/event-bus.ts';
 import { SystemEvents } from '../../../../src/utils/types.ts';
 import { afterEach, afterEach, beforeEach, beforeEach, describe, describe, expect, expect, it, it } from "../test.utils.ts";
 

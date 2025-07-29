@@ -6,7 +6,7 @@ import {
 	jest,
 	test,
 } from "@jest/globals";
-import { ConfigManager } from "../../src/config/config-manager.js";
+import { ConfigManager } from "../../src/cli/commands/config/manager.js";
 
 // Mock the entire coordination stack for E2E testing
 jest.mock("../../src/swarm/coordinator.js");

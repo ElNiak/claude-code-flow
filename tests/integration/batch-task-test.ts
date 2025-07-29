@@ -9,10 +9,10 @@
  * - System coordination
  */
 
+import { EventBus } from "../../src/cli/core/events/event-bus.ts";
+import { ConsoleLogger } from "../../src/cli/core/logging/logger.ts";
+import { Orchestrator } from "../../src/cli/core/orchestration/orchestrator.ts";
 import { CoordinationManager } from "../../src/coordination/manager.ts";
-import { EventBus } from "../../src/core/event-bus.ts";
-import { ConsoleLogger } from "../../src/core/logger.ts";
-import { Orchestrator } from "../../src/core/orchestrator.ts";
 import { MCPServer } from "../../src/mcp/server.ts";
 import { MemoryManager } from "../../src/memory/manager.ts";
 import { TerminalManager } from "../../src/terminal/manager.ts";

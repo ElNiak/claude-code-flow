@@ -1,7 +1,7 @@
 export default {
 	testEnvironment: "node",
 	extensionsToTreatAsEsm: [".ts"],
-	roots: ["<rootDir>/src", "<rootDir>/tests", "<rootDir>/migration-tests"],
+	roots: ["<rootDir>/src", "<rootDir>/tests"],
 	testMatch: [
 		"<rootDir>/tests/**/*.test.ts",
 		"<rootDir>/tests/**/*.test.js",
@@ -11,8 +11,6 @@ export default {
 		"<rootDir>/src/**/*.test.js",
 		"<rootDir>/src/**/*.spec.ts",
 		"<rootDir>/src/**/*.spec.js",
-		"<rootDir>/migration-tests/**/*.test.ts",
-		"<rootDir>/migration-tests/**/*.test.js",
 	],
 	transform: {
 		"^.+\\.ts$": [
@@ -20,7 +18,7 @@ export default {
 			{
 				presets: [
 					["@babel/preset-env", { modules: false }],
-					["@babel/preset-typescript"]
+					["@babel/preset-typescript"],
 				],
 			},
 		],
@@ -36,8 +34,6 @@ export default {
 		"^~/(.*)$": "<rootDir>/src/$1",
 		"^@/(.*)$": "<rootDir>/src/$1",
 		"^@tests/(.*)$": "<rootDir>/tests/$1",
-		"^@migration/(.*)$": "<rootDir>/migration-tests/$1",
-		"^@utils/(.*)$": "<rootDir>/migration-tests/utils/$1",
 	},
 	modulePathIgnorePatterns: [
 		"<rootDir>/dist/",
@@ -59,7 +55,10 @@ export default {
 	],
 	coverageDirectory: "coverage",
 	coverageReporters: ["text", "lcov", "html"],
-	setupFilesAfterEnv: ["<rootDir>/jest.setup.js", "<rootDir>/jest.migration.setup.js"],
+	setupFilesAfterEnv: [
+		"<rootDir>/jest.setup.js",
+		"<rootDir>/jest.migration.setup.js",
+	],
 	testTimeout: 30000,
 	verbose: true,
 	// Enhanced error handling

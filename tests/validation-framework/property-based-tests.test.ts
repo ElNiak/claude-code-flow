@@ -4,16 +4,16 @@
  */
 
 import { beforeEach, describe, expect, it } from "@jest/globals";
-import { VerificationEngine } from "../../src/verification/verification-engine";
+import { VerificationService } from "../../src/cli/commands/qa/core";
 import { PropertyBasedTester, TestDataGenerators } from "./core-framework.test";
 
 describe("Property-Based Validation Tests", () => {
 	let propertyTester: PropertyBasedTester;
-	let verificationEngine: VerificationEngine;
+	let verificationEngine: VerificationService;
 
 	beforeEach(() => {
 		propertyTester = new PropertyBasedTester();
-		verificationEngine = new VerificationEngine();
+		verificationEngine = new VerificationService();
 
 		// Register test data generators
 		propertyTester.registerGenerator("validCode", () =>

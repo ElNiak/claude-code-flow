@@ -4,7 +4,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it } from "@jest/globals";
-import { VerificationEngine } from "../../../src/verification/verification-engine";
+import { VerificationService } from "../../../src/cli/commands/qa/core";
 
 interface BoundaryTestCase {
 	id: string;
@@ -216,11 +216,11 @@ const boundaryTestCases: BoundaryTestCase[] = [
 ];
 
 describe("Boundary Condition Tests for Hallucination Detection", () => {
-	let verificationEngine: VerificationEngine;
+	let verificationEngine: VerificationService;
 	const testResults: Map<string, any> = new Map();
 
 	beforeEach(() => {
-		verificationEngine = new VerificationEngine();
+		verificationEngine = new VerificationService();
 		testResults.clear();
 	});
 

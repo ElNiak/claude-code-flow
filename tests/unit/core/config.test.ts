@@ -2,9 +2,15 @@
  * Unit tests for Config Manager
  */
 
-import { ConfigManager, loadConfig } from "../../../src/core/config.ts";
-import { ConfigError, ValidationError } from "../../../src/utils/errors.ts";
-import type { Config } from "../../../src/utils/types.ts";
+import {
+	ConfigManager,
+	loadConfig,
+} from "../../../src/cli/core/config/config.ts";
+import {
+	ConfigError,
+	ValidationError,
+} from "../../../src/cli/shared/errors/errors.ts";
+import type { Config } from "../../../src/cli/shared/types/utils-types.ts";
 import { cleanupTestEnv, setupTestEnv } from "../../test.config.ts";
 import {
 	afterEach,

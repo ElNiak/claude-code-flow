@@ -6,6 +6,8 @@ read_only: false
 web_dashboard:
   enabled: false
 
+ignore_all_files_in_gitignore: true
+
 # GUI log window configuration
 gui_log_window:
   enabled: false
@@ -29,6 +31,22 @@ ignore_patterns:
   - ".git/"
   - "dist/"
   - "*.log"
+  - ".archive/"
+  - ".serena/"
+  - ".claude/"
+  - ".vscode/"
+
+ignored_paths:
+  - "node_modules/"
+  - ".git/"
+  - "dist/"
+  - "*.log"
+  - ".archive/"
+  - ".serena/"
+  - ".claude/"
+  - ".vscode/"
+
+read_only: true
 
 # Project description
 description: "Advanced AI agent coordination platform with intelligent task distribution and persistent memory"

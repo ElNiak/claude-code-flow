@@ -10,27 +10,27 @@ import {
 	it,
 	jest,
 } from "@jest/globals";
+import type { VerificationService } from "../../../src/cli/commands/qa/core";
 import type {
 	AgentSpawnRequest,
 	TaskInstruction,
 } from "../../../src/types/task-types";
 import { TaskValidator } from "../../../src/verification/task-validator";
-import type { VerificationEngine } from "../../../src/verification/verification-engine";
 
 describe("Task Tool Integration with Hallucination Prevention", () => {
 	let taskValidator: TaskValidator;
-	let mockVerificationEngine: jest.Mocked<VerificationEngine>;
+	let mockVerificationService: jest.Mocked<VerificationService>;
 
 	beforeEach(() => {
-		mockVerificationEngine = {
+		mockVerificationService = {
 			verify: jest.fn(),
 			verifyCodeSnippet: jest.fn(),
 			verifyImplementationClaim: jest.fn(),
 			validateCapabilityClaim: jest.fn(),
 			validateInstructionRealism: jest.fn(),
-		} as jest.Mocked<VerificationEngine>;
+		} as jest.Mocked<VerificationService>;
 
-		taskValidator = new TaskValidator(mockVerificationEngine);
+		taskValidator = new TaskValidator(mockVerificationService);
 	});
 
 	afterEach(() => {
@@ -63,7 +63,7 @@ describe("Task Tool Integration with Hallucination Prevention", () => {
 				},
 			];
 
-			mockVerificationEngine.validateInstructionRealism.mockResolvedValue({
+			mockVerificationService.validateInstructionRealism.mockResolvedValue({
 				isRealistic: true,
 				confidence: 0.9,
 				reason: "Standard development workflow with realistic tasks",
@@ -102,7 +102,7 @@ describe("Task Tool Integration with Hallucination Prevention", () => {
 				},
 			];
 
-			mockVerificationEngine.validateInstructionRealism
+			mockVerificationService.validateInstructionRealism
 				.mockResolvedValueOnce({
 					isRealistic: false,
 					confidence: 0.95,
@@ -154,7 +154,7 @@ describe("Task Tool Integration with Hallucination Prevention", () => {
 				},
 			];
 
-			mockVerificationEngine.validateInstructionRealism
+			mockVerificationService.validateInstructionRealism
 				.mockResolvedValueOnce({
 					isRealistic: true,
 					confidence: 0.95,
@@ -208,7 +208,7 @@ describe("Task Tool Integration with Hallucination Prevention", () => {
 				maxConcurrency: 3,
 			};
 
-			mockVerificationEngine.validateInstructionRealism.mockResolvedValue({
+			mockVerificationService.validateInstructionRealism.mockResolvedValue({
 				isRealistic: true,
 				confidence: 0.88,
 				reason: "Realistic agent workflow with proper coordination",
@@ -243,7 +243,7 @@ describe("Task Tool Integration with Hallucination Prevention", () => {
 				maxConcurrency: Infinity,
 			};
 
-			mockVerificationEngine.validateInstructionRealism
+			mockVerificationService.validateInstructionRealism
 				.mockResolvedValueOnce({
 					isRealistic: false,
 					confidence: 0.98,
@@ -361,7 +361,7 @@ describe("Task Tool Integration with Hallucination Prevention", () => {
 				}),
 			);
 
-			mockVerificationEngine.validateInstructionRealism.mockResolvedValue({
+			mockVerificationService.validateInstructionRealism.mockResolvedValue({
 				isRealistic: true,
 				confidence: 0.85,
 				reason: "Standard development task",
@@ -392,7 +392,7 @@ describe("Task Tool Integration with Hallucination Prevention", () => {
 				},
 			];
 
-			mockVerificationEngine.validateInstructionRealism
+			mockVerificationService.validateInstructionRealism
 				.mockResolvedValueOnce({
 					isRealistic: true,
 					confidence: 0.9,
@@ -455,7 +455,7 @@ describe("Task Tool Integration with Hallucination Prevention", () => {
 				},
 			];
 
-			mockVerificationEngine.validateInstructionRealism.mockResolvedValue({
+			mockVerificationService.validateInstructionRealism.mockResolvedValue({
 				isRealistic: true,
 				confidence: 0.9,
 				reason: "Standard software development workflow with realistic tasks",
@@ -494,7 +494,7 @@ describe("Task Tool Integration with Hallucination Prevention", () => {
 				},
 			];
 
-			mockVerificationEngine.validateInstructionRealism.mockResolvedValue({
+			mockVerificationService.validateInstructionRealism.mockResolvedValue({
 				isRealistic: false,
 				confidence: 0.95,
 				reason: "Claims impossible technological capabilities",
@@ -531,7 +531,7 @@ describe("Task Tool Integration with Hallucination Prevention", () => {
 				tools: ["Read", "Write", "Edit"],
 			}));
 
-			mockVerificationEngine.validateInstructionRealism.mockResolvedValue({
+			mockVerificationService.validateInstructionRealism.mockResolvedValue({
 				isRealistic: true,
 				confidence: 0.9,
 				reason: "Standard agent type with realistic capabilities",
@@ -554,7 +554,7 @@ describe("Task Tool Integration with Hallucination Prevention", () => {
 				},
 			];
 
-			mockVerificationEngine.validateInstructionRealism.mockRejectedValue(
+			mockVerificationService.validateInstructionRealism.mockRejectedValue(
 				new Error("Verification service temporarily unavailable"),
 			);
 

@@ -67,7 +67,7 @@ class HallucinationTestRunner {
 		console.log("🔬 Running Unit Tests...");
 
 		const testFiles = [
-			"tests/hallucination-prevention/unit/verification-engine.test.ts",
+			"tests/hallucination-prevention/unit/qa/core.test.ts",
 			"tests/hallucination-prevention/unit/code-existence-verifier.test.ts",
 			"tests/hallucination-prevention/unit/capability-validator.test.ts",
 			"tests/hallucination-prevention/unit/reality-checker.test.ts",

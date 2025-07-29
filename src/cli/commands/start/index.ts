@@ -1,10 +1,14 @@
-/**
- * Modular start command implementation
- * Consolidates all start functionality into a single, extensible structure
- */
+// start.js - Re-export the wrapper to maintain backward compatibility
 
-export { ProcessManager } from "./process-manager.js";
-export { ProcessUI } from "./process-ui.js";
-export { startCommand } from "./start-command.js";
-export { SystemMonitor } from "./system-monitor.js";
-export type { ProcessInfo, ProcessStatus, SystemStats } from "./types.js";
+export type {
+	Deployment,
+	DeploymentEnvironment,
+	DeploymentMetrics,
+	DeploymentPipeline,
+	DeploymentStage,
+	DeploymentStrategy,
+} from "./deployment/deployment-manager.js";
+
+// Enterprise deployment management features
+export { DeploymentManager } from "./deployment/deployment-manager.js";
+export { startCommand } from "./start-wrapper.js";

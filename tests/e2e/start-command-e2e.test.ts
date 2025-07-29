@@ -92,7 +92,7 @@ describe('Start Command E2E', () => {
       const testScript = `
         import { ProcessManager } from './src/cli/commands/start/process-manager.ts';
         import { SystemMonitor } from './src/cli/commands/start/system-monitor.ts';
-        import { eventBus } from './src/core/event-bus.ts';
+        import { eventBus } from './src/cli/core/events/event-bus.ts';
         import { SystemEvents } from './src/utils/types.ts';
 
         const manager = new ProcessManager();

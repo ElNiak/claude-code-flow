@@ -4,9 +4,9 @@
 
 import type {
 	AgentCapabilities,
-	AgentType,
 	TaskDefinition,
-} from "../../swarm/types.js";
+} from "../commands/swarm/types.js";
+import type { AgentType } from "../shared/types.js";
 import type { AgentState } from "./base-agent.js";
 
 export interface CapabilityMatch {
@@ -69,7 +69,7 @@ export class AgentCapabilitySystem {
 	 */
 	registerAgentCapabilities(
 		agentId: string,
-		capabilities: AgentCapabilities
+		capabilities: AgentCapabilities,
 	): void {
 		this.agentCapabilities.set(agentId, capabilities);
 	}
@@ -80,7 +80,7 @@ export class AgentCapabilitySystem {
 	findBestAgents(
 		task: TaskDefinition,
 		availableAgents: AgentState[],
-		maxResults: number = 5
+		maxResults: number = 5,
 	): CapabilityMatch[] {
 		const requirements = this.getTaskRequirements(task);
 		const matches: CapabilityMatch[] = [];
@@ -125,7 +125,7 @@ export class AgentCapabilitySystem {
 	 */
 	private evaluateAgentMatch(
 		agent: AgentState,
-		requirements: TaskRequirements
+		requirements: TaskRequirements,
 	): CapabilityMatch {
 		const capabilities = agent.capabilities;
 		let score = 0;
@@ -160,7 +160,7 @@ export class AgentCapabilitySystem {
 		if (requirements.languages) {
 			maxScore += 15;
 			const languageMatch = requirements.languages.some((lang) =>
-				capabilities.languages.includes(lang)
+				capabilities.languages.includes(lang),
 			);
 			if (languageMatch) {
 				score += 15;
@@ -171,7 +171,7 @@ export class AgentCapabilitySystem {
 		if (requirements.frameworks) {
 			maxScore += 15;
 			const frameworkMatch = requirements.frameworks.some((framework) =>
-				capabilities.frameworks.includes(framework)
+				capabilities.frameworks.includes(framework),
 			);
 			if (frameworkMatch) {
 				score += 15;
@@ -182,7 +182,7 @@ export class AgentCapabilitySystem {
 		if (requirements.domains) {
 			maxScore += 10;
 			const domainMatch = requirements.domains.some((domain) =>
-				capabilities.domains.includes(domain)
+				capabilities.domains.includes(domain),
 			);
 			if (domainMatch) {
 				score += 10;
@@ -201,7 +201,7 @@ export class AgentCapabilitySystem {
 		// Complexity matching,
 		const complexityScore = this.evaluateComplexityMatch(
 			capabilities,
-			requirements.complexity
+			requirements.complexity,
 		);
 		maxScore += 10;
 		score += complexityScore;
@@ -211,12 +211,12 @@ export class AgentCapabilitySystem {
 		const confidence = this.calculateConfidence(
 			matchedCapabilities,
 			missingCapabilities,
-			requirements
+			requirements,
 		);
 		const reason = this.generateMatchReason(
 			matchedCapabilities,
 			missingCapabilities,
-			finalScore
+			finalScore,
 		);
 
 		return {
@@ -234,7 +234,7 @@ export class AgentCapabilitySystem {
 	 */
 	private agentHasCapability(
 		capabilities: AgentCapabilities,
-		capability: string
+		capability: string,
 	): boolean {
 		// Check direct capabilities,
 		const capabilityFields = [
@@ -278,7 +278,7 @@ export class AgentCapabilitySystem {
 	 */
 	private checkSemanticCapabilityMatch(
 		capabilities: AgentCapabilities,
-		capability: string
+		capability: string,
 	): boolean {
 		const semanticMappings: Record<string, string[]> = {
 			"web-development": [
@@ -311,7 +311,7 @@ export class AgentCapabilitySystem {
 					(item) =>
 						capabilities.languages.includes(item) ||
 						capabilities.frameworks.includes(item) ||
-						capabilities.tools.includes(item)
+						capabilities.tools.includes(item),
 				);
 			}
 		}
@@ -324,7 +324,7 @@ export class AgentCapabilitySystem {
 	 */
 	private evaluateComplexityMatch(
 		capabilities: AgentCapabilities,
-		complexity: string
+		complexity: string,
 	): number {
 		const complexityScores = {
 			low: 1,
@@ -349,7 +349,7 @@ export class AgentCapabilitySystem {
 	 * Calculate agent's complexity handling level
 	 */
 	private calculateAgentComplexityLevel(
-		capabilities: AgentCapabilities
+		capabilities: AgentCapabilities,
 	): number {
 		let level = 1;
 
@@ -375,14 +375,14 @@ export class AgentCapabilitySystem {
 	private calculateConfidence(
 		matched: string[],
 		missing: string[],
-		requirements: TaskRequirements
+		requirements: TaskRequirements,
 	): number {
 		const totalRequired = requirements.requiredCapabilities.length;
 		if (totalRequired === 0) return 0.8; // Default confidence,
 
 		const matchRate = matched.length / (matched.length + missing.length);
 		const criticalMissing = missing.filter((cap) =>
-			requirements.requiredCapabilities.includes(cap)
+			requirements.requiredCapabilities.includes(cap),
 		).length;
 
 		let confidence = matchRate;
@@ -401,7 +401,7 @@ export class AgentCapabilitySystem {
 	private generateMatchReason(
 		matched: string[],
 		missing: string[],
-		score: number
+		score: number,
 	): string {
 		if (score >= 90) {
 			return `Excellent match with ${matched.length} matching capabilities`;
@@ -686,9 +686,9 @@ export class AgentCapabilitySystem {
 					research: true,
 					documentation: true,
 					languages: ["python", "r", "sql"],
-					frameworks: ["pandas", "numpy", "matplotlib"],
-					domains: ["data-analysis", "statistics", "visualization"],
-					tools: ["data-processor", "chart-generator", "statistical-analyzer"],
+					frameworks: ["pandas", "numpy"],
+					domains: ["data-analysis", "statistics"],
+					tools: ["data-processor", "statistical-analyzer"],
 				};
 
 			case "architect":

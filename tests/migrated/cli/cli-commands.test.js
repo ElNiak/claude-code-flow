@@ -1,92 +1,17 @@
-import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
-import { spawn } from 'child_process';
-import { promises as fs } from 'fs';
-import path from 'path';
-
 /**
+ * Comprehensive unit tests for CLI Commands
+ * Tests all CLI commands with mock interactions and argument validation
+ */
 
-// Jest-specific imports
+import { afterEach, beforeEach, describe, expect, it } from '@jest/globals';
 import { spawn } from 'child_process';
 import fs from 'fs-extra';
-import path from 'path';
 import os from 'os';
+import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-// Mock utilities for Jest
-const AsyncTestUtils = {
-  delay: (ms) => new Promise(resolve => setTimeout(resolve, ms)),
-  withTimeout: (promise, timeout) => Promise.race([
-    promise,
-    new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), timeout))
-  ])
-};
-
-const FileSystemTestUtils = {
-  createTempDir: async (prefix) => {
-    return await fs.mkdtemp(path.join(os.tmpdir(), prefix));
-  },
-  cleanup: async (paths) => {
-    for (const p of paths) {
-      try {
-        await fs.remove(p);
-      } catch (e) {
-        // Ignore cleanup errors
-      }
-    }
-  }
-};
-
-const TestAssertions = {
-  assertInRange: (value, min, max) => {
-    expect(value).toBeGreaterThanOrEqual(min);
-    expect(value).toBeLessThanOrEqual(max);
-  },
-  assertThrowsAsync: async (fn, error, message) => {
-    await expect(fn()).rejects.toThrow(message);
-  }
-};
-
-const PerformanceTestUtils = {
-  measureTime: async (fn) => {
-    const start = Date.now();
-    const result = await fn();
-    const duration = Date.now() - start;
-    return { result, duration };
-  },
-  benchmark: async (fn, options = {}) => {
-    const times = [];
-    for (let i = 0; i < (options.iterations || 10); i++) {
-      const start = Date.now();
-      await fn();
-      times.push(Date.now() - start);
-    }
-    const mean = times.reduce((a, b) => a + b, 0) / times.length;
-    return { stats: { mean } };
-  }
-};
-
-// Test configuration helpers
-const setupTestEnv = () => {
-  process.env.NODE_ENV = 'test';
-};
-
-const cleanupTestEnv = async () => {
-  // Cleanup any test resources
-};
-
-const TEST_CONFIG = {
-  env: {
-    testMode: true,
-    logLevel: 'error'
-  }
-};
-
- * Comprehensive unit tests for CLI Commands
- * Tests all CLI commands with mock interactions and argument validation
- */
 
 import { generateCLITestScenarios } from "../../fixtures/generators";
 import {
@@ -100,8 +25,6 @@ import {
 	MockFactory,
 	TestAssertions,
 } from "../../utils/test-utils";
-// jest.useFakeTimers equivalent available in test.utils.ts
-import { describe, it, expect, beforeEach, afterEach } from "@jest/globals";
 
 // Mock CLI infrastructure
 interface CLICommand {

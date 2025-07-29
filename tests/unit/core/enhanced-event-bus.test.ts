@@ -2,7 +2,7 @@
  * Enhanced comprehensive unit tests for EventBus
  */
 
-import { EventBus } from "../../../src/core/event-bus.ts";
+import { EventBus } from "../../../src/cli/core/events/event-bus.ts";
 import {
 	generateEdgeCaseData,
 	generateEventBusEvents,

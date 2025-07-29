@@ -9,7 +9,7 @@ import {
 	createVerificationService,
 	quickVerify,
 	type VerificationService,
-} from "../../src/verification/index.js";
+} from "../../src/cli/commands/qa/core/index.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -489,7 +489,7 @@ describe("Real-world Integration Scenarios", () => {
 
 	it("should handle agent instruction patterns from the codebase", async () => {
 		const realAgentInstructions = `
-      You are the VerificationEngineer coder agent in the Hive Mind collective intelligence system.
+      You are the VerificationServiceer coder agent in the Hive Mind collective intelligence system.
 
       Your mission: Design and implement systematic code/string verification methodology.
 

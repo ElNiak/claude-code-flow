@@ -11,12 +11,12 @@ import {
 	jest,
 } from "@jest/globals";
 import type { AgentManager } from "../../agents/agent-manager.js";
-import type { SwarmCoordinator } from "../../coordination/swarm-coordinator.js";
 import type { EventBus } from "../../core/event-bus.js";
 import type { Logger } from "../../core/logger.js";
-import { SystemIntegration } from "../../integration/system-integration.js";
-import type { IntegrationConfig } from "../../integration/types.js";
 import type { MemoryManager } from "../../memory/manager.js";
+import { SystemIntegration } from "../../src/cli/commands/monitor/core/system-integration.js";
+import type { IntegrationConfig } from "../../src/cli/commands/monitor/types/integration.js";
+import type { SwarmCoordinator } from "../../src/cli/commands/swarm/core/swarm-coordinator.js";
 import type { TaskEngine } from "../../task/engine.js";
 
 // Mock external dependencies

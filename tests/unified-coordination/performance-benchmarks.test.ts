@@ -6,10 +6,10 @@ import {
 	jest,
 	test,
 } from "@jest/globals";
-import { ConfigManager } from "../../src/config/config-manager.js";
+import { ConfigManager } from "../../src/cli/commands/config/manager.js";
 
 // Mock performance monitoring
-jest.mock("../../src/monitoring/real-time-monitor.js");
+jest.mock("../../src/cli/commands/monitor/real-time-monitor.js");
 
 describe("Performance Benchmarks vs Current Architecture", () => {
 	let configManager: ConfigManager;

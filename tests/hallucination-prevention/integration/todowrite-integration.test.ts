@@ -10,23 +10,23 @@ import {
 	it,
 	jest,
 } from "@jest/globals";
+import type { VerificationService } from "../../../src/cli/commands/qa/core";
 import type { TodoItem, TodoWriteRequest } from "../../../src/types/todo-types";
 import { TodoWriteValidator } from "../../../src/verification/todowrite-validator";
-import type { VerificationEngine } from "../../../src/verification/verification-engine";
 
 describe("TodoWrite Integration with Hallucination Prevention", () => {
 	let todoValidator: TodoWriteValidator;
-	let mockVerificationEngine: jest.Mocked<VerificationEngine>;
+	let mockVerificationService: jest.Mocked<VerificationService>;
 
 	beforeEach(() => {
-		mockVerificationEngine = {
+		mockVerificationService = {
 			verify: jest.fn(),
 			verifyCodeSnippet: jest.fn(),
 			verifyImplementationClaim: jest.fn(),
 			validateCapabilityClaim: jest.fn(),
-		} as jest.Mocked<VerificationEngine>;
+		} as jest.Mocked<VerificationService>;
 
-		todoValidator = new TodoWriteValidator(mockVerificationEngine);
+		todoValidator = new TodoWriteValidator(mockVerificationService);
 	});
 
 	afterEach(() => {
@@ -56,7 +56,7 @@ describe("TodoWrite Integration with Hallucination Prevention", () => {
 				},
 			];
 
-			mockVerificationEngine.verifyImplementationClaim.mockResolvedValue({
+			mockVerificationService.verifyImplementationClaim.mockResolvedValue({
 				isHallucination: false,
 				confidence: 0.9,
 				reason: "Standard implementation task",
@@ -91,7 +91,7 @@ describe("TodoWrite Integration with Hallucination Prevention", () => {
 				},
 			];
 
-			mockVerificationEngine.verifyImplementationClaim
+			mockVerificationService.verifyImplementationClaim
 				.mockResolvedValueOnce({
 					isHallucination: true,
 					confidence: 0.95,
@@ -145,7 +145,7 @@ describe("TodoWrite Integration with Hallucination Prevention", () => {
 				},
 			];
 
-			mockVerificationEngine.verifyImplementationClaim
+			mockVerificationService.verifyImplementationClaim
 				.mockResolvedValueOnce({
 					isHallucination: false,
 					confidence: 0.85,
@@ -190,7 +190,7 @@ describe("TodoWrite Integration with Hallucination Prevention", () => {
 				},
 			];
 
-			mockVerificationEngine.verifyCodeSnippet
+			mockVerificationService.verifyCodeSnippet
 				.mockResolvedValueOnce({
 					isHallucination: false,
 					confidence: 0.95,
@@ -222,7 +222,7 @@ describe("TodoWrite Integration with Hallucination Prevention", () => {
 				},
 			];
 
-			mockVerificationEngine.verifyCodeSnippet.mockResolvedValue({
+			mockVerificationService.verifyCodeSnippet.mockResolvedValue({
 				isHallucination: false,
 				confidence: 0.8,
 				reason: "SwarmCoordinator.initialize exists in codebase",
@@ -247,7 +247,7 @@ describe("TodoWrite Integration with Hallucination Prevention", () => {
 				priority: "medium" as const,
 			}));
 
-			mockVerificationEngine.verifyImplementationClaim.mockResolvedValue({
+			mockVerificationService.verifyImplementationClaim.mockResolvedValue({
 				isHallucination: false,
 				confidence: 0.85,
 				reason: "Standard implementation task",
@@ -278,7 +278,7 @@ describe("TodoWrite Integration with Hallucination Prevention", () => {
 				},
 			];
 
-			mockVerificationEngine.verifyImplementationClaim
+			mockVerificationService.verifyImplementationClaim
 				.mockResolvedValueOnce({
 					isHallucination: false,
 					confidence: 0.9,
@@ -315,7 +315,7 @@ describe("TodoWrite Integration with Hallucination Prevention", () => {
 				],
 			};
 
-			mockVerificationEngine.verifyImplementationClaim.mockResolvedValue({
+			mockVerificationService.verifyImplementationClaim.mockResolvedValue({
 				isHallucination: false,
 				confidence: 0.9,
 				reason: "Standard web development task",
@@ -341,7 +341,7 @@ describe("TodoWrite Integration with Hallucination Prevention", () => {
 				],
 			};
 
-			mockVerificationEngine.verifyImplementationClaim.mockResolvedValue({
+			mockVerificationService.verifyImplementationClaim.mockResolvedValue({
 				isHallucination: true,
 				confidence: 0.95,
 				reason: "Mind-reading technology is not available",
@@ -397,7 +397,7 @@ describe("TodoWrite Integration with Hallucination Prevention", () => {
 				},
 			];
 
-			mockVerificationEngine.verifyImplementationClaim.mockResolvedValue({
+			mockVerificationService.verifyImplementationClaim.mockResolvedValue({
 				isHallucination: false,
 				confidence: 0.9,
 				reason: "Standard development task",
@@ -438,7 +438,7 @@ describe("TodoWrite Integration with Hallucination Prevention", () => {
 				},
 			];
 
-			mockVerificationEngine.verifyImplementationClaim.mockResolvedValue({
+			mockVerificationService.verifyImplementationClaim.mockResolvedValue({
 				isHallucination: true,
 				confidence: 0.95,
 				reason: "Claims impossible technological capabilities",
@@ -461,7 +461,7 @@ describe("TodoWrite Integration with Hallucination Prevention", () => {
 				},
 			];
 
-			mockVerificationEngine.verifyImplementationClaim.mockResolvedValue({
+			mockVerificationService.verifyImplementationClaim.mockResolvedValue({
 				isHallucination: false,
 				confidence: 0.6, // Lower confidence for ambiguous case
 				reason: "Could be legitimate ML implementation",

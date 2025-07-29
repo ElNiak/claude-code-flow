@@ -2,7 +2,7 @@
  * Unit tests for the Orchestrator
  */
 
-import { Orchestrator } from "../../../src/core/orchestrator.ts";
+import { Orchestrator } from "../../../src/cli/core/orchestration/orchestrator.ts";
 import {
 	InitializationError,
 	ShutdownError,

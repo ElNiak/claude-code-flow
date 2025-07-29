@@ -11,7 +11,7 @@ import {
 	jest,
 } from "@jest/globals";
 import { AgentManager } from "../../agents/agent-manager.js";
-import { ConfigManager } from "../../config/config-manager.js";
+import { ConfigManager } from "../../cli/commands/config/manager.js";
 import { EventBus } from "../../core/event-bus.js";
 import { Logger } from "../../core/logger.js";
 import { Orchestrator } from "../../core/orchestrator-fixed.js";

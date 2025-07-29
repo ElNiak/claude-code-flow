@@ -6,10 +6,12 @@
 		"CLAUDE_FLOW_TELEMETRY_ENABLED": "true",
 		"CLAUDE_FLOW_REMOTE_EXECUTION": "true",
 		"CLAUDE_FLOW_GITHUB_INTEGRATION": "true",
-		"EMERGENCY_MEMORY_ACTIVE": "true",
-		"NODE_OPTIONS": "--max-old-space-size=12288 --expose-gc",
+    "ANTHROPIC_LOG":"debug",
+		// "EMERGENCY_MEMORY_ACTIVE": "true",
+		// "NODE_OPTIONS": "--max-old-space-size=12288 --expose-gc",
 		"DEBUG": "true",
-		"DEBUG_CATEGORIES": "all"
+		"DEBUG_CATEGORIES": "all",
+    "NODE_ENV": "development"
 	},
 	"permissions": {
 		"allow": [
@@ -36,7 +38,9 @@
 			"Bash(rm -rf /)",
 			"Bash(curl * | bash)",
 			"Bash(wget * | sh)",
-			"Bash(eval *)"
+			"Bash(eval *)",
+      "Read(node_modules/*)",
+      "Read(dist/*)"
 		]
 	},
 	"hooks": {
@@ -101,5 +105,6 @@
 			}
 		]
 	},
-	"includeCoAuthoredBy": false
+	"includeCoAuthoredBy": false,
+  "verbose": true
 }

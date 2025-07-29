@@ -4,14 +4,14 @@
 
 import type { IEventBus } from "../../core/event-bus.js";
 import type { ILogger } from "../../core/logger.js";
-import type { DistributedMemorySystem } from "../../memory/distributed-memory.js";
+import { debugLogger } from "../../utils/utils-debug-logger.js";
+import type { DistributedMemorySystem } from "../commands/hive-mind/memory/distributed-memory-enhanced.js";
 import type {
 	AgentCapabilities,
 	AgentConfig,
 	AgentEnvironment,
 	TaskDefinition,
-} from "../../swarm/types.js";
-import { debugLogger } from "../../utils/debug-logger.js";
+} from "../commands/swarm/types.js";
 import { BaseAgent } from "./base-agent.js";
 
 // Type definitions for coordinator activities,

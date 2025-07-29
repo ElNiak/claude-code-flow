@@ -3,8 +3,11 @@
  * This test uses mocked components to demonstrate the task system without full dependencies
  */
 
-import { EventBus, type IEventBus } from "../../src/core/event-bus.ts";
-import { type ILogger, Logger } from "../../src/core/logger.ts";
+import {
+	EventBus,
+	type IEventBus,
+} from "../../src/cli/core/events/event-bus.ts";
+import { type ILogger, Logger } from "../../src/cli/core/logging/logger.ts";
 import { delay } from "../../src/utils/helpers.ts";
 import {
 	type AgentProfile,

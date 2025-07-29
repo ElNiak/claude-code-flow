@@ -2,7 +2,7 @@
  * Unit tests for Logger
  */
 
-import { Logger, LogLevel } from "../../../src/core/logger.ts";
+import { Logger, LogLevel } from "../../../src/cli/core/logging/logger.ts";
 import type { LoggingConfig } from "../../../src/utils/types.ts";
 import { cleanupTestEnv, setupTestEnv } from "../../test.config.ts";
 import {

@@ -23,7 +23,6 @@
 		"tests",
 		"src/agents",
 		"src/swarm",
-		"src/memory",
 		"src/terminal"
 	]
 }

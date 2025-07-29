@@ -4,7 +4,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it } from "@jest/globals";
-import { VerificationEngine } from "../../../src/verification/verification-engine";
+import { VerificationService } from "../../../src/cli/commands/qa/core";
 import {
 	MemoryTestUtils,
 	PerformanceTestUtils,
@@ -129,13 +129,13 @@ class MemoryPressureGenerator {
 }
 
 describe("Verification Engine Stress Testing", () => {
-	let verificationEngine: VerificationEngine;
+	let verificationEngine: VerificationService;
 	let memoryPressure: MemoryPressureGenerator;
 	let baselinePerformance: any;
 	const stressResults: StressTestResult[] = [];
 
 	beforeEach(async () => {
-		verificationEngine = new VerificationEngine();
+		verificationEngine = new VerificationService();
 		memoryPressure = new MemoryPressureGenerator();
 
 		// Establish baseline performance

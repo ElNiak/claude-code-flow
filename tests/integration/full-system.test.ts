@@ -3,10 +3,10 @@
  * Tests the complete Claude-Flow system with all components working together
  */
 
-import { ConfigManager } from "../../src/core/config.ts";
-import { EventBus } from "../../src/core/event-bus.ts";
-import { Logger } from "../../src/core/logger.ts";
-import { Orchestrator } from "../../src/core/orchestrator.ts";
+import { ConfigManager } from "../../src/cli/core/config/config.ts";
+import { EventBus } from "../../src/cli/core/events/event-bus.ts";
+import { Logger } from "../../src/cli/core/logging/logger.ts";
+import { Orchestrator } from "../../src/cli/core/orchestration/orchestrator.ts";
 import { TerminalManager } from "../../src/terminal/manager.ts";
 import { delay, generateId } from "../../src/utils/helpers.ts";
 import {

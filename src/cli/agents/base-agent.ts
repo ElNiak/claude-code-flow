@@ -5,7 +5,9 @@
 import { EventEmitter } from "node:events";
 import type { IEventBus } from "../../core/event-bus.js";
 import type { ILogger } from "../../core/logger.js";
-import type { DistributedMemorySystem } from "../../memory/distributed-memory.js";
+import { generateId } from "../../shared/utils/helpers.js";
+import { debugLogger } from "../../utils/utils-debug-logger.js";
+import type { DistributedMemorySystem } from "../commands/hive-mind/memory/distributed-memory-enhanced.js";
 import type {
 	AgentCapabilities,
 	AgentConfig,
@@ -14,12 +16,10 @@ import type {
 	AgentId,
 	AgentMetrics,
 	AgentStatus,
-	AgentType,
 	TaskDefinition,
 	TaskId,
-} from "../../swarm/types.js";
-import { debugLogger } from "../../utils/debug-logger.js";
-import { generateId } from "../../utils/helpers.js";
+} from "../commands/swarm/types.js";
+import type { AgentType } from "../shared/types.js";
 
 export interface AgentState {
 	id: AgentId;

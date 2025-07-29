@@ -29,7 +29,7 @@ try:
     from swarm_performance_suite import SwarmPerformanceBenchmark
     from continuous_performance_monitor import PerformanceMonitor
     from ci_performance_integration import CIPerformanceGate
-    from performance_dashboard import PerformanceDashboard
+    # from performance_dashboard import PerformanceDashboard  # Removed UI dashboard
 except ImportError as e:
     print(f"Warning: Could not import all performance modules: {e}")
     print("Some functionality may be limited")

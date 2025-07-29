@@ -5,14 +5,14 @@
 import {
 	CircuitBreaker,
 	CircuitState,
-} from "../../../src/coordination/circuit-breaker.ts";
-import { ConflictResolver } from "../../../src/coordination/conflict-resolution.ts";
-import { DependencyGraph } from "../../../src/coordination/dependency-graph.ts";
-import { CoordinationManager } from "../../../src/coordination/manager.ts";
-import { MessageRouter } from "../../../src/coordination/messaging.ts";
-import { ResourceManager } from "../../../src/coordination/resources.ts";
-import { TaskScheduler } from "../../../src/coordination/scheduler.ts";
-import { WorkStealingCoordinator } from "../../../src/coordination/work-stealing.ts";
+} from "../../../src/cli/commands/monitor/core/circuit-breaker.ts";
+import { WorkStealingCoordinator } from "../../../src/cli/commands/swarm/core/work-stealing.ts";
+import { TaskScheduler } from "../../../src/cli/commands/work/core/scheduler.ts";
+import { ConflictResolver } from "../../../src/cli/core/conflict-resolver.ts";
+import { CoordinationManager } from "../../../src/cli/core/coordination-manager.ts";
+import { DependencyGraph } from "../../../src/cli/core/dependency-graph.ts";
+import { MessageRouter } from "../../../src/cli/core/message-router.ts";
+import { ResourceManager } from "../../../src/cli/core/resource-manager.ts";
 import { SystemEvents } from "../../../src/utils/types.ts";
 import { createMocks } from "../../mocks/index.ts";
 import { cleanupTestEnv, setupTestEnv } from "../../test.config.ts";

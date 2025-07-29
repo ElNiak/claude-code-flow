@@ -10,13 +10,13 @@ import {
 	it,
 	jest,
 } from "@jest/globals";
+import { VerificationService } from "../../../src/cli/commands/qa/core";
 import type { CapabilityValidator } from "../../../src/verification/capability-validator";
 import type { CodeExistenceVerifier } from "../../../src/verification/code-existence-verifier";
 import type { RealityChecker } from "../../../src/verification/reality-checker";
-import { VerificationEngine } from "../../../src/verification/verification-engine";
 
-describe("VerificationEngine", () => {
-	let verificationEngine: VerificationEngine;
+describe("VerificationService", () => {
+	let verificationEngine: VerificationService;
 	let mockCodeVerifier: jest.Mocked<CodeExistenceVerifier>;
 	let mockCapabilityValidator: jest.Mocked<CapabilityValidator>;
 	let mockRealityChecker: jest.Mocked<RealityChecker>;
@@ -41,7 +41,7 @@ describe("VerificationEngine", () => {
 			crossReferenceDocumentation: jest.fn(),
 		} as jest.Mocked<RealityChecker>;
 
-		verificationEngine = new VerificationEngine(
+		verificationEngine = new VerificationService(
 			mockCodeVerifier,
 			mockCapabilityValidator,
 			mockRealityChecker,

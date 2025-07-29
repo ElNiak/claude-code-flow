@@ -4,23 +4,16 @@
 
 import type { IEventBus } from "../../core/event-bus.js";
 import type { ILogger } from "../../core/logger.js";
-import type { DistributedMemorySystem } from "../../memory/distributed-memory.js";
+import type { DistributedMemorySystem } from "../commands/hive-mind/memory/distributed-memory-enhanced.js";
 import type {
 	AgentCapabilities,
 	AgentConfig,
 	AgentEnvironment,
 	TaskDefinition,
-} from "../../swarm/types.js";
+} from "../commands/swarm/types.js";
 import { BaseAgent } from "./base-agent.js";
 
-// Type definitions for analysis,
-interface AnalysisVisualization {
-	type: string;
-	title: string;
-	description: string;
-	dataPoints: number;
-	interactive: boolean;
-}
+// Type definitions for analysis
 
 interface AnalysisBottleneck {
 	component: string;
@@ -73,7 +66,6 @@ interface DataAnalysis {
 	distributions: Record<string, any>;
 	insights: string[];
 	recommendations: string[];
-	visualizations: AnalysisVisualization[];
 	confidence: number;
 	methodology: string;
 	timestamp: Date;
@@ -89,7 +81,6 @@ interface PerformanceAnalysis {
 	trends: AnalysisTrend[];
 	insights: string[];
 	recommendations: string[];
-	visualizations: AnalysisVisualization[];
 	optimizationPotential: number;
 	projectedImprovement: number;
 	confidence: number;
@@ -117,7 +108,6 @@ interface QualityAnalysis {
 	issues: QualityIssue[];
 	patterns: string[];
 	recommendations: string[];
-	visualizations: AnalysisVisualization[];
 	overallScore: number;
 	confidence: number;
 	timestamp: Date;
@@ -141,23 +131,6 @@ interface StatisticalAnalysis {
 	};
 	conclusions: string[];
 	limitations: string[];
-	timestamp: Date;
-}
-
-interface VisualizationResult {
-	chartType: string;
-	style: string;
-	interactive: boolean;
-	charts: any[];
-	dashboard: any;
-	insights: string[];
-	recommendations: string[];
-	exportFormats: string[];
-	accessibility: {
-		colorBlind: boolean;
-		screenReader: boolean;
-		highContrast: boolean;
-	};
 	timestamp: Date;
 }
 
@@ -265,7 +238,7 @@ export class AnalystAgent extends BaseAgent {
 		environment: AgentEnvironment,
 		logger: ILogger,
 		eventBus: IEventBus,
-		memory: DistributedMemorySystem
+		memory: DistributedMemorySystem,
 	) {
 		super(id, "analyst", config, environment, logger, eventBus, memory);
 	}
@@ -295,23 +268,18 @@ export class AnalystAgent extends BaseAgent {
 			frameworks: [
 				"pandas",
 				"numpy",
-				"matplotlib",
-				"seaborn",
-				"plotly",
 				"dask",
 				"spark",
 				"tensorflow",
 				"pytorch",
 				"scikit-learn",
 				"jupyter",
-				"tableau",
 			],
 			domains: [
 				"data-analysis",
 				"statistical-analysis",
 				"performance-analysis",
 				"business-intelligence",
-				"data-visualization",
 				"predictive-modeling",
 				"machine-learning",
 				"data-mining",
@@ -323,9 +291,7 @@ export class AnalystAgent extends BaseAgent {
 			tools: [
 				"data-processor",
 				"statistical-analyzer",
-				"chart-generator",
 				"report-builder",
-				"dashboard-creator",
 				"ml-pipeline",
 				"data-validator",
 				"performance-profiler",
@@ -362,17 +328,14 @@ export class AnalystAgent extends BaseAgent {
 			expertise: {
 				"data-analysis": 0.95,
 				"statistical-analysis": 0.92,
-				visualization: 0.88,
 				"performance-analysis": 0.9,
 				"predictive-modeling": 0.85,
 				"business-intelligence": 0.83,
 			},
 			preferences: {
 				outputFormat: "detailed",
-				includeCharts: true,
 				statisticalTests: "comprehensive",
 				confidenceLevel: 0.95,
-				visualStyle: "professional",
 			},
 		};
 	}
@@ -392,8 +355,6 @@ export class AnalystAgent extends BaseAgent {
 					return await this.analyzePerformance(task);
 				case "statistical-analysis":
 					return await this.performStatisticalAnalysis(task);
-				case "visualization":
-					return await this.createVisualization(task);
 				case "predictive-modeling":
 					return await this.buildPredictiveModel(task);
 				case "anomaly-detection":
@@ -453,7 +414,6 @@ export class AnalystAgent extends BaseAgent {
 			distributions: {},
 			insights: [] as string[],
 			recommendations: [] as string[],
-			visualizations: [] as AnalysisVisualization[],
 			confidence: 0,
 			methodology: "statistical-analysis",
 			timestamp: new Date(),
@@ -471,7 +431,7 @@ export class AnalystAgent extends BaseAgent {
 				type: "analysis-progress",
 				tags: ["analysis", this.id, analysisType],
 				partition: "tasks",
-			}
+			},
 		);
 
 		// Simulate data analysis,
@@ -549,7 +509,6 @@ export class AnalystAgent extends BaseAgent {
 			timestamp: new Date(),
 			anomalies: [] as AnalysisAnomaly[],
 			insights: [] as string[],
-			visualizations: [] as AnalysisVisualization[],
 			optimizationPotential: 0,
 			projectedImprovement: 0,
 			confidence: 0,
@@ -592,7 +551,7 @@ export class AnalystAgent extends BaseAgent {
 	}
 
 	private async performStatisticalAnalysis(
-		task: TaskDefinition
+		task: TaskDefinition,
 	): Promise<StatisticalAnalysis> {
 		const _data = task.context?.data;
 		const tests = task.context?.tests || [
@@ -651,74 +610,14 @@ export class AnalystAgent extends BaseAgent {
 		statistics.conclusions.push(
 			"Null hypothesis rejected at α = 0.05 level",
 			"Effect size is large (Cohen's d = 0.8)",
-			"Results are statistically and practically significant"
+			"Results are statistically and practically significant",
 		);
 
 		return statistics;
 	}
 
-	private async createVisualization(
-		task: TaskDefinition
-	): Promise<VisualizationResult> {
-		const _data = task.context?.data;
-		const chartType = task.context?.type || "auto";
-		const style = task.context?.style || "professional";
-		const interactive = task.context?.interactive || false;
-
-		this.logger.info("Creating visualization", {
-			chartType,
-			style,
-			interactive,
-		});
-
-		const visualization: VisualizationResult = {
-			chartType,
-			style,
-			interactive,
-			charts: [] as any[],
-			dashboard: null,
-			insights: [] as string[],
-			recommendations: [] as string[],
-			exportFormats: ["png", "svg", "pdf", "html"],
-			accessibility: {
-				colorBlind: true,
-				screenReader: true,
-				highContrast: false,
-			},
-			timestamp: new Date(),
-		};
-
-		// Simulate visualization creation,
-		await this.delay(1500);
-
-		visualization.charts.push(
-			{
-				type: "line",
-				title: "Trend Analysis Over Time",
-				description: "Shows temporal patterns in the data",
-				dataPoints: 100,
-				interactive: true,
-			},
-			{
-				type: "scatter",
-				title: "Correlation Matrix",
-				description: "Displays relationships between variables",
-				dataPoints: 500,
-				interactive: false,
-			}
-		);
-
-		visualization.insights.push(
-			"Clear upward trend visible in Q3-Q4",
-			"Seasonal patterns repeat every 3 months",
-			"Strong correlation between variables X and Y"
-		);
-
-		return visualization;
-	}
-
 	private async buildPredictiveModel(
-		task: TaskDefinition
+		task: TaskDefinition,
 	): Promise<PredictiveModelResult> {
 		const _data = task.context?.data;
 		const target = task.context?.target;
@@ -791,7 +690,7 @@ export class AnalystAgent extends BaseAgent {
 	}
 
 	private async detectAnomalies(
-		task: TaskDefinition
+		task: TaskDefinition,
 	): Promise<AnomalyDetectionResult> {
 		const _data = task.context?.data;
 		const method = task.context?.method || "isolation_forest";
@@ -843,7 +742,7 @@ export class AnalystAgent extends BaseAgent {
 				score: 0.72,
 				description: "Abnormal response time pattern",
 				features: ["response_time", "request_size"],
-			}
+			},
 		);
 
 		anomalies.summary = {
@@ -862,7 +761,7 @@ export class AnalystAgent extends BaseAgent {
 	}
 
 	private async analyzeTrends(
-		task: TaskDefinition
+		task: TaskDefinition,
 	): Promise<TrendAnalysisResult> {
 		const _data = task.context?.data;
 		const timeframe = task.context?.timeframe || "3-months";
@@ -909,7 +808,7 @@ export class AnalystAgent extends BaseAgent {
 				slope: 0.02,
 				significance: 0.23,
 				period: "Q4-2023",
-			}
+			},
 		);
 
 		trends.patterns = {
@@ -924,7 +823,7 @@ export class AnalystAgent extends BaseAgent {
 	}
 
 	private async generateBusinessIntelligence(
-		task: TaskDefinition
+		task: TaskDefinition,
 	): Promise<BusinessIntelligenceResult> {
 		const domain = task.context?.domain || "general";
 		const metrics = task.context?.metrics || [
@@ -1021,7 +920,6 @@ export class AnalystAgent extends BaseAgent {
 			issues: [] as any as QualityIssue[],
 			patterns: [] as any as string[],
 			recommendations: [] as any as string[],
-			visualizations: [] as any as AnalysisVisualization[],
 			overallScore: 0,
 			confidence: 0,
 			timestamp: new Date(),
@@ -1048,7 +946,7 @@ export class AnalystAgent extends BaseAgent {
 
 		(quality.patterns as any).push("High complexity in authentication module");
 		(quality.recommendations as any).push(
-			"Implement automated testing coverage"
+			"Implement automated testing coverage",
 		);
 		quality.confidence = 0.89;
 
@@ -1074,7 +972,6 @@ export class AnalystAgent extends BaseAgent {
 			specialization: "Data Analysis & Performance Optimization",
 			analyticsCapabilities: [
 				"Statistical Analysis",
-				"Data Visualization",
 				"Performance Analysis",
 				"Predictive Modeling",
 				"Anomaly Detection",
@@ -1101,7 +998,7 @@ export const createAnalystAgent = (
 	environment: Partial<AgentEnvironment>,
 	logger: ILogger,
 	eventBus: IEventBus,
-	memory: DistributedMemorySystem
+	memory: DistributedMemorySystem,
 ): AnalystAgent => {
 	const tempAgent = new AnalystAgent(
 		id,
@@ -1109,7 +1006,7 @@ export const createAnalystAgent = (
 		{} as AgentEnvironment,
 		logger,
 		eventBus,
-		memory
+		memory,
 	);
 	const defaultConfig = (tempAgent as any).getDefaultConfig();
 	const defaultEnv = {
@@ -1123,13 +1020,11 @@ export const createAnalystAgent = (
 		availableTools: [
 			"data-processor",
 			"statistical-analyzer",
-			"chart-generator",
 			"report-builder",
 		],
 		toolConfigs: {
 			dataProcessor: { chunkSize: 10000, parallel: true },
-			chartGenerator: { style: "professional", dpi: 300 },
-			reportBuilder: { format: "pdf", includeCharts: true },
+			reportBuilder: { format: "pdf" },
 		},
 	};
 
@@ -1139,6 +1034,6 @@ export const createAnalystAgent = (
 		{ ...defaultEnv, ...environment } as AgentEnvironment,
 		logger,
 		eventBus,
-		memory
+		memory,
 	);
 };

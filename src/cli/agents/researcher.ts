@@ -4,13 +4,13 @@
 
 import type { IEventBus } from "../../core/event-bus.js";
 import type { ILogger } from "../../core/logger.js";
-import type { DistributedMemorySystem } from "../../memory/distributed-memory.js";
+import type { DistributedMemorySystem } from "../commands/hive-mind/memory/distributed-memory-enhanced.js";
 import type {
 	AgentCapabilities,
 	AgentConfig,
 	AgentEnvironment,
 	TaskDefinition,
-} from "../../swarm/types.js";
+} from "../commands/swarm/types.js";
 import { BaseAgent } from "./base-agent.js";
 
 export class ResearcherAgent extends BaseAgent {
@@ -20,7 +20,7 @@ export class ResearcherAgent extends BaseAgent {
 		environment: AgentEnvironment,
 		logger: ILogger,
 		eventBus: IEventBus,
-		memory: DistributedMemorySystem
+		memory: DistributedMemorySystem,
 	) {
 		super(id, "researcher", config, environment, logger, eventBus, memory);
 	}
@@ -175,7 +175,7 @@ export class ResearcherAgent extends BaseAgent {
 				type: "research-progress",
 				tags: ["research", this.id],
 				partition: "tasks",
-			}
+			},
 		);
 
 		// Simulate research process,
@@ -371,7 +371,7 @@ export const createResearcherAgent = (
 	environment: Partial<AgentEnvironment>,
 	logger: ILogger,
 	eventBus: IEventBus,
-	memory: DistributedMemorySystem
+	memory: DistributedMemorySystem,
 ): ResearcherAgent => {
 	const defaultConfig = {
 		autonomyLevel: 0.8,
@@ -427,6 +427,6 @@ export const createResearcherAgent = (
 		{ ...defaultEnv, ...environment } as AgentEnvironment,
 		logger,
 		eventBus,
-		memory
+		memory,
 	);
 };

@@ -11,16 +11,16 @@ import {
 	it,
 	jest,
 } from "@jest/globals";
-import { EventBus } from "../../src/core/event-bus.js";
-import { Logger } from "../../src/core/logger.js";
+import { EventBus } from "../../src/cli/core/events/event-bus.js";
+import { Logger } from "../../src/cli/core/logging/logger.js";
 import { TaskEngine } from "../../src/task/engine.js";
 import { SeamlessIntegration } from "../../src/unified/core/seamless-integration.js";
 import { UnifiedExecutionEngine } from "../../src/unified/execution/unified-execution-engine.js";
 import { WorkCommand } from "../../src/unified/work/work-command.js";
 
 // Mock dependencies
-jest.mock("../../src/core/logger.js");
-jest.mock("../../src/core/event-bus.js");
+jest.mock("../../src/cli/core/logging/logger.js");
+jest.mock("../../src/cli/core/events/event-bus.js");
 jest.mock("../../src/task/engine.js");
 jest.mock("../../src/unified/core/seamless-integration.js", () => ({
 	SeamlessIntegration: jest.fn(),

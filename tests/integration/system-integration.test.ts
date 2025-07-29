@@ -11,11 +11,11 @@ import {
 	jest,
 } from "@jest/globals";
 import { EventBus } from "../../core/event-bus.js";
-import { SystemIntegration } from "../../integration/system-integration.js";
+import { SystemIntegration } from "../../src/cli/commands/monitor/core/system-integration.js";
 import type {
 	IntegrationConfig,
 	SystemHealth,
-} from "../../integration/types.js";
+} from "../../src/cli/commands/monitor/types/integration.js";
 
 // Mock all dependencies
 jest.mock("../../core/event-bus.js");
@@ -26,7 +26,7 @@ jest.mock("../../memory/manager.js");
 jest.mock("../../agents/agent-manager.js");
 jest.mock("../../coordination/swarm-coordinator.js");
 jest.mock("../../task/engine.js");
-jest.mock("../../monitoring/real-time-monitor.js");
+jest.mock("../../cli/commands/monitor/real-time-monitor.js");
 jest.mock("../../mcp/server.js");
 
 describe("SystemIntegration", () => {

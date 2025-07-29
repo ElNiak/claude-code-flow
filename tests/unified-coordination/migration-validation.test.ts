@@ -8,7 +8,7 @@ import {
 } from "@jest/globals";
 import { promises as fs } from "fs";
 import path from "path";
-import { ConfigManager } from "../../src/config/config-manager.js";
+import { ConfigManager } from "../../src/cli/commands/config/manager.js";
 
 // Mock migration utilities
 jest.mock("../../src/migration/migration-runner.js");

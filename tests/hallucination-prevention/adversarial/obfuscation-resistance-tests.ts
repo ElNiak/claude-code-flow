@@ -4,7 +4,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it } from "@jest/globals";
-import { VerificationEngine } from "../../../src/verification/verification-engine";
+import { VerificationService } from "../../../src/cli/commands/qa/core";
 
 interface ObfuscationAttack {
 	id: string;
@@ -269,11 +269,11 @@ const socialEngineeringAttacks: SocialEngineeringAttack[] = [
 ];
 
 describe("Adversarial Obfuscation Resistance Tests", () => {
-	let verificationEngine: VerificationEngine;
+	let verificationEngine: VerificationService;
 	const attackResults: Map<string, any> = new Map();
 
 	beforeEach(() => {
-		verificationEngine = new VerificationEngine();
+		verificationEngine = new VerificationService();
 		attackResults.clear();
 	});
 

@@ -4,13 +4,13 @@
 
 import type { IEventBus } from "../../core/event-bus.js";
 import type { ILogger } from "../../core/logger.js";
-import type { DistributedMemorySystem } from "../../memory/distributed-memory.js";
+import type { DistributedMemorySystem } from "../commands/hive-mind/memory/distributed-memory-enhanced.js";
 import type {
 	AgentCapabilities,
 	AgentConfig,
 	AgentEnvironment,
 	TaskDefinition,
-} from "../../swarm/types.js";
+} from "../commands/swarm/types.js";
 import { BaseAgent } from "./base-agent.js";
 
 // Type definitions for coder activities,
@@ -38,7 +38,7 @@ export class CoderAgent extends BaseAgent {
 		environment: AgentEnvironment,
 		logger: ILogger,
 		eventBus: IEventBus,
-		memory: DistributedMemorySystem
+		memory: DistributedMemorySystem,
 	) {
 		super(id, "coder", config, environment, logger, eventBus, memory);
 	}
@@ -239,7 +239,7 @@ export class CoderAgent extends BaseAgent {
 				type: "code-progress",
 				tags: ["coding", this.id, language],
 				partition: "tasks",
-			}
+			},
 		);
 
 		// Simulate code generation,
@@ -276,11 +276,11 @@ export class CoderAgent extends BaseAgent {
 
 		result.dependencies = this.suggestDependencies(
 			language,
-			framework
+			framework,
 		) as any[];
 		result.buildInstructions = this.generateBuildInstructions(
 			language,
-			framework
+			framework,
 		) as string[];
 
 		// Store final results,
@@ -799,7 +799,7 @@ describe('${description}', () => {
 
 	private generateDocumentation(
 		requirements: string,
-		language: string
+		language: string,
 	): string {
 		return `
 # ${requirements}
@@ -855,7 +855,7 @@ npm test
 
 	private generateBuildInstructions(
 		language: string,
-		framework?: string
+		framework?: string,
 	): string[] {
 		const instructions = {
 			typescript: ["npm install", "npm run build", "npm start"],
@@ -898,7 +898,7 @@ export const createCoderAgent = (
 	environment: Partial<AgentEnvironment>,
 	logger: ILogger,
 	eventBus: IEventBus,
-	memory: DistributedMemorySystem
+	memory: DistributedMemorySystem,
 ): CoderAgent => {
 	const defaultConfig = {
 		autonomyLevel: 0.7,
@@ -961,6 +961,6 @@ export const createCoderAgent = (
 		{ ...defaultEnv, ...environment } as AgentEnvironment,
 		logger,
 		eventBus,
-		memory
+		memory,
 	);
 };

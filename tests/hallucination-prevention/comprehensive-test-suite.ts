@@ -4,7 +4,7 @@
  */
 
 import { afterAll, beforeAll, describe, expect, it } from "@jest/globals";
-import { VerificationEngine } from "../../src/verification/verification-engine";
+import { VerificationService } from "../../src/cli/commands/qa/core";
 import { HallucinationTestRunner } from "./run-hallucination-tests";
 
 interface TestSuiteReport {
@@ -86,13 +86,13 @@ const defaultConfiguration: TestSuiteConfiguration = {
 
 class ComprehensiveTestOrchestrator {
 	private config: TestSuiteConfiguration;
-	private verificationEngine: VerificationEngine;
+	private verificationEngine: VerificationService;
 	private testResults: Map<string, any> = new Map();
 	private startTime: number = 0;
 
 	constructor(config: TestSuiteConfiguration = defaultConfiguration) {
 		this.config = config;
-		this.verificationEngine = new VerificationEngine();
+		this.verificationEngine = new VerificationService();
 	}
 
 	async executeFullTestSuite(): Promise<TestSuiteReport> {
@@ -167,7 +167,7 @@ class ComprehensiveTestOrchestrator {
 		return {
 			suiteName: "Unit Tests",
 			tests: [
-				await this.executeTestGroup("verification-engine-tests"),
+				await this.executeTestGroup("qa/core-tests"),
 				await this.executeTestGroup("code-existence-verifier-tests"),
 				await this.executeTestGroup("capability-validator-tests"),
 				await this.executeTestGroup("reality-checker-tests"),
@@ -293,7 +293,7 @@ class ComprehensiveTestOrchestrator {
 	private async simulateTestGroupExecution(groupName: string): Promise<any> {
 		// Simulate realistic test execution with varying results
 		const baseMetrics = {
-			"verification-engine-tests": { passed: 45, failed: 2, accuracy: 0.96 },
+			"qa/core-tests": { passed: 45, failed: 2, accuracy: 0.96 },
 			"code-existence-verifier-tests": {
 				passed: 32,
 				failed: 1,

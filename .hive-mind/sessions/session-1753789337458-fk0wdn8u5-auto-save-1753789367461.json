@@ -1,0 +1,81 @@
+{
+	"sessionId": "session-1753789337458-fk0wdn8u5",
+	"checkpointId": "checkpoint-1753789367461-wothxzx0r",
+	"checkpointName": "auto-save-1753789367461",
+	"timestamp": "2025-07-29T11:42:47.463Z",
+	"data": {
+		"timestamp": "2025-07-29T11:42:47.460Z",
+		"changeCount": 5,
+		"changesByType": {
+			"swarm_created": [
+				{
+					"type": "swarm_created",
+					"data": {
+						"swarmId": "swarm-1753789337457-9j4xcg84z",
+						"swarmName": "hive-1753789337451",
+						"objective": "What are the usage of the files in /Users/elniak/Documents/Project/claude-code-flow/src/constants/, create a verified list of usages in general and also how are they used with any CLI commands. After, think deeply about how to MOVE used files into the new project organization at src/cli/commands/<command>/... or src/cli/<>, this shoud simplify the structure of the code. Propose plan",
+						"workerCount": 16
+					},
+					"timestamp": "2025-07-29T11:42:17.459Z"
+				}
+			],
+			"agent_activity": [
+				{
+					"type": "agent_activity",
+					"data": {
+						"agentId": "worker-swarm-1753789337457-9j4xcg84z-0",
+						"activity": "spawned",
+						"data": {
+							"type": "researcher",
+							"name": "Researcher Worker 1"
+						}
+					},
+					"timestamp": "2025-07-29T11:42:17.460Z"
+				},
+				{
+					"type": "agent_activity",
+					"data": {
+						"agentId": "worker-swarm-1753789337457-9j4xcg84z-1",
+						"activity": "spawned",
+						"data": {
+							"type": "coder",
+							"name": "Coder Worker 2"
+						}
+					},
+					"timestamp": "2025-07-29T11:42:17.461Z"
+				},
+				{
+					"type": "agent_activity",
+					"data": {
+						"agentId": "worker-swarm-1753789337457-9j4xcg84z-2",
+						"activity": "spawned",
+						"data": {
+							"type": "analyst",
+							"name": "Analyst Worker 3"
+						}
+					},
+					"timestamp": "2025-07-29T11:42:17.461Z"
+				},
+				{
+					"type": "agent_activity",
+					"data": {
+						"agentId": "worker-swarm-1753789337457-9j4xcg84z-3",
+						"activity": "spawned",
+						"data": {
+							"type": "tester",
+							"name": "Tester Worker 4"
+						}
+					},
+					"timestamp": "2025-07-29T11:42:17.461Z"
+				}
+			]
+		},
+		"statistics": {
+			"tasksProcessed": 0,
+			"tasksCompleted": 0,
+			"memoryUpdates": 0,
+			"agentActivities": 4,
+			"consensusDecisions": 0
+		}
+	}
+}

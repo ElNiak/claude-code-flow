@@ -2,8 +2,8 @@
  * Agent System Index - Central exports and agent factory
  */
 
-export { AgentManager } from "../../agents/agent-manager.js";
-export { AgentRegistry } from "../../agents/agent-registry.js";
+export { AgentManager } from "./agent-manager.js";
+export { AgentRegistry } from "./agent-registry.js";
 export { AnalystAgent, createAnalystAgent } from "./analyst.js";
 export { ArchitectAgent, createArchitectAgent } from "./architect.js";
 // Types,
@@ -25,14 +25,11 @@ export { createTesterAgent, TesterAgent } from "./tester.js";
 
 import type { IEventBus } from "../../core/event-bus.js";
 import type { ILogger } from "../../core/logger.js";
-import type { DistributedMemorySystem } from "../../memory/distributed-memory.js";
+import { generateId as _generateId } from "../../shared/utils/helpers.js";
+import type { DistributedMemorySystem } from "../commands/hive-mind/memory/distributed-memory-enhanced.js";
 // Agent Factory,
-import type {
-	AgentConfig,
-	AgentEnvironment,
-	AgentType,
-} from "../../swarm/types.js";
-import { generateId as _generateId } from "../../utils/helpers.js";
+import type { AgentConfig, AgentEnvironment } from "../commands/swarm/types.js";
+import type { AgentType } from "../shared/types.js";
 import { createAnalystAgent } from "./analyst.js";
 import { createArchitectAgent } from "./architect.js";
 import type { BaseAgent } from "./base-agent.js";
@@ -69,7 +66,7 @@ export class AgentFactory {
 		type: AgentType,
 		config: Partial<AgentConfig> = {},
 		environment: Partial<AgentEnvironment> = {},
-		customId?: string
+		customId?: string,
 	): BaseAgent {
 		const id = customId || this.generateAgentId(type);
 
@@ -87,7 +84,7 @@ export class AgentFactory {
 					environment,
 					this.logger,
 					this.eventBus,
-					this.memory
+					this.memory,
 				);
 
 			case "coder":
@@ -97,7 +94,7 @@ export class AgentFactory {
 					environment,
 					this.logger,
 					this.eventBus,
-					this.memory
+					this.memory,
 				);
 
 			case "analyst":
@@ -107,7 +104,7 @@ export class AgentFactory {
 					environment,
 					this.logger,
 					this.eventBus,
-					this.memory
+					this.memory,
 				);
 
 			case "architect":
@@ -117,7 +114,7 @@ export class AgentFactory {
 					environment,
 					this.logger,
 					this.eventBus,
-					this.memory
+					this.memory,
 				);
 
 			case "tester":
@@ -127,7 +124,7 @@ export class AgentFactory {
 					environment,
 					this.logger,
 					this.eventBus,
-					this.memory
+					this.memory,
 				);
 
 			case "coordinator":
@@ -137,7 +134,7 @@ export class AgentFactory {
 					environment,
 					this.logger,
 					this.eventBus,
-					this.memory
+					this.memory,
 				);
 
 			default:
@@ -154,7 +151,7 @@ export class AgentFactory {
 			count?: number;
 			config?: Partial<AgentConfig>;
 			environment?: Partial<AgentEnvironment>;
-		}>
+		}>,
 	): BaseAgent[] {
 		const agents: BaseAgent[] = [];
 
@@ -164,7 +161,7 @@ export class AgentFactory {
 				const agent = this.createAgent(
 					spec.type,
 					spec.config,
-					spec.environment
+					spec.environment,
 				);
 				agents.push(agent);
 			}
@@ -183,7 +180,7 @@ export class AgentFactory {
 	 */
 	createBalancedSwarm(
 		size: number = 5,
-		strategy: "research" | "development" | "analysis" | "balanced" = "balanced"
+		strategy: "research" | "development" | "analysis" | "balanced" = "balanced",
 	): BaseAgent[] {
 		const compositions = {
 			research: {
@@ -237,7 +234,7 @@ export class AgentFactory {
 		}
 
 		return this.createAgents(
-			specs.map((spec) => ({ type: spec.type, count: spec.count }))
+			specs.map((spec) => ({ type: spec.type, count: spec.count })),
 		);
 	}
 
@@ -297,7 +294,7 @@ export class AgentFactory {
 export function createAgentFactory(
 	logger: ILogger,
 	eventBus: IEventBus,
-	memory: DistributedMemorySystem
+	memory: DistributedMemorySystem,
 ): AgentFactory {
 	return new AgentFactory({ logger, eventBus, memory });
 }
@@ -337,7 +334,7 @@ export class AgentLifecycle {
 					error: error instanceof Error ? error.message : String(error),
 				});
 				throw error;
-			})
+			}),
 		);
 
 		await Promise.all(initPromises);
@@ -357,7 +354,7 @@ export class AgentLifecycle {
 					agentId: info.id.id,
 					error: error instanceof Error ? error.message : String(error),
 				});
-			})
+			}),
 		);
 
 		await Promise.all(shutdownPromises);

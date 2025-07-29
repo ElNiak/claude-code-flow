@@ -1,18 +1,5 @@
 # Claude Code Configuration for Claude Flow
 
-## 🚨 MANDATORY PRE-TASK REQUIREMENT 🚨
-
-**BEFORE creating ANY tasks, subtasks, or coordination plans, you MUST:**
-
-1. **READ** the MCP documentation at `.claude/shared/mcp.yaml` completely
-2. **UNDERSTAND** the available MCP servers and their capabilities
-3. **IDENTIFY** the optimal coordination patterns for this task type
-4. **PLAN** your MCP tool usage based on the efficiency guidelines
-5. **REFERENCE** the appropriate workflows and integration patterns
-
-**Use the Read tool to access:** `/Users/elniak/Documents/Project/claude-code-flow/.claude/shared/mcp.yaml`
-
-This is the authoritative guide for MCP tool selection and prevents suboptimal choices and token waste.
 
 ## Writing code
 

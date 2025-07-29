@@ -10,16 +10,16 @@ import {
 	it,
 	jest,
 } from "@jest/globals";
-import { VerificationEngine } from "../../../src/verification/verification-engine";
+import { VerificationService } from "../../../src/cli/commands/qa/core";
 import { MemoryTestUtils, PerformanceTestUtils } from "../../utils/test-utils";
 
 describe("Verification System Performance Tests", () => {
-	let verificationEngine: VerificationEngine;
+	let verificationEngine: VerificationService;
 	let performanceUtils: PerformanceTestUtils;
 	let memoryUtils: MemoryTestUtils;
 
 	beforeEach(() => {
-		verificationEngine = new VerificationEngine();
+		verificationEngine = new VerificationService();
 		performanceUtils = new PerformanceTestUtils();
 		memoryUtils = new MemoryTestUtils();
 	});
