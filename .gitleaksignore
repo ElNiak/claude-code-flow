@@ -1,0 +1,5 @@
+# Gitleaks ignore file for false positives in template/example files
+# These are placeholder values in .env.example files and docker-compose configs
+
+# .env.example file fingerprints
+.env.example

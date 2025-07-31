@@ -1,0 +1,203 @@
+# Markdownlint Configuration for Mortgage-nitor Project
+# Optimized for extensive architectural documentation
+# Supports large README.md (282 lines) and ROADMAP.md (413 lines)
+
+# Default rule state - enable all rules then customize
+default: true
+
+# Rule customizations for architectural documentation
+rules:
+  # MD003: Heading style - allow both ATX and setext for flexibility
+  MD003:
+    style: 'atx'
+
+  # MD007: Unordered list indentation - standard 2 spaces
+  MD007:
+    indent: 2
+    start_indented: false
+
+  # MD009: Trailing spaces - allow 2 trailing spaces for line breaks
+  MD009:
+    br_spaces: 2
+    list_item_empty_lines: false
+    strict: false
+
+  # MD012: Multiple consecutive blank lines - allow up to 2 for section separation
+  MD012:
+    maximum: 2
+
+  # MD013: Line length - very relaxed for documentation
+  MD013: false # Disable line length checks globally
+
+  # MD022: Headings should be surrounded by blank lines - flexible for dense docs
+  MD022:
+    lines_above: 1
+    lines_below: 1
+
+  # MD024: Multiple headings with the same content - allow for API documentation
+  MD024: false # Allow duplicate headings globally
+
+  # MD001: Heading levels should only increment by one level at a time
+  MD001: false # Allow heading increments
+
+  # MD051: Link fragments should be valid
+  MD051: false # Disable link fragment validation
+
+  # MD025: Multiple top level headings - allow for modular documentation
+  MD025: false # Allow multiple H1s globally
+
+  # MD026: Trailing punctuation in headings - allow for questions in FAQs
+  MD026:
+    punctuation: '.,;:!'
+
+  # MD029: Ordered list item prefix - allow both styles for flexibility
+  MD029:
+    style: 'ordered'
+
+  # MD033: Allow inline HTML for complex architectural diagrams and tables
+  MD033:
+    allowed_elements:
+      - 'details'
+      - 'summary'
+      - 'br'
+      - 'sub'
+      - 'sup'
+      - 'kbd'
+      - 'mark'
+      - 'ins'
+      - 'del'
+      - 'table'
+      - 'thead'
+      - 'tbody'
+      - 'tr'
+      - 'th'
+      - 'td'
+      - 'div'
+      - 'span'
+      - 'img'
+      - 'a'
+      - 'code'
+      - 'pre'
+
+  # MD034: Bare URLs - allow for architectural reference documentation
+  MD034: false
+
+  # MD036: Emphasis used instead of heading - allow for architectural callouts
+  MD036: false # Allow emphasis as headings globally
+
+  # MD040: Fenced code blocks should have a language - allow empty for examples
+  MD040: false # Allow code blocks without language globally
+
+  # MD041: First line in file should be a top level heading - flexible for modules
+  MD041:
+    level: 1
+    front_matter_title: ''
+
+  # MD046: Code block style - allow both indented and fenced for flexibility
+  MD046:
+    style: 'fenced'
+
+  # MD048: Code fence style - consistent backticks
+  MD048:
+    style: 'backtick'
+
+  # MD049: Emphasis style - consistent asterisks
+  MD049:
+    style: 'asterisk'
+
+  # MD050: Strong style - consistent asterisks
+  MD050:
+    style: 'asterisk'
+
+# File-specific overrides for different documentation types
+overrides:
+  # README.md - Main project documentation (relaxed rules)
+  - files: ['README.md']
+    rules:
+      MD013: false # No line length limit for main docs
+      MD033: false # Allow all HTML for rich formatting
+      MD041: false # Allow flexible first line content
+
+  # ROADMAP.md - Project planning documentation
+  - files: ['ROADMAP.md']
+    rules:
+      MD024: false # Allow duplicate headings for timeline sections
+      MD025: false # Allow multiple H1s for major milestones
+      MD013: false # No line length limit for planning docs
+
+  # API documentation - Technical specifications
+  - files: ['**/api/*.md', '**/docs/api/*.md']
+    rules:
+      MD013: false # No line length limit for API specs
+      MD040: true # Require language tags for code blocks
+      MD046:
+        style: 'fenced' # Enforce fenced code blocks for API examples
+
+  # CLAUDE.md - Main configuration file (very relaxed)
+  - files: ['CLAUDE.md']
+    rules:
+      MD013: false # No line length limit
+      MD025: false # Allow multiple H1s
+      MD033: false # Allow HTML
+      MD040: false # Allow code blocks without language
+      MD001: false # Allow heading increments
+      MD036: false # Allow emphasis as headings
+
+  # Agent documentation - Claude Flow agent specifications
+  - files: ['.claude/**/*.md']
+    rules:
+      MD013: false # No line length for agent specs
+      MD025: false # Allow multiple H1s for agent sections
+      MD033: false # Allow HTML for agent metadata
+      MD040: false # Allow code blocks without language
+
+  # Main project documentation (relaxed for architectural docs)
+  - files: ['README.md', 'ROADMAP.md']
+    rules:
+      MD013: false # No line length limit for architectural docs
+      MD025: false # Allow multiple H1s for modular sections
+      MD036: false # Allow emphasis as headings for roadmap sections
+
+  # Memory documentation
+  - files: ['memory/**/*.md']
+    rules:
+      MD013: false # No line length limit
+      MD040: false # Allow code blocks without language
+
+  # Setup and installation guides
+  - files: ['**/SETUP.md', '**/INSTALL.md', '**/PRE_COMMIT_SETUP.md']
+    rules:
+      MD013: false # Relaxed line length for setup guides
+      MD029:
+        style: 'ordered' # Enforce ordered lists for setup steps
+      MD040: false # Allow code blocks without language for examples
+      MD051: false # Disable link fragment validation for TOC
+      MD024: false # Allow duplicate headings for sections
+
+  # .roo files - AI rule configurations (very relaxed)
+  - files: ['.roo/**/*.md']
+    rules:
+      MD013: false # No line length limit for AI rules
+      MD040: false # Allow code blocks without language tags
+      MD025: false # Allow multiple H1s
+      MD024: false # Allow duplicate headings
+      MD033: false # Allow all HTML
+      MD041: false # Allow flexible first line content
+
+# Exclusions for generated or special files
+excludes:
+  - 'node_modules/'
+  - 'vendor/'
+  - '.git/'
+  - '**/build/'
+  - '**/dist/'
+  - '**/.gradle/'
+  - '**/target/'
+  - '**/*.min.md'
+  - '**/CHANGELOG.md' # Often auto-generated
+  - '**/LICENSE.md' # Standard license text
+  - CLAUDE.md
+  - '.mcp.json' # Model Context Protocol configuration
+  - '.roo/' # AI rule configurations
+  - '.roo/rules-mcp/' # MCP rule configurations with external links
+  - '.roo/README.md' # README with many dead MCP links
