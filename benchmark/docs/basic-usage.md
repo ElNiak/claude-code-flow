@@ -23,6 +23,7 @@ swarm-benchmark run "Create a hello world API"
 ```
 
 This command:
+
 - Uses the `auto` strategy (automatically selects approach)
 - Uses `centralized` coordination (single coordinator)
 - Allocates 5 agents (default)

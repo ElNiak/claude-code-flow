@@ -15,12 +15,14 @@ The blessed UI implementation provides a terminal-based user interface for the C
 ## Installation
 
 The UI automatically installs its dependencies when first run:
+
 - `blessed` - Terminal UI framework
 - `node-pty` - Pseudo-terminal support
 
 ## Usage
 
 ### Basic Usage
+
 ```bash
 # Using the UI wrapper (automatically adds --ui flag)
 ./bin/claude-flow-swarm-ui "Your objective here"
@@ -130,6 +132,7 @@ const orchestratorPty = pty.spawn('claude', [
 ### Agent Spawn Detection
 
 The UI monitors the orchestrator output for patterns like:
+
 ```
 claude-flow agent spawn <type> --name "<name>" --task "<task>"
 ```
@@ -161,30 +164,38 @@ When detected, it creates a new agent pane in the UI.
 ## Troubleshooting
 
 ### "Cannot find module 'blessed'"
+
 The UI automatically installs dependencies. If this fails:
+
 ```bash
 cd /tmp/swarm-ui-temp-dir
 npm install blessed node-pty
 ```
 
 ### UI doesn't start
+
 Check that Node.js is installed:
+
 ```bash
 node --version
 ```
 
 ### Claude not found
+
 Ensure Claude CLI is in your PATH:
+
 ```bash
 which claude
 ```
 
 ### Terminal too small
+
 The UI requires at least 80x24 terminal size. Resize your terminal window.
 
 ## Example Workflows
 
 ### Research Task
+
 ```bash
 ./bin/claude-flow-swarm-ui "Research best practices for microservices" \
   --strategy research \
@@ -193,6 +204,7 @@ The UI requires at least 80x24 terminal size. Resize your terminal window.
 ```
 
 ### Development Task
+
 ```bash
 ./bin/claude-flow-swarm-ui "Build a user authentication system" \
   --strategy development \
@@ -201,6 +213,7 @@ The UI requires at least 80x24 terminal size. Resize your terminal window.
 ```
 
 ### Analysis Task
+
 ```bash
 ./bin/claude-flow-swarm-ui "Analyze this codebase for performance issues" \
   --strategy analysis \

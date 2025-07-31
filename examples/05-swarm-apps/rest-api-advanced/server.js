@@ -185,7 +185,7 @@ process.on('SIGINT', gracefulShutdown);
 
 async function gracefulShutdown() {
   logger.info('Graceful shutdown initiated');
-  
+
   // Close server
   server.close(() => {
     logger.info('HTTP server closed');
@@ -221,10 +221,10 @@ async function startServer() {
   try {
     // Connect to MongoDB
     await connectDB();
-    
+
     // Initialize Redis
     await initializeRedis();
-    
+
     // Start Express server
     server = app.listen(PORT, () => {
       logger.info(`Server running on port ${PORT}`);

@@ -44,7 +44,7 @@ export async function copyRevisedTemplates(targetDir, options = {}) {
         try {
           const targetDirPath = path.dirname(targetPath);
           await fs.promises.mkdir(targetDirPath, { recursive: true });
-          
+
           if (!fs.existsSync(targetPath) || options.force) {
             await fs.promises.copyFile(sourcePath, targetPath);
             results.copiedFiles.push(file.target);

@@ -21,11 +21,11 @@ USAGE:
 🚀 QUICK START:
   # First time setup (creates CLAUDE.md & .claude/commands)
   npx claude-flow@alpha init --sparc
-  
+
   # 🐝 HIVE MIND QUICK START (NEW!):
   claude-flow hive-mind wizard          # Interactive setup wizard
   claude-flow hive-mind spawn "objective"  # Create intelligent swarm
-  
+
   # After setup, use without npx:
   claude-flow start --ui --swarm         # Start with swarm intelligence UI
   claude-flow swarm "build REST API"     # Deploy multi-agent workflow
@@ -46,7 +46,7 @@ USAGE:
   memory <action>          Persistent memory operations
   github <mode>            GitHub workflow automation (6 modes)
   status                   System status and health
-  
+
 📋 SWARM INTELLIGENCE COMMANDS:
   training <command>       Neural pattern learning & model updates (3 commands)
   coordination <command>   Swarm & agent orchestration (3 commands)
@@ -56,7 +56,7 @@ USAGE:
   migrate-hooks            Migrate settings.json to Claude Code 1.0.51+ format
   monitoring <command>     Real-time system monitoring (3 commands)
   optimization <command>   Performance & topology optimization (3 commands)
-  
+
 📋 ADDITIONAL COMMANDS:
   task <action>            Task and workflow management
   config <action>          System configuration
@@ -91,9 +91,9 @@ DESCRIPTION:
   Agents work in parallel with neural optimization and real-time coordination.
 
 OPTIONS:
-  --strategy <type>    Execution strategy: research, development, analysis, 
+  --strategy <type>    Execution strategy: research, development, analysis,
                        testing, optimization, maintenance
-  --mode <type>        Coordination mode: centralized, distributed, 
+  --mode <type>        Coordination mode: centralized, distributed,
                        hierarchical, mesh, hybrid
   --max-agents <n>     Maximum number of agents (default: 5)
   --parallel           Enable parallel execution (2.8-4.4x speed improvement)
@@ -122,14 +122,14 @@ AGENT TYPES:
 ANALYSIS MODE:
   When using --analysis or --read-only flags, the swarm operates in a safe
   read-only mode that prevents all code modifications. Perfect for:
-  
+
   • Code reviews and security audits
   • Architecture analysis and documentation
   • Performance bottleneck identification
   • Technical debt assessment
   • Dependency mapping and analysis
   • "What-if" scenario exploration
-  
+
   In analysis mode, agents can only read files, search codebases, and
   generate reports - no Write, Edit, or system-modifying operations.
 `,
@@ -303,20 +303,20 @@ WHAT claude-flow init CREATES (DEFAULT):
     └── settings.json   Advanced configuration and hooks
     └── hooks/          Pre/post operation automation
   📋 .roomodes          17 specialized SPARC development modes
-  
+
   CLAUDE.md CONTENTS:
   • Project overview and objectives
   • Technology stack and architecture
   • Development guidelines and patterns
   • AI-specific instructions for better assistance
   • Integration with ruv-swarm MCP tools
-  
+
   .claude/commands INCLUDES:
   • Custom project-specific commands
   • Automated workflow scripts
   • Integration hooks for Claude Code
   • Team collaboration tools
-  
+
   Features enabled:
   • ruv-swarm integration with 27 MCP tools
   • Neural network processing with WASM
@@ -398,12 +398,12 @@ USAGE:
   claude-flow training <command> [options]
 
 DESCRIPTION:
-  Train neural patterns from operations, learn from outcomes, and update agent models 
+  Train neural patterns from operations, learn from outcomes, and update agent models
   with real ruv-swarm integration for continuous learning and optimization.
 
 COMMANDS:
   neural-train      Train neural patterns from operations data
-  pattern-learn     Learn from specific operation outcomes  
+  pattern-learn     Learn from specific operation outcomes
   model-update      Update agent models with new insights
 
 NEURAL TRAIN OPTIONS:
@@ -429,7 +429,7 @@ EXAMPLES:
 
 🎯 Neural training improves:
   • Task selection accuracy
-  • Agent performance prediction  
+  • Agent performance prediction
   • Coordination efficiency
   • Error prevention patterns
 `,
@@ -441,7 +441,7 @@ USAGE:
   claude-flow coordination <command> [options]
 
 DESCRIPTION:
-  Initialize swarms, spawn coordinated agents, and orchestrate task execution 
+  Initialize swarms, spawn coordinated agents, and orchestrate task execution
   across agents with real ruv-swarm MCP integration for optimal performance.
 
 COMMANDS:
@@ -458,7 +458,7 @@ SWARM-INIT OPTIONS:
 
 AGENT-SPAWN OPTIONS:
   --type <type>        Agent type (default: general)
-                       Options: coordinator, coder, developer, researcher, analyst, analyzer, 
+                       Options: coordinator, coder, developer, researcher, analyst, analyzer,
                        tester, architect, reviewer, optimizer, general
   --name <name>        Custom agent name (auto-generated if not provided)
   --swarm-id <id>      Target swarm for agent coordination
@@ -492,7 +492,7 @@ USAGE:
   claude-flow analysis <command> [options]
 
 DESCRIPTION:
-  Detect performance bottlenecks, generate comprehensive reports, and analyze 
+  Detect performance bottlenecks, generate comprehensive reports, and analyze
   token consumption using real ruv-swarm analytics for system optimization.
 
 COMMANDS:
@@ -539,7 +539,7 @@ USAGE:
   claude-flow automation <command> [options]
 
 DESCRIPTION:
-  Automatically spawn optimal agents, intelligently manage workflows, and select 
+  Automatically spawn optimal agents, intelligently manage workflows, and select
   optimal configurations with real ruv-swarm intelligence for maximum efficiency.
 
 COMMANDS:
@@ -584,7 +584,7 @@ USAGE:
   claude-flow hooks <command> [options]
 
 DESCRIPTION:
-  Execute lifecycle hooks before and after tasks, edits, and sessions with 
+  Execute lifecycle hooks before and after tasks, edits, and sessions with
   real ruv-swarm integration for automated preparation, tracking, and cleanup.
 
 COMMANDS:

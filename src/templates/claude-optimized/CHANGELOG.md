@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0] - 2025-06-16
 
 ### Added
+
 - Initial release of optimized Claude Code templates
 - Complete set of SPARC methodology slash commands
 - Batch tools integration for improved performance
@@ -47,6 +48,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Version tracking mechanism
 
 ### Features
+
 - Optimized prompts for reduced token usage
 - Batch operations for improved performance
 - Parallel tool execution support
@@ -56,6 +58,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - End-to-end workflow support
 
 ### Technical Details
+
 - Compatible with Claude Code CLI
 - Requires Node.js for test execution
 - Supports all major SPARC methodology phases

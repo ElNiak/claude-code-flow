@@ -131,7 +131,7 @@ export class MCPToolWrapper {
 
     /** @type {import('better-sqlite3').Database | null} */
     this.memoryDb = null;
-    
+
     // Initialize memory store for fallback
     this.memoryStore = new Map();
 
@@ -186,7 +186,7 @@ export class MCPToolWrapper {
       );
       this.memoryDb = null;
       this.memoryStore = new Map(); // Fallback to in-memory storage
-      
+
       // Log Windows-specific help if applicable
       if (process.platform === 'win32') {
         console.info(`
@@ -904,7 +904,7 @@ https://github.com/ruvnet/claude-code-flow/docs/windows-installation.md
         if (pattern && pattern.trim()) {
           // Search with pattern
           query = `
-            SELECT * FROM memories 
+            SELECT * FROM memories
             WHERE namespace = ? AND (key LIKE ? OR value LIKE ? OR type LIKE ?)
             ORDER BY timestamp DESC
             LIMIT 50
@@ -914,7 +914,7 @@ https://github.com/ruvnet/claude-code-flow/docs/windows-installation.md
         } else {
           // Get all memories for namespace
           query = `
-            SELECT * FROM memories 
+            SELECT * FROM memories
             WHERE namespace = ?
             ORDER BY timestamp DESC
             LIMIT 50
@@ -1153,7 +1153,7 @@ https://github.com/ruvnet/claude-code-flow/docs/windows-installation.md
       if (this.memoryDb) {
         // Get all unique swarm namespaces
         const namespacesQuery = this.memoryDb.prepare(`
-          SELECT DISTINCT namespace FROM memories 
+          SELECT DISTINCT namespace FROM memories
           WHERE namespace LIKE 'swarm-%' OR namespace LIKE 'hive-%'
           ORDER BY timestamp DESC
         `);
@@ -1162,10 +1162,10 @@ https://github.com/ruvnet/claude-code-flow/docs/windows-installation.md
         // For each swarm, gather its information
         for (const { namespace } of namespaces) {
           const swarmId = namespace;
-          
+
           // Get swarm metadata
           const metadataQuery = this.memoryDb.prepare(`
-            SELECT key, value, type, timestamp FROM memories 
+            SELECT key, value, type, timestamp FROM memories
             WHERE namespace = ? AND (
               key IN ('init_performance', 'config', 'status', 'agents', 'tasks', 'topology')
               OR key LIKE 'agent-%'
@@ -1191,7 +1191,7 @@ https://github.com/ruvnet/claude-code-flow/docs/windows-installation.md
           for (const record of swarmData) {
             try {
               const value = typeof record.value === 'string' ? JSON.parse(record.value) : record.value;
-              
+
               switch (record.key) {
                 case 'init_performance':
                   swarmInfo.createdAt = value.timestamp;
@@ -1238,7 +1238,7 @@ https://github.com/ruvnet/claude-code-flow/docs/windows-installation.md
           if (swarmInfo.status === 'unknown') {
             const now = Date.now();
             const lastActivityAge = now - (swarmInfo.lastActivity || 0);
-            
+
             if (lastActivityAge < 60000) { // Active within last minute
               swarmInfo.status = 'active';
             } else if (lastActivityAge < 300000) { // Active within last 5 minutes
@@ -1253,7 +1253,7 @@ https://github.com/ruvnet/claude-code-flow/docs/windows-installation.md
 
         // Get recent activity logs
         const activityQuery = this.memoryDb.prepare(`
-          SELECT namespace, key, type, timestamp FROM memories 
+          SELECT namespace, key, type, timestamp FROM memories
           WHERE (namespace LIKE 'swarm-%' OR namespace LIKE 'hive-%')
           AND timestamp > ?
           ORDER BY timestamp DESC
@@ -1283,7 +1283,7 @@ https://github.com/ruvnet/claude-code-flow/docs/windows-installation.md
       } else {
         // Fallback to in-memory storage
         const swarmMap = new Map();
-        
+
         for (const [key, memory] of this.memoryStore) {
           const namespace = memory.namespace;
           if (namespace && (namespace.startsWith('swarm-') || namespace.startsWith('hive-'))) {
@@ -1297,15 +1297,15 @@ https://github.com/ruvnet/claude-code-flow/docs/windows-installation.md
                 memoryUsage: 0
               });
             }
-            
+
             const swarm = swarmMap.get(namespace);
             swarm.memoryUsage++;
-            
+
             if (memory.key.startsWith('agent-')) {
               swarm.agents++;
               activeAgents++;
             }
-            
+
             if (memory.key.startsWith('task-')) {
               swarm.tasks.total++;
               totalTasks++;
@@ -1325,7 +1325,7 @@ https://github.com/ruvnet/claude-code-flow/docs/windows-installation.md
             }
           }
         }
-        
+
         return {
           swarms: Array.from(swarmMap.values()),
           activeAgents,

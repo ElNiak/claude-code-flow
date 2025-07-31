@@ -7,6 +7,7 @@ from .hierarchical_mode import HierarchicalMode
 from .mesh_mode import MeshMode
 from .hybrid_mode import HybridMode
 
+
 # Mode factory
 def create_coordination_mode(mode_name: str) -> BaseCoordinationMode:
     """Create a coordination mode instance by name."""
@@ -17,21 +18,23 @@ def create_coordination_mode(mode_name: str) -> BaseCoordinationMode:
         "mesh": MeshMode,
         "hybrid": HybridMode,
     }
-    
+
     mode_class = modes.get(mode_name.lower())
     if not mode_class:
         raise ValueError(f"Unknown coordination mode: {mode_name}")
-    
+
     return mode_class()
+
 
 def get_available_modes() -> list[str]:
     """Get list of available coordination mode names."""
     return ["centralized", "distributed", "hierarchical", "mesh", "hybrid"]
 
+
 __all__ = [
     "BaseCoordinationMode",
     "CentralizedMode",
-    "DistributedMode", 
+    "DistributedMode",
     "HierarchicalMode",
     "MeshMode",
     "HybridMode",

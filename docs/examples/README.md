@@ -35,26 +35,31 @@ claude-flow workflow execute ./examples/research-analysis-workflow.json
 ## Example Categories
 
 ### 🔬 Research and Analysis
+
 - [Academic Research Pipeline](./research/academic-pipeline.md)
 - [Market Analysis Workflow](./research/market-analysis.md)
 - [Competitive Intelligence](./research/competitive-intelligence.md)
 
 ### 💻 Software Development
+
 - [Code Review Automation](./development/code-review.md)
 - [Testing and QA Pipeline](./development/testing-pipeline.md)
 - [Documentation Generation](./development/docs-generation.md)
 
 ### 📊 Data Processing
+
 - [Data Analysis Pipeline](./data/analysis-pipeline.md)
 - [Report Generation](./data/report-generation.md)
 - [ETL Workflows](./data/etl-workflows.md)
 
 ### 🏢 Business Operations
+
 - [Customer Support Automation](./business/customer-support.md)
 - [Content Creation Pipeline](./business/content-creation.md)
 - [Process Optimization](./business/process-optimization.md)
 
 ### 🧪 Experimental Features
+
 - [Advanced Memory Usage](./experimental/advanced-memory.md)
 - [Custom Agent Types](./experimental/custom-agents.md)
 - [Plugin Development](./experimental/plugins.md)
@@ -169,9 +174,9 @@ export class ClaudeFlowExtension {
     });
 
     await this.claudeFlow.start();
-    
+
     // Register commands
-    vscode.commands.registerCommand('claude-flow.analyzeCode', 
+    vscode.commands.registerCommand('claude-flow.analyzeCode',
       () => this.analyzeCurrentFile());
   }
 
@@ -223,7 +228,7 @@ app.post('/api/analyze', async (req, res) => {
     });
 
     const result = await claudeFlow.waitForCompletion(task.id);
-    
+
     res.json({
       success: true,
       taskId: task.id,
@@ -291,7 +296,7 @@ import { ClaudeFlow } from 'claude-flow';
 
 async function processBatch(items: any[]) {
   const claudeFlow = new ClaudeFlow();
-  
+
   // Create batch task
   const batchTask = await claudeFlow.createBatch({
     template: {
@@ -346,7 +351,7 @@ class MultiTenantClaudeFlow {
           }
         }
       });
-      
+
       await instance.start();
       this.instances.set(tenantId, instance);
     }
@@ -377,7 +382,7 @@ class DistributedClaudeFlow {
   async distributeTask(task: Task): Promise<TaskResult> {
     // Find best node for task
     const node = await this.selectOptimalNode(task);
-    
+
     // Execute on selected node
     return await node.executeTask(task);
   }
@@ -461,7 +466,7 @@ describe('Full Workflow Integration', () => {
     // Verify results
     expect(workflow.status).toBe('completed');
     expect(workflow.results).toHaveLength(3);
-    
+
     await claudeFlow.stop();
   });
 });
@@ -511,7 +516,7 @@ class ResourceManagedClaudeFlow {
 
   async acquireResource(type: string): Promise<Resource> {
     const poolKey = `${type}_pool`;
-    
+
     if (!this.resourcePool.has(poolKey)) {
       this.resourcePool.set(poolKey, await this.createResource(type));
     }

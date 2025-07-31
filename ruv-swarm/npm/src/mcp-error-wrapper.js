@@ -41,7 +41,7 @@ export class MCPCommunicationError extends Error {
 class MCPValidator {
     static validateSwarmInit(params) {
         const errors = [];
-        
+
         if (params.topology && !['mesh', 'hierarchical', 'ring', 'star', 'centralized', 'distributed'].includes(params.topology)) {
             errors.push(new MCPValidationError(
                 'Invalid topology. Must be one of: mesh, hierarchical, ring, star, centralized, distributed',
@@ -49,7 +49,7 @@ class MCPValidator {
                 params.topology
             ));
         }
-        
+
         if (params.maxAgents !== undefined) {
             if (typeof params.maxAgents !== 'number' || params.maxAgents < 1 || params.maxAgents > 1000) {
                 errors.push(new MCPValidationError(
@@ -59,7 +59,7 @@ class MCPValidator {
                 ));
             }
         }
-        
+
         if (params.strategy && !['balanced', 'specialized', 'adaptive', 'parallel'].includes(params.strategy)) {
             errors.push(new MCPValidationError(
                 'Invalid strategy. Must be one of: balanced, specialized, adaptive, parallel',
@@ -67,13 +67,13 @@ class MCPValidator {
                 params.strategy
             ));
         }
-        
+
         return errors;
     }
-    
+
     static validateAgentSpawn(params) {
         const errors = [];
-        
+
         if (params.type && !['coordinator', 'researcher', 'coder', 'analyst', 'architect', 'tester', 'reviewer', 'optimizer', 'documenter', 'monitor', 'specialist'].includes(params.type)) {
             errors.push(new MCPValidationError(
                 'Invalid agent type. Must be one of: coordinator, researcher, coder, analyst, architect, tester, reviewer, optimizer, documenter, monitor, specialist',
@@ -81,7 +81,7 @@ class MCPValidator {
                 params.type
             ));
         }
-        
+
         if (params.name && (typeof params.name !== 'string' || params.name.length === 0 || params.name.length > 100)) {
             errors.push(new MCPValidationError(
                 'Agent name must be a non-empty string with max length of 100 characters',
@@ -89,7 +89,7 @@ class MCPValidator {
                 params.name
             ));
         }
-        
+
         if (params.capabilities && !Array.isArray(params.capabilities)) {
             errors.push(new MCPValidationError(
                 'Capabilities must be an array',
@@ -97,13 +97,13 @@ class MCPValidator {
                 params.capabilities
             ));
         }
-        
+
         return errors;
     }
-    
+
     static validateTaskOrchestrate(params) {
         const errors = [];
-        
+
         if (!params.task || typeof params.task !== 'string' || params.task.trim().length === 0) {
             errors.push(new MCPValidationError(
                 'Task description is required and must be a non-empty string',
@@ -111,7 +111,7 @@ class MCPValidator {
                 params.task
             ));
         }
-        
+
         if (params.priority && !['low', 'medium', 'high', 'critical'].includes(params.priority)) {
             errors.push(new MCPValidationError(
                 'Invalid priority. Must be one of: low, medium, high, critical',
@@ -119,7 +119,7 @@ class MCPValidator {
                 params.priority
             ));
         }
-        
+
         if (params.maxAgents !== undefined) {
             if (typeof params.maxAgents !== 'number' || params.maxAgents < 1 || params.maxAgents > 100) {
                 errors.push(new MCPValidationError(
@@ -129,13 +129,13 @@ class MCPValidator {
                 ));
             }
         }
-        
+
         return errors;
     }
-    
+
     static validateNeuralTrain(params) {
         const errors = [];
-        
+
         if (!params.agentId || typeof params.agentId !== 'string') {
             errors.push(new MCPValidationError(
                 'agentId is required and must be a string',
@@ -143,7 +143,7 @@ class MCPValidator {
                 params.agentId
             ));
         }
-        
+
         if (params.iterations !== undefined) {
             if (typeof params.iterations !== 'number' || params.iterations < 1 || params.iterations > 10000) {
                 errors.push(new MCPValidationError(
@@ -153,7 +153,7 @@ class MCPValidator {
                 ));
             }
         }
-        
+
         if (params.learningRate !== undefined) {
             if (typeof params.learningRate !== 'number' || params.learningRate <= 0 || params.learningRate > 1) {
                 errors.push(new MCPValidationError(
@@ -163,7 +163,7 @@ class MCPValidator {
                 ));
             }
         }
-        
+
         return errors;
     }
 }
@@ -187,7 +187,7 @@ export class RobustMCPTools {
             },
             ...options.errorHandling
         });
-        
+
         // MCP-specific configurations
         this.operationTimeouts = {
             swarm_init: 30000,
@@ -200,11 +200,11 @@ export class RobustMCPTools {
             task_status: 5000,
             task_results: 10000
         };
-        
+
         this.validationCache = new Map();
         this.operationHistory = [];
         this.maxHistorySize = 1000;
-        
+
         // Performance monitoring
         this.performanceMetrics = {
             totalOperations: 0,
@@ -213,7 +213,7 @@ export class RobustMCPTools {
             averageResponseTime: 0,
             operationCounts: {}
         };
-        
+
         this.setupEventHandlers();
     }
 
@@ -223,18 +223,18 @@ export class RobustMCPTools {
     async initialize(ruvSwarmInstance = null) {
         return await this.errorHandler.wrapOperation(async () => {
             console.log('🔧 Initializing robust MCP tools...');
-            
+
             // Validate ruv-swarm instance if provided
             if (ruvSwarmInstance && !this.validateRuvSwarmInstance(ruvSwarmInstance)) {
                 throw new Error('Invalid ruv-swarm instance provided');
             }
-            
+
             const result = await this.withTimeout(
                 this.baseMCP.initialize(ruvSwarmInstance),
                 30000,
                 'MCP initialization'
             );
-            
+
             console.log('✅ Robust MCP tools initialized successfully');
             return result;
         }, {
@@ -251,16 +251,16 @@ export class RobustMCPTools {
         return await this.executeValidatedOperation('swarm_init', params, async (validatedParams) => {
             // Pre-operation checks
             await this.preOperationChecks('swarm_init');
-            
+
             const result = await this.withTimeout(
                 this.baseMCP.swarm_init(validatedParams),
                 this.operationTimeouts.swarm_init,
                 'swarm_init'
             );
-            
+
             // Post-operation validation
             this.validateSwarmInitResult(result);
-            
+
             return result;
         });
     }
@@ -271,15 +271,15 @@ export class RobustMCPTools {
     async agent_spawn(params = {}) {
         return await this.executeValidatedOperation('agent_spawn', params, async (validatedParams) => {
             await this.preOperationChecks('agent_spawn');
-            
+
             const result = await this.withTimeout(
                 this.baseMCP.agent_spawn(validatedParams),
                 this.operationTimeouts.agent_spawn,
                 'agent_spawn'
             );
-            
+
             this.validateAgentSpawnResult(result);
-            
+
             return result;
         });
     }
@@ -290,18 +290,18 @@ export class RobustMCPTools {
     async task_orchestrate(params = {}) {
         return await this.executeValidatedOperation('task_orchestrate', params, async (validatedParams) => {
             await this.preOperationChecks('task_orchestrate');
-            
+
             // Check for available agents before orchestration
             await this.checkAgentAvailability(validatedParams);
-            
+
             const result = await this.withTimeout(
                 this.baseMCP.task_orchestrate(validatedParams),
                 this.operationTimeouts.task_orchestrate,
                 'task_orchestrate'
             );
-            
+
             this.validateTaskOrchestrationResult(result);
-            
+
             return result;
         });
     }
@@ -312,21 +312,21 @@ export class RobustMCPTools {
     async neural_train(params = {}) {
         return await this.executeValidatedOperation('neural_train', params, async (validatedParams) => {
             await this.preOperationChecks('neural_train');
-            
+
             // Verify neural capabilities are available
             await this.verifyNeuralCapabilities();
-            
+
             // Check agent exists and is capable of neural training
             await this.verifyAgentForNeuralTraining(validatedParams.agentId);
-            
+
             const result = await this.withTimeout(
                 this.baseMCP.neural_train(validatedParams),
                 this.operationTimeouts.neural_train,
                 'neural_train'
             );
-            
+
             this.validateNeuralTrainResult(result);
-            
+
             return result;
         });
     }
@@ -337,20 +337,20 @@ export class RobustMCPTools {
     async task_results(params = {}) {
         return await this.executeValidatedOperation('task_results', params, async (validatedParams) => {
             await this.preOperationChecks('task_results');
-            
+
             // Verify task exists
             if (validatedParams.taskId) {
                 await this.verifyTaskExists(validatedParams.taskId);
             }
-            
+
             const result = await this.withTimeout(
                 this.baseMCP.task_results(validatedParams),
                 this.operationTimeouts.task_results,
                 'task_results'
             );
-            
+
             this.validateTaskResultsResponse(result);
-            
+
             return result;
         });
     }
@@ -361,21 +361,21 @@ export class RobustMCPTools {
     async benchmark_run(params = {}) {
         return await this.executeValidatedOperation('benchmark_run', params, async (validatedParams) => {
             await this.preOperationChecks('benchmark_run');
-            
+
             // Check system resources before benchmark
             const resourceCheck = await this.checkSystemResources();
             if (!resourceCheck.suitable) {
                 console.warn('⚠️ System resources may be insufficient for benchmarking:', resourceCheck.warnings);
             }
-            
+
             const result = await this.withTimeout(
                 this.baseMCP.benchmark_run(validatedParams),
                 this.operationTimeouts.benchmark_run,
                 'benchmark_run'
             );
-            
+
             this.validateBenchmarkResult(result);
-            
+
             return result;
         });
     }
@@ -386,14 +386,14 @@ export class RobustMCPTools {
     async executeValidatedOperation(operationName, params, operation) {
         const operationId = crypto.randomUUID();
         const startTime = Date.now();
-        
+
         try {
             // Validate parameters
             const validatedParams = await this.validateParameters(operationName, params);
-            
+
             // Record operation start
             this.recordOperationStart(operationId, operationName, validatedParams);
-            
+
             // Execute operation with error handling
             const result = await this.errorHandler.wrapOperation(operation, {
                 category: ErrorCategory.MCP,
@@ -402,15 +402,15 @@ export class RobustMCPTools {
                 operationId,
                 parameters: validatedParams
             })(validatedParams);
-            
+
             // Record successful operation
             this.recordOperationEnd(operationId, true, Date.now() - startTime, result);
-            
+
             return result;
         } catch (error) {
             // Record failed operation
             this.recordOperationEnd(operationId, false, Date.now() - startTime, null, error);
-            
+
             // Enhance error with operation context
             const enhancedError = this.enhanceError(error, operationName, params);
             throw enhancedError;
@@ -426,9 +426,9 @@ export class RobustMCPTools {
         if (this.validationCache.has(cacheKey)) {
             return this.validationCache.get(cacheKey);
         }
-        
+
         let validationErrors = [];
-        
+
         // Operation-specific validation
         switch (operationName) {
             case 'swarm_init':
@@ -445,21 +445,21 @@ export class RobustMCPTools {
                 break;
             // Add more validators as needed
         }
-        
+
         if (validationErrors.length > 0) {
             const errorMessages = validationErrors.map(e => e.message).join('; ');
             throw new MCPValidationError(`Parameter validation failed: ${errorMessages}`, 'multiple', params);
         }
-        
+
         // Cache successful validation
         this.validationCache.set(cacheKey, params);
-        
+
         // Limit cache size
         if (this.validationCache.size > 1000) {
             const firstKey = this.validationCache.keys().next().value;
             this.validationCache.delete(firstKey);
         }
-        
+
         return params;
     }
 
@@ -471,13 +471,13 @@ export class RobustMCPTools {
         if (!this.baseMCP.ruvSwarm) {
             throw new MCPCommunicationError('MCP tools not properly initialized', operationName);
         }
-        
+
         // Check system health
         const health = await this.checkSystemHealth();
         if (!health.healthy && health.severity === 'critical') {
             throw new MCPCommunicationError(`System health critical, cannot execute ${operationName}`, operationName, false);
         }
-        
+
         // Check operation-specific requirements
         await this.checkOperationRequirements(operationName);
     }
@@ -489,31 +489,31 @@ export class RobustMCPTools {
         try {
             const memoryUsage = process.memoryUsage();
             const memoryUsageMB = memoryUsage.used / (1024 * 1024);
-            
+
             const health = {
                 healthy: true,
                 severity: 'normal',
                 issues: []
             };
-            
+
             // Memory check
             if (memoryUsageMB > 1000) { // > 1GB
                 health.issues.push(`High memory usage: ${memoryUsageMB.toFixed(2)}MB`);
                 health.severity = 'warning';
             }
-            
+
             if (memoryUsageMB > 2000) { // > 2GB
                 health.healthy = false;
                 health.severity = 'critical';
             }
-            
+
             // CPU usage check (simplified)
             const loadAverage = process.loadavg ? process.loadavg()[0] : 0;
             if (loadAverage > 2.0) {
                 health.issues.push(`High CPU load: ${loadAverage.toFixed(2)}`);
                 health.severity = health.severity === 'critical' ? 'critical' : 'warning';
             }
-            
+
             return health;
         } catch (error) {
             return {
@@ -562,7 +562,7 @@ export class RobustMCPTools {
     async checkSystemResources() {
         const memoryUsage = process.memoryUsage();
         const memoryUsageMB = memoryUsage.used / (1024 * 1024);
-        
+
         return {
             suitable: memoryUsageMB < 1500, // Less than 1.5GB
             warnings: memoryUsageMB > 1000 ? [`High memory usage: ${memoryUsageMB.toFixed(2)}MB`] : [],
@@ -578,11 +578,11 @@ export class RobustMCPTools {
         try {
             const agents = await this.baseMCP.agent_list({ filter: 'all' });
             const agent = agents.agents.find(a => a.id === agentId);
-            
+
             if (!agent) {
                 throw new MCPValidationError(`Agent not found: ${agentId}`, 'agentId', agentId);
             }
-            
+
             if (agent.status === 'error' || agent.status === 'offline') {
                 throw new MCPCommunicationError(`Agent ${agentId} is not available (status: ${agent.status})`, 'neural_train', true);
             }
@@ -618,11 +618,11 @@ export class RobustMCPTools {
         try {
             const agents = await this.baseMCP.agent_list({ filter: 'idle' });
             const availableAgents = agents.agents || [];
-            
+
             if (availableAgents.length === 0) {
                 throw new MCPCommunicationError('No idle agents available for task orchestration', 'task_orchestrate', false);
             }
-            
+
             const maxAgents = params.maxAgents || availableAgents.length;
             if (availableAgents.length < maxAgents) {
                 console.warn(`⚠️ Requested ${maxAgents} agents but only ${availableAgents.length} available`);
@@ -644,7 +644,7 @@ export class RobustMCPTools {
                 reject(new MCPTimeoutError(operationName, timeoutMs));
             }, timeoutMs);
         });
-        
+
         return Promise.race([promise, timeoutPromise]);
     }
 
@@ -700,23 +700,23 @@ export class RobustMCPTools {
      * Enhance error with additional context
      */
     enhanceError(error, operationName, params) {
-        if (error instanceof MCPTimeoutError || 
-            error instanceof MCPValidationError || 
+        if (error instanceof MCPTimeoutError ||
+            error instanceof MCPValidationError ||
             error instanceof MCPCommunicationError) {
             return error; // Already enhanced
         }
-        
+
         // Add operation context to generic errors
         const enhancedError = new MCPCommunicationError(
             `${operationName} failed: ${error.message}`,
             operationName,
             this.isRetryableError(error)
         );
-        
+
         enhancedError.originalError = error;
         enhancedError.parameters = params;
         enhancedError.timestamp = new Date().toISOString();
-        
+
         return enhancedError;
     }
 
@@ -733,7 +733,7 @@ export class RobustMCPTools {
             'rate limit',
             'service unavailable'
         ];
-        
+
         const errorMessage = error.message.toLowerCase();
         return retryablePatterns.some(pattern => errorMessage.includes(pattern));
     }
@@ -743,9 +743,9 @@ export class RobustMCPTools {
      */
     recordOperationStart(operationId, operationName, params) {
         this.performanceMetrics.totalOperations++;
-        this.performanceMetrics.operationCounts[operationName] = 
+        this.performanceMetrics.operationCounts[operationName] =
             (this.performanceMetrics.operationCounts[operationName] || 0) + 1;
-        
+
         this.operationHistory.push({
             id: operationId,
             operation: operationName,
@@ -753,7 +753,7 @@ export class RobustMCPTools {
             parameters: JSON.stringify(params),
             status: 'running'
         });
-        
+
         // Maintain history size
         if (this.operationHistory.length > this.maxHistorySize) {
             this.operationHistory.shift();
@@ -769,17 +769,17 @@ export class RobustMCPTools {
             operation.error = error?.message;
             operation.result = success ? 'success' : 'error';
         }
-        
+
         if (success) {
             this.performanceMetrics.successfulOperations++;
         } else {
             this.performanceMetrics.failedOperations++;
         }
-        
+
         // Update average response time
         const totalSuccessful = this.performanceMetrics.successfulOperations;
         if (success && totalSuccessful > 0) {
-            this.performanceMetrics.averageResponseTime = 
+            this.performanceMetrics.averageResponseTime =
                 ((this.performanceMetrics.averageResponseTime * (totalSuccessful - 1)) + duration) / totalSuccessful;
         }
     }
@@ -791,11 +791,11 @@ export class RobustMCPTools {
         this.errorHandler.on('error', (errorRecord) => {
             console.error(`🚨 MCP Error: ${errorRecord.operation} - ${errorRecord.error.message}`);
         });
-        
+
         this.errorHandler.on('criticalError', (errorRecord) => {
             console.error(`💥 Critical MCP Error: ${errorRecord.operation} - Manual intervention may be required`);
         });
-        
+
         this.errorHandler.on('healthStatusChange', (status) => {
             if (!status.isHealthy) {
                 console.warn('⚠️ MCP system health degraded:', status.metrics);
@@ -809,7 +809,7 @@ export class RobustMCPTools {
      * Validate ruv-swarm instance
      */
     validateRuvSwarmInstance(instance) {
-        return instance && 
+        return instance &&
                typeof instance === 'object' &&
                typeof instance.createSwarm === 'function' &&
                typeof instance.getGlobalMetrics === 'function';
@@ -821,7 +821,7 @@ export class RobustMCPTools {
     async getHealthStatus() {
         const systemHealth = await this.checkSystemHealth();
         const errorHandlerHealth = this.errorHandler.getHealthStatus();
-        
+
         return {
             mcp_tools: {
                 initialized: !!this.baseMCP.ruvSwarm,
@@ -841,7 +841,7 @@ export class RobustMCPTools {
      */
     generateHealthRecommendations(systemHealth, errorHandlerHealth) {
         const recommendations = [];
-        
+
         if (!systemHealth.healthy) {
             recommendations.push({
                 type: 'system_health',
@@ -851,10 +851,10 @@ export class RobustMCPTools {
                 actions: ['Monitor memory usage', 'Check CPU load', 'Consider restarting processes']
             });
         }
-        
-        const failureRate = this.performanceMetrics.totalOperations > 0 ? 
+
+        const failureRate = this.performanceMetrics.totalOperations > 0 ?
             this.performanceMetrics.failedOperations / this.performanceMetrics.totalOperations : 0;
-        
+
         if (failureRate > 0.1) { // >10% failure rate
             recommendations.push({
                 type: 'high_failure_rate',
@@ -863,7 +863,7 @@ export class RobustMCPTools {
                 actions: ['Review error logs', 'Check system resources', 'Validate parameters']
             });
         }
-        
+
         if (this.performanceMetrics.averageResponseTime > 10000) { // >10 seconds
             recommendations.push({
                 type: 'slow_responses',
@@ -872,7 +872,7 @@ export class RobustMCPTools {
                 actions: ['Check network connectivity', 'Monitor system load', 'Consider increasing timeouts']
             });
         }
-        
+
         return recommendations;
     }
 
@@ -880,10 +880,10 @@ export class RobustMCPTools {
      * Pass through other MCP methods with error handling wrapper
      */
     async swarm_status(params = {}) {
-        return await this.executeValidatedOperation('swarm_status', params, 
+        return await this.executeValidatedOperation('swarm_status', params,
             async (p) => await this.withTimeout(
-                this.baseMCP.swarm_status(p), 
-                this.operationTimeouts.swarm_status, 
+                this.baseMCP.swarm_status(p),
+                this.operationTimeouts.swarm_status,
                 'swarm_status'
             )
         );

@@ -33,13 +33,13 @@ async function tryLoadSQLite() {
       return true;
     } catch (importErr) {
       loadError = importErr;
-      
+
       // Check for specific Windows errors
       if (requireErr.message.includes('was compiled against a different Node.js version') ||
           requireErr.message.includes('Could not locate the bindings file') ||
           requireErr.message.includes('The specified module could not be found') ||
           requireErr.code === 'MODULE_NOT_FOUND') {
-        
+
         console.warn(`
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                     Windows SQLite Installation Issue                         ║
@@ -66,7 +66,7 @@ async function tryLoadSQLite() {
 ╚══════════════════════════════════════════════════════════════════════════════╝
 `);
       }
-      
+
       return false;
     }
   }
@@ -79,7 +79,7 @@ export async function isSQLiteAvailable() {
   if (sqliteAvailable !== null) {
     return sqliteAvailable;
   }
-  
+
   await tryLoadSQLite();
   return sqliteAvailable;
 }
@@ -91,7 +91,7 @@ export async function getSQLiteDatabase() {
   if (!sqliteAvailable && loadError === null) {
     await tryLoadSQLite();
   }
-  
+
   return Database;
 }
 
@@ -107,11 +107,11 @@ export function getLoadError() {
  */
 export async function createDatabase(dbPath) {
   const DB = await getSQLiteDatabase();
-  
+
   if (!DB) {
     throw new Error('SQLite is not available. Use fallback storage instead.');
   }
-  
+
   try {
     return new DB(dbPath);
   } catch (err) {
@@ -145,7 +145,7 @@ export function getStorageRecommendations() {
       ]
     };
   }
-  
+
   return {
     recommended: 'sqlite',
     reason: 'Best performance and persistence',

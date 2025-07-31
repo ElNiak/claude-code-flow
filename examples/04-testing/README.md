@@ -17,31 +17,37 @@ Scripts for testing Claude Flow functionality and validating system features.
 ## Test Categories
 
 ### Unit Tests (`unit/`)
+
 - **test-memory-system.sh**: Complete memory system unit tests
   - Store, query, update, delete operations
   - Bulk operations and stats
   - Export/import functionality
+
   ```bash
   cd examples/04-testing/unit
   ./test-memory-system.sh
   ```
 
 ### Integration Tests (`integration/`)
+
 - **test-workflow-execution.sh**: End-to-end workflow testing
   - Workflow execution verification
   - Output validation
   - Error handling
   - Resource cleanup
+
   ```bash
   cd examples/04-testing/integration
   ./test-workflow-execution.sh
   ```
 
 ### Performance Tests (`performance/`)
+
 - **benchmark-swarm.sh**: Performance benchmarking suite
   - Execution time measurements
   - Resource usage analysis
   - Performance recommendations
+
   ```bash
   cd examples/04-testing/performance
   ./benchmark-swarm.sh
@@ -50,13 +56,17 @@ Scripts for testing Claude Flow functionality and validating system features.
 ## Original Test Files
 
 ### sparc-swarm-test.sh
+
 **Comprehensive SPARC TDD test suite** (235 lines)
+
 - Tests all SPARC modes
 - Validates TDD workflow
 - Memory integration tests
 
 ### test-swarm-cli.sh
+
 **CLI functionality tests** (129 lines)
+
 - Command validation
 - Strategy testing
 - Error handling
@@ -80,6 +90,7 @@ Scripts for testing Claude Flow functionality and validating system features.
 ## Test Coverage
 
 ### SPARC Modes Tested
+
 - `spec-pseudocode`: Requirements and pseudocode
 - `architect`: System design
 - `tdd`: Test-driven development
@@ -89,6 +100,7 @@ Scripts for testing Claude Flow functionality and validating system features.
 - `integration`: System integration
 
 ### Strategies Tested
+
 - `development`: Building applications
 - `research`: Information gathering
 - `analysis`: Code quality review
@@ -96,6 +108,7 @@ Scripts for testing Claude Flow functionality and validating system features.
 - `optimization`: Performance tuning
 
 ### Features Validated
+
 - Multi-agent coordination
 - Task scheduling
 - Memory persistence
@@ -106,6 +119,7 @@ Scripts for testing Claude Flow functionality and validating system features.
 ## Writing New Tests
 
 When adding tests:
+
 1. Follow existing test structure
 2. Use clear test names
 3. Include both positive and negative cases
@@ -116,6 +130,7 @@ When adding tests:
 ## Test Utilities
 
 Both scripts include helper functions:
+
 - `run_test`: Execute test with timing
 - `check_output`: Validate results
 - `assert_equals`: Value comparison

@@ -16,11 +16,7 @@
     "medium_scale": null,
     "large_scale": null
   },
-  "failed_configurations": [
-    "quick_hierarchical",
-    "quick_mesh",
-    "quick_star"
-  ],
+  "failed_configurations": ["quick_hierarchical", "quick_mesh", "quick_star"],
   "performance_targets": {
     "initialization_time_met": 0,
     "coordination_latency_met": 0,

@@ -55,6 +55,7 @@ const circuitBreaker = {
 ```
 
 **States:**
+
 - **CLOSED**: Normal operation
 - **OPEN**: Blocking requests, allowing system recovery
 - **HALF_OPEN**: Testing if system has recovered
@@ -79,6 +80,7 @@ const retryConfig = {
 System continues operating with reduced functionality when components fail.
 
 **Examples:**
+
 - WASM failure → JavaScript fallback implementation
 - Database failure → In-memory storage mode
 - Neural networks unavailable → Basic agent behavior
@@ -106,12 +108,14 @@ const wasmFallback = {
 ### Persistence Layer (EnhancedSwarmPersistence)
 
 **Error Scenarios:**
+
 - Database connection failures
 - Disk space exhaustion
 - Data corruption
 - Transaction conflicts
 
 **Recovery Mechanisms:**
+
 - Automatic fallback to in-memory mode
 - Transaction rollback on failures
 - Data integrity checks
@@ -140,12 +144,14 @@ try {
 ### WASM Module Loading (EnhancedWasmLoader)
 
 **Error Scenarios:**
+
 - Module loading timeouts
 - Invalid WASM binary
 - Memory allocation failures
 - Feature incompatibility
 
 **Recovery Mechanisms:**
+
 - Loading timeouts with fallbacks
 - Module integrity validation
 - JavaScript implementation fallbacks
@@ -170,12 +176,14 @@ try {
 ### MCP Tools (RobustMCPTools)
 
 **Error Scenarios:**
+
 - Communication timeouts
 - Parameter validation failures
 - Agent unavailability
 - Network connectivity issues
 
 **Recovery Mechanisms:**
+
 - Input validation with detailed error messages
 - Operation timeouts
 - Prerequisite checking
@@ -233,7 +241,7 @@ Track operation success rates and response times.
 ```javascript
 // Get performance metrics
 const metrics = mcpTools.performanceMetrics;
-console.log('Success Rate:', 
+console.log('Success Rate:',
     (metrics.successfulOperations / metrics.totalOperations * 100).toFixed(1) + '%'
 );
 console.log('Average Response Time:', metrics.averageResponseTime.toFixed(0) + 'ms');
@@ -386,10 +394,12 @@ setInterval(async () => {
 ### Database Connection Failures
 
 **Symptoms:**
+
 - "SQLITE_BUSY" or "SQLITE_LOCKED" errors
 - Database connection timeouts
 
 **Solutions:**
+
 1. Check database file permissions
 2. Verify disk space availability
 3. Review concurrent access patterns
@@ -403,11 +413,13 @@ db.exec('PRAGMA journal_mode = WAL');
 ### WASM Loading Failures
 
 **Symptoms:**
+
 - Module loading timeouts
 - "WebAssembly.instantiate" errors
 - Feature detection failures
 
 **Solutions:**
+
 1. Verify WASM file integrity
 2. Check browser/Node.js compatibility
 3. Enable fallback implementations
@@ -424,11 +436,13 @@ if (typeof WebAssembly === 'undefined') {
 ### MCP Communication Issues
 
 **Symptoms:**
+
 - Operation timeouts
 - Parameter validation failures
 - Agent unavailability errors
 
 **Solutions:**
+
 1. Verify agent status and availability
 2. Review parameter formats and ranges
 3. Check network connectivity
@@ -445,11 +459,13 @@ if (agents.agents.length === 0) {
 ### Memory Issues
 
 **Symptoms:**
+
 - Out of memory errors
 - Slow performance
 - High memory usage warnings
 
 **Solutions:**
+
 1. Monitor memory usage regularly
 2. Implement memory cleanup procedures
 3. Use memory pools for frequent allocations

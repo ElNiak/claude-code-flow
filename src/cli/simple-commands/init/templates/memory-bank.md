@@ -1,6 +1,7 @@
 # Memory Bank
 
 ## Overview
+
 This file serves as a persistent memory bank for important project context that should be retained across sessions.
 
 ## Project Context

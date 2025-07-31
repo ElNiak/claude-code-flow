@@ -7,6 +7,7 @@ The Claude-Flow MCP Wrapper is a new architecture that replaces the templated ap
 ## Architecture
 
 ### Previous Architecture (Templated)
+
 ```
 User → claude-flow MCP → Template Engine → File Generation
                       ↓
@@ -14,6 +15,7 @@ User → claude-flow MCP → Template Engine → File Generation
 ```
 
 ### New Architecture (Wrapper)
+
 ```
 User → claude-flow MCP Wrapper → Claude Code MCP Tools
            ↓                           ↑
@@ -31,14 +33,18 @@ User → claude-flow MCP Wrapper → Claude Code MCP Tools
 ## How It Works
 
 ### 1. Tool Interception
+
 When a SPARC tool is called (e.g., `sparc_coder`), the wrapper:
+
 - Intercepts the request
 - Extracts the task and context
 - Builds an enhanced prompt with SPARC methodology
 - Forwards to Claude Code's `Task` tool
 
 ### 2. Prompt Injection
+
 The wrapper automatically adds:
+
 - SPARC mode description and instructions
 - Available tools for the mode
 - Usage patterns and best practices
@@ -48,6 +54,7 @@ The wrapper automatically adds:
 ### 3. Example Transformation
 
 **Original Request:**
+
 ```json
 {
   "tool": "sparc_coder",
@@ -58,6 +65,7 @@ The wrapper automatically adds:
 ```
 
 **Enhanced Prompt Sent to Claude Code:**
+
 ```
 SPARC: coder
 
@@ -137,7 +145,9 @@ Add to your Claude desktop configuration:
 ## Available Tools
 
 ### SPARC Mode Tools
+
 All 17 SPARC modes are available as `sparc_<mode>`:
+
 - `sparc_orchestrator` - Multi-agent coordination
 - `sparc_coder` - Code generation
 - `sparc_researcher` - Deep research
@@ -157,6 +167,7 @@ All 17 SPARC modes are available as `sparc_<mode>`:
 - `sparc_workflow-manager` - Workflow automation
 
 ### Meta Tools
+
 - `sparc_list` - List all available modes
 - `sparc_swarm` - Coordinate multiple agents
 - `sparc_swarm_status` - Check swarm status
@@ -176,6 +187,7 @@ sparc_swarm({
 ```
 
 This automatically:
+
 1. Plans appropriate agents based on strategy
 2. Launches agents with proper coordination
 3. Manages parallel/sequential execution
@@ -186,6 +198,7 @@ This automatically:
 ### For Tool Developers
 
 **Before (Template-based):**
+
 ```javascript
 // Had to implement file generation templates
 function generateCode(task) {
@@ -197,6 +210,7 @@ function generateCode(task) {
 ```
 
 **After (Wrapper-based):**
+
 ```javascript
 // Just forward to Claude Code with enhanced prompt
 return this.forwardToClaudeCode('Task', {
@@ -211,7 +225,7 @@ The interface remains the same! All existing SPARC tools work identically:
 
 ```javascript
 // Still works exactly the same
-sparc_coder({ 
+sparc_coder({
   task: "Create a user authentication system"
 })
 ```
@@ -219,13 +233,17 @@ sparc_coder({
 ## Advanced Features
 
 ### Memory Integration
+
 The wrapper automatically includes memory keys for coordination:
+
 ```javascript
 Memory Key: sparc_coder_1234567890
 ```
 
 ### Parallel Execution
+
 Enable parallel execution through context:
+
 ```javascript
 sparc_orchestrator({
   task: "Process multiple files",
@@ -234,6 +252,7 @@ sparc_orchestrator({
 ```
 
 ### Custom Working Directory
+
 ```javascript
 sparc_coder({
   task: "Create module",
@@ -244,16 +263,19 @@ sparc_coder({
 ## Troubleshooting
 
 ### Wrapper Not Starting
+
 1. Check Node.js version (requires 18+)
 2. Ensure dependencies are installed: `npm install`
 3. Verify TypeScript compilation: `npm run build`
 
 ### Tools Not Available
+
 1. Check `.roomodes` file exists
 2. Verify SPARC modes are loading correctly
 3. Check console for error messages
 
 ### Claude Code Connection Issues
+
 1. Ensure Claude Code is installed
 2. Check MCP server permissions
 3. Verify stdio communication
@@ -261,12 +283,15 @@ sparc_coder({
 ## Development
 
 ### Adding New SPARC Modes
+
 1. Add mode definition to `.roomodes`
 2. Restart the wrapper
 3. Mode automatically available as `sparc_<mode>`
 
 ### Customizing Prompt Injection
+
 Edit `buildEnhancedPrompt` method in `claude-code-wrapper.ts`:
+
 ```typescript
 private buildEnhancedPrompt(mode: SparcMode, task: string, context?: SparcContext): string {
   // Customize prompt building logic
@@ -274,6 +299,7 @@ private buildEnhancedPrompt(mode: SparcMode, task: string, context?: SparcContex
 ```
 
 ### Testing
+
 ```bash
 # Test wrapper functionality
 npm test src/mcp/claude-code-wrapper.test.ts

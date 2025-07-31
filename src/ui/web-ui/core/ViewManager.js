@@ -153,11 +153,11 @@ export class ViewManager {
         .claude-flow-main-container {
           padding: 10px;
         }
-        
+
         .claude-flow-view {
           padding: 10px;
         }
-        
+
         .claude-flow-title {
           font-size: 20px;
         }

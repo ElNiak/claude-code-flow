@@ -3,7 +3,7 @@
 /**
  * Notes CLI Application
  * Created by Claude Flow Swarm
- * 
+ *
  * Agent contributions:
  * - Developer-1: Core note management logic
  * - Developer-2: CLI interface and commands
@@ -75,7 +75,7 @@ class NotesManager {
 
     searchNotes(query) {
         const lowercaseQuery = query.toLowerCase();
-        return this.notes.filter(note => 
+        return this.notes.filter(note =>
             note.title.toLowerCase().includes(lowercaseQuery) ||
             note.content.toLowerCase().includes(lowercaseQuery) ||
             note.tags.some(tag => tag.toLowerCase().includes(lowercaseQuery))
@@ -112,7 +112,7 @@ class NotesManager {
         const totalNotes = this.notes.length;
         const allTags = this.notes.flatMap(note => note.tags);
         const uniqueTags = [...new Set(allTags)];
-        const avgNoteLength = totalNotes > 0 
+        const avgNoteLength = totalNotes > 0
             ? Math.round(this.notes.reduce((sum, note) => sum + note.content.length, 0) / totalNotes)
             : 0;
 
@@ -160,7 +160,7 @@ program
     .option('-t, --tag <tag>', 'Filter by tag')
     .action((options) => {
         const notes = manager.listNotes(options.tag);
-        
+
         if (notes.length === 0) {
             console.log(chalk.yellow('No notes found.'));
             return;
@@ -186,7 +186,7 @@ program
     .description('Search notes by title, content, or tags')
     .action((query) => {
         const notes = manager.searchNotes(query);
-        
+
         if (notes.length === 0) {
             console.log(chalk.yellow(`No notes found matching "${query}".`));
             return;

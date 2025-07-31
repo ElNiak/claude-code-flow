@@ -17,7 +17,7 @@ function formatTaskDetails(task: any): string {
     'Task Data:',
     JSON.stringify(task.task, null, 2)
   ].join('\n');
-  
+
   return details;
 }
 
@@ -35,15 +35,15 @@ describe('SwarmUI Display Formatting', () => {
     };
 
     const result = formatTaskDetails(task);
-    
+
     // Check that we have actual newlines, not escaped strings
     expect(result).toContain('\n');
     expect(result).not.toContain('\\n');
-    
+
     // Verify line count
     const lines = result.split('\n');
     expect(lines.length).toBeGreaterThan(8);
-    
+
     // Check specific lines
     expect(lines[0]).toBe('Task ID: agent-123');
     expect(lines[1]).toBe('Swarm ID: swarm-456');
@@ -63,10 +63,10 @@ describe('SwarmUI Display Formatting', () => {
     };
 
     const result = formatTaskDetails(task);
-    
+
     // Description should preserve its internal newlines
     expect(result).toContain('Description: Line 1\nLine 2\nLine 3');
-    
+
     // Overall structure should still use newlines
     const lines = result.split('\n');
     expect(lines[0]).toBe('Task ID: agent-multi');
@@ -82,7 +82,7 @@ describe('SwarmUI Display Formatting', () => {
     };
 
     const result = formatTaskDetails(task);
-    
+
     expect(result).toContain('Type: Unknown');
     expect(result).toContain('Description: No description');
     expect(result).toContain('Status: Unknown');
@@ -103,7 +103,7 @@ describe('SwarmUI Display Formatting', () => {
     };
 
     const result = formatTaskDetails(task);
-    
+
     // JSON should be pretty-printed with 2-space indentation
     expect(result).toContain('{\n  "type": "test",');
     expect(result).toContain('  "nested": {');

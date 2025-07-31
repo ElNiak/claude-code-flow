@@ -1,11 +1,13 @@
 # Advanced REST API Implementation Summary
 
 ## Overview
+
 This advanced REST API example demonstrates a production-ready e-commerce backend with comprehensive features, security, and best practices.
 
 ## Key Features Implemented
 
 ### 1. Authentication & Authorization
+
 - JWT-based authentication with refresh tokens
 - Email verification for new accounts
 - Password reset functionality
@@ -17,6 +19,7 @@ This advanced REST API example demonstrates a production-ready e-commerce backen
 ### 2. Core API Resources
 
 #### Users
+
 - User registration with email verification
 - Profile management
 - Password change with security
@@ -24,6 +27,7 @@ This advanced REST API example demonstrates a production-ready e-commerce backen
 - Activity logging
 
 #### Products
+
 - Full CRUD operations
 - Advanced search with filters
 - Category management
@@ -33,6 +37,7 @@ This advanced REST API example demonstrates a production-ready e-commerce backen
 - Image management
 
 #### Orders
+
 - Complete order lifecycle
 - Inventory validation
 - Order tracking
@@ -41,6 +46,7 @@ This advanced REST API example demonstrates a production-ready e-commerce backen
 - Sales analytics
 
 ### 3. Security Features
+
 - Helmet.js for security headers
 - CORS configuration
 - Rate limiting (100 req/15min general, 5 req/15min auth)
@@ -50,6 +56,7 @@ This advanced REST API example demonstrates a production-ready e-commerce backen
 - HTTPS enforcement ready
 
 ### 4. Performance Optimizations
+
 - Redis caching for products
 - Database indexing
 - Response compression
@@ -58,6 +65,7 @@ This advanced REST API example demonstrates a production-ready e-commerce backen
 - Connection pooling
 
 ### 5. Developer Experience
+
 - Swagger API documentation at `/api-docs`
 - Postman collection included
 - Comprehensive error handling
@@ -66,6 +74,7 @@ This advanced REST API example demonstrates a production-ready e-commerce backen
 - Hot reloading with nodemon
 
 ### 6. Testing
+
 - Unit tests for services
 - Integration tests for all endpoints
 - MongoDB Memory Server for testing
@@ -73,6 +82,7 @@ This advanced REST API example demonstrates a production-ready e-commerce backen
 - Test data seeders
 
 ### 7. Deployment
+
 - Docker support with multi-stage builds
 - Docker Compose for local development
 - PM2 configuration for production
@@ -81,6 +91,7 @@ This advanced REST API example demonstrates a production-ready e-commerce backen
 - Environment-based configuration
 
 ## Project Structure
+
 ```
 rest-api-advanced/
 ├── src/
@@ -128,13 +139,13 @@ npm run dev
 
 ## Available Services
 
-- **API Server**: http://localhost:3000
-- **Swagger Docs**: http://localhost:3000/api-docs
+- **API Server**: <http://localhost:3000>
+- **Swagger Docs**: <http://localhost:3000/api-docs>
 - **MongoDB**: localhost:27017
 - **Redis**: localhost:6379
-- **Mongo Express**: http://localhost:8081
-- **Redis Commander**: http://localhost:8082
-- **MailHog**: http://localhost:8025
+- **Mongo Express**: <http://localhost:8081>
+- **Redis Commander**: <http://localhost:8082>
+- **MailHog**: <http://localhost:8025>
 
 ## Testing
 
@@ -155,6 +166,7 @@ npm run test:watch
 ## Key Endpoints
 
 ### Authentication
+
 - `POST /api/v1/auth/register` - User registration
 - `POST /api/v1/auth/login` - User login
 - `POST /api/v1/auth/logout` - User logout
@@ -163,6 +175,7 @@ npm run test:watch
 - `POST /api/v1/auth/reset-password` - Reset password
 
 ### Products
+
 - `GET /api/v1/products` - List products with filters
 - `POST /api/v1/products` - Create product (admin)
 - `GET /api/v1/products/:id` - Get product details
@@ -171,6 +184,7 @@ npm run test:watch
 - `POST /api/v1/products/:id/reviews` - Add review
 
 ### Orders
+
 - `POST /api/v1/orders` - Create order
 - `GET /api/v1/orders` - List user orders
 - `GET /api/v1/orders/:id` - Get order details
@@ -207,6 +221,7 @@ npm run test:watch
 ## Contributing
 
 This is an example project designed to demonstrate best practices. Feel free to:
+
 - Fork and modify for your needs
 - Submit issues for bugs or improvements
 - Use as a template for your projects

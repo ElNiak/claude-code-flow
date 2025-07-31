@@ -56,10 +56,10 @@ export class DatabaseManager extends EventEmitter {
   async initialize(): Promise<void> {
     // Load SQLite wrapper functions
     await loadSQLiteWrapper();
-    
+
     // Check if SQLite is available
     const sqliteAvailable = await isSQLiteAvailable();
-    
+
     if (!sqliteAvailable) {
       console.warn('SQLite not available, using in-memory storage for Hive Mind');
       this.initializeInMemoryFallback();
@@ -111,7 +111,7 @@ export class DatabaseManager extends EventEmitter {
 
     // Create mock statement methods
     this.statements = new Map();
-    
+
     if (isWindows && isWindows()) {
       console.info(`
 Note: Hive Mind data will not persist between runs on Windows without SQLite.
@@ -202,8 +202,8 @@ For persistent storage options, see: https://github.com/ruvnet/claude-code-flow/
       'createTask',
       this.db.prepare(`
       INSERT INTO tasks (
-        id, swarm_id, description, priority, strategy, status, 
-        dependencies, assigned_agents, require_consensus, max_agents, 
+        id, swarm_id, description, priority, strategy, status,
+        dependencies, assigned_agents, require_consensus, max_agents,
         required_capabilities, metadata
       ) VALUES (
         @id, @swarmId, @description, @priority, @strategy, @status,
@@ -253,7 +253,7 @@ For persistent storage options, see: https://github.com/ruvnet/claude-code-flow/
     this.statements.set(
       'searchMemory',
       this.db.prepare(`
-      SELECT * FROM memory 
+      SELECT * FROM memory
       WHERE namespace = ? AND (key LIKE ? OR value LIKE ?)
       ORDER BY last_accessed_at DESC
       LIMIT ?
@@ -265,7 +265,7 @@ For persistent storage options, see: https://github.com/ruvnet/claude-code-flow/
       'createCommunication',
       this.db.prepare(`
       INSERT INTO communications (
-        from_agent_id, to_agent_id, swarm_id, message_type, 
+        from_agent_id, to_agent_id, swarm_id, message_type,
         content, priority, requires_response
       ) VALUES (
         @from_agent_id, @to_agent_id, @swarm_id, @message_type,
@@ -314,10 +314,10 @@ For persistent storage options, see: https://github.com/ruvnet/claude-code-flow/
     return this.db
       .prepare(
         `
-      SELECT s.*, COUNT(a.id) as agentCount 
-      FROM swarms s 
-      LEFT JOIN agents a ON s.id = a.swarm_id 
-      GROUP BY s.id 
+      SELECT s.*, COUNT(a.id) as agentCount
+      FROM swarms s
+      LEFT JOIN agents a ON s.id = a.swarm_id
+      GROUP BY s.id
       ORDER BY s.created_at DESC
     `,
       )
@@ -418,14 +418,14 @@ For persistent storage options, see: https://github.com/ruvnet/claude-code-flow/
     return this.db
       .prepare(
         `
-      SELECT * FROM tasks 
+      SELECT * FROM tasks
       WHERE swarm_id = ? AND status = 'pending'
-      ORDER BY 
-        CASE priority 
-          WHEN 'critical' THEN 1 
-          WHEN 'high' THEN 2 
-          WHEN 'medium' THEN 3 
-          WHEN 'low' THEN 4 
+      ORDER BY
+        CASE priority
+          WHEN 'critical' THEN 1
+          WHEN 'high' THEN 2
+          WHEN 'medium' THEN 3
+          WHEN 'low' THEN 4
         END,
         created_at ASC
     `,
@@ -437,7 +437,7 @@ For persistent storage options, see: https://github.com/ruvnet/claude-code-flow/
     return this.db
       .prepare(
         `
-      SELECT * FROM tasks 
+      SELECT * FROM tasks
       WHERE swarm_id = ? AND status IN ('assigned', 'in_progress')
     `,
       )
@@ -472,7 +472,7 @@ For persistent storage options, see: https://github.com/ruvnet/claude-code-flow/
     this.db
       .prepare(
         `
-      UPDATE memory 
+      UPDATE memory
       SET access_count = access_count + 1, last_accessed_at = CURRENT_TIMESTAMP
       WHERE key = ? AND namespace = ?
     `,
@@ -495,9 +495,9 @@ For persistent storage options, see: https://github.com/ruvnet/claude-code-flow/
     return this.db
       .prepare(
         `
-      SELECT * FROM memory 
-      WHERE namespace = ? 
-      ORDER BY last_accessed_at DESC 
+      SELECT * FROM memory
+      WHERE namespace = ?
+      ORDER BY last_accessed_at DESC
       LIMIT ?
     `,
       )
@@ -508,7 +508,7 @@ For persistent storage options, see: https://github.com/ruvnet/claude-code-flow/
     const result = this.db
       .prepare(
         `
-      SELECT 
+      SELECT
         COUNT(*) as totalEntries,
         SUM(LENGTH(value)) as totalSize
       FROM memory
@@ -524,7 +524,7 @@ For persistent storage options, see: https://github.com/ruvnet/claude-code-flow/
       this.db
         .prepare(
           `
-      SELECT 
+      SELECT
         COUNT(*) as entries,
         SUM(LENGTH(value)) as size,
         AVG(ttl) as avgTTL
@@ -544,8 +544,8 @@ For persistent storage options, see: https://github.com/ruvnet/claude-code-flow/
     return this.db
       .prepare(
         `
-      SELECT * FROM memory 
-      ORDER BY last_accessed_at DESC 
+      SELECT * FROM memory
+      ORDER BY last_accessed_at DESC
       LIMIT ?
     `,
       )
@@ -556,7 +556,7 @@ For persistent storage options, see: https://github.com/ruvnet/claude-code-flow/
     return this.db
       .prepare(
         `
-      SELECT * FROM memory 
+      SELECT * FROM memory
       WHERE created_at < datetime('now', '-' || ? || ' days')
     `,
       )
@@ -567,7 +567,7 @@ For persistent storage options, see: https://github.com/ruvnet/claude-code-flow/
     this.db
       .prepare(
         `
-      UPDATE memory 
+      UPDATE memory
       SET value = ?, access_count = ?, last_accessed_at = ?
       WHERE key = ? AND namespace = ?
     `,
@@ -580,7 +580,7 @@ For persistent storage options, see: https://github.com/ruvnet/claude-code-flow/
     this.db
       .prepare(
         `
-      DELETE FROM memory 
+      DELETE FROM memory
       WHERE metadata LIKE '%"swarmId":"${swarmId}"%'
     `,
       )
@@ -591,7 +591,7 @@ For persistent storage options, see: https://github.com/ruvnet/claude-code-flow/
     this.db
       .prepare(
         `
-      DELETE FROM memory 
+      DELETE FROM memory
       WHERE namespace = ? AND created_at < datetime('now', '-' || ? || ' seconds')
     `,
       )
@@ -602,11 +602,11 @@ For persistent storage options, see: https://github.com/ruvnet/claude-code-flow/
     this.db
       .prepare(
         `
-      DELETE FROM memory 
+      DELETE FROM memory
       WHERE namespace = ? AND key NOT IN (
-        SELECT key FROM memory 
-        WHERE namespace = ? 
-        ORDER BY last_accessed_at DESC 
+        SELECT key FROM memory
+        WHERE namespace = ?
+        ORDER BY last_accessed_at DESC
         LIMIT ?
       )
     `,
@@ -624,14 +624,14 @@ For persistent storage options, see: https://github.com/ruvnet/claude-code-flow/
     return this.db
       .prepare(
         `
-      SELECT * FROM communications 
+      SELECT * FROM communications
       WHERE to_agent_id = ? AND delivered_at IS NULL
-      ORDER BY 
-        CASE priority 
-          WHEN 'urgent' THEN 1 
-          WHEN 'high' THEN 2 
-          WHEN 'normal' THEN 3 
-          WHEN 'low' THEN 4 
+      ORDER BY
+        CASE priority
+          WHEN 'urgent' THEN 1
+          WHEN 'high' THEN 2
+          WHEN 'normal' THEN 3
+          WHEN 'low' THEN 4
         END,
         timestamp ASC
     `,
@@ -643,8 +643,8 @@ For persistent storage options, see: https://github.com/ruvnet/claude-code-flow/
     this.db
       .prepare(
         `
-      UPDATE communications 
-      SET delivered_at = CURRENT_TIMESTAMP 
+      UPDATE communications
+      SET delivered_at = CURRENT_TIMESTAMP
       WHERE id = ?
     `,
       )
@@ -655,8 +655,8 @@ For persistent storage options, see: https://github.com/ruvnet/claude-code-flow/
     this.db
       .prepare(
         `
-      UPDATE communications 
-      SET read_at = CURRENT_TIMESTAMP 
+      UPDATE communications
+      SET read_at = CURRENT_TIMESTAMP
       WHERE id = ?
     `,
       )
@@ -667,7 +667,7 @@ For persistent storage options, see: https://github.com/ruvnet/claude-code-flow/
     return this.db
       .prepare(
         `
-      SELECT * FROM communications 
+      SELECT * FROM communications
       WHERE swarm_id = ? AND timestamp > datetime('now', '-' || ? || ' milliseconds')
     `,
       )
@@ -681,7 +681,7 @@ For persistent storage options, see: https://github.com/ruvnet/claude-code-flow/
       .prepare(
         `
       INSERT INTO consensus (
-        id, swarm_id, task_id, proposal, required_threshold, 
+        id, swarm_id, task_id, proposal, required_threshold,
         status, deadline_at
       ) VALUES (
         @id, @swarmId, @taskId, @proposal, @requiredThreshold,
@@ -720,7 +720,7 @@ For persistent storage options, see: https://github.com/ruvnet/claude-code-flow/
     this.db
       .prepare(
         `
-      UPDATE consensus 
+      UPDATE consensus
       SET votes = ?, current_votes = ?, total_voters = ?, status = ?
       WHERE id = ?
     `,
@@ -741,10 +741,10 @@ For persistent storage options, see: https://github.com/ruvnet/claude-code-flow/
     const agentStats = this.db
       .prepare(
         `
-      SELECT 
+      SELECT
         COUNT(*) as agentCount,
         SUM(CASE WHEN status = 'busy' THEN 1 ELSE 0 END) as busyAgents
-      FROM agents 
+      FROM agents
       WHERE swarm_id = ?
     `,
       )
@@ -753,9 +753,9 @@ For persistent storage options, see: https://github.com/ruvnet/claude-code-flow/
     const taskStats = this.db
       .prepare(
         `
-      SELECT 
+      SELECT
         COUNT(*) as taskBacklog
-      FROM tasks 
+      FROM tasks
       WHERE swarm_id = ? AND status IN ('pending', 'assigned')
     `,
       )
@@ -773,12 +773,12 @@ For persistent storage options, see: https://github.com/ruvnet/claude-code-flow/
     const results = this.db
       .prepare(
         `
-      SELECT 
+      SELECT
         strategy,
         COUNT(*) as totalTasks,
         SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as successful,
         AVG(JULIANDAY(completed_at) - JULIANDAY(created_at)) * 24 * 60 * 60 * 1000 as avgCompletionTime
-      FROM tasks 
+      FROM tasks
       WHERE swarm_id = ? AND completed_at IS NOT NULL
       GROUP BY strategy
     `,
@@ -801,8 +801,8 @@ For persistent storage options, see: https://github.com/ruvnet/claude-code-flow/
     return this.db
       .prepare(
         `
-      SELECT * FROM memory 
-      WHERE namespace = 'queen-decisions' 
+      SELECT * FROM memory
+      WHERE namespace = 'queen-decisions'
       AND key LIKE 'decision/%'
       AND metadata LIKE '%"swarmId":"${swarmId}"%'
       ORDER BY created_at DESC

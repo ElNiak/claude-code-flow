@@ -19,11 +19,11 @@ export const codeTestCase = {
       "findMax",
       "traversal"
     ];
-    
+
     const hasClass = output.includes("class") && output.includes("BST");
     const hasTypes = output.includes("<T>") || output.includes(": number") || output.includes(": boolean");
     const hasMethods = requiredMethods.every(method => output.includes(method));
-    
+
     return hasClass && hasTypes && hasMethods;
   }
 };

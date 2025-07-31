@@ -706,7 +706,7 @@ module.exports = Application;
 class Application:
     def __init__(self):
         print('Application initialized')
-    
+
     def start(self):
         # Implementation here
         pass

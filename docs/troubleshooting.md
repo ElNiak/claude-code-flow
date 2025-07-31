@@ -7,6 +7,7 @@
 **Status**: 269+ TypeScript compilation errors preventing local builds
 
 **Symptoms**:
+
 ```bash
 npm run build
 # Error: Cannot find module '../utils/error-handler.js'
@@ -17,6 +18,7 @@ npm run build
 **Root Cause**: Import/export resolution issues in hybrid Deno/Node.js codebase
 
 **✅ IMMEDIATE SOLUTION**: Use NPX version (fully functional)
+
 ```bash
 # Instead of local build, use NPX
 npx claude-flow@2.0.0 <command>
@@ -29,6 +31,7 @@ npx claude-flow@2.0.0 <command>
 ### ⚠️ Test Suite Failures
 
 **Symptoms**:
+
 ```bash
 npm test
 # Error: Could not locate module ../utils/error-handler.js mapped as: $1
@@ -38,6 +41,7 @@ npm test
 **Root Cause**: Jest module resolution conflicts with ES modules
 
 **✅ SOLUTION**: NPX version has been thoroughly tested
+
 ```bash
 # Use NPX for reliable functionality
 npx claude-flow@2.0.0 status
@@ -51,6 +55,7 @@ npx claude-flow@2.0.0 swarm "test objective"
 **Previous Issue**: ENOTEMPTY errors when running multiple claude-flow instances concurrently
 
 **Symptoms (FIXED)**:
+
 ```bash
 npm error code ENOTEMPTY
 npm error syscall rename
@@ -58,12 +63,14 @@ npm error ENOTEMPTY: directory not empty, rename '/private/tmp/.npm/_npx/[hash]/
 ```
 
 **✅ SOLUTION**: Automatic per-process cache isolation
+
 - Each process gets its own NPX cache directory
 - True parallel execution maintained (no serialization)
 - Automatic cleanup on process exit
 - Zero performance overhead
 
 **Verification**:
+
 ```bash
 # Test concurrent operations (should work flawlessly)
 node test/npx-cache-fix-test.js
@@ -81,6 +88,7 @@ node test/npx-isolation-integration-test.js
 **Status**: **RESOLVED** in latest swarm-new.js implementation
 
 **Solution**: Use latest NPX version
+
 ```bash
 npx claude-flow@2.0.0 swarm "your objective"
 ```
@@ -129,11 +137,13 @@ $ npx claude-flow@2.0.0 status
 ### NPX Installation Problems
 
 **Issue**: NPX command not found or fails
+
 ```bash
 npx: command not found
 ```
 
 **Solutions**:
+
 ```bash
 # Update Node.js to version 20+
 node --version  # Should be 20.0.0 or higher
@@ -152,11 +162,13 @@ claude-flow --version
 ### Permission Issues
 
 **Issue**: Permission denied errors
+
 ```bash
 Error: EACCES: permission denied
 ```
 
 **Solutions**:
+
 ```bash
 # Use NPX (recommended - no global installation)
 npx claude-flow@2.0.0 <command>
@@ -169,11 +181,13 @@ sudo chown -R $(whoami) /usr/local/lib/node_modules
 ### Network/Proxy Issues
 
 **Issue**: NPX fails to download package
+
 ```bash
 npm ERR! network request failed
 ```
 
 **Solutions**:
+
 ```bash
 # Check npm registry
 npm config get registry
@@ -199,11 +213,13 @@ npm install
 ### Swarm Initialization Failures
 
 **Issue**: Swarm fails to initialize
+
 ```bash
 ❌ Failed to execute swarm: <error>
 ```
 
 **Diagnostic Steps**:
+
 ```bash
 # 1. Check basic functionality
 npx claude-flow@2.0.0 status
@@ -219,6 +235,7 @@ npx claude-flow@2.0.0 swarm "test" --strategy research
 ```
 
 **Common Solutions**:
+
 ```bash
 # Use simpler configuration
 npx claude-flow@2.0.0 swarm "simple objective" --max-agents 2
@@ -235,6 +252,7 @@ npx claude-flow@2.0.0 swarm "task" --mode centralized
 **Issue**: Agents fail to spawn or become unresponsive
 
 **Diagnostic**:
+
 ```bash
 # Check agent list
 npx claude-flow@2.0.0 agent list
@@ -247,6 +265,7 @@ npx claude-flow@2.0.0 memory search "agent"
 ```
 
 **Solutions**:
+
 ```bash
 # Reduce concurrent agents
 npx claude-flow@2.0.0 swarm "task" --max-agents 3
@@ -263,6 +282,7 @@ npx claude-flow@2.0.0 memory search "." --limit 100
 **Issue**: Tasks timeout or hang indefinitely
 
 **Solutions**:
+
 ```bash
 # Increase task timeout
 npx claude-flow@2.0.0 swarm "task" --timeout 60
@@ -285,11 +305,13 @@ npx claude-flow@2.0.0 swarm "phase 2: implementation" --max-agents 3
 ### Mode Not Found
 
 **Issue**: SPARC mode not recognized
+
 ```bash
 Unknown mode: <mode-name>
 ```
 
 **Solutions**:
+
 ```bash
 # List available modes
 npx claude-flow@2.0.0 sparc modes
@@ -306,6 +328,7 @@ npx claude-flow@2.0.0 sparc "describe your objective"
 **Issue**: SPARC mode starts but fails to complete
 
 **Diagnostic**:
+
 ```bash
 # Try with verbose output
 npx claude-flow@2.0.0 sparc <mode> "objective" --verbose
@@ -326,6 +349,7 @@ npx claude-flow@2.0.0 status
 **Issue**: Agents don't communicate or coordinate properly
 
 **Solutions**:
+
 ```bash
 # Use centralized coordination
 npx claude-flow@2.0.0 swarm "task" --mode centralized
@@ -345,6 +369,7 @@ npx claude-flow@2.0.0 swarm "task" --monitor --verbose
 **Issue**: Shared memory corruption or inconsistency
 
 **Diagnostic**:
+
 ```bash
 # Check memory status
 npx claude-flow@2.0.0 memory search "." --limit 10
@@ -358,6 +383,7 @@ npx claude-flow@2.0.0 memory get "test"
 ```
 
 **Solutions**:
+
 ```bash
 # Use memory namespaces
 npx claude-flow@2.0.0 swarm "task" --memory-namespace clean
@@ -378,6 +404,7 @@ npx claude-flow@2.0.0 init --sparc --force
 **Issue**: GitHub operations fail with auth errors
 
 **Solutions**:
+
 ```bash
 # Check GitHub CLI authentication
 gh auth status
@@ -397,6 +424,7 @@ gh repo view
 **Issue**: Cannot access repository or create PRs
 
 **Diagnostic**:
+
 ```bash
 # Check repository permissions
 gh repo view <owner>/<repo>
@@ -417,6 +445,7 @@ gh issue list --limit 5
 **Issue**: Operations are significantly slower than expected
 
 **Optimization**:
+
 ```bash
 # Enable parallel execution
 npx claude-flow@2.0.0 swarm "task" --parallel
@@ -439,6 +468,7 @@ npx claude-flow@2.0.0 swarm "task" --background
 **Issue**: High memory consumption or out-of-memory errors
 
 **Solutions**:
+
 ```bash
 # Limit memory namespace
 npx claude-flow@2.0.0 swarm "task" --memory-namespace limited
@@ -464,6 +494,7 @@ npx claude-flow@2.0.0 monitor --metrics
 **Requirements**: Node.js 20.0.0 or higher
 
 **Solutions**:
+
 ```bash
 # Check current version
 node --version
@@ -484,6 +515,7 @@ npm --version  # Should be 9.0.0+
 **Issue**: Missing or incorrect environment variables
 
 **Setup**:
+
 ```bash
 # Claude API key (if using Claude integration)
 export CLAUDE_API_KEY="your-api-key"
@@ -502,6 +534,7 @@ echo $GITHUB_TOKEN
 ### Platform-Specific Issues
 
 #### Windows Issues
+
 ```cmd
 REM Use PowerShell or WSL for better compatibility
 powershell
@@ -514,6 +547,7 @@ npx.cmd claude-flow@2.0.0 --help
 ```
 
 #### macOS Issues
+
 ```bash
 # Update to latest Xcode command line tools
 xcode-select --install
@@ -524,6 +558,7 @@ brew link node@20
 ```
 
 #### Linux Issues
+
 ```bash
 # Update package manager
 sudo apt update  # Ubuntu/Debian
@@ -543,6 +578,7 @@ sudo apt-get install -y nodejs
 **Issue**: Security or permission-related failures
 
 **Solutions**:
+
 ```bash
 # Use NPX (safer, no global installation)
 npx claude-flow@2.0.0 <command>
@@ -562,6 +598,7 @@ npx claude-flow@2.0.0 --help  # No sudo needed
 **Issue**: Corporate firewall or security policies blocking NPX
 
 **Solutions**:
+
 ```bash
 # Configure corporate proxy
 npm config set proxy http://proxy.company.com:8080
@@ -584,6 +621,7 @@ tar -xzf claude-flow-2.0.0.tgz
 **Issue**: `init` command fails or creates incorrect structure
 
 **Solutions**:
+
 ```bash
 # Try basic init
 npx claude-flow@2.0.0 init --minimal
@@ -605,6 +643,7 @@ cat .claude/settings.json
 **Issue**: Invalid or corrupted configuration files
 
 **Reset Solutions**:
+
 ```bash
 # Backup existing config
 cp .claude/settings.json .claude/settings.json.backup
@@ -626,6 +665,7 @@ cp .claude/settings.json.backup .claude/settings.json
 ### Complete Reset
 
 **When everything fails**:
+
 ```bash
 # 1. Clear all local state
 rm -rf .claude/
@@ -653,6 +693,7 @@ npx claude-flow@2.0.0 swarm "test recovery" --max-agents 1
 ### Data Recovery
 
 **Recovering swarm results**:
+
 ```bash
 # Check for swarm run directories
 ls swarm-runs/
@@ -700,19 +741,19 @@ cat .claude/settings.json >> debug-config.txt 2>&1
 
 ### Support Channels
 
-1. **GitHub Issues**: https://github.com/ruvnet/claude-code-flow/issues
+1. **GitHub Issues**: <https://github.com/ruvnet/claude-code-flow/issues>
    - Include debug information
    - Specify NPX vs local build
    - Include error messages and steps to reproduce
 
-2. **Documentation**: 
+2. **Documentation**:
    - API Reference: `/API_REFERENCE.md`
    - Usage Guide: `/USAGE_GUIDE.md`
    - Setup Guide: `/SETUP.md`
 
 3. **Community Resources**:
-   - ruv-swarm documentation: https://github.com/ruvnet/ruv-FANN/tree/main/ruv-swarm
-   - NPM package: https://www.npmjs.com/package/claude-flow/v/alpha
+   - ruv-swarm documentation: <https://github.com/ruvnet/ruv-FANN/tree/main/ruv-swarm>
+   - NPM package: <https://www.npmjs.com/package/claude-flow/v/alpha>
 
 ---
 

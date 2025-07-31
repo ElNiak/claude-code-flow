@@ -16,9 +16,9 @@ export class ReviewerAgent {
 
   async performCodeReview(pullRequest: any): Promise<any> {
     console.log(`[${this.agentId}] Reviewing PR: ${pullRequest.title}`);
-    
+
     await this.simulateWork(1500);
-    
+
     const review = {
       overallRating: 'Approved with suggestions',
       score: 7.5,
@@ -41,7 +41,7 @@ export class ReviewerAgent {
       testCoverage: '82%',
       complexityScore: 'Medium'
     };
-    
+
     console.log(`[${this.agentId}] Code review completed`);
     return {
       agentId: this.agentId,
@@ -53,9 +53,9 @@ export class ReviewerAgent {
 
   async reviewDocumentation(docPath: string): Promise<any> {
     console.log(`[${this.agentId}] Reviewing documentation: ${docPath}`);
-    
+
     await this.simulateWork(800);
-    
+
     const docReview = {
       completeness: 85,
       clarity: 90,
@@ -78,7 +78,7 @@ export class ReviewerAgent {
         troubleshooting: 'Missing'
       }
     };
-    
+
     console.log(`[${this.agentId}] Documentation review completed`);
     return {
       agentId: this.agentId,
@@ -90,9 +90,9 @@ export class ReviewerAgent {
 
   async validateQualityStandards(component: string): Promise<any> {
     console.log(`[${this.agentId}] Validating quality standards for: ${component}`);
-    
+
     await this.simulateWork(1000);
-    
+
     const validation = {
       passedStandards: [
         'Code formatting guidelines',
@@ -112,7 +112,7 @@ export class ReviewerAgent {
       overallCompliance: '87%',
       recommendation: 'Address failed standards before production release'
     };
-    
+
     console.log(`[${this.agentId}] Quality validation completed`);
     return {
       agentId: this.agentId,
@@ -124,9 +124,9 @@ export class ReviewerAgent {
 
   async reviewArchitecture(design: string): Promise<any> {
     console.log(`[${this.agentId}] Reviewing architecture design: ${design}`);
-    
+
     await this.simulateWork(1200);
-    
+
     const architectureReview = {
       scalability: 'Good',
       maintainability: 'Excellent',
@@ -149,7 +149,7 @@ export class ReviewerAgent {
       ],
       score: 8.2
     };
-    
+
     console.log(`[${this.agentId}] Architecture review completed`);
     return {
       agentId: this.agentId,
@@ -172,7 +172,7 @@ if (require.main === module) {
     author: 'developer123',
     files: ['src/auth/login.ts', 'src/auth/logout.ts', 'tests/auth.test.ts']
   };
-  
+
   Promise.all([
     reviewer.performCodeReview(samplePR),
     reviewer.reviewDocumentation('/docs/api-reference.md'),

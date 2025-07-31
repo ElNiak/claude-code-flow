@@ -22,9 +22,7 @@
       "max_cpu_percent": 80,
       "max_network_mbps": 100
     },
-    "output_formats": [
-      "json"
-    ],
+    "output_formats": ["json"],
     "output_directory": "./reports",
     "verbose": false
   },
@@ -59,11 +57,7 @@
       "output": {
         "optimization_results": "Optimization completed for: Test hybrid coordination",
         "performance_gain": "25% improvement",
-        "optimizations_applied": [
-          "caching",
-          "indexing",
-          "compression"
-        ]
+        "optimizations_applied": ["caching", "indexing", "compression"]
       },
       "errors": [],
       "warnings": [],

@@ -1,4 +1,5 @@
 # Phase 3: Architecture Design
+
 ## Claude-Flow System Architecture
 
 ### System Overview
@@ -11,7 +12,7 @@ graph TB
         WS[WebSocket API]
         MCP[MCP Interface]
     end
-    
+
     subgraph "Core Orchestrator"
         OM[Orchestrator Manager]
         TM[Terminal Manager]
@@ -19,49 +20,49 @@ graph TB
         CM[Coordination Manager]
         SM[Session Manager]
     end
-    
+
     subgraph "Agent Layer"
         A1[Agent 1]
         A2[Agent 2]
         A3[Agent N]
         AP[Agent Pool]
     end
-    
+
     subgraph "Storage Layer"
         SQL[SQLite DB]
         MD[Markdown Files]
         FS[File System]
         CACHE[Redis Cache]
     end
-    
+
     subgraph "Integration Layer"
         VSC[VSCode API]
         GH[GitHub API]
         DOCKER[Docker API]
         K8S[Kubernetes API]
     end
-    
+
     CLI --> OM
     API --> OM
     WS --> OM
     MCP --> OM
-    
+
     OM --> TM
     OM --> MM
     OM --> CM
     OM --> SM
-    
+
     TM --> AP
     AP --> A1
     AP --> A2
     AP --> A3
-    
+
     MM --> SQL
     MM --> MD
     MM --> CACHE
-    
+
     SM --> FS
-    
+
     TM --> VSC
     OM --> GH
     OM --> DOCKER
@@ -80,7 +81,7 @@ export class Orchestrator {
     private coordinationManager: CoordinationManager;
     private sessionManager: SessionManager;
     private eventBus: EventBus;
-    
+
     constructor(config: OrchestratorConfig) {
         this.eventBus = new EventBus();
         this.terminalManager = new TerminalManager(this.eventBus, config.terminal);
@@ -88,7 +89,7 @@ export class Orchestrator {
         this.coordinationManager = new CoordinationManager(this.eventBus, config.coordination);
         this.sessionManager = new SessionManager(this.eventBus, config.session);
     }
-    
+
     async initialize(): Promise<void> {
         await Promise.all([
             this.terminalManager.initialize(),
@@ -96,7 +97,7 @@ export class Orchestrator {
             this.coordinationManager.initialize(),
             this.sessionManager.initialize()
         ]);
-        
+
         this.setupEventHandlers();
         this.startHealthMonitoring();
     }
@@ -111,20 +112,20 @@ export class TerminalManager {
     private pool: TerminalPool;
     private adapters: Map<Platform, TerminalAdapter>;
     private sessions: Map<string, TerminalSession>;
-    
+
     constructor(eventBus: EventBus, config: TerminalConfig) {
         this.pool = new TerminalPool(config.poolSize);
         this.adapters = this.initializeAdapters();
         this.sessions = new Map();
     }
-    
+
     async spawnTerminal(profile: AgentProfile): Promise<Terminal> {
         const adapter = this.selectAdapter();
         const terminal = await adapter.createTerminal(profile);
-        
+
         const session = new TerminalSession(terminal, profile);
         this.sessions.set(session.id, session);
-        
+
         this.eventBus.emit('terminal:spawned', { sessionId: session.id });
         return terminal;
     }
@@ -159,7 +160,7 @@ export class NativeTerminalAdapter implements TerminalAdapter {
             cwd: profile.workingDirectory,
             env: { ...process.env, ...profile.environment }
         });
-        
+
         return new NativeTerminal(pty);
     }
 }
@@ -174,25 +175,25 @@ export class MemoryManager {
     private cache: CacheLayer;
     private indexer: Indexer;
     private replicator: Replicator;
-    
+
     constructor(eventBus: EventBus, config: MemoryConfig) {
         this.storage = this.createStorageBackend(config);
         this.cache = new CacheLayer(config.cache);
         this.indexer = new Indexer(config.indexing);
         this.replicator = new Replicator(config.replication);
     }
-    
+
     async store(key: string, value: any, metadata: Metadata): Promise<void> {
         const entry = await this.createEntry(key, value, metadata);
-        
+
         // Write-through cache
         await this.cache.set(key, entry);
         await this.storage.put(entry);
-        
+
         // Async indexing and replication
         this.indexer.index(entry);
         this.replicator.replicate(entry);
-        
+
         this.eventBus.emit('memory:stored', { key, metadata });
     }
 }
@@ -208,10 +209,10 @@ interface StorageBackend {
 // SQLite implementation
 export class SQLiteBackend implements StorageBackend {
     private db: Database;
-    
+
     async put(entry: MemoryEntry): Promise<void> {
         await this.db.run(`
-            INSERT OR REPLACE INTO memory_entries 
+            INSERT OR REPLACE INTO memory_entries
             (id, key, value, metadata, vector, created_at, updated_at)
             VALUES (?, ?, ?, ?, ?, ?, ?)
         `, [
@@ -229,13 +230,13 @@ export class SQLiteBackend implements StorageBackend {
 // Markdown implementation
 export class MarkdownBackend implements StorageBackend {
     private basePath: string;
-    
+
     async put(entry: MemoryEntry): Promise<void> {
         const filePath = this.getFilePath(entry.key);
         const content = this.formatAsMarkdown(entry);
         await writeFile(filePath, content);
     }
-    
+
     private formatAsMarkdown(entry: MemoryEntry): string {
         return `# ${entry.key}
 
@@ -266,14 +267,14 @@ export class CoordinationManager {
     private resourceManager: ResourceManager;
     private messageBus: MessageBus;
     private conflictResolver: ConflictResolver;
-    
+
     constructor(eventBus: EventBus, config: CoordinationConfig) {
         this.taskScheduler = new TaskScheduler(config.scheduling);
         this.resourceManager = new ResourceManager(config.resources);
         this.messageBus = new MessageBus(config.messaging);
         this.conflictResolver = new ConflictResolver(config.conflicts);
     }
-    
+
     async assignTask(task: Task): Promise<void> {
         // Check dependencies
         const ready = await this.checkDependencies(task);
@@ -281,21 +282,21 @@ export class CoordinationManager {
             this.taskScheduler.queue(task);
             return;
         }
-        
+
         // Find best agent
         const agent = await this.taskScheduler.selectAgent(task);
         if (!agent) {
             this.taskScheduler.queue(task);
             return;
         }
-        
+
         // Acquire resources
         const resources = await this.resourceManager.acquire(task.resources, agent.id);
         if (!resources) {
             this.taskScheduler.queue(task);
             return;
         }
-        
+
         // Assign task
         await this.taskScheduler.assign(task, agent);
         this.eventBus.emit('task:assigned', { task, agent });
@@ -307,22 +308,22 @@ export class TaskScheduler {
     private queue: PriorityQueue<Task>;
     private assignments: Map<string, Assignment>;
     private predictor: DurationPredictor;
-    
+
     async selectAgent(task: Task): Promise<Agent | null> {
         const agents = await this.getAvailableAgents();
-        
+
         // Score agents based on multiple factors
         const scores = agents.map(agent => ({
             agent,
             score: this.calculateScore(agent, task)
         }));
-        
+
         // Sort by score
         scores.sort((a, b) => b.score - a.score);
-        
+
         return scores[0]?.agent || null;
     }
-    
+
     private calculateScore(agent: Agent, task: Task): number {
         const factors = {
             availability: agent.status === 'idle' ? 1.0 : 0.5,
@@ -331,7 +332,7 @@ export class TaskScheduler {
             performance: agent.successRate,
             affinity: this.calculateAffinity(agent, task)
         };
-        
+
         // Weighted sum
         return factors.availability * 0.3 +
                factors.expertise * 0.25 +
@@ -351,22 +352,22 @@ export class MCPServer {
     private toolRegistry: ToolRegistry;
     private sessionManager: MCPSessionManager;
     private router: RequestRouter;
-    
+
     constructor(config: MCPConfig) {
         this.transport = this.createTransport(config.mode);
         this.toolRegistry = new ToolRegistry();
         this.sessionManager = new MCPSessionManager();
         this.router = new RequestRouter();
     }
-    
+
     async start(): Promise<void> {
         await this.transport.start();
         this.transport.onRequest(this.handleRequest.bind(this));
     }
-    
+
     private async handleRequest(request: MCPRequest): Promise<MCPResponse> {
         const session = this.sessionManager.getOrCreate(request.sessionId);
-        
+
         try {
             const response = await this.router.route(request, session);
             return this.formatResponse(response);
@@ -386,16 +387,16 @@ interface MCPTransport {
 
 export class StdioTransport implements MCPTransport {
     private reader: ReadlineInterface;
-    
+
     async start(): Promise<void> {
         this.reader = createInterface({
             input: process.stdin,
             output: process.stdout
         });
-        
+
         this.reader.on('line', this.handleLine.bind(this));
     }
-    
+
     private handleLine(line: string): void {
         try {
             const request = JSON.parse(line);
@@ -408,14 +409,14 @@ export class StdioTransport implements MCPTransport {
 
 export class HttpTransport implements MCPTransport {
     private server: Server;
-    
+
     async start(): Promise<void> {
         this.server = createServer(this.handleHttpRequest.bind(this));
         await new Promise<void>(resolve => {
             this.server.listen(this.config.port, resolve);
         });
     }
-    
+
     private handleHttpRequest(req: IncomingMessage, res: ServerResponse): void {
         if (req.method === 'POST' && req.url === '/mcp') {
             this.handleMCPRequest(req, res);
@@ -435,13 +436,13 @@ export class SessionManager {
     private sessions: Map<string, Session>;
     private persistence: SessionPersistence;
     private recovery: SessionRecovery;
-    
+
     constructor(eventBus: EventBus, config: SessionConfig) {
         this.sessions = new Map();
         this.persistence = new SessionPersistence(config.persistence);
         this.recovery = new SessionRecovery(config.recovery);
     }
-    
+
     async createSession(config: SessionConfig): Promise<Session> {
         const session = new Session({
             id: generateId(),
@@ -451,28 +452,28 @@ export class SessionManager {
             memory: new MemoryNamespace(config.name),
             startTime: new Date()
         });
-        
+
         // Initialize agents
         for (let i = 0; i < config.initialAgents; i++) {
             const agent = await this.spawnAgent(session, config.agentProfile);
             session.agents.push(agent);
         }
-        
+
         this.sessions.set(session.id, session);
         await this.persistence.save(session);
-        
+
         return session;
     }
-    
+
     async restoreSession(sessionId: string): Promise<Session> {
         const data = await this.persistence.load(sessionId);
         if (!data) {
             throw new Error(`Session ${sessionId} not found`);
         }
-        
+
         const session = await this.recovery.restore(data);
         this.sessions.set(session.id, session);
-        
+
         return session;
     }
 }
@@ -487,12 +488,12 @@ export class Session {
     public readonly startTime: Date;
     public endTime?: Date;
     public status: SessionStatus;
-    
+
     constructor(data: SessionData) {
         Object.assign(this, data);
         this.status = 'active';
     }
-    
+
     async checkpoint(): Promise<void> {
         const snapshot = {
             id: this.id,
@@ -503,7 +504,7 @@ export class Session {
             startTime: this.startTime,
             status: this.status
         };
-        
+
         await this.persistence.saveCheckpoint(snapshot);
     }
 }
@@ -520,7 +521,7 @@ sequenceDiagram
     participant Agent
     participant MemoryBank
     participant Terminal
-    
+
     User->>CLI: Execute command
     CLI->>Orchestrator: Process command
     Orchestrator->>TaskScheduler: Create task
@@ -539,6 +540,7 @@ sequenceDiagram
 ### Deployment Architecture
 
 #### Local Development
+
 ```yaml
 # docker-compose.yml
 version: '3.8'
@@ -557,7 +559,7 @@ services:
       - "8080:8080"  # API
       - "8081:8081"  # MCP HTTP
       - "9229:9229"  # Debug
-      
+
   redis:
     image: redis:alpine
     ports:
@@ -565,6 +567,7 @@ services:
 ```
 
 #### Production Deployment
+
 ```yaml
 # kubernetes/deployment.yaml
 apiVersion: apps/v1
@@ -603,58 +606,60 @@ spec:
 ### Security Architecture
 
 #### Authentication & Authorization
+
 ```typescript
 // src/security/auth.ts
 export class SecurityManager {
     private authenticator: Authenticator;
     private authorizer: Authorizer;
     private auditLogger: AuditLogger;
-    
+
     async authenticate(credentials: Credentials): Promise<AuthToken> {
         const identity = await this.authenticator.verify(credentials);
         const token = await this.generateToken(identity);
-        
+
         this.auditLogger.log('authentication', {
             identity: identity.id,
             timestamp: new Date(),
             result: 'success'
         });
-        
+
         return token;
     }
-    
+
     async authorize(token: AuthToken, resource: Resource, action: Action): Promise<boolean> {
         const identity = await this.validateToken(token);
         const allowed = await this.authorizer.check(identity, resource, action);
-        
+
         this.auditLogger.log('authorization', {
             identity: identity.id,
             resource: resource.id,
             action: action,
             result: allowed ? 'allowed' : 'denied'
         });
-        
+
         return allowed;
     }
 }
 ```
 
 #### Sandboxing
+
 ```typescript
 // src/security/sandbox.ts
 export class AgentSandbox {
     private permissions: Permissions;
     private resourceLimits: ResourceLimits;
-    
+
     async execute(command: Command): Promise<Result> {
         // Validate command
         if (!this.validateCommand(command)) {
             throw new SecurityError('Command not allowed');
         }
-        
+
         // Create sandboxed environment
         const sandbox = await this.createSandbox();
-        
+
         try {
             // Execute with resource limits
             const result = await sandbox.execute(command, {
@@ -662,7 +667,7 @@ export class AgentSandbox {
                 memory: this.resourceLimits.memory,
                 cpu: this.resourceLimits.cpu
             });
-            
+
             return result;
         } finally {
             await sandbox.destroy();
@@ -678,30 +683,30 @@ export class AgentSandbox {
 export class MetricsCollector {
     private prometheus: PrometheusClient;
     private customMetrics: Map<string, Metric>;
-    
+
     constructor() {
         this.setupMetrics();
     }
-    
+
     private setupMetrics(): void {
         // System metrics
         this.customMetrics.set('agents_active', new Gauge({
             name: 'claude_flow_agents_active',
             help: 'Number of active agents'
         }));
-        
+
         this.customMetrics.set('tasks_completed', new Counter({
             name: 'claude_flow_tasks_completed_total',
             help: 'Total number of completed tasks',
             labelNames: ['agent_id', 'task_type']
         }));
-        
+
         this.customMetrics.set('memory_operations', new Histogram({
             name: 'claude_flow_memory_operation_duration_seconds',
             help: 'Memory operation duration',
             labelNames: ['operation_type']
         }));
-        
+
         this.customMetrics.set('terminal_latency', new Summary({
             name: 'claude_flow_terminal_latency_seconds',
             help: 'Terminal command latency',
@@ -714,6 +719,7 @@ export class MetricsCollector {
 ### Extension Points
 
 #### Plugin Architecture
+
 ```typescript
 // src/plugins/plugin.ts
 export interface Plugin {
@@ -726,11 +732,11 @@ export interface Plugin {
 export class PluginManager {
     private plugins: Map<string, Plugin>;
     private context: PluginContext;
-    
+
     async loadPlugin(path: string): Promise<void> {
         const module = await import(path);
         const plugin = new module.default() as Plugin;
-        
+
         await plugin.initialize(this.context);
         this.plugins.set(plugin.name, plugin);
     }
@@ -740,7 +746,7 @@ export class PluginManager {
 export class GitHubIntegrationPlugin implements Plugin {
     name = 'github-integration';
     version = '1.0.0';
-    
+
     async initialize(context: PluginContext): Promise<void> {
         context.registerTool({
             name: 'github_pr_create',
@@ -748,7 +754,7 @@ export class GitHubIntegrationPlugin implements Plugin {
             handler: this.createPullRequest.bind(this)
         });
     }
-    
+
     private async createPullRequest(params: any): Promise<any> {
         // Implementation
     }

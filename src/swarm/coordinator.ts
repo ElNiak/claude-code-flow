@@ -1064,7 +1064,7 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
   private calculateCapabilityMatch(agent: AgentState, task: TaskDefinition): number {
     const requiredCapabilities = task.requirements.capabilities;
     let matches = 0;
-    let total = requiredCapabilities.length;
+    const total = requiredCapabilities.length;
 
     for (const capability of requiredCapabilities) {
       if (this.agentHasCapability(agent, capability)) {
@@ -2628,7 +2628,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-  res.json({ 
+  res.json({
     status: 'healthy',
     service: 'REST API',
     swarmId: '${this.swarmId.id}',
@@ -3006,7 +3006,7 @@ describe('${task.name}', () => {
   it('should pass basic test', () => {
     assert.strictEqual(1 + 1, 2);
   });
-  
+
   it('should validate implementation', () => {
     // Test implementation would go here
     assert.ok(true, 'Implementation validated');

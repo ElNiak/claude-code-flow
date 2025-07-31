@@ -59,7 +59,7 @@ class MockOrchestrator {
 
   async listTasks(filters: any): Promise<any[]> {
     let tasks = Array.from(this.tasks.values());
-    
+
     if (filters.status) {
       tasks = tasks.filter(task => task.status === filters.status);
     }
@@ -69,7 +69,7 @@ class MockOrchestrator {
     if (filters.type) {
       tasks = tasks.filter(task => task.type === filters.type);
     }
-    
+
     return tasks.slice(filters.offset || 0, (filters.offset || 0) + (filters.limit || 50));
   }
 
@@ -95,7 +95,7 @@ class MockOrchestrator {
 
   async queryMemory(query: any): Promise<any[]> {
     let entries = Array.from(this.memory.values());
-    
+
     if (query.agentId) {
       entries = entries.filter(entry => entry.agentId === query.agentId);
     }
@@ -103,11 +103,11 @@ class MockOrchestrator {
       entries = entries.filter(entry => entry.type === query.type);
     }
     if (query.search) {
-      entries = entries.filter(entry => 
+      entries = entries.filter(entry =>
         entry.content.toLowerCase().includes(query.search.toLowerCase())
       );
     }
-    
+
     return entries.slice(query.offset || 0, (query.offset || 0) + (query.limit || 50));
   }
 
@@ -233,19 +233,19 @@ describe('MCP Integration Tests', () => {
   describe('Server Lifecycle', () => {
     it('should start and stop successfully', async () => {
       await server.start();
-      
+
       const healthStatus = await server.getHealthStatus();
       expect(healthStatus.healthy).toBe(true);
-      
+
       await server.stop();
     });
 
     it('should register built-in tools on start', async () => {
       await server.start();
-      
+
       const metrics = server.getMetrics();
       expect(metrics.totalRequests).toBeGreaterThanOrEqual(0);
-      
+
       await server.stop();
     });
   });
@@ -269,7 +269,7 @@ describe('MCP Integration Tests', () => {
 
       server.registerTool(testTool);
       await server.start();
-      
+
       // Tools should be registered during start
       await server.stop();
     });
@@ -278,24 +278,24 @@ describe('MCP Integration Tests', () => {
   describe('Session Management', () => {
     it('should create and manage sessions', async () => {
       const sessionManager = new SessionManager(config, logger);
-      
+
       const session = sessionManager.createSession('stdio');
       expect(session.id).toBeDefined();
       expect(session.transport).toBe('stdio');
       expect(session.isInitialized).toBe(false);
-      
+
       const initParams: MCPInitializeParams = {
         protocolVersion: { major: 2024, minor: 11, patch: 5 },
         capabilities: { tools: { listChanged: true } },
         clientInfo: { name: 'test-client', version: '1.0.0' },
       };
-      
+
       sessionManager.initializeSession(session.id, initParams);
-      
+
       const updatedSession = sessionManager.getSession(session.id);
       expect(updatedSession?.isInitialized).toBe(true);
       expect(updatedSession?.clientInfo.name).toBe('test-client');
-      
+
       sessionManager.removeSession(session.id);
       expect(sessionManager.getSession(session.id)).toBeUndefined();
     });
@@ -303,12 +303,12 @@ describe('MCP Integration Tests', () => {
     it('should handle session expiration', async () => {
       const shortTimeoutConfig = { ...config, sessionTimeout: 100 };
       const sessionManager = new SessionManager(shortTimeoutConfig, logger);
-      
+
       const session = sessionManager.createSession('stdio');
-      
+
       // Wait for session to expire
       await delay(150);
-      
+
       sessionManager.cleanupExpiredSessions();
       expect(sessionManager.getSession(session.id)).toBeUndefined();
     });
@@ -321,13 +321,13 @@ describe('MCP Integration Tests', () => {
         method: 'token' as const,
         tokens: ['test-token-123'],
       };
-      
+
       const authManager = new AuthManager(authConfig, logger);
-      
+
       const result = await authManager.authenticate('test-token-123');
       expect(result.success).toBe(true);
       expect(result.user).toBe('token-user');
-      
+
       const invalidResult = await authManager.authenticate('invalid-token');
       expect(invalidResult.success).toBe(false);
     });
@@ -340,16 +340,16 @@ describe('MCP Integration Tests', () => {
           { username: 'testuser', password: 'testpass', permissions: ['*'] },
         ],
       };
-      
+
       const authManager = new AuthManager(authConfig, logger);
-      
+
       const result = await authManager.authenticate({
         username: 'testuser',
         password: 'testpass',
       });
       expect(result.success).toBe(true);
       expect(result.user).toBe('testuser');
-      
+
       const invalidResult = await authManager.authenticate({
         username: 'testuser',
         password: 'wrongpass',
@@ -367,22 +367,22 @@ describe('MCP Integration Tests', () => {
         healthCheckInterval: 30000,
         circuitBreakerThreshold: 5,
       };
-      
+
       const loadBalancer = new LoadBalancer(lbConfig, logger);
       const sessionManager = new SessionManager(config, logger);
       const session = sessionManager.createSession('stdio');
-      
+
       const request: MCPRequest = {
         jsonrpc: '2.0',
         id: 1,
         method: 'test',
         params: {},
       };
-      
+
       // First two requests should be allowed
       expect(await loadBalancer.shouldAllowRequest(session, request)).toBe(true);
       expect(await loadBalancer.shouldAllowRequest(session, request)).toBe(true);
-      
+
       // Third request should be rate limited
       expect(await loadBalancer.shouldAllowRequest(session, request)).toBe(false);
     });
@@ -395,21 +395,21 @@ describe('MCP Integration Tests', () => {
         healthCheckInterval: 30000,
         circuitBreakerThreshold: 5,
       };
-      
+
       const loadBalancer = new LoadBalancer(lbConfig, logger);
       const sessionManager = new SessionManager(config, logger);
       const session = sessionManager.createSession('stdio');
-      
+
       const request: MCPRequest = {
         jsonrpc: '2.0',
         id: 1,
         method: 'test',
         params: {},
       };
-      
+
       const requestMetrics = loadBalancer.recordRequestStart(session, request);
       loadBalancer.recordRequestEnd(requestMetrics);
-      
+
       const metrics = loadBalancer.getMetrics();
       expect(metrics.totalRequests).toBe(1);
       expect(metrics.successfulRequests).toBe(1);
@@ -469,21 +469,21 @@ describe('MCP Integration Tests', () => {
 
       server.registerTool(errorTool);
       await server.start();
-      
+
       // Error handling would be tested through actual requests
       const healthStatus = await server.getHealthStatus();
       expect(healthStatus.healthy).toBe(true);
-      
+
       await server.stop();
     });
 
     it('should handle invalid requests', async () => {
       await server.start();
-      
+
       // Invalid request handling would be tested through transports
       const healthStatus = await server.getHealthStatus();
       expect(healthStatus.healthy).toBe(true);
-      
+
       await server.stop();
     });
   });
@@ -491,31 +491,31 @@ describe('MCP Integration Tests', () => {
   describe('Protocol Compliance', () => {
     it('should handle initialization correctly', async () => {
       await server.start();
-      
+
       // Protocol compliance would be tested through actual JSON-RPC messages
       const healthStatus = await server.getHealthStatus();
       expect(healthStatus.healthy).toBe(true);
-      
+
       await server.stop();
     });
 
     it('should handle notifications', async () => {
       await server.start();
-      
+
       // Notification handling would be tested through transports
       const healthStatus = await server.getHealthStatus();
       expect(healthStatus.healthy).toBe(true);
-      
+
       await server.stop();
     });
 
     it('should format responses correctly', async () => {
       await server.start();
-      
+
       // Response formatting is tested through actual requests
       const healthStatus = await server.getHealthStatus();
       expect(healthStatus.healthy).toBe(true);
-      
+
       await server.stop();
     });
   });
@@ -523,31 +523,31 @@ describe('MCP Integration Tests', () => {
   describe('Metrics and Monitoring', () => {
     it('should track server metrics', async () => {
       await server.start();
-      
+
       const metrics = server.getMetrics();
       expect(metrics).toBeDefined();
       expect(metrics.totalRequests).toBeGreaterThanOrEqual(0);
       expect(metrics.activeSessions).toBeGreaterThanOrEqual(0);
-      
+
       await server.stop();
     });
 
     it('should provide health status', async () => {
       await server.start();
-      
+
       const healthStatus = await server.getHealthStatus();
       expect(healthStatus.healthy).toBe(true);
       expect(healthStatus.metrics).toBeDefined();
-      
+
       await server.stop();
     });
 
     it('should track session metrics', async () => {
       await server.start();
-      
+
       const sessions = server.getSessions();
       expect(Array.isArray(sessions)).toBe(true);
-      
+
       await server.stop();
     });
   });

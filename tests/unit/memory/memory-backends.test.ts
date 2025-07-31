@@ -8,13 +8,13 @@ import { expect } from "@jest/globals";
 
 import { SQLiteMemoryBackend } from '../../../src/memory/backends/sqlite.ts';
 import { MarkdownMemoryBackend } from '../../../src/memory/backends/markdown.ts';
-import { 
-  AsyncTestUtils, 
-  MemoryTestUtils, 
+import {
+  AsyncTestUtils,
+  MemoryTestUtils,
   PerformanceTestUtils,
   TestAssertions,
   FileSystemTestUtils,
-  TestDataGenerator 
+  TestDataGenerator
 } from '../../utils/test-utils.ts';
 import { generateMemoryEntries, generateEdgeCaseData } from '../../fixtures/generators.ts';
 import { setupTestEnv, cleanupTestEnv, TEST_CONFIG } from '../../test.config';
@@ -45,7 +45,7 @@ describe('Memory Backends - Comprehensive Tests', () => {
         busyTimeout: 5000,
         enableWal: true,
       });
-      
+
       await backend.initialize();
     });
 
@@ -101,15 +101,15 @@ describe('Memory Backends - Comprehensive Tests', () => {
       it('should update existing entries', async () => {
         const namespace = 'update';
         const key = 'updateable-key';
-        
+
         // Store initial value
         await backend.store(namespace, key, { version: 1 });
         const initial = await backend.retrieve(namespace, key);
-        
+
         // Update value
         await backend.store(namespace, key, { version: 2 });
         const updated = await backend.retrieve(namespace, key);
-        
+
         expect(updated.value).toBe({ version: 2 });
         expect(updated.createdAt).toBe(initial.createdAt); // Should not change
         expect(updated.updatedAt > initial.updatedAt).toBe(true); // Should be newer
@@ -118,12 +118,12 @@ describe('Memory Backends - Comprehensive Tests', () => {
       it('should delete entries', async () => {
         const namespace = 'delete';
         const key = 'deletable-key';
-        
+
         await backend.store(namespace, key, { data: 'to be deleted' });
         const deleted = await backend.delete(namespace, key);
-        
+
         expect(deleted).toBe(true);
-        
+
         await assertRejects(
           () => backend.retrieve(namespace, key),
           Error,
@@ -161,7 +161,7 @@ describe('Memory Backends - Comprehensive Tests', () => {
       it('should list entries by namespace', async () => {
         const entries = await backend.list('test');
         expect(entries.length >= 1).toBe(true);
-        
+
         // All entries should be from 'test' namespace
         entries.forEach(entry => {
           expect(entry.namespace).toBe('test');
@@ -173,27 +173,27 @@ describe('Memory Backends - Comprehensive Tests', () => {
         await backend.store('search', 'tagged-1', { data: 1 }, ['important', 'urgent']);
         await backend.store('search', 'tagged-2', { data: 2 }, ['important']);
         await backend.store('search', 'tagged-3', { data: 3 }, ['urgent']);
-        
+
         const importantEntries = await backend.search({
           namespace: 'search',
           tags: ['important'],
         });
-        
+
         expect(importantEntries.length).toBe(2);
-        
+
         const urgentEntries = await backend.search({
           namespace: 'search',
           tags: ['urgent'],
         });
-        
+
         expect(urgentEntries.length).toBe(2);
-        
+
         const bothTags = await backend.search({
           namespace: 'search',
           tags: ['important', 'urgent'],
           tagMode: 'all',
         });
-        
+
         expect(bothTags.length).toBe(1);
       });
 
@@ -203,16 +203,16 @@ describe('Memory Backends - Comprehensive Tests', () => {
           limit: 10,
           offset: 0,
         });
-        
+
         const page2 = await backend.search({
           namespace: 'test',
           limit: 10,
           offset: 10,
         });
-        
+
         expect(page1.length).toBe(10);
         expect(page2.length >= 1).toBe(true);
-        
+
         // No overlap between pages
         const page1Keys = new Set(page1.map(e => e.key));
         const page2Keys = new Set(page2.map(e => e.key));
@@ -223,35 +223,35 @@ describe('Memory Backends - Comprehensive Tests', () => {
       it('should search with date ranges', async () => {
         const now = new Date();
         const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
-        
+
         const recentEntries = await backend.search({
           namespace: 'test',
           createdAfter: oneHourAgo,
         });
-        
+
         // All entries should be recent (created in this test)
         expect(recentEntries.length >= 1).toBe(true);
-        
+
         const futureEntries = await backend.search({
           namespace: 'test',
           createdAfter: new Date(now.getTime() + 60 * 60 * 1000),
         });
-        
+
         expect(futureEntries.length).toBe(0);
       });
 
       it('should search with complex queries', async () => {
         // Add specific test data
-        await backend.store('complex', 'item-1', 
+        await backend.store('complex', 'item-1',
           { type: 'document', priority: 'high', size: 1024 },
           ['document', 'important']
         );
-        
+
         await backend.store('complex', 'item-2',
           { type: 'document', priority: 'low', size: 512 },
           ['document']
         );
-        
+
         await backend.store('complex', 'item-3',
           { type: 'image', priority: 'high', size: 2048 },
           ['media', 'important']
@@ -270,7 +270,7 @@ describe('Memory Backends - Comprehensive Tests', () => {
     describe('Performance and Scalability', () => {
       it('should handle bulk operations efficiently', async () => {
         const entries = generateMemoryEntries(1000);
-        
+
         const { stats } = await PerformanceTestUtils.benchmark(
           async () => {
             const entry = entries[Math.floor(Math.random() * entries.length)];
@@ -298,7 +298,7 @@ describe('Memory Backends - Comprehensive Tests', () => {
 
         // Execute all operations concurrently
         await Promise.all(
-          operations.map(op => 
+          operations.map(op =>
             backend.store(op.namespace, op.key, op.value)
           )
         );
@@ -311,12 +311,12 @@ describe('Memory Backends - Comprehensive Tests', () => {
       it('should maintain performance with large datasets', async () => {
         // Create a large dataset
         const largeEntries = TestDataGenerator.largeDataset(5000);
-        
+
         // Store all entries
         for (let i = 0; i < largeEntries.length; i += 100) {
           const batch = largeEntries.slice(i, i + 100);
           await Promise.all(
-            batch.map(entry => 
+            batch.map(entry =>
               backend.store('large', entry.id, entry)
             )
           );
@@ -355,7 +355,7 @@ describe('Memory Backends - Comprehensive Tests', () => {
     describe('Error Handling and Edge Cases', () => {
       it('should handle invalid namespace names', async () => {
         const invalidNamespaces = ['', null, undefined, 'namespace with spaces'];
-        
+
         for (const namespace of invalidNamespaces) {
           await TestAssertions.assertThrowsAsync(
             () => backend.store(namespace as any, 'key', 'value'),
@@ -366,7 +366,7 @@ describe('Memory Backends - Comprehensive Tests', () => {
 
       it('should handle invalid keys', async () => {
         const invalidKeys = ['', null, undefined];
-        
+
         for (const key of invalidKeys) {
           await TestAssertions.assertThrowsAsync(
             () => backend.store('test', key as any, 'value'),
@@ -377,14 +377,14 @@ describe('Memory Backends - Comprehensive Tests', () => {
 
       it('should handle edge case data', async () => {
         const edgeCases = generateEdgeCaseData();
-        
+
         // Test with various edge case values
         for (const [category, values] of Object.entries(edgeCases)) {
           for (const [name, value] of Object.entries(values)) {
             try {
               await backend.store('edge-cases', `${category}-${name}`, value);
               const retrieved = await backend.retrieve('edge-cases', `${category}-${name}`);
-              
+
               // Some edge cases might be normalized (e.g., undefined -> null)
               // Just verify we can store and retrieve them
               expect(retrieved).toBeDefined();
@@ -399,7 +399,7 @@ describe('Memory Backends - Comprehensive Tests', () => {
       it('should handle database corruption gracefully', async () => {
         // Close backend first
         await backend.shutdown();
-        
+
         // Corrupt the database file
         try {
           await Deno.writeTextFile(`${tempDir}/test-memory.db`, 'corrupted data');
@@ -440,21 +440,21 @@ describe('Memory Backends - Comprehensive Tests', () => {
       it('should handle concurrent reads and writes', async () => {
         const namespace = 'concurrent-rw';
         const key = 'shared-key';
-        
+
         // Start concurrent operations
         const operations = [
           // Writers
-          ...Array.from({ length: 5 }, (_, i) => 
+          ...Array.from({ length: 5 }, (_, i) =>
             backend.store(namespace, `${key}-${i}`, { value: i })
           ),
           // Readers (may fail if key doesn't exist yet)
-          ...Array.from({ length: 5 }, (_, i) => 
+          ...Array.from({ length: 5 }, (_, i) =>
             backend.retrieve(namespace, `${key}-${i}`).catch(() => null)
           ),
         ];
 
         const results = await Promise.allSettled(operations);
-        
+
         // Most operations should succeed
         const successful = results.filter(r => r.status === 'fulfilled');
         TestAssertions.assertInRange(successful.length, 5, 10);
@@ -463,10 +463,10 @@ describe('Memory Backends - Comprehensive Tests', () => {
       it('should maintain data consistency under concurrent updates', async () => {
         const namespace = 'consistency';
         const key = 'counter';
-        
+
         // Initialize counter
         await backend.store(namespace, key, { count: 0 });
-        
+
         // Concurrent increment operations
         const incrementPromises = Array.from({ length: 10 }, async () => {
           const current = await backend.retrieve(namespace, key);
@@ -475,9 +475,9 @@ describe('Memory Backends - Comprehensive Tests', () => {
         });
 
         await Promise.all(incrementPromises);
-        
+
         const final = await backend.retrieve(namespace, key);
-        
+
         // Due to race conditions, final count may be less than 10
         // But should be at least 1 and at most 10
         TestAssertions.assertInRange(final.value.count, 1, 10);
@@ -494,7 +494,7 @@ describe('Memory Backends - Comprehensive Tests', () => {
         enableGitHistory: false, // Disable for tests
         enableSearch: true,
       });
-      
+
       await backend.initialize();
     });
 
@@ -698,7 +698,7 @@ function hello() {
         });
 
         expect(results.length).toBe(2);
-        
+
         const titles = results.map(r => r.value.title);
         expect(titles.includes('JavaScript Guide')).toBe(true);
         expect(titles.includes('Python Tutorial')).toBe(true);
@@ -761,7 +761,7 @@ function hello() {
       it('should clean up deleted files', async () => {
         const namespace = 'cleanup-test';
         const key = 'temporary-file';
-        
+
         await backend.store(namespace, key, {
           content: 'This file will be deleted',
         });
@@ -783,14 +783,14 @@ function hello() {
       it('should handle directory cleanup', async () => {
         const namespace = 'deep/nested/structure';
         await backend.store(namespace, 'only-file', { content: 'test' });
-        
+
         // Delete the file
         await backend.delete(namespace, 'only-file');
-        
+
         // Directory structure should be cleaned up if empty
         const deepPath = `${tempDir}/markdown-memory/deep/nested/structure`;
         const dirExists = await Deno.stat(deepPath).then(() => true).catch(() => false);
-        
+
         // Implementation may or may not clean up empty directories
         // This is testing the behavior, not enforcing it
         console.log(`Directory cleanup: ${dirExists ? 'preserved' : 'cleaned'}`);
@@ -828,9 +828,9 @@ function hello() {
       it('should handle concurrent file operations', async () => {
         const namespace = 'concurrent-files';
         const key = 'shared-document';
-        
+
         // Concurrent writes to same file
-        const writePromises = Array.from({ length: 5 }, (_, i) => 
+        const writePromises = Array.from({ length: 5 }, (_, i) =>
           backend.store(namespace, key, {
             content: `Content version ${i}`,
             version: i,
@@ -838,7 +838,7 @@ function hello() {
         );
 
         const results = await Promise.allSettled(writePromises);
-        
+
         // At least one should succeed
         const successful = results.filter(r => r.status === 'fulfilled');
         expect(successful.length >= 1).toBe(true);
@@ -858,7 +858,7 @@ function hello() {
       sqliteBackend = new SQLiteMemoryBackend({
         dbPath: `${tempDir}/comparison.db`,
       });
-      
+
       markdownBackend = new MarkdownMemoryBackend({
         baseDir: `${tempDir}/comparison-md`,
       });
@@ -907,7 +907,7 @@ function hello() {
 
     it('should handle performance comparison', async () => {
       const testEntries = generateMemoryEntries(100);
-      
+
       // Benchmark SQLite
       const sqliteStats = await PerformanceTestUtils.benchmark(
         async () => {
@@ -928,7 +928,7 @@ function hello() {
 
       console.log(`SQLite backend: ${sqliteStats.mean.toFixed(2)}ms average`);
       console.log(`Markdown backend: ${markdownStats.mean.toFixed(2)}ms average`);
-      
+
       // Both should be reasonably fast
       TestAssertions.assertInRange(sqliteStats.mean, 0, 500);
       TestAssertions.assertInRange(markdownStats.mean, 0, 500);
@@ -937,7 +937,7 @@ function hello() {
     it('should handle migration scenarios', async () => {
       // Store data in SQLite
       const migrationData = generateMemoryEntries(20);
-      
+
       for (const entry of migrationData) {
         await sqliteBackend.store(
           entry.namespace,
@@ -950,7 +950,7 @@ function hello() {
 
       // Simulate migration to Markdown
       const sqliteEntries = await sqliteBackend.list('test');
-      
+
       for (const entry of sqliteEntries) {
         await markdownBackend.store(
           entry.namespace,
@@ -963,7 +963,7 @@ function hello() {
       // Verify data integrity after migration
       const markdownEntries = await markdownBackend.list('test');
       expect(markdownEntries.length).toBe(sqliteEntries.length);
-      
+
       // Spot check a few entries
       for (let i = 0; i < Math.min(5, sqliteEntries.length); i++) {
         const sqliteEntry = sqliteEntries[i];
@@ -971,7 +971,7 @@ function hello() {
           sqliteEntry.namespace,
           sqliteEntry.key
         );
-        
+
         expect(markdownEntry.value).toBe(sqliteEntry.value);
         expect(markdownEntry.tags).toBe(sqliteEntry.tags);
       }

@@ -1,0 +1,54 @@
+{
+  "mcpServers": {
+    "claude-flow": {
+      "command": "npx",
+      "args": ["claude-flow@alpha", "mcp", "start"],
+      "type": "stdio"
+    },
+    "ruv-swarm": {
+      "command": "npx",
+      "args": ["ruv-swarm@latest", "mcp", "start"],
+      "type": "stdio"
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+    },
+    "perplexity-ask": {
+      "command": "docker",
+      "args": ["run", "-i", "--rm", "-e", "PERPLEXITY_API_KEY", "mcp/perplexity-ask"],
+      "env": {
+        "PERPLEXITY_API_KEY": "${PERPLEXITY_API_KEY}"
+      }
+    },
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"],
+      "type": "stdio"
+    },
+    "serena": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/oraios/serena",
+        "serena-mcp-server",
+        "--context",
+        "ide-assistant",
+        "--project",
+        "${PWD}",
+        "--tool-timeout",
+        "20",
+        "--mode",
+        "planning",
+        "--enable-web-dashboard",
+        "false"
+      ],
+      "type": "stdio"
+    },
+    "consult7": {
+      "command": "uvx",
+      "args": ["consult7", "google", "${GOOGLE_API_KEY}"],
+      "type": "stdio"
+    }
+  }
+}

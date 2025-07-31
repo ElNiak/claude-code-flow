@@ -43,7 +43,7 @@ rlErr.on('line', (line) => {
     }
     return;
   }
-  
+
   // Forward other stderr output
   process.stderr.write(line + '\n');
 });

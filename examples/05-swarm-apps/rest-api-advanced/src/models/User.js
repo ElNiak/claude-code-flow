@@ -111,7 +111,7 @@ userSchema.virtual('isLocked').get(function() {
 // Pre-save middleware to hash password
 userSchema.pre('save', async function(next) {
   if (!this.isModified('password')) return next();
-  
+
   try {
     const salt = await bcrypt.genSalt(parseInt(process.env.BCRYPT_SALT_ROUNDS) || 10);
     this.password = await bcrypt.hash(this.password, salt);
@@ -129,13 +129,13 @@ userSchema.methods.comparePassword = async function(candidatePassword) {
 // Method to generate JWT token
 userSchema.methods.generateAuthToken = function() {
   const token = jwt.sign(
-    { 
+    {
       id: this._id,
       email: this.email,
       role: this.role,
     },
     process.env.JWT_SECRET,
-    { 
+    {
       expiresIn: process.env.JWT_EXPIRE || '7d',
     }
   );
@@ -145,19 +145,19 @@ userSchema.methods.generateAuthToken = function() {
 // Method to generate refresh token
 userSchema.methods.generateRefreshToken = function() {
   const token = jwt.sign(
-    { 
+    {
       id: this._id,
       type: 'refresh',
     },
     process.env.JWT_SECRET,
-    { 
+    {
       expiresIn: '30d',
     }
   );
-  
+
   // Store refresh token
   this.refreshTokens.push({ token });
-  
+
   return token;
 };
 
@@ -170,17 +170,17 @@ userSchema.methods.incLoginAttempts = function() {
       $unset: { lockUntil: 1 },
     });
   }
-  
+
   const updates = { $inc: { loginAttempts: 1 } };
-  
+
   // Lock account after 5 attempts for 2 hours
   const maxAttempts = 5;
   const lockTime = 2 * 60 * 60 * 1000; // 2 hours
-  
+
   if (this.loginAttempts + 1 >= maxAttempts && !this.isLocked) {
     updates.$set = { lockUntil: Date.now() + lockTime };
   }
-  
+
   return this.updateOne(updates);
 };
 
@@ -195,26 +195,26 @@ userSchema.methods.resetLoginAttempts = function() {
 // Static method to find by credentials
 userSchema.statics.findByCredentials = async function(email, password) {
   const user = await this.findOne({ email, isActive: true }).select('+password');
-  
+
   if (!user) {
     throw new Error('Invalid login credentials');
   }
-  
+
   // Check if account is locked
   if (user.isLocked) {
     throw new Error('Account is locked due to too many failed login attempts');
   }
-  
+
   const isPasswordMatch = await user.comparePassword(password);
-  
+
   if (!isPasswordMatch) {
     await user.incLoginAttempts();
     throw new Error('Invalid login credentials');
   }
-  
+
   // Reset login attempts on successful login
   await user.resetLoginAttempts();
-  
+
   return user;
 };
 

@@ -15,10 +15,12 @@ npx claude-flow@2.0.0 hive-mind
 ```
 
 **Aliases:**
+
 - `hive` - Shorter version
 - `hm` - Shortest version
 
 **Options:**
+
 - `--task <description>` - Skip wizard with direct task
 - `--complexity <level>` - Set complexity (low|medium|high)
 - `--agents <number>` - Override agent count
@@ -26,6 +28,7 @@ npx claude-flow@2.0.0 hive-mind
 - `--no-wizard` - Skip wizard, use defaults
 
 **Examples:**
+
 ```bash
 # Interactive wizard
 npx claude-flow@2.0.0 hive-mind
@@ -46,6 +49,7 @@ npx claude-flow@2.0.0 hive-mind init [options]
 ```
 
 **Options:**
+
 - `--topology <type>` - Swarm topology (hierarchical|mesh|ring|star)
 - `--max-agents <n>` - Maximum agent count (default: 8)
 - `--memory-size <mb>` - Shared memory allocation
@@ -53,6 +57,7 @@ npx claude-flow@2.0.0 hive-mind init [options]
 - `--persistent` - Enable persistent memory
 
 **Examples:**
+
 ```bash
 # Basic initialization
 npx claude-flow@2.0.0 hive-mind init
@@ -70,6 +75,7 @@ npx claude-flow@2.0.0 hive-mind task <description> [options]
 ```
 
 **Options:**
+
 - `--analyze` - Show task analysis only
 - `--agents <list>` - Specify agent types
 - `--parallel` - Force parallel execution
@@ -77,6 +83,7 @@ npx claude-flow@2.0.0 hive-mind task <description> [options]
 - `--export <path>` - Export results to file
 
 **Examples:**
+
 ```bash
 # Simple task
 npx claude-flow@2.0.0 hive-mind task "Create user authentication system"
@@ -99,6 +106,7 @@ npx claude-flow@2.0.0 hive-mind agents <action> [options]
 ```
 
 **Actions:**
+
 - `list` - Show all active agents
 - `spawn` - Create new agent
 - `status` - Agent status details
@@ -106,12 +114,14 @@ npx claude-flow@2.0.0 hive-mind agents <action> [options]
 - `stop` - Stop specific agent
 
 **Options:**
+
 - `--type <type>` - Agent type for spawn
 - `--name <name>` - Custom agent name
 - `--capabilities <list>` - Agent capabilities
 - `--id <id>` - Agent ID for operations
 
 **Examples:**
+
 ```bash
 # List all agents
 npx claude-flow@2.0.0 hive-mind agents list
@@ -132,6 +142,7 @@ npx claude-flow@2.0.0 hive-mind swarm <action> [options]
 ```
 
 **Actions:**
+
 - `status` - Overall swarm health
 - `optimize` - Optimize topology
 - `scale` - Scale agent count
@@ -139,6 +150,7 @@ npx claude-flow@2.0.0 hive-mind swarm <action> [options]
 - `reset` - Reset swarm state
 
 **Examples:**
+
 ```bash
 # Check swarm status
 npx claude-flow@2.0.0 hive-mind swarm status
@@ -161,6 +173,7 @@ npx claude-flow@2.0.0 hive-mind orchestrate [options]
 ```
 
 **Options:**
+
 - `--strategy <type>` - Execution strategy (parallel|sequential|adaptive)
 - `--dependencies` - Enable dependency resolution
 - `--priority <level>` - Task priority (low|medium|high|critical)
@@ -168,6 +181,7 @@ npx claude-flow@2.0.0 hive-mind orchestrate [options]
 - `--retry <n>` - Retry failed tasks
 
 **Examples:**
+
 ```bash
 # Parallel orchestration with dependencies
 npx claude-flow@2.0.0 hive-mind orchestrate \
@@ -191,6 +205,7 @@ npx claude-flow@2.0.0 hive-mind workflow <action> [options]
 ```
 
 **Actions:**
+
 - `create` - Create new workflow
 - `run` - Execute workflow
 - `list` - Show saved workflows
@@ -198,6 +213,7 @@ npx claude-flow@2.0.0 hive-mind workflow <action> [options]
 - `import` - Import workflow
 
 **Examples:**
+
 ```bash
 # Create workflow
 npx claude-flow@2.0.0 hive-mind workflow create \
@@ -222,6 +238,7 @@ npx claude-flow@2.0.0 hive-mind memory <action> [options]
 ```
 
 **Actions:**
+
 - `status` - Memory usage stats
 - `search` - Search memories
 - `clear` - Clear memory
@@ -229,6 +246,7 @@ npx claude-flow@2.0.0 hive-mind memory <action> [options]
 - `restore` - Restore from backup
 
 **Examples:**
+
 ```bash
 # Check memory status
 npx claude-flow@2.0.0 hive-mind memory status
@@ -249,12 +267,14 @@ npx claude-flow@2.0.0 hive-mind learn <action> [options]
 ```
 
 **Actions:**
+
 - `train` - Train on patterns
 - `analyze` - Analyze patterns
 - `predict` - Make predictions
 - `export` - Export models
 
 **Examples:**
+
 ```bash
 # Train on successful patterns
 npx claude-flow@2.0.0 hive-mind learn train --data ./success-patterns.json
@@ -277,12 +297,14 @@ npx claude-flow@2.0.0 hive-mind monitor [options]
 ```
 
 **Options:**
+
 - `--interval <ms>` - Update interval
 - `--metrics <list>` - Specific metrics to track
 - `--export` - Export monitoring data
 - `--dashboard` - Launch web dashboard
 
 **Examples:**
+
 ```bash
 # Basic monitoring
 npx claude-flow@2.0.0 hive-mind monitor
@@ -305,6 +327,7 @@ npx claude-flow@2.0.0 hive-mind report <type> [options]
 ```
 
 **Report Types:**
+
 - `performance` - Performance metrics
 - `agents` - Agent activity
 - `tasks` - Task completion
@@ -312,6 +335,7 @@ npx claude-flow@2.0.0 hive-mind report <type> [options]
 - `summary` - Executive summary
 
 **Examples:**
+
 ```bash
 # Performance report
 npx claude-flow@2.0.0 hive-mind report performance --timeframe 24h
@@ -334,6 +358,7 @@ npx claude-flow@2.0.0 hive-mind config <action> [options]
 ```
 
 **Actions:**
+
 - `get` - Get configuration value
 - `set` - Set configuration value
 - `list` - List all settings
@@ -341,6 +366,7 @@ npx claude-flow@2.0.0 hive-mind config <action> [options]
 - `export` - Export configuration
 
 **Examples:**
+
 ```bash
 # View all settings
 npx claude-flow@2.0.0 hive-mind config list
@@ -363,6 +389,7 @@ npx claude-flow@2.0.0 hive-mind integrate <service> [options]
 ```
 
 **Services:**
+
 - `github` - GitHub integration
 - `gitlab` - GitLab integration
 - `jira` - Jira integration
@@ -370,6 +397,7 @@ npx claude-flow@2.0.0 hive-mind integrate <service> [options]
 - `discord` - Discord notifications
 
 **Examples:**
+
 ```bash
 # GitHub integration
 npx claude-flow@2.0.0 hive-mind integrate github --repo owner/repo
@@ -389,12 +417,14 @@ npx claude-flow@2.0.0 hive-mind analyze <task> [options]
 ```
 
 **Options:**
+
 - `--detailed` - Detailed analysis
 - `--suggest-agents` - Recommend agents
 - `--estimate-time` - Time estimation
 - `--complexity` - Complexity score
 
 **Examples:**
+
 ```bash
 # Basic analysis
 npx claude-flow@2.0.0 hive-mind analyze "Build e-commerce platform"
@@ -415,12 +445,14 @@ npx claude-flow@2.0.0 hive-mind template <action> [options]
 ```
 
 **Actions:**
+
 - `list` - Show available templates
 - `use` - Use a template
 - `create` - Create template
 - `share` - Share template
 
 **Templates:**
+
 - `rest-api` - REST API with auth
 - `full-stack` - Full-stack application
 - `microservices` - Microservice architecture
@@ -428,6 +460,7 @@ npx claude-flow@2.0.0 hive-mind template <action> [options]
 - `optimization` - Performance optimization
 
 **Examples:**
+
 ```bash
 # List templates
 npx claude-flow@2.0.0 hive-mind template list
@@ -545,6 +578,7 @@ npx claude-flow@2.0.0 hive-mind task "$BUILD_TASK" \
 ## Troubleshooting
 
 ### Command Not Found
+
 ```bash
 # Ensure global installation
 npm install -g claude-flow@2.0.0
@@ -554,6 +588,7 @@ npx claude-flow@2.0.0 hive-mind
 ```
 
 ### Agents Not Coordinating
+
 ```bash
 # Check swarm status
 npx claude-flow@2.0.0 hive-mind swarm status
@@ -566,6 +601,7 @@ npx claude-flow@2.0.0 hive-mind swarm reset
 ```
 
 ### Performance Issues
+
 ```bash
 # Run diagnostics
 npx claude-flow@2.0.0 hive-mind monitor --metrics "bottlenecks"

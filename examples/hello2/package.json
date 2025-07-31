@@ -7,7 +7,11 @@
     "start": "node index.js",
     "test": "node test.js"
   },
-  "keywords": ["hello", "world", "example"],
+  "keywords": [
+    "hello",
+    "world",
+    "example"
+  ],
   "author": "",
   "license": "MIT",
   "bin": {

@@ -21,6 +21,10 @@ import {
   createWrapperScript,
   createCommandDoc,
   createHelperScript,
+  createMcpJson,
+  createVSCodeSettings,
+  createVSCodeTasks,
+  createVSCodeLaunch,
   COMMAND_STRUCTURE,
 } from './templates/enhanced-templates.js';
 import { getIsolatedNpxEnv } from '../../../utils/npx-isolated-cache.js';
@@ -58,43 +62,184 @@ function isClaudeCodeInstalled() {
 async function setupMcpServers(dryRun = false) {
   console.log('\n🔌 Setting up MCP servers for Claude Code...');
 
+  // Import command builder utilities
+  const { buildMcpCommand, validateEnvironmentVariables, prepareServerConfig } =
+    await import('./mcp-command-builder.js');
+
+  // Enhanced server configurations matching .mcp.example.json
   const servers = [
     {
       name: 'claude-flow',
-      command: 'npx claude-flow@alpha mcp start',
+      command: 'npx',
+      args: ['claude-flow@alpha', 'mcp', 'start'],
+      type: 'stdio',
       description: 'Claude Flow MCP server with swarm orchestration (alpha)',
     },
     {
       name: 'ruv-swarm',
-      command: 'npx ruv-swarm mcp start',
+      command: 'npx',
+      args: ['ruv-swarm@latest', 'mcp', 'start'],
+      type: 'stdio',
       description: 'ruv-swarm MCP server for enhanced coordination',
+    },
+    {
+      name: 'sequential-thinking',
+      command: 'npx',
+      args: ['-y', '@modelcontextprotocol/server-sequential-thinking'],
+      description: 'Sequential thinking MCP server for structured problem-solving',
+    },
+    {
+      name: 'perplexity-ask',
+      command: 'docker',
+      args: ['run', '-i', '--rm', '-e', 'PERPLEXITY_API_KEY', 'mcp/perplexity-ask'],
+      env: {
+        PERPLEXITY_API_KEY: 'TODO-API-KEY'
+      },
+      description: 'Perplexity Ask MCP server for web research capabilities',
+    },
+    {
+      name: 'context7',
+      command: 'npx',
+      args: ['-y', '@upstash/context7-mcp'],
+      type: 'stdio',
+      description: 'Context7 MCP server for library documentation retrieval',
+    },
+    {
+      name: 'serena',
+      command: 'uvx',
+      args: [
+        '--from',
+        'git+https://github.com/oraios/serena',
+        'serena-mcp-server',
+        '--context',
+        'ide-assistant',
+        '--project',
+        '${PWD}',
+        '--tool-timeout',
+        '20',
+        '--mode',
+        'planning',
+        '--enable-web-dashboard',
+        'false'
+      ],
+      type: 'stdio',
+      description: 'Serena MCP server for advanced code analysis and LSP integration',
+    },
+    {
+      name: 'consult7',
+      command: 'uvx',
+      args: ['consult7', 'google', 'TODO-API-KEY'],
+      type: 'stdio',
+      description: 'Consult7 MCP server for advanced reasoning with Google Gemini',
     },
   ];
 
+  let successCount = 0;
+  let failureCount = 0;
+  const failures = [];
+
   for (const server of servers) {
     try {
+      // Prepare server configuration with environment variable substitution
+      const preparedConfig = prepareServerConfig(server);
+
+      // Validate required environment variables
+      const envValidation = validateEnvironmentVariables(server);
+      if (!envValidation.valid) {
+        console.log(`  ⚠️  ${server.name} requires environment variables: ${envValidation.missing.join(', ')}`);
+        console.log(`     Set these variables before running: ${envValidation.missing.map(v => `export ${v}=your_value`).join('; ')}`);
+
+        if (!dryRun) {
+          failures.push({
+            name: server.name,
+            error: `Missing required environment variables: ${envValidation.missing.join(', ')}`
+          });
+          failureCount++;
+          continue;
+        }
+      }
+
+      // Build the command string
+      const commandString = buildMcpCommand(preparedConfig);
+
       if (!dryRun) {
         console.log(`  🔄 Adding ${server.name}...`);
-        execSync(`claude mcp add ${server.name} ${server.command}`, { stdio: 'inherit' });
+
+        // Special handling for different command types
+        if (server.command === 'docker' && server.env) {
+          // For Docker commands with environment variables, we need to ensure env vars are available
+          const missingEnvVars = envValidation.missing;
+          if (missingEnvVars.length > 0) {
+            throw new Error(`Missing required environment variables: ${missingEnvVars.join(', ')}`);
+          }
+        }
+
+        execSync(`claude mcp add ${server.name} ${commandString}`, {
+          stdio: 'inherit',
+          env: { ...process.env, ...server.env }
+        });
+
         console.log(`  ✅ Added ${server.name} - ${server.description}`);
+        successCount++;
       } else {
         console.log(`  [DRY RUN] Would add ${server.name} - ${server.description}`);
+        console.log(`  [DRY RUN] Command: claude mcp add ${server.name} ${commandString}`);
+        if (server.env) {
+          console.log(`  [DRY RUN] Environment variables: ${Object.keys(server.env).join(', ')}`);
+        }
+        successCount++;
       }
     } catch (err) {
       console.log(`  ⚠️  Failed to add ${server.name}: ${err.message}`);
-      console.log(
-        `     You can add it manually with: claude mcp add ${server.name} ${server.command}`,
-      );
+
+      // Provide specific troubleshooting based on server type
+      if (server.command === 'docker') {
+        console.log(`     • Make sure Docker is installed and running`);
+        console.log(`     • Set required environment variables: ${Object.keys(server.env || {}).join(', ')}`);
+        console.log(`     • Pull the Docker image: docker pull mcp/perplexity-ask`);
+      } else if (server.command === 'uvx') {
+        console.log(`     • Make sure uv is installed: pip install uv`);
+        console.log(`     • For Git repositories, ensure you have Git access`);
+      } else if (server.command === 'npx') {
+        console.log(`     • Make sure Node.js and npm are installed`);
+        console.log(`     • Try installing the package globally first`);
+      }
+
+      const commandString = buildMcpCommand(prepareServerConfig(server));
+      console.log(`     • Manual installation: claude mcp add ${server.name} ${commandString}`);
+
+      failures.push({
+        name: server.name,
+        error: err.message
+      });
+      failureCount++;
     }
   }
 
-  if (!dryRun) {
+  // Summary
+  console.log(`\n📊 MCP Server Setup Summary:`);
+  console.log(`  ✅ Successfully configured: ${successCount} servers`);
+
+  if (failureCount > 0) {
+    console.log(`  ❌ Failed to configure: ${failureCount} servers`);
+    console.log(`\n⚠️  Failed servers:`);
+    failures.forEach(failure => {
+      console.log(`     ${failure.name}: ${failure.error}`);
+    });
+  }
+
+  if (!dryRun && successCount > 0) {
     console.log('\n  📋 Verifying MCP servers...');
     try {
       execSync('claude mcp list', { stdio: 'inherit' });
     } catch (err) {
       console.log('  ⚠️  Could not verify MCP servers');
     }
+  }
+
+  if (dryRun) {
+    console.log('\n💡 To proceed with actual setup, run the same command without --dry-run');
+    console.log('   Make sure to set required environment variables first.');
   }
 }
 
@@ -902,6 +1047,9 @@ async function enhancedClaudeFlowInit(flags, subArgs = []) {
       'CLAUDE.md',
       '.claude/settings.json',
       '.mcp.json',
+      '.vscode/settings.json',
+      '.vscode/tasks.json',
+      '.vscode/launch.json',
       'claude-flow.config.json',
     ];
 
@@ -965,26 +1113,43 @@ async function enhancedClaudeFlowInit(flags, subArgs = []) {
     }
 
     // Create .mcp.json at project root for MCP server configuration
-    const mcpConfig = {
-      mcpServers: {
-        'claude-flow': {
-          command: 'npx',
-          args: ['claude-flow@alpha', 'mcp', 'start'],
-          type: 'stdio',
-        },
-        'ruv-swarm': {
-          command: 'npx',
-          args: ['ruv-swarm@latest', 'mcp', 'start'],
-          type: 'stdio',
-        },
-      },
-    };
+    const mcpJsonContent = createMcpJson();
 
     if (!dryRun) {
-      await Deno.writeTextFile(`${workingDir}/.mcp.json`, JSON.stringify(mcpConfig, null, 2));
-      printSuccess('✓ Created .mcp.json at project root for MCP server configuration');
+      await Deno.writeTextFile(`${workingDir}/.mcp.json`, mcpJsonContent);
+      printSuccess('✓ Created .mcp.json at project root with enhanced MCP server configuration');
     } else {
-      console.log('[DRY RUN] Would create .mcp.json at project root for MCP server configuration');
+      console.log('[DRY RUN] Would create .mcp.json at project root with enhanced MCP server configuration');
+    }
+
+    // Create .vscode directory and configuration files for enhanced development experience
+    const vscodeDir = `${workingDir}/.vscode`;
+
+    if (!dryRun) {
+      // Ensure .vscode directory exists
+      try {
+        await Deno.mkdir(vscodeDir, { recursive: true });
+      } catch (error) {
+        // Directory might already exist, continue
+      }
+
+      // Create VSCode settings.json
+      const vscodeSettingsContent = createVSCodeSettings();
+      await Deno.writeTextFile(`${vscodeDir}/settings.json`, vscodeSettingsContent);
+      printSuccess('✓ Created .vscode/settings.json with MCP and SPARC integration');
+
+      // Create VSCode tasks.json
+      const vscodeTasksContent = createVSCodeTasks();
+      await Deno.writeTextFile(`${vscodeDir}/tasks.json`, vscodeTasksContent);
+      printSuccess('✓ Created .vscode/tasks.json with SPARC workflow automation');
+
+      // Create VSCode launch.json
+      const vscodeLaunchContent = createVSCodeLaunch();
+      await Deno.writeTextFile(`${vscodeDir}/launch.json`, vscodeLaunchContent);
+      printSuccess('✓ Created .vscode/launch.json with debugging configurations');
+
+    } else {
+      console.log('[DRY RUN] Would create .vscode/ directory with settings, tasks, and launch configurations');
     }
 
     // Create claude-flow.config.json for Claude Flow specific settings
@@ -1168,13 +1333,13 @@ ${commands.map((cmd) => `- [${cmd}](./${cmd}.md)`).join('\n')}
           `${workingDir}/.hive-mind/config.json`,
           JSON.stringify(hiveMindConfig, null, 2),
         );
-        
+
         // Initialize hive.db
         try {
           const Database = (await import('better-sqlite3')).default;
           const hivePath = `${workingDir}/.hive-mind/hive.db`;
           const hiveDb = new Database(hivePath);
-          
+
           // Create initial tables
           hiveDb.exec(`
             CREATE TABLE IF NOT EXISTS swarms (
@@ -1186,7 +1351,7 @@ ${commands.map((cmd) => `- [${cmd}](./${cmd}.md)`).join('\n')}
               created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
               updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
             );
-            
+
             CREATE TABLE IF NOT EXISTS agents (
               id TEXT PRIMARY KEY,
               swarm_id TEXT,
@@ -1199,7 +1364,7 @@ ${commands.map((cmd) => `- [${cmd}](./${cmd}.md)`).join('\n')}
               created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
               FOREIGN KEY (swarm_id) REFERENCES swarms (id)
             );
-            
+
             CREATE TABLE IF NOT EXISTS messages (
               id TEXT PRIMARY KEY,
               swarm_id TEXT,
@@ -1211,13 +1376,13 @@ ${commands.map((cmd) => `- [${cmd}](./${cmd}.md)`).join('\n')}
               FOREIGN KEY (agent_id) REFERENCES agents (id)
             );
           `);
-          
+
           hiveDb.close();
           printSuccess('✓ Initialized hive-mind database (.hive-mind/hive.db)');
         } catch (dbErr) {
           console.log(`  ⚠️  Could not initialize hive-mind database: ${dbErr.message}`);
         }
-        
+
         printSuccess('✓ Initialized hive-mind system');
       } catch (err) {
         console.log(`  ⚠️  Could not initialize hive-mind system: ${err.message}`);
@@ -1293,7 +1458,7 @@ ${commands.map((cmd) => `- [${cmd}](./${cmd}.md)`).join('\n')}
         force: force,
         dryRun: dryRun
       });
-      
+
       if (agentResult.success) {
         await validateAgentSystem(workingDir);
         console.log('✅ ✓ Agent system setup complete with 64 specialized agents');

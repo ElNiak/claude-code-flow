@@ -5,6 +5,7 @@ This example demonstrates how to run multiple Claude-Flow SPARC agents in parall
 ## Overview
 
 The parallel test coordinator runs 8 different agent types simultaneously:
+
 - **Specification Agent**: Creates detailed API specifications
 - **Architecture Agent**: Designs system architectures
 - **Code Agent**: Implements algorithms and data structures
@@ -27,26 +28,31 @@ npm install
 ## Usage
 
 ### Run the Parallel Test
+
 ```bash
 npm run test
 ```
 
 This will:
+
 1. Launch all agents in parallel
 2. Execute their respective tasks
 3. Save results to `results.json`
 
 ### Analyze Results
+
 ```bash
 npm run analyze
 ```
 
 This will:
+
 1. Read the test results
 2. Generate performance statistics
 3. Create a detailed report in `detailed-report.md`
 
 ### Full Test Cycle
+
 ```bash
 npm run test:full
 ```
@@ -71,14 +77,18 @@ Each agent is given a specific task designed to test its capabilities:
 ## Understanding Results
 
 ### results.json
+
 Contains raw test execution data:
+
 - Agent execution times
 - Success/failure status
 - Output or error messages
 - Overall statistics
 
 ### detailed-report.md
+
 Provides comprehensive analysis:
+
 - Executive summary
 - Performance metrics
 - Execution timeline
@@ -88,6 +98,7 @@ Provides comprehensive analysis:
 ## Performance Metrics
 
 The test suite measures:
+
 - **Individual agent duration**: Time taken by each agent
 - **Parallel efficiency**: Comparison with sequential execution
 - **Success rate**: Percentage of successful agent executions
@@ -98,6 +109,7 @@ The test suite measures:
 To add new test cases:
 
 1. Create a new test file in `test-agents/`:
+
 ```typescript
 export const newTestCase = {
   name: "Test Name",
@@ -112,6 +124,7 @@ export const newTestCase = {
 ```
 
 2. Add the test to `parallel-test.ts`:
+
 ```typescript
 {
   name: "New Agent",
@@ -132,6 +145,7 @@ export const newTestCase = {
 ### Debug Mode
 
 To see detailed agent output, modify `coordinator.ts`:
+
 ```typescript
 console.log(`Agent ${task.name} output:`, stdout);
 ```
@@ -164,6 +178,7 @@ parallel-2/
 ## Contributing
 
 To contribute new test cases or improvements:
+
 1. Follow the existing test structure
 2. Ensure tests are meaningful and measurable
 3. Update documentation accordingly

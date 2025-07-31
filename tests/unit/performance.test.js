@@ -121,28 +121,28 @@ describe('Performance Tests', () => {
   describe('Memory Usage Tests', () => {
     test('should not leak memory during repeated operations', async () => {
       const getMemoryUsage = () => process.memoryUsage().heapUsed;
-      
+
       const initialMemory = getMemoryUsage();
-      
+
       // Perform 100 operations
       for (let i = 0; i < 100; i++) {
         const largeArray = Array.from({ length: 1000 }, (_, j) => ({
           id: j,
           data: 'x'.repeat(1000)
         }));
-        
+
         parseFlags([`--test${i}`, 'value']);
         JSON.stringify(largeArray.slice(0, 10)); // Only format first 10 to keep it reasonable
-        
+
         // Force garbage collection if available
         if (global.gc) {
           global.gc();
         }
       }
-      
+
       const finalMemory = getMemoryUsage();
       const memoryIncrease = finalMemory - initialMemory;
-      
+
       // Memory increase should be reasonable (less than 50MB)
       expect(memoryIncrease).toBeLessThan(50 * 1024 * 1024);
     });
@@ -156,12 +156,12 @@ describe('Performance Tests', () => {
 
       const { duration } = await perfHelpers.measureTime(async () => {
         const operations = [];
-        
+
         // Simulate 20 concurrent memory operations
         for (let i = 0; i < 20; i++) {
           operations.push(memoryCommand(['store', `key${i}`, `value${i}`], {}));
         }
-        
+
         await Promise.all(operations);
       });
 
@@ -177,17 +177,17 @@ describe('Performance Tests', () => {
           status: 'idle'
         }))
       };
-      
+
       jest.spyOn(fs, 'readJson').mockResolvedValue(mockSwarmData);
 
       const { duration } = await perfHelpers.measureTime(async () => {
         const operations = [];
-        
+
         // Simulate 10 concurrent agent status checks
         for (let i = 0; i < 10; i++) {
           operations.push(agentCommand(['status'], {}));
         }
-        
+
         await Promise.all(operations);
       });
 
@@ -276,7 +276,7 @@ describe('Performance Tests', () => {
           id: 'test-swarm',
           agents: Array.from({ length: 8 }, (_, i) => ({ id: `agent-${i}` }))
         };
-        
+
         await new Promise(resolve => setTimeout(resolve, 50)); // Simulate setup
         return swarmData;
       };

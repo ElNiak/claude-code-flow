@@ -1,6 +1,7 @@
 # Fix Plan: Issue #249 - Variable Interpolation in Claude Code Hooks
 
 ## Problem Summary
+
 Claude Code hooks use `${file}` and `${command}` syntax for variable interpolation, but these variables are not being replaced with actual values during hook execution.
 
 ## Investigation Plan
@@ -8,12 +9,14 @@ Claude Code hooks use `${file}` and `${command}` syntax for variable interpolati
 ### Phase 1: Research & Documentation Analysis (2 hours)
 
 #### 1.1 Claude Code Documentation Review
+
 - [ ] Search official Claude Code documentation for hook variable syntax
 - [ ] Check Claude Code GitHub/Discord for similar issues
 - [ ] Review Claude Code changelog for hook-related changes
 - [ ] Test with latest Claude Code version
 
 #### 1.2 Environment Variable Testing
+
 ```bash
 # Test different variable syntaxes in hooks
 ${file}          # Current syntax (not working)
@@ -24,6 +27,7 @@ ${CLAUDE_FILE}   # Environment variable syntax
 ```
 
 #### 1.3 Hook Context Investigation
+
 - [ ] Determine what data Claude Code passes to hooks
 - [ ] Check if hooks receive stdin input
 - [ ] Investigate environment variables available during hook execution
@@ -32,7 +36,9 @@ ${CLAUDE_FILE}   # Environment variable syntax
 ### Phase 2: Implementation Strategy (4 hours)
 
 #### 2.1 Approach A: Direct Variable Support
+
 If Claude Code supports variable interpolation:
+
 ```javascript
 // Fix template syntax in enhanced-templates.js
 const hookTemplates = {
@@ -47,7 +53,9 @@ const hookTemplates = {
 ```
 
 #### 2.2 Approach B: Wrapper Script Solution
+
 If no native support exists:
+
 ```bash
 #!/bin/bash
 # .claude/hooks/post-edit-wrapper.sh
@@ -64,7 +72,9 @@ fi
 ```
 
 #### 2.3 Approach C: Hook Preprocessor
+
 Implement a preprocessor in Claude Flow:
+
 ```javascript
 // src/cli/simple-commands/init/hook-preprocessor.js
 export function preprocessHookCommand(command, context) {
@@ -78,6 +88,7 @@ export function preprocessHookCommand(command, context) {
 ### Phase 3: Implementation Tasks (6 hours)
 
 #### 3.1 Core Implementation
+
 ```javascript
 // src/cli/simple-commands/init/templates/hook-variables.js
 export const HOOK_VARIABLE_MAPPINGS = {
@@ -89,7 +100,7 @@ export const HOOK_VARIABLE_MAPPINGS = {
 
 export function detectHookVariables(hookEnv) {
   const detected = {};
-  
+
   // Check environment variables
   for (const [key, aliases] of Object.entries(HOOK_VARIABLE_MAPPINGS)) {
     for (const alias of aliases) {
@@ -99,7 +110,7 @@ export function detectHookVariables(hookEnv) {
       }
     }
   }
-  
+
   // Check stdin if available
   if (process.stdin.isTTY === false) {
     try {
@@ -109,12 +120,13 @@ export function detectHookVariables(hookEnv) {
       // Not JSON, ignore
     }
   }
-  
+
   return detected;
 }
 ```
 
 #### 3.2 Template Updates
+
 ```javascript
 // Update all hook templates to use discovered syntax
 const updateHookTemplates = (syntax) => {
@@ -123,7 +135,7 @@ const updateHookTemplates = (syntax) => {
     'safe-hook-patterns.js',
     'claude-md.js'
   ];
-  
+
   templates.forEach(file => {
     updateTemplateSyntax(file, syntax);
   });
@@ -131,6 +143,7 @@ const updateHookTemplates = (syntax) => {
 ```
 
 #### 3.3 Migration Script Enhancement
+
 ```javascript
 // scripts/fix-hook-variables.js
 #!/usr/bin/env node
@@ -140,12 +153,12 @@ import path from 'path';
 
 async function fixHookVariables(settingsPath) {
   const settings = JSON.parse(await fs.readFile(settingsPath, 'utf8'));
-  
+
   // Update hook commands with correct variable syntax
   if (settings.hooks) {
     settings.hooks = transformHookVariables(settings.hooks);
   }
-  
+
   // Backup and save
   await fs.writeFile(`${settingsPath}.backup`, JSON.stringify(settings, null, 2));
   await fs.writeFile(settingsPath, JSON.stringify(settings, null, 2));
@@ -155,6 +168,7 @@ async function fixHookVariables(settingsPath) {
 ### Phase 4: Testing Strategy (4 hours)
 
 #### 4.1 Unit Tests
+
 ```javascript
 // tests/unit/hook-variables.test.js
 describe('Hook Variable Interpolation', () => {
@@ -163,13 +177,13 @@ describe('Hook Variable Interpolation', () => {
     const vars = detectHookVariables();
     expect(vars.file).toBe('/test/file.js');
   });
-  
+
   test('detects stdin JSON input', () => {
     const stdin = JSON.stringify({ file: '/test/file.js' });
     const vars = detectHookVariables(stdin);
     expect(vars.file).toBe('/test/file.js');
   });
-  
+
   test('preprocesses hook commands', () => {
     const command = 'echo "File: ${file}"';
     const context = { file: '/test/file.js' };
@@ -180,6 +194,7 @@ describe('Hook Variable Interpolation', () => {
 ```
 
 #### 4.2 Integration Tests
+
 ```javascript
 // tests/integration/claude-code-hooks.test.js
 describe('Claude Code Hook Integration', () => {
@@ -188,7 +203,7 @@ describe('Claude Code Hook Integration', () => {
     // 2. Trigger edit through Claude Code
     // 3. Verify hook was called with correct file path
   });
-  
+
   test('hook receives command parameter on bash execution', async () => {
     // 1. Set up hook for Bash commands
     // 2. Execute command through Claude Code
@@ -198,6 +213,7 @@ describe('Claude Code Hook Integration', () => {
 ```
 
 #### 4.3 Manual Testing Script
+
 ```bash
 #!/bin/bash
 # tests/manual/test-hook-variables.sh
@@ -227,6 +243,7 @@ EOF
 ### Phase 5: Documentation (2 hours)
 
 #### 5.1 User Documentation
+
 ```markdown
 # Claude Code Hook Variables
 
@@ -258,6 +275,7 @@ Claude Code provides the following variables in hooks:
 ```
 
 ### Command Execution Hooks
+
 ```json
 {
   "hooks": {
@@ -271,6 +289,7 @@ Claude Code provides the following variables in hooks:
   }
 }
 ```
+
 ```
 
 #### 5.2 Migration Guide
@@ -285,6 +304,7 @@ If you're experiencing issues with hook variables not working:
    ```
 
 2. **Run the variable fix script**
+
    ```bash
    npx claude-flow@alpha fix-hook-variables
    ```
@@ -294,9 +314,11 @@ If you're experiencing issues with hook variables not working:
    - New: `${file}`
 
 4. **Test your hooks**
+
    ```bash
    npx claude-flow@alpha test-hooks
    ```
+
 ```
 
 ### Phase 6: Rollout Plan (2 hours)

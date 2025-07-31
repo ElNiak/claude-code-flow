@@ -1,6 +1,7 @@
 # 🚀 Claude Flow v2.0.0 Migration Guide: Deno to Pure NPM TypeScript
 
 ## 📋 Table of Contents
+
 1. [Overview](#overview)
 2. [Migration Path](#migration-path)
 3. [Breaking Changes](#breaking-changes)
@@ -15,6 +16,7 @@
 ## 🎯 Overview
 
 Claude Flow v2.0.0 represents a complete migration from Deno to pure NPM TypeScript, providing:
+
 - **✅ Better ecosystem compatibility** - Full NPM package support
 - **✅ Improved performance** - 60% faster builds, 2.8-4.4x execution speed
 - **✅ Enhanced tooling** - Standard TypeScript toolchain
@@ -24,12 +26,14 @@ Claude Flow v2.0.0 represents a complete migration from Deno to pure NPM TypeScr
 ## 🛤️ Migration Path
 
 ### Before (Deno)
+
 ```bash
 # Old Deno-based installation
 deno install -A -f --name claude-flow https://deno.land/x/claude_flow/src/cli.ts
 ```
 
 ### After (Pure NPM)
+
 ```bash
 # New NPM-based installation
 npx claude-flow@2.0.0 init --sparc
@@ -38,10 +42,12 @@ npx claude-flow@2.0.0 init --sparc
 ## ⚠️ Breaking Changes
 
 ### 1. **Installation Method**
+
 - ❌ `deno install` → ✅ `npm install` or `npx`
 - ❌ Deno permissions → ✅ Node.js native permissions
 
 ### 2. **Import Syntax**
+
 ```typescript
 // Before (Deno)
 import { Command } from "https://deno.land/x/cliffy@v1.0.0-rc.3/command/mod.ts";
@@ -51,6 +57,7 @@ import { Command } from '@cliffy/command';
 ```
 
 ### 3. **Runtime APIs**
+
 ```typescript
 // Before (Deno)
 const decoder = new TextDecoder();
@@ -62,12 +69,14 @@ const data = readFileSync('./config.json', 'utf-8');
 ```
 
 ### 4. **Configuration Files**
+
 - ❌ `deno.json` → ✅ `package.json` + `tsconfig.json`
 - ❌ Import maps → ✅ NPM dependencies
 
 ## 📝 Step-by-Step Migration
 
 ### Step 1: Backup Existing Configuration
+
 ```bash
 # Create backup of your current setup
 cp -r .claude .claude-backup-$(date +%Y%m%d)
@@ -75,6 +84,7 @@ cp claude-flow.config.json claude-flow.config.backup.json
 ```
 
 ### Step 2: Uninstall Deno Version
+
 ```bash
 # Remove old Deno installation
 rm -f $(which claude-flow)  # Remove Deno binary
@@ -82,6 +92,7 @@ rm -rf ~/.deno/bin/claude-flow  # Clean Deno cache
 ```
 
 ### Step 3: Install NPM Version
+
 ```bash
 # Method 1: Quick start (Recommended)
 npx claude-flow@2.0.0 init --sparc
@@ -94,6 +105,7 @@ npm install claude-flow@2.0.0 --save-dev
 ```
 
 ### Step 4: Migrate Configuration
+
 ```bash
 # The init command will detect existing config and offer migration
 ./claude-flow init --migrate
@@ -103,6 +115,7 @@ npm install claude-flow@2.0.0 --save-dev
 ```
 
 ### Step 5: Update Scripts
+
 ```json
 // package.json
 {
@@ -118,6 +131,7 @@ npm install claude-flow@2.0.0 --save-dev
 ## 🔄 Command Changes
 
 ### Core Commands (Unchanged)
+
 ```bash
 # These commands work the same way
 ./claude-flow start
@@ -127,6 +141,7 @@ npm install claude-flow@2.0.0 --save-dev
 ```
 
 ### New Features
+
 ```bash
 # Enhanced init command with templates
 ./claude-flow init --sparc  # Full SPARC + ruv-swarm
@@ -143,6 +158,7 @@ npm install claude-flow@2.0.0 --save-dev
 ```
 
 ### Deprecated Commands
+
 ```bash
 # Old Deno-specific commands (removed)
 claude-flow --allow-read  # No longer needed
@@ -152,6 +168,7 @@ claude-flow --unstable  # Not applicable
 ## ⚙️ Configuration Updates
 
 ### Old Format (deno.json)
+
 ```json
 {
   "imports": {
@@ -164,6 +181,7 @@ claude-flow --unstable  # Not applicable
 ```
 
 ### New Format (package.json)
+
 ```json
 {
   "name": "my-project",
@@ -178,6 +196,7 @@ claude-flow --unstable  # Not applicable
 ```
 
 ### TypeScript Configuration
+
 ```json
 // tsconfig.json
 {
@@ -196,6 +215,7 @@ claude-flow --unstable  # Not applicable
 ## 📦 Dependency Migration
 
 ### Deno to NPM Package Mapping
+
 | Deno URL | NPM Package |
 |----------|-------------|
 | `https://deno.land/x/cliffy/` | `@cliffy/command` |
@@ -203,6 +223,7 @@ claude-flow --unstable  # Not applicable
 | `https://deno.land/x/oak/` | `express` or `koa` |
 
 ### Installing Dependencies
+
 ```bash
 # Automatic dependency resolution
 ./claude-flow init --migrate
@@ -215,6 +236,7 @@ npm install --save-dev @types/node typescript
 ## 🧪 Testing Your Migration
 
 ### 1. Verify Installation
+
 ```bash
 # Check version
 ./claude-flow --version
@@ -225,6 +247,7 @@ npm install --save-dev @types/node typescript
 ```
 
 ### 2. Test Basic Commands
+
 ```bash
 # Start orchestration
 ./claude-flow start --ui --port 3000
@@ -237,6 +260,7 @@ npm install --save-dev @types/node typescript
 ```
 
 ### 3. Test Swarm Features
+
 ```bash
 # Initialize swarm
 ./claude-flow swarm init --topology mesh
@@ -246,6 +270,7 @@ npm install --save-dev @types/node typescript
 ```
 
 ### 4. Validate MCP Integration
+
 ```bash
 # Check MCP status
 ./claude-flow mcp status
@@ -259,6 +284,7 @@ npm install --save-dev @types/node typescript
 ### Common Issues
 
 #### 1. Command Not Found
+
 ```bash
 # Solution: Use the local wrapper
 ./claude-flow start  # Use ./ prefix
@@ -268,6 +294,7 @@ export PATH="$PWD:$PATH"
 ```
 
 #### 2. Permission Errors
+
 ```bash
 # Solution: Make wrapper executable
 chmod +x claude-flow
@@ -277,6 +304,7 @@ sudo npm install -g claude-flow@2.0.0
 ```
 
 #### 3. TypeScript Errors
+
 ```bash
 # Solution: Clear cache and rebuild
 rm -rf node_modules package-lock.json
@@ -285,6 +313,7 @@ npm run build
 ```
 
 #### 4. Memory Bank Migration
+
 ```bash
 # Backup old memory
 cp -r memory memory-backup
@@ -297,6 +326,7 @@ cp -r memory memory-backup
 ```
 
 ### Migration Validation
+
 ```bash
 # Run comprehensive validation
 ./claude-flow validate --check-all
@@ -310,6 +340,7 @@ cp -r memory memory-backup
 ## 📊 Performance Comparison
 
 ### Build Performance
+
 | Metric | Deno | NPM v2.0.0 | Improvement |
 |--------|------|------------|-------------|
 | Initial Build | 15s | 6s | 60% faster |
@@ -317,6 +348,7 @@ cp -r memory memory-backup
 | Bundle Size | 45MB | 18MB | 60% smaller |
 
 ### Runtime Performance
+
 | Operation | Deno | NPM v2.0.0 | Improvement |
 |-----------|------|------------|-------------|
 | Startup Time | 2.1s | 0.7s | 67% faster |
@@ -325,6 +357,7 @@ cp -r memory memory-backup
 | Memory Query | 25ms | 5ms | 80% faster |
 
 ### Development Experience
+
 - **✅ Standard tooling** - VSCode, ESLint, Prettier
 - **✅ Better debugging** - Chrome DevTools, source maps
 - **✅ Faster CI/CD** - NPM caching, parallel builds

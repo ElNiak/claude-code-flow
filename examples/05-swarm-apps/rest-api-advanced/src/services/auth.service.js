@@ -121,7 +121,7 @@ class AuthService {
    */
   async sendVerificationEmail(user, token) {
     const verificationUrl = `${process.env.API_URL}/api/auth/verify-email/${token}`;
-    
+
     // Mock email sending - in production, integrate with email service
     logger.info(`Sending verification email to ${user.email}`);
     logger.info(`Verification URL: ${verificationUrl}`);
@@ -152,7 +152,7 @@ class AuthService {
    */
   async sendPasswordResetEmail(user, token) {
     const resetUrl = `${process.env.API_URL}/reset-password?token=${token}`;
-    
+
     // Mock email sending
     logger.info(`Sending password reset email to ${user.email}`);
     logger.info(`Reset URL: ${resetUrl}`);

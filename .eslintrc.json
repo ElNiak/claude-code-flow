@@ -6,13 +6,8 @@
     "sourceType": "module",
     "project": "./tsconfig.json"
   },
-  "plugins": [
-    "@typescript-eslint"
-  ],
-  "extends": [
-    "eslint:recommended",
-    "plugin:@typescript-eslint/recommended"
-  ],
+  "plugins": ["@typescript-eslint"],
+  "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
   "env": {
     "node": true,
     "es2022": true
@@ -26,10 +21,5 @@
     "prefer-const": "error",
     "no-var": "error"
   },
-  "ignorePatterns": [
-    "dist/",
-    "node_modules/",
-    "coverage/",
-    "*.js"
-  ]
+  "ignorePatterns": ["dist/", "node_modules/", "coverage/", "*.js"]
 }

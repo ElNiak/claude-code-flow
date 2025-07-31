@@ -16,7 +16,7 @@ import * as readline from 'readline';
 
 async function launchClaudeCodeWithSwarm(objective: string, options: any): Promise<void> {
   console.log('\n🤖 Launching Claude Code with swarm configuration...\n');
-  
+
   // Build the swarm prompt with interactive approval if requested
   let swarmPrompt = `You are orchestrating a Claude Flow Swarm with advanced MCP tool coordination.
 
@@ -68,17 +68,17 @@ If you need to do X operations, they should be in 1 message, not X messages.
   mcp__claude-flow__agent_spawn {"type": "coder", "name": "BackendDev"}
   mcp__claude-flow__agent_spawn {"type": "coder", "name": "FrontendDev"}
   mcp__claude-flow__agent_spawn {"type": "tester", "name": "QAEngineer"}
-  
+
   // Initialize ALL memory keys
   mcp__claude-flow__memory_store {"key": "swarm/objective", "value": "${objective}"}
   mcp__claude-flow__memory_store {"key": "swarm/config", "value": ${JSON.stringify(options)}}
-  
+
   // Create task hierarchy
   mcp__claude-flow__task_create {"name": "${objective}", "type": "parent", "id": "main"}
   mcp__claude-flow__task_create {"name": "Research Phase", "parent": "main"}
   mcp__claude-flow__task_create {"name": "Design Phase", "parent": "main"}
   mcp__claude-flow__task_create {"name": "Implementation", "parent": "main"}
-  
+
   // Initialize comprehensive todo list
   TodoWrite {"todos": [
     {"id": "1", "content": "Initialize ${options.maxAgents} agent swarm", "status": "completed", "priority": "high"},
@@ -97,10 +97,10 @@ If you need to do X operations, they should be in 1 message, not X messages.
   mcp__claude-flow__task_assign {"taskId": "design-1", "agentId": "architect-1"}
   mcp__claude-flow__task_assign {"taskId": "code-1", "agentId": "coder-1"}
   mcp__claude-flow__task_assign {"taskId": "code-2", "agentId": "coder-2"}
-  
+
   // Communicate to all agents
   mcp__claude-flow__agent_communicate {"to": "all", "message": "Begin phase 1"}
-  
+
   // Update multiple task statuses
   mcp__claude-flow__task_update {"taskId": "research-1", "status": "in_progress"}
   mcp__claude-flow__task_update {"taskId": "design-1", "status": "pending"}
@@ -113,7 +113,7 @@ If you need to do X operations, they should be in 1 message, not X messages.
   mcp__claude-flow__memory_store {"key": "research/requirements", "value": {...}}
   mcp__claude-flow__memory_store {"key": "research/constraints", "value": {...}}
   mcp__claude-flow__memory_store {"key": "architecture/decisions", "value": {...}}
-  
+
   // Retrieve related data
   mcp__claude-flow__memory_retrieve {"key": "research/*"}
   mcp__claude-flow__memory_search {"pattern": "architecture"}
@@ -126,12 +126,12 @@ If you need to do X operations, they should be in 1 message, not X messages.
   Read {"file_path": "/src/index.js"}
   Read {"file_path": "/src/config.js"}
   Read {"file_path": "/package.json"}
-  
+
   // Write multiple files
   Write {"file_path": "/src/api/auth.js", "content": "..."}
   Write {"file_path": "/src/api/users.js", "content": "..."}
   Write {"file_path": "/tests/auth.test.js", "content": "..."}
-  
+
   // Update memory with results
   mcp__claude-flow__memory_store {"key": "code/api/auth", "value": "implemented"}
   mcp__claude-flow__memory_store {"key": "code/api/users", "value": "implemented"}
@@ -230,7 +230,7 @@ BEST FOR:
    - Create ALL initial todos at once
    - Store initial memory state
    - Create task hierarchy
-   
+
    Example:
    \`\`\`
    [BatchTool]:
@@ -248,7 +248,7 @@ BEST FOR:
    - Assign multiple tasks in one batch
    - Update multiple statuses together
    - Store multiple results simultaneously
-   
+
 3. **MONITORING (Combined Operations):**
    - Check all agent statuses together
    - Retrieve multiple memory items
@@ -300,7 +300,7 @@ BEST FOR:
 ⚡ EXECUTION WORKFLOW - ALWAYS USE BATCHTOOL:
 
 1. SPARC METHODOLOGY WITH PARALLEL EXECUTION:
-   
+
    S - Specification Phase (Single BatchTool):
    \`\`\`
    [BatchTool]:
@@ -310,7 +310,7 @@ BEST FOR:
      mcp__claude-flow__task_create { name: "Requirement 3" }
      mcp__claude-flow__agent_spawn { type: "researcher", name: "SpecAnalyst" }
    \`\`\`
-   
+
    P - Pseudocode Phase (Single BatchTool):
    \`\`\`
    [BatchTool]:
@@ -319,7 +319,7 @@ BEST FOR:
      mcp__claude-flow__task_create { name: "Design Data Model" }
      mcp__claude-flow__agent_communicate { to: "all", message: "Review design" }
    \`\`\`
-   
+
    A - Architecture Phase (Single BatchTool):
    \`\`\`
    [BatchTool]:
@@ -328,7 +328,7 @@ BEST FOR:
      mcp__claude-flow__task_create { name: "Backend", subtasks: [...] }
      mcp__claude-flow__task_create { name: "Frontend", subtasks: [...] }
    \`\`\`
-   
+
    R - Refinement Phase (Single BatchTool):
    \`\`\`
    [BatchTool]:
@@ -337,7 +337,7 @@ BEST FOR:
      mcp__claude-flow__task_update { taskId: "2", progress: 75 }
      mcp__claude-flow__memory_store { key: "learnings/iteration1", value: {...} }
    \`\`\`
-   
+
    C - Completion Phase (Single BatchTool):
    \`\`\`
    [BatchTool]:
@@ -420,7 +420,7 @@ The swarm should be self-documenting - use memory_store to save all important in
     console.log('  npm install -g @anthropic/claude-cli');
     return;
   }
-  
+
   // If interactive mode, set up approval workflow
   if (options.interactive || options.approvalRequired) {
     console.log(`\n📋 Interactive Approval Mode Enabled`);
@@ -428,21 +428,21 @@ The swarm should be self-documenting - use memory_store to save all important in
     console.log(`\n⚠️  Claude will present a plan before making any changes.`);
     console.log(`You must explicitly approve with "APPROVED" or request modifications.\n`);
   }
-  
+
   // Launch Claude with the swarm prompt
   const args = ['--text', swarmPrompt];
-  
+
   console.log('Launching Claude...\n');
-  
+
   const claudeProcess = spawn('claude', args, {
     stdio: 'inherit',
     env: { ...process.env }
   });
-  
+
   claudeProcess.on('error', (err) => {
     error(`Failed to launch Claude: ${err.message}`);
   });
-  
+
   claudeProcess.on('exit', (code) => {
     if (code !== 0) {
       error(`Claude exited with code ${code}`);
@@ -458,46 +458,46 @@ export async function swarmAction(ctx: CommandContext) {
     showSwarmHelp();
     return;
   }
-  
+
   // The objective should be all the non-flag arguments joined together
   const objective = ctx.args.join(' ').trim();
-  
+
   if (!objective) {
     error("Usage: swarm <objective>");
     showSwarmHelp();
     return;
   }
-  
+
   const options = parseSwarmOptions(ctx.flags);
   const swarmId = generateId('swarm');
-  
+
   // Handle JSON output mode
   const isJsonOutput = options.outputFormat === 'json';
   const isNonInteractive = isJsonOutput || options.noInteractive;
-  
+
   // For JSON output, force executor mode since Claude Code doesn't return structured JSON
   if (isJsonOutput && !options.executor) {
     options.executor = true;
     options.claude = false;
   }
-  
+
   if (options.dryRun) {
     showDryRunConfiguration(swarmId, objective, options);
     return;
   }
-  
+
   // If UI mode is requested, launch the UI
   if (options.ui) {
     await launchSwarmUI(objective, options);
     return;
   }
-  
+
   // If claude flag is set (or not executor flag), launch Claude Code with swarm prompt
   if (options.claude || !options.executor) {
     await launchClaudeCodeWithSwarm(objective, options);
     return;
   }
-  
+
   // Only show messages if not in JSON output mode
   if (!isJsonOutput) {
     success(`🐝 Initializing Advanced Swarm: ${swarmId}`);
@@ -506,7 +506,7 @@ export async function swarmAction(ctx: CommandContext) {
     console.log(`🏗️  Mode: ${options.mode}`);
     console.log(`🤖 Max Agents: ${options.maxAgents}`);
   }
-  
+
   try {
     // Initialize comprehensive swarm system
     const coordinator = new SwarmCoordinator({
@@ -553,14 +553,14 @@ export async function swarmAction(ctx: CommandContext) {
         // exportPath: './metrics' // Commented out - not in type definition
       }
     });
-    
+
     await coordinator.initialize();
-    
+
     // Enable JSON output collection if requested
     if (isJsonOutput) {
       coordinator.enableJsonOutput(objective);
     }
-    
+
     // Initialize Task Executor with enhanced options
     const executor = new TaskExecutor({
       maxConcurrentTasks: 10,
@@ -589,9 +589,9 @@ export async function swarmAction(ctx: CommandContext) {
         trackResourceUsage: true
       }
     });
-    
+
     await executor.initialize();
-    
+
     // Initialize Memory Manager with enhanced configuration
     const memory = new SwarmMemoryManager({
       namespace: options.memoryNamespace,
@@ -612,9 +612,9 @@ export async function swarmAction(ctx: CommandContext) {
       consistencyLevel: 'eventual',
       conflictResolution: 'last-write-wins'
     });
-    
+
     await memory.initialize();
-    
+
     // Create a directory for this swarm run
     const swarmDir = `.claude-flow/swarm-runs/${swarmId}`;
     await fs.mkdir(swarmDir, { recursive: true });
@@ -636,23 +636,23 @@ export async function swarmAction(ctx: CommandContext) {
         reliabilityTarget: 0.95
       }
     );
-    
+
     console.log(`\n📝 Objective created: ${objectiveId}`);
 
     // Register agents based on strategy and requirements
     const agentTypes = getRequiredAgentTypes(options.strategy);
     const agents: string[] = [];
-    
+
     for (let i = 0; i < Math.min(options.maxAgents, agentTypes.length * 2); i++) {
       const agentType = agentTypes[i % agentTypes.length];
       const agentName = `${agentType}-${Math.floor(i / agentTypes.length) + 1}`;
-      
+
       const agentId = await coordinator.registerAgent(
         agentName,
         agentType,
         getAgentCapabilities(agentType)
       );
-      
+
       agents.push(agentId);
       console.log(`  🤖 Registered ${agentType}: ${agentName} (${agentId})`);
     }
@@ -677,7 +677,7 @@ export async function swarmAction(ctx: CommandContext) {
     if (options.monitor || options.background) {
       setupSwarmMonitoring(coordinator, executor, memory, swarmDir);
     }
-    
+
     // Set up incremental status updates (always enabled)
     await setupIncrementalUpdates(coordinator, swarmDir);
 
@@ -685,7 +685,7 @@ export async function swarmAction(ctx: CommandContext) {
     if (!isJsonOutput) {
       console.log(`\n🚀 Swarm execution started...`);
     }
-    
+
     // Start the objective execution
     await coordinator.executeObjective(objectiveId);
 
@@ -699,49 +699,49 @@ export async function swarmAction(ctx: CommandContext) {
         status: coordinator.getStatus(),
         swarmId: coordinator.getSwarmId()
       }, null, 2));
-      
+
       console.log(`\n🌙 Running in background mode`);
       console.log(`📁 Results: ${swarmDir}`);
-      
+
       // Wait for completion in background with minimal output
       if (!isJsonOutput) {
         console.log(`\n⏳ Processing tasks...`);
       }
-      
+
       // Background mode uses simple polling, no detailed progress
       await waitForSwarmCompletion(coordinator, objectiveId, options);
-      
+
       // Show final results or output JSON
       if (isJsonOutput) {
         await outputJsonResults(coordinator, options);
       } else {
         await showSwarmResults(coordinator, executor, memory, swarmDir);
       }
-      
+
     } else if (!options.background) {
       // Wait for completion in foreground with detailed progress
       if (!options.verbose && !isJsonOutput) {
         console.log(`\n⏳ Processing tasks...`);
-        
+
         // Track task states for detailed display
         let lastTaskUpdate = '';
         let taskStartTime = Date.now();
-        
+
         // Create a more informative progress display
         const progressInterval = setInterval(() => {
           const status = coordinator.getSwarmStatus();
           const tasks = coordinator.getTasks();
           const agents = coordinator.getAgents();
           const objective = coordinator.getObjectives().find(o => o.id === objectiveId);
-          
+
           const activeTasks = tasks.filter(t => (t.status as string) === 'in_progress');
           const activeAgents = agents.filter(a => (a.status as string) === 'active');
-          
+
           // Build status string
           let statusLine = `Tasks: ${status.tasks.completed}/${status.tasks.total} | `;
           statusLine += `Agents: ${activeAgents.length}/${status.agents.total} | `;
           statusLine += `Progress: ${objective?.progress || 0}%`;
-          
+
           // Show current active task if any
           if (activeTasks.length > 0) {
             const currentTask = activeTasks[0];
@@ -753,34 +753,34 @@ export async function swarmAction(ctx: CommandContext) {
             const taskDuration = Math.floor((Date.now() - taskStartTime) / 1000);
             statusLine += ` | ${taskInfo} (${taskDuration}s)`;
           }
-          
+
           // Clear the line and print status
           process.stdout.write(`\r${' '.repeat(100)}\r${statusLine}`);
-          
+
         }, 1000);
-        
+
         await waitForSwarmCompletion(coordinator, objectiveId, options);
-        
+
         clearInterval(progressInterval);
         process.stdout.write('\r' + ' '.repeat(100) + '\r'); // Clear the progress line
       } else {
         // Verbose mode - show all events
         await waitForSwarmCompletion(coordinator, objectiveId, options);
       }
-      
+
       // Show final results or output JSON
       if (isJsonOutput) {
         await outputJsonResults(coordinator, options);
       } else {
         await showSwarmResults(coordinator, executor, memory, swarmDir);
       }
-      
+
     } else {
       // Background mode requested - launch in background
       console.log(`\n🌙 Launching swarm in background mode...`);
       console.log(`📁 Results will be saved to: ${swarmDir}`);
       console.log(`📊 Monitor progress: claude-flow swarm status ${swarmId}`);
-      
+
       // Save initial state for background monitoring
       await fs.writeFile(`${swarmDir}/background.json`, JSON.stringify({
         swarmId,
@@ -789,28 +789,28 @@ export async function swarmAction(ctx: CommandContext) {
         startTime: new Date().toISOString(),
         command: process.argv.join(' ')
       }, null, 2));
-      
+
       // Use the swarm-background script
       const scriptPath = new URL(import.meta.url).pathname;
       const projectRoot = scriptPath.substring(0, scriptPath.indexOf('/src/'));
       const bgScriptPath = `${projectRoot}/bin/claude-flow-swarm-background`;
-      
+
       const bgCommand = new Deno.Command(bgScriptPath, {
         args: [objective, ...buildBackgroundArgs(options)],
         stdout: 'piped',
         stderr: 'piped',
         stdin: 'null'
       });
-      
+
       const bgProcess = bgCommand.spawn();
-      
+
       // Just confirm launch and exit
       success('Swarm launched in background successfully!');
-      
+
       // Don't wait for the background process
       bgProcess.unref?.();
     }
-    
+
   } catch (err) {
     const errorMessage = getErrorMessage(err);
     error(`Swarm execution failed: ${errorMessage}`);
@@ -826,13 +826,13 @@ function parseSwarmOptions(flags: any) {
   if (strategy === true || strategy === 'true') {
     strategy = 'auto';
   }
-  
+
   // Determine mode - if parallel flag is set, override mode to 'parallel'
   let mode = flags.mode as SwarmMode || 'centralized';
   if (flags.parallel) {
     mode = 'parallel' as SwarmMode;
   }
-  
+
   return {
     strategy: strategy as SwarmStrategy || 'auto',
     mode: mode,
@@ -843,48 +843,48 @@ function parseSwarmOptions(flags: any) {
     taskTimeoutMinutes: parseInt(flags.taskTimeoutMinutes || flags['task-timeout-minutes'] || '59'), // minutes
     maxRetries: parseInt(flags.maxRetries || flags['max-retries'] || '3'),
     qualityThreshold: parseFloat(flags.qualityThreshold || flags['quality-threshold'] || '0.8'),
-    
+
     // Execution options
     parallel: flags.parallel || false,
     background: flags.background || false,
     distributed: flags.distributed || false,
-    
+
     // Quality options
     review: flags.review || false,
     testing: flags.testing || false,
-    
+
     // Interactive approval options
     interactive: flags.interactive || false,
     approvalRequired: flags.approvalRequired || flags['approval-required'] || false,
     reviewer: flags.reviewer || process.env.USER || 'user',
-    
+
     // Monitoring options
     monitor: flags.monitor || false,
     verbose: flags.verbose || flags.v || false,
     streamOutput: flags.streamOutput || flags['stream-output'] || false,
-    
+
     // Memory options
     memoryNamespace: flags.memoryNamespace || flags['memory-namespace'] || 'swarm',
     persistence: flags.persistence !== false,
-    
+
     // Security options
     encryption: flags.encryption || false,
-    
+
     // Coordination strategy options
     agentSelection: flags.agentSelection || flags['agent-selection'] || 'capability-based',
     taskScheduling: flags.taskScheduling || flags['task-scheduling'] || 'priority',
     loadBalancing: flags.loadBalancing || flags['load-balancing'] || 'work-stealing',
     faultTolerance: flags.faultTolerance || flags['fault-tolerance'] || 'retry',
     communication: flags.communication || 'event-driven',
-    
+
     // UI and debugging
     ui: flags.ui || false,
     dryRun: flags.dryRun || flags['dry-run'] || flags.d || false,
-    
+
     // Claude Code options
     claude: flags.claude || false,
     executor: flags.executor || false,
-    
+
     // JSON output options
     outputFormat: flags.outputFormat || flags['output-format'] || 'text',
     outputFile: flags.outputFile || flags['output-file'],
@@ -941,7 +941,7 @@ function getAgentCapabilities(agentType: AgentType) {
         tools: ['git', 'npm', 'deno'],
         reliability: 0.95
       };
-      
+
     case 'coder':
       return {
         ...baseCapabilities,
@@ -961,7 +961,7 @@ function getAgentCapabilities(agentType: AgentType) {
         tools: ['git', 'npm', 'deno', 'docker'],
         quality: 0.9
       };
-      
+
     case 'researcher':
       return {
         ...baseCapabilities,
@@ -981,7 +981,7 @@ function getAgentCapabilities(agentType: AgentType) {
         tools: ['browser', 'search-engines'],
         reliability: 0.85
       };
-      
+
     case 'analyst':
       return {
         ...baseCapabilities,
@@ -1001,7 +1001,7 @@ function getAgentCapabilities(agentType: AgentType) {
         tools: ['jupyter', 'data-tools'],
         quality: 0.9
       };
-      
+
     case 'tester':
       return {
         ...baseCapabilities,
@@ -1021,7 +1021,7 @@ function getAgentCapabilities(agentType: AgentType) {
         tools: ['test-runners', 'coverage-tools'],
         reliability: 0.9
       };
-      
+
     case 'reviewer':
       return {
         ...baseCapabilities,
@@ -1041,7 +1041,7 @@ function getAgentCapabilities(agentType: AgentType) {
         tools: ['static-analysis', 'linters'],
         quality: 0.95
       };
-      
+
     default:
       return baseCapabilities;
   }
@@ -1056,17 +1056,17 @@ async function setupIncrementalUpdates(
 ): Promise<void> {
   const statusFile = `${swarmDir}/status.json`;
   const tasksDir = `${swarmDir}/tasks`;
-  
+
   // Create tasks directory
   await fs.mkdir(tasksDir, { recursive: true });
-  
+
   // Initialize with first status update
   try {
     const initialStatus = coordinator.getSwarmStatus();
     const initialTasks = coordinator.getTasks();
     const initialAgents = coordinator.getAgents();
     const initialObjective = coordinator.getObjectives()[0];
-    
+
     await fs.writeFile(statusFile, JSON.stringify({
       timestamp: new Date().toISOString(),
       swarmStatus: initialStatus,
@@ -1096,7 +1096,7 @@ async function setupIncrementalUpdates(
         failed: initialTasks.filter(t => (t.status as string) === 'failed').length
       }
     }, null, 2));
-    
+
     // Create initial progress file
     const initialProgressText = `Swarm Progress
 ==============
@@ -1115,13 +1115,13 @@ Agents Summary:
 - Total: ${initialAgents.length}
 - Active: ${initialAgents.filter(a => (a.status as string) === 'active').length}
 `;
-    
+
     await fs.writeFile(`${swarmDir}/progress.txt`, initialProgressText);
-    
+
   } catch (err) {
     console.error('Failed to write initial status:', err);
   }
-  
+
   // Set up periodic updates (every 5 seconds)
   globalStatusInterval = setInterval(async () => {
     try {
@@ -1129,7 +1129,7 @@ Agents Summary:
       const tasks = coordinator.getTasks();
       const agents = coordinator.getAgents();
       const objective = coordinator.getObjectives()[0];
-      
+
       // Update main status file
       await fs.writeFile(statusFile, JSON.stringify({
         timestamp: new Date().toISOString(),
@@ -1160,7 +1160,7 @@ Agents Summary:
           failed: tasks.filter(t => (t.status as string) === 'failed').length
         }
       }, null, 2));
-      
+
       // Update individual task files for completed tasks
       for (const task of tasks) {
         if ((task.status as string) === 'completed' || (task.status as string) === 'failed') {
@@ -1171,7 +1171,7 @@ Agents Summary:
           }, null, 2));
         }
       }
-      
+
       // Update progress text file
       const progressText = `Swarm Progress
 ==============
@@ -1194,9 +1194,9 @@ Agents Summary:
 Recent Tasks:
 ${tasks.slice(-5).map(t => `- [${t.status}] ${t.name || t.description}`).join('\n')}
 `;
-      
+
       await fs.writeFile(`${swarmDir}/progress.txt`, progressText);
-      
+
     } catch (err) {
       // Silently ignore errors to not disrupt execution
     }
@@ -1210,17 +1210,17 @@ function setupSwarmMonitoring(
   swarmDir: string
 ): void {
   console.log('\n📊 Monitoring enabled - collecting metrics...');
-  
+
   const metricsFile = `${swarmDir}/metrics.json`;
   const metricsHistory: any[] = [];
-  
+
   // Collect metrics every 10 seconds
   globalMetricsInterval = setInterval(async () => {
     const timestamp = new Date().toISOString();
     const swarmStatus = coordinator.getSwarmStatus();
     const executorStats = executor.getStats();
     const memoryStats = memory.getStats();
-    
+
     const metrics = {
       timestamp,
       swarm: {
@@ -1233,14 +1233,14 @@ function setupSwarmMonitoring(
       executor: executorStats,
       memory: memoryStats
     };
-    
+
     metricsHistory.push(metrics);
-    
+
     // Keep only last 1000 entries
     if (metricsHistory.length > 1000) {
       metricsHistory.shift();
     }
-    
+
     // Write to file
     try {
       await fs.writeFile(metricsFile, JSON.stringify(metricsHistory, null, 2));
@@ -1257,35 +1257,35 @@ async function waitForSwarmCompletion(
 ): Promise<void> {
   const maxDuration = options.timeout * 60 * 1000;
   const startTime = Date.now();
-  
+
   while (true) {
     const objective = coordinator.getObjectives().find(o => o.id === objectiveId);
     const swarmStatus = coordinator.getStatus();
-    
+
     if (!objective) {
       throw new Error('Objective not found');
     }
-    
+
     // Check if completed
     if (objective.status === 'completed' || objective.status === 'failed') {
       break;
     }
-    
+
     // Check if swarm is stuck or failed
     if (swarmStatus === 'failed' || swarmStatus === 'error') {
       throw new Error(`Swarm failed with status: ${swarmStatus}`);
     }
-    
+
     // Check timeout
     if (Date.now() - startTime > maxDuration) {
       warning(`Swarm execution timeout after ${options.timeout} minutes`);
       break;
     }
-    
+
     // Wait a bit before checking again
     await new Promise(resolve => setTimeout(resolve, 2000));
   }
-  
+
   // Clean up intervals
   if (globalMetricsInterval) {
     clearInterval(globalMetricsInterval);
@@ -1306,7 +1306,7 @@ async function showSwarmResults(
   const swarmStatus = coordinator.getSwarmStatus();
   const executorStats = executor.getStats();
   const memoryStats = memory.getStats();
-  
+
   const results = {
     swarmId: coordinator.getSwarmId(),
     status: swarmStatus,
@@ -1315,9 +1315,9 @@ async function showSwarmResults(
     completedAt: new Date().toISOString(),
     duration: coordinator.getUptime()
   };
-  
+
   await fs.writeFile(`${swarmDir}/results.json`, JSON.stringify(results, null, 2));
-  
+
   // Show summary
   success(`\n✅ Swarm completed successfully!`);
   console.log(`\n📊 Final Results:`);
@@ -1329,17 +1329,17 @@ async function showSwarmResults(
   console.log(`  • Memory Entries: ${memoryStats.totalEntries}`);
   console.log(`  • Execution Time: ${(coordinator.getUptime() / 1000).toFixed(1)}s`);
   console.log(`  • Results saved to: ${swarmDir}`);
-  
+
   // Check for created files
   try {
     // Look for any files created during the swarm execution
     const createdFiles: string[] = [];
     const checkDir = async (dir: string, depth = 0) => {
       if (depth > 3) return; // Limit recursion depth
-      
+
       try {
         for await (const entry of Deno.readDir(dir)) {
-          if (entry.isFile && !entry.name.startsWith('.') && 
+          if (entry.isFile && !entry.name.startsWith('.') &&
               !dir.includes('swarm-runs') && !dir.includes('node_modules')) {
             const fullPath = `${dir}/${entry.name}`;
             const stat = await fs.stat(fullPath);
@@ -1348,7 +1348,7 @@ async function showSwarmResults(
             if (stat.mtime && stat.mtime.getTime() > executionStartTime) {
               createdFiles.push(fullPath);
             }
-          } else if (entry.isDirectory && !entry.name.startsWith('.') && 
+          } else if (entry.isDirectory && !entry.name.startsWith('.') &&
                      !entry.name.includes('node_modules') && !entry.name.includes('swarm-runs')) {
             await checkDir(`${dir}/${entry.name}`, depth + 1);
           }
@@ -1357,12 +1357,12 @@ async function showSwarmResults(
         // Ignore permission errors
       }
     };
-    
+
     // Check current directory and common output directories
     await checkDir('.');
     await checkDir('./examples').catch(() => {});
     await checkDir('./output').catch(() => {});
-    
+
     if (createdFiles.length > 0) {
       console.log(`\n📁 Files created:`);
       createdFiles.forEach(file => {
@@ -1379,7 +1379,7 @@ async function launchSwarmUI(objective: string, options: any): Promise<void> {
     const scriptPath = new URL(import.meta.url).pathname;
     const projectRoot = scriptPath.substring(0, scriptPath.indexOf('/src/'));
     const uiScriptPath = `${projectRoot}/src/cli/simple-commands/swarm-ui.js`;
-    
+
     // Check if the UI script exists
     try {
       await fs.stat(uiScriptPath);
@@ -1387,17 +1387,17 @@ async function launchSwarmUI(objective: string, options: any): Promise<void> {
       warning('Swarm UI script not found. Falling back to standard mode.');
       return;
     }
-    
+
     const command = new Deno.Command('node', {
       args: [uiScriptPath, objective, ...buildUIArgs(options)],
       stdin: 'inherit',
       stdout: 'inherit',
       stderr: 'inherit',
     });
-    
+
     const process = command.spawn();
     const { code } = await process.status;
-    
+
     if (code !== 0) {
       error(`Swarm UI exited with code ${code}`);
     }
@@ -1409,7 +1409,7 @@ async function launchSwarmUI(objective: string, options: any): Promise<void> {
 
 function buildUIArgs(options: any): string[] {
   const args: string[] = [];
-  
+
   if (options.strategy !== 'auto') args.push('--strategy', options.strategy);
   if (options.mode !== 'centralized') args.push('--mode', options.mode);
   if (options.maxAgents !== 5) args.push('--max-agents', options.maxAgents.toString());
@@ -1420,13 +1420,13 @@ function buildUIArgs(options: any): string[] {
   if (options.interactive) args.push('--interactive');
   if (options.approvalRequired) args.push('--approval-required');
   if (options.reviewer !== 'user') args.push('--reviewer', options.reviewer);
-  
+
   return args;
 }
 
 function buildBackgroundArgs(options: any): string[] {
   const args: string[] = [];
-  
+
   if (options.strategy !== 'auto') args.push('--strategy', options.strategy);
   if (options.mode !== 'centralized') args.push('--mode', options.mode);
   if (options.maxAgents !== 5) args.push('--max-agents', options.maxAgents.toString());
@@ -1443,7 +1443,7 @@ function buildBackgroundArgs(options: any): string[] {
   if (options.interactive) args.push('--interactive');
   if (options.approvalRequired) args.push('--approval-required');
   if (options.reviewer !== 'user') args.push('--reviewer', options.reviewer);
-  
+
   return args;
 }
 
@@ -1465,13 +1465,13 @@ function showDryRunConfiguration(swarmId: string, objective: string, options: an
   console.log(`💾 Persistence: ${options.persistence}`);
   console.log(`🔒 Encryption: ${options.encryption}`);
   console.log(`📊 Quality Threshold: ${options.qualityThreshold}`);
-  
+
   if (options.interactive || options.approvalRequired) {
     console.log(`\n🔸 Interactive Approval:`);
     console.log(`  • Enabled: ${options.interactive || options.approvalRequired}`);
     console.log(`  • Reviewer: ${options.reviewer}`);
   }
-  
+
   console.log(`\n🎛️  Coordination Strategy:`);
   console.log(`  • Agent Selection: ${options.agentSelection}`);
   console.log(`  • Task Scheduling: ${options.taskScheduling}`);
@@ -1516,23 +1516,23 @@ OPTIONS:
   --max-agents <n>       Maximum number of agents (default: 5)
   --max-tasks <n>        Maximum concurrent tasks (default: 100)
   --timeout <min>        Execution timeout in minutes (default: 60)
-  
+
   --parallel             Enable parallel task execution
   --distributed          Enable distributed coordination
   --background           Run swarm in background mode
-  
+
   --review               Enable code review mode
   --testing              Enable testing mode
   --monitor              Enable real-time monitoring
   --verbose, -v          Show detailed execution logs
-  
+
   --interactive          Enable interactive approval mode
   --approval-required    Require approval before executing changes
   --reviewer <name>      Set reviewer name (default: current user)
-  
+
   --ui                   Launch interactive web UI
   --dry-run, -d          Show configuration without executing
-  
+
   --memory-namespace <ns> Memory namespace (default: swarm)
   --encryption           Enable memory encryption
   --help, -h             Show this help message
@@ -1562,13 +1562,13 @@ async function outputJsonResults(coordinator: SwarmCoordinator, options: any): P
   try {
     // Get the final status from coordinator
     const swarmStatus = coordinator.getSwarmStatus();
-    const finalStatus = swarmStatus.status === 'completed' ? 'completed' : 
-                       swarmStatus.status === 'failed' ? 'failed' : 
+    const finalStatus = swarmStatus.status === 'completed' ? 'completed' :
+                       swarmStatus.status === 'failed' ? 'failed' :
                        swarmStatus.status === 'timeout' ? 'timeout' : 'cancelled';
-    
+
     // Get JSON output from coordinator
     const jsonOutput = coordinator.getJsonOutput(finalStatus);
-    
+
     if (!jsonOutput) {
       // Fallback: create basic JSON structure if aggregator wasn't enabled
       const basicOutput = {
@@ -1578,7 +1578,7 @@ async function outputJsonResults(coordinator: SwarmCoordinator, options: any): P
         error: 'JSON output aggregation was not properly enabled'
       };
       const fallbackJson = JSON.stringify(basicOutput, null, 2);
-      
+
       if (options.outputFile) {
         await fs.writeFile(options.outputFile, fallbackJson);
       } else {
@@ -1586,7 +1586,7 @@ async function outputJsonResults(coordinator: SwarmCoordinator, options: any): P
       }
       return;
     }
-    
+
     // Output to file or stdout
     if (options.outputFile) {
       await coordinator.saveJsonOutput(options.outputFile, finalStatus);
@@ -1594,7 +1594,7 @@ async function outputJsonResults(coordinator: SwarmCoordinator, options: any): P
       // Output to stdout for command capture
       console.log(jsonOutput);
     }
-    
+
   } catch (error) {
     // Even if there's an error, output a JSON structure
     const errorOutput = {
@@ -1604,9 +1604,9 @@ async function outputJsonResults(coordinator: SwarmCoordinator, options: any): P
       error: error instanceof Error ? error.message : String(error),
       details: 'Failed to generate JSON output'
     };
-    
+
     const errorJson = JSON.stringify(errorOutput, null, 2);
-    
+
     if (options.outputFile) {
       try {
         await fs.writeFile(options.outputFile, errorJson);

@@ -27,7 +27,7 @@ USAGE:
 
 🚀 INSTALLATION & ENTERPRISE SETUP:
   npx claude-flow@2.0.0 init --sparc  # Enterprise SPARC + ruv-swarm integration
-  
+
   The --sparc flag creates:
   • Complete ruv-swarm integration with 27 MCP tools
   • Neural network processing with WASM optimization
@@ -74,19 +74,19 @@ USAGE:
 🎮 ENTERPRISE QUICK START:
   # Initialize enterprise environment
   npx claude-flow@2.0.0 init --sparc
-  
+
   # Start enterprise orchestration with swarm intelligence
   ./claude-flow start --ui --swarm
-  
+
   # Deploy intelligent multi-agent development workflow
   ./claude-flow swarm "build enterprise API" --strategy development --parallel --monitor
-  
+
   # GitHub workflow automation
   ./claude-flow github pr-manager "coordinate release with automated testing"
-  
+
   # Neural memory management
   ./claude-flow memory store "architecture" "microservices with API gateway pattern"
-  
+
   # Real-time system monitoring
   ./claude-flow status --verbose
 
@@ -122,7 +122,7 @@ USAGE:
 GET DETAILED HELP:
   claude-flow help <command>           # Command-specific enterprise documentation
   claude-flow <command> --help         # Alternative help syntax
-  
+
   Examples:
     claude-flow help swarm             # Swarm intelligence coordination
     claude-flow help github            # GitHub workflow automation
@@ -2086,7 +2086,7 @@ async function startRepl() {
     help: () => {
       console.log(`
 📚 Available REPL Commands:
-  
+
 System:
   status          - Show system status
   config [key]    - Show configuration (or specific key)
@@ -3003,7 +3003,7 @@ This directory contains the SPARC (Specification, Pseudocode, Architecture, Refi
 SPARC is a systematic approach to software development:
 
 1. **Specification**: Define clear requirements and constraints
-2. **Pseudocode**: Create detailed logic flows and algorithms  
+2. **Pseudocode**: Create detailed logic flows and algorithms
 3. **Architecture**: Design system structure and components
 4. **Refinement**: Implement, test, and optimize using TDD
 5. **Completion**: Integrate, document, and validate
@@ -3019,7 +3019,7 @@ claude-flow sparc modes
 # Run specific mode
 claude-flow sparc run code "implement user authentication"
 
-# Execute full TDD workflow  
+# Execute full TDD workflow
 claude-flow sparc tdd "payment processing system"
 
 # Use custom workflow

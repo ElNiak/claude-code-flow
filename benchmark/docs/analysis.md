@@ -29,6 +29,7 @@ Each benchmark produces a comprehensive result structure:
 ### Key Metrics Explained
 
 #### Performance Metrics
+
 - **execution_time**: Total time to complete the task (seconds)
 - **queue_time**: Time spent waiting in queue
 - **throughput**: Tasks completed per second
@@ -36,6 +37,7 @@ Each benchmark produces a comprehensive result structure:
 - **communication_latency**: Average inter-agent communication delay
 
 #### Quality Metrics
+
 - **accuracy_score**: How accurate the results are (0-1)
 - **completeness_score**: How complete the solution is (0-1)
 - **consistency_score**: Consistency across multiple runs (0-1)
@@ -43,6 +45,7 @@ Each benchmark produces a comprehensive result structure:
 - **overall_quality**: Weighted average of all quality metrics (0-1)
 
 #### Resource Metrics
+
 - **cpu_percent**: CPU usage percentage
 - **memory_mb**: Memory usage in megabytes
 - **peak_memory_mb**: Maximum memory used
@@ -164,7 +167,7 @@ swarm-benchmark analyze <id> --quality-breakdown
 # - Completeness: 0.78 ⚠️  (Missing test cases)
 # - Consistency: 0.85 ✓
 # - Relevance: 0.90 ✅
-# 
+#
 # Recommendations:
 # 1. Increase max_retries for better completeness
 # 2. Enable review mode for consistency
@@ -200,8 +203,8 @@ swarm-benchmark analyze <id> --resource-timeline --export resources.csv
 ```python
 # Calculate resource efficiency
 resource_efficiency = (
-    (tasks_completed / total_tasks) * 
-    (1 - (avg_cpu_usage / 100)) * 
+    (tasks_completed / total_tasks) *
+    (1 - (avg_cpu_usage / 100)) *
     (1 - (avg_memory_usage / memory_limit))
 )
 ```
@@ -273,7 +276,7 @@ with open('benchmark_results.json') as f:
 execution_times = [r['execution_time'] for r in data['results']]
 mean_time = np.mean(execution_times)
 std_time = np.std(execution_times)
-ci_95 = stats.t.interval(0.95, len(execution_times)-1, 
+ci_95 = stats.t.interval(0.95, len(execution_times)-1,
                           mean_time, std_time/np.sqrt(len(execution_times)))
 
 print(f"Mean execution time: {mean_time:.3f}s")
@@ -335,13 +338,13 @@ import json
 def analyze_benchmark(benchmark_id):
     with open(f'reports/{benchmark_id}.json') as f:
         data = json.load(f)
-    
+
     # Extract metrics
     metrics = data['metrics']
-    
+
     # Create visualization
     fig, axes = plt.subplots(2, 2, figsize=(12, 10))
-    
+
     # Performance pie chart
     axes[0, 0].pie(
         [metrics['execution_time'], metrics['coordination_overhead'], metrics['queue_time']],
@@ -349,15 +352,15 @@ def analyze_benchmark(benchmark_id):
         autopct='%1.1f%%'
     )
     axes[0, 0].set_title('Time Distribution')
-    
+
     # Quality scores bar chart
     quality = data['quality_metrics']
     axes[0, 1].bar(quality.keys(), quality.values())
     axes[0, 1].set_title('Quality Scores')
-    
+
     # Resource usage over time
     # ... (additional visualizations)
-    
+
     plt.tight_layout()
     plt.savefig(f'analysis_{benchmark_id}.png')
 ```
@@ -418,27 +421,32 @@ swarm-benchmark analyze <id> --recommendations
 ### Performance Optimization Workflow
 
 1. **Baseline Measurement**
+
    ```bash
    swarm-benchmark run "Task" --name baseline
    swarm-benchmark baseline set <id>
    ```
 
 2. **Identify Issues**
+
    ```bash
    swarm-benchmark analyze <id> --bottlenecks
    ```
 
 3. **Test Improvements**
+
    ```bash
    swarm-benchmark run "Task" --mode distributed --parallel
    ```
 
 4. **Compare Results**
+
    ```bash
    swarm-benchmark compare <baseline-id> <new-id>
    ```
 
 5. **Validate Improvements**
+
    ```bash
    swarm-benchmark analyze <new-id> --compare-baseline
    ```
@@ -446,11 +454,13 @@ swarm-benchmark analyze <id> --recommendations
 ### Quality Improvement Workflow
 
 1. **Quality Assessment**
+
    ```bash
    swarm-benchmark analyze <id> --quality-breakdown
    ```
 
 2. **Apply Improvements**
+
    ```bash
    swarm-benchmark run "Task" \
      --quality-threshold 0.95 \
@@ -459,6 +469,7 @@ swarm-benchmark analyze <id> --recommendations
    ```
 
 3. **Verify Quality**
+
    ```bash
    swarm-benchmark analyze <new-id> --quality-validation
    ```
@@ -506,7 +517,7 @@ import json
 def benchmark_to_dataframe(benchmark_file):
     with open(benchmark_file) as f:
         data = json.load(f)
-    
+
     # Flatten results
     records = []
     for result in data['results']:
@@ -519,7 +530,7 @@ def benchmark_to_dataframe(benchmark_file):
             'memory_usage': result['resource_usage']['memory_mb']
         }
         records.append(record)
-    
+
     return pd.DataFrame(records)
 
 # Analyze with pandas
@@ -531,6 +542,7 @@ print(df.groupby('strategy').mean())
 ## 🎉 Summary
 
 Effective benchmark analysis helps you:
+
 - Identify performance bottlenecks
 - Improve quality scores
 - Optimize resource usage

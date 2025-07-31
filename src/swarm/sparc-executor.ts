@@ -761,12 +761,12 @@ class TestUserModel:
         assert user.username == "testuser"
         assert user.email == "test@example.com"
         assert user.id is None  # Not saved yet
-    
+
     def test_user_validation(self):
         """Test user validation rules"""
         with pytest.raises(ValueError):
             User(username="", email="invalid-email")
-    
+
     def test_user_serialization(self):
         """Test user to dict conversion"""
         user = User(username="testuser", email="test@example.com")
@@ -789,7 +789,7 @@ class TestUserService:
     @pytest.fixture
     def user_service(self):
         return UserService()
-    
+
     def test_create_user_success(self, user_service):
         """Test successful user creation"""
         user_data = {"username": "newuser", "email": "new@example.com"}
@@ -797,7 +797,7 @@ class TestUserService:
             user = user_service.create_user(user_data)
             assert user.username == "newuser"
             mock_db.session.add.assert_called_once()
-    
+
     def test_get_user_by_id(self, user_service):
         """Test retrieving user by ID"""
         with patch('src.services.User.query') as mock_query:
@@ -828,13 +828,13 @@ class TestAPI:
         app = create_app('testing')
         with app.test_client() as client:
             yield client
-    
+
     def test_health_endpoint(self, client):
         """Test health check endpoint"""
         response = client.get('/health')
         assert response.status_code == 200
         assert response.json['status'] == 'healthy'
-    
+
     def test_create_user_endpoint(self, client):
         """Test POST /users endpoint"""
         user_data = {
@@ -845,7 +845,7 @@ class TestAPI:
         response = client.post('/api/users', json=user_data)
         assert response.status_code == 201
         assert response.json['username'] == "testuser"
-    
+
     def test_get_users_endpoint(self, client):
         """Test GET /users endpoint"""
         response = client.get('/api/users')
@@ -893,19 +893,19 @@ from routes import api_bp
 def create_app(config_name='development'):
     app = Flask(__name__)
     app.config.from_object(Config[config_name])
-    
+
     # Initialize extensions
     db.init_app(app)
     CORS(app)
-    
+
     # Register blueprints
     app.register_blueprint(api_bp, url_prefix='/api')
-    
+
     # Health check
     @app.route('/health')
     def health_check():
         return {'status': 'healthy', 'service': 'REST API'}
-    
+
     return app
 
 if __name__ == '__main__':
@@ -925,13 +925,13 @@ class User(db.Model):
     password_hash = db.Column(db.String(128))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
+
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
-    
+
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
-    
+
     def to_dict(self):
         return {
             'id': self.id,
@@ -948,7 +948,7 @@ class Product(db.Model):
     price = db.Column(db.Float, nullable=False)
     stock = db.Column(db.Integer, default=0)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    
+
     def to_dict(self):
         return {
             'id': self.id,
@@ -972,7 +972,7 @@ product_service = ProductService()
 def get_users():
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 10, type=int)
-    
+
     users = User.query.paginate(page=page, per_page=per_page)
     return jsonify({
         'users': [u.to_dict() for u in users.items],
@@ -989,15 +989,15 @@ def get_user(user_id):
 @api_bp.route('/users', methods=['POST'])
 def create_user():
     data = request.get_json()
-    
+
     # Validation
     if not data.get('username') or not data.get('email'):
         return jsonify({'error': 'Username and email required'}), 400
-    
+
     # Check if user exists
     if User.query.filter_by(username=data['username']).first():
         return jsonify({'error': 'Username already exists'}), 409
-    
+
     user = user_service.create_user(data)
     return jsonify(user.to_dict()), 201
 
@@ -1005,7 +1005,7 @@ def create_user():
 def update_user(user_id):
     user = User.query.get_or_404(user_id)
     data = request.get_json()
-    
+
     user = user_service.update_user(user, data)
     return jsonify(user.to_dict())
 
@@ -1037,11 +1037,11 @@ class UserService:
         )
         if 'password' in data:
             user.set_password(data['password'])
-        
+
         db.session.add(user)
         db.session.commit()
         return user
-    
+
     def update_user(self, user, data):
         if 'username' in data:
             user.username = data['username']
@@ -1049,14 +1049,14 @@ class UserService:
             user.email = data['email']
         if 'password' in data:
             user.set_password(data['password'])
-        
+
         db.session.commit()
         return user
-    
+
     def delete_user(self, user):
         db.session.delete(user)
         db.session.commit()
-    
+
     def get_user(self, user_id):
         return User.query.get(user_id)
 
@@ -1068,11 +1068,11 @@ class ProductService:
             price=data['price'],
             stock=data.get('stock', 0)
         )
-        
+
         db.session.add(product)
         db.session.commit()
         return product
-    
+
     def update_product(self, product, data):
         if 'name' in data:
             product.name = data['name']
@@ -1082,7 +1082,7 @@ class ProductService:
             product.price = data['price']
         if 'stock' in data:
             product.stock = data['stock']
-        
+
         db.session.commit()
         return product
 `,
@@ -1094,19 +1094,19 @@ load_dotenv()
 class BaseConfig:
     SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-secret-key')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    
+
 class DevelopmentConfig(BaseConfig):
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'sqlite:///dev.db')
-    
+
 class TestingConfig(BaseConfig):
     TESTING = True
     SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
-    
+
 class ProductionConfig(BaseConfig):
     DEBUG = False
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
-    
+
 Config = {
     'development': DevelopmentConfig,
     'testing': TestingConfig,
@@ -1222,7 +1222,7 @@ services:
       - DATABASE_URL=postgresql://user:pass@db:5432/appdb
     depends_on:
       - db
-  
+
   db:
     image: postgres:13
     environment:

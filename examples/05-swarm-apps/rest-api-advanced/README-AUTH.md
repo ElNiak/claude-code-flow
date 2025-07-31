@@ -5,6 +5,7 @@ This REST API includes a comprehensive authentication system with JWT tokens, re
 ## Features
 
 ### Authentication Features
+
 - **User Registration** with email verification
 - **User Login** with JWT token generation
 - **Refresh Token** mechanism for token rotation
@@ -15,6 +16,7 @@ This REST API includes a comprehensive authentication system with JWT tokens, re
 - **Account Lockout** after failed login attempts
 
 ### User Management Features
+
 - **Get All Users** (Admin only) with pagination and filtering
 - **Get User by ID** with authorization checks
 - **Update User Profile** with field validation
@@ -29,10 +31,13 @@ This REST API includes a comprehensive authentication system with JWT tokens, re
 ### Authentication Endpoints
 
 #### Register New User
+
 ```
 POST /api/auth/register
 ```
+
 Body:
+
 ```json
 {
   "email": "user@example.com",
@@ -51,10 +56,13 @@ Body:
 ```
 
 #### Login
+
 ```
 POST /api/auth/login
 ```
+
 Body:
+
 ```json
 {
   "email": "user@example.com",
@@ -64,16 +72,20 @@ Body:
 ```
 
 #### Logout
+
 ```
 POST /api/auth/logout
 Authorization: Bearer <token>
 ```
 
 #### Refresh Token
+
 ```
 POST /api/auth/refresh
 ```
+
 Body:
+
 ```json
 {
   "refreshToken": "<refresh_token>"
@@ -81,10 +93,13 @@ Body:
 ```
 
 #### Forgot Password
+
 ```
 POST /api/auth/forgot-password
 ```
+
 Body:
+
 ```json
 {
   "email": "user@example.com"
@@ -92,10 +107,13 @@ Body:
 ```
 
 #### Reset Password
+
 ```
 POST /api/auth/reset-password
 ```
+
 Body:
+
 ```json
 {
   "token": "<reset_token>",
@@ -105,27 +123,33 @@ Body:
 ```
 
 #### Verify Email
+
 ```
 GET /api/auth/verify-email/:token
 ```
 
 #### Resend Verification Email
+
 ```
 POST /api/auth/resend-verification
 Authorization: Bearer <token>
 ```
 
 #### Get Current User
+
 ```
 GET /api/auth/me
 Authorization: Bearer <token>
 ```
 
 #### Check Password Strength
+
 ```
 POST /api/auth/check-password
 ```
+
 Body:
+
 ```json
 {
   "password": "TestPassword123!"
@@ -135,29 +159,35 @@ Body:
 ### User Management Endpoints
 
 #### Get All Users (Admin Only)
+
 ```
 GET /api/users?page=1&limit=20&sort=-createdAt&role=user&search=john
 Authorization: Bearer <admin_token>
 ```
 
 #### Get User Statistics (Admin Only)
+
 ```
 GET /api/users/stats
 Authorization: Bearer <admin_token>
 ```
 
 #### Get User by ID
+
 ```
 GET /api/users/:id
 Authorization: Bearer <token>
 ```
 
 #### Update User
+
 ```
 PUT /api/users/:id
 Authorization: Bearer <token>
 ```
+
 Body:
+
 ```json
 {
   "name": "Jane Doe",
@@ -172,17 +202,21 @@ Body:
 ```
 
 #### Delete User
+
 ```
 DELETE /api/users/:id
 Authorization: Bearer <token>
 ```
 
 #### Change Password
+
 ```
 PUT /api/users/change-password
 Authorization: Bearer <token>
 ```
+
 Body:
+
 ```json
 {
   "currentPassword": "OldPassword123",
@@ -192,11 +226,14 @@ Body:
 ```
 
 #### Change Email
+
 ```
 PUT /api/users/change-email
 Authorization: Bearer <token>
 ```
+
 Body:
+
 ```json
 {
   "newEmail": "newemail@example.com",
@@ -205,6 +242,7 @@ Body:
 ```
 
 #### Get User Activity
+
 ```
 GET /api/users/:id/activity?page=1&limit=50
 Authorization: Bearer <token>
@@ -213,6 +251,7 @@ Authorization: Bearer <token>
 ## Security Features
 
 ### Password Requirements
+
 - Minimum 6 characters
 - Must contain at least one uppercase letter
 - Must contain at least one lowercase letter
@@ -220,12 +259,14 @@ Authorization: Bearer <token>
 - Recommended: Include special characters for stronger passwords
 
 ### Account Security
+
 - **Account Lockout**: After 5 failed login attempts, account is locked for 2 hours
 - **Token Blacklisting**: Logout tokens are blacklisted in Redis
 - **Refresh Token Rotation**: Optional refresh token rotation for enhanced security
 - **Email Verification**: Required for login (configurable)
 
 ### JWT Token Details
+
 - **Access Token**: Default expiry of 7 days (configurable)
 - **Refresh Token**: Default expiry of 30 days
 - **Token Storage**: HTTP-only cookies for web clients
@@ -234,6 +275,7 @@ Authorization: Bearer <token>
 ## Models
 
 ### User Model
+
 - Email (unique, required)
 - Password (hashed with bcrypt)
 - Name (required)
@@ -247,6 +289,7 @@ Authorization: Bearer <token>
 - Last login timestamp
 
 ### Token Model
+
 - Token value (hashed)
 - User reference
 - Type (refresh/passwordReset/emailVerification)
@@ -309,11 +352,13 @@ Error responses include detailed messages:
 ## Testing the Authentication System
 
 1. **Start the server**:
+
    ```bash
    npm run dev
    ```
 
 2. **Register a new user**:
+
    ```bash
    curl -X POST http://localhost:3000/api/auth/register \
      -H "Content-Type: application/json" \
@@ -326,6 +371,7 @@ Error responses include detailed messages:
    ```
 
 3. **Login**:
+
    ```bash
    curl -X POST http://localhost:3000/api/auth/login \
      -H "Content-Type: application/json" \
@@ -336,6 +382,7 @@ Error responses include detailed messages:
    ```
 
 4. **Use the access token** for protected routes:
+
    ```bash
    curl -X GET http://localhost:3000/api/auth/me \
      -H "Authorization: Bearer <access_token>"
@@ -355,20 +402,26 @@ Error responses include detailed messages:
 ## Integration Notes
 
 ### Email Service
+
 The current implementation includes mock email sending. For production, integrate with:
+
 - SendGrid
 - AWS SES
 - Mailgun
 - Custom SMTP server
 
 ### Redis Integration
+
 Redis is used for:
+
 - Token blacklisting (logout)
 - Rate limiting
 - Session management
 
 ### Database Indexes
+
 Ensure the following indexes are created for optimal performance:
+
 - User email (unique)
 - User role
 - Token expiry date

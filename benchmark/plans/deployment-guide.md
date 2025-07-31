@@ -7,6 +7,7 @@ This guide covers the deployment, distribution, and maintenance of the Agent Swa
 ## 📦 Packaging Strategy
 
 ### Python Package Structure
+
 ```
 swarm-benchmark/
 ├── setup.py                    # Package configuration
@@ -24,6 +25,7 @@ swarm-benchmark/
 ```
 
 ### Setup Configuration
+
 ```python
 # setup.py
 from setuptools import setup, find_packages
@@ -94,6 +96,7 @@ setup(
 ```
 
 ### Modern Packaging (pyproject.toml)
+
 ```toml
 [build-system]
 requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
@@ -158,6 +161,7 @@ Issues = "https://github.com/claude-flow/swarm-benchmark/issues"
 ## 🐳 Docker Deployment
 
 ### Dockerfile
+
 ```dockerfile
 # Multi-stage build for optimization
 FROM python:3.11-slim as builder
@@ -210,6 +214,7 @@ CMD ["--help"]
 ```
 
 ### Docker Compose
+
 ```yaml
 version: '3.8'
 
@@ -229,7 +234,7 @@ services:
     networks:
       - swarm-network
     restart: unless-stopped
-    
+
   database:
     image: postgres:14-alpine
     container_name: swarm-db
@@ -254,6 +259,7 @@ networks:
 ## ☁️ Cloud Deployment
 
 ### AWS Deployment
+
 ```yaml
 # docker-compose.aws.yml
 version: '3.8'
@@ -276,6 +282,7 @@ services:
 ```
 
 ### Kubernetes Deployment
+
 ```yaml
 # k8s/deployment.yaml
 apiVersion: apps/v1
@@ -344,6 +351,7 @@ spec:
 ## 🔄 CI/CD Pipeline
 
 ### GitHub Actions
+
 ```yaml
 # .github/workflows/deploy.yml
 name: Deploy
@@ -360,45 +368,45 @@ jobs:
     strategy:
       matrix:
         python-version: [3.8, 3.9, 3.10, 3.11]
-    
+
     steps:
     - uses: actions/checkout@v3
-    
+
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
-    
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install -r requirements-dev.txt
-    
+
     - name: Run tests
       run: |
         pytest --cov=swarm_benchmark --cov-report=xml
-    
+
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
 
   build:
     needs: test
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v3
-    
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: 3.11
-    
+
     - name: Build package
       run: |
         python -m pip install --upgrade pip build
         python -m build
-    
+
     - name: Store package artifacts
       uses: actions/upload-artifact@v3
       with:
@@ -409,16 +417,16 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
-    
+
     steps:
     - uses: actions/checkout@v3
-    
+
     - name: Download package artifacts
       uses: actions/download-artifact@v3
       with:
         name: python-package
         path: dist/
-    
+
     - name: Publish to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
@@ -427,19 +435,19 @@ jobs:
   build-docker:
     needs: test
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v3
-    
+
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
-    
+
     - name: Login to DockerHub
       uses: docker/login-action@v2
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
-    
+
     - name: Build and push
       uses: docker/build-push-action@v4
       with:
@@ -455,6 +463,7 @@ jobs:
 ## 📋 Installation Methods
 
 ### PyPI Installation
+
 ```bash
 # Install from PyPI
 pip install swarm-benchmark
@@ -467,6 +476,7 @@ pip install git+https://github.com/claude-flow/swarm-benchmark.git
 ```
 
 ### Conda Installation
+
 ```yaml
 # conda-recipe/meta.yaml
 package:
@@ -501,6 +511,7 @@ test:
 ```
 
 ### Homebrew Formula
+
 ```ruby
 # Formula/swarm-benchmark.rb
 class SwarmBenchmark < Formula
@@ -525,6 +536,7 @@ end
 ## 🔧 Configuration Management
 
 ### Environment-Specific Configs
+
 ```bash
 # Development
 export BENCHMARK_ENV=development
@@ -543,6 +555,7 @@ export BENCHMARK_LOG_LEVEL=WARNING
 ```
 
 ### Configuration Templates
+
 ```json
 {
   "environment": "production",
@@ -573,6 +586,7 @@ export BENCHMARK_LOG_LEVEL=WARNING
 ## 📊 Monitoring and Observability
 
 ### Health Checks
+
 ```python
 # swarm_benchmark/health.py
 async def health_check():
@@ -584,7 +598,7 @@ async def health_check():
         "memory": check_memory_usage(),
         "cpu": check_cpu_usage()
     }
-    
+
     overall_status = all(checks.values())
     return {
         "status": "healthy" if overall_status else "unhealthy",
@@ -594,6 +608,7 @@ async def health_check():
 ```
 
 ### Metrics Collection
+
 ```python
 # Prometheus metrics
 from prometheus_client import Counter, Histogram, Gauge
@@ -606,6 +621,7 @@ ACTIVE_BENCHMARKS = Gauge('benchmark_active', 'Currently active benchmarks')
 ## 🔐 Security Hardening
 
 ### Security Checklist
+
 - [ ] Use non-root user in containers
 - [ ] Scan images for vulnerabilities
 - [ ] Implement resource limits
@@ -616,6 +632,7 @@ ACTIVE_BENCHMARKS = Gauge('benchmark_active', 'Currently active benchmarks')
 - [ ] Access control policies
 
 ### Vulnerability Scanning
+
 ```bash
 # Scan dependencies
 safety check
@@ -630,6 +647,7 @@ docker scan swarmteam/swarm-benchmark:latest
 ## 📈 Performance Optimization
 
 ### Production Optimizations
+
 - Use production WSGI server (gunicorn)
 - Enable connection pooling
 - Implement caching strategies
@@ -639,6 +657,7 @@ docker scan swarmteam/swarm-benchmark:latest
 - Monitor and tune JVM parameters
 
 ### Scaling Strategies
+
 - Horizontal pod autoscaling (Kubernetes)
 - Load balancing
 - Database read replicas

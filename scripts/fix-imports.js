@@ -89,7 +89,7 @@ async function findTypeScriptFiles(dir) {
 
   for (const entry of entries) {
     const fullPath = join(dir, entry.name);
-    
+
     if (entry.isDirectory() && !entry.name.includes('node_modules') && !entry.name.includes('dist')) {
       files.push(...await findTypeScriptFiles(fullPath));
     } else if (entry.isFile() && entry.name.endsWith('.ts')) {
@@ -103,13 +103,13 @@ async function findTypeScriptFiles(dir) {
 async function main() {
   const srcDir = join(dirname(__dirname), 'src');
   const files = await findTypeScriptFiles(srcDir);
-  
+
   console.log(`Found ${files.length} TypeScript files to process...`);
-  
+
   for (const file of files) {
     await processFile(file);
   }
-  
+
   console.log('✅ Import fixes complete!');
 }
 

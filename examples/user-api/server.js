@@ -8,7 +8,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-  res.json({ 
+  res.json({
     status: 'healthy',
     service: 'REST API',
     swarmId: 'swarm_aipkebfuq_nexjqmitd',

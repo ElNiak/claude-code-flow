@@ -25,24 +25,24 @@ class PerformanceOptimizer {
 
   async initialize() {
     console.log('🚀 Initializing Performance Optimizer...\n');
-    
+
     // Create cache directory
     await fs.mkdir(this.cacheDir, { recursive: true });
-    
+
     // Run all optimizations
     await this.optimizeHooks();
     await this.optimizeMemoryOperations();
     await this.optimizeNeuralPredictions();
     await this.createAgentPool();
     await this.implementParallelProcessing();
-    
+
     console.log('\n✅ Optimization complete!');
     await this.generateReport();
   }
 
   async optimizeHooks() {
     console.log('🔄 Optimizing hook execution pipeline...');
-    
+
     const hookOptimizations = {
       // Batch hook operations
       batchSize: 10,
@@ -85,7 +85,7 @@ class PerformanceOptimizer {
 
   async optimizeMemoryOperations() {
     console.log('\n💾 Optimizing memory operations...');
-    
+
     const memoryConfig = {
       // Connection pooling
       connectionPool: {
@@ -122,7 +122,7 @@ class PerformanceOptimizer {
 
   async optimizeNeuralPredictions() {
     console.log('\n🧠 Optimizing neural predictions...');
-    
+
     const neuralConfig = {
       // Prediction caching
       predictionCache: {
@@ -161,7 +161,7 @@ class PerformanceOptimizer {
 
   async createAgentPool() {
     console.log('\n🤖 Creating agent pool...');
-    
+
     const agentPoolConfig = {
       // Pre-spawn agents
       agents: {
@@ -196,7 +196,7 @@ class PerformanceOptimizer {
 
   async implementParallelProcessing() {
     console.log('\n⚡ Implementing parallel processing...');
-    
+
     const parallelConfig = {
       // Task parallelization
       tasks: {
@@ -236,7 +236,7 @@ class PerformanceOptimizer {
 
   async generateReport() {
     console.log('\n📊 Generating optimization report...');
-    
+
     const report = {
       timestamp: new Date().toISOString(),
       optimizations: {

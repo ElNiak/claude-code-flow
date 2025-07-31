@@ -36,10 +36,10 @@ describe('CoordinationManager', () => {
   beforeEach(async () => {
     setupTestEnv();
     time = new FakeTime();
-    
+
     config = TestDataBuilder.config().coordination;
     mocks = createMocks();
-    
+
     manager = new CoordinationManager(
       config,
       mocks.eventBus,
@@ -60,23 +60,23 @@ describe('CoordinationManager', () => {
   describe('initialization', () => {
     it('should initialize all components', async () => {
       await manager.initialize();
-      
+
       expect(mocks.logger.hasLog('info').toBe('Coordination manager initialized'), true);
     });
 
     it('should start deadlock detection if enabled', async () => {
       config.deadlockDetection = true;
       await manager.initialize();
-      
+
       // Fast forward to trigger deadlock detection
       await time.tickAsync(10000);
-      
+
       expect(mocks.logger.hasLog('debug').toBe('Check for deadlock'), false); // No deadlocks expected
     });
 
     it('should not initialize twice', async () => {
       await manager.initialize();
-      
+
       // Should not throw
       await manager.initialize();
     });
@@ -92,7 +92,7 @@ describe('CoordinationManager', () => {
       const agentId = 'test-agent';
 
       await manager.assignTask(task, agentId);
-      
+
       const taskCount = await manager.getAgentTaskCount(agentId);
       expect(taskCount).toBe(1);
     });
@@ -102,7 +102,7 @@ describe('CoordinationManager', () => {
       const agentId = 'test-agent';
 
       await manager.assignTask(task, agentId);
-      
+
       const tasks = await manager.getAgentTasks(agentId);
       expect(tasks.length).toBe(1);
       expect(tasks[0].id).toBe(task.id);
@@ -114,7 +114,7 @@ describe('CoordinationManager', () => {
 
       await manager.assignTask(task, agentId);
       await manager.cancelTask(task.id);
-      
+
       const taskCount = await manager.getAgentTaskCount(agentId);
       expect(taskCount).toBe(0);
     });
@@ -131,7 +131,7 @@ describe('CoordinationManager', () => {
 
       await manager.acquireResource(resourceId, agentId);
       await manager.releaseResource(resourceId, agentId);
-      
+
       // Should not throw
     });
 
@@ -141,7 +141,7 @@ describe('CoordinationManager', () => {
       const agent2 = 'agent-2';
 
       await manager.acquireResource(resourceId, agent1);
-      
+
       // Second agent should wait/timeout
       await assertRejects(
         () => manager.acquireResource(resourceId, agent2),
@@ -162,7 +162,7 @@ describe('CoordinationManager', () => {
       const message = { type: 'test', data: 'hello' };
 
       await manager.sendMessage(from, to, message);
-      
+
       // Verify message was sent via event
       const events = mocks.eventBus.getEvents();
       const messageEvent = events.find(e => e.event === SystemEvents.MESSAGE_SENT);
@@ -179,12 +179,12 @@ describe('CoordinationManager', () => {
     it('should detect simple deadlock', async () => {
       // Create a scenario where agent1 has resource1 and wants resource2
       // and agent2 has resource2 and wants resource1
-      
+
       // This would require more complex setup with actual resource dependencies
       // For now, we'll test that the detection runs without errors
-      
+
       await time.tickAsync(10000);
-      
+
       // No errors should occur
       expect(mocks.logger.hasLog('error').toBe('Error during deadlock detection'), false);
     });
@@ -197,7 +197,7 @@ describe('CoordinationManager', () => {
 
     it('should return healthy status', async () => {
       const health = await manager.getHealthStatus();
-      
+
       expect(health.healthy).toBe(true);
       expect(health.metrics).toBeDefined();
     });
@@ -205,7 +205,7 @@ describe('CoordinationManager', () => {
     it('should handle component failures', async () => {
       // Simulate component failure
       // This would require mocking the internal components
-      
+
       const health = await manager.getHealthStatus();
       expect(health).toBeDefined();
     });
@@ -218,7 +218,7 @@ describe('CoordinationManager', () => {
 
     it('should perform maintenance on all components', async () => {
       await manager.performMaintenance();
-      
+
       // Verify maintenance was performed
       expect(mocks.logger.hasLog('debug').toBe('Performing coordination manager maintenance'), true);
     });
@@ -232,14 +232,14 @@ describe('WorkStealingCoordinator', () => {
 
   beforeEach(() => {
     setupTestEnv();
-    
+
     config = {
       enabled: true,
       stealThreshold: 3,
       maxStealBatch: 2,
       stealInterval: 5000,
     };
-    
+
     mocks = createMocks();
     coordinator = new WorkStealingCoordinator(config, mocks.eventBus, mocks.logger);
   });
@@ -251,16 +251,16 @@ describe('WorkStealingCoordinator', () => {
 
   it('should initialize when enabled', async () => {
     await coordinator.initialize();
-    
+
     expect(mocks.logger.hasLog('info').toBe('Initializing work stealing coordinator'), true);
   });
 
   it('should not initialize when disabled', async () => {
     config.enabled = false;
     coordinator = new WorkStealingCoordinator(config, mocks.eventBus, mocks.logger);
-    
+
     await coordinator.initialize();
-    
+
     expect(mocks.logger.hasLog('info').toBe('Work stealing is disabled'), true);
   });
 
@@ -401,7 +401,7 @@ describe('DependencyGraph', () => {
 
     // First task adds fine
     graph.addTask(task1);
-    
+
     // Second task would create cycle - should be detected
     // In real implementation, this would be caught during validation
     const cycles = graph.detectCycles();
@@ -478,14 +478,14 @@ describe('CircuitBreaker', () => {
 
   beforeEach(() => {
     setupTestEnv();
-    
+
     config = {
       failureThreshold: 3,
       successThreshold: 2,
       timeout: 1000,
       halfOpenLimit: 1,
     };
-    
+
     mocks = createMocks();
     breaker = new CircuitBreaker('test-breaker', config, mocks.logger);
   });
@@ -530,21 +530,21 @@ describe('CircuitBreaker', () => {
   it('should transition to half-open after timeout', async () => {
     // Force open state
     breaker.forceState(CircuitState.OPEN);
-    
+
     // Wait for timeout
     await new Promise(resolve => setTimeout(resolve, config.timeout + 100));
-    
+
     // Next execution should move to half-open
     try {
       await breaker.execute(async () => 'success');
     } catch {}
-    
+
     expect(breaker.getState()).toBe(CircuitState.CLOSED); // Should close after success
   });
 
   it('should track metrics', () => {
     const metrics = breaker.getMetrics();
-    
+
     expect(metrics.state).toBeDefined();
     expect(metrics.failures).toBe(0);
     expect(metrics.successes).toBe(0);
@@ -568,7 +568,7 @@ describe('ConflictResolver', () => {
 
   it('should report resource conflict', async () => {
     const conflict = await resolver.reportResourceConflict('resource-1', ['agent-1', 'agent-2']);
-    
+
     expect(conflict.id).toBeDefined();
     expect(conflict.resourceId).toBe('resource-1');
     expect(conflict.agents).toBe(['agent-1', 'agent-2']);
@@ -577,11 +577,11 @@ describe('ConflictResolver', () => {
 
   it('should report task conflict', async () => {
     const conflict = await resolver.reportTaskConflict(
-      'task-1', 
-      ['agent-1', 'agent-2'], 
+      'task-1',
+      ['agent-1', 'agent-2'],
       'assignment'
     );
-    
+
     expect(conflict.id).toBeDefined();
     expect(conflict.taskId).toBe('task-1');
     expect(conflict.type).toBe('assignment');
@@ -590,7 +590,7 @@ describe('ConflictResolver', () => {
 
   it('should resolve conflict using priority strategy', async () => {
     const conflict = await resolver.reportResourceConflict('resource-1', ['agent-1', 'agent-2']);
-    
+
     const context = {
       agentPriorities: new Map([
         ['agent-1', 5],
@@ -599,7 +599,7 @@ describe('ConflictResolver', () => {
     };
 
     const resolution = await resolver.resolveConflict(conflict.id, 'priority', context);
-    
+
     expect(resolution.type).toBe('priority');
     expect(resolution.winner).toBe('agent-2'); // Higher priority
     expect(conflict.resolved).toBe(true);
@@ -607,7 +607,7 @@ describe('ConflictResolver', () => {
 
   it('should resolve conflict using timestamp strategy', async () => {
     const conflict = await resolver.reportResourceConflict('resource-1', ['agent-1', 'agent-2']);
-    
+
     const now = new Date();
     const context = {
       requestTimestamps: new Map([
@@ -617,16 +617,16 @@ describe('ConflictResolver', () => {
     };
 
     const resolution = await resolver.resolveConflict(conflict.id, 'timestamp', context);
-    
+
     expect(resolution.type).toBe('timestamp');
     expect(resolution.winner).toBe('agent-1'); // Earlier request
   });
 
   it('should auto-resolve conflicts', async () => {
     const conflict = await resolver.reportResourceConflict('resource-1', ['agent-1', 'agent-2']);
-    
+
     const resolution = await resolver.autoResolve(conflict.id, 'priority');
-    
+
     expect(resolution.type).toBe('priority');
     expect(resolution.winner).toBeDefined();
   });
@@ -634,9 +634,9 @@ describe('ConflictResolver', () => {
   it('should track conflict statistics', async () => {
     await resolver.reportResourceConflict('resource-1', ['agent-1', 'agent-2']);
     await resolver.reportTaskConflict('task-1', ['agent-1', 'agent-2'], 'assignment');
-    
+
     const stats = resolver.getStats();
-    
+
     expect(stats.totalConflicts).toBe(2);
     expect(stats.activeConflicts).toBe(2);
     expect(stats.resolvedConflicts).toBe(0);
@@ -646,13 +646,13 @@ describe('ConflictResolver', () => {
 
   it('should cleanup old conflicts', async () => {
     const conflict = await resolver.reportResourceConflict('resource-1', ['agent-1', 'agent-2']);
-    
+
     // Resolve the conflict
     await resolver.autoResolve(conflict.id);
-    
+
     // Cleanup old conflicts (immediate cleanup for test)
     const removed = resolver.cleanupOldConflicts(0);
-    
+
     expect(removed).toBe(1);
   });
 });

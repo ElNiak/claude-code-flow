@@ -54,12 +54,15 @@ The API will be available at `http://localhost:3000`
 ## API Endpoints
 
 ### Health Check
+
 - `GET /health` - Server health status
 
 ### API Info
+
 - `GET /api/v1` - API information and available endpoints
 
 ### Users
+
 - `GET /api/v1/users` - List all users (with pagination)
 - `GET /api/v1/users/:id` - Get user by ID
 - `POST /api/v1/users` - Create new user
@@ -67,6 +70,7 @@ The API will be available at `http://localhost:3000`
 - `DELETE /api/v1/users/:id` - Delete user
 
 ### Products
+
 - `GET /api/v1/products` - List all products (with pagination and filtering)
 - `GET /api/v1/products/:id` - Get product by ID
 - `POST /api/v1/products` - Create new product
@@ -76,6 +80,7 @@ The API will be available at `http://localhost:3000`
 ## Request Examples
 
 ### Create User
+
 ```bash
 curl -X POST http://localhost:3000/api/v1/users \
   -H "Content-Type: application/json" \
@@ -87,6 +92,7 @@ curl -X POST http://localhost:3000/api/v1/users \
 ```
 
 ### List Products with Filters
+
 ```bash
 # Filter by category
 curl http://localhost:3000/api/v1/products?category=Electronics
@@ -99,6 +105,7 @@ curl http://localhost:3000/api/v1/products?page=2&limit=5
 ```
 
 ### Update Product
+
 ```bash
 curl -X PUT http://localhost:3000/api/v1/products/1 \
   -H "Content-Type: application/json" \
@@ -128,6 +135,7 @@ npm run test:watch
 All API responses follow a consistent format:
 
 ### Success Response
+
 ```json
 {
   "success": true,
@@ -137,6 +145,7 @@ All API responses follow a consistent format:
 ```
 
 ### Error Response
+
 ```json
 {
   "success": false,
@@ -149,6 +158,7 @@ All API responses follow a consistent format:
 ```
 
 ### Paginated Response
+
 ```json
 {
   "success": true,

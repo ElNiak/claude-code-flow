@@ -102,7 +102,7 @@ export class PersistenceManager {
   // Agent operations
   async saveAgent(agent: PersistedAgent): Promise<void> {
     const stmt = this.db.prepare(
-      `INSERT OR REPLACE INTO agents 
+      `INSERT OR REPLACE INTO agents
        (id, type, name, status, capabilities, system_prompt, max_concurrent_tasks, priority, created_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     );
@@ -165,7 +165,7 @@ export class PersistenceManager {
   // Task operations
   async saveTask(task: PersistedTask): Promise<void> {
     const stmt = this.db.prepare(
-      `INSERT OR REPLACE INTO tasks 
+      `INSERT OR REPLACE INTO tasks
        (id, type, description, status, priority, dependencies, metadata, assigned_agent, progress, error, created_at, completed_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     );

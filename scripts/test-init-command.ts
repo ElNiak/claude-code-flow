@@ -85,10 +85,10 @@ async function runTests(
   console.log(`🧪 Running ${suites.length} test suite(s) for init command\n`);
 
   const results: Array<{ suite: TestSuite; success: boolean; duration: number; output: string }> = [];
-  
+
   for (const suite of suites) {
     console.log(`📋 Running ${suite.name} (${suite.type}): ${suite.description}`);
-    
+
     // Check if test file exists
     if (!await exists(suite.path)) {
       console.log(`   ❌ Test file not found: ${suite.path}`);
@@ -98,7 +98,7 @@ async function runTests(
     }
 
     const startTime = performance.now();
-    
+
     const denoArgs = [
       "test",
       "--allow-all",
@@ -125,7 +125,7 @@ async function runTests(
       const endTime = performance.now();
       const duration = endTime - startTime;
 
-      const output = options.verbose ? "" : 
+      const output = options.verbose ? "" :
         new TextDecoder().decode(result.stdout) + new TextDecoder().decode(result.stderr);
 
       if (result.success) {
@@ -145,13 +145,13 @@ async function runTests(
     } catch (error) {
       const endTime = performance.now();
       const duration = endTime - startTime;
-      
+
       console.log(`   ❌ Error running test: ${error.message}`);
-      results.push({ 
-        suite, 
-        success: false, 
-        duration, 
-        output: `Error: ${error.message}` 
+      results.push({
+        suite,
+        success: false,
+        duration,
+        output: `Error: ${error.message}`
       });
 
       if (options.failFast) {

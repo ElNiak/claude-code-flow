@@ -214,7 +214,7 @@ export class AgentFactory {
     return [
       'researcher', 'coder', 'analyst', 'architect', 'tester', 'coordinator',
       'reviewer', 'optimizer', 'documenter', 'monitor', 'specialist',
-      'requirements_analyst', 'design_architect', 'task_planner', 
+      'requirements_analyst', 'design_architect', 'task_planner',
       'implementation_coder', 'quality_reviewer', 'steering_documenter'
     ];
   }
@@ -238,7 +238,7 @@ export class AgentFactory {
       requirements_analyst: 'Analyzes requirements and creates user stories with acceptance criteria',
       design_architect: 'Creates technical designs and system architecture for features',
       'system-architect': 'High-level system architecture and design patterns',
-      task_planner: 'Plans implementation tasks and orchestrates workflow execution', 
+      task_planner: 'Plans implementation tasks and orchestrates workflow execution',
       'task-planner': 'Plans implementation tasks and orchestrates workflow execution',
       implementation_coder: 'Implements code based on designs with quality focus',
       developer: 'General purpose software development and implementation',

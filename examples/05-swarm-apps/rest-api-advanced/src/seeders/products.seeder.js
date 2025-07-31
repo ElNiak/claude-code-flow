@@ -200,13 +200,13 @@ async function seedProducts() {
   try {
     // Connect to database
     await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/rest-api-advanced');
-    
+
     console.log('Connected to MongoDB');
-    
+
     // Clear existing products
     await Product.deleteMany({});
     console.log('Cleared existing products');
-    
+
     // Create admin user if not exists
     let adminUser = await User.findOne({ email: 'admin@example.com' });
     if (!adminUser) {
@@ -220,11 +220,11 @@ async function seedProducts() {
       });
       console.log('Created admin user');
     }
-    
+
     // Create products
     const products = [];
     let totalProducts = 0;
-    
+
     for (const template of productTemplates) {
       for (const productData of template.products) {
         // Generate multiple variants for some products
@@ -263,43 +263,43 @@ async function seedProducts() {
           // Add some initial reviews
           reviews: generateRandomReviews(),
         };
-        
+
         // Calculate rating statistics
         if (baseProduct.reviews.length > 0) {
           const distribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
           let totalRating = 0;
-          
+
           baseProduct.reviews.forEach(review => {
             distribution[review.rating]++;
             totalRating += review.rating;
           });
-          
+
           baseProduct.rating = {
             average: totalRating / baseProduct.reviews.length,
             count: baseProduct.reviews.length,
             distribution,
           };
         }
-        
+
         products.push(baseProduct);
         totalProducts++;
       }
     }
-    
+
     // Insert all products
     const createdProducts = await Product.insertMany(products);
     console.log(`Created ${totalProducts} products`);
-    
+
     // Create relationships between products
     for (let i = 0; i < createdProducts.length; i++) {
       const product = createdProducts[i];
       const relatedProducts = [];
-      
+
       // Find products in same category
       const sameCategory = createdProducts.filter(
         p => p.category === product.category && p._id.toString() !== product._id.toString()
       );
-      
+
       // Add 3-5 related products
       const numRelated = Math.min(sameCategory.length, Math.floor(Math.random() * 3) + 3);
       for (let j = 0; j < numRelated; j++) {
@@ -309,13 +309,13 @@ async function seedProducts() {
           relatedProducts.push(relatedProduct._id);
         }
       }
-      
+
       product.relatedProducts = relatedProducts;
       await product.save();
     }
-    
+
     console.log('Added related products relationships');
-    
+
     // Display summary
     const summary = await Product.aggregate([
       {
@@ -328,7 +328,7 @@ async function seedProducts() {
       },
       { $sort: { _id: 1 } },
     ]);
-    
+
     console.log('\nProduct Summary by Category:');
     console.table(summary.map(s => ({
       Category: s._id,
@@ -336,7 +336,7 @@ async function seedProducts() {
       'Avg Price': `$${s.avgPrice.toFixed(2)}`,
       'Total Inventory': s.totalInventory,
     })));
-    
+
     console.log('\nSeeding completed successfully!');
     process.exit(0);
   } catch (error) {
@@ -348,7 +348,7 @@ async function seedProducts() {
 function generateRandomReviews() {
   const reviews = [];
   const numReviews = Math.floor(Math.random() * 10) + 2; // 2-12 reviews
-  
+
   const reviewTemplates = [
     { rating: 5, comments: ['Excellent product!', 'Highly recommended!', 'Perfect, exactly what I needed.', 'Outstanding quality!'] },
     { rating: 4, comments: ['Very good product.', 'Great value for money.', 'Happy with my purchase.', 'Good quality overall.'] },
@@ -356,9 +356,9 @@ function generateRandomReviews() {
     { rating: 2, comments: ['Not satisfied.', 'Below expectations.', 'Quality issues.', 'Disappointed.'] },
     { rating: 1, comments: ['Poor quality.', 'Do not recommend.', 'Waste of money.', 'Very disappointed.'] },
   ];
-  
+
   const userNames = ['John Doe', 'Jane Smith', 'Mike Johnson', 'Sarah Williams', 'David Brown', 'Emma Davis', 'Chris Wilson', 'Lisa Anderson'];
-  
+
   for (let i = 0; i < numReviews; i++) {
     // Bias towards positive reviews
     const ratingBias = Math.random();
@@ -368,10 +368,10 @@ function generateRandomReviews() {
     else if (ratingBias < 0.9) rating = 3;
     else if (ratingBias < 0.95) rating = 2;
     else rating = 1;
-    
+
     const template = reviewTemplates.find(t => t.rating === rating);
     const comment = template.comments[Math.floor(Math.random() * template.comments.length)];
-    
+
     reviews.push({
       user: mongoose.Types.ObjectId(), // Fake user ID for seeding
       rating,
@@ -384,7 +384,7 @@ function generateRandomReviews() {
       createdAt: new Date(Date.now() - Math.random() * 90 * 24 * 60 * 60 * 1000), // Random date within last 90 days
     });
   }
-  
+
   return reviews;
 }
 

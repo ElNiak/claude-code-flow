@@ -124,7 +124,7 @@ export default class GitHubIntegrationView {
             </div>
           </div>
         </div>
-        
+
         <div class="github-tools">
           <h3>🔧 Quick Actions</h3>
           <div class="tool-buttons">
@@ -164,7 +164,7 @@ export default class GitHubIntegrationView {
       <div class="github-repositories">
         <div class="repo-management">
           <h3>📁 Repository Management</h3>
-          
+
           <div class="repo-actions">
             <button onclick="window.githubView.browseRepositories()" class="github-btn primary">
               🔍 Browse Repositories
@@ -176,12 +176,12 @@ export default class GitHubIntegrationView {
               🔄 Sync Repos
             </button>
           </div>
-          
+
           <div class="repo-search">
             <input type="text" id="repo-search" placeholder="Search repositories..." class="search-input">
           </div>
         </div>
-        
+
         <div class="repo-analysis">
           <h3>📊 Repository Analysis</h3>
           <div class="analysis-form">
@@ -201,12 +201,12 @@ export default class GitHubIntegrationView {
               📊 Analyze
             </button>
           </div>
-          
+
           <div id="analysis-results" class="analysis-display">
             <!-- Analysis results will appear here -->
           </div>
         </div>
-        
+
         <div class="repo-list">
           <h3>📋 Repository List</h3>
           <div id="repositories-list" class="repo-grid">
@@ -225,7 +225,7 @@ export default class GitHubIntegrationView {
       <div class="github-pull-requests">
         <div class="pr-management">
           <h3>🔄 Pull Request Management</h3>
-          
+
           <div class="pr-actions">
             <button onclick="window.githubView.createPullRequest()" class="github-btn primary">
               ➕ Create PR
@@ -238,7 +238,7 @@ export default class GitHubIntegrationView {
             </button>
           </div>
         </div>
-        
+
         <div class="pr-dashboard">
           <h3>📊 PR Dashboard</h3>
           <div class="pr-filters">
@@ -252,12 +252,12 @@ export default class GitHubIntegrationView {
               <option value="">All Repositories</option>
             </select>
           </div>
-          
+
           <div id="pr-list" class="pr-list">
             <!-- PR cards will be populated here -->
           </div>
         </div>
-        
+
         <div class="pr-actions-panel">
           <h3>⚡ PR Actions</h3>
           <div class="form-group">
@@ -292,7 +292,7 @@ export default class GitHubIntegrationView {
       <div class="github-issues">
         <div class="issue-tracking">
           <h3>📋 Issue Tracking & Triage</h3>
-          
+
           <div class="issue-actions">
             <button onclick="window.githubView.createIssue()" class="github-btn primary">
               ➕ Create Issue
@@ -305,7 +305,7 @@ export default class GitHubIntegrationView {
             </button>
           </div>
         </div>
-        
+
         <div class="issue-dashboard">
           <h3>📊 Issue Dashboard</h3>
           <div class="issue-stats">
@@ -322,7 +322,7 @@ export default class GitHubIntegrationView {
               <span id="closed-issues" class="stat-value">0</span>
             </div>
           </div>
-          
+
           <div class="issue-filters">
             <input type="text" id="issue-search" placeholder="Search issues..." class="search-input">
             <select id="issue-filter-label">
@@ -332,12 +332,12 @@ export default class GitHubIntegrationView {
               <option value="documentation">Documentation</option>
             </select>
           </div>
-          
+
           <div id="issue-list" class="issue-list">
             <!-- Issue cards will be populated here -->
           </div>
         </div>
-        
+
         <div class="issue-triage">
           <h3>🏷️ Issue Triage</h3>
           <div class="triage-form">
@@ -370,7 +370,7 @@ export default class GitHubIntegrationView {
       <div class="github-releases">
         <div class="release-coordination">
           <h3>🚀 Release Coordination</h3>
-          
+
           <div class="release-actions">
             <button onclick="window.githubView.createRelease()" class="github-btn primary">
               🚀 Create Release
@@ -383,7 +383,7 @@ export default class GitHubIntegrationView {
             </button>
           </div>
         </div>
-        
+
         <div class="release-planning">
           <h3>📅 Release Planning</h3>
           <div class="release-form">
@@ -408,7 +408,7 @@ export default class GitHubIntegrationView {
             </button>
           </div>
         </div>
-        
+
         <div class="release-history">
           <h3>📋 Release History</h3>
           <div id="release-list" class="release-list">
@@ -427,7 +427,7 @@ export default class GitHubIntegrationView {
       <div class="github-automation">
         <div class="workflow-automation">
           <h3>🤖 Workflow Automation</h3>
-          
+
           <div class="automation-actions">
             <button onclick="window.githubView.createWorkflow()" class="github-btn primary">
               ➕ Create Workflow
@@ -440,7 +440,7 @@ export default class GitHubIntegrationView {
             </button>
           </div>
         </div>
-        
+
         <div class="workflow-builder">
           <h3>🔧 Workflow Builder</h3>
           <div class="workflow-form">
@@ -470,7 +470,7 @@ export default class GitHubIntegrationView {
             </button>
           </div>
         </div>
-        
+
         <div class="automation-templates">
           <h3>📋 Automation Templates</h3>
           <div class="template-grid">
@@ -503,7 +503,7 @@ export default class GitHubIntegrationView {
       <div class="github-analytics">
         <div class="metrics-overview">
           <h3>📊 Repository Metrics</h3>
-          
+
           <div class="metrics-actions">
             <button onclick="window.githubView.fetchMetrics()" class="github-btn primary">
               📊 Fetch Metrics
@@ -516,7 +516,7 @@ export default class GitHubIntegrationView {
             </button>
           </div>
         </div>
-        
+
         <div class="metrics-dashboard">
           <h3>📈 Metrics Dashboard</h3>
           <div class="metrics-grid">
@@ -530,7 +530,7 @@ export default class GitHubIntegrationView {
                 <span>This Week: <span id="week-commits">0</span></span>
               </div>
             </div>
-            
+
             <div class="metric-card">
               <h4>🔄 Pull Requests</h4>
               <div id="pr-chart" class="chart-container">
@@ -541,7 +541,7 @@ export default class GitHubIntegrationView {
                 <span>Avg Time: <span id="avg-pr-time">--</span></span>
               </div>
             </div>
-            
+
             <div class="metric-card">
               <h4>📋 Issues</h4>
               <div id="issues-chart" class="chart-container">
@@ -552,7 +552,7 @@ export default class GitHubIntegrationView {
                 <span>Avg Time: <span id="avg-issue-time">--</span></span>
               </div>
             </div>
-            
+
             <div class="metric-card">
               <h4>👥 Contributors</h4>
               <div id="contributors-chart" class="chart-container">
@@ -565,7 +565,7 @@ export default class GitHubIntegrationView {
             </div>
           </div>
         </div>
-        
+
         <div class="custom-metrics">
           <h3>🎯 Custom Metrics</h3>
           <div class="custom-form">
@@ -608,7 +608,7 @@ export default class GitHubIntegrationView {
       <div class="github-code-review">
         <div class="review-automation">
           <h3>🔍 Automated Code Review</h3>
-          
+
           <div class="review-actions">
             <button onclick="window.githubView.startCodeReview()" class="github-btn primary">
               🔍 Start Review
@@ -621,7 +621,7 @@ export default class GitHubIntegrationView {
             </button>
           </div>
         </div>
-        
+
         <div class="review-configuration">
           <h3>⚙️ Review Configuration</h3>
           <div class="config-form">
@@ -651,18 +651,18 @@ export default class GitHubIntegrationView {
             </button>
           </div>
         </div>
-        
+
         <div class="review-results">
           <h3>📊 Review Results</h3>
           <div id="review-summary" class="review-summary">
             <!-- Review summary will appear here -->
           </div>
-          
+
           <div id="review-findings" class="review-findings">
             <!-- Review findings will be listed here -->
           </div>
         </div>
-        
+
         <div class="review-rules">
           <h3>📋 Review Rules</h3>
           <div class="rules-list">
@@ -696,7 +696,7 @@ export default class GitHubIntegrationView {
       <div class="github-fallback">
         <h2>🐙 GitHub Integration</h2>
         <p>Complete GitHub operations interface with 8 integrated tools</p>
-        
+
         <div class="tool-sections">
           <div class="tool-section">
             <h3>📁 Repository Management</h3>
@@ -704,21 +704,21 @@ export default class GitHubIntegrationView {
             <button onclick="window.githubView.quickAction('github_sync_coord')">Sync Repositories</button>
             <button onclick="window.githubView.quickAction('github_metrics')">View Metrics</button>
           </div>
-          
+
           <div class="tool-section">
             <h3>🔄 PR & Issues</h3>
             <button onclick="window.githubView.quickAction('github_pr_manage')">Manage PRs</button>
             <button onclick="window.githubView.quickAction('github_issue_track')">Track Issues</button>
             <button onclick="window.githubView.quickAction('github_code_review')">Code Review</button>
           </div>
-          
+
           <div class="tool-section">
             <h3>🚀 Automation</h3>
             <button onclick="window.githubView.quickAction('github_workflow_auto')">Workflow Automation</button>
             <button onclick="window.githubView.quickAction('github_release_coord')">Release Coordination</button>
           </div>
         </div>
-        
+
         <div id="github-output" class="output-area">
           <h3>📊 Output</h3>
           <pre id="output-content">Ready for GitHub operations...</pre>
@@ -1216,14 +1216,14 @@ if (typeof document !== 'undefined') {
     .github-overview {
       padding: 20px;
     }
-    
+
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 16px;
       margin-bottom: 24px;
     }
-    
+
     .stat-card {
       display: flex;
       align-items: center;
@@ -1232,33 +1232,33 @@ if (typeof document !== 'undefined') {
       border-radius: 8px;
       border: 1px solid #444;
     }
-    
+
     .stat-icon {
       font-size: 24px;
       margin-right: 12px;
     }
-    
+
     .stat-value {
       font-size: 24px;
       font-weight: bold;
       color: #00d4ff;
     }
-    
+
     .stat-label {
       color: #888;
       font-size: 14px;
     }
-    
+
     .github-tools {
       margin: 24px 0;
     }
-    
+
     .tool-buttons {
       display: flex;
       gap: 12px;
       flex-wrap: wrap;
     }
-    
+
     .github-btn {
       padding: 10px 16px;
       border: none;
@@ -1267,36 +1267,36 @@ if (typeof document !== 'undefined') {
       font-weight: 500;
       transition: all 0.2s ease;
     }
-    
+
     .github-btn.primary {
       background: #00d4ff;
       color: #000;
     }
-    
+
     .github-btn.primary:hover {
       background: #00b8e6;
     }
-    
+
     .github-btn.secondary {
       background: #444;
       color: #fff;
     }
-    
+
     .github-btn.secondary:hover {
       background: #555;
     }
-    
+
     .form-group {
       margin-bottom: 16px;
     }
-    
+
     .form-group label {
       display: block;
       margin-bottom: 4px;
       color: #fff;
       font-weight: 500;
     }
-    
+
     .form-group input,
     .form-group select,
     .form-group textarea {
@@ -1307,12 +1307,12 @@ if (typeof document !== 'undefined') {
       border-radius: 4px;
       color: #fff;
     }
-    
+
     .form-group textarea {
       height: 100px;
       resize: vertical;
     }
-    
+
     .search-input {
       width: 100%;
       padding: 8px 12px;
@@ -1322,7 +1322,7 @@ if (typeof document !== 'undefined') {
       color: #fff;
       margin: 16px 0;
     }
-    
+
     .repo-grid,
     .pr-list,
     .issue-list,
@@ -1331,43 +1331,43 @@ if (typeof document !== 'undefined') {
       gap: 16px;
       margin-top: 16px;
     }
-    
+
     .template-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
       gap: 16px;
     }
-    
+
     .template-card {
       background: #2a2a2a;
       border: 1px solid #444;
       border-radius: 8px;
       padding: 16px;
     }
-    
+
     .template-card h4 {
       margin: 0 0 8px 0;
       color: #00d4ff;
     }
-    
+
     .template-card p {
       margin: 0 0 12px 0;
       color: #888;
       font-size: 14px;
     }
-    
+
     .metric-card {
       background: #2a2a2a;
       border: 1px solid #444;
       border-radius: 8px;
       padding: 16px;
     }
-    
+
     .metric-card h4 {
       margin: 0 0 12px 0;
       color: #fff;
     }
-    
+
     .chart-container {
       height: 150px;
       background: #1a1a1a;
@@ -1378,29 +1378,29 @@ if (typeof document !== 'undefined') {
       justify-content: center;
       color: #666;
     }
-    
+
     .metric-stats {
       display: flex;
       justify-content: space-between;
       font-size: 14px;
     }
-    
+
     .metric-stats span {
       color: #888;
     }
-    
+
     .metric-stats span span {
       color: #00d4ff;
       font-weight: bold;
     }
-    
+
     .pr-filters,
     .issue-filters {
       display: flex;
       gap: 12px;
       margin-bottom: 16px;
     }
-    
+
     .pr-filters select,
     .issue-filters select {
       flex: 1;
@@ -1410,30 +1410,30 @@ if (typeof document !== 'undefined') {
       border-radius: 4px;
       color: #fff;
     }
-    
+
     .issue-stats {
       display: flex;
       gap: 24px;
       margin: 16px 0;
     }
-    
+
     .issue-stat {
       display: flex;
       flex-direction: column;
       align-items: center;
     }
-    
+
     .issue-stat .stat-label {
       font-size: 14px;
       color: #888;
     }
-    
+
     .issue-stat .stat-value {
       font-size: 24px;
       font-weight: bold;
       color: #00d4ff;
     }
-    
+
     .analysis-display,
     .review-summary,
     .review-findings {
@@ -1443,34 +1443,34 @@ if (typeof document !== 'undefined') {
       padding: 16px;
       margin-top: 16px;
     }
-    
+
     .analysis-scores,
     .review-stats {
       display: flex;
       gap: 24px;
       margin: 12px 0;
     }
-    
+
     .score-item {
       display: flex;
       gap: 8px;
     }
-    
+
     .score-label {
       color: #888;
     }
-    
+
     .score-value {
       color: #00d4ff;
       font-weight: bold;
     }
-    
+
     .rules-list {
       display: flex;
       flex-direction: column;
       gap: 8px;
     }
-    
+
     .rule-item {
       display: flex;
       align-items: center;
@@ -1479,11 +1479,11 @@ if (typeof document !== 'undefined') {
       background: #2a2a2a;
       border-radius: 4px;
     }
-    
+
     .rule-item input[type="checkbox"] {
       width: auto;
     }
-    
+
     .finding-item {
       display: flex;
       gap: 12px;
@@ -1492,7 +1492,7 @@ if (typeof document !== 'undefined') {
       border-radius: 4px;
       margin-bottom: 8px;
     }
-    
+
     .finding-type {
       padding: 2px 8px;
       background: #444;
@@ -1500,29 +1500,29 @@ if (typeof document !== 'undefined') {
       font-size: 12px;
       font-weight: bold;
     }
-    
+
     .finding-desc {
       flex: 1;
       color: #ccc;
     }
-    
+
     .activity-list {
       max-height: 200px;
       overflow-y: auto;
     }
-    
+
     .activity-item {
       display: flex;
       gap: 12px;
       padding: 8px;
       border-bottom: 1px solid #333;
     }
-    
+
     .activity-time {
       color: #666;
       font-size: 12px;
     }
-    
+
     .activity-desc {
       color: #ccc;
       flex: 1;

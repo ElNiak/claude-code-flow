@@ -2,7 +2,7 @@
 
 I've implemented the recommended hybrid approach to resolve this inconsistency. Here's what was done:
 
-### Changes Made:
+### Changes Made
 
 1. **Added `start-ui` as Command Alias** (src/cli/command-registry.js:64-76)
    - The `start-ui` command now works as an alias for `start --ui`
@@ -15,7 +15,7 @@ I've implemented the recommended hybrid approach to resolve this inconsistency. 
    - Alias (`start-ui`) is shown as a convenient alternative
    - Clear labeling: "Primary method" and "Convenient alias"
 
-### Implementation Details:
+### Implementation Details
 
 ```javascript
 // Added to command-registry.js
@@ -34,21 +34,25 @@ commandRegistry.set('start-ui', {
 });
 ```
 
-### Testing Confirmed:
+### Testing Confirmed
+
 - ✅ `claude-flow start --ui` works correctly
 - ✅ `claude-flow start-ui` works correctly as an alias
 - ✅ `claude-flow start-ui --help` displays proper help text
 - ✅ Both commands support the same flags (--port, --web, etc.)
 
-### Documentation Updates:
+### Documentation Updates
+
 Updated all 6 occurrences in README.md to show both methods:
+
 ```bash
 # Start coordinated development (both methods work)
 npx claude-flow@2.0.0 start --ui     # Primary method
 npx claude-flow@2.0.0 start-ui       # Convenient alias
 ```
 
-### Benefits of This Approach:
+### Benefits of This Approach
+
 1. **No Breaking Changes** - Existing documentation remains valid
 2. **Clear Communication** - Users understand both methods are available
 3. **Future Flexibility** - Can deprecate one method later if needed

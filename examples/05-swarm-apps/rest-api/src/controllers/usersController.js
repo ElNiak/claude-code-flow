@@ -6,7 +6,7 @@ const usersController = {
     try {
       const { page = 1, limit = 10, sort = 'id' } = req.query;
       const users = await userModel.findAll({ page, limit, sort });
-      
+
       res.json({
         success: true,
         data: users,
@@ -25,14 +25,14 @@ const usersController = {
   getUserById: async (req, res, next) => {
     try {
       const user = await userModel.findById(req.params.id);
-      
+
       if (!user) {
         return res.status(404).json({
           success: false,
           message: 'User not found'
         });
       }
-      
+
       res.json({
         success: true,
         data: user
@@ -50,9 +50,9 @@ const usersController = {
         email: req.body.email,
         age: req.body.age
       };
-      
+
       const newUser = await userModel.create(userData);
-      
+
       res.status(201).json({
         success: true,
         message: 'User created successfully',
@@ -72,16 +72,16 @@ const usersController = {
         email: req.body.email,
         age: req.body.age
       };
-      
+
       const updatedUser = await userModel.update(userId, updateData);
-      
+
       if (!updatedUser) {
         return res.status(404).json({
           success: false,
           message: 'User not found'
         });
       }
-      
+
       res.json({
         success: true,
         message: 'User updated successfully',
@@ -96,14 +96,14 @@ const usersController = {
   deleteUser: async (req, res, next) => {
     try {
       const deleted = await userModel.delete(req.params.id);
-      
+
       if (!deleted) {
         return res.status(404).json({
           success: false,
           message: 'User not found'
         });
       }
-      
+
       res.json({
         success: true,
         message: 'User deleted successfully'

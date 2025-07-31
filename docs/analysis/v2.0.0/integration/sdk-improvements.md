@@ -7,6 +7,7 @@ This document outlines comprehensive improvements for integrating ruv-swarm as a
 ## 1. Current Integration Challenges
 
 ### 1.1 Complex Command Structure
+
 ```bash
 # Current - verbose and error-prone
 npx ruv-swarm@latest init hierarchical 8 --claude --force
@@ -15,11 +16,13 @@ npx ruv-swarm@latest orchestrate "Complex task description"
 ```
 
 ### 1.2 Lack of Type Safety
+
 - String-based parameters with no validation
 - No IntelliSense support
 - Runtime errors from typos
 
 ### 1.3 Missing Abstractions
+
 - Direct exposure of low-level commands
 - No preset configurations
 - Manual topology selection required
@@ -27,6 +30,7 @@ npx ruv-swarm@latest orchestrate "Complex task description"
 ## 2. Proposed SDK Architecture
 
 ### 2.1 Package Structure
+
 ```
 @claude-flow/ruv-swarm
 ├── src/
@@ -46,6 +50,7 @@ npx ruv-swarm@latest orchestrate "Complex task description"
 ```
 
 ### 2.2 Modern API Design
+
 ```typescript
 import { Swarm, SwarmPreset } from '@claude-flow/ruv-swarm';
 
@@ -89,6 +94,7 @@ const task = await swarm.orchestrate({
 ## 3. Swarm Presets
 
 ### 3.1 Development Preset
+
 ```json
 {
   "name": "development",
@@ -112,6 +118,7 @@ const task = await swarm.orchestrate({
 ```
 
 ### 3.2 Research Preset
+
 ```json
 {
   "name": "research",
@@ -134,6 +141,7 @@ const task = await swarm.orchestrate({
 ```
 
 ### 3.3 Enterprise Preset
+
 ```json
 {
   "name": "enterprise",
@@ -166,6 +174,7 @@ const task = await swarm.orchestrate({
 ## 4. CLI Improvements
 
 ### 4.1 Simplified Commands
+
 ```bash
 # Current (complex)
 npx ruv-swarm@latest init hierarchical 8 --claude --force
@@ -176,6 +185,7 @@ npx claude-flow swarm create -p dev  # short alias
 ```
 
 ### 4.2 Interactive Mode
+
 ```bash
 npx claude-flow swarm create --interactive
 
@@ -197,6 +207,7 @@ npx claude-flow swarm create --interactive
 ```
 
 ### 4.3 Consistent Parameter Format
+
 ```bash
 # All commands follow noun-verb-options pattern
 claude-flow swarm create --preset=dev
@@ -215,6 +226,7 @@ claude-flow task cancel --all
 ## 5. Advanced Features
 
 ### 5.1 Swarm Templates
+
 ```typescript
 // Save current swarm as template
 await swarm.saveAsTemplate('my-api-team');
@@ -224,6 +236,7 @@ const newSwarm = await Swarm.fromTemplate('my-api-team');
 ```
 
 ### 5.2 Auto-Scaling
+
 ```typescript
 const swarm = await Swarm.create({
   preset: SwarmPreset.Enterprise,
@@ -241,6 +254,7 @@ const swarm = await Swarm.create({
 ```
 
 ### 5.3 Plugin System
+
 ```typescript
 // Register custom agent type
 Swarm.registerAgentType({
@@ -257,6 +271,7 @@ Swarm.registerAgentType({
 ## 6. Migration Strategy
 
 ### 6.1 Compatibility Layer
+
 ```typescript
 // Support old commands during transition
 class SwarmCompat {
@@ -272,6 +287,7 @@ class SwarmCompat {
 ```
 
 ### 6.2 Migration Wizard
+
 ```bash
 npx claude-flow migrate
 
@@ -289,6 +305,7 @@ npx claude-flow migrate
 ## 7. Performance Optimizations
 
 ### 7.1 Connection Pooling
+
 ```typescript
 // Reuse connections for better performance
 const swarm = await Swarm.create({
@@ -301,6 +318,7 @@ const swarm = await Swarm.create({
 ```
 
 ### 7.2 Batch Operations
+
 ```typescript
 // Efficient batch processing
 const results = await swarm.batch([
@@ -313,6 +331,7 @@ const results = await swarm.batch([
 ## 8. Error Handling
 
 ### 8.1 Descriptive Errors
+
 ```typescript
 try {
   await swarm.spawn({ type: 'invalid' });
@@ -324,6 +343,7 @@ try {
 ```
 
 ### 8.2 Recovery Mechanisms
+
 ```typescript
 const swarm = await Swarm.create({
   recovery: {
@@ -337,21 +357,25 @@ const swarm = await Swarm.create({
 ## 9. Implementation Roadmap
 
 ### Phase 1: Core SDK (Weeks 1-2)
+
 - Basic Swarm and Agent classes
 - TypeScript definitions
 - Preset system
 
 ### Phase 2: CLI Integration (Weeks 3-4)
+
 - New command structure
 - Interactive wizard
 - Migration tools
 
 ### Phase 3: Advanced Features (Weeks 5-6)
+
 - Auto-scaling
 - Plugin system
 - Performance optimizations
 
 ### Phase 4: Documentation & Testing (Weeks 7-8)
+
 - Comprehensive docs
 - Example projects
 - Integration tests

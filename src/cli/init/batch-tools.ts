@@ -29,7 +29,7 @@ TodoWrite([
     assignedAgent: "research_specialist"
   },
   {
-    id: "analysis_phase", 
+    id: "analysis_phase",
     content: "Analyze performance requirements",
     status: "pending",
     priority: "medium",
@@ -40,7 +40,7 @@ TodoWrite([
   {
     id: "implementation_phase",
     content: "Implement optimized solution",
-    status: "pending", 
+    status: "pending",
     priority: "high",
     dependencies: ["research_phase", "analysis_phase"],
     estimatedTime: "90min",
@@ -69,13 +69,13 @@ Launches multiple specialized agents simultaneously for maximum efficiency.
 #### Basic Agent Launching
 \`\`\`javascript
 // Launch specialized agents for different domains
-Task("Architecture Research", 
+Task("Architecture Research",
      "Research microservices architecture patterns and best practices for scalable systems");
 
-Task("Performance Analysis", 
+Task("Performance Analysis",
      "Analyze current system performance and identify optimization opportunities");
 
-Task("Security Assessment", 
+Task("Security Assessment",
      "Conduct security analysis and identify potential vulnerabilities");
 \`\`\`
 
@@ -120,7 +120,7 @@ Memory.store("architecture_research", {
   },
   performance_requirements: {
     response_time: "< 200ms",
-    throughput: "> 1000 rps", 
+    throughput: "> 1000 rps",
     availability: "99.9%"
   },
   timestamp: Date.now(),
@@ -160,7 +160,7 @@ const implementationPlan = {
   optimizations: performanceData.recommendations.immediate,
   implementation_order: [
     "setup_redis_cache",
-    "optimize_database_queries", 
+    "optimize_database_queries",
     "implement_api_gateway",
     "add_circuit_breakers"
   ]
@@ -242,7 +242,7 @@ Task("Research Synthesizer", \`
   - domain_research findings
   - competitive_analysis results
   - technology_evaluation data
-  
+
   Synthesize into comprehensive recommendations and store final results
 \`);
 \`\`\`

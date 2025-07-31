@@ -20,25 +20,25 @@ class AgentTestRunner {
     console.log('\n🔄 SEQUENTIAL EXECUTION MODE');
     console.log('═'.repeat(60));
     console.log('Running agent tests one after another...\n');
-    
+
     const startTime = Date.now();
     const results = [];
-    
+
     // Coordinator test
     console.log('1️⃣  Testing Coordinator Agent...');
     const coordinator = new CoordinatorAgent('coordinator-seq-001');
     results.push(await coordinator.orchestrateSwarmTask('Build authentication system', 3));
-    
+
     // Researcher test
     console.log('2️⃣  Testing Researcher Agent...');
     const researcher = new ResearcherAgent('researcher-seq-001');
     results.push(await researcher.conductResearch('REST API best practices'));
-    
+
     // Developer test
     console.log('3️⃣  Testing Developer Agent...');
     const developer = new DeveloperAgent('developer-seq-001');
     results.push(await developer.generateCode('user authentication'));
-    
+
     // Analyzer test
     console.log('4️⃣  Testing Analyzer Agent...');
     const analyzer = new AnalyzerAgent('analyzer-seq-001');
@@ -48,7 +48,7 @@ class AgentTestRunner {
       cpu_usage: [45.2, 52.1, 48.7, 61.3],
       memory_usage: [1024, 1156, 1298, 1402]
     }));
-    
+
     // Reviewer test
     console.log('5️⃣  Testing Reviewer Agent...');
     const reviewer = new ReviewerAgent('reviewer-seq-001');
@@ -57,12 +57,12 @@ class AgentTestRunner {
       author: 'developer123',
       files: ['src/auth/login.ts', 'src/auth/logout.ts', 'tests/auth.test.ts']
     }));
-    
+
     // Tester test
     console.log('6️⃣  Testing Tester Agent...');
     const tester = new TesterAgent('tester-seq-001');
     results.push(await tester.writeUnitTests('UserAuthentication'));
-    
+
     // Documenter test
     console.log('7️⃣  Testing Documenter Agent...');
     const documenter = new DocumenterAgent('documenter-seq-001');
@@ -71,23 +71,23 @@ class AgentTestRunner {
       version: '1.0',
       endpoints: ['/auth/login', '/auth/validate', '/auth/refresh', '/auth/logout']
     }));
-    
+
     // Monitor test
     console.log('8️⃣  Testing Monitor Agent...');
     const monitor = new MonitorAgent('monitor-seq-001');
     results.push(await monitor.monitorSystemHealth());
-    
+
     // Specialist test
     console.log('9️⃣  Testing Specialist Agent...');
     const specialist = new SpecialistAgent('specialist-seq-001');
     results.push(await specialist.provideMachineLearningExpertise('Customer churn prediction'));
-    
+
     const totalTime = Date.now() - startTime;
-    
+
     console.log('\n✅ Sequential execution completed');
     console.log(`Total time: ${totalTime}ms`);
     console.log(`Tasks completed: ${results.length}`);
-    
+
     return { mode: 'sequential', totalTime, taskCount: results.length };
   }
 
@@ -95,9 +95,9 @@ class AgentTestRunner {
     console.log('\n⚡ PARALLEL EXECUTION MODE');
     console.log('═'.repeat(60));
     console.log('Running all agent tests concurrently...\n');
-    
+
     const startTime = Date.now();
-    
+
     // Create all agents
     const agents = {
       coordinator: new CoordinatorAgent('coordinator-par-001'),
@@ -110,7 +110,7 @@ class AgentTestRunner {
       monitor: new MonitorAgent('monitor-par-001'),
       specialist: new SpecialistAgent('specialist-par-001')
     };
-    
+
     // Execute all tasks in parallel
     const tasks = [
       agents.coordinator.orchestrateSwarmTask('Build authentication system', 3),
@@ -136,16 +136,16 @@ class AgentTestRunner {
       agents.monitor.monitorSystemHealth(),
       agents.specialist.provideMachineLearningExpertise('Customer churn prediction')
     ];
-    
+
     console.log('🚀 Launching all agents simultaneously...');
     const results = await Promise.all(tasks);
-    
+
     const totalTime = Date.now() - startTime;
-    
+
     console.log('\n✅ Parallel execution completed');
     console.log(`Total time: ${totalTime}ms`);
     console.log(`Tasks completed: ${results.length}`);
-    
+
     return { mode: 'parallel', totalTime, taskCount: results.length };
   }
 
@@ -153,16 +153,16 @@ class AgentTestRunner {
     console.log('🎯 CLAUDE-FLOW AGENT EXECUTION COMPARISON');
     console.log('═'.repeat(60));
     console.log('Comparing sequential vs parallel agent execution\n');
-    
+
     // Run sequential tests
     const sequentialResult = await this.runSequentialTests();
-    
+
     // Add a small delay between tests
     await new Promise(resolve => setTimeout(resolve, 1000));
-    
+
     // Run parallel tests
     const parallelResult = await this.runParallelTests();
-    
+
     // Display comparison
     console.log('\n' + '═'.repeat(60));
     console.log('📊 PERFORMANCE COMPARISON');
@@ -172,7 +172,7 @@ class AgentTestRunner {
     console.log(`\nTime Saved: ${sequentialResult.totalTime - parallelResult.totalTime}ms`);
     console.log(`Speed Improvement: ${((sequentialResult.totalTime / parallelResult.totalTime) * 100).toFixed(1)}%`);
     console.log(`\nEfficiency Factor: ${(sequentialResult.totalTime / parallelResult.totalTime).toFixed(2)}x faster`);
-    
+
     console.log('\n💡 KEY INSIGHTS:');
     console.log('- Parallel execution dramatically reduces total execution time');
     console.log('- All agents can work independently without conflicts');
@@ -183,26 +183,26 @@ class AgentTestRunner {
   async runIndividualAgentDemo(agentType: string) {
     console.log(`\n🤖 Running ${agentType.toUpperCase()} Agent Demo`);
     console.log('─'.repeat(40));
-    
+
     switch (agentType.toLowerCase()) {
       case 'coordinator':
         const coordinator = new CoordinatorAgent();
         await coordinator.orchestrateSwarmTask('Build authentication system', 5);
         await coordinator.monitorProgress();
         break;
-        
+
       case 'researcher':
         const researcher = new ResearcherAgent();
         await researcher.conductResearch('REST API best practices');
         await researcher.analyzeData([42, 38, 51, 47, 39, 52, 48, 45, 98, 41]);
         break;
-        
+
       case 'developer':
         const developer = new DeveloperAgent();
         await developer.generateCode('user authentication');
         await developer.refactorCode('legacy payment module');
         break;
-        
+
       case 'analyzer':
         const analyzer = new AnalyzerAgent();
         await analyzer.analyzePerformanceMetrics({
@@ -212,7 +212,7 @@ class AgentTestRunner {
           memory_usage: [1024, 1156, 1298, 1402]
         });
         break;
-        
+
       case 'reviewer':
         const reviewer = new ReviewerAgent();
         await reviewer.performCodeReview({
@@ -221,13 +221,13 @@ class AgentTestRunner {
           files: ['src/auth/login.ts', 'src/auth/logout.ts', 'tests/auth.test.ts']
         });
         break;
-        
+
       case 'tester':
         const tester = new TesterAgent();
         await tester.writeUnitTests('UserAuthentication');
         await tester.runPerformanceTests('/api/v1/authenticate');
         break;
-        
+
       case 'documenter':
         const documenter = new DocumenterAgent();
         await documenter.generateAPIDocumentation({
@@ -236,19 +236,19 @@ class AgentTestRunner {
           endpoints: ['/auth/login', '/auth/validate', '/auth/refresh', '/auth/logout']
         });
         break;
-        
+
       case 'monitor':
         const monitor = new MonitorAgent();
         await monitor.monitorSystemHealth();
         await monitor.trackPerformanceMetrics();
         break;
-        
+
       case 'specialist':
         const specialist = new SpecialistAgent();
         await specialist.provideMachineLearningExpertise('Customer churn prediction');
         await specialist.provideSecurityExpertise('User Authentication Module');
         break;
-        
+
       default:
         console.log(`Unknown agent type: ${agentType}`);
     }
@@ -258,10 +258,10 @@ class AgentTestRunner {
 // Main execution
 if (require.main === module) {
   const runner = new AgentTestRunner();
-  
+
   // Check command line arguments
   const args = process.argv.slice(2);
-  
+
   if (args.length === 0 || args[0] === 'compare') {
     // Run comparison by default
     runner.runComparison().catch(console.error);

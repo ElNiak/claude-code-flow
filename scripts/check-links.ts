@@ -41,26 +41,26 @@ const SKIP_URLS = new Set([
 
 function extractLinks(content: string): string[] {
   const links: string[] = [];
-  
+
   // Markdown links: [text](url)
   const markdownLinkRegex = /\[([^\]]*)\]\(([^)]+)\)/g;
   let match;
   while ((match = markdownLinkRegex.exec(content)) !== null) {
     links.push(match[2]);
   }
-  
+
   // HTML links: <a href="url">
   const htmlLinkRegex = /<a[^>]+href\s*=\s*['""]([^'""]+)['""][^>]*>/gi;
   while ((match = htmlLinkRegex.exec(content)) !== null) {
     links.push(match[1]);
   }
-  
+
   // URL references: [ref]: url
   const refLinkRegex = /^\s*\[([^\]]+)\]:\s*(.+)$/gm;
   while ((match = refLinkRegex.exec(content)) !== null) {
     links.push(match[2]);
   }
-  
+
   return links;
 }
 
@@ -69,14 +69,14 @@ function shouldSkipUrl(url: string): boolean {
   if (!url.startsWith('http://') && !url.startsWith('https://')) {
     return true;
   }
-  
+
   // Skip specific patterns
   for (const skipPattern of SKIP_URLS) {
     if (url.includes(skipPattern)) {
       return true;
     }
   }
-  
+
   return false;
 }
 
@@ -84,7 +84,7 @@ async function checkLink(url: string): Promise<{ status: number | null; error?: 
   try {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
-    
+
     const response = await fetch(url, {
       method: 'HEAD', // Use HEAD to avoid downloading content
       signal: controller.signal,
@@ -92,9 +92,9 @@ async function checkLink(url: string): Promise<{ status: number | null; error?: 
         'User-Agent': USER_AGENT,
       },
     });
-    
+
     clearTimeout(timeoutId);
-    
+
     return {
       status: response.status,
     };
@@ -102,7 +102,7 @@ async function checkLink(url: string): Promise<{ status: number | null; error?: 
     if (error instanceof DOMException && error.name === 'AbortError') {
       return { status: null, error: 'timeout' };
     }
-    
+
     return {
       status: null,
       error: error.message,
@@ -112,14 +112,14 @@ async function checkLink(url: string): Promise<{ status: number | null; error?: 
 
 async function scanFile(filePath: string): Promise<LinkCheckResult[]> {
   const results: LinkCheckResult[] = [];
-  
+
   try {
     const content = await Deno.readTextFile(filePath);
     const links = extractLinks(content);
-    
+
     // Remove duplicates and filter
     const uniqueLinks = [...new Set(links)].filter(url => !shouldSkipUrl(url));
-    
+
     // Check links with concurrency control
     const semaphore = new Array(MAX_CONCURRENT).fill(0);
     const promises = uniqueLinks.map(async (url) => {
@@ -136,10 +136,10 @@ async function scanFile(filePath: string): Promise<LinkCheckResult[]> {
         };
         checkSlot();
       });
-      
+
       try {
         const { status, error } = await checkLink(url);
-        
+
         let resultStatus: LinkCheckResult['status'];
         if (error === 'timeout') {
           resultStatus = 'timeout';
@@ -150,7 +150,7 @@ async function scanFile(filePath: string): Promise<LinkCheckResult[]> {
         } else {
           resultStatus = 'broken';
         }
-        
+
         return {
           file: filePath,
           url,
@@ -166,25 +166,25 @@ async function scanFile(filePath: string): Promise<LinkCheckResult[]> {
         }
       }
     });
-    
+
     results.push(...await Promise.all(promises));
   } catch (error) {
     console.warn(`Failed to scan ${filePath}: ${error.message}`);
   }
-  
+
   return results;
 }
 
 async function main(): Promise<void> {
   console.log('Checking documentation links...\n');
-  
+
   const results: LinkCheckResult[] = [];
   let fileCount = 0;
-  
+
   // Scan markdown and HTML files
   const extensions = ['.md', '.html', '.htm'];
   const directories = ['./docs', './README.md', './examples'];
-  
+
   for (const dir of directories) {
     try {
       const stat = await Deno.stat(dir);
@@ -209,7 +209,7 @@ async function main(): Promise<void> {
       }
     }
   }
-  
+
   // Analyze results
   const scanResult: ScanResult = {
     totalFiles: fileCount,
@@ -218,7 +218,7 @@ async function main(): Promise<void> {
     timeouts: results.filter(r => r.status === 'timeout'),
     errors: results.filter(r => r.status === 'error'),
   };
-  
+
   // Report results
   console.log(`📊 Scan Summary:`);
   console.log(`   Files scanned: ${scanResult.totalFiles}`);
@@ -226,7 +226,7 @@ async function main(): Promise<void> {
   console.log(`   Broken links: ${scanResult.brokenLinks.length}`);
   console.log(`   Timeouts: ${scanResult.timeouts.length}`);
   console.log(`   Errors: ${scanResult.errors.length}\n`);
-  
+
   // Report broken links
   if (scanResult.brokenLinks.length > 0) {
     console.log('❌ Broken Links:');
@@ -235,7 +235,7 @@ async function main(): Promise<void> {
     }
     console.log('');
   }
-  
+
   // Report timeouts
   if (scanResult.timeouts.length > 0) {
     console.log('⏱️  Timeouts:');
@@ -244,7 +244,7 @@ async function main(): Promise<void> {
     }
     console.log('');
   }
-  
+
   // Report other errors
   if (scanResult.errors.length > 0) {
     console.log('⚠️  Errors:');
@@ -253,15 +253,15 @@ async function main(): Promise<void> {
     }
     console.log('');
   }
-  
+
   // Summary
   const totalIssues = scanResult.brokenLinks.length + scanResult.timeouts.length + scanResult.errors.length;
-  
+
   if (totalIssues === 0) {
     console.log('✅ All links are working!');
   } else {
     console.error(`❌ Found ${totalIssues} link issues!`);
-    
+
     // Don't fail CI for timeouts or minor errors, only broken links
     if (scanResult.brokenLinks.length > 0) {
       Deno.exit(1);

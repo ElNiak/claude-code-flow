@@ -7,6 +7,7 @@ This comprehensive troubleshooting guide addresses common issues, performance pr
 ## 📋 Quick Diagnostic Commands
 
 ### System Health Check
+
 ```bash
 # Complete system diagnostics
 npx claude-flow@2.0.0 health-check --comprehensive
@@ -23,6 +24,7 @@ npx claude-flow@2.0.0 neural status --detailed
 ```
 
 ### Performance Analysis
+
 ```bash
 # Performance overview
 npx claude-flow@2.0.0 performance report --timeframe 24h --format detailed
@@ -41,11 +43,13 @@ npx claude-flow@2.0.0 memory analytics --real-time
 ### Issue 1: Agents Not Spawning
 
 **Symptoms:**
+
 - Agent spawn commands timeout
 - No agents listed in swarm status
 - Error: "Failed to initialize agent coordination"
 
 **Diagnosis:**
+
 ```bash
 # Check swarm initialization
 npx claude-flow@2.0.0 swarm status --verbose
@@ -59,6 +63,7 @@ claude mcp status ruv-swarm
 ```
 
 **Solutions:**
+
 ```bash
 # Solution 1: Reset swarm completely
 npx claude-flow@2.0.0 swarm destroy --force --all
@@ -77,6 +82,7 @@ npm install -g ruv-swarm@1.0.14 --force
 ```
 
 **Prevention:**
+
 - Always verify MCP server status before spawning agents
 - Use `--test-mode` flag during development
 - Monitor coordination memory usage regularly
@@ -84,11 +90,13 @@ npm install -g ruv-swarm@1.0.14 --force
 ### Issue 2: Poor Coordination Performance
 
 **Symptoms:**
+
 - High task completion times
 - Low parallel execution rates
 - Agents frequently idle or blocked
 
 **Diagnosis:**
+
 ```bash
 # Analyze coordination metrics
 npx claude-flow@2.0.0 agent metrics --all
@@ -99,6 +107,7 @@ npx claude-flow@2.0.0 task status --detailed
 ```
 
 **Solutions:**
+
 ```bash
 # Solution 1: Optimize topology
 npx claude-flow@2.0.0 topology optimize --swarm-id current
@@ -118,11 +127,13 @@ export CLAUDE_PARALLEL_LIMIT=8
 ### Issue 3: Memory Sync Failures
 
 **Symptoms:**
+
 - Agents lose context between tasks
 - Inconsistent memory states across agents
 - Error: "Memory synchronization timeout"
 
 **Diagnosis:**
+
 ```bash
 # Check memory sync status
 npx claude-flow@2.0.0 memory sync --status
@@ -133,6 +144,7 @@ npx claude-flow@2.0.0 memory analytics --sync-metrics
 ```
 
 **Solutions:**
+
 ```bash
 # Solution 1: Force memory synchronization
 npx claude-flow@2.0.0 memory sync --force --all-agents
@@ -154,11 +166,13 @@ npx claude-flow@2.0.0 memory usage --action cleanup --corrupted-only
 ### Issue 1: WASM Module Loading Failures
 
 **Symptoms:**
+
 - Error: "WebAssembly module compilation failed"
 - Neural networks show as "NOT LOADED"
 - Training commands fail immediately
 
 **Diagnosis:**
+
 ```bash
 # Check WebAssembly support
 node -e "console.log('WASM support:', typeof WebAssembly !== 'undefined')"
@@ -173,6 +187,7 @@ shasum -a 256 node_modules/ruv-swarm/dist/neural/claude-flow-neural.wasm
 ```
 
 **Solutions:**
+
 ```bash
 # Solution 1: Reinstall with WASM support
 npm uninstall -g ruv-swarm
@@ -193,11 +208,13 @@ node --experimental-wasm-modules --experimental-wasm-bigint
 ### Issue 2: Training Performance Issues
 
 **Symptoms:**
+
 - Extremely slow training times
 - High memory usage during training
 - Training accuracy not improving
 
 **Diagnosis:**
+
 ```bash
 # Check training performance
 npx claude-flow@2.0.0 neural status --training-metrics
@@ -208,6 +225,7 @@ npx claude-flow@2.0.0 neural profile --real-time
 ```
 
 **Solutions:**
+
 ```bash
 # Solution 1: Enable SIMD optimization
 npx claude-flow@2.0.0 wasm optimize --enable-simd
@@ -232,11 +250,13 @@ npx claude-flow@2.0.0 neural train \
 ### Issue 3: Model Inference Errors
 
 **Symptoms:**
+
 - Inference returns NaN or invalid results
 - High inference latency
 - Model predictions are inconsistent
 
 **Diagnosis:**
+
 ```bash
 # Validate model integrity
 npx claude-flow@2.0.0 neural validate --model-id coordination-v1
@@ -249,6 +269,7 @@ npx claude-flow@2.0.0 neural predict \
 ```
 
 **Solutions:**
+
 ```bash
 # Solution 1: Retrain model with better data
 npx claude-flow@2.0.0 neural train \
@@ -278,11 +299,13 @@ npx claude-flow@2.0.0 model reload --all
 ### Issue 1: Memory Data Corruption
 
 **Symptoms:**
+
 - Memory queries return corrupted data
 - Random data loss across sessions
 - Error: "Memory consistency check failed"
 
 **Diagnosis:**
+
 ```bash
 # Check memory integrity
 npx claude-flow@2.0.0 memory usage --action validate --all-namespaces
@@ -296,6 +319,7 @@ fsck -n ./memory/claude-flow-data.json
 ```
 
 **Solutions:**
+
 ```bash
 # Solution 1: Restore from backup
 npx claude-flow@2.0.0 memory backup --list
@@ -316,11 +340,13 @@ npx claude-flow@2.0.0 memory backup --emergency --format json
 ### Issue 2: High Memory Usage
 
 **Symptoms:**
+
 - Memory usage continuously growing
 - Out of memory errors
 - Slow memory operations
 
 **Diagnosis:**
+
 ```bash
 # Monitor memory usage
 npx claude-flow@2.0.0 memory analytics --real-time
@@ -332,6 +358,7 @@ node --heap-prof
 ```
 
 **Solutions:**
+
 ```bash
 # Solution 1: Compress existing data
 npx claude-flow@2.0.0 memory compress --all-namespaces --ratio 0.8
@@ -352,11 +379,13 @@ export NODE_OPTIONS="--max-old-space-size=8192"
 ### Issue 3: Cross-Session Persistence Failures
 
 **Symptoms:**
+
 - Data not persisting between sessions
 - Fresh installations lose configuration
 - Settings reset randomly
 
 **Diagnosis:**
+
 ```bash
 # Check persistence mechanisms
 npx claude-flow@2.0.0 memory persist --test
@@ -367,6 +396,7 @@ sqlite3 ./memory/claude-flow-data.json ".schema"
 ```
 
 **Solutions:**
+
 ```bash
 # Solution 1: Repair persistence layer
 npx claude-flow@2.0.0 memory persist --repair
@@ -392,11 +422,13 @@ npx claude-flow@2.0.0 config update \
 ### Issue 1: MCP Server Connection Failures
 
 **Symptoms:**
+
 - Error: "MCP server not responding"
 - Tools showing as unavailable
 - Timeout errors on MCP calls
 
 **Diagnosis:**
+
 ```bash
 # Check MCP server status
 claude mcp status ruv-swarm
@@ -408,6 +440,7 @@ netstat -tulpn | grep :8080
 ```
 
 **Solutions:**
+
 ```bash
 # Solution 1: Restart MCP server
 claude mcp stop ruv-swarm
@@ -429,11 +462,13 @@ claude mcp add ruv-swarm npx ruv-swarm mcp start
 ### Issue 2: Tool Registration Problems
 
 **Symptoms:**
+
 - Some tools missing from available list
 - Tool calls fail with "unknown tool" error
 - Inconsistent tool availability
 
 **Diagnosis:**
+
 ```bash
 # List available tools
 claude mcp list-tools ruv-swarm | wc -l  # Should be 87
@@ -446,6 +481,7 @@ claude mcp validate ruv-swarm
 ```
 
 **Solutions:**
+
 ```bash
 # Solution 1: Force tool refresh
 claude mcp refresh ruv-swarm
@@ -464,11 +500,13 @@ claude mcp update ruv-swarm
 ### Issue 3: Batch Operations Failures
 
 **Symptoms:**
+
 - Batch tool calls timeout
 - Partial execution of batch operations
 - Inconsistent results across batch items
 
 **Diagnosis:**
+
 ```bash
 # Test batch operation
 claude mcp batch-test ruv-swarm --operations 5
@@ -481,6 +519,7 @@ npx claude-flow@2.0.0 performance report --mcp-focus
 ```
 
 **Solutions:**
+
 ```bash
 # Solution 1: Adjust batch size
 export CLAUDE_BATCH_SIZE=8
@@ -503,11 +542,13 @@ export CLAUDE_BATCH_FALLBACK=sequential
 ### Issue 1: WebUI Not Loading
 
 **Symptoms:**
+
 - Browser shows "Cannot connect" error
 - WebUI stuck on loading screen
 - 500 internal server error
 
 **Diagnosis:**
+
 ```bash
 # Check WebUI server status
 npx claude-flow@2.0.0 start --ui --test-mode
@@ -521,6 +562,7 @@ netstat -tulpn | grep :3000
 ```
 
 **Solutions:**
+
 ```bash
 # Solution 1: Restart WebUI server
 npx claude-flow@2.0.0 stop
@@ -540,11 +582,13 @@ sudo ufw allow 3000
 ### Issue 2: Real-time Updates Not Working
 
 **Symptoms:**
+
 - Status indicators not updating
 - Agent activities not showing
 - WebSocket connection errors
 
 **Diagnosis:**
+
 ```bash
 # Check WebSocket connectivity
 npx claude-flow@2.0.0 websocket test
@@ -557,6 +601,7 @@ npx claude-flow@2.0.0 logs --component websocket --real-time
 ```
 
 **Solutions:**
+
 ```bash
 # Solution 1: Enable WebSocket explicitly
 npx claude-flow@2.0.0 start --ui --websockets --port 3000
@@ -577,11 +622,13 @@ telnet localhost 3000
 ### Issue 3: Performance Dashboard Issues
 
 **Symptoms:**
+
 - Metrics not displaying correctly
 - Charts showing outdated data
 - Performance graphs empty
 
 **Diagnosis:**
+
 ```bash
 # Check metrics collection
 npx claude-flow@2.0.0 metrics collect --test
@@ -594,6 +641,7 @@ npx claude-flow@2.0.0 webui validate --charts
 ```
 
 **Solutions:**
+
 ```bash
 # Solution 1: Reset metrics database
 npx claude-flow@2.0.0 metrics reset --confirm
@@ -615,11 +663,13 @@ npx claude-flow@2.0.0 start --ui --simple-mode
 ### Issue 1: Container Deployment Failures
 
 **Symptoms:**
+
 - Docker containers failing to start
 - Kubernetes pods in CrashLoopBackOff
 - Resource allocation errors
 
 **Diagnosis:**
+
 ```bash
 # Check container status
 docker ps -a | grep claude-flow
@@ -635,6 +685,7 @@ kubectl top pods -n claude-flow
 ```
 
 **Solutions:**
+
 ```bash
 # Solution 1: Increase resource limits
 # In docker-compose.yml:
@@ -659,11 +710,13 @@ docker run -v ./data:/app/data -v ./memory:/app/memory claude-flow:2.0.0
 ### Issue 2: Load Balancing Problems
 
 **Symptoms:**
+
 - Uneven request distribution
 - Some instances overloaded
 - Session affinity issues
 
 **Diagnosis:**
+
 ```bash
 # Check load balancer status
 kubectl get services -n claude-flow
@@ -677,6 +730,7 @@ for i in {1..10}; do curl -s http://your-domain.com/health; done
 ```
 
 **Solutions:**
+
 ```bash
 # Solution 1: Configure session affinity
 # In kubernetes service:
@@ -705,11 +759,13 @@ for i in {1..10}; do curl -s http://your-domain.com/health; done
 ### Issue 3: Database Connection Issues
 
 **Symptoms:**
+
 - Connection pool exhaustion
 - Database timeouts
 - Data consistency errors
 
 **Diagnosis:**
+
 ```bash
 # Check database connectivity
 psql -h postgres-host -U claude_flow -d claude_flow -c "SELECT 1;"
@@ -722,6 +778,7 @@ psql -c "SELECT * FROM pg_locks WHERE NOT granted;"
 ```
 
 **Solutions:**
+
 ```bash
 # Solution 1: Increase connection pool size
 # In config/production.json:
@@ -813,13 +870,14 @@ npx claude-flow@2.0.0 wasm optimize --enable-simd
 ### Support Channels
 
 1. **Documentation**: Check `/workspaces/claude-code-flow/docs/`
-2. **GitHub Issues**: https://github.com/ruvnet/claude-code-flow/issues
-3. **Community**: https://github.com/ruvnet/claude-code-flow/discussions
+2. **GitHub Issues**: <https://github.com/ruvnet/claude-code-flow/issues>
+3. **Community**: <https://github.com/ruvnet/claude-code-flow/discussions>
 4. **Performance Reports**: Use built-in diagnostic tools
 
 ### Reporting Issues
 
 When reporting issues, include:
+
 ```bash
 # Generate diagnostic report
 npx claude-flow@2.0.0 diagnostic export --format comprehensive

@@ -1,6 +1,6 @@
 /**
  * MCP Integration Wrapper for Swarm System
- * 
+ *
  * This module provides a comprehensive wrapper around MCP tools to enable
  * seamless integration with the swarm orchestration system. It handles
  * tool discovery, execution, error handling, and result aggregation.
@@ -80,7 +80,7 @@ export class MCPIntegrationWrapper extends EventEmitter {
 
   constructor(config: Partial<MCPIntegrationConfig> = {}) {
     super();
-    
+
     this.logger = new Logger('MCPIntegrationWrapper');
     this.config = this.createDefaultConfig(config);
     this.toolRegistry = this.initializeToolRegistry();
@@ -308,7 +308,7 @@ export class MCPIntegrationWrapper extends EventEmitter {
 
     // Limit concurrent executions
     const semaphore = new Semaphore(this.config.maxConcurrentTools);
-    
+
     const promises = toolExecutions.map(async (execution) => {
       await semaphore.acquire();
       try {
@@ -323,7 +323,7 @@ export class MCPIntegrationWrapper extends EventEmitter {
     });
 
     const results = await Promise.allSettled(promises);
-    
+
     return results.map((result, index) => {
       if (result.status === 'fulfilled') {
         return result.value;
@@ -420,19 +420,19 @@ export class MCPIntegrationWrapper extends EventEmitter {
 
   private async registerClaudeFlowTools(): Promise<void> {
     this.logger.info('Registering Claude Flow tools...');
-    
+
     const claudeFlowTools = createClaudeFlowTools(this.logger);
-    
+
     for (const tool of claudeFlowTools) {
       this.toolRegistry.tools.set(tool.name, tool);
-      
+
       // Categorize tool
       const category = this.categorizeClaudeFlowTool(tool.name);
       if (!this.toolRegistry.categories.has(category)) {
         this.toolRegistry.categories.set(category, []);
       }
       this.toolRegistry.categories.get(category)!.push(tool.name);
-      
+
       // Add capabilities
       const capabilities = this.extractCapabilities(tool);
       for (const capability of capabilities) {
@@ -448,19 +448,19 @@ export class MCPIntegrationWrapper extends EventEmitter {
 
   private async registerRuvSwarmTools(): Promise<void> {
     this.logger.info('Registering ruv-swarm tools...');
-    
+
     const ruvSwarmTools = createRuvSwarmTools(this.logger);
-    
+
     for (const tool of ruvSwarmTools) {
       this.toolRegistry.tools.set(tool.name, tool);
-      
+
       // Categorize tool
       const category = this.categorizeRuvSwarmTool(tool.name);
       if (!this.toolRegistry.categories.has(category)) {
         this.toolRegistry.categories.set(category, []);
       }
       this.toolRegistry.categories.get(category)!.push(tool.name);
-      
+
       // Add capabilities
       const capabilities = this.extractCapabilities(tool);
       for (const capability of capabilities) {
@@ -499,7 +499,7 @@ export class MCPIntegrationWrapper extends EventEmitter {
         });
 
         const result = await tool.handler(input, context);
-        
+
         if (attempt > 1) {
           this.logger.info('Tool execution succeeded after retry', {
             toolName: tool.name,
@@ -512,7 +512,7 @@ export class MCPIntegrationWrapper extends EventEmitter {
 
       } catch (error) {
         lastError = error instanceof Error ? error : new Error(String(error));
-        
+
         this.logger.warn('Tool execution attempt failed', {
           toolName: tool.name,
           executionId,
@@ -556,7 +556,7 @@ export class MCPIntegrationWrapper extends EventEmitter {
   ): Promise<MCPToolExecutionResult | null> {
     const cacheKey = this.generateCacheKey(toolName, input, context);
     const cached = this.executionCache.get(cacheKey);
-    
+
     if (cached) {
       const age = Date.now() - cached.metadata.timestamp.getTime();
       if (age < this.config.cacheTimeout) {
@@ -593,7 +593,7 @@ export class MCPIntegrationWrapper extends EventEmitter {
       swarmId: context.swarmId,
       taskId: context.task?.id,
     });
-    
+
     return `${toolName}:${inputHash}:${contextHash}`;
   }
 
@@ -612,14 +612,14 @@ export class MCPIntegrationWrapper extends EventEmitter {
   private hasPermission(tool: MCPTool, agent: SwarmAgent): boolean {
     // Check if agent has permission to use this tool
     const toolPermissions = this.toolRegistry.permissions.get(tool.name) || [];
-    
+
     // If no specific permissions defined, allow all
     if (toolPermissions.length === 0) {
       return true;
     }
 
     // Check agent capabilities against tool permissions
-    return agent.capabilities.some(capability => 
+    return agent.capabilities.some(capability =>
       toolPermissions.includes(capability)
     );
   }
@@ -647,10 +647,10 @@ export class MCPIntegrationWrapper extends EventEmitter {
 
   private extractCapabilities(tool: MCPTool): string[] {
     const capabilities: string[] = [];
-    
+
     // Extract capabilities from tool name and description
     const text = `${tool.name} ${tool.description}`.toLowerCase();
-    
+
     const capabilityPatterns = [
       'agent', 'task', 'memory', 'system', 'config', 'workflow',
       'terminal', 'swarm', 'neural', 'benchmark', 'monitoring',
@@ -669,7 +669,7 @@ export class MCPIntegrationWrapper extends EventEmitter {
 
   private updateMetrics(result: MCPToolExecutionResult): void {
     this.metrics.totalExecutions++;
-    
+
     if (result.success) {
       this.metrics.successfulExecutions++;
     } else {
@@ -691,7 +691,7 @@ export class MCPIntegrationWrapper extends EventEmitter {
     const toolStats = this.metrics.toolExecutions.get(result.toolName)!;
     toolStats.count++;
     toolStats.totalTime += result.duration;
-    
+
     if (result.success) {
       toolStats.successCount++;
     } else {
@@ -705,14 +705,14 @@ export class MCPIntegrationWrapper extends EventEmitter {
   }
 
   private calculateAverageExecutionTime(): number {
-    return this.metrics.totalExecutions > 0 
-      ? this.metrics.totalExecutionTime / this.metrics.totalExecutions 
+    return this.metrics.totalExecutions > 0
+      ? this.metrics.totalExecutionTime / this.metrics.totalExecutions
       : 0;
   }
 
   private calculateToolUsageDistribution(): Record<string, number> {
     const distribution: Record<string, number> = {};
-    
+
     for (const [toolName, stats] of this.metrics.toolExecutions) {
       distribution[toolName] = stats.count;
     }
@@ -734,10 +734,10 @@ export class MCPIntegrationWrapper extends EventEmitter {
       }
 
       expired.forEach(key => this.executionCache.delete(key));
-      
+
       if (expired.length > 0) {
-        this.logger.debug('Cleaned up expired cache entries', { 
-          count: expired.length 
+        this.logger.debug('Cleaned up expired cache entries', {
+          count: expired.length
         });
       }
     }, 300000); // 5 minutes

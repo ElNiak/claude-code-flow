@@ -58,6 +58,7 @@ High-performance relational storage with ACID compliance:
 ```
 
 **Features:**
+
 - ACID transactions
 - Full-text search (FTS5)
 - Vector storage support
@@ -89,6 +90,7 @@ Human-readable storage with git integration:
 ```
 
 **Features:**
+
 - Human-readable files
 - Git version control
 - Hierarchical organization
@@ -408,11 +410,11 @@ memory.onConflict(async (local, remote, metadata) => {
     // Always prefer high-priority updates
     return remote;
   }
-  
+
   if (local.updated > remote.updated) {
     return local;
   }
-  
+
   // Merge content intelligently
   return {
     ...remote,
@@ -688,7 +690,7 @@ class SemanticEnhancementPlugin implements MemoryPlugin {
     item.metadata.sentiment = await this.analyzeSentiment(item.content);
     return item;
   }
-  
+
   async afterStore(item: MemoryItem): Promise<void> {
     // Update knowledge graph
     await this.updateKnowledgeGraph(item);

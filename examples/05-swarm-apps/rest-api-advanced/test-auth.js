@@ -195,7 +195,7 @@ async function testLogout() {
   try {
     await apiCall('POST', '/auth/logout', { refreshToken }, authToken);
     console.log('✓ Logout successful');
-    
+
     // Try to use the token after logout
     try {
       await apiCall('GET', '/auth/me', null, authToken);
@@ -214,7 +214,7 @@ async function testLogout() {
 async function testFailedLogin() {
   console.log('\n10. Testing Failed Login Attempts...');
   const wrongPassword = 'WrongPassword123!';
-  
+
   for (let i = 1; i <= 6; i++) {
     try {
       await apiCall('POST', '/auth/login', {
@@ -239,7 +239,7 @@ async function testFailedLogin() {
 async function runTests() {
   console.log('Starting Authentication System Tests...');
   console.log('=====================================');
-  
+
   const tests = [
     testRegister,
     testLogin,
@@ -252,10 +252,10 @@ async function runTests() {
     testLogout,
     testFailedLogin
   ];
-  
+
   let passed = 0;
   let failed = 0;
-  
+
   for (const test of tests) {
     const result = await test();
     if (result) {
@@ -264,7 +264,7 @@ async function runTests() {
       failed++;
     }
   }
-  
+
   console.log('\n=====================================');
   console.log(`Tests completed: ${passed} passed, ${failed} failed`);
   console.log('=====================================');

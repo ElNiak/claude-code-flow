@@ -181,7 +181,7 @@ CREATE INDEX idx_metrics_swarm ON performance_metrics(swarm_id);
 CREATE INDEX idx_metrics_timestamp ON performance_metrics(timestamp);
 
 -- Triggers for updated_at
-CREATE TRIGGER update_swarms_timestamp 
+CREATE TRIGGER update_swarms_timestamp
 AFTER UPDATE ON swarms
 BEGIN
     UPDATE swarms SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
@@ -192,7 +192,7 @@ CREATE TRIGGER set_memory_expiry
 AFTER INSERT ON memory
 WHEN NEW.ttl IS NOT NULL
 BEGIN
-    UPDATE memory 
+    UPDATE memory
     SET expires_at = datetime(CURRENT_TIMESTAMP, '+' || NEW.ttl || ' seconds')
     WHERE key = NEW.key AND namespace = NEW.namespace;
 END;
@@ -206,7 +206,7 @@ END;
 
 -- Views for common queries
 CREATE VIEW IF NOT EXISTS active_swarms AS
-SELECT s.*, 
+SELECT s.*,
        COUNT(DISTINCT a.id) as agent_count,
        COUNT(DISTINCT t.id) as task_count
 FROM swarms s
@@ -233,6 +233,6 @@ LEFT JOIN agents a ON t.assigned_agents LIKE '%' || a.id || '%'
 GROUP BY t.id;
 
 -- Initial data
-INSERT OR IGNORE INTO memory (key, namespace, value) VALUES 
+INSERT OR IGNORE INTO memory (key, namespace, value) VALUES
     ('system.version', 'hive-mind', '2.0.0'),
     ('system.initialized', 'hive-mind', datetime('now'));

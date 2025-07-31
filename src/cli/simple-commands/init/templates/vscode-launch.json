@@ -1,0 +1,72 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Node.js Application",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/src/index.js",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "NODE_ENV": "development",
+        "DEBUG": "*"
+      },
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "console": "integratedTerminal",
+      "sourceMaps": true,
+      "outFiles": [
+        "${workspaceFolder}/dist/**/*.js"
+      ]
+    },
+    {
+      "name": "Debug Claude Flow CLI",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/src/cli/simple-cli.js",
+      "args": ["${input:cliCommand}"],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "NODE_ENV": "development",
+        "DEBUG": "claude-flow:*",
+        "CLAUDE_FLOW_DEBUG": "true"
+      },
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "console": "integratedTerminal",
+      "sourceMaps": true
+    },
+    {
+      "name": "Debug Tests",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/node_modules/.bin/jest",
+      "args": [
+        "--runInBand",
+        "--detectOpenHandles",
+        "--forceExit"
+      ],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "NODE_ENV": "test",
+        "DEBUG": "test:*"
+      },
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "console": "integratedTerminal",
+      "sourceMaps": true
+    }
+  ],
+  "inputs": [
+    {
+      "id": "cliCommand",
+      "description": "Enter Claude Flow CLI command",
+      "default": "swarm init --topology hierarchical",
+      "type": "promptString"
+    }
+  ]
+}

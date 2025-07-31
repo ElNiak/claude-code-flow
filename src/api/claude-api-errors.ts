@@ -224,7 +224,7 @@ export function getUserFriendlyError(error: ClaudeAPIError): {
   retryable: boolean;
 } {
   let errorInfo = ERROR_MESSAGES.INTERNAL_SERVER_ERROR; // Default
-  
+
   if (error instanceof ClaudeInternalServerError) {
     errorInfo = ERROR_MESSAGES.INTERNAL_SERVER_ERROR;
   } else if (error instanceof ClaudeServiceUnavailableError) {

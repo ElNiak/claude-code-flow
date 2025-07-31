@@ -5,6 +5,7 @@ The Claude-Flow batch initialization system provides powerful capabilities for i
 ## Overview
 
 Batch initialization enables you to:
+
 - Initialize multiple projects simultaneously
 - Use project templates for consistency
 - Set up different environments (dev, staging, prod)
@@ -15,23 +16,27 @@ Batch initialization enables you to:
 ## Core Features
 
 ### 1. Parallel Processing
+
 - **Concurrent Operations**: Up to 20 simultaneous project initializations
 - **Resource Management**: Automatic memory and CPU usage monitoring
 - **Smart Queuing**: Intelligent task scheduling to prevent overload
 - **Progress Tracking**: Real-time progress bars and statistics
 
 ### 2. Project Templates
+
 - **Web API**: Express.js-based REST API with TypeScript support
 - **React App**: Modern React application with TypeScript and build tools
 - **Microservice**: Containerized microservice with Docker and Kubernetes configs
 - **CLI Tool**: Command-line application with argument parsing and packaging
 
 ### 3. Environment Management
+
 - **Development**: Debug-enabled, hot-reload, verbose logging
 - **Staging**: Testing-focused, monitoring, preview features
 - **Production**: Optimized, secure, minimal logging, monitoring
 
 ### 4. Performance Monitoring
+
 - **Real-time Metrics**: Memory usage, operation count, timing
 - **Resource Thresholds**: Automatic warnings for high resource usage  
 - **Performance Reports**: Detailed completion statistics
@@ -40,6 +45,7 @@ Batch initialization enables you to:
 ## Usage Examples
 
 ### Basic Batch Initialization
+
 ```bash
 # Initialize multiple projects with default settings
 claude-flow init --batch-init project1,project2,project3
@@ -49,6 +55,7 @@ claude-flow init --batch-init api-v1,api-v2 --sparc
 ```
 
 ### Template-Based Initialization
+
 ```bash
 # Web API template
 claude-flow init --batch-init api-service,user-service --template web-api
@@ -61,6 +68,7 @@ claude-flow init --batch-init auth-service,payment-service --template microservi
 ```
 
 ### Multi-Environment Setup
+
 ```bash
 # Create dev, staging, and prod versions
 claude-flow init --batch-init myapp --environments dev,staging,prod
@@ -70,6 +78,7 @@ claude-flow init --batch-init api,web --environments dev,staging --template web-
 ```
 
 ### Configuration File Mode
+
 ```bash
 # Use JSON configuration file
 claude-flow init --config batch-config.json
@@ -79,6 +88,7 @@ claude-flow init --config enterprise-setup.json --max-concurrent 8
 ```
 
 ### Performance Optimization
+
 ```bash
 # Disable parallel processing
 claude-flow init --batch-init projects --no-parallel
@@ -93,6 +103,7 @@ claude-flow init --batch-init projects --force --minimal
 ## Configuration Files
 
 ### Simple Configuration
+
 ```json
 {
   "projects": ["api-service", "web-frontend", "admin-dashboard"],
@@ -107,6 +118,7 @@ claude-flow init --batch-init projects --force --minimal
 ```
 
 ### Advanced Configuration
+
 ```json
 {
   "baseOptions": {
@@ -139,6 +151,7 @@ claude-flow init --batch-init projects --force --minimal
 ## Batch Manager Utilities
 
 ### Create Configuration
+
 ```bash
 # Basic template
 claude-flow batch create-config my-batch.json
@@ -148,12 +161,14 @@ claude-flow batch create-config --interactive
 ```
 
 ### Validate Configuration
+
 ```bash
 # Validate before running
 claude-flow batch validate-config my-batch.json
 ```
 
 ### List Available Options
+
 ```bash
 # Show all project templates
 claude-flow batch list-templates
@@ -163,6 +178,7 @@ claude-flow batch list-environments
 ```
 
 ### Estimate Operations
+
 ```bash
 # Estimate time and resources
 claude-flow batch estimate my-batch.json
@@ -171,6 +187,7 @@ claude-flow batch estimate my-batch.json
 ## Project Templates
 
 ### Web API Template
+
 - Express.js server with TypeScript
 - CORS and security middleware
 - Environment configuration
@@ -178,6 +195,7 @@ claude-flow batch estimate my-batch.json
 - Basic REST endpoints
 
 **Files Created:**
+
 - `package.json` - Dependencies and scripts
 - `src/index.js` - Main server file
 - `src/controllers/` - API controllers
@@ -186,6 +204,7 @@ claude-flow batch estimate my-batch.json
 - `tests/` - Test files
 
 ### React App Template
+
 - Modern React with TypeScript
 - Create React App toolchain
 - Development and build scripts
@@ -193,6 +212,7 @@ claude-flow batch estimate my-batch.json
 - Testing setup
 
 **Files Created:**
+
 - `package.json` - React dependencies
 - `tsconfig.json` - TypeScript configuration
 - `src/components/` - React components
@@ -201,6 +221,7 @@ claude-flow batch estimate my-batch.json
 - `public/` - Static assets
 
 ### Microservice Template
+
 - Containerized Node.js service
 - Docker and Docker Compose configs
 - Kubernetes deployment files
@@ -208,6 +229,7 @@ claude-flow batch estimate my-batch.json
 - Environment-based configuration
 
 **Files Created:**
+
 - `Dockerfile` - Container configuration
 - `docker-compose.yml` - Local development
 - `k8s/` - Kubernetes manifests
@@ -215,12 +237,14 @@ claude-flow batch estimate my-batch.json
 - `scripts/` - Deployment scripts
 
 ### CLI Tool Template
+
 - Commander.js for argument parsing
 - NPM package configuration
 - Cross-platform executable
 - Help system and documentation
 
 **Files Created:**
+
 - `package.json` - CLI package config
 - `src/cli.js` - Main CLI file
 - `src/commands/` - Command implementations
@@ -230,6 +254,7 @@ claude-flow batch estimate my-batch.json
 ## Environment Configurations
 
 ### Development Environment
+
 - `NODE_ENV=development`
 - `DEBUG=true`
 - `LOG_LEVEL=debug`
@@ -237,6 +262,7 @@ claude-flow batch estimate my-batch.json
 - Verbose error reporting
 
 ### Staging Environment
+
 - `NODE_ENV=staging`
 - `DEBUG=false`
 - `LOG_LEVEL=info`
@@ -244,6 +270,7 @@ claude-flow batch estimate my-batch.json
 - Preview mode features
 
 ### Production Environment
+
 - `NODE_ENV=production`
 - `DEBUG=false`
 - `LOG_LEVEL=error`
@@ -254,24 +281,28 @@ claude-flow batch estimate my-batch.json
 ## Performance Features
 
 ### Parallel Processing
+
 - **Automatic Concurrency**: Smart defaults based on system resources
 - **Resource Limits**: Memory and CPU usage monitoring
 - **Queue Management**: Intelligent task scheduling
 - **Error Isolation**: Failed projects don't affect others
 
 ### Progress Tracking
+
 - **Real-time Updates**: Live progress bars with statistics
 - **Project Status**: Individual project completion tracking
 - **Time Estimates**: Remaining time calculations
 - **Success Rates**: Success/failure statistics
 
 ### Resource Management
+
 - **Memory Monitoring**: Automatic memory usage tracking
 - **Threshold Warnings**: Alerts for high resource usage
 - **Optimization Suggestions**: Smart recommendations
 - **System Adaptation**: Automatic adjustment based on available resources
 
 ### Performance Reports
+
 ```
 📊 Performance Report
 ====================
@@ -290,18 +321,21 @@ Memory Efficiency: good
 ## Error Handling
 
 ### Validation
+
 - Pre-flight configuration validation
 - Template and environment verification
 - Resource availability checks
 - Directory permission validation
 
 ### Recovery
+
 - Continue processing on individual failures
 - Detailed error reporting
 - Retry mechanisms for transient failures
 - Graceful degradation
 
 ### Monitoring
+
 - Real-time error tracking
 - Warning system for potential issues
 - Performance threshold monitoring
@@ -312,6 +346,7 @@ Memory Efficiency: good
 All batch operations support SPARC development environment:
 
 ### SPARC Features
+
 - **Slash Commands**: Automatic creation of Claude Code commands
 - **Development Modes**: 17+ specialized SPARC modes
 - **TDD Workflows**: Test-driven development support
@@ -319,6 +354,7 @@ All batch operations support SPARC development environment:
 - **Code Generation**: Automated code scaffolding
 
 ### SPARC Batch Benefits
+
 - **Consistent Setup**: All projects use same SPARC configuration
 - **Team Collaboration**: Standardized development environment
 - **AI Integration**: Optimized for Claude Code workflows
@@ -327,18 +363,21 @@ All batch operations support SPARC development environment:
 ## Best Practices
 
 ### Configuration Management
+
 1. **Use Templates**: Ensure consistency across projects
 2. **Validate First**: Always validate configurations before execution
 3. **Environment Separation**: Clear separation between dev/staging/prod
 4. **Version Control**: Store batch configurations in version control
 
 ### Performance Optimization
+
 1. **Right-size Concurrency**: Use optimal concurrency for your system
 2. **Monitor Resources**: Watch memory and CPU usage during execution
 3. **Batch Size**: Break large operations into smaller batches
 4. **Template Selection**: Choose appropriate templates for your needs
 
 ### Error Management
+
 1. **Incremental Approach**: Start with small batches to test
 2. **Backup Strategy**: Ensure you can recover from failures
 3. **Monitoring**: Set up alerts for long-running operations
@@ -349,26 +388,31 @@ All batch operations support SPARC development environment:
 ### Common Issues
 
 **High Memory Usage**
+
 - Reduce max concurrency
 - Use minimal template options
 - Monitor system resources
 
 **Slow Performance**
+
 - Enable parallel processing
 - Check disk speed (SSD vs HDD)
 - Optimize template selection
 
 **Configuration Errors**
+
 - Validate before execution
 - Check template availability
 - Verify environment names
 
 **Permission Issues**
+
 - Ensure write permissions
 - Check directory access
 - Validate user permissions
 
 ### Debug Options
+
 ```bash
 # Verbose output
 claude-flow init --batch-init projects --verbose
@@ -383,6 +427,7 @@ claude-flow init --batch-init projects --force
 ## Command Reference
 
 ### Init Command Options
+
 ```bash
 claude-flow init [options]
 
@@ -399,6 +444,7 @@ Options:
 ```
 
 ### Batch Manager Commands
+
 ```bash
 claude-flow batch <command> [options]
 
@@ -416,7 +462,7 @@ Commands:
 For programmatic usage, the batch initialization system provides JavaScript APIs:
 
 ```javascript
-import { 
+import {
   batchInitCommand,
   PROJECT_TEMPLATES,
   ENVIRONMENT_CONFIGS

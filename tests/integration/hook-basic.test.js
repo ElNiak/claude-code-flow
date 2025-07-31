@@ -14,10 +14,10 @@ describe('Hook Basic Tests', () => {
       'validate-safety': true,
       'prepare-resources': false
     };
-    
+
     const validateSafety = options['validate-safety'] || options.validate || false;
     const prepareResources = options['prepare-resources'] || false;
-    
+
     expect(validateSafety).toBe(true);
     expect(prepareResources).toBe(false);
   });
@@ -44,7 +44,7 @@ describe('Hook Basic Tests', () => {
 
   it('should detect dangerous commands', () => {
     const dangerousCommands = ['rm -rf', 'format', 'del /f', 'rmdir /s', 'dd if='];
-    
+
     const isDangerous = (command) => {
       return dangerousCommands.some(cmd => command.includes(cmd));
     };

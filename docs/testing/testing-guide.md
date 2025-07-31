@@ -31,6 +31,7 @@ src/
 ## Available Test Scripts
 
 ### Basic Testing
+
 ```bash
 # Run all tests
 npm test
@@ -45,6 +46,7 @@ npm run test:cli           # CLI tests only
 ```
 
 ### Coverage Testing
+
 ```bash
 # Generate coverage report
 npm run test:coverage
@@ -57,6 +59,7 @@ npm run test:ci
 ```
 
 ### Specialized Testing
+
 ```bash
 # Performance benchmarks
 npm run test:performance
@@ -71,34 +74,39 @@ npm run test:deno
 ## Test Categories
 
 ### 1. Unit Tests
+
 - **Location**: `src/__tests__/unit/`
 - **Purpose**: Test individual functions and utilities
 - **Coverage**: Core utilities, helpers, formatters
 - **Example**: `performance.test.js` - Tests for utility functions performance
 
 ### 2. CLI Tests  
+
 - **Location**: `src/cli/__tests__/`
 - **Purpose**: Test CLI interfaces and command parsing
 - **Coverage**: Command line interface, argument parsing, help systems
 - **Example**: `simple-cli.test.js` - Tests main CLI entry point
 
 ### 3. Command Tests
+
 - **Location**: `src/cli/simple-commands/__tests__/`
 - **Purpose**: Test individual CLI commands
 - **Coverage**: Agent management, memory operations, swarm coordination, task management
-- **Examples**: 
+- **Examples**:
   - `agent.test.js` - Agent spawn, status, management
   - `memory.test.js` - Memory storage, retrieval, search
   - `swarm.test.js` - Swarm initialization, coordination
   - `task.test.js` - Task creation, assignment, tracking
 
 ### 4. Integration Tests
+
 - **Location**: `src/__tests__/integration/`
 - **Purpose**: Test end-to-end workflows
 - **Coverage**: CLI initialization, command sequences, file operations
 - **Example**: `cli-integration.test.js` - Full CLI workflow testing
 
 ### 5. Performance Tests
+
 - **Location**: `src/__tests__/unit/performance.test.js`
 - **Purpose**: Benchmark critical operations
 - **Coverage**: Command execution speed, memory usage, large dataset handling
@@ -110,12 +118,14 @@ npm run test:deno
 ## Test Configuration
 
 ### Jest Configuration
+
 - **File**: `jest.config.js`
 - **Environment**: Node.js with ES module support
 - **Timeout**: 30 seconds per test
 - **Setup**: `jest.setup.js` for global test configuration
 
 ### Key Settings
+
 ```javascript
 {
   preset: 'ts-jest/presets/default-esm',
@@ -138,6 +148,7 @@ npm run test:deno
 ### Test Helpers (`src/__tests__/utils/test-helpers.js`)
 
 **Mock Creation:**
+
 ```javascript
 import { createMockSwarmData, createMockAgent, mockConsole } from './test-helpers.js';
 
@@ -147,6 +158,7 @@ const { mocks, restore } = mockConsole();
 ```
 
 **Temporary Directories:**
+
 ```javascript
 import { createTempDir, cleanupTempDir } from './test-helpers.js';
 
@@ -156,6 +168,7 @@ await cleanupTempDir(tempDir);
 ```
 
 **Test Environment:**
+
 ```javascript
 import { createTestEnvironment } from './test-helpers.js';
 
@@ -168,6 +181,7 @@ await cleanup();
 ## Mocking Strategy
 
 ### File System Operations
+
 ```javascript
 jest.mock('fs-extra', () => ({
   pathExists: jest.fn(),
@@ -179,6 +193,7 @@ jest.mock('fs-extra', () => ({
 ```
 
 ### External Dependencies
+
 ```javascript
 jest.mock('ora', () => () => ({
   start: jest.fn().mockReturnThis(),
@@ -194,6 +209,7 @@ jest.mock('chalk', () => ({
 ```
 
 ### Process Operations
+
 ```javascript
 jest.mock('child_process', () => ({
   spawn: jest.fn(() => mockSpawnProcess()),
@@ -204,17 +220,20 @@ jest.mock('child_process', () => ({
 ## Coverage Requirements
 
 ### Minimum Thresholds
+
 - **Lines**: 80%
 - **Functions**: 80%
 - **Branches**: 75%
 - **Statements**: 80%
 
 ### Coverage Reports
+
 ```bash
 npm run test:coverage
 ```
 
 **Generated Reports:**
+
 - `coverage/lcov.info` - LCOV format for CI tools
 - `coverage/html/index.html` - HTML report for browser viewing
 - Terminal output with summary
@@ -222,14 +241,17 @@ npm run test:coverage
 ## CI/CD Integration
 
 ### GitHub Actions
+
 **File**: `.github/workflows/test.yml`
 
 **Test Matrix:**
+
 - Node.js versions: 18.x, 20.x, 21.x
 - Operating systems: Ubuntu, Windows, macOS
 - Test types: Unit, Integration, Performance, E2E
 
 **Workflow Steps:**
+
 1. Setup environment
 2. Install dependencies  
 3. Run linting and type checking
@@ -238,6 +260,7 @@ npm run test:coverage
 6. Upload artifacts
 
 ### Performance Benchmarks
+
 - **CLI startup**: Must complete in < 100ms
 - **Memory operations**: < 1s for 10k entries  
 - **Memory usage**: < 100MB increase during tests
@@ -246,11 +269,13 @@ npm run test:coverage
 ## Writing New Tests
 
 ### Test File Naming
+
 - Unit tests: `*.test.js` in `__tests__` directories
 - Integration tests: `*-integration.test.js`
 - Performance tests: `*-performance.test.js`
 
 ### Test Structure Template
+
 ```javascript
 /**
  * Tests for [component-name]
@@ -275,10 +300,10 @@ describe('Component Name', () => {
     test('should behave correctly', () => {
       // Arrange
       const input = 'test input';
-      
+
       // Act
       const result = functionToTest(input);
-      
+
       // Assert
       expect(result).toBeDefined();
     });
@@ -287,19 +312,21 @@ describe('Component Name', () => {
 ```
 
 ### Async Test Patterns
+
 ```javascript
 test('should handle async operations', async () => {
   const mockData = { test: 'data' };
   fs.readJson.mockResolvedValue(mockData);
 
   const result = await asyncFunction();
-  
+
   expect(result).toEqual(mockData);
   expect(fs.readJson).toHaveBeenCalled();
 });
 ```
 
 ### Error Handling Tests
+
 ```javascript
 test('should handle errors gracefully', async () => {
   fs.readJson.mockRejectedValue(new Error('File not found'));
@@ -311,16 +338,19 @@ test('should handle errors gracefully', async () => {
 ## Debugging Tests
 
 ### Debug Mode
+
 ```bash
 npm run test:debug -- --testNamePattern="specific test"
 ```
 
 ### Verbose Output
+
 ```bash
 SHOW_CONSOLE=true npm test -- --verbose
 ```
 
 ### Single Test Execution
+
 ```bash
 npm test -- --testPathPattern="utils.test.js" --testNamePattern="parseFlags"
 ```
@@ -328,29 +358,35 @@ npm test -- --testPathPattern="utils.test.js" --testNamePattern="parseFlags"
 ## Common Issues and Solutions
 
 ### ES Module Import Errors
+
 **Problem**: `SyntaxError: The requested module does not provide an export`
 **Solution**: Check export names match imports exactly
 
 ### Mock Configuration
+
 **Problem**: Mocks not applying correctly
 **Solution**: Ensure mocks are set up before imports
 
 ### Timeout Issues
+
 **Problem**: Tests timing out
 **Solution**: Increase timeout or optimize async operations
 
 ### Coverage Gaps
+
 **Problem**: Low test coverage
 **Solution**: Add tests for uncovered branches and functions
 
 ## Test Data Management
 
 ### Test Fixtures
+
 - Store test data in `__fixtures__` directories
 - Use factory functions for generating test data
 - Keep test data minimal and focused
 
 ### Environment Variables
+
 ```bash
 # Test environment flags
 CLAUDE_FLOW_ENV=test
@@ -362,11 +398,13 @@ JEST_VERBOSE=true  # Verbose Jest output
 ## Performance Monitoring
 
 ### Benchmark Tracking
+
 - Track performance regression with each release
 - Monitor memory usage during test execution
 - Validate CLI startup time requirements
 
 ### Test Performance
+
 - Keep individual tests under 1 second
 - Use appropriate mocking to avoid slow operations
 - Profile tests that exceed time limits
@@ -374,12 +412,14 @@ JEST_VERBOSE=true  # Verbose Jest output
 ## Contributing to Tests
 
 ### Before Submitting
+
 1. Run full test suite: `npm test`
 2. Check coverage: `npm run test:coverage`
 3. Run performance tests: `npm run test:performance`
 4. Verify CI compatibility: `npm run test:ci`
 
 ### Test Requirements
+
 - All new features must have tests
 - Bug fixes must include regression tests
 - Tests must pass on all supported Node.js versions

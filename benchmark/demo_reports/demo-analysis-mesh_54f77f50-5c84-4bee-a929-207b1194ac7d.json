@@ -22,9 +22,7 @@
       "max_cpu_percent": 80,
       "max_network_mbps": 100
     },
-    "output_formats": [
-      "json"
-    ],
+    "output_formats": ["json"],
     "output_directory": "./demo_reports",
     "verbose": true
   },
@@ -58,11 +56,7 @@
       "status": "success",
       "output": {
         "analysis_results": "Analysis completed for: Analyze user behavior patterns and generate insights",
-        "insights": [
-          "trend 1",
-          "pattern 2",
-          "correlation 3"
-        ],
+        "insights": ["trend 1", "pattern 2", "correlation 3"],
         "methodology": "statistical analysis"
       },
       "errors": [],

@@ -1,6 +1,7 @@
 # 🚀 Claude Flow v2.0.0 Setup Guide
 
 ## 📋 Table of Contents
+
 1. [Prerequisites](#prerequisites)
 2. [Quick Start](#quick-start)
 3. [Installation Methods](#installation-methods)
@@ -13,6 +14,7 @@
 ## ✅ Prerequisites
 
 ### System Requirements
+
 - **Node.js**: v20.0.0 or higher (v22 recommended)
 - **NPM**: v10.0.0 or higher
 - **Operating System**: Windows 10+, macOS 11+, or Linux
@@ -20,6 +22,7 @@
 - **Disk Space**: 500MB free space
 
 ### Check Prerequisites
+
 ```bash
 # Check Node.js version
 node --version  # Should be v20.0.0 or higher
@@ -45,6 +48,7 @@ npx claude-flow@2.0.0 init --sparc
 ```
 
 This creates a complete enterprise environment with:
+
 - ✅ Local `./claude-flow` wrapper script
 - ✅ `.claude/` configuration directory
 - ✅ `CLAUDE.md` with ruv-swarm integration docs
@@ -55,6 +59,7 @@ This creates a complete enterprise environment with:
 ## 📦 Installation Methods
 
 ### Method 1: NPX Quick Start (Recommended)
+
 ```bash
 # Initialize with enterprise features and ruv-swarm
 npx claude-flow@2.0.0 init --sparc
@@ -67,6 +72,7 @@ npx claude-flow@2.0.0 init --docker
 ```
 
 ### Method 2: Global Installation
+
 ```bash
 # Install globally
 npm install -g claude-flow@2.0.0
@@ -79,6 +85,7 @@ claude-flow init --sparc
 ```
 
 ### Method 3: Project Installation
+
 ```bash
 # Add to existing project
 npm install claude-flow@2.0.0 --save-dev
@@ -93,6 +100,7 @@ npx claude-flow init --sparc
 ```
 
 ### Method 4: Docker Installation
+
 ```bash
 # Pull official image
 docker pull ruvnet/claude-flow:2.0.0
@@ -104,11 +112,13 @@ docker run -it -v $(pwd):/app -p 3000:3000 ruvnet/claude-flow:2.0.0 init --sparc
 ## ⚙️ Initial Configuration
 
 ### 1. Run Initialization
+
 ```bash
 ./claude-flow init --sparc
 ```
 
 You'll be prompted for:
+
 - **Project name**: Your project identifier
 - **MCP integration**: Enable Model Context Protocol (recommended: Yes)
 - **GitHub integration**: Enable workflow automation (recommended: Yes)
@@ -116,7 +126,9 @@ You'll be prompted for:
 - **Memory persistence**: Enable cross-session memory (recommended: Yes)
 
 ### 2. Configuration Structure
+
 After initialization, your project will have:
+
 ```
 your-project/
 ├── claude-flow          # Executable wrapper script
@@ -131,7 +143,9 @@ your-project/
 ```
 
 ### 3. Customize Configuration
+
 Edit `.claude/config.json`:
+
 ```json
 {
   "version": "2.0.0",
@@ -158,7 +172,9 @@ Edit `.claude/config.json`:
 ## 🌍 Environment Setup
 
 ### 1. Environment Variables
+
 Create `.env` file:
+
 ```bash
 # Claude Flow Configuration
 CLAUDE_FLOW_PORT=3000
@@ -186,7 +202,9 @@ OPENAI_API_KEY=your_openai_key
 ### 2. Shell Configuration
 
 #### Bash/Zsh
+
 Add to `~/.bashrc` or `~/.zshrc`:
+
 ```bash
 # Claude Flow aliases
 alias cf="./claude-flow"
@@ -199,7 +217,9 @@ export PATH="$PATH:."
 ```
 
 #### PowerShell (Windows)
+
 Add to PowerShell profile:
+
 ```powershell
 # Claude Flow aliases
 Set-Alias cf ".\claude-flow"
@@ -211,7 +231,9 @@ Set-Alias cfsparc ".\claude-flow sparc"
 ### 3. IDE Configuration
 
 #### VS Code
+
 Create `.vscode/settings.json`:
+
 ```json
 {
   "claude-flow.enable": true,
@@ -226,6 +248,7 @@ Create `.vscode/settings.json`:
 ## ✅ Verification
 
 ### 1. Check Installation
+
 ```bash
 # Verify version
 ./claude-flow --version
@@ -237,6 +260,7 @@ Create `.vscode/settings.json`:
 ```
 
 ### 2. Test Core Features
+
 ```bash
 # Start UI
 ./claude-flow start --ui
@@ -250,6 +274,7 @@ Create `.vscode/settings.json`:
 ```
 
 ### 3. Verify MCP Integration
+
 ```bash
 # Check MCP server
 ./claude-flow mcp status
@@ -266,6 +291,7 @@ Create `.vscode/settings.json`:
 ```
 
 ### 4. Test Swarm Features
+
 ```bash
 # Initialize swarm
 ./claude-flow swarm init --topology mesh --max-agents 3
@@ -277,6 +303,7 @@ Create `.vscode/settings.json`:
 ## 🔧 Advanced Setup
 
 ### 1. Custom Command Directory
+
 ```bash
 # Create custom commands
 mkdir -p .claude/commands
@@ -295,6 +322,7 @@ EOF
 ```
 
 ### 2. Memory Bank Configuration
+
 ```bash
 # Initialize memory with custom settings
 ./claude-flow memory init --size 100mb --compression gzip
@@ -304,6 +332,7 @@ EOF
 ```
 
 ### 3. Performance Optimization
+
 ```bash
 # Enable performance features
 ./claude-flow config set performance.cache true
@@ -312,6 +341,7 @@ EOF
 ```
 
 ### 4. Security Configuration
+
 ```bash
 # Set up access control
 ./claude-flow security init
@@ -326,6 +356,7 @@ EOF
 ### 5. CI/CD Integration
 
 #### GitHub Actions
+
 ```yaml
 # .github/workflows/claude-flow.yml
 name: Claude Flow CI
@@ -349,6 +380,7 @@ jobs:
 ### Common Issues
 
 #### 1. Permission Denied
+
 ```bash
 # Solution: Make wrapper executable
 chmod +x claude-flow
@@ -358,6 +390,7 @@ npx claude-flow start
 ```
 
 #### 2. Port Already in Use
+
 ```bash
 # Change port
 ./claude-flow start --ui --port 3001
@@ -368,6 +401,7 @@ netstat -ano | findstr :3000   # Windows
 ```
 
 #### 3. MCP Connection Failed
+
 ```bash
 # Check MCP server
 ./claude-flow mcp diagnose
@@ -380,6 +414,7 @@ tail -f logs/mcp-server.log
 ```
 
 #### 4. Memory Issues
+
 ```bash
 # Clear memory cache
 ./claude-flow memory clear --cache
@@ -392,6 +427,7 @@ tail -f logs/mcp-server.log
 ```
 
 ### Diagnostic Commands
+
 ```bash
 # Full system diagnostic
 ./claude-flow diagnose --full
@@ -413,13 +449,14 @@ tail -f logs/mcp-server.log
    - [GitHub Integration](./GITHUB_INTEGRATION.md) - Workflow automation
 
 2. **Try Example Workflows**
+
    ```bash
    # Development workflow
    ./claude-flow sparc run architect "design REST API"
-   
+
    # Testing workflow
    ./claude-flow swarm "comprehensive test suite" --strategy testing
-   
+
    # Deployment workflow
    ./claude-flow sparc run devops "setup CI/CD pipeline"
    ```

@@ -53,7 +53,7 @@
     },
     {
       "id": "backend-dev",
-      "type": "coder", 
+      "type": "coder",
       "name": "Backend Developer",
       "config": {
         "model": "claude-3",
@@ -79,7 +79,7 @@
     {
       "id": "devops-engineer",
       "type": "devops",
-      "name": "DevOps Engineer", 
+      "name": "DevOps Engineer",
       "config": {
         "model": "claude-3",
         "platforms": ["AWS", "GCP", "Azure"],
@@ -107,7 +107,7 @@
     {
       "id": "security-approved",
       "expression": "outputs['security-scan.vulnerabilities'] === 0",
-      "type": "javascript", 
+      "type": "javascript",
       "description": "No security vulnerabilities found"
     },
     {
@@ -167,12 +167,7 @@
         "architecture": "${system-design.component_specs}",
         "tech_stack": "${tech_stack}"
       },
-      "output": [
-        "project_structure",
-        "package_configs",
-        "ci_cd_setup",
-        "environment_configs"
-      ],
+      "output": ["project_structure", "package_configs", "ci_cd_setup", "environment_configs"],
       "timeout": 180000,
       "priority": 1
     },
@@ -187,27 +182,16 @@
         "ui_requirements": "${system-design.component_specs.ui}",
         "api_endpoints": "${system-design.api_design}",
         "framework": "${tech_stack.frontend}",
-        "features": [
-          "user-authentication",
-          "dashboard",
-          "data-visualization",
-          "responsive-design"
-        ]
+        "features": ["user-authentication", "dashboard", "data-visualization", "responsive-design"]
       },
-      "output": [
-        "components",
-        "pages",
-        "styling",
-        "state_management",
-        "routing"
-      ],
+      "output": ["components", "pages", "styling", "state_management", "routing"],
       "timeout": 600000,
       "retries": 2,
       "priority": 2,
       "parallel": true
     },
     {
-      "id": "backend-development", 
+      "id": "backend-development",
       "name": "Backend Development",
       "type": "implementation",
       "description": "Develop backend APIs and business logic",
@@ -250,12 +234,7 @@
         "migrations": true,
         "seed_data": true
       },
-      "output": [
-        "database_instance",
-        "migrations",
-        "seed_scripts",
-        "connection_config"
-      ],
+      "output": ["database_instance", "migrations", "seed_scripts", "connection_config"],
       "timeout": 240000,
       "priority": 2,
       "parallel": true
@@ -273,13 +252,7 @@
         "coverage_target": "${test_coverage_target}",
         "test_frameworks": ["Jest", "React Testing Library", "Mocha"]
       },
-      "output": [
-        "test_results",
-        "coverage",
-        "passed",
-        "failed_tests",
-        "performance_metrics"
-      ],
+      "output": ["test_results", "coverage", "passed", "failed_tests", "performance_metrics"],
       "timeout": 300000,
       "retries": 1,
       "priority": 3
@@ -294,15 +267,12 @@
         "failed_tests": "${unit-tests.failed_tests}",
         "test_results": "${unit-tests.test_results}"
       },
-      "output": [
-        "fixes_applied",
-        "updated_code"
-      ],
+      "output": ["fixes_applied", "updated_code"],
       "timeout": 180000
     },
     {
       "id": "integration-tests",
-      "name": "Integration Testing", 
+      "name": "Integration Testing",
       "type": "testing",
       "description": "End-to-end integration testing",
       "depends": ["unit-tests", "database-setup"],
@@ -319,19 +289,14 @@
           "error-handling"
         ]
       },
-      "output": [
-        "integration_results",
-        "passed",
-        "api_response_times",
-        "error_logs"
-      ],
+      "output": ["integration_results", "passed", "api_response_times", "error_logs"],
       "timeout": 420000,
       "priority": 3
     },
     {
       "id": "e2e-tests",
       "name": "End-to-End Testing",
-      "type": "testing", 
+      "type": "testing",
       "description": "Full user journey testing",
       "depends": ["integration-tests"],
       "assignTo": "qa-engineer",
@@ -347,12 +312,7 @@
         "browsers": ["Chrome", "Firefox", "Safari"],
         "devices": ["Desktop", "Tablet", "Mobile"]
       },
-      "output": [
-        "e2e_results",
-        "performance_metrics",
-        "compatibility_report",
-        "screenshots"
-      ],
+      "output": ["e2e_results", "performance_metrics", "compatibility_report", "screenshots"],
       "timeout": 480000,
       "priority": 4
     },
@@ -360,7 +320,7 @@
       "id": "security-scan",
       "name": "Security Analysis",
       "type": "security",
-      "description": "Comprehensive security analysis and vulnerability assessment", 
+      "description": "Comprehensive security analysis and vulnerability assessment",
       "depends": ["backend-development", "frontend-development"],
       "assignTo": "security-specialist",
       "condition": "enable_security_scan",
@@ -400,11 +360,7 @@
         "bottlenecks": "${e2e-tests.performance_bottlenecks}",
         "optimization_targets": ["load-time", "bundle-size", "runtime-performance"]
       },
-      "output": [
-        "optimizations_applied",
-        "performance_improvements",
-        "bundle_analysis"
-      ],
+      "output": ["optimizations_applied", "performance_improvements", "bundle_analysis"],
       "timeout": 240000,
       "priority": 4
     },
@@ -477,12 +433,7 @@
         "environment": "${deployment_environment}",
         "deployment_strategy": "blue-green"
       },
-      "output": [
-        "deployment_status",
-        "application_url", 
-        "health_checks",
-        "monitoring_dashboards"
-      ],
+      "output": ["deployment_status", "application_url", "health_checks", "monitoring_dashboards"],
       "timeout": 240000,
       "priority": 6
     },
@@ -503,12 +454,7 @@
           "performance-baseline"
         ]
       },
-      "output": [
-        "validation_results",
-        "deployment_success",
-        "issues_found",
-        "rollback_needed"
-      ],
+      "output": ["validation_results", "deployment_success", "issues_found", "rollback_needed"],
       "timeout": 120000,
       "priority": 6
     }
@@ -528,7 +474,7 @@
     },
     {
       "id": "slack-notifications",
-      "type": "webhook", 
+      "type": "webhook",
       "config": {
         "url": "${SLACK_WEBHOOK_URL}",
         "method": "POST"
@@ -590,7 +536,7 @@
         },
         {
           "condition": "workflow.duration > 1200000",
-          "action": "slack-notifications", 
+          "action": "slack-notifications",
           "threshold": 1,
           "message": "Development workflow taking longer than expected"
         }
@@ -603,7 +549,7 @@
         "disk": "5GB"
       },
       "requests": {
-        "memory": "8GB", 
+        "memory": "8GB",
         "cpu": "4 cores",
         "disk": "2GB"
       }
@@ -613,7 +559,7 @@
       "channels": ["slack", "email", "github"],
       "events": [
         "workflow.started",
-        "workflow.completed", 
+        "workflow.completed",
         "workflow.failed",
         "task.failed",
         "deployment.completed",

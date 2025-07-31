@@ -372,7 +372,7 @@ You are operating in **SPARC ${mode} mode**. Follow the SPARC Workflow precisely
 
 **Analysis Required:**
 - Break down into clear, measurable objectives
-- Identify all requirements and constraints  
+- Identify all requirements and constraints
 - Define acceptance criteria
 - Never hard-code environment variables
 
@@ -386,7 +386,7 @@ TodoWrite([
     priority: "high"
   },
   {
-    id: "acceptance_criteria", 
+    id: "acceptance_criteria",
     content: "Define clear acceptance criteria and success metrics",
     status: "pending",
     priority: "high"

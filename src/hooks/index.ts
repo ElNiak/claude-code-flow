@@ -1,10 +1,10 @@
 /**
  * Legacy Hook System - Migration Notice
- * 
+ *
  * This hook system has been consolidated with the more advanced agentic-flow-hooks system.
  * All functionality is now available through the modern implementation at:
  * src/services/agentic-flow-hooks/
- * 
+ *
  * This file provides backward compatibility redirects while we complete the migration.
  */
 
@@ -33,7 +33,7 @@ export const QUALITY_HOOKS = {
     enabled: true
   },
   SECURITY_SCAN: {
-    name: 'Security Scanner', 
+    name: 'Security Scanner',
     description: 'Scans for security vulnerabilities and credential leaks',
     type: 'workflow-step' as const,
     priority: 9,
@@ -48,7 +48,7 @@ export const QUALITY_HOOKS = {
   },
   PERFORMANCE_MONITOR: {
     name: 'Performance Monitor',
-    description: 'Analyzes performance impact of code changes', 
+    description: 'Analyzes performance impact of code changes',
     type: 'workflow-step' as const,
     priority: 6,
     enabled: true
@@ -85,7 +85,7 @@ export const HOOK_TRIGGERS = {
 
 export const AGENT_TYPES = {
   QUALITY_ASSURANCE: 'quality_assurance',
-  SECURITY_SCAN: 'security_scan', 
+  SECURITY_SCAN: 'security_scan',
   DOCUMENTATION_SYNC: 'documentation_sync',
   PERFORMANCE_ANALYSIS: 'performance_analysis'
 } as const;
@@ -120,7 +120,7 @@ export class HookUtils {
   }
 
   /**
-   * @deprecated Use agenticHookManager.register() instead  
+   * @deprecated Use agenticHookManager.register() instead
    */
   static createSecurityHook(options: any) {
     console.warn('HookUtils.createSecurityHook is deprecated. Use agenticHookManager.register() with workflow-step hooks instead.');
@@ -174,7 +174,7 @@ agentic-flow-hooks system for better performance and functionality.
 
 ✅ New System Features:
   - Advanced pipeline management
-  - Neural pattern learning  
+  - Neural pattern learning
   - Performance optimization
   - Memory coordination hooks
   - LLM integration hooks

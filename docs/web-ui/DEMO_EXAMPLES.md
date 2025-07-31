@@ -55,7 +55,7 @@ claude-flow> agent spawn researcher
 claude-flow> agent list
 Active Agents:
   • agent_1736201234567_abc123 (researcher) - idle - 0 tasks
-  
+
 Total: 1 agent
 
 // Check agent status
@@ -88,12 +88,12 @@ claude-flow> neural train --pattern coordination --data "task allocation strateg
   Model ID: model_coordination_1736201345678
   Pattern: coordination
   Epochs: 50
-  
+
 Training Progress:
   Epoch 10/50 [████████░░░░░░░░░░░░] 20% | Loss: 0.3421
   Epoch 20/50 [████████████████░░░░] 40% | Loss: 0.2156
   ...
-  
+
 ✅ Training Complete
   Final Accuracy: 69.1%
   Model Saved: model_coordination_1736201345678
@@ -164,7 +164,7 @@ claude-flow> task orchestrate "Build a REST API with authentication, database, a
   Task ID: task_1736201567890
   Strategy: adaptive
   Priority: medium
-  
+
 🔄 Task Distribution:
   → coordinator (Lead): Planning API architecture
   → coder (Backend Dev): Implementing authentication system
@@ -174,7 +174,7 @@ claude-flow> task orchestrate "Build a REST API with authentication, database, a
 
 ⏳ Execution Progress:
   [████████░░░░░░░░░░░░] 40% | 2/5 subtasks complete
-  
+
 📊 Real-time Updates:
   ✅ Database schema designed
   ✅ Test framework initialized
@@ -199,7 +199,7 @@ Iterations: 10
   CPU Utilization: 15%
   Success Rate: 98.5%
   Throughput: 420 ops/sec
-  
+
 🏆 Performance Grade: A+
 ⚡ Optimization Suggestions:
   - Enable caching for 12% improvement
@@ -214,14 +214,14 @@ Token Usage Report (Last 24 Hours):
   Total Tokens: 125,847
   Input Tokens: 45,231
   Output Tokens: 80,616
-  
+
 By Operation:
   • Neural Training: 35,421 (28.1%)
   • Task Orchestration: 28,567 (22.7%)
   • Agent Communication: 22,143 (17.6%)
   • Analysis: 18,234 (14.5%)
   • Other: 21,482 (17.1%)
-  
+
 Estimated Cost: $2.38
 Efficiency Score: 87/100
 ```
@@ -244,7 +244,7 @@ Memory Search Results:
   • project/api/config - API configuration
   • project/api/routes - Route definitions
   • project/tests/setup - Test configuration
-  
+
 Total: 3 entries found
 
 // Create a memory backup
@@ -308,7 +308,7 @@ claude-flow> task orchestrate "Review pull request #123 for security, performanc
   ⚠️ Performance: 2 optimization opportunities
   ✅ Code Quality: Score 8.5/10
   ❌ Documentation: 3 missing docstrings
-  
+
 💡 Recommendations:
   1. Optimize database queries in UserService
   2. Add caching for frequently accessed data
@@ -392,6 +392,7 @@ Recommendations:
 ## 📚 Learning Resources
 
 ### Interactive Tutorials
+
 1. **Basic Console Operations** - 15 minutes
    - Command syntax
    - Navigation shortcuts
@@ -413,6 +414,7 @@ Recommendations:
    - Task distribution
 
 ### Video Walkthroughs
+
 - [Getting Started with Claude Flow Web UI](https://example.com/video1)
 - [Advanced Swarm Orchestration Techniques](https://example.com/video2)
 - [Neural Network Training Best Practices](https://example.com/video3)
@@ -427,6 +429,7 @@ Recommendations:
 ---
 
 **Pro Tips**:
+
 - Use Tab completion for faster command entry
 - Press ↑/↓ to navigate command history
 - Type `clear` or press Ctrl+L to clear the console

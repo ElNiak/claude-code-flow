@@ -71,14 +71,14 @@ describe('Init Command - settings.local.json Creation', () => {
     // Create initial settings.local.json with different content
     const claudeDir = path.join(testDir, '.claude');
     await fs.mkdir(claudeDir, { recursive: true });
-    
+
     const customSettings = {
       permissions: {
         allow: ['custom-tool'],
         deny: ['blocked-tool']
       }
     };
-    
+
     const settingsLocalPath = path.join(claudeDir, 'settings.local.json');
     await fs.writeFile(settingsLocalPath, JSON.stringify(customSettings, null, 2));
 

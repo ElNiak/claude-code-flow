@@ -5,6 +5,7 @@ This guide demonstrates and tests various incremental update mechanisms implemen
 ## Overview
 
 Incremental updates are a core pattern in Claude Flow, enabling:
+
 - Version tracking for memory entries
 - Atomic counter operations for metrics
 - Progressive task execution monitoring
@@ -24,6 +25,7 @@ await memoryManager.update(id, { content: 'updated' }); // version: 2
 ```
 
 **Features:**
+
 - Automatic version incrementing
 - Timestamp preservation (createdAt remains unchanged)
 - Support for partial updates
@@ -41,6 +43,7 @@ await swarmMemory.update('key', 'v2');
 ```
 
 **Features:**
+
 - Up to 10 previous versions stored
 - Version counter increments on each update
 - Timestamp tracking for each version
@@ -59,6 +62,7 @@ configManager.update({
 ```
 
 **Features:**
+
 - Deep merge for nested objects
 - Validation after updates
 - Diff tracking between current and default
@@ -75,6 +79,7 @@ const stats = cache.stats(); // { hits: 1, misses: 1, hitRate: 0.5 }
 ```
 
 **Features:**
+
 - Atomic counter increments
 - Hit rate calculation
 - LRU eviction with size tracking
@@ -93,6 +98,7 @@ task.progress = 100; // Complete
 ```
 
 **Features:**
+
 - Progress percentage tracking
 - Status history maintenance
 - Retry count increments
@@ -110,6 +116,7 @@ await resourceManager.deallocate('task1');
 ```
 
 **Features:**
+
 - Atomic resource counting
 - Capacity limit enforcement
 - Allocation history tracking
@@ -118,37 +125,49 @@ await resourceManager.deallocate('task1');
 ## Test Scenarios
 
 ### Scenario 1: Version Increment Test
+
 Tests that versions increment correctly on each update:
+
 - Store initial entry (version 1)
 - Update entry multiple times
 - Verify version increments by 1 each time
 
 ### Scenario 2: Concurrent Update Handling
+
 Tests concurrent updates maintain consistency:
+
 - Multiple agents update same key
 - Verify final version equals total updates
 - Check version history completeness
 
 ### Scenario 3: Partial Update Preservation
+
 Tests that partial updates preserve existing data:
+
 - Store complex object
 - Update only specific fields
 - Verify other fields remain unchanged
 
 ### Scenario 4: Counter Accuracy
+
 Tests atomic counter operations:
+
 - Increment counters from multiple sources
 - Verify final count matches expected total
 - Check for race condition handling
 
 ### Scenario 5: Batch Update Efficiency
+
 Tests batch update performance:
+
 - Update multiple entries in parallel
 - Verify all updates complete
 - Check version consistency
 
 ### Scenario 6: Progress Tracking
+
 Tests incremental progress updates:
+
 - Track progress through task execution
 - Verify progress increases monotonically
 - Check progress events are emitted
@@ -156,6 +175,7 @@ Tests incremental progress updates:
 ## Implementation Patterns
 
 ### Pattern 1: Optimistic Updates
+
 ```typescript
 // Update cache immediately, sync to backend async
 cache.set(key, value);
@@ -163,6 +183,7 @@ backend.update(key, value).catch(rollback);
 ```
 
 ### Pattern 2: Version Conflict Resolution
+
 ```typescript
 // Use version to detect conflicts
 if (remote.version > local.version) {
@@ -171,6 +192,7 @@ if (remote.version > local.version) {
 ```
 
 ### Pattern 3: Incremental Aggregation
+
 ```typescript
 // Aggregate metrics incrementally
 metrics.sum += newValue;
@@ -179,6 +201,7 @@ metrics.average = metrics.sum / metrics.count;
 ```
 
 ### Pattern 4: Progress Reporting
+
 ```typescript
 // Report progress at intervals
 for (let i = 0; i < items.length; i++) {

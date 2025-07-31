@@ -39,7 +39,7 @@ class AgentLoader {
   private getAgentsDirectory(): string {
     // Start from current working directory and walk up to find .claude/agents
     let currentDir = process.cwd();
-    
+
     while (currentDir !== '/') {
       const claudeAgentsPath = resolve(currentDir, '.claude', 'agents');
       if (existsSync(claudeAgentsPath)) {
@@ -47,7 +47,7 @@ class AgentLoader {
       }
       currentDir = dirname(currentDir);
     }
-    
+
     // Fallback to relative path
     return resolve(process.cwd(), '.claude', 'agents');
   }
@@ -58,7 +58,7 @@ class AgentLoader {
   private parseAgentFile(filePath: string): AgentDefinition | null {
     try {
       const content = readFileSync(filePath, 'utf-8');
-      
+
       // Split frontmatter and content
       const frontmatterMatch = content.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
       if (!frontmatterMatch) {
@@ -95,7 +95,7 @@ class AgentLoader {
    */
   private async loadAgents(): Promise<void> {
     const agentsDir = this.getAgentsDirectory();
-    
+
     if (!existsSync(agentsDir)) {
       console.warn(`Agents directory not found: ${agentsDir}`);
       return;
@@ -120,12 +120,12 @@ class AgentLoader {
       const agent = this.parseAgentFile(filePath);
       if (agent) {
         this.agentCache.set(agent.name, agent);
-        
+
         // Determine category from file path
         const relativePath = filePath.replace(agentsDir, '');
         const pathParts = relativePath.split('/');
         const category = pathParts[1] || 'uncategorized'; // First directory after agents/
-        
+
         if (!categoryMap.has(category)) {
           categoryMap.set(category, []);
         }
@@ -196,7 +196,7 @@ class AgentLoader {
   async searchAgents(query: string): Promise<AgentDefinition[]> {
     await this.ensureLoaded();
     const lowerQuery = query.toLowerCase();
-    
+
     return Array.from(this.agentCache.values()).filter(agent => {
       return (
         agent.name.toLowerCase().includes(lowerQuery) ||

@@ -5,6 +5,7 @@ A production-ready REST API built with Node.js, Express, and MongoDB, featuring 
 ## Features
 
 ### Core Features
+
 - **RESTful API Design**: Following REST principles and best practices
 - **Authentication & Authorization**: JWT-based authentication with refresh tokens
 - **Role-Based Access Control**: User and admin roles with permission-based routing
@@ -21,6 +22,7 @@ A production-ready REST API built with Node.js, Express, and MongoDB, featuring 
 - **Monitoring**: Health checks and readiness endpoints
 
 ### E-commerce Features
+
 - **Product Management**: Full CRUD operations with categories, tags, and specifications
 - **Inventory Tracking**: Real-time stock management with bulk operations
 - **Product Reviews**: User reviews with ratings and helpful votes
@@ -31,6 +33,7 @@ A production-ready REST API built with Node.js, Express, and MongoDB, featuring 
 - **Sales Reports**: Admin analytics and reporting
 
 ### Security Features
+
 - Helmet.js for security headers
 - CORS configuration with whitelisting
 - Rate limiting (general: 100/15min, auth: 5/15min)
@@ -45,6 +48,7 @@ A production-ready REST API built with Node.js, Express, and MongoDB, featuring 
 - Two-factor authentication ready
 
 ### Development Features
+
 - Hot reloading with nodemon
 - Environment-based configuration
 - Docker support with docker-compose
@@ -120,6 +124,7 @@ rest-api-advanced/
 ## Getting Started
 
 ### Prerequisites
+
 - Node.js >= 16.0.0
 - MongoDB >= 4.4
 - Redis >= 6.0 (optional, but recommended)
@@ -139,6 +144,7 @@ cd rest-api-advanced
 ```
 
 This script will:
+
 - Check all prerequisites
 - Create .env with secure JWT secret
 - Install dependencies
@@ -149,23 +155,27 @@ This script will:
 #### Option 2: Manual Setup
 
 1. Clone the repository:
+
 ```bash
 git clone <repository-url>
 cd rest-api-advanced
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
 ```
 
 3. Set up environment variables:
+
 ```bash
 cp .env.example .env
 # Edit .env with your configuration
 ```
 
 4. Start services with Docker (recommended):
+
 ```bash
 docker-compose up -d mongodb redis
 ```
@@ -173,6 +183,7 @@ docker-compose up -d mongodb redis
 Or install MongoDB and Redis locally.
 
 5. Create `.env` file with required variables:
+
 ```env
 # Server
 PORT=3000
@@ -191,16 +202,19 @@ REDIS_PORT=6379
 ```
 
 6. Seed the database:
+
 ```bash
 npm run seed
 ```
 
 This creates:
+
 - Admin user: `admin@example.com` / `password123`
 - Test user: `user@example.com` / `password123`
 - Sample products and categories
 
 7. Start the development server:
+
 ```bash
 npm run dev
 ```
@@ -210,17 +224,20 @@ The API will be available at `http://localhost:3000`
 ### Using Docker (All Services)
 
 1. Build and run everything with Docker Compose:
+
 ```bash
 docker-compose up --build
 ```
 
 This will start:
+
 - The API server on port 3000
 - MongoDB on port 27017
 - Redis on port 6379
 - Automatic database seeding
 
 2. Access the API:
+
 - API Base URL: `http://localhost:3000/api`
 - Swagger Docs: `http://localhost:3000/api-docs`
 - Health Check: `http://localhost:3000/api/health`
@@ -228,18 +245,22 @@ This will start:
 ## API Documentation
 
 ### Interactive Documentation
+
 Once the server is running, you can access:
+
 - **Swagger UI**: `http://localhost:3000/api-docs`
 - **Postman Collection**: Available in `/docs/postman-collection.json`
 - **Full API Reference**: See `/docs/API.md`
 
 ### Quick Links
+
 - Health Check: `http://localhost:3000/api/health`
 - API Base URL: `http://localhost:3000/api`
 
 ## API Endpoints
 
 ### Authentication
+
 - `POST /api/auth/register` - Register a new user
 - `POST /api/auth/login` - Login user
 - `POST /api/auth/logout` - Logout user
@@ -252,6 +273,7 @@ Once the server is running, you can access:
 - `POST /api/auth/check-password` - Check password strength
 
 ### Users
+
 - `GET /api/users` - Get all users (admin only)
 - `GET /api/users/profile` - Get current user profile
 - `GET /api/users/:id` - Get user by ID (admin only)
@@ -262,6 +284,7 @@ Once the server is running, you can access:
 - `PUT /api/users/change-password` - Change password
 
 ### Products
+
 - `GET /api/products` - Get all products (with pagination, filtering, sorting)
 - `GET /api/products/:id` - Get product by ID
 - `POST /api/products` - Create product (admin only)
@@ -284,6 +307,7 @@ Once the server is running, you can access:
 - `GET /api/products/export/data` - Export products (admin only)
 
 ### Orders
+
 - `GET /api/orders` - Get user orders
 - `GET /api/orders/:id` - Get order by ID
 - `POST /api/orders` - Create order
@@ -299,6 +323,7 @@ Once the server is running, you can access:
 - `GET /api/orders/export/data` - Export orders (admin only)
 
 ### Health
+
 - `GET /api/health` - Basic health check
 - `GET /api/health/ready` - Readiness check
 - `GET /api/health/live` - Liveness check
@@ -312,6 +337,7 @@ Authorization: Bearer <your-jwt-token>
 ```
 
 ### Token Management
+
 - Access tokens expire in 7 days (configurable)
 - Refresh tokens expire in 30 days (configurable)
 - Use `/api/auth/refresh` endpoint to get new access token
@@ -321,6 +347,7 @@ Authorization: Bearer <your-jwt-token>
 ## Request & Response Format
 
 ### Request Format
+
 ```json
 {
   "data": {
@@ -331,6 +358,7 @@ Authorization: Bearer <your-jwt-token>
 ```
 
 ### Success Response
+
 ```json
 {
   "success": true,
@@ -344,6 +372,7 @@ Authorization: Bearer <your-jwt-token>
 ```
 
 ### Error Response
+
 ```json
 {
   "success": false,
@@ -362,6 +391,7 @@ Authorization: Bearer <your-jwt-token>
 ```
 
 ### Pagination Response
+
 ```json
 {
   "success": true,
@@ -382,31 +412,36 @@ Authorization: Bearer <your-jwt-token>
 The project includes comprehensive test suites for both unit and integration testing.
 
 ### Run all tests
+
 ```bash
 npm test
 ```
 
 ### Run unit tests
+
 ```bash
 npm run test:unit
 ```
 
 ### Run integration tests
+
 ```bash
 npm run test:integration
 ```
 
 ### Run tests with coverage
+
 ```bash
 npm run test:coverage
 ```
 
 ### Test Structure
+
 - **Unit Tests**: Located in `/tests/unit/`
   - Auth service tests
   - Validation tests
   - Utility function tests
-  
+
 - **Integration Tests**: Located in `/tests/integration/`
   - Authentication endpoints
   - Product management
@@ -414,6 +449,7 @@ npm run test:coverage
   - Full API workflow tests
 
 ### Test Data
+
 - Tests use MongoDB Memory Server for isolation
 - Each test suite has its own setup and teardown
 - No test data persists between runs
@@ -421,6 +457,7 @@ npm run test:coverage
 ## Development
 
 ### Code Style
+
 The project uses ESLint with Airbnb base configuration. Run linting:
 
 ```bash
@@ -462,6 +499,7 @@ AUTH_RATE_LIMIT_MAX=5
 ```
 
 ### Seeding Data
+
 ```bash
 # Seed all data (users, products, orders)
 npm run seed
@@ -475,12 +513,14 @@ npm run seed:clean
 ```
 
 Default seed accounts:
+
 - Admin: `admin@example.com` / `password123`
 - User: `user@example.com` / `password123`
 
 ## Deployment
 
 ### Production Checklist
+
 - [ ] Set `NODE_ENV=production`
 - [ ] Use strong JWT secret
 - [ ] Configure proper CORS origins
@@ -494,12 +534,14 @@ Default seed accounts:
 - [ ] Configure auto-scaling
 
 ### Docker Deployment
+
 ```bash
 docker build -t rest-api-advanced .
 docker run -p 3000:3000 --env-file .env rest-api-advanced
 ```
 
 ### PM2 Deployment
+
 ```bash
 pm2 start ecosystem.config.js --env production
 ```
@@ -541,4 +583,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Support
 
-For support, email support@example.com or create an issue in the repository.
+For support, email <support@example.com> or create an issue in the repository.

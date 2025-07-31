@@ -14,7 +14,7 @@ from .core.benchmark_engine import BenchmarkEngine
 
 __all__ = [
     "Task",
-    "Agent", 
+    "Agent",
     "Result",
     "Benchmark",
     "BenchmarkEngine",

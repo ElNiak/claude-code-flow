@@ -9,12 +9,14 @@ The Real Benchmark Engine is a comprehensive system for benchmarking actual `cla
 ### 1. Core Engine (`real_benchmark_engine.py`)
 
 **Main Classes:**
+
 - `RealBenchmarkEngine`: Primary orchestrator for real command execution
 - `ProcessMetrics`: Fine-grained process resource tracking
 - `ResourceMonitor`: Background thread-based monitoring system
 - `SystemMonitor`: Overall system resource tracking
 
 **Key Features:**
+
 - Automatic `claude-flow` executable discovery
 - Subprocess-based command execution with full isolation
 - Real-time resource monitoring (CPU, memory, I/O)
@@ -25,12 +27,14 @@ The Real Benchmark Engine is a comprehensive system for benchmarking actual `cla
 ### 2. Execution Capabilities
 
 **SPARC Mode Support (17 modes):**
+
 - Core Development: `coder`, `architect`, `reviewer`, `tdd`
 - Analysis & Research: `researcher`, `analyzer`, `optimizer`, `debugger`
 - Creative & Support: `designer`, `innovator`, `documenter`, `tester`
 - Orchestration: `orchestrator`, `swarm-coordinator`, `workflow-manager`, `batch-executor`, `memory-manager`
 
 **Swarm Strategy Support (6 strategies):**
+
 - `auto`: Adaptive strategy selection
 - `research`: Information gathering swarms
 - `development`: Code creation swarms
@@ -40,6 +44,7 @@ The Real Benchmark Engine is a comprehensive system for benchmarking actual `cla
 - `maintenance`: System maintenance swarms
 
 **Coordination Modes (5 types):**
+
 - `centralized`: Single coordinator model
 - `distributed`: Peer-to-peer coordination
 - `hierarchical`: Multi-level management
@@ -49,12 +54,14 @@ The Real Benchmark Engine is a comprehensive system for benchmarking actual `cla
 ### 3. Resource Monitoring
 
 **Process-Level Metrics:**
+
 - CPU utilization (per-process and children)
 - Memory consumption (RSS, peak usage)
 - I/O operations (read/write bytes and counts)
 - Temporal sampling with configurable intervals
 
 **System-Level Metrics:**
+
 - Overall CPU and memory usage
 - Disk and network I/O statistics
 - Baseline measurements for comparison
@@ -63,6 +70,7 @@ The Real Benchmark Engine is a comprehensive system for benchmarking actual `cla
 ### 4. Quality Assessment
 
 **Multi-dimensional Quality Metrics:**
+
 - `accuracy_score`: Command execution correctness
 - `completeness_score`: Output comprehensiveness
 - `consistency_score`: Result reliability
@@ -72,6 +80,7 @@ The Real Benchmark Engine is a comprehensive system for benchmarking actual `cla
 ### 5. CLI Integration
 
 **New CLI Commands:**
+
 ```bash
 # Run real benchmarks
 swarm-benchmark real "Build a REST API" --strategy development
@@ -89,6 +98,7 @@ swarm-benchmark real "Process data" --monitor --output json sqlite
 ### 6. Output Formats
 
 **JSON Reports:**
+
 - Complete execution details
 - Resource usage metrics
 - Quality assessments
@@ -96,6 +106,7 @@ swarm-benchmark real "Process data" --monitor --output json sqlite
 - Error logs
 
 **SQLite Database:**
+
 - Queryable benchmark history
 - Performance trending
 - Cross-benchmark analysis
@@ -103,7 +114,8 @@ swarm-benchmark real "Process data" --monitor --output json sqlite
 
 ## Files Created/Modified
 
-### New Files:
+### New Files
+
 1. `/benchmark/src/swarm_benchmark/core/real_benchmark_engine.py` - Core engine implementation
 2. `/benchmark/docs/real-benchmark-architecture.md` - Comprehensive architecture documentation
 3. `/benchmark/docs/real-benchmark-quickstart.md` - Quick start guide
@@ -111,29 +123,34 @@ swarm-benchmark real "Process data" --monitor --output json sqlite
 5. `/benchmark/examples/real_benchmark_examples.py` - Usage examples
 6. `/benchmark/REAL_BENCHMARK_SUMMARY.md` - This summary document
 
-### Modified Files:
+### Modified Files
+
 1. `/benchmark/src/swarm_benchmark/cli/main.py` - Added `real` command for CLI integration
 
 ## Architecture Highlights
 
 ### 1. Modular Design
+
 - Clean separation between monitoring, execution, and analysis
 - Pluggable quality assessment system
 - Extensible command building
 
 ### 2. Parallel Execution Framework
+
 - Semaphore-based concurrency control
 - Configurable parallelism levels
 - Resource-aware scheduling
 - Exception isolation
 
 ### 3. Error Handling
+
 - Graceful timeout handling
 - Process cleanup on failure
 - Detailed error reporting
 - Recovery mechanisms
 
 ### 4. Performance Optimizations
+
 - Efficient resource monitoring
 - Minimal overhead design
 - Batch operation support
@@ -141,17 +158,20 @@ swarm-benchmark real "Process data" --monitor --output json sqlite
 
 ## Usage Examples
 
-### Basic Benchmark:
+### Basic Benchmark
+
 ```bash
 python -m swarm_benchmark real "Create a calculator"
 ```
 
-### SPARC Mode Testing:
+### SPARC Mode Testing
+
 ```bash
 python -m swarm_benchmark real "Build API" --sparc-mode architect
 ```
 
-### Parallel Swarm Testing:
+### Parallel Swarm Testing
+
 ```bash
 python -m swarm_benchmark real "Analyze codebase" \
   --strategy analysis \
@@ -160,7 +180,8 @@ python -m swarm_benchmark real "Analyze codebase" \
   --max-agents 6
 ```
 
-### Comprehensive Testing:
+### Comprehensive Testing
+
 ```bash
 python -m swarm_benchmark real "Build complete app" \
   --all-modes \

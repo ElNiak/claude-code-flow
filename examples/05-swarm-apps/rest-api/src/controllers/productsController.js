@@ -6,13 +6,13 @@ const productsController = {
     try {
       const { page = 1, limit = 10, category, minPrice, maxPrice } = req.query;
       const filters = {};
-      
+
       if (category) filters.category = category;
       if (minPrice) filters.minPrice = parseFloat(minPrice);
       if (maxPrice) filters.maxPrice = parseFloat(maxPrice);
-      
+
       const products = await productModel.findAll({ page, limit, filters });
-      
+
       res.json({
         success: true,
         data: products,
@@ -31,14 +31,14 @@ const productsController = {
   getProductById: async (req, res, next) => {
     try {
       const product = await productModel.findById(req.params.id);
-      
+
       if (!product) {
         return res.status(404).json({
           success: false,
           message: 'Product not found'
         });
       }
-      
+
       res.json({
         success: true,
         data: product
@@ -58,9 +58,9 @@ const productsController = {
         stock: req.body.stock || 0,
         description: req.body.description
       };
-      
+
       const newProduct = await productModel.create(productData);
-      
+
       res.status(201).json({
         success: true,
         message: 'Product created successfully',
@@ -82,16 +82,16 @@ const productsController = {
         stock: req.body.stock,
         description: req.body.description
       };
-      
+
       const updatedProduct = await productModel.update(productId, updateData);
-      
+
       if (!updatedProduct) {
         return res.status(404).json({
           success: false,
           message: 'Product not found'
         });
       }
-      
+
       res.json({
         success: true,
         message: 'Product updated successfully',
@@ -106,14 +106,14 @@ const productsController = {
   deleteProduct: async (req, res, next) => {
     try {
       const deleted = await productModel.delete(req.params.id);
-      
+
       if (!deleted) {
         return res.status(404).json({
           success: false,
           message: 'Product not found'
         });
       }
-      
+
       res.json({
         success: true,
         message: 'Product deleted successfully'

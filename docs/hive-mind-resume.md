@@ -12,7 +12,9 @@ The Hive Mind Resume feature allows you to pause and resume swarm operations, ma
 ## Key Features
 
 ### 1. Session Tracking
+
 Every swarm spawn automatically creates a session that tracks:
+
 - Swarm configuration and objective
 - Agent status and assignments
 - Task progress and completion
@@ -21,6 +23,7 @@ Every swarm spawn automatically creates a session that tracks:
 - Performance metrics
 
 ### 2. Auto-Save Functionality
+
 - **Automatic Progress Saving**: State is saved every 30 seconds
 - **Critical Event Saving**: Immediate saves on important events:
   - Task completion
@@ -30,6 +33,7 @@ Every swarm spawn automatically creates a session that tracks:
 - **Graceful Shutdown**: Automatic save on Ctrl+C or process termination
 
 ### 3. Resume Capabilities
+
 - **Full Context Restoration**: Resume with complete swarm state
 - **Progress Tracking**: See completion percentage and remaining tasks
 - **Activity History**: View recent logs and decisions
@@ -58,7 +62,7 @@ claude-flow hive-mind sessions
 
 # Output:
 # 🗂️  Hive Mind Sessions
-# 
+#
 # ════════════════════════════════════════════════════════════════
 # 🟢 My API Swarm
 # Session ID: session-1234567890-abc123def
@@ -67,7 +71,7 @@ claude-flow hive-mind sessions
 # Progress: 45%
 # Created: 2024-01-15 10:30:00
 # Last Updated: 2024-01-15 11:15:00
-# 
+#
 # Progress:
 #   Agents: 6
 #   Tasks: 12/25
@@ -76,6 +80,7 @@ claude-flow hive-mind sessions
 ### Pausing a Session
 
 Sessions are automatically paused when:
+
 - You press Ctrl+C during swarm operation
 - The process is terminated
 - System shutdown or unexpected interruption
@@ -100,14 +105,18 @@ claude-flow hive-mind resume session-1234567890-abc123def --claude --dangerously
 ## Architecture
 
 ### Session Manager
+
 The `HiveMindSessionManager` class handles:
+
 - Session lifecycle (create, pause, resume, complete)
 - Checkpoint saving and restoration
 - Progress tracking and metrics
 - Session archival and cleanup
 
 ### Auto-Save Middleware
+
 The `AutoSaveMiddleware` class provides:
+
 - Periodic state saving (configurable interval)
 - Event-based immediate saves
 - Change tracking and batching
@@ -118,6 +127,7 @@ The `AutoSaveMiddleware` class provides:
 Sessions are stored in SQLite with the following tables:
 
 #### sessions
+
 - `id`: Unique session identifier
 - `swarm_id`: Associated swarm ID
 - `status`: active, paused, completed
@@ -125,11 +135,13 @@ Sessions are stored in SQLite with the following tables:
 - `completion_percentage`: Progress tracking
 
 #### session_checkpoints
+
 - Incremental checkpoint storage
 - Named checkpoints for important milestones
 - Checkpoint restoration capabilities
 
 #### session_logs
+
 - Detailed activity logging
 - Agent-specific event tracking
 - Performance and decision history
@@ -137,19 +149,24 @@ Sessions are stored in SQLite with the following tables:
 ## Integration Points
 
 ### MCP Tools Integration
+
 Resume functionality works seamlessly with MCP tools:
+
 - Memory state is preserved across sessions
 - Neural patterns continue learning
 - Task orchestration maintains context
 
 ### Claude Code Integration
+
 When resuming with `--claude` flag:
+
 - Full session context is provided
 - Pending tasks are highlighted
 - Recent decisions are included
 - Checkpoint data is available
 
 ### Collective Memory
+
 - All memory entries are preserved
 - Access patterns are maintained
 - Consensus decisions are retained
@@ -157,7 +174,9 @@ When resuming with `--claude` flag:
 ## Best Practices
 
 ### 1. Regular Checkpoints
+
 While auto-save handles most cases, you can create named checkpoints:
+
 ```javascript
 // In your swarm coordination
 await sessionManager.saveCheckpoint(sessionId, 'milestone-auth-complete', {
@@ -167,12 +186,15 @@ await sessionManager.saveCheckpoint(sessionId, 'milestone-auth-complete', {
 ```
 
 ### 2. Session Hygiene
+
 - Archive old sessions: `claude-flow hive-mind archive --days-old 30`
 - Export important sessions: `claude-flow hive-mind export session-id`
 - Clean up completed sessions periodically
 
 ### 3. Monitoring Progress
+
 Use session tracking to monitor long-running operations:
+
 ```bash
 # Check specific session progress
 claude-flow hive-mind session-status session-1234567890-abc123def
@@ -184,16 +206,19 @@ claude-flow hive-mind session-metrics session-1234567890-abc123def
 ## Technical Details
 
 ### Auto-Save Intervals
+
 - Default: 30 seconds
 - Configurable via `--save-interval` flag
 - Immediate save on critical events
 
 ### Storage Location
+
 - Sessions stored in `.hive-mind/hive.db`
 - Checkpoint files in `.hive-mind/sessions/`
 - Archived sessions in `.hive-mind/sessions/archive/`
 
 ### Performance Impact
+
 - Minimal overhead (< 1% CPU usage)
 - Efficient incremental saves
 - Compressed checkpoint storage
@@ -201,19 +226,25 @@ claude-flow hive-mind session-metrics session-1234567890-abc123def
 ## Troubleshooting
 
 ### Session Not Found
+
 If a session cannot be resumed:
+
 1. Check session ID is correct
 2. Verify session status with `sessions` command
 3. Ensure `.hive-mind/` directory exists
 
 ### Corrupted Session
+
 If session data is corrupted:
+
 1. Try loading from checkpoint file
 2. Use `--force-restore` flag
 3. Export and re-import session
 
 ### Auto-Save Not Working
+
 Verify auto-save is active:
+
 1. Check process permissions
 2. Ensure disk space available
 3. Verify SQLite database accessibility
@@ -221,6 +252,7 @@ Verify auto-save is active:
 ## Future Enhancements
 
 Planned improvements include:
+
 - Multi-user session sharing
 - Cloud backup integration
 - Session branching and merging
@@ -230,6 +262,7 @@ Planned improvements include:
 ## Examples
 
 ### Example 1: Long-Running Development Task
+
 ```bash
 # Start a complex development task
 claude-flow hive-mind spawn "Build microservices architecture" --max-workers 8
@@ -242,6 +275,7 @@ claude-flow hive-mind resume session-xxx --claude
 ```
 
 ### Example 2: Multiple Concurrent Projects
+
 ```bash
 # List all your sessions
 claude-flow hive-mind sessions
@@ -254,6 +288,7 @@ claude-flow hive-mind resume session-project-b
 ```
 
 ### Example 3: Disaster Recovery
+
 ```bash
 # System crashed? No problem!
 # List sessions to find the one you were working on

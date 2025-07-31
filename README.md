@@ -207,7 +207,7 @@ npx claude-flow@alpha init --force  # Auto-configures MCP servers & hooks
       "alwaysRun": false
     },
     "postEditHook": {
-      "command": "npx", 
+      "command": "npx",
       "args": ["claude-flow", "hooks", "post-edit", "--file", "${file}", "--format", "true"],
       "alwaysRun": true
     },

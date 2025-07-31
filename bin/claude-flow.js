@@ -42,19 +42,19 @@ async function main() {
         stdio: 'inherit',
         shell: false
       });
-      
+
       child.on('error', (error) => {
         console.error('❌ Node.js execution failed:', error.message);
         process.exit(1);
       });
-      
+
       child.on('exit', (code) => {
         process.exit(code || 0);
       });
-      
+
       return;
     }
-    
+
     // Fallback to TypeScript version with tsx
     const tsFile = join(ROOT_DIR, 'src', 'cli', 'simple-cli.ts');
     if (existsSync(tsFile)) {
@@ -62,39 +62,39 @@ async function main() {
         stdio: 'inherit',
         shell: false
       });
-      
+
       child.on('error', (error) => {
         console.error('❌ tsx execution failed:', error.message);
         console.log('\n🔄 Trying npx tsx...');
-        
+
         // Try npx tsx as final fallback
         const npxChild = spawn('npx', ['tsx', tsFile, ...args], {
           stdio: 'inherit',
           shell: false
         });
-        
+
         npxChild.on('error', (npxError) => {
           console.error('❌ npx tsx also failed:', npxError.message);
           showFallbackHelp();
           process.exit(1);
         });
-        
+
         npxChild.on('exit', (code) => {
           process.exit(code || 0);
         });
       });
-      
+
       child.on('exit', (code) => {
         process.exit(code || 0);
       });
-      
+
       return;
     }
-    
+
     // No runtime found
     showFallbackHelp();
     process.exit(1);
-    
+
   } catch (error) {
     console.error('❌ Unexpected error:', error.message);
     showFallbackHelp();

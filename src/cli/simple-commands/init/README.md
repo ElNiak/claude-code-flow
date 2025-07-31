@@ -28,7 +28,7 @@ init/
 
 ## What Gets Created
 
-### With `--sparc` flag:
+### With `--sparc` flag
 
 1. **Claude Code Configuration**:
 
@@ -67,11 +67,11 @@ init/
    - `./claude-flow` (Unix/Mac/Linux)
    - `claude-flow.cmd` (Windows)
 
-### With `--minimal` flag:
+### With `--minimal` flag
 
 Creates minimal versions of all configuration files without SPARC features.
 
-### With `--force` flag:
+### With `--force` flag
 
 Overwrites existing files if they already exist.
 

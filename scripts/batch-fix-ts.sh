@@ -37,7 +37,7 @@ import { dirname } from "node:path";\
 import { fileURLToPath } from "node:url";\
 const __dirname = dirname(fileURLToPath(import.meta.url));' "$file"
   fi
-  
+
   if grep -q "process\." "$file" && ! grep -q "import.*process" "$file"; then
     sed -i.bak '1i\
 import process from "node:process";' "$file"

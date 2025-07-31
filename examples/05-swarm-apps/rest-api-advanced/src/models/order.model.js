@@ -276,7 +276,7 @@ orderSchema.virtual('isRefundEligible').get(function() {
   // Order must be delivered and within 30 days
   if (this.status !== 'delivered') return false;
   if (!this.tracking?.deliveredAt) return false;
-  
+
   const daysSinceDelivery = (Date.now() - new Date(this.tracking.deliveredAt).getTime()) / (1000 * 60 * 60 * 24);
   return daysSinceDelivery <= 30;
 });
@@ -295,28 +295,28 @@ orderSchema.pre('save', async function(next) {
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
     const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-    
+
     this.orderNumber = `ORD-${year}${month}${day}-${random}`;
-    
+
     // Add initial history entry
     this.history.push({
       status: 'pending',
       comment: 'Order created',
     });
   }
-  
+
   // Calculate totals
   this.subtotal = this.items.reduce((total, item) => {
     item.subtotal = item.price * item.quantity;
     return total + item.subtotal;
   }, 0);
-  
+
   // Calculate tax
   this.taxAmount = this.subtotal * (this.taxRate / 100);
-  
+
   // Calculate total
   this.totalAmount = this.subtotal + this.taxAmount + this.shippingAmount - this.discountAmount;
-  
+
   next();
 });
 
@@ -331,20 +331,20 @@ orderSchema.methods.updateStatus = async function(newStatus, comment, userId) {
     cancelled: [],
     refunded: [],
   };
-  
+
   if (!validTransitions[this.status].includes(newStatus)) {
     throw new Error(`Cannot transition from ${this.status} to ${newStatus}`);
   }
-  
+
   this.status = newStatus;
-  
+
   // Add history entry
   this.history.push({
     status: newStatus,
     comment,
     updatedBy: userId,
   });
-  
+
   // Set specific timestamps
   if (newStatus === 'cancelled') {
     this.cancelledAt = new Date();
@@ -354,7 +354,7 @@ orderSchema.methods.updateStatus = async function(newStatus, comment, userId) {
   } else if (newStatus === 'delivered' && this.tracking) {
     this.tracking.deliveredAt = new Date();
   }
-  
+
   return this.save();
 };
 
@@ -363,12 +363,12 @@ orderSchema.methods.cancel = async function(reason, userId) {
   if (!this.isCancellable) {
     throw new Error('Order cannot be cancelled in current status');
   }
-  
+
   await this.updateStatus('cancelled', reason, userId);
-  
+
   // TODO: Trigger inventory restoration
   // TODO: Trigger payment refund if applicable
-  
+
   return this;
 };
 
@@ -381,7 +381,7 @@ orderSchema.methods.addTracking = function(carrier, number, url, estimatedDelive
     estimatedDelivery,
     shippedAt: new Date(),
   };
-  
+
   return this.save();
 };
 
@@ -390,15 +390,15 @@ orderSchema.methods.processRefund = async function(amount, reason, userId) {
   if (!this.isRefundEligible) {
     throw new Error('Order is not eligible for refund');
   }
-  
+
   if (amount > this.totalAmount - this.payment.refundedAmount) {
     throw new Error('Refund amount exceeds remaining order value');
   }
-  
+
   this.payment.refundedAmount += amount;
   this.payment.refundReason = reason;
   this.payment.refundedAt = new Date();
-  
+
   if (this.payment.refundedAmount >= this.totalAmount) {
     this.payment.status = 'refunded';
     await this.updateStatus('refunded', `Full refund processed: ${reason}`, userId);
@@ -410,14 +410,14 @@ orderSchema.methods.processRefund = async function(amount, reason, userId) {
       updatedBy: userId,
     });
   }
-  
+
   return this.save();
 };
 
 // Static method to get order statistics
 orderSchema.statics.getStatistics = async function(userId, period = 'all') {
   const match = userId ? { user: userId } : {};
-  
+
   // Add date filter based on period
   const now = new Date();
   switch (period) {
@@ -434,7 +434,7 @@ orderSchema.statics.getStatistics = async function(userId, period = 'all') {
       match.createdAt = { $gte: new Date(now.setFullYear(now.getFullYear() - 1)) };
       break;
   }
-  
+
   const stats = await this.aggregate([
     { $match: match },
     {
@@ -478,7 +478,7 @@ orderSchema.statics.getStatistics = async function(userId, period = 'all') {
       },
     },
   ]);
-  
+
   return stats[0] || {
     totalOrders: 0,
     totalRevenue: 0,
@@ -496,7 +496,7 @@ orderSchema.statics.getSalesReport = async function(startDate, endDate, groupBy 
     month: '%Y-%m',
     year: '%Y',
   };
-  
+
   const report = await this.aggregate([
     {
       $match: {
@@ -527,7 +527,7 @@ orderSchema.statics.getSalesReport = async function(startDate, endDate, groupBy 
       },
     },
   ]);
-  
+
   return report;
 };
 
@@ -547,29 +547,29 @@ orderSchema.statics.findOrders = async function(filters) {
     limit = 20,
     sort = '-createdAt',
   } = filters;
-  
+
   const query = {};
-  
+
   if (userId) query.user = userId;
   if (status) query.status = status;
   if (paymentStatus) query['payment.status'] = paymentStatus;
   if (orderNumber) query.orderNumber = new RegExp(orderNumber, 'i');
   if (trackingNumber) query['tracking.number'] = trackingNumber;
-  
+
   if (startDate || endDate) {
     query.createdAt = {};
     if (startDate) query.createdAt.$gte = new Date(startDate);
     if (endDate) query.createdAt.$lte = new Date(endDate);
   }
-  
+
   if (minAmount || maxAmount) {
     query.totalAmount = {};
     if (minAmount) query.totalAmount.$gte = minAmount;
     if (maxAmount) query.totalAmount.$lte = maxAmount;
   }
-  
+
   const skip = (page - 1) * limit;
-  
+
   const [orders, total] = await Promise.all([
     this.find(query)
       .populate('user', 'name email')
@@ -579,7 +579,7 @@ orderSchema.statics.findOrders = async function(filters) {
       .limit(limit),
     this.countDocuments(query),
   ]);
-  
+
   return {
     orders,
     pagination: {

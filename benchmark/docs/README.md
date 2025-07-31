@@ -5,26 +5,31 @@ Welcome to the comprehensive documentation for the Claude Flow Swarm Benchmarkin
 ## 📚 Documentation Index
 
 ### Getting Started
+
 - [Quick Start Guide](quick-start.md) - Get up and running in 5 minutes
 - [Installation Guide](installation.md) - Detailed installation instructions
 - [Basic Usage](basic-usage.md) - Essential commands and workflows
 
 ### Core Concepts
+
 - [Benchmark Architecture](architecture.md) - System design and components
 - [Swarm Strategies](strategies.md) - Detailed guide to all 7 strategies
 - [Coordination Modes](coordination-modes.md) - Understanding the 5 coordination patterns
 
 ### Usage Guides
+
 - [CLI Reference](cli-reference.md) - Complete command-line interface documentation
 - [Configuration Guide](configuration.md) - Customizing benchmark behavior
 - [Output Formats](output-formats.md) - Understanding benchmark results
 
 ### Optimization
+
 - [Performance Optimization Guide](optimization-guide.md) - Improving swarm performance
 - [Benchmark Analysis](analysis.md) - Interpreting benchmark results
 - [Best Practices](best-practices.md) - Recommendations for optimal performance
 
 ### Advanced Topics
+
 - [Custom Strategies](custom-strategies.md) - Creating your own strategies
 - [Integration Guide](integration.md) - Integrating with Claude Flow
 - [Troubleshooting](troubleshooting.md) - Common issues and solutions
@@ -63,6 +68,7 @@ The Swarm Benchmarking Tool is designed to measure, analyze, and optimize the pe
 ## 🤝 Contributing
 
 We welcome contributions! See our [Contributing Guide](contributing.md) for details on:
+
 - Reporting issues
 - Suggesting improvements
 - Submitting pull requests

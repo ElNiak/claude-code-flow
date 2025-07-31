@@ -1,14 +1,17 @@
 # REST API Documentation
 
 ## Base URL
+
 ```
 http://localhost:3000/api/v1
 ```
 
 ## Authentication
+
 Currently, this API does not require authentication. In production, you should implement proper authentication.
 
 ## Common Headers
+
 ```
 Content-Type: application/json
 Accept: application/json
@@ -19,16 +22,19 @@ Accept: application/json
 ### Users Resource
 
 #### List Users
+
 ```http
 GET /api/v1/users
 ```
 
 Query Parameters:
+
 - `page` (integer): Page number (default: 1)
 - `limit` (integer): Items per page (default: 10)
 - `sort` (string): Sort field (id, name, email, age)
 
 Response:
+
 ```json
 {
   "success": true,
@@ -50,11 +56,13 @@ Response:
 ```
 
 #### Get User
+
 ```http
 GET /api/v1/users/:id
 ```
 
 Response:
+
 ```json
 {
   "success": true,
@@ -69,11 +77,13 @@ Response:
 ```
 
 #### Create User
+
 ```http
 POST /api/v1/users
 ```
 
 Request Body:
+
 ```json
 {
   "name": "Jane Smith",
@@ -83,6 +93,7 @@ Request Body:
 ```
 
 Response (201 Created):
+
 ```json
 {
   "success": true,
@@ -98,11 +109,13 @@ Response (201 Created):
 ```
 
 #### Update User
+
 ```http
 PUT /api/v1/users/:id
 ```
 
 Request Body:
+
 ```json
 {
   "name": "Jane Doe",
@@ -112,6 +125,7 @@ Request Body:
 ```
 
 Response:
+
 ```json
 {
   "success": true,
@@ -127,11 +141,13 @@ Response:
 ```
 
 #### Delete User
+
 ```http
 DELETE /api/v1/users/:id
 ```
 
 Response:
+
 ```json
 {
   "success": true,
@@ -142,11 +158,13 @@ Response:
 ### Products Resource
 
 #### List Products
+
 ```http
 GET /api/v1/products
 ```
 
 Query Parameters:
+
 - `page` (integer): Page number (default: 1)
 - `limit` (integer): Items per page (default: 10)
 - `category` (string): Filter by category
@@ -154,6 +172,7 @@ Query Parameters:
 - `maxPrice` (number): Maximum price filter
 
 Response:
+
 ```json
 {
   "success": true,
@@ -177,11 +196,13 @@ Response:
 ```
 
 #### Get Product
+
 ```http
 GET /api/v1/products/:id
 ```
 
 Response:
+
 ```json
 {
   "success": true,
@@ -198,11 +219,13 @@ Response:
 ```
 
 #### Create Product
+
 ```http
 POST /api/v1/products
 ```
 
 Request Body:
+
 ```json
 {
   "name": "Wireless Mouse",
@@ -214,6 +237,7 @@ Request Body:
 ```
 
 Response (201 Created):
+
 ```json
 {
   "success": true,
@@ -231,11 +255,13 @@ Response (201 Created):
 ```
 
 #### Update Product
+
 ```http
 PUT /api/v1/products/:id
 ```
 
 Request Body:
+
 ```json
 {
   "name": "Gaming Mouse",
@@ -247,6 +273,7 @@ Request Body:
 ```
 
 Response:
+
 ```json
 {
   "success": true,
@@ -264,11 +291,13 @@ Response:
 ```
 
 #### Delete Product
+
 ```http
 DELETE /api/v1/products/:id
 ```
 
 Response:
+
 ```json
 {
   "success": true,
@@ -279,6 +308,7 @@ Response:
 ## Error Responses
 
 ### Validation Error (400)
+
 ```json
 {
   "errors": [
@@ -294,6 +324,7 @@ Response:
 ```
 
 ### Not Found (404)
+
 ```json
 {
   "success": false,
@@ -302,6 +333,7 @@ Response:
 ```
 
 ### Server Error (500)
+
 ```json
 {
   "success": false,
@@ -314,6 +346,7 @@ Response:
 ```
 
 ## Rate Limiting
+
 The API implements rate limiting (default: 100 requests per hour per IP). When exceeded:
 
 ```json
@@ -328,7 +361,9 @@ The API implements rate limiting (default: 100 requests per hour per IP). When e
 ```
 
 ## CORS
+
 The API supports CORS for all origins in development. Configure appropriate origins for production.
 
 ## Versioning
+
 The API uses URL versioning (currently v1). Future versions will be available at `/api/v2`, etc.

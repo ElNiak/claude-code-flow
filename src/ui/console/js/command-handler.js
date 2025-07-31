@@ -222,7 +222,7 @@ Subcommands:
   stop             - Stop Claude Flow
   status           - Show Claude Flow status
   modes            - List available SPARC modes
-  
+
 Examples:
   claude-flow start coder
   claude-flow status
@@ -238,7 +238,7 @@ Actions:
   stop <name>      - Stop running swarm
   list             - List all swarms
   status <name>    - Show swarm status
-  
+
 Examples:
   swarm create my-swarm
   swarm start my-swarm

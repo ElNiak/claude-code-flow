@@ -144,6 +144,7 @@ This implementation provides a comprehensive suite of 13 analysis and monitoring
 
 1. Copy the files to your Claude Flow project
 2. Install dependencies:
+
    ```bash
    npm install express ws chart.js
    ```
@@ -158,6 +159,7 @@ This implementation provides a comprehensive suite of 13 analysis and monitoring
    ```
 
 2. Include the CSS and JavaScript files in your HTML:
+
    ```html
    <link rel="stylesheet" href="styles/analysis-tools.css" />
    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

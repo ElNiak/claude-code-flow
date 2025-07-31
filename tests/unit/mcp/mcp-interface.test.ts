@@ -17,8 +17,8 @@ import { LoadBalancer } from '../../../src/mcp/load-balancer.ts';
 import { AuthManager } from '../../../src/mcp/auth.ts';
 import { Logger } from '../../../src/core/logger.ts';
 import { EventBus } from '../../../src/core/event-bus.ts';
-import { 
-  AsyncTestUtils, 
+import {
+  AsyncTestUtils,
   PerformanceTestUtils,
   TestAssertions,
   MockFactory,
@@ -37,7 +37,7 @@ describe('MCP Interface - Comprehensive Tests', () => {
     setupTestEnv();
     tempDir = await FileSystemTestUtils.createTempDir('mcp-test-');
     fakeTime = new FakeTime();
-    
+
     // Create a proper logger instance
     mockLogger = new Logger();
     await mockLogger.configure({
@@ -45,7 +45,7 @@ describe('MCP Interface - Comprehensive Tests', () => {
       format: 'text',
       destination: 'console',
     });
-    
+
     eventBus = EventBus.getInstance(false);
   });
 
@@ -85,7 +85,7 @@ describe('MCP Interface - Comprehensive Tests', () => {
         // Test message validation
         const isValid = validateMCPMessage(message);
         expect(isValid).toBe(true);
-        
+
         // Test serialization/deserialization
         const serialized = JSON.stringify(message);
         const deserialized = JSON.parse(serialized);
@@ -155,7 +155,7 @@ describe('MCP Interface - Comprehensive Tests', () => {
       for (const message of mcpMessages) {
         const isValid = validateMCPMessage(message);
         expect(isValid).toBe(true);
-        
+
         const messageType = getMCPMessageType(message);
         expect(messageType).toBeDefined();
       }
@@ -175,7 +175,7 @@ describe('MCP Interface - Comprehensive Tests', () => {
       };
 
       const negotiatedCapabilities = negotiateCapabilities(serverCapabilities, clientCapabilities);
-      
+
       expect(negotiatedCapabilities).toBeDefined();
       expect(typeof negotiatedCapabilities.server).toBe('object');
       expect(typeof negotiatedCapabilities.client).toBe('object');
@@ -217,16 +217,16 @@ describe('MCP Interface - Comprehensive Tests', () => {
       mockServer = {
         port: TEST_CONFIG.mocks.mcp_server_port,
         responses: new Map(),
-        
+
         start: async () => {
           // Mock HTTP server implementation
           mockServer.running = true;
         },
-        
+
         stop: async () => {
           mockServer.running = false;
         },
-        
+
         setResponse: (path: string, response: any) => {
           mockServer.responses.set(path, response);
         },
@@ -369,14 +369,14 @@ describe('MCP Interface - Comprehensive Tests', () => {
     it('should connect and disconnect correctly', async () => {
       await mcpClient.connect();
       expect(mcpClient.isConnected()).toBe(true);
-      
+
       await mcpClient.disconnect();
       expect(mcpClient.isConnected()).toBe(false);
     });
 
     it('should send requests correctly', async () => {
       await mcpClient.connect();
-      
+
       const result = await mcpClient.request('test_method', { param: 'value' });
       expect(result).toBeDefined();
       expect(result).toBe({ success: true });
@@ -501,11 +501,11 @@ describe('MCP Interface - Comprehensive Tests', () => {
 
     it('should handle malformed messages correctly', async () => {
       const errorScenarios = generateErrorScenarios();
-      
+
       for (const scenario of errorScenarios) {
         // Test how the MCP implementation handles various error scenarios
         console.log(`Testing error scenario: ${scenario.name}`);
-        
+
         // This would involve sending malformed messages and verifying
         // that the system handles them gracefully
       }
@@ -517,14 +517,14 @@ describe('MCP Interface - Comprehensive Tests', () => {
 function validateMCPMessage(message: any): boolean {
   if (!message || typeof message !== 'object') return false;
   if (message.jsonrpc !== '2.0') return false;
-  
+
   // Must have either method (request/notification) or result/error (response)
   const hasMethod = typeof message.method === 'string';
   const hasResult = 'result' in message;
   const hasError = 'error' in message;
-  
+
   if (!hasMethod && !hasResult && !hasError) return false;
-  
+
   // Requests with id and responses must have valid id
   if (hasResult || hasError) {
     // Responses must have an id
@@ -532,7 +532,7 @@ function validateMCPMessage(message: any): boolean {
       return false;
     }
   }
-  
+
   // Requests (not notifications) should have an id
   if (hasMethod && message.id !== undefined) {
     // This is a request, check for valid id type
@@ -540,13 +540,13 @@ function validateMCPMessage(message: any): boolean {
       return false;
     }
   }
-  
+
   return true;
 }
 
 function getMCPMessageType(message: any): string | null {
   if (!validateMCPMessage(message)) return null;
-  
+
   if (message.method) {
     return message.id !== undefined ? 'request' : 'notification';
   } else if (message.result !== undefined) {
@@ -554,7 +554,7 @@ function getMCPMessageType(message: any): string | null {
   } else if (message.error !== undefined) {
     return 'error';
   }
-  
+
   return null;
 }
 

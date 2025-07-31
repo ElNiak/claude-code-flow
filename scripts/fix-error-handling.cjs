@@ -5,8 +5,8 @@ const path = require('path');
 const glob = require('glob');
 
 // Find all TypeScript files
-const files = glob.sync('src/**/*.ts', { 
-  ignore: ['src/**/*.test.ts', 'src/**/*.spec.ts'] 
+const files = glob.sync('src/**/*.ts', {
+  ignore: ['src/**/*.test.ts', 'src/**/*.spec.ts']
 });
 
 let totalFixed = 0;
@@ -54,7 +54,7 @@ files.forEach(file => {
 
   if (modified) {
     // Add error handler import if needed
-    if (!content.includes("from '../utils/error-handler'") && 
+    if (!content.includes("from '../utils/error-handler'") &&
         !content.includes("from '../../utils/error-handler'") &&
         content.includes('error instanceof Error')) {
       const importPath = file.includes('cli/commands') ? '../../utils/error-handler' : '../utils/error-handler';

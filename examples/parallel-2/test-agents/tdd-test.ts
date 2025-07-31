@@ -14,16 +14,16 @@ export const tddTestCase = {
     const hasTests = output.includes("describe") || output.includes("test") || output.includes("it(");
     const hasImplementation = output.includes("function") || output.includes("const") || output.includes("=>");
     const hasTDDMarkers = output.includes("// Red") || output.includes("// Green") || output.includes("fail") || output.includes("pass");
-    
+
     const functionNames = [
       "capitalizeWords",
       "truncateWithEllipsis",
       "countVowels",
       "isPalindrome"
     ];
-    
+
     const hasFunctions = functionNames.some(fn => output.includes(fn));
-    
+
     return hasTests && hasImplementation && (hasTDDMarkers || hasFunctions);
   }
 };

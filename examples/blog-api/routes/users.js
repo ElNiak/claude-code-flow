@@ -32,7 +32,7 @@ router.post('/', (req, res) => {
 router.put('/:id', (req, res) => {
   const index = users.findIndex(u => u.id === parseInt(req.params.id));
   if (index === -1) return res.status(404).json({ error: 'User not found' });
-  
+
   users[index] = {
     ...users[index],
     ...req.body,
@@ -45,7 +45,7 @@ router.put('/:id', (req, res) => {
 router.delete('/:id', (req, res) => {
   const index = users.findIndex(u => u.id === parseInt(req.params.id));
   if (index === -1) return res.status(404).json({ error: 'User not found' });
-  
+
   users.splice(index, 1);
   res.status(204).send();
 });

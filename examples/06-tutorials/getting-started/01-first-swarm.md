@@ -23,7 +23,8 @@ cd examples
   --output ./output/hello-world
 ```
 
-### What happens:
+### What happens
+
 1. Claude Flow creates a swarm coordinator
 2. Assigns agents based on the task
 3. Agents work together to build the application
@@ -37,6 +38,7 @@ ls -la
 ```
 
 You should see:
+
 - `index.js` - Main application file
 - `package.json` - Node.js configuration
 - `README.md` - Documentation
@@ -58,6 +60,7 @@ cat ../../logs/swarm-*.log
 ```
 
 You'll see agents like:
+
 - **Analyzer**: Understood requirements
 - **Developer**: Wrote the code
 - **Documenter**: Created README
@@ -75,7 +78,8 @@ Try with more specific requirements:
   --name calculator-swarm
 ```
 
-### Parameters explained:
+### Parameters explained
+
 - `--agents 3`: Use 3 specialized agents
 - `--strategy development`: Focus on code creation
 - `--name`: Give your swarm a memorable name
@@ -89,12 +93,14 @@ Try with more specific requirements:
    - `optimization`: For performance improvements
 
 2. Use configuration files:
+
    ```bash
    ../claude-flow swarm create "Your task" \
      --config ../01-configurations/basic/simple-config.json
    ```
 
 3. Monitor swarm progress:
+
    ```bash
    ../claude-flow swarm create "Your task" --monitor
    ```
@@ -102,17 +108,21 @@ Try with more specific requirements:
 ## Common Issues
 
 **Problem**: Swarm takes too long
+
 - **Solution**: Use `--timeout 60000` to set limits
 
 **Problem**: Not enough detail in output
+
 - **Solution**: Be more specific in your task description
 
 **Problem**: Want different output structure
+
 - **Solution**: Include structure requirements in your prompt
 
 ## Summary
 
 You've learned to:
+
 - ✅ Create a basic swarm
 - ✅ Understand agent collaboration
 - ✅ Customize swarm behavior

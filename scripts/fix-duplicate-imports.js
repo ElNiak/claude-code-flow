@@ -20,7 +20,7 @@ async function removeDuplicateImports(filePath) {
     // Remove duplicate error handler imports
     const errorHandlerRegex = /import\s+{\s*getErrorMessage\s*}\s+from\s+['"].*?error-handler\.js['"];\s*\n/g;
     const matches = content.match(errorHandlerRegex);
-    
+
     if (matches && matches.length > 1) {
       // Keep only the first import
       let firstFound = false;
@@ -37,7 +37,7 @@ async function removeDuplicateImports(filePath) {
     // Remove duplicate fs imports
     const fsImportRegex = /import\s+{\s*promises\s+as\s+fs\s*}\s+from\s+['"]node:fs['"];\s*\n/g;
     const fsMatches = content.match(fsImportRegex);
-    
+
     if (fsMatches && fsMatches.length > 1) {
       // Keep only the first import
       let firstFound = false;
@@ -54,7 +54,7 @@ async function removeDuplicateImports(filePath) {
     // Fix duplicate type imports
     const typeImportRegex = /import\s+type\s+{\s*([^}]+)\s*}\s+from\s+['"]([^'"]+)['"];\s*\n/g;
     const typeImports = new Map();
-    
+
     content = content.replace(typeImportRegex, (match, types, from) => {
       const key = from;
       if (typeImports.has(key)) {
@@ -87,7 +87,7 @@ async function findTypeScriptFiles(dir) {
 
   for (const entry of entries) {
     const fullPath = join(dir, entry.name);
-    
+
     if (entry.isDirectory() && !entry.name.includes('node_modules') && !entry.name.includes('dist')) {
       files.push(...await findTypeScriptFiles(fullPath));
     } else if (entry.isFile() && entry.name.endsWith('.ts')) {
@@ -101,13 +101,13 @@ async function findTypeScriptFiles(dir) {
 async function main() {
   const srcDir = join(dirname(__dirname), 'src');
   const files = await findTypeScriptFiles(srcDir);
-  
+
   console.log(`Found ${files.length} TypeScript files to check...`);
-  
+
   for (const file of files) {
     await removeDuplicateImports(file);
   }
-  
+
   console.log('✅ Duplicate import fixes complete!');
 }
 

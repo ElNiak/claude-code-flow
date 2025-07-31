@@ -107,23 +107,23 @@ fs.writeFileSync(swarmPath, swarmContent);
 const replPath = path.join(__dirname, '../src/cli/repl.ts');
 if (fs.existsSync(replPath)) {
   let replContent = fs.readFileSync(replPath, 'utf8');
-  
+
   // Fix Input/Confirm references
   replContent = replContent.replace(/\bInput\b/g, 'prompt');
   replContent = replContent.replace(/\bConfirm\b/g, 'confirm');
-  
+
   // Fix table.header
   replContent = replContent.replace(
     /table\.header\(/g,
     "// table.header("
   );
-  
+
   // Fix Buffer.split
   replContent = replContent.replace(
     /data\.split\(/g,
     "data.toString().split("
   );
-  
+
   fs.writeFileSync(replPath, replContent);
 }
 
@@ -131,13 +131,13 @@ if (fs.existsSync(replPath)) {
 const nodeReplPath = path.join(__dirname, '../src/cli/node-repl.ts');
 if (fs.existsSync(nodeReplPath)) {
   let nodeReplContent = fs.readFileSync(nodeReplPath, 'utf8');
-  
+
   // Fix completer property
   nodeReplContent = nodeReplContent.replace(
     /rl\.completer =/g,
     "// rl.completer ="
   );
-  
+
   fs.writeFileSync(nodeReplPath, nodeReplContent);
 }
 
@@ -145,13 +145,13 @@ if (fs.existsSync(nodeReplPath)) {
 const taskEnginePath = path.join(__dirname, '../src/task/engine.ts');
 if (fs.existsSync(taskEnginePath)) {
   let taskEngineContent = fs.readFileSync(taskEnginePath, 'utf8');
-  
+
   // Fix boolean assignment
   taskEngineContent = taskEngineContent.replace(
     /enableCaching: options\.enableCaching,/g,
     "enableCaching: options.enableCaching || false,"
   );
-  
+
   fs.writeFileSync(taskEnginePath, taskEngineContent);
 }
 
@@ -159,44 +159,44 @@ if (fs.existsSync(taskEnginePath)) {
 const sparcPath = path.join(__dirname, '../src/swarm/sparc-executor.ts');
 if (fs.existsSync(sparcPath)) {
   let sparcContent = fs.readFileSync(sparcPath, 'utf8');
-  
+
   // Initialize phases property
   sparcContent = sparcContent.replace(
     /private phases: SPARCPhase\[\];/g,
     "private phases: SPARCPhase[] = [];"
   );
-  
+
   // Fix index signature issues
   sparcContent = sparcContent.replace(
     /userStories\[projectType\]/g,
     "(userStories as any)[projectType]"
   );
-  
+
   sparcContent = sparcContent.replace(
     /acceptanceCriteria\[projectType\]/g,
     "(acceptanceCriteria as any)[projectType]"
   );
-  
+
   sparcContent = sparcContent.replace(
     /languages\[language\]/g,
     "(languages as any)[language]"
   );
-  
+
   sparcContent = sparcContent.replace(
     /projectStructures\[templateKey\]/g,
     "(projectStructures as any)[templateKey]"
   );
-  
+
   sparcContent = sparcContent.replace(
     /dependencies\[projectType\]/g,
     "(dependencies as any)[projectType]"
   );
-  
+
   sparcContent = sparcContent.replace(
     /deploymentConfigs\[projectType\]/g,
     "(deploymentConfigs as any)[projectType]"
   );
-  
+
   fs.writeFileSync(sparcPath, sparcContent);
 }
 
@@ -204,13 +204,13 @@ if (fs.existsSync(sparcPath)) {
 const promptCopierPath = path.join(__dirname, '../src/swarm/prompt-copier.ts');
 if (fs.existsSync(promptCopierPath)) {
   let promptContent = fs.readFileSync(promptCopierPath, 'utf8');
-  
+
   // Add errors property to result
   promptContent = promptContent.replace(
     /duration: Date\.now\(\) - startTime\n\s*};/g,
     "duration: Date.now() - startTime,\n      errors: []\n    };"
   );
-  
+
   fs.writeFileSync(promptCopierPath, promptContent);
 }
 
@@ -218,49 +218,49 @@ if (fs.existsSync(promptCopierPath)) {
 const enhancedPath = path.join(__dirname, '../src/swarm/prompt-copier-enhanced.ts');
 if (fs.existsSync(enhancedPath)) {
   let enhancedContent = fs.readFileSync(enhancedPath, 'utf8');
-  
+
   // Add override modifiers
   enhancedContent = enhancedContent.replace(
     /async processDirectory\(/g,
     "override async processDirectory("
   );
-  
+
   enhancedContent = enhancedContent.replace(
     /async copyFile\(/g,
     "override async copyFile("
   );
-  
+
   // Change private to protected in base class references
   enhancedContent = enhancedContent.replace(
     /this\.fileQueue/g,
     "(this as any).fileQueue"
   );
-  
+
   enhancedContent = enhancedContent.replace(
     /this\.copiedFiles/g,
     "(this as any).copiedFiles"
   );
-  
+
   enhancedContent = enhancedContent.replace(
     /this\.options/g,
     "(this as any).options"
   );
-  
+
   enhancedContent = enhancedContent.replace(
     /this\.fileExists/g,
     "(this as any).fileExists"
   );
-  
+
   enhancedContent = enhancedContent.replace(
     /this\.calculateFileHash/g,
     "(this as any).calculateFileHash"
   );
-  
+
   enhancedContent = enhancedContent.replace(
     /this\.errors/g,
     "(this as any).errors"
   );
-  
+
   fs.writeFileSync(enhancedPath, enhancedContent);
 }
 
@@ -268,13 +268,13 @@ if (fs.existsSync(enhancedPath)) {
 const promptManagerPath = path.join(__dirname, '../src/swarm/prompt-manager.ts');
 if (fs.existsSync(promptManagerPath)) {
   let managerContent = fs.readFileSync(promptManagerPath, 'utf8');
-  
+
   // Fix imports
   managerContent = managerContent.replace(
     /import { copyPrompts, CopyOptions, CopyResult } from '\.\/prompt-copier-enhanced\.js';/g,
     "import { EnhancedPromptCopier } from './prompt-copier-enhanced.js';\nimport type { CopyOptions, CopyResult } from './prompt-copier.js';"
   );
-  
+
   fs.writeFileSync(promptManagerPath, managerContent);
 }
 

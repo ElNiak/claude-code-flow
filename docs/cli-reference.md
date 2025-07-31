@@ -110,6 +110,7 @@ claude-flow agent spawn <type> [options]
 ```
 
 **Agent Types:**
+
 - `researcher` - Research and information gathering
 - `analyst` - Data analysis and pattern recognition  
 - `implementer` - Code writing and implementation
@@ -254,6 +255,7 @@ claude-flow task create <type> <description> [options]
 ```
 
 **Task Types:**
+
 - `research` - Information gathering and research
 - `analysis` - Data analysis and insights
 - `implementation` - Code writing and development
@@ -584,6 +586,7 @@ claude-flow workflow template <subcommand>
 ```
 
 **Subcommands:**
+
 - `list` - List available templates
 - `create <name>` - Create new template
 - `apply <name>` - Apply template to create workflow

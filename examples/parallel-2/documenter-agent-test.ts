@@ -16,9 +16,9 @@ export class DocumenterAgent {
 
   async generateAPIDocumentation(apiSpec: any): Promise<any> {
     console.log(`[${this.agentId}] Generating API documentation for: ${apiSpec.name}`);
-    
+
     await this.simulateWork(1200);
-    
+
     const documentation = {
       format: 'OpenAPI 3.0',
       endpoints: apiSpec.endpoints.length,
@@ -46,7 +46,7 @@ export class DocumenterAgent {
         'Search functionality'
       ]
     };
-    
+
     console.log(`[${this.agentId}] API documentation generated`);
     return {
       agentId: this.agentId,
@@ -58,9 +58,9 @@ export class DocumenterAgent {
 
   async createUserGuide(feature: string): Promise<any> {
     console.log(`[${this.agentId}] Creating user guide for: ${feature}`);
-    
+
     await this.simulateWork(1500);
-    
+
     const userGuide = {
       title: `${feature} User Guide`,
       sections: [
@@ -87,7 +87,7 @@ export class DocumenterAgent {
       estimatedReadTime: '45 minutes',
       difficultyLevel: 'Beginner to Intermediate'
     };
-    
+
     console.log(`[${this.agentId}] User guide created`);
     return {
       agentId: this.agentId,
@@ -99,9 +99,9 @@ export class DocumenterAgent {
 
   async documentCodebase(module: string): Promise<any> {
     console.log(`[${this.agentId}] Documenting codebase for: ${module}`);
-    
+
     await this.simulateWork(2000);
-    
+
     const codeDocumentation = {
       filesDocumented: Math.floor(Math.random() * 30) + 20,
       classes: Math.floor(Math.random() * 15) + 10,
@@ -128,7 +128,7 @@ export class DocumenterAgent {
       ],
       qualityScore: 8.7
     };
-    
+
     console.log(`[${this.agentId}] Codebase documentation completed`);
     return {
       agentId: this.agentId,
@@ -140,9 +140,9 @@ export class DocumenterAgent {
 
   async generateReleaseNotes(version: string): Promise<any> {
     console.log(`[${this.agentId}] Generating release notes for version: ${version}`);
-    
+
     await this.simulateWork(800);
-    
+
     const releaseNotes = {
       version,
       releaseDate: new Date().toISOString().split('T')[0],
@@ -173,7 +173,7 @@ export class DocumenterAgent {
         automatedScripts: true
       }
     };
-    
+
     console.log(`[${this.agentId}] Release notes generated`);
     return {
       agentId: this.agentId,
@@ -196,7 +196,7 @@ if (require.main === module) {
     version: '1.0',
     endpoints: ['/auth/login', '/auth/validate', '/auth/refresh', '/auth/logout']
   };
-  
+
   Promise.all([
     documenter.generateAPIDocumentation(apiSpec),
     documenter.createUserGuide('User Authentication'),

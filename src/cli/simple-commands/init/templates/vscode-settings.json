@@ -1,0 +1,48 @@
+{
+  "claude.mcpEnabled": true,
+  "claude.mcpServers": [
+    "claude-flow",
+    "ruv-swarm",
+    "sequential-thinking",
+    "perplexity-ask",
+    "context7",
+    "serena",
+    "consult7"
+  ],
+  "claude.workflow.sparcEnabled": true,
+  "claude.workflow.batchingEnabled": true,
+  "claude.workflow.parallelExecution": true,
+  "claude.coordination.swarmSupport": true,
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll": true,
+    "source.organizeImports": true
+  },
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
+  "eslint.format.enable": true,
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "typescript.suggest.autoImports": true,
+  "git.autofetch": true,
+  "git.enableSmartCommit": true,
+  "git.confirmSync": false,
+  "files.associations": {
+    "*.md": "markdown",
+    ".claude/**": "markdown",
+    ".mcp.json": "jsonc",
+    "*.sparc": "json"
+  },
+  "terminal.integrated.defaultProfile.osx": "bash",
+  "terminal.integrated.defaultProfile.linux": "bash",
+  "terminal.integrated.defaultProfile.windows": "PowerShell",
+  "debug.internalConsoleOptions": "openOnSessionStart",
+  "debug.console.acceptSuggestionOnEnter": "on",
+  "task.allowAutomaticTasks": "on",
+  "task.autoDetect": "on",
+  "task.showDecorations": true
+}

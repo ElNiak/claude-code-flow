@@ -45,7 +45,7 @@ describe('NPX Isolated Cache', () => {
     it('should create cache directories under temp/.npm-cache', () => {
       const env = createIsolatedCache();
       const cacheDir = env.NPM_CONFIG_CACHE;
-      
+
       expect(cacheDir).toContain(path.join(os.tmpdir(), '.npm-cache'));
       expect(cacheDir).toContain('claude-flow-');
       expect(cacheDir).toContain(process.pid.toString());
@@ -53,7 +53,7 @@ describe('NPX Isolated Cache', () => {
 
     it('should set both NPM_CONFIG_CACHE and npm_config_cache', () => {
       const env = createIsolatedCache();
-      
+
       expect(env.NPM_CONFIG_CACHE).toBeDefined();
       expect(env.npm_config_cache).toBeDefined();
       expect(env.NPM_CONFIG_CACHE).toBe(env.npm_config_cache);
@@ -94,7 +94,7 @@ describe('NPX Isolated Cache', () => {
       const pidPrefix = `claude-flow-${process.pid}-`;
       expect(cache1).toMatch(new RegExp(`^${pidPrefix}\\d+-[a-z0-9]+$`));
       expect(cache2).toMatch(new RegExp(`^${pidPrefix}\\d+-[a-z0-9]+$`));
-      
+
       // They should be different
       expect(cache1).not.toBe(cache2);
     });
@@ -113,7 +113,7 @@ describe('NPX Isolated Cache', () => {
   describe('environment inheritance', () => {
     it('should inherit PATH and other important environment variables', () => {
       const env = createIsolatedCache();
-      
+
       expect(env.PATH).toBe(process.env.PATH);
       expect(env.HOME || env.USERPROFILE).toBe(process.env.HOME || process.env.USERPROFILE);
     });

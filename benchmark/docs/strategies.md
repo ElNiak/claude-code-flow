@@ -40,12 +40,14 @@ swarm-benchmark run "Build a REST API with authentication" --strategy auto
 ```
 
 ### When to Use
+
 - First-time users
 - Mixed or unclear objectives
 - Rapid prototyping
 - General purpose tasks
 
 ### Optimization Tips
+
 - Use clear, descriptive objectives
 - Include domain-specific keywords
 - Monitor which strategies are selected
@@ -56,6 +58,7 @@ swarm-benchmark run "Build a REST API with authentication" --strategy auto
 Optimized for information gathering, investigation, and exploratory tasks.
 
 ### Characteristics
+
 - **Focus**: Breadth of information
 - **Approach**: Parallel search paths
 - **Validation**: Cross-reference findings
@@ -71,12 +74,14 @@ swarm-benchmark run "Research best practices for microservices architecture" \
 ```
 
 ### Best Practices
+
 1. Use distributed mode for wider coverage
 2. Increase agent count for thorough research
 3. Set longer timeouts for complex topics
 4. Enable result validation
 
 ### Typical Tasks
+
 - Technology research
 - Market analysis
 - Best practices investigation
@@ -88,6 +93,7 @@ swarm-benchmark run "Research best practices for microservices architecture" \
 Designed for software development, code generation, and implementation tasks.
 
 ### Characteristics
+
 - **Focus**: Code quality and completeness
 - **Approach**: Modular development
 - **Validation**: Syntax and logic checking
@@ -104,18 +110,21 @@ swarm-benchmark run "Develop user authentication microservice" \
 ```
 
 ### Development Workflow
+
 1. **Architecture Phase**: Design system structure
 2. **Implementation Phase**: Write code modules
 3. **Integration Phase**: Connect components
 4. **Testing Phase**: Validate functionality
 
 ### Best Practices
+
 - Use hierarchical mode for complex projects
 - Enable code review (high quality threshold)
 - Set appropriate timeouts for compilation
 - Include test requirements in objective
 
 ### Typical Tasks
+
 - API development
 - Microservices creation
 - Feature implementation
@@ -127,6 +136,7 @@ swarm-benchmark run "Develop user authentication microservice" \
 Optimized for data analysis, pattern recognition, and insight generation.
 
 ### Characteristics
+
 - **Focus**: Accuracy and insights
 - **Approach**: Multi-perspective analysis
 - **Validation**: Statistical verification
@@ -143,18 +153,21 @@ swarm-benchmark run "Analyze customer behavior patterns in sales data" \
 ```
 
 ### Analysis Pipeline
+
 1. **Data Exploration**: Understand dataset
 2. **Pattern Detection**: Identify trends
 3. **Statistical Analysis**: Validate findings
 4. **Insight Generation**: Create recommendations
 
 ### Best Practices
+
 - Use mesh mode for peer validation
 - Set high quality thresholds (>0.9)
 - Enable parallel processing for large datasets
 - Include specific metrics in objective
 
 ### Typical Tasks
+
 - Data analysis
 - Trend identification
 - Performance metrics analysis
@@ -166,6 +179,7 @@ swarm-benchmark run "Analyze customer behavior patterns in sales data" \
 Specialized for test creation, validation, and quality assurance.
 
 ### Characteristics
+
 - **Focus**: Coverage and reliability
 - **Approach**: Systematic testing
 - **Validation**: Test effectiveness
@@ -181,18 +195,21 @@ swarm-benchmark run "Create comprehensive test suite for payment API" \
 ```
 
 ### Testing Approach
+
 1. **Unit Tests**: Individual components
 2. **Integration Tests**: Component interactions
 3. **End-to-End Tests**: Complete workflows
 4. **Performance Tests**: Load and stress testing
 
 ### Best Practices
+
 - Use distributed mode for parallel test execution
 - Set retries for flaky test handling
 - Include coverage requirements
 - Specify test frameworks in objective
 
 ### Typical Tasks
+
 - Test suite creation
 - API testing
 - Integration testing
@@ -204,6 +221,7 @@ swarm-benchmark run "Create comprehensive test suite for payment API" \
 Focused on performance improvement, efficiency, and resource optimization.
 
 ### Characteristics
+
 - **Focus**: Performance metrics
 - **Approach**: Iterative improvement
 - **Validation**: Benchmark comparisons
@@ -220,18 +238,21 @@ swarm-benchmark run "Optimize database query performance" \
 ```
 
 ### Optimization Process
+
 1. **Profiling**: Identify bottlenecks
 2. **Analysis**: Understand root causes
 3. **Implementation**: Apply optimizations
 4. **Validation**: Measure improvements
 
 ### Best Practices
+
 - Use hybrid mode for adaptive optimization
 - Enable monitoring for real-time feedback
 - Set baseline measurements
 - Use iterative approach
 
 ### Typical Tasks
+
 - Performance tuning
 - Query optimization
 - Algorithm improvement
@@ -243,6 +264,7 @@ swarm-benchmark run "Optimize database query performance" \
 Designed for updates, documentation, refactoring, and system maintenance.
 
 ### Characteristics
+
 - **Focus**: Consistency and clarity
 - **Approach**: Systematic updates
 - **Validation**: Compatibility checking
@@ -258,18 +280,21 @@ swarm-benchmark run "Update API documentation and refactor legacy code" \
 ```
 
 ### Maintenance Workflow
+
 1. **Assessment**: Identify needed updates
 2. **Planning**: Prioritize changes
 3. **Implementation**: Apply updates
 4. **Verification**: Ensure compatibility
 
 ### Best Practices
+
 - Use centralized mode for consistency
 - Keep agent count low (2-3)
 - Include specific maintenance goals
 - Enable version tracking
 
 ### Typical Tasks
+
 - Documentation updates
 - Code refactoring
 - Dependency updates
@@ -308,15 +333,17 @@ swarm-benchmark run "Test authentication system" --strategy testing
 ## 📊 Performance Comparison
 
 ### Execution Time (Average)
+
 - Maintenance: 0.14s ⚡
 - Research: 0.10s ⚡
 - Testing: 0.12s ⚡
-- Analysis: 0.15s 
-- Optimization: 0.18s 
-- Development: 0.20s 
+- Analysis: 0.15s
+- Optimization: 0.18s
+- Development: 0.20s
 - Auto: 0.16s (varies)
 
 ### Quality Scores (Average)
+
 - Research: 0.95 ⭐
 - Analysis: 0.93 ⭐
 - Testing: 0.90 ⭐

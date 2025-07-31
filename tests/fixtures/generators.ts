@@ -12,7 +12,7 @@ export function generateCoordinationTasks(count: number) {
 export function generateMemoryEntries(count: number) {
   const namespaces = ['test', 'production', 'staging', 'development'];
   const tags = ['important', 'urgent', 'archive', 'temporary', 'cached'];
-  
+
   return Array.from({ length: count }, (_, i) => ({
     namespace: namespaces[i % namespaces.length],
     key: `entry-${i}`,

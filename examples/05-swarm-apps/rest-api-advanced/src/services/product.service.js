@@ -8,28 +8,28 @@ class ProductService {
    */
   static async getProductById(productId) {
     const cacheKey = `product:${productId}`;
-    
+
     // Try to get from cache
     const cached = await redis.get(cacheKey);
     if (cached) {
       return JSON.parse(cached);
     }
-    
+
     // Get from database
     const product = await Product.findById(productId)
       .populate('reviews.user', 'name avatar')
       .populate('relatedProducts', 'name price images rating');
-    
+
     if (!product) {
       throw new ApiError(404, 'Product not found');
     }
-    
+
     // Cache for 1 hour
     await redis.setex(cacheKey, 3600, JSON.stringify(product));
-    
+
     return product;
   }
-  
+
   /**
    * Invalidate product cache
    */
@@ -37,7 +37,7 @@ class ProductService {
     const cacheKey = `product:${productId}`;
     await redis.del(cacheKey);
   }
-  
+
   /**
    * Get products by IDs
    */
@@ -46,10 +46,10 @@ class ProductService {
       _id: { $in: productIds },
       status: 'active',
     });
-    
+
     return products;
   }
-  
+
   /**
    * Check product availability for multiple items
    */
@@ -57,7 +57,7 @@ class ProductService {
     const results = await Promise.all(
       items.map(async (item) => {
         const product = await Product.findById(item.product);
-        
+
         if (!product) {
           return {
             product: item.product,
@@ -65,7 +65,7 @@ class ProductService {
             error: 'Product not found',
           };
         }
-        
+
         if (!product.isAvailable) {
           return {
             product: item.product,
@@ -73,9 +73,9 @@ class ProductService {
             error: 'Product not available',
           };
         }
-        
+
         const hasStock = product.checkAvailability(item.quantity);
-        
+
         return {
           product: item.product,
           available: hasStock,
@@ -84,28 +84,28 @@ class ProductService {
         };
       })
     );
-    
+
     return results;
   }
-  
+
   /**
    * Update product metrics
    */
   static async updateProductMetrics(productId, metrics) {
     const updates = {};
-    
+
     if (metrics.views) {
       updates.$inc = { views: metrics.views };
     }
-    
+
     if (metrics.salesCount) {
       updates.$inc = { ...updates.$inc, salesCount: metrics.salesCount };
     }
-    
+
     await Product.findByIdAndUpdate(productId, updates);
     await this.invalidateProductCache(productId);
   }
-  
+
   /**
    * Get product recommendations based on user behavior
    */
@@ -118,10 +118,10 @@ class ProductService {
     })
       .sort('-salesCount -rating.average')
       .limit(limit);
-    
+
     return recommendations;
   }
-  
+
   /**
    * Get products by tags
    */
@@ -133,10 +133,10 @@ class ProductService {
     })
       .sort('-rating.average -salesCount')
       .limit(limit);
-    
+
     return products;
   }
-  
+
   /**
    * Calculate dynamic pricing based on demand
    */
@@ -145,22 +145,22 @@ class ProductService {
     if (!product) {
       throw new ApiError(404, 'Product not found');
     }
-    
+
     // Simple dynamic pricing logic
     let priceMultiplier = 1;
-    
+
     // High demand (low stock, high sales)
     if (product.inventory.quantity < 10 && product.salesCount > 100) {
       priceMultiplier = 1.1; // 10% increase
     }
-    
+
     // Low demand (high stock, low sales)
     else if (product.inventory.quantity > 100 && product.salesCount < 10) {
       priceMultiplier = 0.9; // 10% decrease
     }
-    
+
     const dynamicPrice = Math.round(product.price * priceMultiplier * 100) / 100;
-    
+
     return {
       originalPrice: product.price,
       dynamicPrice,
@@ -168,7 +168,7 @@ class ProductService {
       reason: priceMultiplier > 1 ? 'high_demand' : priceMultiplier < 1 ? 'low_demand' : 'normal',
     };
   }
-  
+
   /**
    * Get low stock products
    */
@@ -180,10 +180,10 @@ class ProductService {
     })
       .sort('inventory.quantity')
       .select('name sku inventory.quantity inventory.lowStockThreshold category');
-    
+
     return products;
   }
-  
+
   /**
    * Get out of stock products
    */
@@ -195,10 +195,10 @@ class ProductService {
       status: 'active',
     })
       .select('name sku category updatedAt');
-    
+
     return products;
   }
-  
+
   /**
    * Bulk import products
    */
@@ -207,14 +207,14 @@ class ProductService {
       success: [],
       failed: [],
     };
-    
+
     for (const productData of products) {
       try {
         // Add vendor if not admin
         if (userId) {
           productData.vendor = userId;
         }
-        
+
         const product = await Product.create(productData);
         results.success.push({
           sku: product.sku,
@@ -229,10 +229,10 @@ class ProductService {
         });
       }
     }
-    
+
     return results;
   }
-  
+
   /**
    * Get product analytics
    */
@@ -241,10 +241,10 @@ class ProductService {
     if (!product) {
       throw new ApiError(404, 'Product not found');
     }
-    
+
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - period);
-    
+
     // In a real application, you would aggregate from order data
     const analytics = {
       product: {
@@ -268,23 +268,23 @@ class ProductService {
       },
       recommendations: [],
     };
-    
+
     // Add recommendations based on metrics
     if (product.inventory.quantity <= product.inventory.lowStockThreshold) {
       analytics.recommendations.push('Restock soon - inventory is low');
     }
-    
+
     if (product.rating.average < 3) {
       analytics.recommendations.push('Consider improving product quality based on reviews');
     }
-    
+
     if (product.views > 1000 && product.salesCount < 10) {
       analytics.recommendations.push('High views but low conversion - consider adjusting price or description');
     }
-    
+
     return analytics;
   }
-  
+
   /**
    * Search products with elasticsearch-like functionality
    */
@@ -296,37 +296,37 @@ class ProductService {
       pagination = { page: 1, limit: 20 },
       facets = ['category', 'brand', 'price'],
     } = searchParams;
-    
+
     // Build search query
     const searchQuery = { status: 'active', visibility: { $in: ['visible', 'search'] } };
-    
+
     if (query) {
       searchQuery.$text = { $search: query };
     }
-    
+
     // Apply filters
     Object.entries(filters).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
         searchQuery[key] = value;
       }
     });
-    
+
     // Execute search
     const skip = (pagination.page - 1) * pagination.limit;
     let queryBuilder = Product.find(searchQuery);
-    
+
     if (query) {
       queryBuilder = queryBuilder.select({ score: { $meta: 'textScore' } });
       queryBuilder = queryBuilder.sort({ score: { $meta: 'textScore' } });
     } else {
       queryBuilder = queryBuilder.sort(sort);
     }
-    
+
     const [products, total] = await Promise.all([
       queryBuilder.skip(skip).limit(pagination.limit),
       Product.countDocuments(searchQuery),
     ]);
-    
+
     // Build facets
     const facetResults = {};
     if (facets.includes('category')) {
@@ -336,7 +336,7 @@ class ProductService {
         { $sort: { count: -1 } },
       ]);
     }
-    
+
     if (facets.includes('brand')) {
       facetResults.brands = await Product.aggregate([
         { $match: { ...searchQuery, brand: { $exists: true, $ne: null } } },
@@ -344,7 +344,7 @@ class ProductService {
         { $sort: { count: -1 } },
       ]);
     }
-    
+
     if (facets.includes('price')) {
       const priceRanges = await Product.aggregate([
         { $match: searchQuery },
@@ -359,7 +359,7 @@ class ProductService {
       ]);
       facetResults.priceRanges = priceRanges;
     }
-    
+
     return {
       products,
       pagination: {

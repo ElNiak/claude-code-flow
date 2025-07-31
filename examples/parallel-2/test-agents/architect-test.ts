@@ -19,8 +19,8 @@ export const architectTestCase = {
       "communication",
       "security"
     ];
-    
-    return requiredConcepts.every(concept => 
+
+    return requiredConcepts.every(concept =>
       output.toLowerCase().includes(concept)
     );
   }

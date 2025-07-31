@@ -30,7 +30,7 @@ export class EnhancedSwarmPersistence {
         this.memoryStore = new Map();
         this.transactionLog = [];
         this.corruptionDetector = new DatabaseCorruptionDetector();
-        
+
         this.initializePersistence();
     }
 
@@ -105,7 +105,7 @@ export class EnhancedSwarmPersistence {
             }
 
             const swarms = this.persistence.getActiveSwarms();
-            
+
             // Validate retrieved data
             swarms.forEach(swarm => {
                 if (!this.isValidSwarmData(swarm)) {
@@ -129,7 +129,7 @@ export class EnhancedSwarmPersistence {
             }
 
             this.validateAgentData(agent);
-            
+
             const transactionId = this.recordTransaction('create_agent', agent);
 
             try {
@@ -155,7 +155,7 @@ export class EnhancedSwarmPersistence {
             }
 
             this.validateStatusValue(status);
-            
+
             const transactionId = this.recordTransaction('update_agent_status', { agentId, status });
 
             try {
@@ -182,7 +182,7 @@ export class EnhancedSwarmPersistence {
             }
 
             this.validateMemoryData(agentId, key, value);
-            
+
             const transactionId = this.recordTransaction('store_memory', { agentId, key, ttlSecs });
 
             try {
@@ -208,7 +208,7 @@ export class EnhancedSwarmPersistence {
             }
 
             const memory = this.persistence.getMemory(agentId, key);
-            
+
             if (memory && this.isCorruptedMemoryData(memory)) {
                 console.warn(`Corrupted memory data detected for agent ${agentId}, key ${key}`);
                 await this.cleanupCorruptedMemory(agentId, key);
@@ -229,19 +229,19 @@ export class EnhancedSwarmPersistence {
         if (!swarm || typeof swarm !== 'object') {
             throw new Error('Invalid swarm data: must be an object');
         }
-        
+
         if (!swarm.id || typeof swarm.id !== 'string') {
             throw new Error('Invalid swarm data: id is required and must be a string');
         }
-        
+
         if (!swarm.name || typeof swarm.name !== 'string') {
             throw new Error('Invalid swarm data: name is required and must be a string');
         }
-        
+
         if (!swarm.topology || typeof swarm.topology !== 'string') {
             throw new Error('Invalid swarm data: topology is required and must be a string');
         }
-        
+
         if (typeof swarm.maxAgents !== 'number' || swarm.maxAgents < 1) {
             throw new Error('Invalid swarm data: maxAgents must be a positive number');
         }
@@ -251,19 +251,19 @@ export class EnhancedSwarmPersistence {
         if (!agent || typeof agent !== 'object') {
             throw new Error('Invalid agent data: must be an object');
         }
-        
+
         if (!agent.id || typeof agent.id !== 'string') {
             throw new Error('Invalid agent data: id is required and must be a string');
         }
-        
+
         if (!agent.swarmId || typeof agent.swarmId !== 'string') {
             throw new Error('Invalid agent data: swarmId is required and must be a string');
         }
-        
+
         if (!agent.name || typeof agent.name !== 'string') {
             throw new Error('Invalid agent data: name is required and must be a string');
         }
-        
+
         if (!agent.type || typeof agent.type !== 'string') {
             throw new Error('Invalid agent data: type is required and must be a string');
         }
@@ -273,15 +273,15 @@ export class EnhancedSwarmPersistence {
         if (!agentId || typeof agentId !== 'string') {
             throw new Error('Invalid memory data: agentId is required and must be a string');
         }
-        
+
         if (!key || typeof key !== 'string') {
             throw new Error('Invalid memory data: key is required and must be a string');
         }
-        
+
         if (value === undefined) {
             throw new Error('Invalid memory data: value cannot be undefined');
         }
-        
+
         // Check for circular references in value
         try {
             JSON.stringify(value);
@@ -342,7 +342,7 @@ export class EnhancedSwarmPersistence {
     storeMemoryInMemory(agentId, key, value, ttlSecs) {
         const memoryKey = `memory:${agentId}:${key}`;
         const expiresAt = ttlSecs ? Date.now() + (ttlSecs * 1000) : null;
-        
+
         this.memoryStore.set(memoryKey, {
             agent_id: agentId,
             key,
@@ -356,15 +356,15 @@ export class EnhancedSwarmPersistence {
     getMemoryFromMemory(agentId, key) {
         const memoryKey = `memory:${agentId}:${key}`;
         const memory = this.memoryStore.get(memoryKey);
-        
+
         if (!memory) return null;
-        
+
         // Check TTL
         if (memory.expires_at && Date.now() > memory.expires_at) {
             this.memoryStore.delete(memoryKey);
             return null;
         }
-        
+
         return {
             ...memory,
             value: JSON.parse(memory.value)
@@ -405,17 +405,17 @@ export class EnhancedSwarmPersistence {
     async createOperationBackup(operation, data) {
         try {
             if (!this.persistence || this.isInMemoryMode) return;
-            
+
             const backupFileName = `backup_${operation}_${Date.now()}.json`;
             const backupFilePath = path.join(this.backupPath, backupFileName);
-            
+
             const backupData = {
                 operation,
                 data,
                 timestamp: new Date().toISOString(),
                 database_size: fs.statSync(this.dbPath).size
             };
-            
+
             fs.writeFileSync(backupFilePath, JSON.stringify(backupData, null, 2));
         } catch (error) {
             console.warn('Failed to create backup:', error.message);
@@ -424,9 +424,9 @@ export class EnhancedSwarmPersistence {
 
     // Data integrity checks
     isValidSwarmData(swarm) {
-        return swarm && 
-               typeof swarm.id === 'string' && 
-               typeof swarm.name === 'string' && 
+        return swarm &&
+               typeof swarm.id === 'string' &&
+               typeof swarm.name === 'string' &&
                typeof swarm.topology === 'string';
     }
 
@@ -475,7 +475,7 @@ export class EnhancedSwarmPersistence {
                 // Test database connection
                 await this.persistence.getActiveSwarms();
                 health.persistence.database_accessible = true;
-                
+
                 if (fs.existsSync(this.dbPath)) {
                     health.persistence.database_size = fs.statSync(this.dbPath).size;
                 }
@@ -498,16 +498,16 @@ export class EnhancedSwarmPersistence {
     // Cleanup and maintenance
     async performMaintenance() {
         console.log('🔧 Performing persistence maintenance...');
-        
+
         // Clean up expired memory entries
         await this.cleanupExpiredMemory();
-        
+
         // Clean up old transaction logs
         await this.cleanupTransactionLog();
-        
+
         // Clean up old backups
         await this.cleanupOldBackups();
-        
+
         // Run database maintenance if available
         if (!this.isInMemoryMode && this.persistence) {
             try {
@@ -522,25 +522,25 @@ export class EnhancedSwarmPersistence {
     async cleanupExpiredMemory() {
         const now = Date.now();
         let cleanedCount = 0;
-        
+
         for (const [key, value] of this.memoryStore) {
             if (key.startsWith('memory:') && value.expires_at && now > value.expires_at) {
                 this.memoryStore.delete(key);
                 cleanedCount++;
             }
         }
-        
+
         console.log(`🧹 Cleaned up ${cleanedCount} expired memory entries`);
     }
 
     async cleanupTransactionLog() {
         const cutoffTime = Date.now() - (24 * 60 * 60 * 1000); // 24 hours
         const initialCount = this.transactionLog.length;
-        
-        this.transactionLog = this.transactionLog.filter(tx => 
+
+        this.transactionLog = this.transactionLog.filter(tx =>
             new Date(tx.timestamp).getTime() > cutoffTime
         );
-        
+
         const cleanedCount = initialCount - this.transactionLog.length;
         console.log(`🧹 Cleaned up ${cleanedCount} old transaction log entries`);
     }
@@ -548,21 +548,21 @@ export class EnhancedSwarmPersistence {
     async cleanupOldBackups() {
         try {
             if (!fs.existsSync(this.backupPath)) return;
-            
+
             const files = fs.readdirSync(this.backupPath);
             const cutoffTime = Date.now() - (7 * 24 * 60 * 60 * 1000); // 7 days
             let cleanedCount = 0;
-            
+
             for (const file of files) {
                 const filePath = path.join(this.backupPath, file);
                 const stats = fs.statSync(filePath);
-                
+
                 if (stats.mtime.getTime() < cutoffTime) {
                     fs.unlinkSync(filePath);
                     cleanedCount++;
                 }
             }
-            
+
             console.log(`🧹 Cleaned up ${cleanedCount} old backup files`);
         } catch (error) {
             console.warn('Failed to cleanup old backups:', error.message);
@@ -648,15 +648,15 @@ class DatabaseCorruptionDetector {
     async checkDatabaseIntegrity(dbPath) {
         try {
             const stats = fs.statSync(dbPath);
-            
+
             // Check if file size is reasonable (not 0 or suspiciously small)
             if (stats.size < 1024) { // Less than 1KB might indicate corruption
                 console.warn(`Database file ${dbPath} is suspiciously small (${stats.size} bytes)`);
             }
-            
+
             // Additional integrity checks could be added here
             // such as trying to open the database and run a simple query
-            
+
         } catch (error) {
             throw new Error(`Database integrity check failed: ${error.message}`);
         }

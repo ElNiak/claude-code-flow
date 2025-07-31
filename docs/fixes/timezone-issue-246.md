@@ -3,6 +3,7 @@
 ## Problem Description
 
 Users worldwide reported that hive-mind creation times were not reflecting their local timezone. For example:
+
 - Users in AEST (Australian Eastern Standard Time) saw UTC instead of AEST
 - Users in EST (Eastern Standard Time) saw UTC instead of EST  
 - Users in JST (Japan Standard Time) saw UTC instead of JST
@@ -34,6 +35,7 @@ Created comprehensive timezone handling utilities:
 ### 2. Session Storage Updates
 
 Enhanced session creation to store:
+
 - UTC timestamp (for consistency across systems)
 - Local timestamp (for display)
 - Timezone name (e.g., "Australia/Sydney")
@@ -42,6 +44,7 @@ Enhanced session creation to store:
 ### 3. Display Improvements
 
 Updated all timestamp displays to:
+
 - Show local time instead of UTC
 - Include timezone abbreviation (e.g., AEST)
 - Show relative time (e.g., "2 hours ago")
@@ -50,6 +53,7 @@ Updated all timestamp displays to:
 ### 4. Database Schema Changes
 
 Added new columns to sessions table:
+
 ```sql
 ALTER TABLE sessions ADD COLUMN created_at_local TEXT;
 ALTER TABLE sessions ADD COLUMN timezone_name TEXT;
@@ -58,13 +62,15 @@ ALTER TABLE sessions ADD COLUMN timezone_offset REAL;
 
 ## Usage Examples
 
-### Before Fix (UTC only):
+### Before Fix (UTC only)
+
 ```
 📋 Session ID: session-1234567890-abc123
 ⏰ Created: 2025-01-14T05:30:00.000Z
 ```
 
-### After Fix (Local timezone):
+### After Fix (Local timezone)
+
 ```
 📋 Session ID: session-1234567890-abc123
 ⏰ Created: 14/01/2025, 4:30:00 PM AEST (2 hours ago)
@@ -80,6 +86,7 @@ node scripts/fix-timezone-issue-246.js --test
 ```
 
 Expected output for AEST users:
+
 ```
 🌍 Current timezone: Australia/Sydney (AEST)
 ⏰ UTC offset: +10 hours
@@ -95,6 +102,7 @@ node scripts/fix-timezone-issue-246.js --migrate
 ```
 
 This creates a SQL migration script that:
+
 1. Adds new timezone columns
 2. Updates existing sessions with local time estimates
 3. Creates indexes for performance
@@ -104,6 +112,7 @@ This creates a SQL migration script that:
 ### Universal Timezone Detection
 
 The fix automatically detects **ANY user's timezone** using:
+
 - `Intl.DateTimeFormat` for timezone name (supports 400+ timezones)
 - `Date.getTimezoneOffset()` for offset calculation
 - Browser/system locale settings
@@ -111,6 +120,7 @@ The fix automatically detects **ANY user's timezone** using:
 - **Automatic daylight saving time** handling
 
 **Supported Examples:**
+
 - 🇺🇸 US: EST, PST, CST, MST
 - 🇬🇧 UK: GMT, BST
 - 🇯🇵 Japan: JST
@@ -156,6 +166,7 @@ To verify the fix is working for AEST users:
 ## Future Enhancements
 
 Potential improvements:
+
 - Timezone preference settings
 - Historical timezone conversion for old sessions
 - Daylight saving time awareness for better accuracy

@@ -9,6 +9,7 @@ This feature implements automatic session pausing when users press Ctrl+C during
 ### 1. Core SIGINT Handler in `spawnSwarm` Function
 
 When a hive-mind swarm is spawned, a SIGINT handler is registered to:
+
 - Detect Ctrl+C (SIGINT) signals
 - Save the current session state as a checkpoint
 - Change session status from 'active' to 'paused'
@@ -18,6 +19,7 @@ When a hive-mind swarm is spawned, a SIGINT handler is registered to:
 ### 2. Claude Code Process Management
 
 When Claude Code instances are spawned with `--claude` flag:
+
 - Child process PIDs are tracked in the session
 - SIGINT handler terminates Claude Code processes gracefully
 - Session is paused with checkpoint data including Claude PID
@@ -26,6 +28,7 @@ When Claude Code instances are spawned with `--claude` flag:
 ### 3. Resume Session Handling
 
 When resuming a session:
+
 - Simple SIGINT handler for clean termination only
 - No re-pausing of already paused sessions
 - Clean removal of signal handlers on process exit
@@ -33,6 +36,7 @@ When resuming a session:
 ## Key Features
 
 ### Automatic Checkpoint Creation
+
 ```javascript
 const checkpointData = {
   timestamp: new Date().toISOString(),
@@ -46,6 +50,7 @@ const checkpointData = {
 ```
 
 ### Clear User Feedback
+
 ```
 ⏸️  Pausing session...
 ✓ Session paused successfully
@@ -55,6 +60,7 @@ To resume this session, run:
 ```
 
 ### Process Tracking
+
 - Parent process PID stored in session
 - Child process PIDs tracked and managed
 - Clean termination of all related processes
@@ -62,6 +68,7 @@ To resume this session, run:
 ## Usage Examples
 
 ### Basic Usage
+
 ```bash
 # Start a hive-mind session
 $ claude-flow hive-mind spawn "Build a REST API"
@@ -79,6 +86,7 @@ To resume this session, run:
 ```
 
 ### With Claude Code Integration
+
 ```bash
 # Start with Claude Code
 $ claude-flow hive-mind spawn "Research AI trends" --claude
@@ -96,18 +104,21 @@ To resume this session, run:
 ## Technical Implementation
 
 ### Signal Handlers
+
 - `SIGINT`: Primary handler for Ctrl+C
 - `SIGTERM`: Additional handler for graceful termination
 - Prevents multiple executions with `isExiting` flag
 - Cleans up handlers after process exit
 
 ### Database Updates
+
 - Session status updated to 'paused'
 - Checkpoint saved with auto-pause name
 - Session logs record pause event
 - Child PIDs tracked and cleaned up
 
 ### Error Handling
+
 - Try-catch blocks for all critical operations
 - Graceful degradation if session manager fails
 - Clear error messages for debugging
@@ -116,6 +127,7 @@ To resume this session, run:
 ## Testing
 
 Test coverage includes:
+
 1. Basic SIGINT handling during spawn
 2. Checkpoint creation verification
 3. Claude Code process termination
@@ -123,6 +135,7 @@ Test coverage includes:
 5. Resume functionality after pause
 
 Run tests with:
+
 ```bash
 npm test tests/hive-mind-sigint.test.js
 ```

@@ -117,28 +117,28 @@ function validateType(value: any, expectedType: string): boolean {
 
 function validateObject(obj: any, schema: ConfigSchema, path = ''): string[] {
   const errors: string[] = [];
-  
+
   // Check required fields
   for (const [key, spec] of Object.entries(schema)) {
     if (spec.required && !(key in obj)) {
       errors.push(`${path}${key} is required but missing`);
       continue;
     }
-    
+
     if (key in obj) {
       const value = obj[key];
       const currentPath = path ? `${path}${key}.` : `${key}.`;
-      
+
       if (!validateType(value, spec.type)) {
         errors.push(`${path}${key} should be of type ${spec.type}, got ${typeof value}`);
         continue;
       }
-      
+
       // Validate nested objects
       if (spec.type === 'object' && spec.properties) {
         errors.push(...validateObject(value, spec.properties, currentPath));
       }
-      
+
       // Validate array items
       if (spec.type === 'array' && spec.properties && Array.isArray(value)) {
         value.forEach((item, index) => {
@@ -149,7 +149,7 @@ function validateObject(obj: any, schema: ConfigSchema, path = ''): string[] {
       }
     }
   }
-  
+
   return errors;
 }
 
@@ -159,11 +159,11 @@ function validateClaudeFlowConfig(config: any): string[] {
 
 function validateWorkflow(workflow: any): string[] {
   const errors = validateObject(workflow, WORKFLOW_SCHEMA);
-  
+
   // Additional workflow-specific validations
   if (workflow.tasks && Array.isArray(workflow.tasks)) {
     const taskIds = new Set<string>();
-    
+
     for (const [index, task] of workflow.tasks.entries()) {
       // Check for duplicate task IDs
       if (taskIds.has(task.id)) {
@@ -171,7 +171,7 @@ function validateWorkflow(workflow: any): string[] {
       } else {
         taskIds.add(task.id);
       }
-      
+
       // Validate dependencies reference existing tasks
       if (task.dependencies && Array.isArray(task.dependencies)) {
         for (const dep of task.dependencies) {
@@ -180,19 +180,19 @@ function validateWorkflow(workflow: any): string[] {
           }
         }
       }
-      
+
       // Validate priority values
       if (task.priority && !['low', 'medium', 'high', 'critical'].includes(task.priority)) {
         errors.push(`Task "${task.id}" has invalid priority "${task.priority}"`);
       }
-      
+
       // Validate timeout is positive
       if (task.timeout && task.timeout <= 0) {
         errors.push(`Task "${task.id}" has invalid timeout ${task.timeout}`);
       }
     }
   }
-  
+
   return errors;
 }
 
@@ -202,11 +202,11 @@ async function validateFile(filePath: string): Promise<ValidationResult> {
     valid: false,
     errors: [],
   };
-  
+
   try {
     const content = await Deno.readTextFile(filePath);
     const config = JSON.parse(content);
-    
+
     // Determine validation type based on file name/content
     if (filePath.includes('workflow') || config.tasks) {
       result.errors = validateWorkflow(config);
@@ -215,7 +215,7 @@ async function validateFile(filePath: string): Promise<ValidationResult> {
     } else {
       result.errors.push('Unknown configuration file type');
     }
-    
+
     result.valid = result.errors.length === 0;
   } catch (error) {
     if (error instanceof SyntaxError) {
@@ -224,15 +224,15 @@ async function validateFile(filePath: string): Promise<ValidationResult> {
       result.errors.push(`Failed to read file: ${error.message}`);
     }
   }
-  
+
   return result;
 }
 
 async function main(): Promise<void> {
   console.log('Validating example configurations...\n');
-  
+
   const results: ValidationResult[] = [];
-  
+
   // Find all JSON files in examples directory
   for await (const entry of walk('./examples', { exts: ['.json'] })) {
     if (entry.isFile) {
@@ -240,7 +240,7 @@ async function main(): Promise<void> {
       results.push(result);
     }
   }
-  
+
   // Also check any config files in the root
   const rootConfigFiles = ['claude-flow.config.json', 'config.json'];
   for (const filename of rootConfigFiles) {
@@ -252,15 +252,15 @@ async function main(): Promise<void> {
       // File doesn't exist, skip
     }
   }
-  
+
   if (results.length === 0) {
     console.log('No configuration files found to validate.');
     return;
   }
-  
+
   // Report results
   let hasErrors = false;
-  
+
   for (const result of results) {
     if (result.valid) {
       console.log(`✅ ${result.file}: Valid`);
@@ -272,9 +272,9 @@ async function main(): Promise<void> {
       hasErrors = true;
     }
   }
-  
+
   console.log(`\nValidated ${results.length} configuration files.`);
-  
+
   if (hasErrors) {
     console.error('❌ Some configuration files have errors!');
     Deno.exit(1);

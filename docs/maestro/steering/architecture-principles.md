@@ -11,6 +11,7 @@ This steering document defines the architectural principles and design philosoph
 **Principle**: Leverage existing Claude-Flow infrastructure rather than creating duplicate implementations.
 
 **Guidelines**:
+
 - **Hive Mind Integration**: Use existing `HiveMind.ts` for collective intelligence
 - **Consensus Engine**: Leverage proven `ConsensusEngine.ts` for decision validation
 - **Agent Management**: Integrate with existing `AgentManager` infrastructure
@@ -18,6 +19,7 @@ This steering document defines the architectural principles and design philosoph
 - **Memory Management**: Utilize existing memory management systems
 
 **Anti-Patterns**:
+
 - ❌ Creating separate hive mind implementations
 - ❌ Duplicating consensus mechanisms
 - ❌ Building isolated agent systems
@@ -28,6 +30,7 @@ This steering document defines the architectural principles and design philosoph
 **Principle**: All development follows a structured 3-file specification system.
 
 **File Structure**:
+
 ```
 <feature-name>/
 ├── requirements.md    # EARS notation requirements
@@ -36,6 +39,7 @@ This steering document defines the architectural principles and design philosoph
 ```
 
 **Guidelines**:
+
 - **EARS Notation**: Requirements must follow Easy Approach to Requirements Syntax
 - **Design Completeness**: Architecture, APIs, security, and performance requirements
 - **Task Granularity**: Tasks should be implementable in 2-4 hours
@@ -46,12 +50,14 @@ This steering document defines the architectural principles and design philosoph
 **Principle**: Leverage hive mind collective intelligence for complex decisions.
 
 **Application Areas**:
+
 - **Design Generation**: Multi-agent collaborative design creation
 - **Architecture Decisions**: Collective evaluation of technical approaches
 - **Quality Assessment**: Distributed code review and validation
 - **Performance Optimization**: Collaborative performance analysis
 
 **Implementation**:
+
 - **Hierarchical Topology**: Queen-led coordination with specialized agents
 - **Consensus Thresholds**: Configurable consensus requirements (default 0.66)
 - **Adaptive Strategies**: Dynamic strategy selection based on task complexity
@@ -62,12 +68,14 @@ This steering document defines the architectural principles and design philosoph
 **Principle**: Use events for loose coupling and extensibility.
 
 **Event Categories**:
+
 - **Workflow Events**: `maestro:spec_created`, `maestro:design_generated`
 - **Task Events**: `maestro:task_implemented`, `maestro:phase_approved`
 - **Error Events**: `maestro:error` with context and recovery information
 - **Performance Events**: Metrics and monitoring data
 
 **Event Handling**:
+
 - **Non-blocking**: Events don't block workflow execution
 - **Error Isolation**: Event handler failures don't break main flow
 - **Extensibility**: New handlers can be added without core changes
@@ -78,12 +86,14 @@ This steering document defines the architectural principles and design philosoph
 **Principle**: Use sophisticated hook system for automated quality assurance and workflow enhancement.
 
 **Hook Integration**:
+
 - **Agentic Flow Hooks**: Leverage `src/services/agentic-flow-hooks/` system
 - **Pipeline Management**: Multi-stage hook execution with parallel processing
 - **Neural Learning**: Pattern recognition and continuous improvement
 - **Performance Optimization**: Built-in metrics and bottleneck detection
 
 **Hook Types**:
+
 - **Workflow Hooks**: `workflow-start`, `workflow-step`, `workflow-complete`
 - **LLM Hooks**: `pre-llm-call`, `post-llm-call`, `llm-error`
 - **Memory Hooks**: `memory-store`, `memory-retrieve`, `memory-sync`
@@ -94,12 +104,14 @@ This steering document defines the architectural principles and design philosoph
 **Principle**: System continues operating even when advanced features are unavailable.
 
 **Degradation Strategies**:
+
 - **Hive Mind Unavailable**: Fall back to single-agent processing
 - **Consensus Timeout**: Proceed with available votes or skip consensus
 - **Hook Failures**: Continue workflow without hook enhancements
 - **Network Issues**: Use local processing and cache when possible
 
 **Implementation**:
+
 - **Try-Catch Blocks**: Comprehensive error handling with fallbacks
 - **Timeout Management**: All async operations have reasonable timeouts
 - **Status Checking**: Verify service availability before use
@@ -110,6 +122,7 @@ This steering document defines the architectural principles and design philosoph
 **Principle**: System behavior should be configurable without code changes.
 
 **Configuration Areas**:
+
 ```typescript
 interface MaestroConfig {
   enableHiveMind: boolean;           // Toggle collective intelligence
@@ -122,6 +135,7 @@ interface MaestroConfig {
 ```
 
 **Benefits**:
+
 - **Environment Adaptation**: Different configs for dev/staging/prod
 - **Feature Flags**: Safe rollout of new capabilities
 - **Performance Tuning**: Adjust resource usage based on requirements
@@ -132,6 +146,7 @@ interface MaestroConfig {
 **Principle**: Maintain clear, recoverable workflow state throughout operations.
 
 **State Structure**:
+
 ```typescript
 interface MaestroWorkflowState {
   featureName: string;
@@ -144,6 +159,7 @@ interface MaestroWorkflowState {
 ```
 
 **State Management**:
+
 - **Persistence**: State survives system restarts
 - **Atomic Updates**: State changes are atomic and consistent
 - **History Tracking**: Complete audit trail of workflow progression
@@ -156,6 +172,7 @@ interface MaestroWorkflowState {
 **Usage**: Central coordination of workflow phases and agent interactions.
 
 **Implementation**:
+
 - **Single Entry Point**: `MaestroOrchestrator` as main coordination class
 - **Phase Management**: Clear phase transitions with validation
 - **Resource Coordination**: Central management of agents, memory, and files
@@ -166,6 +183,7 @@ interface MaestroWorkflowState {
 **Usage**: Different implementation strategies based on available services.
 
 **Examples**:
+
 - **Design Generation**: Hive mind collective vs. single agent
 - **Task Implementation**: Consensus validation vs. direct execution
 - **Quality Assurance**: Automated vs. manual review processes
@@ -175,6 +193,7 @@ interface MaestroWorkflowState {
 **Usage**: Event emission and subscription for loose coupling.
 
 **Benefits**:
+
 - **Extensibility**: New observers can be added without core changes
 - **Monitoring**: External systems can monitor workflow progress
 - **Debugging**: Event streams provide complete workflow visibility
@@ -185,6 +204,7 @@ interface MaestroWorkflowState {
 **Usage**: Standardized workflow phases with customizable implementation details.
 
 **Phases**:
+
 1. **Requirements Clarification**: Generate requirements.md
 2. **Research & Design**: Create design.md with collective intelligence
 3. **Implementation Planning**: Decompose into tasks.md
@@ -196,6 +216,7 @@ interface MaestroWorkflowState {
 **Usage**: Integration with existing Claude-Flow infrastructure.
 
 **Adapters**:
+
 - **Hive Mind Adapter**: Translate Maestro requests to hive mind API
 - **Consensus Adapter**: Convert decisions to consensus proposals
 - **Agent Adapter**: Map Maestro agent types to existing agent system
@@ -206,6 +227,7 @@ interface MaestroWorkflowState {
 ### 1. Input Validation
 
 **Layers**:
+
 - **CLI Validation**: Command argument validation and sanitization
 - **API Validation**: Request validation with schema enforcement
 - **File System Validation**: Path validation and access control
@@ -214,6 +236,7 @@ interface MaestroWorkflowState {
 ### 2. Access Control
 
 **Principles**:
+
 - **Least Privilege**: Minimal required permissions for each operation
 - **Path Restrictions**: File operations limited to designated directories
 - **Agent Isolation**: Agents operate in isolated contexts
@@ -222,6 +245,7 @@ interface MaestroWorkflowState {
 ### 3. Error Information
 
 **Guidelines**:
+
 - **Safe Error Messages**: Don't expose internal system details
 - **Structured Logging**: Detailed logs for debugging without information leakage
 - **Error Codes**: Standardized error codes for programmatic handling
@@ -232,6 +256,7 @@ interface MaestroWorkflowState {
 ### 1. Async-First Design
 
 **Principles**:
+
 - **Non-blocking I/O**: All file and network operations are async
 - **Parallel Processing**: Concurrent execution where possible
 - **Resource Pooling**: Efficient resource utilization
@@ -240,6 +265,7 @@ interface MaestroWorkflowState {
 ### 2. Caching Strategy
 
 **Levels**:
+
 - **Memory Cache**: In-memory caching for frequently accessed data
 - **File System Cache**: Cached specifications and generated content
 - **Network Cache**: Cached hive mind and consensus results
@@ -248,6 +274,7 @@ interface MaestroWorkflowState {
 ### 3. Resource Management
 
 **Areas**:
+
 - **Memory Management**: Efficient memory usage with cleanup
 - **File Handle Management**: Proper file handle cleanup
 - **Agent Lifecycle**: Efficient agent creation and destruction
@@ -258,6 +285,7 @@ interface MaestroWorkflowState {
 ### 1. Plugin Architecture
 
 **Extension Points**:
+
 - **Custom Hooks**: Register custom workflow automation
 - **Agent Types**: Define specialized agent capabilities
 - **Quality Gates**: Custom validation and quality checks
@@ -266,6 +294,7 @@ interface MaestroWorkflowState {
 ### 2. API Design
 
 **Principles**:
+
 - **Backward Compatibility**: Maintain API compatibility across versions
 - **Versioning**: Clear API versioning strategy
 - **Documentation**: Comprehensive API documentation with examples
@@ -274,6 +303,7 @@ interface MaestroWorkflowState {
 ### 3. Configuration Extensions
 
 **Customization**:
+
 - **Custom Templates**: User-defined specification templates
 - **Workflow Customization**: Custom phase definitions and transitions
 - **Integration Points**: Custom integration with external tools
@@ -284,6 +314,7 @@ interface MaestroWorkflowState {
 ### 1. Testing Strategy
 
 **Levels**:
+
 - **Unit Tests**: Individual component testing with mocks
 - **Integration Tests**: Service integration testing
 - **End-to-End Tests**: Complete workflow testing
@@ -292,6 +323,7 @@ interface MaestroWorkflowState {
 ### 2. Code Quality
 
 **Tools**:
+
 - **Static Analysis**: TypeScript strict mode and linting
 - **Code Coverage**: Minimum 90% coverage for core logic
 - **Dependency Analysis**: Regular dependency security scanning
@@ -300,6 +332,7 @@ interface MaestroWorkflowState {
 ### 3. Monitoring and Observability
 
 **Metrics**:
+
 - **Workflow Metrics**: Success rates, completion times, error rates
 - **Performance Metrics**: Response times, resource usage, throughput
 - **Business Metrics**: Feature adoption, user satisfaction, productivity gains

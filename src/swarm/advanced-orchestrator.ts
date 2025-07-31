@@ -1,6 +1,6 @@
 /**
  * Advanced Swarm Orchestration Engine
- * 
+ *
  * This is the core orchestration engine that manages swarm lifecycle,
  * agent coordination, task distribution, and result aggregation.
  * It integrates with existing MCP tools and provides production-ready
@@ -43,17 +43,17 @@ export interface AdvancedSwarmConfig extends SwarmConfig {
   loadBalancing: boolean;
   faultTolerance: boolean;
   realTimeMonitoring: boolean;
-  
+
   // Performance settings
   maxThroughput: number;
   latencyTarget: number;
   reliabilityTarget: number;
-  
+
   // Integration settings
   mcpIntegration: boolean;
   hiveIntegration: boolean;
   claudeCodeIntegration: boolean;
-  
+
   // Neural capabilities
   neuralProcessing: boolean;
   learningEnabled: boolean;
@@ -107,10 +107,10 @@ export class AdvancedSwarmOrchestrator extends EventEmitter {
 
   constructor(config: Partial<AdvancedSwarmConfig> = {}) {
     super();
-    
+
     this.logger = new Logger('AdvancedSwarmOrchestrator');
     this.config = this.createDefaultConfig(config);
-    
+
     // Initialize components
     this.coordinator = new SwarmCoordinator({
       maxAgents: this.config.maxAgents,
@@ -147,20 +147,20 @@ export class AdvancedSwarmOrchestrator extends EventEmitter {
     }
 
     this.logger.info('Initializing advanced swarm orchestrator...');
-    
+
     try {
       // Initialize subsystems
       await this.coordinator.start();
       await this.memoryManager.initialize();
-      
+
       // Start background processes
       this.startHealthChecks();
       this.startMetricsCollection();
-      
+
       this.isRunning = true;
       this.logger.info('Advanced swarm orchestrator initialized successfully');
       this.emit('orchestrator:initialized');
-      
+
     } catch (error) {
       this.logger.error('Failed to initialize orchestrator', error);
       throw error;
@@ -176,7 +176,7 @@ export class AdvancedSwarmOrchestrator extends EventEmitter {
     }
 
     this.logger.info('Shutting down advanced swarm orchestrator...');
-    
+
     try {
       // Stop background processes
       if (this.healthCheckInterval) {
@@ -198,7 +198,7 @@ export class AdvancedSwarmOrchestrator extends EventEmitter {
       this.isRunning = false;
       this.logger.info('Advanced swarm orchestrator shut down successfully');
       this.emit('orchestrator:shutdown');
-      
+
     } catch (error) {
       this.logger.error('Error during orchestrator shutdown', error);
       throw error;
@@ -662,7 +662,7 @@ export class AdvancedSwarmOrchestrator extends EventEmitter {
 
     for (const agentType of requiredTypes) {
       const agentId = generateId('agent');
-      
+
       const agent: SwarmAgent = {
         id: agentId,
         name: `${agentType}-${agentId}`,
@@ -938,7 +938,7 @@ export class AdvancedSwarmOrchestrator extends EventEmitter {
 
   private updateGlobalMetrics(): void {
     const swarms = Array.from(this.activeSwarms.values());
-    
+
     this.globalMetrics = {
       throughput: this.calculateGlobalThroughput(swarms),
       latency: this.calculateGlobalLatency(swarms),

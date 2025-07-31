@@ -7,12 +7,19 @@ This document provides comprehensive documentation for all 87 MCP tools availabl
 ## 📋 Tool Categories
 
 ### 🐝 Swarm Coordination Tools (12)
+
 ### 🧠 Neural Network Tools (15)  
+
 ### 💾 Memory & Persistence Tools (12)
+
 ### 📊 Analysis & Monitoring Tools (13)
+
 ### 🔄 Workflow & Automation Tools (11)
+
 ### 🐙 GitHub Integration Tools (8)
+
 ### 🤖 DAA (Dynamic Agent Architecture) Tools (8)
+
 ### 🛠️ System & Utilities Tools (8)
 
 ---
@@ -24,6 +31,7 @@ This document provides comprehensive documentation for all 87 MCP tools availabl
 Initialize a swarm with specified topology and configuration.
 
 **Parameters:**
+
 ```json
 {
   "topology": {
@@ -46,6 +54,7 @@ Initialize a swarm with specified topology and configuration.
 ```
 
 **Example Usage:**
+
 ```bash
 npx claude-flow@2.0.0 coordination swarm-init \
   --topology hierarchical \
@@ -54,6 +63,7 @@ npx claude-flow@2.0.0 coordination swarm-init \
 ```
 
 **Response:**
+
 ```json
 {
   "swarm_id": "swarm_20250706_141234",
@@ -73,13 +83,14 @@ npx claude-flow@2.0.0 coordination swarm-init \
 Create a specialized agent within the swarm.
 
 **Parameters:**
+
 ```json
 {
   "type": {
     "type": "string",
     "enum": [
-      "coordinator", "researcher", "coder", "analyst", 
-      "architect", "tester", "reviewer", "optimizer", 
+      "coordinator", "researcher", "coder", "analyst",
+      "architect", "tester", "reviewer", "optimizer",
       "documenter", "monitor", "specialist"
     ],
     "description": "Type of agent to spawn"
@@ -101,6 +112,7 @@ Create a specialized agent within the swarm.
 ```
 
 **Example Usage:**
+
 ```bash
 npx claude-flow@2.0.0 coordination agent-spawn \
   --type architect \
@@ -109,6 +121,7 @@ npx claude-flow@2.0.0 coordination agent-spawn \
 ```
 
 **Response:**
+
 ```json
 {
   "agent_id": "agent_architect_20250706_141245",
@@ -132,6 +145,7 @@ npx claude-flow@2.0.0 coordination agent-spawn \
 Orchestrate complex task workflows across agents.
 
 **Parameters:**
+
 ```json
 {
   "task": {
@@ -159,6 +173,7 @@ Orchestrate complex task workflows across agents.
 ```
 
 **Example Usage:**
+
 ```bash
 npx claude-flow@2.0.0 coordination task-orchestrate \
   --task "Build REST API with authentication and testing" \
@@ -167,6 +182,7 @@ npx claude-flow@2.0.0 coordination task-orchestrate \
 ```
 
 **Response:**
+
 ```json
 {
   "task_id": "task_20250706_141256",
@@ -203,6 +219,7 @@ npx claude-flow@2.0.0 coordination task-orchestrate \
 Monitor the health and status of the swarm.
 
 **Parameters:**
+
 ```json
 {
   "swarmId": {
@@ -213,11 +230,13 @@ Monitor the health and status of the swarm.
 ```
 
 **Example Usage:**
+
 ```bash
 npx claude-flow@2.0.0 coordination swarm-status
 ```
 
 **Response:**
+
 ```json
 {
   "swarm_id": "swarm_20250706_141234",
@@ -258,6 +277,7 @@ npx claude-flow@2.0.0 coordination swarm-status
 List all active agents and their capabilities.
 
 **Parameters:**
+
 ```json
 {
   "swarmId": {
@@ -268,11 +288,13 @@ List all active agents and their capabilities.
 ```
 
 **Example Usage:**
+
 ```bash
 npx claude-flow@2.0.0 coordination agent-list
 ```
 
 **Response:**
+
 ```json
 {
   "agents": [
@@ -317,6 +339,7 @@ npx claude-flow@2.0.0 coordination agent-list
 Train neural patterns with WASM acceleration.
 
 **Parameters:**
+
 ```json
 {
   "pattern_type": {
@@ -337,6 +360,7 @@ Train neural patterns with WASM acceleration.
 ```
 
 **Example Usage:**
+
 ```bash
 npx claude-flow@2.0.0 neural train \
   --pattern-type coordination \
@@ -345,6 +369,7 @@ npx claude-flow@2.0.0 neural train \
 ```
 
 **Response:**
+
 ```json
 {
   "training_id": "neural_train_20250706_141300",
@@ -377,6 +402,7 @@ npx claude-flow@2.0.0 neural train \
 Make AI predictions using trained models.
 
 **Parameters:**
+
 ```json
 {
   "modelId": {
@@ -391,6 +417,7 @@ Make AI predictions using trained models.
 ```
 
 **Example Usage:**
+
 ```bash
 npx claude-flow@2.0.0 neural predict \
   --model-id coordination_model_v1.2 \
@@ -398,6 +425,7 @@ npx claude-flow@2.0.0 neural predict \
 ```
 
 **Response:**
+
 ```json
 {
   "prediction_id": "pred_20250706_141310",
@@ -435,6 +463,7 @@ npx claude-flow@2.0.0 neural predict \
 Check the status of neural network systems.
 
 **Parameters:**
+
 ```json
 {
   "modelId": {
@@ -445,11 +474,13 @@ Check the status of neural network systems.
 ```
 
 **Example Usage:**
+
 ```bash
 npx claude-flow@2.0.0 neural status
 ```
 
 **Response:**
+
 ```json
 {
   "wasm_status": {
@@ -501,6 +532,7 @@ npx claude-flow@2.0.0 neural status
 Store and retrieve persistent memory data.
 
 **Parameters:**
+
 ```json
 {
   "action": {
@@ -529,6 +561,7 @@ Store and retrieve persistent memory data.
 ```
 
 **Example Usage:**
+
 ```bash
 # Store project context
 npx claude-flow@2.0.0 memory usage \
@@ -546,6 +579,7 @@ npx claude-flow@2.0.0 memory usage \
 ```
 
 **Response (Store):**
+
 ```json
 {
   "action": "store",
@@ -564,6 +598,7 @@ npx claude-flow@2.0.0 memory usage \
 ```
 
 **Response (Retrieve):**
+
 ```json
 {
   "action": "retrieve",
@@ -586,6 +621,7 @@ npx claude-flow@2.0.0 memory usage \
 Search memory entries with pattern matching.
 
 **Parameters:**
+
 ```json
 {
   "pattern": {
@@ -605,6 +641,7 @@ Search memory entries with pattern matching.
 ```
 
 **Example Usage:**
+
 ```bash
 npx claude-flow@2.0.0 memory search \
   --pattern "microservices|architecture" \
@@ -613,6 +650,7 @@ npx claude-flow@2.0.0 memory search \
 ```
 
 **Response:**
+
 ```json
 {
   "pattern": "microservices|architecture",
@@ -645,6 +683,7 @@ npx claude-flow@2.0.0 memory search \
 Generate comprehensive performance reports.
 
 **Parameters:**
+
 ```json
 {
   "timeframe": {
@@ -663,6 +702,7 @@ Generate comprehensive performance reports.
 ```
 
 **Example Usage:**
+
 ```bash
 npx claude-flow@2.0.0 performance report \
   --timeframe 24h \
@@ -670,6 +710,7 @@ npx claude-flow@2.0.0 performance report \
 ```
 
 **Response:**
+
 ```json
 {
   "report_id": "perf_report_20250706_141330",
@@ -721,6 +762,7 @@ npx claude-flow@2.0.0 performance report \
 Identify and analyze system performance bottlenecks.
 
 **Parameters:**
+
 ```json
 {
   "component": {
@@ -735,6 +777,7 @@ Identify and analyze system performance bottlenecks.
 ```
 
 **Example Usage:**
+
 ```bash
 npx claude-flow@2.0.0 bottleneck analyze \
   --component swarm_coordination \
@@ -742,6 +785,7 @@ npx claude-flow@2.0.0 bottleneck analyze \
 ```
 
 **Response:**
+
 ```json
 {
   "analysis_id": "bottleneck_20250706_141340",
@@ -805,6 +849,7 @@ npx claude-flow@2.0.0 bottleneck analyze \
 Create custom workflows for automation.
 
 **Parameters:**
+
 ```json
 {
   "name": {
@@ -823,6 +868,7 @@ Create custom workflows for automation.
 ```
 
 **Example Usage:**
+
 ```bash
 npx claude-flow@2.0.0 workflow create \
   --name "full-stack-development" \
@@ -834,6 +880,7 @@ npx claude-flow@2.0.0 workflow create \
 ```
 
 **Response:**
+
 ```json
 {
   "workflow_id": "workflow_20250706_141350",
@@ -876,6 +923,7 @@ npx claude-flow@2.0.0 workflow create \
 Analyze GitHub repositories for coordination optimization.
 
 **Parameters:**
+
 ```json
 {
   "repo": {
@@ -891,6 +939,7 @@ Analyze GitHub repositories for coordination optimization.
 ```
 
 **Example Usage:**
+
 ```bash
 npx claude-flow@2.0.0 github repo-analyze \
   --repo "myorg/my-project" \
@@ -898,6 +947,7 @@ npx claude-flow@2.0.0 github repo-analyze \
 ```
 
 **Response:**
+
 ```json
 {
   "analysis_id": "gh_analysis_20250706_141400",
@@ -951,6 +1001,7 @@ npx claude-flow@2.0.0 github repo-analyze \
 Create dynamic agents with adaptive capabilities.
 
 **Parameters:**
+
 ```json
 {
   "agent_type": {
@@ -969,6 +1020,7 @@ Create dynamic agents with adaptive capabilities.
 ```
 
 **Example Usage:**
+
 ```bash
 npx claude-flow@2.0.0 daa agent-create \
   --agent-type adaptive_coder \
@@ -977,6 +1029,7 @@ npx claude-flow@2.0.0 daa agent-create \
 ```
 
 **Response:**
+
 ```json
 {
   "agent_id": "daa_agent_20250706_141410",
@@ -1016,6 +1069,7 @@ npx claude-flow@2.0.0 daa agent-create \
 Perform comprehensive system health checks.
 
 **Parameters:**
+
 ```json
 {
   "components": {
@@ -1026,12 +1080,14 @@ Perform comprehensive system health checks.
 ```
 
 **Example Usage:**
+
 ```bash
 npx claude-flow@2.0.0 health-check \
   --components '["swarm", "neural", "memory", "mcp"]'
 ```
 
 **Response:**
+
 ```json
 {
   "health_check_id": "health_20250706_141420",

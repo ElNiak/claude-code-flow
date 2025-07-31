@@ -11,6 +11,7 @@ This document describes the comprehensive MCP (Model Context Protocol) integrati
 **Purpose**: Core integration layer that connects the Web UI to Claude-Flow MCP tools.
 
 **Features**:
+
 - Real-time MCP tool invocation
 - Comprehensive error handling and retry logic
 - Result caching with TTL
@@ -18,6 +19,7 @@ This document describes the comprehensive MCP (Model Context Protocol) integrati
 - Event-driven architecture
 
 **Tool Categories** (87 total tools):
+
 - 🐝 **Swarm Coordination** (12 tools): `swarm_init`, `agent_spawn`, `task_orchestrate`, etc.
 - 🧠 **Neural Networks** (15 tools): `neural_train`, `neural_predict`, `model_save`, etc.
 - 💾 **Memory & Persistence** (12 tools): `memory_usage`, `memory_backup`, `state_snapshot`, etc.
@@ -32,6 +34,7 @@ This document describes the comprehensive MCP (Model Context Protocol) integrati
 **Purpose**: Unified interface for executing all MCP tools with advanced features.
 
 **Features**:
+
 - Queue management and concurrent execution limits
 - Batch execution with parallel/sequential modes
 - Workflow execution with dependency resolution
@@ -40,6 +43,7 @@ This document describes the comprehensive MCP (Model Context Protocol) integrati
 - Predefined workflow templates
 
 **Execution Modes**:
+
 - **Single Tool**: Execute individual tools with parameters
 - **Batch Execution**: Execute multiple tools in parallel or sequence
 - **Workflow Execution**: Execute complex workflows with dependencies
@@ -50,6 +54,7 @@ This document describes the comprehensive MCP (Model Context Protocol) integrati
 **Purpose**: Comprehensive UI views for each tool category.
 
 **New Views Added**:
+
 1. **Neural View** (🧠): Neural network management interface
    - Model training and prediction
    - Pattern recognition and analysis
@@ -96,6 +101,7 @@ This document describes the comprehensive MCP (Model Context Protocol) integrati
 **Purpose**: Event-driven architecture for live data updates.
 
 **Features**:
+
 - WebSocket-like functionality for real-time updates
 - Batched update processing to prevent UI blocking
 - Event subscription system
@@ -104,6 +110,7 @@ This document describes the comprehensive MCP (Model Context Protocol) integrati
 - Cross-view update coordination
 
 **Update Flow**:
+
 1. Tool execution events trigger updates
 2. Updates are queued by view type
 3. Batched processing prevents UI blocking
@@ -115,6 +122,7 @@ This document describes the comprehensive MCP (Model Context Protocol) integrati
 **Purpose**: Main UI class that integrates all components.
 
 **Features**:
+
 - Enhanced navigation with 13 total views
 - Real-time status monitoring
 - Global command handling
@@ -133,6 +141,7 @@ UI Updates ← Real-time System ← Event Processing ← Tool Results
 ## Navigation Structure
 
 ### Primary Views (1-5)
+
 - **1**: Processes - System process management
 - **2**: Status - Enhanced system status with MCP metrics
 - **3**: Orchestration - Swarm coordination and management
@@ -140,6 +149,7 @@ UI Updates ← Real-time System ← Event Processing ← Tool Results
 - **5**: Logs - Enhanced logging with tool execution tracking
 
 ### Tool Category Views (6-0)
+
 - **6**: Neural (🧠) - Neural network tools
 - **7**: Analysis (📊) - Analysis and monitoring tools
 - **8**: Workflow (🔄) - Workflow and automation tools
@@ -147,6 +157,7 @@ UI Updates ← Real-time System ← Event Processing ← Tool Results
 - **0**: DAA (🤖) - Dynamic Agent Architecture tools
 
 ### Utility Views (t, s, h)
+
 - **t**: Tools - Central tool execution center
 - **s**: System - System utilities and management
 - **h**: Help - Comprehensive help and documentation
@@ -154,6 +165,7 @@ UI Updates ← Real-time System ← Event Processing ← Tool Results
 ## Tool Execution Examples
 
 ### Single Tool Execution
+
 ```javascript
 // Execute a neural training tool
 const result = await toolFramework.executeTool('neural_train', {
@@ -164,6 +176,7 @@ const result = await toolFramework.executeTool('neural_train', {
 ```
 
 ### Batch Execution
+
 ```javascript
 // Execute multiple tools in parallel
 const batchTools = [
@@ -172,12 +185,13 @@ const batchTools = [
   { toolName: 'performance_report', parameters: { timeframe: '24h' } }
 ];
 
-const results = await toolFramework.executeToolsBatch(batchTools, { 
-  parallel: true 
+const results = await toolFramework.executeToolsBatch(batchTools, {
+  parallel: true
 });
 ```
 
 ### Workflow Execution
+
 ```javascript
 // Execute predefined workflow
 const workflow = await toolFramework.executePredefinedWorkflow(
@@ -189,18 +203,21 @@ const workflow = await toolFramework.executePredefinedWorkflow(
 ## Real-time Features
 
 ### Event System
+
 - Tool execution events (start, complete, error)
 - System status updates
 - Memory operations
 - Swarm status changes
 
 ### Performance Monitoring
+
 - Execution latency tracking
 - Update queue management
 - Event history maintenance
 - Metrics collection and reporting
 
 ### Caching Strategy
+
 - Tool result caching with TTL
 - View-specific data caching
 - Progressive cache cleanup
@@ -209,12 +226,14 @@ const workflow = await toolFramework.executePredefinedWorkflow(
 ## Error Handling
 
 ### Retry Logic
+
 - Configurable retry attempts (default: 3)
 - Exponential backoff delay
 - Tool-specific retry strategies
 - Fallback to mock implementations
 
 ### Error Recovery
+
 - Graceful degradation to mock mode
 - User notification of failures
 - Automatic retry for transient failures
@@ -223,18 +242,21 @@ const workflow = await toolFramework.executePredefinedWorkflow(
 ## Performance Optimizations
 
 ### UI Performance
+
 - Throttled UI refreshes (max 20 FPS)
 - Batched update processing
 - Efficient data structures
 - Memory leak prevention
 
 ### Tool Execution Performance
+
 - Connection pooling
 - Result caching
 - Parallel execution capabilities
 - Queue management
 
 ### Memory Management
+
 - Automatic cache cleanup
 - Event history limits
 - Resource cleanup on shutdown
@@ -243,6 +265,7 @@ const workflow = await toolFramework.executePredefinedWorkflow(
 ## Configuration
 
 ### MCP Integration Settings
+
 ```javascript
 const settings = {
   maxRetries: 3,
@@ -254,6 +277,7 @@ const settings = {
 ```
 
 ### View Configuration
+
 ```javascript
 const viewSettings = {
   autoRefreshInterval: 10000,
@@ -266,18 +290,21 @@ const viewSettings = {
 ## Testing Strategy
 
 ### Unit Tests
+
 - Individual component testing
 - Mock MCP tool responses
 - Error scenario validation
 - Performance benchmarking
 
 ### Integration Tests
+
 - End-to-end tool execution
 - Cross-component communication
 - Real-time update flow
 - Error handling validation
 
 ### User Acceptance Tests
+
 - Navigation workflow testing
 - Tool execution scenarios
 - Performance validation
@@ -286,12 +313,14 @@ const viewSettings = {
 ## Deployment Considerations
 
 ### Requirements
+
 - Node.js 18+ or Deno 1.30+
 - Claude-Flow MCP server access
 - Terminal with ANSI color support
 - Sufficient memory for caching
 
 ### Installation
+
 ```bash
 # Install dependencies
 npm install
@@ -304,6 +333,7 @@ node src/cli/simple-commands/enhanced-webui-complete.js
 ```
 
 ### Production Settings
+
 - Enable production caching
 - Configure appropriate retry limits
 - Set up logging and monitoring
@@ -312,6 +342,7 @@ node src/cli/simple-commands/enhanced-webui-complete.js
 ## Future Enhancements
 
 ### Planned Features
+
 - Visual workflow designer
 - Chart and graph integration
 - Export/import capabilities
@@ -319,12 +350,14 @@ node src/cli/simple-commands/enhanced-webui-complete.js
 - Custom dashboard creation
 
 ### Scalability Improvements
+
 - WebSocket integration
 - Distributed tool execution
 - Advanced caching strategies
 - Load balancing capabilities
 
 ### User Experience Enhancements
+
 - Keyboard shortcuts
 - Context-sensitive help
 - Custom themes

@@ -19,7 +19,7 @@
       }
     },
     "core-api-staging": {
-      "template": "web-api", 
+      "template": "web-api",
       "environment": "staging",
       "customConfig": {
         "database": "postgresql",

@@ -14,7 +14,7 @@
       "jitterMax": 0.1,
       "retryableErrors": [
         "ECONNREFUSED",
-        "ECONNRESET", 
+        "ECONNRESET",
         "ETIMEDOUT",
         "ENOTFOUND",
         "SQLITE_BUSY",
@@ -118,19 +118,31 @@
         "swarmData": {
           "required": ["id", "name", "topology", "maxAgents"],
           "constraints": {
-            "id": {"type": "string", "minLength": 1, "maxLength": 100},
-            "name": {"type": "string", "minLength": 1, "maxLength": 255},
-            "topology": {"enum": ["mesh", "hierarchical", "ring", "star", "centralized", "distributed"]},
-            "maxAgents": {"type": "number", "min": 1, "max": 1000}
+            "id": { "type": "string", "minLength": 1, "maxLength": 100 },
+            "name": { "type": "string", "minLength": 1, "maxLength": 255 },
+            "topology": {
+              "enum": ["mesh", "hierarchical", "ring", "star", "centralized", "distributed"]
+            },
+            "maxAgents": { "type": "number", "min": 1, "max": 1000 }
           }
         },
         "agentData": {
           "required": ["id", "swarmId", "name", "type"],
           "constraints": {
-            "id": {"type": "string", "minLength": 1, "maxLength": 100},
-            "swarmId": {"type": "string", "minLength": 1, "maxLength": 100},
-            "name": {"type": "string", "minLength": 1, "maxLength": 255},
-            "type": {"enum": ["researcher", "coder", "analyst", "optimizer", "coordinator", "tester", "architect"]}
+            "id": { "type": "string", "minLength": 1, "maxLength": 100 },
+            "swarmId": { "type": "string", "minLength": 1, "maxLength": 100 },
+            "name": { "type": "string", "minLength": 1, "maxLength": 255 },
+            "type": {
+              "enum": [
+                "researcher",
+                "coder",
+                "analyst",
+                "optimizer",
+                "coordinator",
+                "tester",
+                "architect"
+              ]
+            }
           }
         }
       }
@@ -300,7 +312,7 @@
           "contacts": ["on-call@example.com"]
         },
         {
-          "name": "L2", 
+          "name": "L2",
           "threshold": 3,
           "timeout": 600000,
           "contacts": ["senior-engineer@example.com"]
@@ -425,12 +437,7 @@
     "cleanup": {
       "enabled": true,
       "schedule": "0 2 * * *",
-      "tasks": [
-        "expiredMemoryCleanup",
-        "logRotation", 
-        "metricArchival",
-        "backupCleanup"
-      ]
+      "tasks": ["expiredMemoryCleanup", "logRotation", "metricArchival", "backupCleanup"]
     },
     "healthChecks": {
       "enabled": true,
@@ -467,8 +474,8 @@
       "alerting": {
         "enabled": true,
         "channels": {
-          "console": {"enabled": true},
-          "webhook": {"enabled": true}
+          "console": { "enabled": true },
+          "webhook": { "enabled": true }
         }
       }
     },
@@ -480,9 +487,9 @@
       "alerting": {
         "enabled": true,
         "channels": {
-          "console": {"enabled": true},
-          "email": {"enabled": true},
-          "slack": {"enabled": true}
+          "console": { "enabled": true },
+          "email": { "enabled": true },
+          "slack": { "enabled": true }
         },
         "escalation": {
           "enabled": true
@@ -490,7 +497,7 @@
       },
       "metrics": {
         "exports": {
-          "prometheus": {"enabled": true}
+          "prometheus": { "enabled": true }
         }
       }
     }

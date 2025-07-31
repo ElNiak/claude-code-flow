@@ -104,7 +104,7 @@ describe('MCPServer', () => {
       };
 
       server.registerTool(testTool);
-      
+
       try {
         server.registerTool(testTool);
         throw new Error('Should have thrown an error');
@@ -158,7 +158,7 @@ describe('MCPServer', () => {
         ...config,
         port: -1, // Invalid port
       };
-      
+
       const invalidServer = new MCPServer(invalidConfig, eventBus, logger);
       expect(invalidServer).toBeDefined(); // Should still create the server instance
     });

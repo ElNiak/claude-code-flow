@@ -43,10 +43,10 @@ npm install @claude-flow/agentic-hooks
 ### Basic Usage
 
 ```typescript
-import { 
-  initializeAgenticFlowHooks, 
+import {
+  initializeAgenticFlowHooks,
   createHookContext,
-  agenticHookManager 
+  agenticHookManager
 } from '@claude-flow/agentic-hooks';
 
 // Initialize the hook system
@@ -328,28 +328,28 @@ const sideEffects = [
     action: 'store',
     data: { key: 'result', value: data, ttl: 3600 },
   },
-  
+
   // Neural training
   {
     type: 'neural',
     action: 'train',
     data: { patterns: extractedPatterns, modelId: 'optimizer' },
   },
-  
+
   // Metrics
   {
     type: 'metric',
     action: 'update',
     data: { name: 'latency', value: 150 },
   },
-  
+
   // Notifications
   {
     type: 'notification',
     action: 'emit',
     data: { event: 'threshold:exceeded', data: metrics },
   },
-  
+
   // Logging
   {
     type: 'log',
@@ -493,7 +493,7 @@ export const myCommand = {
   action: async (options) => {
     // Initialize hooks for this session
     const hooks = new AgenticFlowHooks(options.sessionId);
-    
+
     // Use hooks throughout your command
     await hooks.executeWithHooks('llm-call', async () => {
       // Your LLM call logic
@@ -536,6 +536,7 @@ Logger.setLevel('debug');
 ## API Reference
 
 For complete API documentation, see:
+
 - [Hook Manager API](./api/hook-manager.md)
 - [Hook Types Reference](./api/hook-types.md)
 - [Context Builder API](./api/context-builder.md)

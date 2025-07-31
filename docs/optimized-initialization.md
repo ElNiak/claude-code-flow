@@ -17,23 +17,28 @@ npx -y claude-flow@latest init --sparc
 ## Benefits of Optimized Initialization
 
 ### 1. **Pre-Optimized Prompts**
+
 - Each SPARC mode includes carefully crafted prompts that focus on specific development tasks
 - Reduced cognitive load on AI agents leads to more accurate and consistent outputs
 - Prompts are tested and refined based on real-world usage patterns
 
 ### 2. **Improved Performance**
+
 - **15-30% faster response times** due to streamlined context
 - **20% reduction in token usage** through efficient prompt engineering
 - **Better first-attempt success rate** for complex tasks
 
 ### 3. **Built-in Best Practices**
+
 - Automatic configuration of coding standards
 - Pre-configured test coverage requirements
 - Security-first development patterns
 - Documentation templates included
 
 ### 4. **Enhanced SPARC Modes**
+
 All 17+ SPARC modes receive optimized prompts:
+
 - `architect` - Clearer system design guidelines
 - `tdd` - Stricter Red-Green-Refactor enforcement
 - `code` - More modular implementation patterns
@@ -43,21 +48,27 @@ All 17+ SPARC modes receive optimized prompts:
 ## What Gets Optimized?
 
 ### CLAUDE.md Enhancements
+
 The optimized `CLAUDE.md` includes:
+
 - Focused role definitions for each development mode
 - Clear success criteria and quality gates
 - Pre-defined coding patterns and anti-patterns
 - Streamlined command examples
 
 ### .roomodes Configuration
+
 Optimized mode definitions with:
+
 - Refined system prompts for each mode
 - Specific tool restrictions per mode
 - Performance-tuned context windows
 - Mode-specific best practices
 
 ### Slash Commands
+
 Enhanced `.claude/commands/` with:
+
 - Faster command execution templates
 - Pre-validated parameter handling
 - Optimized context loading
@@ -68,12 +79,14 @@ Enhanced `.claude/commands/` with:
 ### From Standard to Optimized Setup
 
 1. **Backup Current Configuration**
+
    ```bash
    cp CLAUDE.md CLAUDE.md.backup
    cp .roomodes .roomodes.backup
    ```
 
 2. **Run Optimized Initialization**
+
    ```bash
    npx claude-flow@latest init --sparc --force
    ```
@@ -84,7 +97,9 @@ Enhanced `.claude/commands/` with:
    - Test with a simple SPARC command
 
 ### Preserving Customizations
+
 If you have custom configurations:
+
 1. Use the `--minimal` flag first to see base structure
 2. Apply optimizations selectively
 3. Maintain custom modes in a separate file
@@ -104,10 +119,12 @@ If you have custom configurations:
 ### Real-World Examples
 
 #### Task: "Build user authentication system"
+
 - **Standard**: 4 iterations, 12 minutes, 85% test coverage
 - **Optimized**: 2 iterations, 7 minutes, 92% test coverage
 
 #### Task: "Debug performance issue"
+
 - **Standard**: 6 debug cycles, found root cause in 15 minutes
 - **Optimized**: 3 debug cycles, found root cause in 8 minutes
 
@@ -116,12 +133,14 @@ If you have custom configurations:
 ### Common Issues
 
 1. **Existing Files Warning**
+
    ```bash
    # Solution: Use --force to overwrite
    npx claude-flow@latest init --sparc --force
    ```
 
 2. **Custom Modes Lost After Update**
+
    ```bash
    # Solution: Backup before updating
    cp -r .claude .claude.backup
@@ -135,6 +154,7 @@ If you have custom configurations:
 ### Validation
 
 Run these commands to verify optimized setup:
+
 ```bash
 # Check SPARC modes are loaded
 ./claude-flow sparc modes --verbose
@@ -151,6 +171,7 @@ Run these commands to verify optimized setup:
 ### Custom Optimization
 
 Create custom optimized modes:
+
 ```json
 {
   "custom-mode": {
@@ -169,6 +190,7 @@ Create custom optimized modes:
 ### Performance Tuning
 
 Fine-tune for your specific needs:
+
 1. Adjust prompt lengths in `.roomodes`
 2. Modify context windows per mode
 3. Set project-specific constraints in `CLAUDE.md`
@@ -217,6 +239,7 @@ A: Yes! Submit PRs with performance benchmarks.
 4. Share feedback for continuous improvement
 
 For more information, see:
+
 - [SPARC Methodology Guide](./sparc-methodology.md)
 - [Performance Benchmarks](./benchmarks.md)
 - [Contributing Guide](../CONTRIBUTING.md)

@@ -90,6 +90,7 @@ CREATE TABLE behavioral_patterns (
 ### Backward Compatibility
 
 All schema changes use `CREATE TABLE IF NOT EXISTS` and `ALTER TABLE ADD COLUMN` ensuring:
+
 - Existing data is never modified
 - New features are additive only
 - Applications continue working during upgrades
@@ -170,6 +171,7 @@ claude-flow hive-mind-optimize --report
 ```
 
 Output includes:
+
 - Current schema version
 - Table statistics (row counts, sizes)
 - Index information
@@ -246,14 +248,17 @@ For large deployments (>100k tasks, >1M memory entries):
 ### Common Issues
 
 **"Database is locked" error**
+
 - Ensure no active swarms during vacuum
 - Use `--no-vacuum` flag if swarms must stay active
 
 **"Disk space insufficient" error**
+
 - Clean memory and archive tasks first
 - Consider external storage for archives
 
 **"Optimization taking too long"**
+
 - Run with `--verbose` to see progress
 - Consider running individual operations separately
 
@@ -284,6 +289,7 @@ const optimizations = [
 ### Index Selection Criteria
 
 Indexes are chosen based on:
+
 - Query frequency analysis
 - Join patterns in common operations
 - Cardinality of indexed columns

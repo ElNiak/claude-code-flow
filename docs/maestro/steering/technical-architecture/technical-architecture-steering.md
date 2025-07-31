@@ -3,20 +3,24 @@
 *Created: 2025-07-29 | Template: technical*
 
 ## Overview
+
 This steering document provides comprehensive guidance for the **technical-architecture** domain, ensuring consistency and quality across all related development activities.
 
 ## Guiding Principles
+
 Technical architecture guidelines for scalable, maintainable systems with microservices patterns.
 
 ## Technical Standards
 
 ### Core Standards
+
 - Follow established architectural patterns and design principles
 - Maintain consistency with existing system architecture
 - Implement proper error handling and logging throughout
 - Use dependency injection and inversion of control
 
 ### Code Quality Requirements
+
 - Maintain >95% test coverage for critical components
 - Follow established coding standards and conventions
 - Implement comprehensive input validation and sanitization
@@ -25,12 +29,14 @@ Technical architecture guidelines for scalable, maintainable systems with micros
 ## Architecture Guidelines
 
 ### Architectural Decisions
+
 - Service-oriented architecture with clear boundaries
 - Event-driven communication between services
 - Microservices pattern for scalable components
 - Consistent data modeling and persistence strategies
 
 ### Design Patterns
+
 - Repository pattern for data access
 - Factory pattern for object creation
 - Observer pattern for event handling
@@ -39,12 +45,14 @@ Technical architecture guidelines for scalable, maintainable systems with micros
 ## Implementation Practices
 
 ### Development Practices
+
 - Test-driven development (TDD) for critical functionality
 - Continuous integration and deployment (CI/CD)
 - Code review requirements for all changes
 - Automated quality gates and validation
 
 ### Implementation Guidelines
+
 - Clean code principles and SOLID design
 - Proper exception handling and recovery
 - Performance optimization and monitoring
@@ -53,12 +61,14 @@ Technical architecture guidelines for scalable, maintainable systems with micros
 ## Quality Gates
 
 ### Quality Assurance
+
 - Comprehensive testing strategy (unit, integration, E2E)
 - Performance benchmarking and load testing
 - Security vulnerability assessment and penetration testing
 - Code quality metrics and technical debt tracking
 
 ### Validation Criteria
+
 - [ ] All acceptance criteria met
 - [ ] Performance benchmarks achieved
 - [ ] Security requirements satisfied
@@ -67,13 +77,16 @@ Technical architecture guidelines for scalable, maintainable systems with micros
 ## Steering Context Integration
 
 ### Agent Guidance
+
 When AI agents work on technical-architecture-related tasks:
+
 - Apply the principles and standards defined in this document
 - Validate implementations against these guidelines
 - Escalate any conflicts or ambiguities for human review
 - Document decisions and rationale for future reference
 
 ### Workflow Integration
+
 - Requirements gathering should reference these standards
 - Design decisions must align with architectural guidelines
 - Implementation must follow coding standards and practices
@@ -82,12 +95,14 @@ When AI agents work on technical-architecture-related tasks:
 ## Compliance and Validation
 
 ### Automated Checks
+
 - Code quality tools and linters configured
 - Security scanning integrated into CI/CD
 - Performance monitoring and alerting active
 - Documentation generation and validation automated
 
 ### Manual Reviews
+
 - Architecture review for significant changes
 - Security review for sensitive components
 - Performance review for critical paths

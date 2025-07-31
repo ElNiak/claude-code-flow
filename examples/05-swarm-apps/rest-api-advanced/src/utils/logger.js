@@ -22,15 +22,15 @@ const consoleFormat = winston.format.combine(
   winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
   winston.format.printf(({ timestamp, level, message, stack, ...metadata }) => {
     let msg = `${timestamp} [${level}]: ${message}`;
-    
+
     if (Object.keys(metadata).length > 0) {
       msg += ` ${JSON.stringify(metadata)}`;
     }
-    
+
     if (stack) {
       msg += `\n${stack}`;
     }
-    
+
     return msg;
   })
 );

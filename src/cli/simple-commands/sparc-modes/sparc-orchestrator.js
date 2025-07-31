@@ -57,7 +57,7 @@ batchtool monitor --dashboard
      \`\`\`bash
      # Delegate requirements gathering
      npx claude-flow sparc run spec-pseudocode "Define detailed requirements for ${taskDescription}" --non-interactive
-     
+
      # Store task assignment
      npx claude-flow memory store ${memoryNamespace}_task_spec "Assigned to: spec-pseudocode mode. Status: In progress. Dependencies: None."
      \`\`\`
@@ -71,7 +71,7 @@ batchtool monitor --dashboard
      \`\`\`bash
      # Delegate system design
      npx claude-flow sparc run architect "Design scalable architecture for ${taskDescription}" --non-interactive
-     
+
      # Store task assignment
      npx claude-flow memory store ${memoryNamespace}_task_arch "Assigned to: architect mode. Status: In progress. Dependencies: spec_complete."
      \`\`\`
@@ -85,16 +85,16 @@ batchtool monitor --dashboard
      \`\`\`bash
      # TDD implementation
      npx claude-flow sparc run tdd "Implement core functionality with tests" --non-interactive
-     
+
      # Main code implementation
      npx claude-flow sparc run code "Build modular implementation following architecture" --non-interactive
-     
+
      # Security review
      npx claude-flow sparc run security-review "Audit implementation for vulnerabilities" --non-interactive
-     
+
      # Debugging support
      npx claude-flow sparc run debug "Investigate and fix any issues" --non-interactive
-     
+
      # Store parallel task status
      npx claude-flow memory store ${memoryNamespace}_refinement_tasks "TDD: 80% complete. Code: 60% complete. Security: Pending. Debug: On standby."\`
    - Monitor task progress
@@ -107,16 +107,16 @@ batchtool monitor --dashboard
      \`\`\`bash
      # System integration
      npx claude-flow sparc run integration "Integrate all components" --non-interactive
-     
+
      # Documentation
      npx claude-flow sparc run docs-writer "Create comprehensive documentation" --non-interactive
-     
+
      # Optimization
      npx claude-flow sparc run refinement-optimization-mode "Optimize performance and structure" --non-interactive
-     
+
      # DevOps deployment
      npx claude-flow sparc run devops "Deploy to production" --non-interactive
-     
+
      # Monitoring setup
      npx claude-flow sparc run post-deployment-monitoring-mode "Configure production monitoring" --non-interactive
      \`\`\`

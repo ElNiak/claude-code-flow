@@ -5,6 +5,7 @@ This guide provides comprehensive strategies for optimizing swarm performance ba
 ## 🎯 Optimization Overview
 
 Swarm optimization focuses on four key areas:
+
 1. **Strategy Selection** - Choosing the right approach
 2. **Coordination Efficiency** - Minimizing overhead
 3. **Resource Utilization** - Optimizing CPU/memory usage
@@ -62,6 +63,7 @@ swarm-benchmark run "Build API" --strategy auto --hint development
 ```
 
 **Best Practices:**
+
 - Use clear, descriptive objectives
 - Include keywords that indicate task type
 - Monitor which strategy auto selects
@@ -80,6 +82,7 @@ swarm-benchmark run "Research topic" \
 ```
 
 **Optimization Tips:**
+
 - Use distributed mode for broad research
 - Increase agents for comprehensive coverage
 - Set quality thresholds for accuracy
@@ -98,6 +101,7 @@ swarm-benchmark run "Build microservices" \
 ```
 
 **Optimization Tips:**
+
 - Use hierarchical mode for large projects
 - Allocate more time for complex tasks
 - Enable code review with quality checks
@@ -116,6 +120,7 @@ swarm-benchmark run "Analyze dataset" \
 ```
 
 **Optimization Tips:**
+
 - Use mesh mode for peer review
 - Set high quality thresholds
 - Enable parallel processing
@@ -158,6 +163,7 @@ swarm-benchmark run "Update documentation" \
 ## 🔗 Coordination Mode Optimization
 
 ### Centralized Mode
+
 - **Best for**: Small teams (2-3 agents), simple tasks
 - **Optimization**: Minimize coordinator selection time
 - **Overhead**: ~50ms
@@ -167,6 +173,7 @@ swarm-benchmark run "Simple task" --mode centralized --max-agents 3
 ```
 
 ### Distributed Mode
+
 - **Best for**: Research, parallel tasks
 - **Optimization**: Balance coordinator count
 - **Overhead**: ~100ms + network latency
@@ -176,6 +183,7 @@ swarm-benchmark run "Research task" --mode distributed --max-agents 8
 ```
 
 ### Hierarchical Mode
+
 - **Best for**: Complex projects, large teams
 - **Optimization**: Optimize tree depth
 - **Overhead**: ~80ms per level
@@ -185,6 +193,7 @@ swarm-benchmark run "Complex project" --mode hierarchical --max-agents 10
 ```
 
 ### Mesh Mode
+
 - **Best for**: Collaborative tasks, peer review
 - **Optimization**: Limit peer connections
 - **Overhead**: ~150ms + negotiation time
@@ -194,6 +203,7 @@ swarm-benchmark run "Collaborative task" --mode mesh --max-agents 6
 ```
 
 ### Hybrid Mode
+
 - **Best for**: Mixed workloads, adaptive scenarios
 - **Optimization**: Monitor strategy switching
 - **Overhead**: Variable, typically 100-200ms
@@ -299,24 +309,28 @@ swarm-benchmark compare <id1> <id2> --metrics execution_time,quality
 ## 🔍 Troubleshooting Performance Issues
 
 ### High Execution Time
+
 1. Check task complexity - decompose if needed
 2. Increase agent count for parallel work
 3. Switch to distributed/mesh mode
 4. Extend timeout limits
 
 ### Low Success Rate
+
 1. Review task objectives for clarity
 2. Increase quality threshold
 3. Add retry logic
 4. Use more specialized strategies
 
 ### High Resource Usage
+
 1. Limit agent pool size
 2. Set memory/CPU constraints
 3. Use centralized mode for efficiency
 4. Enable resource monitoring
 
 ### Coordination Overhead
+
 1. Simplify coordination mode
 2. Reduce agent communication
 3. Use hierarchical for large teams

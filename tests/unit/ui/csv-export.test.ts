@@ -33,7 +33,7 @@ function jsonToCSV(json: any): string {
     }
     return strValue;
   }).join(',');
-  
+
   return [headers.join(','), valueRow].join('\n');
 }
 
@@ -47,15 +47,15 @@ describe('CSV Export Functionality', () => {
 
     const csv = jsonToCSV(data);
     const lines = csv.split('\n');
-    
+
     expect(lines).toHaveLength(2);
-    
+
     const headers = lines[0].split(',');
     const values = lines[1].split(',');
-    
+
     expect(headers).toEqual(['name', 'status', 'score']);
     expect(values).toEqual(['Agent A', 'active', '95']);
-    
+
     // Verify alignment - each header should correspond to its value
     headers.forEach((header, index) => {
       const expectedValue = String(data[header as keyof typeof data]);
@@ -77,22 +77,22 @@ describe('CSV Export Functionality', () => {
 
     const csv = jsonToCSV(data);
     const lines = csv.split('\n');
-    
+
     const headers = lines[0].split(',');
     const values = lines[1].split(',');
-    
+
     // Check flattened headers
     expect(headers).toContain('agent.id');
     expect(headers).toContain('agent.type');
     expect(headers).toContain('metrics.cpu');
     expect(headers).toContain('metrics.memory');
-    
+
     // Verify values match their headers
     const idIndex = headers.indexOf('agent.id');
     const typeIndex = headers.indexOf('agent.type');
     const cpuIndex = headers.indexOf('metrics.cpu');
     const memIndex = headers.indexOf('metrics.memory');
-    
+
     expect(values[idIndex]).toBe('123');
     expect(values[typeIndex]).toBe('coder');
     expect(values[cpuIndex]).toBe('45.5');
@@ -110,14 +110,14 @@ describe('CSV Export Functionality', () => {
 
     const csv = jsonToCSV(data);
     const lines = csv.split('\n');
-    
+
     const headers = lines[0].split(',');
     const values = lines[1].split(',');
-    
+
     const nameIndex = headers.indexOf('name');
     const valueIndex = headers.indexOf('value');
     const countIndex = headers.indexOf('count');
-    
+
     expect(values[nameIndex]).toBe('');  // null becomes empty
     expect(values[valueIndex]).toBe(''); // undefined becomes empty
     expect(values[countIndex]).toBe('0'); // 0 should remain as '0'
@@ -132,10 +132,10 @@ describe('CSV Export Functionality', () => {
 
     const csv = jsonToCSV(data);
     const lines = csv.split('\n');
-    
+
     const headers = lines[0].split(',');
     const values = lines[1].split(',');
-    
+
     // Each value must align with its header
     headers.forEach((header, index) => {
       expect(values[index]).toBe(data[header as keyof typeof data]);
@@ -152,17 +152,17 @@ describe('CSV Export Functionality', () => {
 
     const csv = jsonToCSV(data);
     const lines = csv.split('\n');
-    
+
     // Test that the CSV structure is correct
     expect(lines).toHaveLength(2);
     expect(lines[0]).toBe('id,tags,numbers,empty'); // headers
-    
+
     // Test the actual CSV output contains the expected values
     expect(lines[1]).toContain('array-test');
     expect(lines[1]).toContain('"[""tag1"",""tag2"",""tag3""]"'); // Escaped JSON array
     expect(lines[1]).toContain('"[1,2,3]"'); // Numbers array (quoted due to commas)
     expect(lines[1]).toContain('[]'); // Empty array
-    
+
     // Test the full output matches expected pattern
     expect(lines[1]).toBe('array-test,"[""tag1"",""tag2"",""tag3""]","[1,2,3]",[]');
   });
@@ -180,7 +180,7 @@ describe('CSV Export Functionality', () => {
 
     const csv = jsonToCSV(data);
     const lines = csv.split('\n');
-    
+
     expect(lines[0]).toBe('level1.level2.level3.value');
     expect(lines[1]).toBe('deep');
   });

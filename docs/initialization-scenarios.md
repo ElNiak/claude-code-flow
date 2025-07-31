@@ -7,9 +7,13 @@ This guide provides detailed examples of different initialization scenarios for 
 ## Scenario Categories
 
 ### 1. New Project Scenarios
+
 ### 2. Existing Project Migration
+
 ### 3. Team Setup Scenarios
+
 ### 4. Specialized Project Types
+
 ### 5. Enterprise Deployments
 
 ---
@@ -30,6 +34,7 @@ npx -y claude-flow@latest init --sparc --force
 ```
 
 **Expected Output:**
+
 ```
 📁 Initializing in: /home/dev/my-web-app
 🚀 Initializing SPARC development environment...
@@ -50,6 +55,7 @@ Next steps:
 ```
 
 **Follow-up Tasks:**
+
 ```bash
 # Start development workflow
 ./claude-flow sparc "create React app with routing and state management"
@@ -73,6 +79,7 @@ npx -y claude-flow@latest init --sparc --force
 
 **Custom Configuration:**
 Create `microservices-config.json`:
+
 ```json
 {
   "services": ["user-service", "auth-service", "api-gateway"],
@@ -83,6 +90,7 @@ Create `microservices-config.json`:
 ```
 
 **Team Setup:**
+
 ```bash
 # Create team-specific modes
 ./claude-flow config set team.size 8
@@ -95,7 +103,7 @@ for service in user-service auth-service api-gateway; do
 done
 ```
 
-### Scenario 1.3: Startup - MVP Development 
+### Scenario 1.3: Startup - MVP Development
 
 **Context:** Startup team building an MVP quickly
 
@@ -110,6 +118,7 @@ npx -y claude-flow@latest init --sparc --force
 ```
 
 **MVP-Specific CLAUDE.md customization:**
+
 ```markdown
 ## MVP Development Focus
 - Speed over perfection
@@ -139,6 +148,7 @@ diff CLAUDE.md CLAUDE.md.backup || echo "New file created"
 ```
 
 **Migration Checklist:**
+
 - [ ] Backup existing files
 - [ ] Run init with --force
 - [ ] Merge existing documentation
@@ -147,6 +157,7 @@ diff CLAUDE.md CLAUDE.md.backup || echo "New file created"
 - [ ] Train team on new workflow
 
 **Example Migration Script:**
+
 ```bash
 #!/bin/bash
 # migrate-to-claude-flow.sh
@@ -220,6 +231,7 @@ npx -y claude-flow@latest init --sparc --force
 ```
 
 **Team-Specific Directory Structure:**
+
 ```
 project/
 ├── teams/
@@ -236,6 +248,7 @@ project/
 ```
 
 **Squad-Specific Setup:**
+
 ```bash
 # Frontend squad
 cd teams/frontend-squad
@@ -260,6 +273,7 @@ npx -y claude-flow@latest init --sparc --force
 ```
 
 **Async Workflow Configuration:**
+
 ```markdown
 ## Remote Team Workflow
 
@@ -287,6 +301,7 @@ npx -y claude-flow@latest init --sparc --force
 ```
 
 **Learning-Focused CLAUDE.md:**
+
 ```markdown
 ## Junior Developer Guidance
 
@@ -341,6 +356,7 @@ echo '{
 ```
 
 **ML Workflow:**
+
 ```bash
 # Data exploration
 ./claude-flow sparc run ml-data-prep "analyze customer dataset for churn prediction"
@@ -366,6 +382,7 @@ npx -y claude-flow@latest init --sparc --force
 ```
 
 **Infrastructure-Specific Modes:**
+
 ```bash
 # Add to .roomodes
 ./claude-flow config add-mode infra-design "Design cloud infrastructure architecture"
@@ -375,6 +392,7 @@ npx -y claude-flow@latest init --sparc --force
 ```
 
 **DevOps Workflow:**
+
 ```bash
 # Infrastructure design
 ./claude-flow sparc run infra-design "AWS architecture for high-availability web app"
@@ -401,6 +419,7 @@ npx -y claude-flow@latest init --sparc --force
 ```
 
 **Mobile-Specific Configuration:**
+
 ```markdown
 ## Mobile Development Configuration
 
@@ -438,6 +457,7 @@ npx -y claude-flow@latest init --sparc --force
 ```
 
 **Compliance Configuration:**
+
 ```markdown
 ## Compliance Requirements
 
@@ -475,6 +495,7 @@ done
 ```
 
 **Regional Configuration:**
+
 ```bash
 # US East (primary)
 cd regions/us-east
@@ -499,11 +520,13 @@ cd regions/asia-pacific
 ### Issue 1: Permission Denied During Init
 
 **Symptom:**
+
 ```
 Error: Permission denied creating directory '.claude'
 ```
 
 **Solution:**
+
 ```bash
 # Check directory permissions
 ls -la
@@ -519,12 +542,14 @@ npx claude-flow@latest init --sparc --force
 ### Issue 2: Existing Files Conflict
 
 **Symptom:**
+
 ```
 Warning: The following files already exist: CLAUDE.md, .roomodes
 Use --force to overwrite existing files
 ```
 
 **Solution:**
+
 ```bash
 # Backup existing files
 mkdir backup-$(date +%Y%m%d)
@@ -540,11 +565,13 @@ npx claude-flow@latest init --sparc --force
 ### Issue 3: Network Issues During SPARC Setup
 
 **Symptom:**
+
 ```
 Error: create-sparc failed, creating basic SPARC structure manually...
 ```
 
 **Solution:**
+
 ```bash
 # Check network connectivity
 curl -I https://registry.npmjs.org/create-sparc
@@ -559,11 +586,13 @@ npx claude-flow@latest init --sparc --force --verbose
 ### Issue 4: Template Generation Errors
 
 **Symptom:**
+
 ```
 Error: Failed to generate template: ReferenceError: createSparcClaudeMd is not defined
 ```
 
 **Solution:**
+
 ```bash
 # Update to latest version
 npm uninstall -g claude-flow
@@ -596,6 +625,7 @@ After any initialization scenario, verify:
 5. Train your team on the new workflow
 
 For additional help:
+
 - [Troubleshooting Guide](./troubleshooting.md)
 - [Best Practices](./best-practices.md)
 - [Advanced Configuration](./advanced-configuration.md)

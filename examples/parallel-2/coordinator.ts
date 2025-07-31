@@ -29,7 +29,7 @@ class ParallelCoordinator {
     this.startTime = Date.now();
 
     const promises = tasks.map(task => this.executeAgent(task));
-    
+
     try {
       await Promise.all(promises);
     } catch (error) {
@@ -51,7 +51,7 @@ class ParallelCoordinator {
       });
 
       const duration = Date.now() - startTime;
-      
+
       this.results.push({
         agent: task.name,
         success: true,
@@ -62,7 +62,7 @@ class ParallelCoordinator {
       console.log(`✅ ${task.name} completed in ${duration}ms`);
     } catch (error: any) {
       const duration = Date.now() - startTime;
-      
+
       this.results.push({
         agent: task.name,
         success: false,
@@ -77,7 +77,7 @@ class ParallelCoordinator {
   private async generateReport(): Promise<void> {
     const totalDuration = Date.now() - this.startTime;
     const successCount = this.results.filter(r => r.success).length;
-    
+
     const report = {
       summary: {
         totalAgents: this.results.length,

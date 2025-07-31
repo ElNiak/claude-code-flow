@@ -13,14 +13,14 @@ class PerformanceMonitor {
       smartCSR: true,
       title: 'Claude Flow Performance Monitor'
     });
-    
+
     this.metrics = {
       hooks: { calls: 0, avgTime: 0, errors: 0 },
       memory: { reads: 0, writes: 0, cacheHits: 0 },
       neural: { predictions: 0, trainings: 0, accuracy: 0 },
       agents: { active: 0, pooled: 0, spawns: 0 }
     };
-    
+
     this.setupUI();
     this.startMonitoring();
   }
@@ -121,7 +121,7 @@ class PerformanceMonitor {
     // Key bindings
     this.screen.key(['q', 'C-c'], () => process.exit(0));
     this.screen.key('r', () => this.resetMetrics());
-    
+
     this.screen.render();
   }
 
@@ -156,16 +156,16 @@ class PerformanceMonitor {
     // Simulate metric updates (in real implementation, these would come from actual monitoring)
     this.metrics.hooks.calls += Math.floor(Math.random() * 5);
     this.metrics.hooks.avgTime = Math.floor(Math.random() * 50) + 10;
-    
+
     this.metrics.memory.reads += Math.floor(Math.random() * 10);
     this.metrics.memory.writes += Math.floor(Math.random() * 5);
     this.metrics.memory.cacheHits = Math.floor(
       (this.metrics.memory.reads * 0.85)
     );
-    
+
     this.metrics.neural.predictions += Math.floor(Math.random() * 3);
     this.metrics.neural.accuracy = 85 + Math.floor(Math.random() * 10);
-    
+
     this.metrics.agents.active = Math.floor(Math.random() * 10) + 5;
     this.metrics.agents.pooled = 15 - this.metrics.agents.active;
   }
@@ -213,7 +213,7 @@ class PerformanceMonitor {
         '{blue-fg}↻{/blue-fg} Cache hit: prediction/task/analyze',
         '{green-fg}✓{/green-fg} Parallel batch processed: 10 operations'
       ];
-      
+
       this.logBox.log(operations[Math.floor(Math.random() * operations.length)]);
     }
 
@@ -245,7 +245,7 @@ try {
   console.log('Real-time metrics would be displayed here.');
   console.log('\nInstall blessed for interactive dashboard:');
   console.log('npm install blessed\n');
-  
+
   // Fallback text-based monitoring
   setInterval(() => {
     console.clear();

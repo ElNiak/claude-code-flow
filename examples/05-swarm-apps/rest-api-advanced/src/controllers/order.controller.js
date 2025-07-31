@@ -6,24 +6,24 @@ const asyncHandler = require('../utils/asyncHandler');
 // Create new order
 const createOrder = asyncHandler(async (req, res) => {
   const { items, shippingAddress, billingAddress, billingAddressSameAsShipping, paymentMethod, shippingMethod, discountCode, notes } = req.body;
-  
+
   // Validate and prepare order items
   const orderItems = await Promise.all(
     items.map(async (item) => {
       const product = await Product.findById(item.product);
-      
+
       if (!product) {
         throw new ApiError(404, `Product ${item.product} not found`);
       }
-      
+
       if (!product.isAvailable) {
         throw new ApiError(400, `Product ${product.name} is not available`);
       }
-      
+
       if (!product.checkAvailability(item.quantity)) {
         throw new ApiError(400, `Insufficient stock for ${product.name}. Available: ${product.inventory.quantity}`);
       }
-      
+
       return {
         product: product._id,
         name: product.name,
@@ -34,13 +34,13 @@ const createOrder = asyncHandler(async (req, res) => {
       };
     })
   );
-  
+
   // Calculate pricing
   const subtotal = orderItems.reduce((total, item) => total + (item.price * item.quantity), 0);
   const taxRate = 10; // 10% tax rate - in production, this would be calculated based on location
   const shippingAmount = calculateShipping(shippingMethod, subtotal);
   const discountAmount = await calculateDiscount(discountCode, subtotal);
-  
+
   // Create order
   const order = await Order.create({
     user: req.user.id,
@@ -66,7 +66,7 @@ const createOrder = asyncHandler(async (req, res) => {
       ipAddress: req.ip,
     },
   });
-  
+
   // Update product inventory and sales count
   await Promise.all(
     orderItems.map(async (item) => {
@@ -76,13 +76,13 @@ const createOrder = asyncHandler(async (req, res) => {
       await product.save();
     })
   );
-  
+
   // TODO: Process payment
   // In a real application, you would integrate with payment providers here
-  
+
   // Populate order details for response
   await order.populate('user', 'name email');
-  
+
   res.status(201).json({
     success: true,
     data: order,
@@ -95,9 +95,9 @@ const getUserOrders = asyncHandler(async (req, res) => {
     userId: req.user.id,
     ...req.query,
   };
-  
+
   const result = await Order.findOrders(filters);
-  
+
   res.json({
     success: true,
     ...result,
@@ -107,7 +107,7 @@ const getUserOrders = asyncHandler(async (req, res) => {
 // Get all orders (admin only)
 const getAllOrders = asyncHandler(async (req, res) => {
   const result = await Order.findOrders(req.query);
-  
+
   res.json({
     success: true,
     ...result,
@@ -117,20 +117,20 @@ const getAllOrders = asyncHandler(async (req, res) => {
 // Get order by ID
 const getOrder = asyncHandler(async (req, res) => {
   const query = { _id: req.params.id };
-  
+
   // Non-admin users can only view their own orders
   if (req.user.role !== 'admin') {
     query.user = req.user.id;
   }
-  
+
   const order = await Order.findOne(query)
     .populate('user', 'name email phone')
     .populate('items.product', 'name images slug');
-  
+
   if (!order) {
     throw new ApiError(404, 'Order not found');
   }
-  
+
   res.json({
     success: true,
     data: order,
@@ -140,17 +140,17 @@ const getOrder = asyncHandler(async (req, res) => {
 // Update order status (admin only)
 const updateOrderStatus = asyncHandler(async (req, res) => {
   const { status, comment } = req.body;
-  
+
   const order = await Order.findById(req.params.id);
   if (!order) {
     throw new ApiError(404, 'Order not found');
   }
-  
+
   await order.updateStatus(status, comment, req.user.id);
-  
+
   // Send notification to user
   // TODO: Implement email/notification service
-  
+
   res.json({
     success: true,
     message: `Order status updated to ${status}`,
@@ -161,21 +161,21 @@ const updateOrderStatus = asyncHandler(async (req, res) => {
 // Cancel order
 const cancelOrder = asyncHandler(async (req, res) => {
   const { reason } = req.body;
-  
+
   const query = { _id: req.params.id };
-  
+
   // Non-admin users can only cancel their own orders
   if (req.user.role !== 'admin') {
     query.user = req.user.id;
   }
-  
+
   const order = await Order.findOne(query);
   if (!order) {
     throw new ApiError(404, 'Order not found');
   }
-  
+
   await order.cancel(reason, req.user.id);
-  
+
   // Restore inventory
   await Promise.all(
     order.items.map(async (item) => {
@@ -187,7 +187,7 @@ const cancelOrder = asyncHandler(async (req, res) => {
       }
     })
   );
-  
+
   res.json({
     success: true,
     message: 'Order cancelled successfully',
@@ -198,19 +198,19 @@ const cancelOrder = asyncHandler(async (req, res) => {
 // Add tracking information (admin only)
 const addTracking = asyncHandler(async (req, res) => {
   const { carrier, number, url, estimatedDelivery } = req.body;
-  
+
   const order = await Order.findById(req.params.id);
   if (!order) {
     throw new ApiError(404, 'Order not found');
   }
-  
+
   await order.addTracking(carrier, number, url, estimatedDelivery);
-  
+
   // Update status to shipped if not already
   if (order.status === 'processing') {
     await order.updateStatus('shipped', 'Tracking information added', req.user.id);
   }
-  
+
   res.json({
     success: true,
     message: 'Tracking information added',
@@ -221,16 +221,16 @@ const addTracking = asyncHandler(async (req, res) => {
 // Process refund (admin only)
 const processRefund = asyncHandler(async (req, res) => {
   const { amount, reason } = req.body;
-  
+
   const order = await Order.findById(req.params.id);
   if (!order) {
     throw new ApiError(404, 'Order not found');
   }
-  
+
   await order.processRefund(amount, reason, req.user.id);
-  
+
   // TODO: Process actual refund through payment provider
-  
+
   res.json({
     success: true,
     message: 'Refund processed successfully',
@@ -246,9 +246,9 @@ const processRefund = asyncHandler(async (req, res) => {
 const getOrderStatistics = asyncHandler(async (req, res) => {
   const { period = 'month' } = req.query;
   const userId = req.user.role === 'admin' ? null : req.user.id;
-  
+
   const stats = await Order.getStatistics(userId, period);
-  
+
   res.json({
     success: true,
     data: stats,
@@ -258,13 +258,13 @@ const getOrderStatistics = asyncHandler(async (req, res) => {
 // Get sales report (admin only)
 const getSalesReport = asyncHandler(async (req, res) => {
   const { startDate, endDate, groupBy = 'day' } = req.query;
-  
+
   if (!startDate || !endDate) {
     throw new ApiError(400, 'Start date and end date are required');
   }
-  
+
   const report = await Order.getSalesReport(startDate, endDate, groupBy);
-  
+
   res.json({
     success: true,
     data: report,
@@ -274,15 +274,15 @@ const getSalesReport = asyncHandler(async (req, res) => {
 // Add internal note (admin only)
 const addInternalNote = asyncHandler(async (req, res) => {
   const { note } = req.body;
-  
+
   const order = await Order.findById(req.params.id);
   if (!order) {
     throw new ApiError(404, 'Order not found');
   }
-  
+
   order.notes.internal = note;
   await order.save();
-  
+
   res.json({
     success: true,
     message: 'Internal note added',
@@ -292,20 +292,20 @@ const addInternalNote = asyncHandler(async (req, res) => {
 // Get order invoice
 const getOrderInvoice = asyncHandler(async (req, res) => {
   const query = { _id: req.params.id };
-  
+
   // Non-admin users can only view their own order invoices
   if (req.user.role !== 'admin') {
     query.user = req.user.id;
   }
-  
+
   const order = await Order.findOne(query)
     .populate('user', 'name email phone address')
     .populate('items.product', 'name sku');
-  
+
   if (!order) {
     throw new ApiError(404, 'Order not found');
   }
-  
+
   // In a real application, you would generate a PDF invoice here
   const invoice = {
     orderNumber: order.orderNumber,
@@ -331,7 +331,7 @@ const getOrderInvoice = asyncHandler(async (req, res) => {
     paymentMethod: order.payment.method,
     paymentStatus: order.payment.status,
   };
-  
+
   res.json({
     success: true,
     data: invoice,
@@ -341,9 +341,9 @@ const getOrderInvoice = asyncHandler(async (req, res) => {
 // Export orders (admin only)
 const exportOrders = asyncHandler(async (req, res) => {
   const { format = 'json', ...filters } = req.query;
-  
+
   const result = await Order.findOrders({ ...filters, limit: 1000 });
-  
+
   if (format === 'csv') {
     // In a real application, you would convert to CSV format
     res.setHeader('Content-Type', 'text/csv');
@@ -367,14 +367,14 @@ function calculateShipping(method, subtotal) {
     overnight: 29.99,
     pickup: 0,
   };
-  
+
   return rates[method] || rates.standard;
 }
 
 // Helper function to calculate discount
 async function calculateDiscount(code, subtotal) {
   if (!code) return 0;
-  
+
   // In a real application, you would validate the discount code
   // against a discounts collection
   const discounts = {
@@ -382,10 +382,10 @@ async function calculateDiscount(code, subtotal) {
     'SAVE20': { type: 'percentage', value: 20 },
     'SHIP5': { type: 'fixed', value: 5 },
   };
-  
+
   const discount = discounts[code];
   if (!discount) return 0;
-  
+
   if (discount.type === 'percentage') {
     return subtotal * (discount.value / 100);
   } else {

@@ -115,7 +115,7 @@ function getSchemaVersion(db) {
     const tableExists = db
       .prepare(
         `
-      SELECT name FROM sqlite_master 
+      SELECT name FROM sqlite_master
       WHERE type='table' AND name='schema_version'
     `,
       )
@@ -134,7 +134,7 @@ function getSchemaVersion(db) {
       // Insert initial version
       db.prepare(
         `
-        INSERT INTO schema_version (version, description) 
+        INSERT INTO schema_version (version, description)
         VALUES (1.0, 'Initial schema')
       `,
       ).run();
@@ -146,7 +146,7 @@ function getSchemaVersion(db) {
     const result = db
       .prepare(
         `
-      SELECT version FROM schema_version 
+      SELECT version FROM schema_version
       ORDER BY version DESC LIMIT 1
     `,
       )
@@ -165,7 +165,7 @@ function getSchemaVersion(db) {
 function updateSchemaVersion(db, version, description = '') {
   db.prepare(
     `
-    INSERT OR REPLACE INTO schema_version (version, description) 
+    INSERT OR REPLACE INTO schema_version (version, description)
     VALUES (?, ?)
   `,
   ).run(version, description || `Updated to version ${version}`);
@@ -182,7 +182,7 @@ function applyBasicIndexes(db) {
   const tables = db
     .prepare(
       `
-    SELECT name FROM sqlite_master 
+    SELECT name FROM sqlite_master
     WHERE type='table' AND name NOT LIKE 'sqlite_%'
   `,
     )
@@ -250,7 +250,7 @@ function ensureRequiredColumns(db) {
   const tables = db
     .prepare(
       `
-    SELECT name FROM sqlite_master 
+    SELECT name FROM sqlite_master
     WHERE type='table' AND name NOT LIKE 'sqlite_%'
   `,
     )
@@ -265,7 +265,7 @@ function ensureRequiredColumns(db) {
     const hasPriority = db
       .prepare(
         `
-      SELECT COUNT(*) as count FROM pragma_table_info('tasks') 
+      SELECT COUNT(*) as count FROM pragma_table_info('tasks')
       WHERE name = 'priority'
     `,
       )
@@ -289,7 +289,7 @@ function ensureRequiredColumns(db) {
     const hasCompletedAt = db
       .prepare(
         `
-      SELECT COUNT(*) as count FROM pragma_table_info('tasks') 
+      SELECT COUNT(*) as count FROM pragma_table_info('tasks')
       WHERE name = 'completed_at'
     `,
       )
@@ -313,7 +313,7 @@ function ensureRequiredColumns(db) {
     const hasResult = db
       .prepare(
         `
-      SELECT COUNT(*) as count FROM pragma_table_info('tasks') 
+      SELECT COUNT(*) as count FROM pragma_table_info('tasks')
       WHERE name = 'result'
     `,
       )
@@ -339,7 +339,7 @@ function ensureRequiredColumns(db) {
     const hasUpdatedAt = db
       .prepare(
         `
-      SELECT COUNT(*) as count FROM pragma_table_info('swarms') 
+      SELECT COUNT(*) as count FROM pragma_table_info('swarms')
       WHERE name = 'updated_at'
     `,
       )
@@ -369,7 +369,7 @@ function applyAdvancedIndexes(db) {
   const tables = db
     .prepare(
       `
-    SELECT name FROM sqlite_master 
+    SELECT name FROM sqlite_master
     WHERE type='table' AND name NOT LIKE 'sqlite_%'
   `,
     )
@@ -455,9 +455,9 @@ function addPerformanceTracking(db) {
       INSERT OR REPLACE INTO agent_performance (agent_id, tasks_completed, tasks_failed)
       VALUES (
         NEW.agent_id,
-        COALESCE((SELECT tasks_completed FROM agent_performance WHERE agent_id = NEW.agent_id), 0) + 
+        COALESCE((SELECT tasks_completed FROM agent_performance WHERE agent_id = NEW.agent_id), 0) +
           CASE WHEN NEW.status = 'completed' THEN 1 ELSE 0 END,
-        COALESCE((SELECT tasks_failed FROM agent_performance WHERE agent_id = NEW.agent_id), 0) + 
+        COALESCE((SELECT tasks_failed FROM agent_performance WHERE agent_id = NEW.agent_id), 0) +
           CASE WHEN NEW.status = 'failed' THEN 1 ELSE 0 END
       );
     END
@@ -472,7 +472,7 @@ function addMemoryOptimization(db) {
   const tables = db
     .prepare(
       `
-    SELECT name FROM sqlite_master 
+    SELECT name FROM sqlite_master
     WHERE type='table' AND name = 'collective_memory'
   `,
     )
@@ -487,7 +487,7 @@ function addMemoryOptimization(db) {
   const hasAccessCount = db
     .prepare(
       `
-    SELECT COUNT(*) as count FROM pragma_table_info('collective_memory') 
+    SELECT COUNT(*) as count FROM pragma_table_info('collective_memory')
     WHERE name = 'access_count'
   `,
     )
@@ -496,7 +496,7 @@ function addMemoryOptimization(db) {
   if (!hasAccessCount || hasAccessCount.count === 0) {
     try {
       db.exec(`
-        ALTER TABLE collective_memory 
+        ALTER TABLE collective_memory
         ADD COLUMN access_count INTEGER DEFAULT 0
       `);
       console.log('Added access_count column to collective_memory table');
@@ -511,7 +511,7 @@ function addMemoryOptimization(db) {
   const hasAccessedAt = db
     .prepare(
       `
-    SELECT COUNT(*) as count FROM pragma_table_info('collective_memory') 
+    SELECT COUNT(*) as count FROM pragma_table_info('collective_memory')
     WHERE name = 'accessed_at'
   `,
     )
@@ -520,7 +520,7 @@ function addMemoryOptimization(db) {
   if (!hasAccessedAt || hasAccessedAt.count === 0) {
     try {
       db.exec(`
-        ALTER TABLE collective_memory 
+        ALTER TABLE collective_memory
         ADD COLUMN accessed_at DATETIME
       `);
       console.log('Added accessed_at column to collective_memory table');
@@ -535,7 +535,7 @@ function addMemoryOptimization(db) {
   const hasCompressed = db
     .prepare(
       `
-    SELECT COUNT(*) as count FROM pragma_table_info('collective_memory') 
+    SELECT COUNT(*) as count FROM pragma_table_info('collective_memory')
     WHERE name = 'compressed'
   `,
     )
@@ -544,7 +544,7 @@ function addMemoryOptimization(db) {
   if (!hasCompressed || hasCompressed.count === 0) {
     try {
       db.exec(`
-        ALTER TABLE collective_memory 
+        ALTER TABLE collective_memory
         ADD COLUMN compressed INTEGER DEFAULT 0
       `);
     } catch (error) {
@@ -557,7 +557,7 @@ function addMemoryOptimization(db) {
   const hasSize = db
     .prepare(
       `
-    SELECT COUNT(*) as count FROM pragma_table_info('collective_memory') 
+    SELECT COUNT(*) as count FROM pragma_table_info('collective_memory')
     WHERE name = 'size'
   `,
     )
@@ -566,7 +566,7 @@ function addMemoryOptimization(db) {
   if (!hasSize || hasSize.count === 0) {
     try {
       db.exec(`
-        ALTER TABLE collective_memory 
+        ALTER TABLE collective_memory
         ADD COLUMN size INTEGER DEFAULT 0
       `);
     } catch (error) {
@@ -579,7 +579,7 @@ function addMemoryOptimization(db) {
   // Create memory usage summary view
   db.exec(`
     CREATE VIEW IF NOT EXISTS memory_usage_summary AS
-    SELECT 
+    SELECT
       swarm_id,
       COUNT(*) as total_entries,
       SUM(LENGTH(value)) as total_size,
@@ -659,7 +659,7 @@ export async function performMaintenance(dbPath, options = {}) {
       const hasMemoryTable = db
         .prepare(
           `
-        SELECT name FROM sqlite_master 
+        SELECT name FROM sqlite_master
         WHERE type='table' AND name='collective_memory'
       `,
         )
@@ -674,7 +674,7 @@ export async function performMaintenance(dbPath, options = {}) {
           const result = db
             .prepare(
               `
-            DELETE FROM collective_memory 
+            DELETE FROM collective_memory
             WHERE accessed_at < ? AND access_count < 5
           `,
             )
@@ -695,7 +695,7 @@ export async function performMaintenance(dbPath, options = {}) {
 
       // Create archive table if not exists
       db.exec(`
-        CREATE TABLE IF NOT EXISTS tasks_archive AS 
+        CREATE TABLE IF NOT EXISTS tasks_archive AS
         SELECT * FROM tasks WHERE 1=0
       `);
 
@@ -703,7 +703,7 @@ export async function performMaintenance(dbPath, options = {}) {
       const hasCompletedAt = db
         .prepare(
           `
-        SELECT COUNT(*) as count FROM pragma_table_info('tasks') 
+        SELECT COUNT(*) as count FROM pragma_table_info('tasks')
         WHERE name = 'completed_at'
       `,
         )
@@ -717,15 +717,15 @@ export async function performMaintenance(dbPath, options = {}) {
         archiveCutoff.setDate(archiveCutoff.getDate() - (options.taskRetentionDays || 7));
 
         db.exec(`
-          INSERT INTO tasks_archive 
-          SELECT * FROM tasks 
+          INSERT INTO tasks_archive
+          SELECT * FROM tasks
           WHERE status = 'completed' AND completed_at < '${archiveCutoff.toISOString()}'
         `);
 
         archived = db
           .prepare(
             `
-          DELETE FROM tasks 
+          DELETE FROM tasks
           WHERE status = 'completed' AND completed_at < ?
         `,
           )
@@ -736,15 +736,15 @@ export async function performMaintenance(dbPath, options = {}) {
         archiveCutoff.setDate(archiveCutoff.getDate() - (options.taskRetentionDays || 7));
 
         db.exec(`
-          INSERT INTO tasks_archive 
-          SELECT * FROM tasks 
+          INSERT INTO tasks_archive
+          SELECT * FROM tasks
           WHERE status = 'completed' AND created_at < '${archiveCutoff.toISOString()}'
         `);
 
         archived = db
           .prepare(
             `
-          DELETE FROM tasks 
+          DELETE FROM tasks
           WHERE status = 'completed' AND created_at < ?
         `,
           )
@@ -832,7 +832,7 @@ export async function generateOptimizationReport(dbPath) {
       const hasCompletedAt = db
         .prepare(
           `
-        SELECT COUNT(*) as count FROM pragma_table_info('tasks') 
+        SELECT COUNT(*) as count FROM pragma_table_info('tasks')
         WHERE name = 'completed_at'
       `,
         )

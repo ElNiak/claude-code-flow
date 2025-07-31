@@ -3,12 +3,14 @@
 ## 🧪 Test-Driven Development (TDD) Approach
 
 ### TDD Cycle
+
 1. **RED** - Write a failing test
 2. **GREEN** - Write minimal code to pass the test
 3. **REFACTOR** - Improve code while keeping tests green
 4. **REPEAT** - Continue until feature is complete
 
 ### TDD Benefits
+
 - Ensures code correctness from the start
 - Provides living documentation
 - Enables confident refactoring
@@ -33,6 +35,7 @@
 ```
 
 ### Test Distribution
+
 - **70% Unit Tests** - Fast, isolated, comprehensive
 - **20% Integration Tests** - Component interactions
 - **10% E2E Tests** - Complete workflows
@@ -40,9 +43,11 @@
 ## 🔬 Test Categories
 
 ### 1. Unit Tests (`tests/unit/`)
+
 Test individual components in isolation.
 
 #### Core Components
+
 ```python
 # tests/unit/core/test_benchmark_engine.py
 def test_benchmark_engine_initialization():
@@ -58,6 +63,7 @@ def test_benchmark_engine_task_submission():
 ```
 
 #### Strategy Tests
+
 ```python
 # tests/unit/strategies/test_auto_strategy.py
 def test_auto_strategy_selection():
@@ -74,6 +80,7 @@ def test_auto_strategy_execution():
 ```
 
 #### Coordination Mode Tests
+
 ```python
 # tests/unit/modes/test_centralized_mode.py
 def test_centralized_mode_agent_assignment():
@@ -85,57 +92,63 @@ def test_centralized_mode_agent_assignment():
 ```
 
 ### 2. Integration Tests (`tests/integration/`)
+
 Test component interactions and data flow.
 
 #### Strategy-Mode Integration
+
 ```python
 # tests/integration/test_strategy_mode_integration.py
 async def test_research_strategy_with_distributed_mode():
     strategy = ResearchStrategy()
     mode = DistributedMode()
     task = create_research_task()
-    
+
     result = await mode.execute_with_strategy(strategy, task)
     assert result.status == ResultStatus.SUCCESS
     assert result.coordination_metrics["overhead"] < 0.1
 ```
 
 #### Output Integration
+
 ```python
 # tests/integration/test_output_integration.py
 def test_json_sqlite_consistency():
     results = create_test_results()
-    
+
     json_writer = JSONWriter()
     sqlite_manager = SQLiteManager()
-    
+
     json_data = json_writer.export(results)
     sqlite_manager.store(results)
-    
+
     sqlite_data = sqlite_manager.query_all()
     assert normalize_data(json_data) == normalize_data(sqlite_data)
 ```
 
 ### 3. Performance Tests (`tests/performance/`)
+
 Validate system performance under various conditions.
 
 #### Load Testing
+
 ```python
 # tests/performance/test_load_handling.py
 async def test_high_task_volume():
     engine = BenchmarkEngine()
     tasks = create_test_tasks(1000)
-    
+
     start_time = time.time()
     results = await engine.execute_batch(tasks)
     execution_time = time.time() - start_time
-    
+
     assert len(results) == 1000
     assert execution_time < 60  # Should complete within 1 minute
     assert all(r.status == ResultStatus.SUCCESS for r in results)
 ```
 
 #### Stress Testing
+
 ```python
 # tests/performance/test_resource_limits.py
 def test_memory_usage_under_load():
@@ -143,14 +156,16 @@ def test_memory_usage_under_load():
         engine = BenchmarkEngine()
         tasks = create_memory_intensive_tasks(100)
         engine.execute_batch(tasks)
-    
+
     assert monitor.peak_memory < 1024 * 1024 * 1024  # < 1GB
 ```
 
 ### 4. End-to-End Tests (`tests/e2e/`)
+
 Test complete user workflows through the CLI.
 
 #### CLI Workflow Tests
+
 ```python
 # tests/e2e/test_cli_workflows.py
 def test_complete_benchmark_workflow():
@@ -162,10 +177,10 @@ def test_complete_benchmark_workflow():
         "--mode", "distributed",
         "--output", "json,sqlite"
     ], capture_output=True, text=True)
-    
+
     assert result.returncode == 0
     assert "Benchmark completed successfully" in result.stdout
-    
+
     # Verify outputs exist
     assert os.path.exists("reports/test-benchmark.json")
     assert os.path.exists("reports/test-benchmark.db")
@@ -174,6 +189,7 @@ def test_complete_benchmark_workflow():
 ## 🛠️ Test Infrastructure
 
 ### Test Fixtures (`tests/fixtures/`)
+
 Reusable test data and objects.
 
 ```python
@@ -195,6 +211,7 @@ def create_test_tasks(count: int) -> List[Task]:
 ```
 
 ### Mock Objects (`tests/mocks/`)
+
 Mock external dependencies for isolated testing.
 
 ```python
@@ -202,13 +219,14 @@ Mock external dependencies for isolated testing.
 class MockClaudeFlowClient:
     def __init__(self):
         self.calls = []
-    
+
     async def execute_swarm(self, objective: str, **kwargs):
         self.calls.append(("execute_swarm", objective, kwargs))
         return MockResult(success=True, output="mock output")
 ```
 
 ### Test Utilities (`tests/utils/`)
+
 Helper functions for testing.
 
 ```python
@@ -228,12 +246,14 @@ def assert_metrics_complete(metrics: Dict[str, Any]):
 ## 📊 Test Coverage Strategy
 
 ### Coverage Goals
+
 - **Overall Coverage**: ≥ 95%
 - **Unit Tests**: ≥ 98%
 - **Integration Tests**: ≥ 90%
 - **Critical Paths**: 100%
 
 ### Coverage Measurement
+
 ```bash
 # Run tests with coverage
 pytest --cov=src --cov-report=html --cov-report=term
@@ -244,6 +264,7 @@ addopts = --cov=src --cov-fail-under=95
 ```
 
 ### Coverage Exclusions
+
 - Configuration files
 - CLI entry points
 - Error handling for unreachable states
@@ -252,6 +273,7 @@ addopts = --cov=src --cov-fail-under=95
 ## 🔄 Continuous Testing
 
 ### Pre-commit Hooks
+
 ```yaml
 # .pre-commit-config.yaml
 repos:
@@ -266,6 +288,7 @@ repos:
 ```
 
 ### GitHub Actions
+
 ```yaml
 # .github/workflows/test.yml
 name: Test Suite
@@ -277,7 +300,7 @@ jobs:
     strategy:
       matrix:
         python-version: [3.8, 3.9, 3.10, 3.11]
-    
+
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python
@@ -297,12 +320,14 @@ jobs:
 ## 🎯 Test Data Management
 
 ### Test Data Strategy
+
 - **Synthetic Data** - Generated test data for consistency
 - **Fixtures** - Predefined test scenarios
 - **Factories** - Dynamic test data generation
 - **Snapshots** - Golden master testing for outputs
 
 ### Data Generation
+
 ```python
 # tests/data/generators.py
 class TaskGenerator:
@@ -314,7 +339,7 @@ class TaskGenerator:
             strategy="auto",
             mode="centralized"
         )
-    
+
     @staticmethod
     def complex_workflow() -> List[Task]:
         return [
@@ -326,6 +351,7 @@ class TaskGenerator:
 ## 🚨 Test Environment Setup
 
 ### Local Development
+
 ```bash
 # Setup test environment
 python -m venv venv
@@ -345,6 +371,7 @@ pytest tests/performance/
 ```
 
 ### Docker Testing
+
 ```dockerfile
 # Dockerfile.test
 FROM python:3.9-slim
@@ -360,12 +387,14 @@ CMD ["pytest", "--cov=src", "--cov-report=html"]
 ## 📈 Test Metrics and Reporting
 
 ### Key Metrics
+
 - **Test Coverage** - Code coverage percentage
 - **Test Execution Time** - Performance of test suite
 - **Test Reliability** - Flaky test detection
 - **Bug Detection** - Tests catching real issues
 
 ### Reporting Tools
+
 - **Coverage.py** - Code coverage measurement
 - **pytest-html** - HTML test reports
 - **pytest-benchmark** - Performance benchmarking
@@ -374,6 +403,7 @@ CMD ["pytest", "--cov=src", "--cov-report=html"]
 ## 🔍 Test Quality Assurance
 
 ### Test Review Checklist
+
 - [ ] Tests follow naming conventions
 - [ ] Tests are independent and isolated
 - [ ] Tests have clear assertions
@@ -383,6 +413,7 @@ CMD ["pytest", "--cov=src", "--cov-report=html"]
 - [ ] Tests are deterministic
 
 ### Code Quality Tools
+
 ```bash
 # Linting
 flake8 tests/

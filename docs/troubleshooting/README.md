@@ -5,9 +5,11 @@ This directory contains comprehensive troubleshooting documentation for common i
 ## 📋 Available Guides
 
 ### [NPX Cache Conflicts](./npx-cache-conflicts.md)
+
 **Issue**: ENOTEMPTY errors when running multiple claude-flow instances concurrently
 **Solution**: Automatic per-process cache isolation (v2.0.0-alpha.17+)
-**Symptoms**: 
+**Symptoms**:
+
 ```
 npm error code ENOTEMPTY
 npm error syscall rename
@@ -37,22 +39,26 @@ npm error ENOTEMPTY: directory not empty, rename '[source]' -> '[dest]'
 ## 🔧 General Troubleshooting Steps
 
 1. **Check your version**: Ensure you're using the latest alpha release
+
    ```bash
    npx claude-flow@alpha --version
    ```
 
 2. **Clear NPX cache** (if using older versions):
+
    ```bash
    npm cache clean --force
    rm -rf ~/.npm/_npx
    ```
 
 3. **Run diagnostics**:
+
    ```bash
    npx claude-flow@alpha init --dry-run
    ```
 
 4. **Test concurrent safety** (alpha.17+):
+
    ```bash
    # Run included test suites
    node test/npx-cache-fix-test.js
@@ -70,11 +76,13 @@ If you don't find your issue here:
 ## 🔄 Version-Specific Notes
 
 ### v2.0.0-alpha.17+
+
 - ✅ NPX cache conflicts resolved with automatic isolation
 - ✅ True parallel execution maintained
 - ✅ Zero performance overhead
 
 ### Earlier versions
+
 - ⚠️ May experience ENOTEMPTY errors with concurrent operations
 - 🔧 Use workarounds from [NPX Cache Conflicts](./npx-cache-conflicts.md)
 

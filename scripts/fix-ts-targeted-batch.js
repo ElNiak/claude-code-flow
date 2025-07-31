@@ -21,7 +21,7 @@ async function fixSpecificIssues() {
     'src/cli/commands/memory.ts',
     'src/cli/commands/monitor.ts'
   ];
-  
+
   for (const file of chalkFiles) {
     try {
       const content = await fs.readFile(file, 'utf8');
@@ -48,16 +48,16 @@ async function fixSpecificIssues() {
   console.log('🔧 Fixing Command interface issues...');
   const { stdout: commandFiles } = await execAsync('find src/cli/commands -name "*.ts" -type f');
   const files = commandFiles.trim().split('\n').filter(f => f);
-  
+
   for (const file of files) {
     try {
       const content = await fs.readFile(file, 'utf8');
       let updated = content;
-      
+
       // Fix common Command method issues
       updated = updated.replace(/\.arguments\(/g, '.argument(');
       updated = updated.replace(/\.outputHelp\(\)/g, '.help()');
-      
+
       if (updated !== content) {
         await fs.writeFile(file, updated);
         console.log(`  ✅ Fixed Command interface in ${file}`);
@@ -72,13 +72,13 @@ async function fixSpecificIssues() {
   try {
     const baseAgentFile = 'src/cli/agents/base-agent.ts';
     const content = await fs.readFile(baseAgentFile, 'utf8');
-    
+
     // Add type assertion for capabilities
     const updated = content.replace(
       /config\.capabilities/g,
       '(config as any).capabilities'
     );
-    
+
     if (updated !== content) {
       await fs.writeFile(baseAgentFile, updated);
       console.log('  ✅ Fixed AgentConfig capabilities access');
@@ -99,7 +99,7 @@ type Dashboard = { alerts?: AlertData[]; };
   try {
     const monitorFile = 'src/cli/commands/monitor.ts';
     const content = await fs.readFile(monitorFile, 'utf8');
-    
+
     if (!content.includes('ComponentStatus') && content.includes('ComponentStatus')) {
       const lines = content.split('\n');
       lines.splice(1, 0, typeDefs);
@@ -113,24 +113,24 @@ type Dashboard = { alerts?: AlertData[]; };
   // Fix 5: Fix cliffy table imports
   console.log('📋 Fixing cliffy table imports...');
   const cliffyFiles = ['src/cli/commands/help.ts', 'src/cli/commands/memory.ts', 'src/cli/commands/monitor.ts'];
-  
+
   for (const file of cliffyFiles) {
     try {
       const content = await fs.readFile(file, 'utf8');
       let updated = content;
-      
+
       // Replace cliffy table import with a simple alternative
       updated = updated.replace(
         /import.*@cliffy\/table.*/g,
         "// Table functionality simplified due to import issues"
       );
-      
+
       // Replace Table usage with console.table
       updated = updated.replace(/new Table\(\)/g, 'console');
       updated = updated.replace(/\.header\([^)]+\)/g, '');
       updated = updated.replace(/\.body\([^)]+\)/g, '');
       updated = updated.replace(/\.render\(\)/g, '.table(data)');
-      
+
       if (updated !== content) {
         await fs.writeFile(file, updated);
         console.log(`  ✅ Fixed cliffy imports in ${file}`);
@@ -156,14 +156,14 @@ type Dashboard = { alerts?: AlertData[]; };
       // Find lines with unknown type errors and add assertions
       const lines = content.split('\n');
       let updated = false;
-      
+
       for (let i = 0; i < lines.length; i++) {
         if (lines[i].includes('status') && lines[i].includes('.')) {
           lines[i] = lines[i].replace(/\bstatus\./g, '(status as any).');
           updated = true;
         }
       }
-      
+
       if (updated) {
         await fs.writeFile(fix.file, lines.join('\n'));
         console.log(`  ✅ Added type assertions in ${fix.file}`);
@@ -179,12 +179,12 @@ type Dashboard = { alerts?: AlertData[]; };
     // Find where TaskType is defined
     const { stdout } = await execAsync('find src -name "*.ts" -exec grep -l "TaskType" {} \\; | head -1');
     const taskTypeFile = stdout.trim();
-    
+
     if (taskTypeFile) {
       const content = await fs.readFile(taskTypeFile, 'utf8');
-      
+
       const comprehensiveTaskType = `
-export type TaskType = 
+export type TaskType =
   | 'data-analysis' | 'performance-analysis' | 'statistical-analysis'
   | 'visualization' | 'predictive-modeling' | 'anomaly-detection'
   | 'trend-analysis' | 'business-intelligence' | 'quality-analysis'
@@ -202,7 +202,7 @@ export type TaskType =
 `;
 
       let updated = content;
-      
+
       // Replace existing TaskType definition
       if (content.includes('type TaskType') || content.includes('enum TaskType')) {
         updated = updated.replace(
@@ -213,7 +213,7 @@ export type TaskType =
         // Add it if not found
         updated = comprehensiveTaskType + '\n' + content;
       }
-      
+
       if (updated !== content) {
         await fs.writeFile(taskTypeFile, updated);
         console.log(`  ✅ Updated TaskType definition in ${taskTypeFile}`);
@@ -229,18 +229,18 @@ export type TaskType =
 async function main() {
   try {
     await fixSpecificIssues();
-    
+
     // Run build check
     console.log('\n🔍 Running build check...');
     const { stdout } = await execAsync('npm run build:ts 2>&1 || true');
     const errorCount = (stdout.match(/error TS/g) || []).length;
-    
+
     console.log(`\n📊 Current error count: ${errorCount}`);
-    
+
     if (errorCount < 900) {
       console.log('🎉 Excellent! Under 900 errors remaining.');
     }
-    
+
   } catch (error) {
     console.error('❌ Error during targeted fixes:', error.message);
     process.exit(1);

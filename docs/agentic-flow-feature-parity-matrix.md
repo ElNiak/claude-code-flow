@@ -1,6 +1,7 @@
 # Agentic Flow Feature Parity Matrix
 
 ## Executive Summary
+
 This document provides a comprehensive mapping of all Claude Flow features to the new Agentic Flow system, with Mastra-specific enhancements and enterprise capabilities.
 
 ## Feature Categories
@@ -75,24 +76,28 @@ This document provides a comprehensive mapping of all Claude Flow features to th
 ## Implementation Roadmap
 
 ### Phase 1: Core Parity (Weeks 1-4)
+
 - [ ] Basic command structure
 - [ ] Agent management
 - [ ] Memory/state system
 - [ ] MCP tool integration
 
 ### Phase 2: Mastra Integration (Weeks 5-8)
+
 - [ ] Workflow engine
 - [ ] Integration hub
 - [ ] Observability suite
 - [ ] UI components
 
 ### Phase 3: Enterprise Features (Weeks 9-12)
+
 - [ ] Multi-tenancy
 - [ ] Security center
 - [ ] Compliance suite
 - [ ] Cost management
 
 ### Phase 4: Advanced Features (Weeks 13-16)
+
 - [ ] Knowledge graph
 - [ ] Policy engine
 - [ ] Advanced analytics
@@ -101,6 +106,7 @@ This document provides a comprehensive mapping of all Claude Flow features to th
 ## Migration Guide
 
 ### For Claude Flow Users
+
 ```bash
 # Install migration tool
 npm install -g @mastra/agentic-flow-migrate
@@ -116,6 +122,7 @@ agentic-flow-migrate execute --backup
 ```
 
 ### Configuration Mapping
+
 ```yaml
 # claude-flow.config.yaml -> agentic-flow.config.yaml
 claude-flow:
@@ -147,18 +154,21 @@ agentic-flow:
 ## Security Enhancements
 
 ### Authentication & Authorization
+
 - OAuth2/OIDC support
 - API key management
 - Role-based access control
 - Attribute-based access control
 
 ### Data Protection
+
 - Encryption at rest (AES-256)
 - Encryption in transit (TLS 1.3)
 - Key rotation policies
 - Data masking/tokenization
 
 ### Compliance
+
 - Audit logging (immutable)
 - Data retention policies
 - GDPR right to erasure
@@ -167,18 +177,21 @@ agentic-flow:
 ## Scalability Improvements
 
 ### Horizontal Scaling
+
 - Kubernetes-native design
 - Auto-scaling policies
 - Load balancing
 - Geographic distribution
 
 ### Performance
+
 - Redis caching layer
 - PostgreSQL with read replicas
 - Event streaming (Kafka/Pulsar)
 - CDN for static assets
 
 ### Resource Management
+
 - CPU/Memory quotas
 - Token usage limits
 - Rate limiting
@@ -189,6 +202,7 @@ agentic-flow:
 Agentic Flow represents a complete reimagining of Claude Flow with enterprise-grade features, Mastra integration, and significant performance improvements. The migration path is designed to be smooth with automated tools and comprehensive documentation.
 
 Key advantages:
+
 1. **100% Feature Parity**: All Claude Flow features are available
 2. **Enhanced Performance**: 60-75% faster operations
 3. **Enterprise Ready**: Security, compliance, and scalability built-in

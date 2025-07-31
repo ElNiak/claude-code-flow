@@ -21,7 +21,7 @@ async function fixImportPaths(filePath) {
     if (filePath.includes('/cli/commands/')) {
       const wrongPath = '../utils/error-handler.js';
       const correctPath = '../../utils/error-handler.js';
-      
+
       if (content.includes(wrongPath)) {
         content = content.replace(new RegExp(wrongPath, 'g'), correctPath);
         modified = true;
@@ -77,7 +77,7 @@ async function findTypeScriptFiles(dir) {
 
   for (const entry of entries) {
     const fullPath = join(dir, entry.name);
-    
+
     if (entry.isDirectory() && !entry.name.includes('node_modules') && !entry.name.includes('dist')) {
       files.push(...await findTypeScriptFiles(fullPath));
     } else if (entry.isFile() && entry.name.endsWith('.ts')) {
@@ -91,13 +91,13 @@ async function findTypeScriptFiles(dir) {
 async function main() {
   const srcDir = join(dirname(__dirname), 'src');
   const files = await findTypeScriptFiles(srcDir);
-  
+
   console.log(`Found ${files.length} TypeScript files to check for import path issues...`);
-  
+
   for (const file of files) {
     await fixImportPaths(file);
   }
-  
+
   console.log('✅ Import path fixes complete!');
 }
 

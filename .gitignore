@@ -85,7 +85,7 @@ swarm-runs
 analyzing
 the
 claude-flow-mcp-wrapper
-
+__pycache__/
 # Test artifacts
 test-output/
 test-reports/
@@ -121,3 +121,12 @@ hive-mind-prompt-*.txt
 
 #Ignore vscode AI rules
 .github/copilot-instructions.md
+.serena
+
+# Claude Flow internal files
+.roo/
+.roomodes
+# Test/validation scripts (temporary)
+*-validation-*.js
+*-implementation-verification.js
+*-enhancement.js

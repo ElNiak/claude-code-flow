@@ -2,7 +2,7 @@
 
 /**
  * Maestro Native Hive Mind Validation Test
- * 
+ *
  * This script validates the native hive mind implementation by testing
  * the core components and their integration without requiring full TypeScript compilation.
  */
@@ -33,7 +33,7 @@ class MaestroValidator {
 
   async validateFileStructure() {
     this.log('\n🔍 Validating File Structure...', 'blue');
-    
+
     const requiredFiles = [
       'src/maestro/maestro-swarm-coordinator.ts',
       'src/maestro/maestro-types.ts',
@@ -59,7 +59,7 @@ class MaestroValidator {
 
   async validateRemovedFiles() {
     this.log('\n🧹 Validating Cleanup (Removed Files)...', 'blue');
-    
+
     const removedFiles = [
       'src/maestro/maestro-orchestrator.ts',
       'src/maestro/agent-reuse/',
@@ -87,11 +87,11 @@ class MaestroValidator {
 
   async validateSwarmCoordinator() {
     this.log('\n🧠 Validating MaestroSwarmCoordinator Implementation...', 'blue');
-    
+
     try {
       const coordinatorPath = 'src/maestro/maestro-swarm-coordinator.ts';
       const content = await fs.readFile(coordinatorPath, 'utf8');
-      
+
       const requiredComponents = [
         'class MaestroSwarmCoordinator',
         'HiveMind',
@@ -143,11 +143,11 @@ class MaestroValidator {
 
   async validateHiveMindTypes() {
     this.log('\n🔧 Validating Hive Mind Types Extension...', 'blue');
-    
+
     try {
       const typesPath = 'src/hive-mind/types.ts';
       const content = await fs.readFile(typesPath, 'utf8');
-      
+
       const requiredAgentTypes = [
         'requirements_analyst',
         'design_architect',
@@ -207,11 +207,11 @@ class MaestroValidator {
 
   async validateCLIIntegration() {
     this.log('\n📋 Validating CLI Integration...', 'blue');
-    
+
     try {
       const cliBridgePath = 'src/cli/maestro-cli-bridge.ts';
       const content = await fs.readFile(cliBridgePath, 'utf8');
-      
+
       const requiredComponents = [
         'MaestroSwarmCoordinator',
         'MaestroSwarmConfig',
@@ -253,11 +253,11 @@ class MaestroValidator {
 
   async validateDocumentation() {
     this.log('\n📚 Validating Documentation...', 'blue');
-    
+
     try {
       const readmePath = 'docs/maestro/README.md';
       const content = await fs.readFile(readmePath, 'utf8');
-      
+
       const requiredSections = [
         'Native Hive Mind',
         'Specs-Driven Topology',
@@ -298,11 +298,11 @@ class MaestroValidator {
 
   async validateIntegrationTest() {
     this.log('\n🧪 Validating Integration Test...', 'blue');
-    
+
     try {
       const testPath = 'src/maestro/tests/native-hive-mind-integration.test.ts';
       const content = await fs.readFile(testPath, 'utf8');
-      
+
       const requiredTestSuites = [
         'Swarm Initialization',
         'Specs-Driven Workflow',
@@ -351,39 +351,39 @@ class MaestroValidator {
   generateReport() {
     this.log('\n📊 Validation Report', 'bold');
     this.log('==================', 'bold');
-    
+
     const totalTests = this.results.length;
     const passedTests = this.results.filter(r => r.status === 'pass').length;
     const failedTests = this.results.filter(r => r.status === 'fail').length;
     const warningTests = this.results.filter(r => r.status === 'warn').length;
-    
+
     this.log(`\nTotal Tests: ${totalTests}`, 'cyan');
     this.log(`Passed: ${passedTests}`, 'green');
     this.log(`Failed: ${failedTests}`, 'red');
     this.log(`Warnings: ${warningTests}`, 'yellow');
     this.log(`Success Rate: ${((passedTests / totalTests) * 100).toFixed(1)}%`, 'blue');
-    
+
     if (this.errors.length > 0) {
       this.log('\n❌ Critical Issues:', 'red');
       this.errors.forEach((error, index) => {
         this.log(`  ${index + 1}. ${error}`, 'red');
       });
     }
-    
+
     if (failedTests === 0) {
       this.log('\n🎉 All critical validations passed!', 'green');
       this.log('Native Hive Mind implementation is properly consolidated and functional.', 'green');
     } else {
       this.log('\n⚠️  Some validations failed. Please review the issues above.', 'yellow');
     }
-    
+
     return { totalTests, passedTests, failedTests, warningTests, errors: this.errors };
   }
 
   async run() {
     this.log('🚀 Starting Maestro Native Hive Mind Validation', 'bold');
     this.log('================================================', 'bold');
-    
+
     await this.validateFileStructure();
     await this.validateRemovedFiles();
     await this.validateSwarmCoordinator();
@@ -391,7 +391,7 @@ class MaestroValidator {
     await this.validateCLIIntegration();
     await this.validateDocumentation();
     await this.validateIntegrationTest();
-    
+
     return this.generateReport();
   }
 }

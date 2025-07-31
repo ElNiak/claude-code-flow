@@ -19,10 +19,10 @@ export class CoordinatorAgent {
   async orchestrateSwarmTask(taskDescription: string, agentCount: number = 3): Promise<any> {
     console.log(`[${this.agentId}] Orchestrating swarm task: ${taskDescription}`);
     console.log(`[${this.agentId}] Deploying ${agentCount} agents...`);
-    
+
     // Simulate agent deployment
     await this.simulateWork(500);
-    
+
     const agents = [];
     for (let i = 0; i < agentCount; i++) {
       const agentId = `agent-${Date.now()}-${i}`;
@@ -34,7 +34,7 @@ export class CoordinatorAgent {
         task: this.assignTask(taskDescription, i)
       });
     }
-    
+
     console.log(`[${this.agentId}] Swarm deployed successfully`);
     return {
       agentId: this.agentId,
@@ -46,9 +46,9 @@ export class CoordinatorAgent {
 
   async monitorProgress(): Promise<any> {
     console.log(`[${this.agentId}] Monitoring swarm progress...`);
-    
+
     await this.simulateWork(1000);
-    
+
     const progress = {
       totalAgents: this.managedAgents.size,
       activeAgents: Math.floor(this.managedAgents.size * 0.8),
@@ -57,7 +57,7 @@ export class CoordinatorAgent {
       avgCompletionTime: Math.floor(Math.random() * 1000) + 500,
       healthStatus: 'optimal'
     };
-    
+
     console.log(`[${this.agentId}] Progress update generated`);
     return {
       agentId: this.agentId,
@@ -68,9 +68,9 @@ export class CoordinatorAgent {
 
   async rebalanceWorkload(): Promise<any> {
     console.log(`[${this.agentId}] Rebalancing workload across agents...`);
-    
+
     await this.simulateWork(700);
-    
+
     const rebalancing = {
       agentsRebalanced: Math.floor(this.managedAgents.size / 2),
       tasksRedistributed: Math.floor(Math.random() * 10) + 3,
@@ -80,7 +80,7 @@ export class CoordinatorAgent {
         workload: Math.floor(Math.random() * 100)
       }))
     };
-    
+
     console.log(`[${this.agentId}] Workload rebalancing completed`);
     return {
       agentId: this.agentId,
@@ -113,7 +113,7 @@ export class CoordinatorAgent {
 // Allow direct execution
 if (require.main === module) {
   const coordinator = new CoordinatorAgent();
-  
+
   Promise.all([
     coordinator.orchestrateSwarmTask('Build authentication system', 5),
     coordinator.monitorProgress(),

@@ -59,18 +59,18 @@ function checkRegressions(baseline: PerformanceReport, current: PerformanceRepor
   hasRegressions: boolean;
 } {
   const regressions: Array<{ metric: string; regression: number; threshold: number }> = [];
-  
+
   for (const currentMetric of current.metrics) {
     const baselineMetric = baseline.metrics.find(m => m.name === currentMetric.name);
-    
+
     if (!baselineMetric) {
       console.log(`New metric detected: ${currentMetric.name}`);
       continue;
     }
-    
+
     const regression = calculateRegression(baselineMetric.value, currentMetric.value);
     const threshold = currentMetric.threshold || REGRESSION_THRESHOLD;
-    
+
     if (regression > threshold) {
       regressions.push({
         metric: currentMetric.name,
@@ -79,7 +79,7 @@ function checkRegressions(baseline: PerformanceReport, current: PerformanceRepor
       });
     }
   }
-  
+
   return {
     regressions,
     hasRegressions: regressions.length > 0,
@@ -92,19 +92,19 @@ function generateReport(
   regressions: Array<{ metric: string; regression: number; threshold: number }>
 ): void {
   console.log('\n=== Performance Regression Report ===\n');
-  
+
   console.log(`Baseline: ${baseline.timestamp} (${baseline.gitHash})`);
   console.log(`Current:  ${current.timestamp} (${current.gitHash})\n`);
-  
+
   if (regressions.length === 0) {
     console.log('✅ No performance regressions detected!\n');
   } else {
     console.log('❌ Performance regressions detected:\n');
-    
+
     for (const regression of regressions) {
       const baselineMetric = baseline.metrics.find(m => m.name === regression.metric)!;
       const currentMetric = current.metrics.find(m => m.name === regression.metric)!;
-      
+
       console.log(`  ${regression.metric}:`);
       console.log(`    Baseline: ${baselineMetric.value} ${baselineMetric.unit}`);
       console.log(`    Current:  ${currentMetric.value} ${currentMetric.unit}`);
@@ -112,49 +112,49 @@ function generateReport(
       console.log('');
     }
   }
-  
+
   // Show all metrics for reference
   console.log('📊 All Performance Metrics:\n');
-  
+
   for (const currentMetric of current.metrics) {
     const baselineMetric = baseline.metrics.find(m => m.name === currentMetric.name);
-    
+
     if (baselineMetric) {
       const regression = calculateRegression(baselineMetric.value, currentMetric.value);
       const status = regression > (currentMetric.threshold || REGRESSION_THRESHOLD) ? '❌' : '✅';
-      
+
       console.log(`  ${status} ${currentMetric.name}: ${currentMetric.value} ${currentMetric.unit} (${regression > 0 ? '+' : ''}${regression.toFixed(2)}%)`);
     } else {
       console.log(`  🆕 ${currentMetric.name}: ${currentMetric.value} ${currentMetric.unit} (new metric)`);
     }
   }
-  
+
   console.log('');
 }
 
 async function main(): Promise<void> {
   console.log('Checking for performance regressions...\n');
-  
+
   const baseline = await loadBaseline();
   const current = await loadCurrentResults();
-  
+
   if (!baseline) {
     console.log('No baseline found, establishing current results as baseline...');
     await saveBaseline(current);
     console.log('Baseline established successfully');
     return;
   }
-  
+
   const { regressions, hasRegressions } = checkRegressions(baseline, current);
-  
+
   generateReport(baseline, current, regressions);
-  
+
   if (hasRegressions) {
     console.error('Performance regressions detected! Please investigate and fix before merging.');
     Deno.exit(1);
   } else {
     console.log('Performance check passed! 🎉');
-    
+
     // Update baseline if this is a main branch build
     const branch = Deno.env.get('GITHUB_REF');
     if (branch === 'refs/heads/main') {

@@ -330,14 +330,14 @@ export class MemoryToolsPanel extends EventEmitter {
           </div>
         </div>
       </div>
-      
+
       <div class="memory-section">
         <h3>Memory Operations History</h3>
         <div class="operations-timeline" id="operationsTimeline">
           <div class="timeline-placeholder">No operations recorded</div>
         </div>
       </div>
-      
+
       <div class="memory-section">
         <h3>Performance Insights</h3>
         <div class="insights-container" id="performanceInsights">
@@ -376,7 +376,7 @@ export class MemoryToolsPanel extends EventEmitter {
           <div class="backups-placeholder">No backups available</div>
         </div>
       </div>
-      
+
       <div class="memory-section">
         <div class="section-header">
           <h3>Cache Management</h3>
@@ -408,7 +408,7 @@ export class MemoryToolsPanel extends EventEmitter {
           </div>
         </div>
       </div>
-      
+
       <div class="memory-section">
         <div class="section-header">
           <h3>Namespace Management</h3>

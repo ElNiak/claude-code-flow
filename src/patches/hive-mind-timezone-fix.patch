@@ -5,11 +5,11 @@
  import { SwarmCommunication } from './hive-mind/communication.js';
  import { HiveMindSessionManager } from './hive-mind/session-manager.js';
 +import { getLocalTimestamp, formatTimestampForDisplay, getTimezoneInfo } from '../../utils/timezone-utils.js';
- 
+
  function showHiveMindHelp() {
    console.log(`
 @@ -200,7 +201,8 @@ async function spawnHiveMind(objective, flags) {
-   
+
    // Create session
    const sessionManager = new HiveMindSessionManager(sessionDir);
 -  const sessionId = await sessionManager.createSession({
@@ -27,11 +27,11 @@
 +    timezone: timezoneInfo,
 +    createdAtLocal: getLocalTimestamp()
    });
-   
+
    console.log(`📋 Session ID: ${sessionId}`);
 @@ -350,11 +354,13 @@ function displaySwarmSummary(config, sessionId) {
    console.log(`🐝 ${chalk.bold('Hive Mind Swarm Successfully Initialized!')}\n`);
-   
+
    console.log(`${chalk.cyan('⇅ Swarm Status:')} ${chalk.green('ACTIVE')}`);
 -  console.log(`${chalk.cyan('📋 Session ID:')} ${sessionId}`);
 +  console.log(`${chalk.cyan('📋 Session:')} ${sessionId}`);
@@ -41,25 +41,25 @@
    console.log(`${chalk.cyan('🧠 Memory:')} ${config.memorySize}MB collective storage`);
 +  const timeDisplay = formatTimestampForDisplay(new Date());
 +  console.log(`${chalk.cyan('⏰ Created:')} ${timeDisplay.relative} (${getTimezoneInfo().abbreviation})`);
-   
+
    if (config.encryption) {
      console.log(`${chalk.cyan('🔒 Security:')} Encrypted communication enabled`);
 @@ -420,6 +426,24 @@ async function showSessions(flags) {
-   
+
    if (sessions.length > 0) {
      console.log('\n📋 Available Sessions:\n');
-+    
++
 +    // Display timezone info
 +    const tz = getTimezoneInfo();
 +    console.log(`🌍 Displaying times in: ${tz.name} (${tz.abbreviation})\n`);
-+    
++
 +    // Table header with proper spacing
 +    const headers = ['Session ID', 'Objective', 'Created', 'Status', 'Progress'];
 +    const colWidths = [25, 35, 25, 12, 10];
-+    
++
 +    console.log(headers.map((header, i) => header.padEnd(colWidths[i])).join(' '));
 +    console.log('-'.repeat(colWidths.reduce((a, b) => a + b + 1, 0)));
-+    
++
 +    sessions.forEach(session => {
 +      const timeDisplay = formatTimestampForDisplay(session.createdAt || session.created_at);
 +      const values = [
@@ -73,31 +73,31 @@
 --- a/src/cli/simple-commands/hive-mind/session-manager.js
 +++ b/src/cli/simple-commands/hive-mind/session-manager.js
 @@ -4,6 +4,7 @@
- 
+
  import Database from 'better-sqlite3';
  import path from 'path';
 +import { getLocalTimestamp, getLocalISOTimestamp, getTimezoneInfo } from '../../../utils/timezone-utils.js';
- 
+
  export class HiveMindSessionManager {
    constructor(sessionDir = '.hive-mind/sessions') {
 @@ -45,12 +46,16 @@ export class HiveMindSessionManager {
-   
+
    async createSession(config) {
      const sessionId = `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 +    const now = new Date();
 +    const timezone = config.timezone || getTimezoneInfo();
-     
+
      const stmt = this.db.prepare(`
        INSERT INTO sessions (
 -        session_id, objective, namespace, status, queen_type, worker_count, created_at, updated_at
-+        session_id, objective, namespace, status, queen_type, worker_count, 
++        session_id, objective, namespace, status, queen_type, worker_count,
 +        created_at, created_at_local, timezone_name, timezone_offset, updated_at
        ) VALUES (
 -        ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now')
 +        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
        )
      `);
-     
+
 @@ -61,7 +66,11 @@ export class HiveMindSessionManager {
        config.status || 'active',
        config.queenType || 'strategic',
@@ -109,7 +109,7 @@
 +      timezone.offset,
 +      now.toISOString()
      );
-     
+
      return sessionId;
 @@ -95,6 +104,9 @@ export class HiveMindSessionManager {
          session_id TEXT PRIMARY KEY,

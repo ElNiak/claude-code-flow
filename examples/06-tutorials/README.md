@@ -16,6 +16,7 @@ Step-by-step tutorials and comprehensive guides for using Claude Flow features.
 ## Tutorial Categories
 
 ### Getting Started (`getting-started/`)
+
 - **01-first-swarm.md**: Create your first swarm and understand basics
   - Swarm creation and execution
   - Understanding agent roles
@@ -23,6 +24,7 @@ Step-by-step tutorials and comprehensive guides for using Claude Flow features.
   - Running generated applications
 
 ### SPARC Methodology (`sparc/`)
+
 - **sparc-tdd-guide.md**: Complete SPARC TDD workflow guide
   - Specification → Pseudocode → Architecture → Refinement → Completion
   - Test-driven development with AI
@@ -30,6 +32,7 @@ Step-by-step tutorials and comprehensive guides for using Claude Flow features.
   - Best practices and patterns
 
 ### Workflow Orchestration (`workflows/`)
+
 - **multi-agent-coordination.md**: Advanced multi-agent coordination
   - Agent specialization and roles
   - Dependency management
@@ -40,7 +43,9 @@ Step-by-step tutorials and comprehensive guides for using Claude Flow features.
 ## Legacy Tutorial
 
 ### sparc-batchtool-orchestration.md
+
 Original comprehensive guide to BatchTool with SPARC modes covering:
+
 - Parallel execution patterns
 - Dependency management
 - CI/CD integration
@@ -48,12 +53,14 @@ Original comprehensive guide to BatchTool with SPARC modes covering:
 ## Tutorial Topics
 
 ### Getting Started
+
 1. System setup and configuration
 2. First swarm creation
 3. Understanding agent roles
 4. Basic task execution
 
 ### Advanced Features
+
 1. Custom agent capabilities
 2. Memory persistence
 3. Quality thresholds
@@ -61,12 +68,14 @@ Original comprehensive guide to BatchTool with SPARC modes covering:
 5. Error recovery
 
 ### Integration Patterns
+
 1. CI/CD pipelines
 2. Automated testing
 3. Code generation workflows
 4. Documentation automation
 
 ### Best Practices
+
 1. Agent specialization
 2. Task decomposition
 3. Resource optimization
@@ -75,6 +84,7 @@ Original comprehensive guide to BatchTool with SPARC modes covering:
 ## Using Tutorials
 
 Each tutorial includes:
+
 - **Prerequisites**: What you need to know
 - **Step-by-step instructions**: Clear, numbered steps
 - **Code examples**: Working demonstrations
@@ -84,6 +94,7 @@ Each tutorial includes:
 ## Contributing Tutorials
 
 When writing new tutorials:
+
 1. Start with clear objectives
 2. Include working examples
 3. Explain the "why" not just "how"

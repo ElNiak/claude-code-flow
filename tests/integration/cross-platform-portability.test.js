@@ -15,7 +15,7 @@ const __dirname = path.dirname(__filename);
 describe('Cross-Platform Portability Tests', () => {
   describe('RuvSwarmWrapper Error Handling', () => {
     let RuvSwarmWrapper;
-    
+
     beforeEach(async () => {
       // Import the wrapper
       const wrapperModule = await import('../../src/mcp/ruv-swarm-wrapper.js');
@@ -25,7 +25,7 @@ describe('Cross-Platform Portability Tests', () => {
     test('should handle structured error messages with error codes', async () => {
       const wrapper = new RuvSwarmWrapper({ silent: false });
       const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
-      
+
       // Create a mock for readline.createInterface
       const mockHandlers = {};
       const mockRlErr = {
@@ -34,12 +34,12 @@ describe('Cross-Platform Portability Tests', () => {
           return mockRlErr;
         })
       };
-      
+
       // Mock the readline module
       jest.doMock('readline', () => ({
         createInterface: jest.fn(() => mockRlErr)
       }));
-      
+
       // Simulate the error handling by calling the line handler directly
       // This simulates what would happen when readline emits a 'line' event
       const structuredError = JSON.stringify({
@@ -48,20 +48,20 @@ describe('Cross-Platform Portability Tests', () => {
           message: 'logger.logMemoryUsage is not a function'
         }
       });
-      
+
       // Import readline after mocking
       const readline = await import('readline');
-      
+
       // Create the interface (this will use our mock)
       const rl = readline.createInterface({ input: process.stdin });
-      
+
       // Get the handler that was registered for 'line' events
       const lineHandler = mockRlErr.on.mock.calls.find(call => call[0] === 'line')?.[1];
-      
+
       if (lineHandler) {
         // Call the handler with our test data
         lineHandler(structuredError);
-        
+
         // Verify the error was handled correctly
         expect(consoleErrorSpy).toHaveBeenCalledWith(
           expect.stringContaining('Known ruv-swarm logger issue')
@@ -111,7 +111,7 @@ describe('Cross-Platform Portability Tests', () => {
 
     test('should track processes for cross-platform termination', () => {
       const ui = new SwarmUI();
-      
+
       // Mock process
       const mockProcess = {
         pid: 12345,
@@ -122,14 +122,14 @@ describe('Cross-Platform Portability Tests', () => {
 
       // Simulate adding a process
       ui.activeProcesses.set('swarm-test', mockProcess);
-      
+
       expect(ui.activeProcesses.size).toBe(1);
       expect(ui.activeProcesses.get('swarm-test')).toBe(mockProcess);
     });
 
     test('should use process.kill() instead of pkill', async () => {
       const ui = new SwarmUI();
-      
+
       // Mock processes
       const mockProcesses = [
         { pid: 12345, killed: false, kill: jest.fn() },
@@ -156,7 +156,7 @@ describe('Cross-Platform Portability Tests', () => {
     test('should handle Windows process termination', async () => {
       const ui = new SwarmUI();
       const originalPlatform = process.platform;
-      
+
       // Mock Windows platform
       Object.defineProperty(process, 'platform', {
         value: 'win32',
@@ -246,25 +246,25 @@ describe('Cross-Platform Portability Tests', () => {
       for (const file of sourceFiles) {
         const filePath = path.join(__dirname, file);
         const { readFile } = await import('fs/promises');
-        
+
         try {
           const content = await readFile(filePath, 'utf8');
-          
+
           // Check for non-portable commands
           expect(content).not.toMatch(/\bpkill\b/);
           expect(content).not.toMatch(/\bwhich\s+\w+/); // 'which' as a command
-          
+
           // Verify portable alternatives are used
           if (file.includes('swarm-ui')) {
             expect(content).toMatch(/process\.kill/);
             expect(content).toMatch(/activeProcesses/);
           }
-          
+
           if (file.includes('github')) {
             expect(content).toMatch(/checkCommandAvailable|checkClaudeAvailable/);
             expect(content).toMatch(/platform\(\)/);
           }
-          
+
           if (file.includes('ruv-swarm-wrapper')) {
             expect(content).toMatch(/error\.code/);
             expect(content).toMatch(/knownErrorPatterns/);

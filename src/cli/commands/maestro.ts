@@ -27,7 +27,7 @@ async function getCLIBridge(): Promise<MaestroCLIBridge> {
 // Enhanced error handler with context
 function handleError(error: Error, command?: string): void {
   console.error(chalk.red(`❌ Maestro Error${command ? ` (${command})` : ''}: ${error.message}`));
-  
+
   // Provide helpful guidance based on error type
   if (error.message.includes('ENOENT')) {
     console.log(chalk.yellow('💡 Tip: Make sure you\'re in the correct project directory'));
@@ -36,7 +36,7 @@ function handleError(error: Error, command?: string): void {
   } else if (error.message.includes('timeout')) {
     console.log(chalk.yellow('💡 Tip: Network or service timeout - try again or check connectivity'));
   }
-  
+
   process.exit(1);
 }
 
@@ -50,17 +50,17 @@ maestroCommand.command('create-spec')
   .action(async (featureName: string, options) => {
     try {
       console.log(chalk.blue(`📋 Creating specification for ${featureName}...`));
-      
+
       const bridge = await getCLIBridge();
       const orchestrator = await bridge.initializeOrchestrator();
-      
+
       await bridge.executeWithMonitoring('create_spec', async () => {
         await orchestrator.createSpec(featureName, options.request || `Feature specification for ${featureName}`);
       }, { featureName, hasRequest: !!options.request });
-      
+
       console.log(chalk.green(`✅ Specification created successfully for '${featureName}'`));
       console.log(chalk.gray(`   📁 Location: docs/maestro/specs/${featureName}/requirements.md`));
-      
+
     } catch (error) {
       handleError(error as Error, 'create-spec');
     }
@@ -73,17 +73,17 @@ maestroCommand.command('generate-design')
   .action(async (featureName: string, options) => {
     try {
       console.log(chalk.blue(`🎨 Generating design for ${featureName}...`));
-      
+
       const bridge = await getCLIBridge();
       const orchestrator = await bridge.initializeOrchestrator();
-      
+
       await bridge.executeWithMonitoring('generate_design', async () => {
         await orchestrator.generateDesign(featureName);
       }, { featureName, useHiveMind: !options.noHiveMind });
-      
+
       console.log(chalk.green(`✅ Design generated successfully for '${featureName}'`));
       console.log(chalk.gray(`   📁 Location: docs/maestro/specs/${featureName}/design.md`));
-      
+
     } catch (error) {
       handleError(error as Error, 'generate-design');
     }
@@ -95,17 +95,17 @@ maestroCommand.command('generate-tasks')
   .action(async (featureName: string) => {
     try {
       console.log(chalk.blue(`📋 Generating tasks for ${featureName}...`));
-      
+
       const bridge = await getCLIBridge();
       const orchestrator = await bridge.initializeOrchestrator();
-      
+
       await bridge.executeWithMonitoring('generate_tasks', async () => {
         await orchestrator.generateTasks(featureName);
       }, { featureName });
-      
+
       console.log(chalk.green(`✅ Tasks generated successfully for '${featureName}'`));
       console.log(chalk.gray(`   📁 Location: docs/maestro/specs/${featureName}/tasks.md`));
-      
+
     } catch (error) {
       handleError(error as Error, 'generate-tasks');
     }
@@ -122,18 +122,18 @@ maestroCommand.command('implement-task')
       if (isNaN(taskId) || taskId < 1) {
         throw new Error(`Invalid task ID: ${taskIdStr}. Must be a positive integer.`);
       }
-      
+
       console.log(chalk.blue(`🔨 Implementing task ${taskId} for ${featureName}...`));
-      
+
       const bridge = await getCLIBridge();
       const orchestrator = await bridge.initializeOrchestrator();
-      
+
       await bridge.executeWithMonitoring('implement_task', async () => {
         await orchestrator.implementTask(featureName, taskId);
       }, { featureName, taskId, skipConsensus: options.skipConsensus });
-      
+
       console.log(chalk.green(`✅ Task ${taskId} implemented successfully for '${featureName}'`));
-      
+
     } catch (error) {
       handleError(error as Error, 'implement-task');
     }
@@ -145,16 +145,16 @@ maestroCommand.command('review-tasks')
   .action(async (featureName: string) => {
     try {
       console.log(chalk.blue(`🔍 Reviewing tasks for ${featureName}...`));
-      
+
       const bridge = await getCLIBridge();
       const orchestrator = await bridge.initializeOrchestrator();
-      
+
       await bridge.executeWithMonitoring('review_tasks', async () => {
         await orchestrator.reviewTasks(featureName);
       }, { featureName });
-      
+
       console.log(chalk.green(`✅ Quality review completed for '${featureName}'`));
-      
+
     } catch (error) {
       handleError(error as Error, 'review-tasks');
     }
@@ -166,16 +166,16 @@ maestroCommand.command('approve-phase')
   .action(async (featureName: string) => {
     try {
       console.log(chalk.blue(`✅ Approving current phase for ${featureName}...`));
-      
+
       const bridge = await getCLIBridge();
       const orchestrator = await bridge.initializeOrchestrator();
-      
+
       await bridge.executeWithMonitoring('approve_phase', async () => {
         await orchestrator.approvePhase(featureName);
       }, { featureName });
-      
+
       console.log(chalk.green(`✅ Phase approved successfully for '${featureName}'`));
-      
+
     } catch (error) {
       handleError(error as Error, 'approve-phase');
     }
@@ -190,19 +190,19 @@ maestroCommand.command('status')
     try {
       const bridge = await getCLIBridge();
       const orchestrator = await bridge.initializeOrchestrator();
-      
+
       const state = orchestrator.getWorkflowState(featureName);
-      
+
       if (!state) {
         console.log(chalk.yellow(`⚠️  No workflow found for '${featureName}'. Use 'create-spec' to start.`));
         return;
       }
-      
+
       if (options.json) {
         console.log(JSON.stringify(state, null, 2));
         return;
       }
-      
+
       // Display formatted status
       console.log(chalk.cyan(`📊 Workflow Status: ${featureName}`));
       console.log(chalk.cyan('═'.repeat(50)));
@@ -210,7 +210,7 @@ maestroCommand.command('status')
       console.log(`Status: ${state.status === 'completed' ? chalk.green(state.status) : chalk.blue(state.status)}`);
       console.log(`Current Task: ${state.currentTaskIndex}`);
       console.log(`Last Activity: ${state.lastActivity.toLocaleString()}`);
-      
+
       if (options.detailed && state.history.length > 0) {
         console.log(chalk.cyan('\n📜 History:'));
         state.history.forEach((entry, index) => {
@@ -218,13 +218,13 @@ maestroCommand.command('status')
           console.log(`  ${index + 1}. ${status} ${entry.phase} (${entry.timestamp.toLocaleString()})`);
         });
       }
-      
+
       // Show performance summary
       const perfSummary = bridge.getPerformanceSummary();
       console.log(chalk.cyan('\n⚡ Performance Summary:'));
       console.log(`  Operations: ${perfSummary.totalOperations} (${perfSummary.successRate.toFixed(1)}% success)`);
       console.log(`  Avg Duration: ${perfSummary.averageDuration}ms`);
-      
+
     } catch (error) {
       handleError(error as Error, 'status');
     }
@@ -237,19 +237,19 @@ maestroCommand.command('init-steering')
   .action(async (domain: string, options) => {
     try {
       console.log(chalk.blue(`📋 Creating steering document for ${domain}...`));
-      
+
       const bridge = await getCLIBridge();
       const orchestrator = await bridge.initializeOrchestrator();
-      
+
       const content = options.content || `Guidelines and standards for ${domain} domain development.`;
-      
+
       await bridge.executeWithMonitoring('init_steering', async () => {
         await orchestrator.createSteeringDocument(domain, content);
       }, { domain, hasCustomContent: !!options.content });
-      
+
       console.log(chalk.green(`✅ Steering document created for '${domain}'`));
       console.log(chalk.gray(`   📁 Location: docs/maestro/steering/${domain}.md`));
-      
+
     } catch (error) {
       handleError(error as Error, 'init-steering');
     }
@@ -266,20 +266,20 @@ maestroCommand.command('clean')
     console.log(`   • ✅ Removed backward compatibility adapter: maestro-command-adapter.js`);
     console.log(`   • ✅ Integrated with agentic-flow-hooks system`);
     console.log(`   • ✅ Updated maestro-orchestrator.ts with clean architecture`);
-    
+
     console.log(chalk.cyan(`\n🏗️  Current Architecture:`));
     console.log(`   📁 src/maestro/`);
     console.log(`      ├── maestro-orchestrator.ts    # Main implementation (809 lines)`);
     console.log(`      └── maestro-types.ts          # Core type definitions`);
     console.log(`   📁 src/services/agentic-flow-hooks/  # Integrated hooks system`);
     console.log(`   📁 src/cli/commands/maestro.ts    # Clean CLI commands`);
-    
+
     console.log(chalk.cyan(`\n🔌 Integration Points:`));
     console.log(`   • Hive Mind: src/hive-mind/core/HiveMind.ts`);
     console.log(`   • Consensus: src/hive-mind/integration/ConsensusEngine.ts`);
     console.log(`   • Hooks: src/services/agentic-flow-hooks/`);
     console.log(`   • Event Bus: Integrated with existing core systems`);
-    
+
     console.log(chalk.cyan(`\n📋 Ready for Production:`));
     console.log(`   • Specs-driven development workflow`);
     console.log(`   • Collective intelligence design generation`);

@@ -7,7 +7,7 @@ export function getCodeOrchestration(taskDescription, memoryNamespace) {
    - Verify current working directory and create project structure
    - For named projects (e.g., "hello-world"), create as subdirectory
    - Review implementation task: "${taskDescription}"
-   - Query architecture and pseudocode: 
+   - Query architecture and pseudocode:
      \`\`\`bash
      npx claude-flow memory query ${memoryNamespace}_architecture
      npx claude-flow memory query ${memoryNamespace}_pseudocode

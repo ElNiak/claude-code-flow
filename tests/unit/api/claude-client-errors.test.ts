@@ -4,7 +4,7 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi, Mock } from 'vitest';
 import { ClaudeAPIClient } from '../../../src/api/claude-client.js';
-import { 
+import {
   ClaudeInternalServerError,
   ClaudeServiceUnavailableError,
   ClaudeRateLimitError,
@@ -30,10 +30,10 @@ describe('Claude API Enhanced Error Handling', () => {
     mockConfigManager = {
       get: vi.fn().mockReturnValue(null),
     };
-    
+
     // Set up client with API key
     process.env.ANTHROPIC_API_KEY = 'test-api-key';
-    
+
     client = new ClaudeAPIClient(mockLogger, mockConfigManager as any, {
       retryAttempts: 3,
       retryDelay: 100,
@@ -54,16 +54,16 @@ describe('Claude API Enhanced Error Handling', () => {
       mockFetch.mockRejectedValue({
         ok: false,
         status: 500,
-        text: async () => JSON.stringify({ 
-          error: { message: 'Internal server error' } 
+        text: async () => JSON.stringify({
+          error: { message: 'Internal server error' }
         }),
       });
 
       mockFetch.mockImplementation(() => Promise.resolve({
         ok: false,
         status: 500,
-        text: async () => JSON.stringify({ 
-          error: { message: 'Internal server error' } 
+        text: async () => JSON.stringify({
+          error: { message: 'Internal server error' }
         }),
       }));
 
@@ -73,7 +73,7 @@ describe('Claude API Enhanced Error Handling', () => {
 
       // Should have retried 3 times
       expect(mockFetch).toHaveBeenCalledTimes(3);
-      
+
       // Check retry delays were applied
       expect(mockLogger.warn).toHaveBeenCalledWith(
         expect.stringContaining('Claude API request failed (attempt 1/3)'),
@@ -97,8 +97,8 @@ describe('Claude API Enhanced Error Handling', () => {
           return Promise.resolve({
             ok: false,
             status: 500,
-            text: async () => JSON.stringify({ 
-              error: { message: 'Internal server error' } 
+            text: async () => JSON.stringify({
+              error: { message: 'Internal server error' }
             }),
           });
         }
@@ -117,7 +117,7 @@ describe('Claude API Enhanced Error Handling', () => {
       });
 
       const response = await client.sendMessage([{ role: 'user', content: 'Hello' }]);
-      
+
       expect(response).toBeDefined();
       expect(mockFetch).toHaveBeenCalledTimes(3);
       expect(mockLogger.info).toHaveBeenCalledWith(
@@ -132,8 +132,8 @@ describe('Claude API Enhanced Error Handling', () => {
       mockFetch.mockImplementation(() => Promise.resolve({
         ok: false,
         status: 503,
-        text: async () => JSON.stringify({ 
-          error: { message: 'Service temporarily unavailable' } 
+        text: async () => JSON.stringify({
+          error: { message: 'Service temporarily unavailable' }
         }),
       }));
 
@@ -150,16 +150,16 @@ describe('Claude API Enhanced Error Handling', () => {
       mockFetch.mockImplementation(() => Promise.resolve({
         ok: false,
         status: 429,
-        text: async () => JSON.stringify({ 
-          error: { 
+        text: async () => JSON.stringify({
+          error: {
             message: 'Rate limit exceeded',
             retry_after: 2, // 2 seconds
-          } 
+          }
         }),
       }));
 
       const startTime = Date.now();
-      
+
       await expect(
         client.sendMessage([{ role: 'user', content: 'Hello' }])
       ).rejects.toThrow(ClaudeRateLimitError);
@@ -211,8 +211,8 @@ describe('Claude API Enhanced Error Handling', () => {
       mockFetch.mockImplementation(() => Promise.resolve({
         ok: false,
         status: 401,
-        text: async () => JSON.stringify({ 
-          error: { message: 'Invalid API key' } 
+        text: async () => JSON.stringify({
+          error: { message: 'Invalid API key' }
         }),
       }));
 
@@ -229,7 +229,7 @@ describe('Claude API Enhanced Error Handling', () => {
     it('should provide helpful suggestions for 500 errors', () => {
       const error = new ClaudeInternalServerError('Server error');
       const errorInfo = getUserFriendlyError(error);
-      
+
       expect(errorInfo.title).toBe('Claude API Service Error');
       expect(errorInfo.suggestions).toContain('Wait a few minutes and try again');
       expect(errorInfo.retryable).toBe(true);
@@ -238,7 +238,7 @@ describe('Claude API Enhanced Error Handling', () => {
     it('should provide helpful suggestions for rate limit errors', () => {
       const error = new ClaudeRateLimitError('Rate limit exceeded');
       const errorInfo = getUserFriendlyError(error);
-      
+
       expect(errorInfo.title).toBe('Rate Limit Exceeded');
       expect(errorInfo.suggestions).toContain('Implement request throttling');
       expect(errorInfo.retryable).toBe(true);
@@ -247,7 +247,7 @@ describe('Claude API Enhanced Error Handling', () => {
     it('should provide helpful suggestions for network errors', () => {
       const error = new ClaudeNetworkError('Connection failed');
       const errorInfo = getUserFriendlyError(error);
-      
+
       expect(errorInfo.title).toBe('Network Connection Error');
       expect(errorInfo.suggestions).toContain('Check your internet connection');
       expect(errorInfo.retryable).toBe(true);
@@ -270,7 +270,7 @@ describe('Claude API Enhanced Error Handling', () => {
       }));
 
       const result = await client.performHealthCheck();
-      
+
       expect(result.healthy).toBe(true);
       expect(result.latency).toBeGreaterThan(0);
       expect(result.error).toBeUndefined();
@@ -280,7 +280,7 @@ describe('Claude API Enhanced Error Handling', () => {
       mockFetch.mockRejectedValue(new Error('Network error'));
 
       const result = await client.performHealthCheck();
-      
+
       expect(result.healthy).toBe(false);
       expect(result.error).toBe('Network error');
       expect(mockLogger.warn).toHaveBeenCalledWith(
@@ -293,13 +293,13 @@ describe('Claude API Enhanced Error Handling', () => {
       mockFetch.mockImplementation(() => Promise.resolve({
         ok: false,
         status: 429,
-        text: async () => JSON.stringify({ 
-          error: { message: 'Rate limit exceeded' } 
+        text: async () => JSON.stringify({
+          error: { message: 'Rate limit exceeded' }
         }),
       }));
 
       const result = await client.performHealthCheck();
-      
+
       expect(result.healthy).toBe(true);
       expect(result.error).toBeUndefined();
     });
@@ -316,24 +316,24 @@ describe('Claude API Enhanced Error Handling', () => {
       mockFetch.mockImplementation(() => Promise.resolve({
         ok: false,
         status: 500,
-        text: async () => JSON.stringify({ 
-          error: { message: 'Internal server error' } 
+        text: async () => JSON.stringify({
+          error: { message: 'Internal server error' }
         }),
       }));
 
       const startTime = Date.now();
-      
+
       await expect(
         clientWithJitter.sendMessage([{ role: 'user', content: 'Hello' }])
       ).rejects.toThrow();
 
       const elapsedTime = Date.now() - startTime;
-      
+
       // With exponential backoff: 100ms + 200ms = 300ms minimum
       // With jitter, could be up to 30% more
       expect(elapsedTime).toBeGreaterThanOrEqual(300);
       expect(elapsedTime).toBeLessThan(600); // Reasonable upper bound
-      
+
       clientWithJitter.destroy();
     });
   });

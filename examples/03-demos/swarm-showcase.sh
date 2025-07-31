@@ -22,15 +22,15 @@ simulate_swarm() {
     local objective="$1"
     local strategy="$2"
     local output_dir="$3"
-    
+
     echo "🤖 Simulating swarm execution..."
     echo "   Objective: $objective"
     echo "   Strategy: $strategy"
     echo ""
-    
+
     # Create output directory
     mkdir -p "$output_dir"
-    
+
     # Simulate task decomposition
     echo "📋 Task Decomposition:"
     echo "   1. Analyze requirements"
@@ -39,7 +39,7 @@ simulate_swarm() {
     echo "   4. Write tests"
     echo "   5. Create documentation"
     echo ""
-    
+
     # Create actual files based on objective
     if [[ "$objective" == *"task manager"* ]]; then
         create_task_manager "$output_dir"
@@ -51,9 +51,9 @@ simulate_swarm() {
 # Function to create a task manager app
 create_task_manager() {
     local dir="$1"
-    
+
     echo "🔨 Creating Task Manager Application..."
-    
+
     # Main application
     cat > "$dir/task-manager.js" << 'EOF'
 #!/usr/bin/env node
@@ -61,7 +61,7 @@ create_task_manager() {
 /**
  * Task Manager CLI Application
  * Created by Claude Flow Swarm
- * 
+ *
  * Demonstrates:
  * - Multi-agent collaboration
  * - Task decomposition and execution
@@ -106,7 +106,7 @@ class TaskManager {
         const total = this.tasks.length;
         const completed = this.tasks.filter(t => t.status === 'completed').length;
         const pending = total - completed;
-        
+
         return {
             total,
             completed,
@@ -121,16 +121,16 @@ if (require.main === module) {
     const manager = new TaskManager();
     const args = process.argv.slice(2);
     const command = args[0];
-    
+
     console.log('📋 Task Manager - Created by Swarm');
     console.log('==================================\n');
-    
+
     switch (command) {
         case 'add':
             const task = manager.addTask(args.slice(1).join(' '));
             console.log(`✅ Task added: #${task.id} - ${task.description}`);
             break;
-            
+
         case 'list':
             const tasks = manager.listTasks();
             if (tasks.length === 0) {
@@ -142,14 +142,14 @@ if (require.main === module) {
                 });
             }
             break;
-            
+
         case 'complete':
             const completed = manager.completeTask(parseInt(args[1]));
             if (completed) {
                 console.log(`✅ Task #${completed.id} marked as completed`);
             }
             break;
-            
+
         case 'stats':
             const stats = manager.getStats();
             console.log('📊 Task Statistics:');
@@ -158,7 +158,7 @@ if (require.main === module) {
             console.log(`   Pending: ${stats.pending}`);
             console.log(`   Completion Rate: ${stats.completionRate}`);
             break;
-            
+
         default:
             console.log('Usage:');
             console.log('  node task-manager.js add <description>');
@@ -166,7 +166,7 @@ if (require.main === module) {
             console.log('  node task-manager.js complete <id>');
             console.log('  node task-manager.js stats');
     }
-    
+
     console.log('\n🐝 Created by Claude Flow Swarm agents working in parallel');
 }
 

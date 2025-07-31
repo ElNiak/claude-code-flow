@@ -104,11 +104,11 @@ describe('CLI Integration Tests', () => {
         try {
           expect(code).toBe(0);
           expect(stdout).toContain('Claude-Flow initialized');
-          
+
           // Check if .claude directory was created
           const claudeDir = path.join(testDir, '.claude');
           expect(await fs.pathExists(claudeDir)).toBe(true);
-          
+
           done();
         } catch (error) {
           done(error);
@@ -132,18 +132,18 @@ describe('CLI Integration Tests', () => {
         try {
           expect(code).toBe(0);
           expect(stdout).toContain('SPARC development environment');
-          
+
           // Check for SPARC files
           const sparcFiles = [
             path.join(testDir, '.roomodes'),
             path.join(testDir, 'CLAUDE.md'),
             path.join(testDir, '.claude', 'commands'),
           ];
-          
+
           for (const file of sparcFiles) {
             expect(await fs.pathExists(file)).toBe(true);
           }
-          
+
           done();
         } catch (error) {
           done(error);
@@ -175,7 +175,7 @@ describe('CLI Integration Tests', () => {
 
       storeChild.on('close', (code) => {
         expect(code).toBe(0);
-        
+
         // Then retrieve it
         const retrieveChild = spawn(cliPath, [, 'memory', 'retrieve', 'test-key'], {
           stdio: ['pipe', 'pipe', 'pipe'],
@@ -324,9 +324,9 @@ describe('CLI Integration Tests', () => {
           github: false
         }
       };
-      
+
       await fs.writeJson(configPath, config);
-      
+
       const child = spawn(cliPath, [, 'config', 'show'], {
         stdio: ['pipe', 'pipe', 'pipe'],
         env: { ...process.env, NODE_ENV: 'test' },

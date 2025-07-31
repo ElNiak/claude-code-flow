@@ -2,7 +2,7 @@
 
 /**
  * Fix for GitHub Issue #246: Hive-mind creation time timezone issue
- * 
+ *
  * This script provides utilities to fix timezone display issues in hive-mind sessions.
  * The issue occurs when timestamps are shown in UTC instead of user's local timezone.
  */
@@ -19,7 +19,7 @@ const __dirname = path.dirname(__filename);
  */
 async function applyTimezoneFixes() {
   console.log('🔧 Applying timezone fixes for issue #246...\n');
-  
+
   const fixes = [
     {
       name: 'Add timezone utilities',
@@ -38,7 +38,7 @@ async function applyTimezoneFixes() {
       action: () => updateDatabaseSchema()
     }
   ];
-  
+
   for (const fix of fixes) {
     try {
       console.log(`📝 ${fix.name}...`);
@@ -48,7 +48,7 @@ async function applyTimezoneFixes() {
       console.error(`❌ ${fix.name} - Failed:`, error.message);
     }
   }
-  
+
   console.log('🎉 Timezone fixes applied successfully!');
   console.log('\n📋 Summary of changes:');
   console.log('• Created timezone utilities in src/utils/timezone-utils.js');
@@ -61,7 +61,7 @@ async function applyTimezoneFixes() {
 async function copyTimezoneUtils() {
   const utilsDir = path.join(process.cwd(), 'src', 'utils');
   const timezoneUtilsPath = path.join(utilsDir, 'timezone-utils.js');
-  
+
   // Check if timezone-utils.js already exists
   try {
     await fs.access(timezoneUtilsPath);
@@ -70,9 +70,9 @@ async function copyTimezoneUtils() {
   } catch {
     // File doesn't exist, continue with creation
   }
-  
+
   await fs.mkdir(utilsDir, { recursive: true });
-  
+
   // The timezone utils are already created in the previous step
   console.log('   ✓ Timezone utilities are available');
 }
@@ -114,8 +114,8 @@ ALTER TABLE sessions ADD COLUMN timezone_offset REAL;
 
 -- Update existing sessions with estimated local time
 -- Note: This assumes UTC timestamps and will need manual adjustment
-UPDATE sessions 
-SET 
+UPDATE sessions
+SET
   created_at_local = datetime(created_at, 'localtime'),
   timezone_name = 'Local Time',
   timezone_offset = 0
@@ -129,7 +129,7 @@ CREATE INDEX IF NOT EXISTS idx_sessions_timezone ON sessions(timezone_name);
   const migrationPath = path.join(process.cwd(), 'migrations', 'fix-timezone-issue-246.sql');
   await fs.mkdir(path.dirname(migrationPath), { recursive: true });
   await fs.writeFile(migrationPath, migrationContent.trim());
-  
+
   console.log(`📄 Created migration script: ${migrationPath}`);
 }
 
@@ -138,26 +138,26 @@ CREATE INDEX IF NOT EXISTS idx_sessions_timezone ON sessions(timezone_name);
  */
 async function testTimezoneFix() {
   console.log('\n🧪 Testing timezone fix...\n');
-  
+
   // Import and test timezone utilities
   try {
-    const { getLocalTimestamp, formatTimestampForDisplay, getTimezoneInfo } = 
+    const { getLocalTimestamp, formatTimestampForDisplay, getTimezoneInfo } =
       await import('../src/utils/timezone-utils.js');
-    
+
     const tz = getTimezoneInfo();
     console.log(`🌍 Current timezone: ${tz.name} (${tz.abbreviation})`);
     console.log(`⏰ UTC offset: ${tz.offset > 0 ? '+' : ''}${tz.offset} hours`);
-    
+
     const now = new Date();
     const formatted = formatTimestampForDisplay(now);
     console.log(`📅 Current time: ${formatted.display}`);
-    
+
     // Simulate AEST timezone for the issue reporter
     const aestTime = new Date(now.getTime() + (10 * 60 * 60 * 1000)); // UTC+10
     console.log(`🇦🇺 AEST example: ${aestTime.toLocaleString('en-AU', { timeZone: 'Australia/Sydney' })}`);
-    
+
     console.log('\n✅ Timezone fix is working correctly!');
-    
+
   } catch (error) {
     console.error('❌ Test failed:', error.message);
   }
@@ -168,23 +168,23 @@ async function testTimezoneFix() {
  */
 async function main() {
   const args = process.argv.slice(2);
-  
+
   if (args.includes('--test')) {
     await testTimezoneFix();
     return;
   }
-  
+
   if (args.includes('--migrate')) {
     await createMigrationScript();
     return;
   }
-  
+
   console.log('🔧 Claude Flow Timezone Fix (Issue #246)\n');
   console.log('This script fixes the hive-mind creation time to show in user\'s local timezone.\n');
-  
+
   await applyTimezoneFixes();
   await createMigrationScript();
-  
+
   console.log('\n🚀 Next steps:');
   console.log('1. Run: npm test to verify changes');
   console.log('2. Apply database migration if you have existing sessions');

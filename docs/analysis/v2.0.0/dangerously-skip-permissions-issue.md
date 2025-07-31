@@ -9,6 +9,7 @@ The `--dangerously-skip-permissions` flag in Claude Flow v1 doesn't fully resolv
 ### 1. Current Implementation Limitations
 
 The `--dangerously-skip-permissions` flag only bypasses permission prompts but doesn't handle:
+
 - Raw mode requirements for interactive UI
 - TTY detection for input handling
 - Environment-specific UI fallbacks
@@ -70,26 +71,31 @@ interface ExecutionEnvironment {
 ## Implementation Details
 
 ### Phase 1: Environment Detection Module
+
 - Create `environment-detector.ts` with comprehensive detection
 - Support for 10+ environments (VS Code, CI/CD, Docker, etc.)
 - Smart default recommendations
 
 ### Phase 2: CLI Enhancement
+
 - Integrate environment detection into CLI startup
 - Apply smart defaults before command execution
 - Add `env-check` command for debugging
 
 ### Phase 3: Executor v2
+
 - Enhanced task executor with retry logic
 - Environment-aware command building
 - Metadata tracking for debugging
 
 ### Phase 4: Prompt Defaults System
+
 - Configuration file support
 - Environment variable overrides
 - Safety defaults for dangerous operations
 
 ### Phase 5: Testing & Documentation
+
 - Comprehensive test suite for all environments
 - Migration guide for v1 to v2
 - Updated README with environment-specific guidance

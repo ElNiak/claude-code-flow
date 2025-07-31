@@ -143,7 +143,7 @@ npx claude-flow@2.0.0 agent spawn coder "API Developer" \
 
 # Multiple agents for different roles
 npx claude-flow@2.0.0 agent spawn architect "System Architect"
-npx claude-flow@2.0.0 agent spawn tester "QA Engineer" 
+npx claude-flow@2.0.0 agent spawn tester "QA Engineer"
 npx claude-flow@2.0.0 agent spawn reviewer "Code Reviewer"
 ```
 
@@ -278,6 +278,7 @@ npx claude-flow@2.0.0 mcp start --tools "swarm_init,agent_spawn,task_orchestrate
 ### Available MCP Tools
 
 #### Core Coordination (7 tools)
+
 - `swarm_init` - Initialize swarm coordination
 - `agent_spawn` - Spawn specialized agents  
 - `task_orchestrate` - Task orchestration
@@ -287,6 +288,7 @@ npx claude-flow@2.0.0 mcp start --tools "swarm_init,agent_spawn,task_orchestrate
 - `performance_metrics` - Performance tracking
 
 #### Advanced Features (20 tools)
+
 - GitHub integration tools (6)
 - Neural network tools (5)
 - Performance optimization tools (4)
@@ -331,6 +333,7 @@ project/
 ### Common Issues & Solutions
 
 #### Issue: Swarm LoadBalancer Error
+
 ```bash
 # Error: LoadBalancer is not defined
 # Solution: Use latest NPX version
@@ -338,6 +341,7 @@ npx claude-flow@2.0.0 swarm "your objective"
 ```
 
 #### Issue: Module Resolution Errors
+
 ```bash
 # Local build errors with TypeScript
 # Solution: Use NPX version instead
@@ -345,6 +349,7 @@ npx claude-flow@2.0.0 <command>
 ```
 
 #### Issue: Permission Errors
+
 ```bash
 # Permission denied errors
 # Solution: Check file permissions
@@ -521,18 +526,21 @@ npx claude-flow@2.0.0 swarm "implement critical payment processing" \
 ## 🎓 Learning Path
 
 ### Beginner (New to Claude Flow)
+
 1. Start with `npx claude-flow@2.0.0 --help`
 2. Try basic swarm: `npx claude-flow@2.0.0 swarm "simple task"`
 3. Explore SPARC modes: `npx claude-flow@2.0.0 sparc modes`
 4. Initialize project: `npx claude-flow@2.0.0 init --sparc`
 
 ### Intermediate (Familiar with basics)
+
 1. Use advanced swarm options: `--parallel`, `--monitor`, `--strategy`
 2. Explore agent management and memory operations
 3. Try GitHub integration features
 4. Experiment with different coordination modes
 
 ### Advanced (Production usage)
+
 1. Implement enterprise workflows with quality controls
 2. Use distributed coordination and encryption
 3. Integrate with CI/CD pipelines
@@ -542,10 +550,10 @@ npx claude-flow@2.0.0 swarm "implement critical payment processing" \
 
 ## 📞 Support & Resources
 
-- **GitHub Repository**: https://github.com/ruvnet/claude-code-flow
-- **Issue Tracker**: https://github.com/ruvnet/claude-code-flow/issues
-- **ruv-swarm Integration**: https://github.com/ruvnet/ruv-FANN/tree/main/ruv-swarm
-- **NPM Package**: https://www.npmjs.com/package/claude-flow/v/alpha
+- **GitHub Repository**: <https://github.com/ruvnet/claude-code-flow>
+- **Issue Tracker**: <https://github.com/ruvnet/claude-code-flow/issues>
+- **ruv-swarm Integration**: <https://github.com/ruvnet/ruv-FANN/tree/main/ruv-swarm>
+- **NPM Package**: <https://www.npmjs.com/package/claude-flow/v/alpha>
 
 ---
 

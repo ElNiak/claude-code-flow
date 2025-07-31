@@ -7,18 +7,21 @@ Welcome to the comprehensive user guide for Claude Flow v2.0.0! This guide cover
 Claude Flow v2.0.0 isn't just an update—it's a complete reimagining of AI agent coordination:
 
 ### 🧠 Hive Mind Intelligence
+
 - **Queen-Led Coordination**: Centralized intelligence with distributed execution
 - **Collective Memory**: Persistent learning across all sessions and agents
 - **Emergent Behavior**: Agents develop sophisticated coordination patterns
 - **Real-Time Adaptation**: Dynamic topology optimization based on workload
 
 ### 🤖 Neural Networks
+
 - **WASM Acceleration**: Real neural processing with SIMD optimization
 - **Continuous Learning**: Models improve from every interaction
 - **Pattern Recognition**: Automatic workflow optimization
 - **Predictive Analytics**: Proactive task management and resource allocation
 
 ### 🛠️ 87 MCP Tools
+
 - **Complete Integration**: Seamless Claude Code compatibility
 - **Intelligent Automation**: AI-powered workflow orchestration
 - **GitHub Integration**: Advanced repository management
@@ -29,12 +32,14 @@ Claude Flow v2.0.0 isn't just an update—it's a complete reimagining of AI agen
 ### System Requirements
 
 **Minimum Requirements:**
+
 - Node.js 18+ or Deno 1.40+
 - 4GB RAM (8GB recommended for neural features)
 - 2GB free disk space
 - Multi-core CPU (4+ cores recommended)
 
 **Recommended for Full Features:**
+
 - 16GB RAM for large-scale neural training
 - SSD storage for optimal memory operations
 - 8+ CPU cores for parallel processing
@@ -164,14 +169,18 @@ Claude Flow v2.0.0 uses intelligent configuration management:
 The Hive Mind system represents a breakthrough in AI coordination:
 
 #### Queen Agent
+
 The Queen is the central coordinator that:
+
 - **Orchestrates Tasks**: Intelligently distributes work across the swarm
 - **Manages Resources**: Optimizes memory, CPU, and neural processing allocation
 - **Learns Patterns**: Continuously improves coordination strategies
 - **Maintains Unity**: Ensures all agents work toward common goals
 
 #### Worker Agents
+
 Specialized agents that execute tasks:
+
 - **Researchers**: Data gathering and analysis
 - **Coders**: Implementation and development
 - **Analysts**: Performance and quality assessment
@@ -181,7 +190,9 @@ Specialized agents that execute tasks:
 - **Coordinators**: Task management and workflow orchestration
 
 #### Collective Memory
+
 Shared intelligence that persists across sessions:
+
 - **Learning Repository**: Stores successful patterns and strategies
 - **Decision History**: Tracks decisions and their outcomes
 - **Performance Metrics**: Continuous improvement data
@@ -232,26 +243,31 @@ claude-flow hive-mind export \
 #### Topology Types
 
 **Adaptive Topology** (Recommended)
+
 - Automatically adjusts based on workload
 - Optimal for dynamic projects
 - Self-healing and resilient
 
 **Mesh Topology**
+
 - All agents communicate directly
 - Best for collaborative tasks
 - High redundancy and fault tolerance
 
 **Hierarchical Topology**
+
 - Clear command structure
 - Ideal for large, complex projects
 - Efficient for well-defined workflows
 
 **Ring Topology**
+
 - Sequential processing
 - Perfect for pipeline workflows
 - Predictable and deterministic
 
 **Star Topology**
+
 - Central coordination hub
 - Great for simple task distribution
 - Easy to monitor and control
@@ -279,18 +295,21 @@ claude-flow topology analyze --metrics '["throughput","latency","efficiency"]'
 Claude Flow v2.0.0 includes three specialized neural networks:
 
 #### Coordination Network
+
 - **Purpose**: Optimizes agent coordination and task distribution
 - **Architecture**: Transformer-based with attention mechanisms
 - **Training Data**: Agent interactions, task outcomes, performance metrics
 - **Output**: Coordination strategies, agent assignments, resource allocation
 
 #### Optimization Network
+
 - **Purpose**: Identifies and resolves performance bottlenecks
 - **Architecture**: Feedforward with reinforcement learning
 - **Training Data**: Performance metrics, resource usage, optimization outcomes
 - **Output**: Optimization recommendations, resource adjustments, efficiency improvements
 
 #### Prediction Network
+
 - **Purpose**: Predicts task completion times, resource needs, potential issues
 - **Architecture**: LSTM with temporal pattern recognition
 - **Training Data**: Historical task data, resource usage patterns, project timelines
@@ -369,6 +388,7 @@ claude-flow neural models compress \
 Claude Flow v2.0.0 leverages WebAssembly SIMD for neural processing:
 
 #### WASM Features
+
 - **SIMD Operations**: Parallel processing for matrix operations
 - **Memory Efficiency**: Optimized memory layout for neural networks
 - **Cross-Platform**: Consistent performance across different systems
@@ -395,41 +415,49 @@ claude-flow neural wasm optimize \
 ### Tool Categories
 
 #### Core Coordination (15 tools)
+
 - Swarm initialization and management
 - Agent spawning and coordination
 - Task orchestration and monitoring
 
 #### Neural Processing (12 tools)
+
 - Neural network training and inference
 - Model management and optimization
 - Pattern recognition and prediction
 
 #### Memory Management (10 tools)
+
 - Persistent memory operations
 - Cross-session state management
 - Intelligent caching and compression
 
 #### Performance Analytics (15 tools)
+
 - Real-time performance monitoring
 - Bottleneck detection and analysis
 - Optimization recommendations
 
 #### GitHub Integration (8 tools)
+
 - Repository analysis and management
 - Pull request automation
 - Release coordination
 
 #### Workflow Automation (12 tools)
+
 - Custom workflow creation
 - CI/CD pipeline management
 - Event-driven automation
 
 #### Dynamic Agent Allocation (8 tools)
+
 - Intelligent agent creation
 - Capability matching
 - Resource optimization
 
 #### System Operations (7 tools)
+
 - Configuration management
 - Security scanning
 - Backup and restore
@@ -441,6 +469,7 @@ claude-flow neural wasm optimize \
 MCP tools are designed to work together. Here are common patterns:
 
 **Development Workflow:**
+
 ```bash
 # Initialize -> Spawn -> Orchestrate -> Monitor -> Optimize
 claude-flow mcp swarm-init --topology adaptive
@@ -451,6 +480,7 @@ claude-flow mcp performance-report --optimize
 ```
 
 **Neural Training Pipeline:**
+
 ```bash
 # Collect -> Train -> Validate -> Deploy -> Monitor
 claude-flow mcp memory-usage --action retrieve --pattern "training-data"
@@ -461,6 +491,7 @@ claude-flow mcp neural-status --monitor-performance
 ```
 
 **GitHub Automation:**
+
 ```bash
 # Analyze -> Setup -> Execute -> Monitor -> Report
 claude-flow mcp github-repo-analyze --repo "myorg/project"
@@ -473,6 +504,7 @@ claude-flow mcp github-metrics --generate-report
 #### Advanced Tool Usage
 
 **Parallel Tool Execution:**
+
 ```bash
 # Execute multiple tools simultaneously
 claude-flow mcp parallel-execute --tools '[
@@ -483,6 +515,7 @@ claude-flow mcp parallel-execute --tools '[
 ```
 
 **Conditional Tool Chains:**
+
 ```bash
 # Execute tools based on conditions
 claude-flow mcp workflow-create --name "conditional-optimization" --steps '[
@@ -498,6 +531,7 @@ claude-flow mcp workflow-create --name "conditional-optimization" --steps '[
 ### Performance Features
 
 #### Automatic Optimization
+
 - **Neural-Powered**: AI-driven optimization decisions
 - **Real-Time Adaptation**: Continuous performance tuning
 - **Predictive Scaling**: Proactive resource allocation
@@ -508,18 +542,21 @@ claude-flow mcp workflow-create --name "conditional-optimization" --steps '[
 Key metrics tracked by Claude Flow v2.0.0:
 
 **Throughput Metrics:**
+
 - Tasks completed per minute
 - Agent utilization rates
 - Parallel execution efficiency
 - Neural inference speed
 
 **Quality Metrics:**
+
 - Task success rates
 - Error reduction percentages
 - Code quality improvements
 - User satisfaction scores
 
 **Resource Metrics:**
+
 - Memory usage optimization
 - CPU utilization efficiency
 - Network communication overhead
@@ -553,6 +590,7 @@ claude-flow performance optimize \
 ### Optimization Strategies
 
 #### Memory Optimization
+
 ```bash
 # Analyze memory usage patterns
 claude-flow memory analyze \
@@ -568,6 +606,7 @@ claude-flow memory optimize \
 ```
 
 #### Neural Optimization
+
 ```bash
 # Optimize neural network performance
 claude-flow neural optimize \
@@ -578,6 +617,7 @@ claude-flow neural optimize \
 ```
 
 #### Swarm Optimization
+
 ```bash
 # Optimize swarm coordination
 claude-flow swarm optimize \
@@ -725,25 +765,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Setup Claude Flow
         run: |
           npm install -g claude-flow@2.0.0
           claude-flow hive-mind init --ci-mode
-          
+
       - name: Analyze Repository
         run: |
           claude-flow mcp github-repo-analyze \
             --repo "${{ github.repository }}" \
             --analysis-type comprehensive
-            
+
       - name: Automated Code Review
         if: github.event_name == 'pull_request'
         run: |
           claude-flow mcp github-code-review \
             --repo "${{ github.repository }}" \
             --pr ${{ github.event.number }}
-            
+
       - name: Performance Optimization
         run: |
           claude-flow mcp task-orchestrate \
@@ -839,6 +879,7 @@ claude-flow neural diagnose training \
 #### Performance Issues
 
 **Issue: Slow task execution**
+
 ```bash
 # Diagnose and fix
 claude-flow diagnose performance --auto-fix
@@ -847,6 +888,7 @@ claude-flow swarm optimize --load-balancing
 ```
 
 **Issue: High memory usage**
+
 ```bash
 # Memory optimization
 claude-flow memory optimize --strategy aggressive
@@ -857,6 +899,7 @@ claude-flow garbage-collect --neural-guided
 #### Neural Network Issues
 
 **Issue: Poor prediction accuracy**
+
 ```bash
 # Retrain with more data
 claude-flow neural train --additional-data "new-training-set"
@@ -865,6 +908,7 @@ claude-flow neural tune-hyperparameters --auto-optimization
 ```
 
 **Issue: Slow neural inference**
+
 ```bash
 # Optimize neural processing
 claude-flow neural optimize --wasm-acceleration
@@ -875,6 +919,7 @@ claude-flow neural quantize --dynamic-quantization
 #### Coordination Issues
 
 **Issue: Agent coordination problems**
+
 ```bash
 # Reset and re-optimize coordination
 claude-flow swarm reset --preserve-memory

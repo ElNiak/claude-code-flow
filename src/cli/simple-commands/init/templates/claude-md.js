@@ -636,7 +636,7 @@ npx claude-flow sparc run integration "integrate authentication with user manage
 - Claude Code slash commands provide quick access to batchtools-optimized SPARC modes
 - Monitor system resources during parallel operations for optimal performance
 
-For more information about SPARC methodology and batchtools optimization, see: 
+For more information about SPARC methodology and batchtools optimization, see:
 - SPARC Guide: https://github.com/ruvnet/claude-code-flow/docs/sparc.md
 - Batchtools Documentation: https://github.com/ruvnet/claude-code-flow/docs/batchtools.md
 

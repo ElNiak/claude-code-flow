@@ -1,6 +1,6 @@
 /**
  * LLM-specific hooks for agentic-flow integration
- * 
+ *
  * Provides pre/post operation hooks for all LLM calls with
  * memory persistence and performance optimization.
  */
@@ -26,11 +26,11 @@ export const preLLMCallHook = {
     context: AgenticHookContext
   ): Promise<HookHandlerResult> => {
     const { provider, model, operation, request } = payload;
-    
+
     // Check memory for similar requests
     const cacheKey = generateCacheKey(provider, model, request);
     const cached = await checkMemoryCache(cacheKey, context);
-    
+
     if (cached) {
       return {
         continue: false, // Skip LLM call
@@ -52,17 +52,17 @@ export const preLLMCallHook = {
         ],
       };
     }
-    
+
     // Load provider-specific optimizations
     const optimizations = await loadProviderOptimizations(provider, context);
-    
+
     // Apply request optimizations
     const optimizedRequest = applyRequestOptimizations(
       request,
       optimizations,
       context
     );
-    
+
     // Track pre-call metrics
     const sideEffects: SideEffect[] = [
       {
@@ -86,7 +86,7 @@ export const preLLMCallHook = {
         },
       },
     ];
-    
+
     return {
       continue: true,
       modified: true,
@@ -110,13 +110,13 @@ export const postLLMCallHook = {
     context: AgenticHookContext
   ): Promise<HookHandlerResult> => {
     const { provider, model, request, response, metrics } = payload;
-    
+
     if (!response || !metrics) {
       return { continue: true };
     }
-    
+
     const sideEffects: SideEffect[] = [];
-    
+
     // Store response in memory for caching
     const cacheKey = generateCacheKey(provider, model, request);
     sideEffects.push({
@@ -132,7 +132,7 @@ export const postLLMCallHook = {
         ttl: determineCacheTTL(operation, response),
       },
     });
-    
+
     // Extract patterns for neural training
     const patterns = extractResponsePatterns(request, response, metrics);
     if (patterns.length > 0) {
@@ -145,7 +145,7 @@ export const postLLMCallHook = {
         },
       });
     }
-    
+
     // Update performance metrics
     sideEffects.push(
       {
@@ -173,7 +173,7 @@ export const postLLMCallHook = {
         },
       }
     );
-    
+
     // Check for performance issues
     if (metrics.latency > getLatencyThreshold(provider, model)) {
       sideEffects.push({
@@ -185,10 +185,10 @@ export const postLLMCallHook = {
         },
       });
     }
-    
+
     // Store provider health score
     await updateProviderHealth(provider, metrics.providerHealth, context);
-    
+
     return {
       continue: true,
       sideEffects,
@@ -207,13 +207,13 @@ export const llmErrorHook = {
     context: AgenticHookContext
   ): Promise<HookHandlerResult> => {
     const { provider, model, error } = payload;
-    
+
     if (!error) {
       return { continue: true };
     }
-    
+
     const sideEffects: SideEffect[] = [];
-    
+
     // Log error details
     sideEffects.push({
       type: 'log',
@@ -228,14 +228,14 @@ export const llmErrorHook = {
         },
       },
     });
-    
+
     // Update error metrics
     sideEffects.push({
       type: 'metric',
       action: 'increment',
       data: { name: `llm.errors.${provider}.${model}` },
     });
-    
+
     // Check if we should fallback
     const fallbackProvider = await selectFallbackProvider(
       provider,
@@ -243,7 +243,7 @@ export const llmErrorHook = {
       error,
       context
     );
-    
+
     if (fallbackProvider) {
       return {
         continue: false, // Don't propagate error
@@ -267,7 +267,7 @@ export const llmErrorHook = {
         ],
       };
     }
-    
+
     return {
       continue: true,
       sideEffects,
@@ -287,13 +287,13 @@ export const llmRetryHook = {
   ): Promise<HookHandlerResult> => {
     const { provider, model, metrics } = payload;
     const retryCount = metrics?.retryCount || 0;
-    
+
     // Adjust request parameters for retry
     const adjustedRequest = adjustRequestForRetry(
       payload.request,
       retryCount
     );
-    
+
     const sideEffects: SideEffect[] = [
       {
         type: 'metric',
@@ -301,11 +301,11 @@ export const llmRetryHook = {
         data: { name: `llm.retries.${provider}.${model}` },
       },
     ];
-    
+
     // Apply exponential backoff
     const backoffMs = Math.min(1000 * Math.pow(2, retryCount), 10000);
     await new Promise(resolve => setTimeout(resolve, backoffMs));
-    
+
     return {
       continue: true,
       modified: true,
@@ -339,7 +339,7 @@ function generateCacheKey(
     temperature: request.temperature,
     maxTokens: request.maxTokens,
   };
-  
+
   return Buffer.from(JSON.stringify(normalized)).toString('base64');
 }
 
@@ -372,22 +372,22 @@ function applyRequestOptimizations(
 ): LLMHookPayload['request'] {
   // Apply various optimizations
   const optimized = { ...request };
-  
+
   // Optimize token usage
   if (optimized.maxTokens && optimized.maxTokens > 4000) {
     optimized.maxTokens = 4000; // Cap at reasonable limit
   }
-  
+
   // Optimize temperature for consistency
   if (optimized.temperature === undefined) {
     optimized.temperature = 0.7;
   }
-  
+
   // Add stop sequences if missing
   if (!optimized.stopSequences && optimized.messages) {
     optimized.stopSequences = ['\n\nHuman:', '\n\nAssistant:'];
   }
-  
+
   return optimized;
 }
 
@@ -415,7 +415,7 @@ function extractResponsePatterns(
   metrics: LLMMetrics
 ): Pattern[] {
   const patterns: Pattern[] = [];
-  
+
   // Extract performance patterns
   if (metrics.latency > 1000) {
     patterns.push({
@@ -431,7 +431,7 @@ function extractResponsePatterns(
       },
     });
   }
-  
+
   // Extract success patterns
   if (response?.choices?.[0]?.finishReason === 'stop') {
     patterns.push({
@@ -446,7 +446,7 @@ function extractResponsePatterns(
       },
     });
   }
-  
+
   return patterns;
 }
 
@@ -458,7 +458,7 @@ function getLatencyThreshold(provider: string, model: string): number {
     'anthropic:claude-3': 4000,
     'anthropic:claude-instant': 1500,
   };
-  
+
   return thresholds[`${provider}:${model}`] || 3000;
 }
 
@@ -470,17 +470,17 @@ async function updateProviderHealth(
   // Update provider health in memory
   const healthKey = `provider:health:${provider}`;
   const currentHealth = await context.memory.cache.get(healthKey) || [];
-  
+
   currentHealth.push({
     timestamp: Date.now(),
     health,
   });
-  
+
   // Keep last 100 health checks
   if (currentHealth.length > 100) {
     currentHealth.shift();
   }
-  
+
   await context.memory.cache.set(healthKey, currentHealth);
 }
 
@@ -501,25 +501,25 @@ async function selectFallbackProvider(
       { provider: 'cohere', model: 'command' },
     ],
   };
-  
+
   const candidates = fallbacks[provider] || [];
-  
+
   // Select based on health scores
   for (const candidate of candidates) {
     const healthKey = `provider:health:${candidate.provider}`;
     const healthData = await context.memory.cache.get(healthKey) || [];
-    
+
     if (healthData.length > 0) {
-      const avgHealth = healthData.reduce((sum: number, h: any) => 
+      const avgHealth = healthData.reduce((sum: number, h: any) =>
         sum + h.health, 0
       ) / healthData.length;
-      
+
       if (avgHealth > 0.7) {
         return candidate;
       }
     }
   }
-  
+
   return null;
 }
 
@@ -528,7 +528,7 @@ function adjustRequestForRetry(
   retryCount: number
 ): LLMHookPayload['request'] {
   const adjusted = { ...request };
-  
+
   // Increase temperature slightly for variety
   if (adjusted.temperature !== undefined) {
     adjusted.temperature = Math.min(
@@ -536,14 +536,14 @@ function adjustRequestForRetry(
       1.0
     );
   }
-  
+
   // Reduce max tokens to improve success rate
   if (adjusted.maxTokens !== undefined) {
     adjusted.maxTokens = Math.floor(
       adjusted.maxTokens * Math.pow(0.9, retryCount)
     );
   }
-  
+
   return adjusted;
 }
 

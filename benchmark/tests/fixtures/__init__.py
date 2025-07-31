@@ -7,15 +7,15 @@ from .test_data import (
     sample_ml_project,
     test_prompts,
     performance_scenarios,
-    code_samples
+    code_samples,
 )
 
 __all__ = [
-    'TestDataGenerator',
-    'sample_web_api_project',
-    'sample_data_pipeline_project', 
-    'sample_ml_project',
-    'test_prompts',
-    'performance_scenarios',
-    'code_samples'
+    "TestDataGenerator",
+    "sample_web_api_project",
+    "sample_data_pipeline_project",
+    "sample_ml_project",
+    "test_prompts",
+    "performance_scenarios",
+    "code_samples",
 ]

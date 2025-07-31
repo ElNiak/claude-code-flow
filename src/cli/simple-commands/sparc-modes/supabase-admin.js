@@ -46,7 +46,7 @@ export function getSupabaseAdminOrchestration(taskDescription, memoryNamespace) 
      -- Create schemas
      CREATE SCHEMA IF NOT EXISTS auth_ext;
      CREATE SCHEMA IF NOT EXISTS app;
-     
+
      -- Create tables
      CREATE TABLE app.profiles (
        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -76,12 +76,12 @@ export function getSupabaseAdminOrchestration(taskDescription, memoryNamespace) 
      - Public read for certain tables
    - Create security functions:
      \`\`\`sql
-     CREATE FUNCTION auth.user_has_role(role_name TEXT) 
+     CREATE FUNCTION auth.user_has_role(role_name TEXT)
      RETURNS BOOLEAN AS $$
        SELECT EXISTS (
          SELECT 1 FROM app.user_roles ur
          JOIN app.roles r ON ur.role_id = r.id
-         WHERE ur.user_id = auth.uid() 
+         WHERE ur.user_id = auth.uid()
          AND r.name = role_name
        );
      $$ LANGUAGE SQL SECURITY DEFINER;

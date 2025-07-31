@@ -11,6 +11,7 @@ Claude-Flow supports multiple specialized agent types, each optimized for specif
 The coordinator agent specializes in planning, task delegation, and project management.
 
 **Core Capabilities:**
+
 - Project planning and decomposition
 - Task delegation to specialized agents
 - Progress monitoring and reporting
@@ -18,6 +19,7 @@ The coordinator agent specializes in planning, task delegation, and project mana
 - Risk assessment and mitigation
 
 **Spawning a Coordinator:**
+
 ```bash
 # Basic coordinator
 claude-flow agent spawn coordinator --name "Project Manager"
@@ -30,6 +32,7 @@ claude-flow agent spawn coordinator --name "Senior Project Coordinator" \
 ```
 
 **Configuration Example:**
+
 ```json
 {
   "type": "coordinator",
@@ -59,6 +62,7 @@ claude-flow agent spawn coordinator --name "Senior Project Coordinator" \
 Specialized in information gathering, analysis, and knowledge synthesis.
 
 **Core Capabilities:**
+
 - Web research and data gathering
 - Competitive analysis
 - Technology evaluation
@@ -66,6 +70,7 @@ Specialized in information gathering, analysis, and knowledge synthesis.
 - Market research and trends analysis
 
 **Spawning a Researcher:**
+
 ```bash
 # Domain-specific researcher
 claude-flow agent spawn researcher --name "AI Research Specialist" \
@@ -80,6 +85,7 @@ claude-flow agent spawn researcher --name "Market Analyst" \
 ```
 
 **Configuration Example:**
+
 ```json
 {
   "type": "researcher",
@@ -110,6 +116,7 @@ claude-flow agent spawn researcher --name "Market Analyst" \
 Focused on code development, technical implementation, and software engineering.
 
 **Core Capabilities:**
+
 - Code development and implementation
 - Test creation and execution
 - Code review and optimization
@@ -117,6 +124,7 @@ Focused on code development, technical implementation, and software engineering.
 - Technical documentation
 
 **Spawning an Implementer:**
+
 ```bash
 # Full-stack developer
 claude-flow agent spawn implementer --name "Full-Stack Developer" \
@@ -131,6 +139,7 @@ claude-flow agent spawn implementer --name "Backend Specialist" \
 ```
 
 **Configuration Example:**
+
 ```json
 {
   "type": "implementer",
@@ -157,6 +166,7 @@ claude-flow agent spawn implementer --name "Backend Specialist" \
 Specializes in data analysis, pattern recognition, and insights generation.
 
 **Core Capabilities:**
+
 - Data analysis and processing
 - Pattern recognition and insights
 - Report generation and visualization
@@ -164,6 +174,7 @@ Specializes in data analysis, pattern recognition, and insights generation.
 - Performance monitoring
 
 **Spawning an Analyst:**
+
 ```bash
 # Data analyst
 claude-flow agent spawn analyst --name "Data Science Specialist" \
@@ -178,6 +189,7 @@ claude-flow agent spawn analyst --name "Performance Analyst" \
 ```
 
 **Configuration Example:**
+
 ```json
 {
   "type": "analyst",
@@ -209,6 +221,7 @@ claude-flow agent spawn analyst --name "Performance Analyst" \
 Create specialized agents for unique requirements.
 
 **Creating Custom Agent Type:**
+
 ```bash
 # Define custom agent type
 claude-flow agent create-type security-auditor \
@@ -222,6 +235,7 @@ claude-flow agent spawn security-auditor --name "Security Specialist" \
 ```
 
 **Custom Agent Configuration:**
+
 ```json
 {
   "type": "security-auditor",
@@ -254,6 +268,7 @@ claude-flow agent spawn security-auditor --name "Security Specialist" \
 ### Spawning Agents
 
 **Basic Agent Spawning:**
+
 ```bash
 # Simple spawn
 claude-flow agent spawn researcher --name "Research Assistant"
@@ -272,6 +287,7 @@ claude-flow agent spawn analyst \
 ```
 
 **Advanced Spawning Options:**
+
 ```bash
 # Spawn with team context
 claude-flow agent spawn coordinator \
@@ -298,6 +314,7 @@ claude-flow agent spawn researcher \
 ### Monitoring Agents
 
 **Real-time Monitoring:**
+
 ```bash
 # List all active agents
 claude-flow agent list
@@ -313,6 +330,7 @@ claude-flow agent monitor --all --dashboard --refresh 5s
 ```
 
 **Health Monitoring:**
+
 ```bash
 # Check agent health
 claude-flow agent health <agent-id>
@@ -327,6 +345,7 @@ claude-flow agent health-alerts \
 ```
 
 **Performance Metrics:**
+
 ```bash
 # View agent performance
 claude-flow agent metrics <agent-id> \
@@ -349,6 +368,7 @@ claude-flow agent export-metrics \
 ### Agent Communication
 
 **Direct Messaging:**
+
 ```bash
 # Send message to specific agent
 claude-flow agent message <agent-id> \
@@ -365,6 +385,7 @@ claude-flow agent request-status <agent-id>
 ```
 
 **Broadcast Communication:**
+
 ```bash
 # Broadcast to all agents
 claude-flow agent broadcast \
@@ -383,6 +404,7 @@ claude-flow agent broadcast \
 ```
 
 **Group Communication:**
+
 ```bash
 # Create agent group
 claude-flow agent group create "backend-team" \
@@ -402,6 +424,7 @@ claude-flow agent group coordinate "backend-team" \
 ### Agent Termination
 
 **Graceful Termination:**
+
 ```bash
 # Graceful agent shutdown
 claude-flow agent terminate <agent-id> --graceful
@@ -417,6 +440,7 @@ claude-flow agent terminate <agent-id> \
 ```
 
 **Batch Termination:**
+
 ```bash
 # Terminate agents by type
 claude-flow agent terminate --type researcher --graceful
@@ -433,6 +457,7 @@ claude-flow agent terminate-all --emergency --confirm
 ### Hierarchical Coordination
 
 **Setting Up Agent Hierarchies:**
+
 ```bash
 # Create development hierarchy
 claude-flow agent hierarchy create "development-team" \
@@ -452,6 +477,7 @@ claude-flow agent hierarchy assign "development-team" \
 ```
 
 **Hierarchical Task Delegation:**
+
 ```bash
 # Create hierarchical task
 claude-flow task create-hierarchical "build-microservices-platform" \
@@ -463,6 +489,7 @@ claude-flow task create-hierarchical "build-microservices-platform" \
 ### Team-Based Coordination
 
 **Creating Agent Teams:**
+
 ```bash
 # Create specialized team
 claude-flow agent team create "ai-research-team" \
@@ -478,6 +505,7 @@ claude-flow agent team create "product-team" \
 ```
 
 **Team Coordination:**
+
 ```bash
 # Assign team task
 claude-flow task create development "user-authentication-system" \
@@ -493,6 +521,7 @@ claude-flow agent team sync "product-team" \
 ### Peer-to-Peer Coordination
 
 **Setting Up Peer Networks:**
+
 ```bash
 # Create research network
 claude-flow agent network create "research-network" \
@@ -512,6 +541,7 @@ claude-flow agent network create "specialists" \
 ### Agent Learning and Adaptation
 
 **Knowledge Transfer:**
+
 ```bash
 # Transfer knowledge between agents
 claude-flow agent knowledge-transfer \
@@ -527,6 +557,7 @@ claude-flow agent knowledge-share "development-team" \
 ```
 
 **Performance Learning:**
+
 ```bash
 # Enable agent learning
 claude-flow agent learning enable <agent-id> \
@@ -540,6 +571,7 @@ claude-flow agent learning-analytics <agent-id> \
 ### Dynamic Agent Provisioning
 
 **Auto-scaling Agents:**
+
 ```bash
 # Configure auto-scaling
 claude-flow agent auto-scale configure \
@@ -555,6 +587,7 @@ claude-flow agent provision-on-demand \
 ```
 
 **Spot Instance Agents:**
+
 ```bash
 # Cost-optimized agents
 claude-flow agent provision-spot \
@@ -567,6 +600,7 @@ claude-flow agent provision-spot \
 ### Agent Specialization
 
 **Skill Development:**
+
 ```bash
 # Enhance agent capabilities
 claude-flow agent enhance <agent-id> \
@@ -581,6 +615,7 @@ claude-flow agent specialize <agent-id> \
 ```
 
 **Tool Integration:**
+
 ```bash
 # Add tools to agent
 claude-flow agent add-tools <agent-id> \
@@ -598,11 +633,13 @@ claude-flow agent develop-tool <agent-id> \
 ### 1. Agent Design Principles
 
 **Single Responsibility:**
+
 - Each agent should have a clear, focused role
 - Avoid overlapping responsibilities between agents
 - Design agents for specific domains or tasks
 
 **Capability Matching:**
+
 ```bash
 # Good: Specific capabilities
 claude-flow agent spawn researcher \
@@ -616,6 +653,7 @@ claude-flow agent spawn researcher \
 ### 2. Resource Management
 
 **Memory and CPU Optimization:**
+
 ```bash
 # Monitor resource usage
 claude-flow agent resources --summary --optimize
@@ -628,6 +666,7 @@ claude-flow agent spawn implementer \
 ```
 
 **Task Load Balancing:**
+
 ```bash
 # Monitor agent workload
 claude-flow agent workload-analysis \
@@ -643,6 +682,7 @@ claude-flow agent rebalance \
 ### 3. Communication Efficiency
 
 **Message Optimization:**
+
 ```bash
 # Use structured messages
 claude-flow agent message <agent-id> \
@@ -659,6 +699,7 @@ claude-flow agent batch-message \
 ### 4. Security and Access Control
 
 **Agent Authentication:**
+
 ```bash
 # Set up agent authentication
 claude-flow agent auth setup \
@@ -675,6 +716,7 @@ claude-flow agent permissions set <agent-id> \
 ### 5. Monitoring and Alerting
 
 **Comprehensive Monitoring:**
+
 ```bash
 # Set up monitoring dashboard
 claude-flow agent monitoring-dashboard \

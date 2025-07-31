@@ -7,7 +7,7 @@ import { EventEmitter } from 'events';
 
 // ===== PROVIDER TYPES =====
 
-export type LLMProvider = 
+export type LLMProvider =
   | 'openai'
   | 'anthropic'
   | 'google'
@@ -56,7 +56,7 @@ export interface LLMProviderConfig {
   apiKey?: string;
   apiUrl?: string;
   model: LLMModel;
-  
+
   // Common parameters
   temperature?: number;
   maxTokens?: number;
@@ -65,20 +65,20 @@ export interface LLMProviderConfig {
   frequencyPenalty?: number;
   presencePenalty?: number;
   stopSequences?: string[];
-  
+
   // Provider-specific settings
   providerOptions?: Record<string, any>;
-  
+
   // Performance settings
   timeout?: number;
   retryAttempts?: number;
   retryDelay?: number;
-  
+
   // Advanced features
   enableStreaming?: boolean;
   enableCaching?: boolean;
   cacheTimeout?: number;
-  
+
   // Cost optimization
   enableCostOptimization?: boolean;
   maxCostPerRequest?: number;
@@ -106,14 +106,14 @@ export interface LLMRequest {
   presencePenalty?: number;
   stopSequences?: string[];
   stream?: boolean;
-  
+
   // Function calling
   functions?: LLMFunction[];
   functionCall?: 'auto' | 'none' | { name: string };
-  
+
   // Provider-specific options
   providerOptions?: Record<string, any>;
-  
+
   // Cost optimization
   costConstraints?: {
     maxCost?: number;
@@ -135,21 +135,21 @@ export interface LLMResponse {
   id: string;
   model: LLMModel;
   provider: LLMProvider;
-  
+
   // Content
   content: string;
   functionCall?: {
     name: string;
     arguments: string;
   };
-  
+
   // Metadata
   usage: {
     promptTokens: number;
     completionTokens: number;
     totalTokens: number;
   };
-  
+
   // Cost tracking
   cost?: {
     promptCost: number;
@@ -157,10 +157,10 @@ export interface LLMResponse {
     totalCost: number;
     currency: string;
   };
-  
+
   // Performance metrics
   latency?: number;
-  
+
   // Additional info
   finishReason?: 'stop' | 'length' | 'function_call' | 'content_filter';
   metadata?: Record<string, any>;
@@ -187,7 +187,7 @@ export interface ProviderCapabilities {
   supportedModels: LLMModel[];
   maxContextLength: Record<LLMModel, number>;
   maxOutputTokens: Record<LLMModel, number>;
-  
+
   // Feature support
   supportsStreaming: boolean;
   supportsFunctionCalling: boolean;
@@ -195,20 +195,20 @@ export interface ProviderCapabilities {
   supportsVision: boolean;
   supportsAudio: boolean;
   supportsTools: boolean;
-  
+
   // Advanced features
   supportsFineTuning: boolean;
   supportsEmbeddings: boolean;
   supportsLogprobs: boolean;
   supportsBatching: boolean;
-  
+
   // Constraints
   rateLimit?: {
     requestsPerMinute: number;
     tokensPerMinute: number;
     concurrentRequests: number;
   };
-  
+
   // Cost information
   pricing?: {
     [model: string]: {
@@ -275,25 +275,25 @@ export interface ILLMProvider extends EventEmitter {
   readonly name: LLMProvider;
   readonly capabilities: ProviderCapabilities;
   config: LLMProviderConfig;
-  
+
   // Core methods
   initialize(): Promise<void>;
   complete(request: LLMRequest): Promise<LLMResponse>;
   streamComplete(request: LLMRequest): AsyncIterable<LLMStreamEvent>;
-  
+
   // Model management
   listModels(): Promise<LLMModel[]>;
   getModelInfo(model: LLMModel): Promise<ModelInfo>;
   validateModel(model: LLMModel): boolean;
-  
+
   // Health and status
   healthCheck(): Promise<HealthCheckResult>;
   getStatus(): ProviderStatus;
-  
+
   // Cost management
   estimateCost(request: LLMRequest): Promise<CostEstimate>;
   getUsage(period?: UsagePeriod): Promise<UsageStats>;
-  
+
   // Cleanup
   destroy(): void;
 }

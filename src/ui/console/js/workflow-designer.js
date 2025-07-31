@@ -74,7 +74,7 @@ class WorkflowDesigner {
                         </button>
                     </div>
                 </div>
-                
+
                 <div class="designer-body">
                     <div class="node-palette">
                         <div class="palette-header">
@@ -106,14 +106,14 @@ class WorkflowDesigner {
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="canvas-container">
                         <canvas id="workflowCanvas" width="1200" height="800"></canvas>
                         <div class="canvas-overlay">
                             <div class="execution-status" id="executionStatus"></div>
                         </div>
                     </div>
-                    
+
                     <div class="properties-panel">
                         <div class="panel-header">
                             <h3>Properties</h3>
@@ -125,7 +125,7 @@ class WorkflowDesigner {
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="bottom-panel">
                     <div class="panel-tabs">
                         <button class="tab-button active" data-tab="templates">Templates</button>

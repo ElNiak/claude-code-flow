@@ -48,7 +48,7 @@ versionFiles.forEach(({ path: filePath, pattern, replacement }) => {
   if (fs.existsSync(fullPath)) {
     const content = fs.readFileSync(fullPath, 'utf8');
     const newContent = content.replace(pattern, replacement);
-    
+
     if (content !== newContent) {
       fs.writeFileSync(fullPath, newContent);
       console.log(`   ✅ Updated ${filePath}`);
@@ -100,7 +100,7 @@ distFiles.forEach(distFile => {
   if (fs.existsSync(fullPath)) {
     const content = fs.readFileSync(fullPath, 'utf8');
     const versionMatch = content.match(/VERSION = ['"]([^'"]+)['"]/);
-    
+
     if (versionMatch) {
       if (versionMatch[1] === version) {
         console.log(`   ✅ ${distFile}: ${versionMatch[1]}`);
@@ -120,19 +120,19 @@ console.log('\n📋 Files to be published:');
 try {
   const packOutput = execSync('npm pack --dry-run --json', { cwd: rootDir, encoding: 'utf8' });
   const packInfo = JSON.parse(packOutput);
-  
+
   if (packInfo[0] && packInfo[0].files) {
-    const importantFiles = packInfo[0].files.filter(f => 
-      f.path.includes('cli.js') || 
+    const importantFiles = packInfo[0].files.filter(f =>
+      f.path.includes('cli.js') ||
       f.path.includes('simple-cli') ||
       f.path.includes('package.json') ||
       f.path.includes('README.md')
     );
-    
+
     importantFiles.forEach(file => {
       console.log(`   📄 ${file.path} (${(file.size / 1024).toFixed(1)}KB)`);
     });
-    
+
     console.log(`\n   Total files: ${packInfo[0].files.length}`);
     console.log(`   Total size: ${(packInfo[0].size / 1024 / 1024).toFixed(2)}MB`);
   }

@@ -1,6 +1,6 @@
 /**
  * Agentic Flow Hook System Type Definitions
- * 
+ *
  * This module defines the comprehensive hook system for integrating
  * agentic-flow with Claude Flow's existing infrastructure.
  */
@@ -40,7 +40,7 @@ export interface PerformanceContext {
 
 // ===== LLM Hook Types =====
 
-export type LLMHookType = 
+export type LLMHookType =
   | 'pre-llm-call'
   | 'post-llm-call'
   | 'llm-error'
@@ -302,11 +302,11 @@ export interface HookRegistration {
   options?: HookOptions;
 }
 
-export type AgenticHookType = 
-  | LLMHookType 
-  | MemoryHookType 
-  | NeuralHookType 
-  | PerformanceHookType 
+export type AgenticHookType =
+  | LLMHookType
+  | MemoryHookType
+  | NeuralHookType
+  | PerformanceHookType
   | WorkflowHookType
   | HookType; // Include existing Claude Flow hooks
 
@@ -315,7 +315,7 @@ export type HookHandler = (
   context: AgenticHookContext
 ) => Promise<HookHandlerResult>;
 
-export type HookPayload = 
+export type HookPayload =
   | LLMHookPayload
   | MemoryHookPayload
   | NeuralHookPayload

@@ -32,7 +32,7 @@ async function analyzeResults() {
     console.log("📊 Claude-Flow Parallel Agent Test Results Analysis");
     console.log("=" .repeat(50));
     console.log(`\nTest completed at: ${new Date(results.timestamp).toLocaleString()}`);
-    
+
     // Summary statistics
     console.log("\n📈 Summary Statistics:");
     console.log(`   Total Agents: ${results.summary.totalAgents}`);
@@ -43,13 +43,13 @@ async function analyzeResults() {
 
     // Performance analysis
     const sortedByDuration = [...results.results].sort((a, b) => b.duration - a.duration);
-    
+
     console.log("\n⏱️  Performance Breakdown:");
     console.log("   Slowest agents:");
     sortedByDuration.slice(0, 3).forEach((result, index) => {
       console.log(`   ${index + 1}. ${result.agent}: ${(result.duration / 1000).toFixed(2)}s`);
     });
-    
+
     console.log("\n   Fastest agents:");
     sortedByDuration.slice(-3).reverse().forEach((result, index) => {
       console.log(`   ${index + 1}. ${result.agent}: ${(result.duration / 1000).toFixed(2)}s`);
@@ -77,7 +77,7 @@ async function analyzeResults() {
     // Parallel efficiency
     const sequentialTime = results.results.reduce((sum, r) => sum + r.duration, 0);
     const parallelEfficiency = (sequentialTime / results.summary.totalDuration * 100).toFixed(1);
-    
+
     console.log("\n🚀 Parallel Execution Efficiency:");
     console.log(`   Sequential time (if run one by one): ${(sequentialTime / 1000).toFixed(2)}s`);
     console.log(`   Actual parallel time: ${(results.summary.totalDuration / 1000).toFixed(2)}s`);
@@ -109,7 +109,7 @@ Generated: ${new Date(results.timestamp).toLocaleString()}
 
 | Agent | Status | Duration | Notes |
 |-------|--------|----------|-------|
-${results.results.map(r => 
+${results.results.map(r =>
   `| ${r.agent} | ${r.success ? '✅ Success' : '❌ Failed'} | ${(r.duration / 1000).toFixed(2)}s | ${r.error ? r.error.split('\n')[0] : 'Completed successfully'} |`
 ).join('\n')}
 
@@ -143,16 +143,16 @@ ${generateTimeline(results.results, results.summary.totalDuration)}
 function generateTimeline(results: AgentResult[], totalDuration: number): string {
   const width = 60;
   const timeline: string[] = [];
-  
+
   results.forEach(result => {
     const startRatio = 0; // Assuming all start at the same time
     const durationRatio = result.duration / totalDuration;
     const barLength = Math.max(1, Math.floor(durationRatio * width));
     const bar = "█".repeat(barLength);
-    
+
     timeline.push(`${result.agent.padEnd(25)} |${bar}`);
   });
-  
+
   return timeline.join('\n');
 }
 

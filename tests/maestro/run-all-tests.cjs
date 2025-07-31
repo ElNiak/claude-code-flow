@@ -2,7 +2,7 @@
 
 /**
  * Maestro Native Hive Mind Test Runner
- * 
+ *
  * Runs all maestro validation and workflow tests
  */
 
@@ -27,14 +27,14 @@ function log(message, color = 'reset') {
 async function runTest(testName, testPath) {
   log(`\n🧪 Running ${testName}...`, 'blue');
   log('='.repeat(50), 'blue');
-  
+
   try {
-    const output = execSync(`node ${testPath}`, { 
+    const output = execSync(`node ${testPath}`, {
       encoding: 'utf8',
       stdio: 'inherit',
       cwd: path.join(__dirname, '../..')
     });
-    
+
     log(`✅ ${testName} completed successfully`, 'green');
     return { test: testName, status: 'pass' };
   } catch (error) {
@@ -52,7 +52,7 @@ async function runTest(testName, testPath) {
 async function main() {
   log('🚀 Maestro Native Hive Mind Test Suite', 'bold');
   log('=====================================', 'bold');
-  
+
   const tests = [
     {
       name: 'Implementation Validation',
@@ -63,40 +63,40 @@ async function main() {
       path: path.join(__dirname, 'test-specs-driven-workflow.cjs')
     }
   ];
-  
+
   const results = [];
-  
+
   for (const test of tests) {
     const result = await runTest(test.name, test.path);
     results.push(result);
   }
-  
+
   // Generate summary report
   log('\n📊 Test Suite Summary', 'bold');
   log('====================', 'bold');
-  
+
   const totalTests = results.length;
   const passedTests = results.filter(r => r.status === 'pass').length;
   const failedTests = results.filter(r => r.status === 'fail').length;
-  
+
   log(`\nTotal Test Suites: ${totalTests}`, 'cyan');
   log(`Passed: ${passedTests}`, 'green');
   log(`Failed: ${failedTests}`, 'red');
   log(`Success Rate: ${((passedTests / totalTests) * 100).toFixed(1)}%`, 'blue');
-  
+
   results.forEach(result => {
     const status = result.status === 'pass' ? '✅' : '❌';
     const color = result.status === 'pass' ? 'green' : 'red';
     log(`  ${status} ${result.test}`, color);
   });
-  
+
   if (failedTests === 0) {
     log('\n🎉 All test suites passed!', 'green');
     log('Maestro Native Hive Mind implementation is fully validated.', 'green');
   } else {
     log('\n⚠️  Some test suites failed. Please review individual test outputs.', 'yellow');
   }
-  
+
   log('\n📚 Implementation Summary:', 'cyan');
   log('- Native hive mind swarm coordination implemented', 'reset');
   log('- 6 specialized agent types with specs-driven topology', 'reset');
@@ -105,7 +105,7 @@ async function main() {
   log('- Comprehensive cleanup and consolidation completed', 'reset');
   log('- CLI commands updated for native hive mind', 'reset');
   log('- Documentation consolidated and updated', 'reset');
-  
+
   process.exit(failedTests === 0 ? 0 : 1);
 }
 

@@ -32,7 +32,7 @@ export class HiveMindSessionManager {
   async initializeDatabase() {
     try {
       const sqliteAvailable = await isSQLiteAvailable();
-      
+
       if (!sqliteAvailable) {
         console.warn('SQLite not available, using in-memory session storage');
         this.initializeInMemoryFallback();
@@ -67,7 +67,7 @@ export class HiveMindSessionManager {
       checkpoints: new Map(),
       logs: new Map()
     };
-    
+
     if (isWindows()) {
       console.info(`
 Note: Session data will not persist between runs on Windows without SQLite.
@@ -164,7 +164,7 @@ To enable persistence, see: https://github.com/ruvnet/claude-code-flow/docs/wind
    */
   async createSession(swarmId, swarmName, objective, metadata = {}) {
     await this.ensureInitialized();
-    
+
     const sessionId = `session-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
 
     if (this.isInMemory) {
@@ -208,7 +208,7 @@ To enable persistence, see: https://github.com/ruvnet/claude-code-flow/docs/wind
    */
   async saveCheckpoint(sessionId, checkpointName, checkpointData) {
     await this.ensureInitialized();
-    
+
     const checkpointId = `checkpoint-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
 
     if (this.isInMemory) {
@@ -220,12 +220,12 @@ To enable persistence, see: https://github.com/ruvnet/claude-code-flow/docs/wind
         checkpoint_data: JSON.stringify(checkpointData),
         created_at: new Date().toISOString()
       };
-      
+
       if (!this.memoryStore.checkpoints.has(sessionId)) {
         this.memoryStore.checkpoints.set(sessionId, []);
       }
       this.memoryStore.checkpoints.get(sessionId).push(checkpointEntry);
-      
+
       // Update session data
       const session = this.memoryStore.sessions.get(sessionId);
       if (session) {
@@ -243,7 +243,7 @@ To enable persistence, see: https://github.com/ruvnet/claude-code-flow/docs/wind
 
       // Update session checkpoint data and timestamp
       const updateStmt = this.db.prepare(`
-        UPDATE sessions 
+        UPDATE sessions
         SET checkpoint_data = ?, updated_at = CURRENT_TIMESTAMP
         WHERE id = ?
       `);
@@ -280,7 +280,7 @@ To enable persistence, see: https://github.com/ruvnet/claude-code-flow/docs/wind
    */
   async getActiveSessions() {
     await this.ensureInitialized();
-    
+
     if (this.isInMemory) {
       // Use in-memory storage
       const sessions = [];
@@ -301,7 +301,7 @@ To enable persistence, see: https://github.com/ruvnet/claude-code-flow/docs/wind
     } else {
       // Use SQLite
       const stmt = this.db.prepare(`
-        SELECT s.*, 
+        SELECT s.*,
                COUNT(DISTINCT a.id) as agent_count,
                COUNT(DISTINCT t.id) as task_count,
                SUM(CASE WHEN t.status = 'completed' THEN 1 ELSE 0 END) as completed_tasks
@@ -333,14 +333,14 @@ To enable persistence, see: https://github.com/ruvnet/claude-code-flow/docs/wind
    */
   async getSession(sessionId) {
     await this.ensureInitialized();
-    
+
     if (this.isInMemory) {
       // Use in-memory storage
       const session = this.memoryStore.sessions.get(sessionId);
       if (!session) {
         return null;
       }
-      
+
       // Return simplified session data for in-memory mode
       return {
         ...session,
@@ -406,8 +406,8 @@ To enable persistence, see: https://github.com/ruvnet/claude-code-flow/docs/wind
     const checkpoints = this.db
       .prepare(
         `
-      SELECT * FROM session_checkpoints 
-      WHERE session_id = ? 
+      SELECT * FROM session_checkpoints
+      WHERE session_id = ?
       ORDER BY created_at DESC
     `,
       )
@@ -417,9 +417,9 @@ To enable persistence, see: https://github.com/ruvnet/claude-code-flow/docs/wind
     const recentLogs = this.db
       .prepare(
         `
-      SELECT * FROM session_logs 
-      WHERE session_id = ? 
-      ORDER BY timestamp DESC 
+      SELECT * FROM session_logs
+      WHERE session_id = ?
+      ORDER BY timestamp DESC
       LIMIT 50
     `,
       )
@@ -459,7 +459,7 @@ To enable persistence, see: https://github.com/ruvnet/claude-code-flow/docs/wind
    */
   async pauseSession(sessionId) {
     await this.ensureInitialized();
-    
+
     if (this.isInMemory) {
       // Use in-memory storage
       const session = this.memoryStore.sessions.get(sessionId);
@@ -467,7 +467,7 @@ To enable persistence, see: https://github.com/ruvnet/claude-code-flow/docs/wind
         session.status = 'paused';
         session.paused_at = new Date().toISOString();
         session.updated_at = new Date().toISOString();
-        
+
         await this.logSessionEvent(sessionId, 'info', 'Session paused');
         return true;
       }
@@ -475,7 +475,7 @@ To enable persistence, see: https://github.com/ruvnet/claude-code-flow/docs/wind
     } else {
       // Use SQLite
       const stmt = this.db.prepare(`
-        UPDATE sessions 
+        UPDATE sessions
         SET status = 'paused', paused_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
         WHERE id = ?
       `);
@@ -522,7 +522,7 @@ To enable persistence, see: https://github.com/ruvnet/claude-code-flow/docs/wind
 
     // Update session status
     const stmt = this.db.prepare(`
-      UPDATE sessions 
+      UPDATE sessions
       SET status = 'active', resumed_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
       WHERE id = ?
     `);
@@ -536,8 +536,8 @@ To enable persistence, see: https://github.com/ruvnet/claude-code-flow/docs/wind
     this.db
       .prepare(
         `
-      UPDATE agents 
-      SET status = CASE 
+      UPDATE agents
+      SET status = CASE
         WHEN role = 'queen' THEN 'active'
         ELSE 'idle'
       END
@@ -558,7 +558,7 @@ To enable persistence, see: https://github.com/ruvnet/claude-code-flow/docs/wind
    */
   completeSession(sessionId) {
     const stmt = this.db.prepare(`
-      UPDATE sessions 
+      UPDATE sessions
       SET status = 'completed', updated_at = CURRENT_TIMESTAMP, completion_percentage = 100
       WHERE id = ?
     `);
@@ -590,7 +590,7 @@ To enable persistence, see: https://github.com/ruvnet/claude-code-flow/docs/wind
     const sessionsToArchive = this.db
       .prepare(
         `
-      SELECT * FROM sessions 
+      SELECT * FROM sessions
       WHERE status = 'completed' AND updated_at < ?
     `,
       )
@@ -621,7 +621,7 @@ To enable persistence, see: https://github.com/ruvnet/claude-code-flow/docs/wind
    */
   async logSessionEvent(sessionId, logLevel, message, agentId = null, data = null) {
     await this.ensureInitialized();
-    
+
     if (this.isInMemory) {
       // Use in-memory storage for logs
       const logId = `log-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
@@ -634,7 +634,7 @@ To enable persistence, see: https://github.com/ruvnet/claude-code-flow/docs/wind
         agent_id: agentId,
         data: data ? JSON.stringify(data) : null
       };
-      
+
       if (!this.memoryStore.logs.has(sessionId)) {
         this.memoryStore.logs.set(sessionId, []);
       }
@@ -655,9 +655,9 @@ To enable persistence, see: https://github.com/ruvnet/claude-code-flow/docs/wind
    */
   getSessionLogs(sessionId, limit = 100, offset = 0) {
     const stmt = this.db.prepare(`
-      SELECT * FROM session_logs 
-      WHERE session_id = ? 
-      ORDER BY timestamp DESC 
+      SELECT * FROM session_logs
+      WHERE session_id = ?
+      ORDER BY timestamp DESC
       LIMIT ? OFFSET ?
     `);
 
@@ -674,7 +674,7 @@ To enable persistence, see: https://github.com/ruvnet/claude-code-flow/docs/wind
    */
   async updateSessionProgress(sessionId, completionPercentage) {
     await this.ensureInitialized();
-    
+
     if (this.isInMemory) {
       // Use in-memory storage
       const session = this.memoryStore.sessions.get(sessionId);
@@ -685,7 +685,7 @@ To enable persistence, see: https://github.com/ruvnet/claude-code-flow/docs/wind
     } else {
       // Use SQLite
       const stmt = this.db.prepare(`
-        UPDATE sessions 
+        UPDATE sessions
         SET completion_percentage = ?, updated_at = CURRENT_TIMESTAMP
         WHERE id = ?
       `);
@@ -814,7 +814,7 @@ To enable persistence, see: https://github.com/ruvnet/claude-code-flow/docs/wind
     }
 
     const stmt = this.db.prepare(`
-      UPDATE sessions 
+      UPDATE sessions
       SET child_pids = ?, updated_at = CURRENT_TIMESTAMP
       WHERE id = ?
     `);
@@ -839,7 +839,7 @@ To enable persistence, see: https://github.com/ruvnet/claude-code-flow/docs/wind
     }
 
     const stmt = this.db.prepare(`
-      UPDATE sessions 
+      UPDATE sessions
       SET child_pids = ?, updated_at = CURRENT_TIMESTAMP
       WHERE id = ?
     `);
@@ -855,7 +855,7 @@ To enable persistence, see: https://github.com/ruvnet/claude-code-flow/docs/wind
    */
   async getChildPids(sessionId) {
     await this.ensureInitialized();
-    
+
     if (this.isInMemory) {
       // Use in-memory storage
       const session = this.memoryStore.sessions.get(sessionId);
@@ -906,7 +906,7 @@ To enable persistence, see: https://github.com/ruvnet/claude-code-flow/docs/wind
     } else {
       // Use SQLite
       const stmt = this.db.prepare(`
-        UPDATE sessions 
+        UPDATE sessions
         SET status = 'stopped', updated_at = CURRENT_TIMESTAMP
         WHERE id = ?
       `);
@@ -959,7 +959,7 @@ To enable persistence, see: https://github.com/ruvnet/claude-code-flow/docs/wind
     const sessions = this.db
       .prepare(
         `
-      SELECT * FROM sessions 
+      SELECT * FROM sessions
       WHERE status IN ('active', 'paused')
     `,
       )

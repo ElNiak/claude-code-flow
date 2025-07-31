@@ -60,7 +60,7 @@ class MemoryInterface {
                     </div>
                     <div class="namespace-tree">
                         <div class="namespace-search">
-                            <input type="text" placeholder="Search namespaces..." 
+                            <input type="text" placeholder="Search namespaces..."
                                    class="namespace-search-input">
                         </div>
                         <div class="namespace-tree-container">
@@ -81,7 +81,7 @@ class MemoryInterface {
                     </div>
                     <div class="editor-content">
                         <div class="editor-search">
-                            <input type="text" placeholder="Search keys..." 
+                            <input type="text" placeholder="Search keys..."
                                    class="key-search-input">
                             <select class="type-filter">
                                 <option value="">All Types</option>
@@ -358,8 +358,8 @@ class MemoryInterface {
       const hasChildren = data.children && data.children.size > 0;
 
       html += `
-                <div class="namespace-item ${this.currentNamespace === fullPath ? 'active' : ''}" 
-                     data-namespace="${fullPath}" 
+                <div class="namespace-item ${this.currentNamespace === fullPath ? 'active' : ''}"
+                     data-namespace="${fullPath}"
                      style="padding-left: ${level * 20}px">
                     <div class="namespace-content">
                         ${hasChildren ? '<i class="icon-folder"></i>' : '<i class="icon-file"></i>'}

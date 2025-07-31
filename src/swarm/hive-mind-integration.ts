@@ -1,6 +1,6 @@
 /**
  * Hive-Mind System Integration Interface
- * 
+ *
  * This module provides seamless integration with the existing hive-mind system,
  * enabling swarms to leverage collective intelligence, shared memory, and
  * distributed coordination capabilities while maintaining compatibility
@@ -260,7 +260,7 @@ export class HiveMindIntegration extends EventEmitter {
     memoryManager: MemoryManager
   ) {
     super();
-    
+
     this.logger = new Logger('HiveMindIntegration');
     this.config = this.createDefaultConfig(config);
     this.memoryManager = memoryManager;
@@ -324,7 +324,7 @@ export class HiveMindIntegration extends EventEmitter {
       // Terminate active sessions
       const terminationPromises = Array.from(this.activeSessions.keys())
         .map(sessionId => this.terminateSession(sessionId));
-      
+
       await Promise.allSettled(terminationPromises);
 
       this.isInitialized = false;
@@ -345,7 +345,7 @@ export class HiveMindIntegration extends EventEmitter {
     orchestrator: AdvancedSwarmOrchestrator
   ): Promise<string> {
     const sessionId = generateId('hive-session');
-    
+
     this.logger.info('Creating hive-mind session', {
       sessionId,
       swarmId,
@@ -392,7 +392,7 @@ export class HiveMindIntegration extends EventEmitter {
 
     if (!session.participants.includes(agentId)) {
       session.participants.push(agentId);
-      
+
       this.logger.info('Agent added to hive-mind session', {
         sessionId,
         agentId,
@@ -425,7 +425,7 @@ export class HiveMindIntegration extends EventEmitter {
     const index = session.participants.indexOf(agentId);
     if (index !== -1) {
       session.participants.splice(index, 1);
-      
+
       this.logger.info('Agent removed from hive-mind session', {
         sessionId,
         agentId,
@@ -497,7 +497,7 @@ export class HiveMindIntegration extends EventEmitter {
     }
 
     const decisionId = generateId('decision');
-    
+
     this.logger.info('Requesting collective decision', {
       sessionId,
       decisionId,
@@ -667,7 +667,7 @@ export class HiveMindIntegration extends EventEmitter {
     learningModels: number;
   } {
     const sessions = Array.from(this.activeSessions.values());
-    
+
     return {
       activeSessions: sessions.length,
       totalParticipants: sessions.reduce((sum, s) => sum + s.participants.length, 0),
@@ -776,7 +776,7 @@ export class HiveMindIntegration extends EventEmitter {
         timestamp: new Date(),
         metadata: {
           type: 'intelligence-snapshot',
-          itemCount: this.globalIntelligence.patterns.size + 
+          itemCount: this.globalIntelligence.patterns.size +
                      this.globalIntelligence.insights.size +
                      this.globalIntelligence.decisions.size +
                      this.globalIntelligence.predictions.size,
@@ -839,7 +839,7 @@ export class HiveMindIntegration extends EventEmitter {
   ): Promise<void> {
     // Share relevant knowledge based on agent capabilities
     const relevantKnowledge = this.getRelevantKnowledge(session, agent.capabilities);
-    
+
     this.logger.debug('Sharing knowledge with agent', {
       sessionId: session.id,
       agentId,
@@ -882,7 +882,7 @@ export class HiveMindIntegration extends EventEmitter {
         contexts: data.contexts || [],
         timestamp: new Date(),
       };
-      
+
       session.knowledgeBase.facts.set(fact.id, fact);
     }
     // Similar implementations for procedures, best practices, and lessons
@@ -968,28 +968,28 @@ export class HiveMindIntegration extends EventEmitter {
 
   private queryFacts(session: HiveMindSession, query: any): Fact[] {
     const results: Fact[] = [];
-    
+
     for (const fact of session.knowledgeBase.facts.values()) {
       let matches = true;
-      
+
       if (query.category && !fact.category.includes(query.category)) {
         matches = false;
       }
-      
-      if (query.keywords && !query.keywords.some(keyword => 
+
+      if (query.keywords && !query.keywords.some(keyword =>
         fact.statement.toLowerCase().includes(keyword.toLowerCase()))) {
         matches = false;
       }
-      
+
       if (query.context && !fact.contexts.includes(query.context)) {
         matches = false;
       }
-      
+
       if (matches) {
         results.push(fact);
       }
     }
-    
+
     return results;
   }
 

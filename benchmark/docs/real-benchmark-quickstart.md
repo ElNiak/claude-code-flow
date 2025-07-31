@@ -7,6 +7,7 @@ The Real Benchmark Engine executes actual `claude-flow` commands and captures co
 ## Installation
 
 1. Ensure `claude-flow` is installed and accessible:
+
 ```bash
 which claude-flow
 # or
@@ -14,6 +15,7 @@ claude-flow --version
 ```
 
 2. Install benchmark dependencies:
+
 ```bash
 cd benchmark
 pip install -r requirements.txt
@@ -170,10 +172,10 @@ async def profile_task():
         parallel=True,
         max_agents=3
     )
-    
+
     engine = RealBenchmarkEngine(config)
     result = await engine.run_benchmark("Analyze system performance")
-    
+
     # Extract resource metrics
     if result['results']:
         metrics = result['results'][0]['resource_usage']
@@ -252,6 +254,7 @@ asyncio.run(profile_task())
 ## Troubleshooting
 
 ### Issue: claude-flow not found
+
 ```bash
 # Check installation
 which claude-flow
@@ -261,6 +264,7 @@ export PATH="$PATH:/path/to/claude-flow"
 ```
 
 ### Issue: Timeout errors
+
 ```bash
 # Increase timeout
 python -m swarm_benchmark real "Complex task" \
@@ -269,6 +273,7 @@ python -m swarm_benchmark real "Complex task" \
 ```
 
 ### Issue: Resource exhaustion
+
 ```bash
 # Limit parallel execution
 python -m swarm_benchmark real "Heavy task" \
@@ -279,6 +284,7 @@ python -m swarm_benchmark real "Heavy task" \
 ## Advanced Usage
 
 For advanced usage patterns and comprehensive examples, see:
+
 - [Real Benchmark Architecture](./real-benchmark-architecture.md)
 - [Examples Directory](../examples/)
 - [API Documentation](./api-reference.md)

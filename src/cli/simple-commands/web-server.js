@@ -691,9 +691,9 @@ export class ClaudeCodeWebServer {
       case 'agents':
         return `Active Agents:
   • Research Agent (idle) - 0 tasks
-  • Code Developer (working) - 2 tasks  
+  • Code Developer (working) - 2 tasks
   • Data Analyst (idle) - 0 tasks
-  
+
   Total: 3 agents`;
 
       default:
@@ -734,7 +734,7 @@ export class ClaudeCodeWebServer {
       case 'test':
         return `Swarm Test Results:
   ✅ Agent communication: PASS
-  ✅ Task distribution: PASS  
+  ✅ Task distribution: PASS
   ✅ Memory coordination: PASS
   ✅ Error handling: PASS
   📊 Overall health: 95%`;

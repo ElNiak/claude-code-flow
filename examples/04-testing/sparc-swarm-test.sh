@@ -33,20 +33,20 @@ NC='\033[0m' # No Color
 run_test() {
     local test_name="$1"
     local test_cmd="$2"
-    
+
     echo -e "\n${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo -e "${BLUE}📋 Test: $test_name${NC}"
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-    
+
     ((TOTAL++))
-    
+
     # RED phase
     echo -e "${RED}🔴 RED: Writing test expectation...${NC}"
     echo "   Expected: Swarm should handle '$test_name' correctly"
-    
+
     # GREEN phase
     echo -e "${GREEN}🟢 GREEN: Executing test...${NC}"
-    
+
     if eval "$test_cmd"; then
         echo -e "${GREEN}✅ PASSED: $test_name${NC}"
         ((PASSED++))
@@ -54,7 +54,7 @@ run_test() {
         echo -e "${RED}❌ FAILED: $test_name${NC}"
         ((FAILED++))
     fi
-    
+
     # REFACTOR phase
     echo -e "${BLUE}🔵 REFACTOR: Test complete${NC}"
 }

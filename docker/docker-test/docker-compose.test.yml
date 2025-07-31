@@ -23,11 +23,12 @@ services:
         echo '=== Running TypeScript compilation check ===' &&
         npm run typecheck &&
         echo '=== Running Jest test suite ===' &&
-        npm test -- --coverage --ci --testTimeout=60000 --maxWorkers=2 --outputFile=/app/test-results/node18-results.json &&
+        npm test -- --coverage --ci --testTimeout=60000 --maxWorkers=2
+      --outputFile=/app/test-results/node18-results.json &&
         echo '=== Node.js 18 tests completed ==='
       "
 
-  # Node.js 20 Test Environment  
+  # Node.js 20 Test Environment
   test-node20:
     build:
       context: ..
@@ -49,7 +50,8 @@ services:
         echo '=== Running TypeScript compilation check ===' &&
         npm run typecheck &&
         echo '=== Running Jest test suite ===' &&
-        npm test -- --coverage --ci --testTimeout=60000 --maxWorkers=2 --outputFile=/app/test-results/node20-results.json &&
+        npm test -- --coverage --ci --testTimeout=60000 --maxWorkers=2
+      --outputFile=/app/test-results/node20-results.json &&
         echo '=== Node.js 20 tests completed ==='
       "
 
@@ -63,7 +65,7 @@ services:
     container_name: claude-flow-test-node22
     environment:
       - NODE_ENV=test
-      - CI=true  
+      - CI=true
       - TEST_NODE_VERSION=22
     volumes:
       - ../test-results:/app/test-results
@@ -75,7 +77,8 @@ services:
         echo '=== Running TypeScript compilation check ===' &&
         npm run typecheck &&
         echo '=== Running Jest test suite ===' &&
-        npm test -- --coverage --ci --testTimeout=60000 --maxWorkers=2 --outputFile=/app/test-results/node22-results.json &&
+        npm test -- --coverage --ci --testTimeout=60000 --maxWorkers=2
+      --outputFile=/app/test-results/node22-results.json &&
         echo '=== Node.js 22 tests completed ==='
       "
 

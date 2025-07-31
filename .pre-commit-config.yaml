@@ -15,7 +15,7 @@ repos:
         name: Detect hardcoded secrets
         description: Scan for API keys, passwords, tokens
         verbose: true
-        args: ["--verbose"]
+        args: ['--verbose']
         exclude: '^(.*\.env\.example|.*docker-compose\.ya?ml|.*/conftest\.py)$'
 
   # detect-secrets - Comprehensive secrets baseline management (temporarily disabled due to baseline updates)
@@ -110,7 +110,7 @@ repos:
       - id: prettier
         name: Format YAML/JSON/Markdown files
         types_or: [yaml, json, markdown]
-        args: [--tab-width, "2", --prose-wrap, "always"]
+        args: [--tab-width, '2', --prose-wrap, 'always']
         exclude: ^\.roo/|\.claude/|^node_modules/
 
   # JSON Schema validation
@@ -120,7 +120,7 @@ repos:
       - id: check-jsonschema
         name: Validate JSON schemas
         files: \.json$
-        args: [--schemafile, "https://json.schemastore.org/package.json"]
+        args: [--schemafile, 'https://json.schemastore.org/package.json']
 
   # =============================================================================
   # 📚 DOCUMENTATION & MARKDOWN
@@ -221,7 +221,7 @@ ci:
 
     for more information, see https://pre-commit.ci
   autofix_prs: true
-  autoupdate_branch: ""
-  autoupdate_commit_msg: "[pre-commit.ci] pre-commit autoupdate"
+  autoupdate_branch: ''
+  autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
   autoupdate_schedule: weekly
   submodules: false

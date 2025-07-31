@@ -17,10 +17,10 @@ export function createProviderManager(
 ): ProviderManager {
   const defaultConfig = getDefaultProviderConfig();
   const config = { ...defaultConfig, ...customConfig };
-  
+
   // Load provider configs from environment
   config.providers = loadProviderConfigs(config.providers);
-  
+
   return new ProviderManager(logger, configManager, config);
 }
 
@@ -29,7 +29,7 @@ export function createProviderManager(
  */
 export function getDefaultProviderConfig(): ProviderManagerConfig {
   const defaultProvider = (process.env.DEFAULT_LLM_PROVIDER as LLMProvider) || 'anthropic';
-  
+
   return {
     defaultProvider,
     providers: {
@@ -160,11 +160,11 @@ function loadProviderConfigs(
   configs: Record<LLMProvider, LLMProviderConfig>
 ): Record<LLMProvider, LLMProviderConfig> {
   const loaded = { ...configs };
-  
+
   // Override with environment variables if present
   for (const [provider, config] of Object.entries(loaded)) {
     const envPrefix = `${provider.toUpperCase()}_`;
-    
+
     // Check for provider-specific overrides
     if (process.env[`${envPrefix}MODEL`]) {
       config.model = process.env[`${envPrefix}MODEL`] as any;
@@ -179,7 +179,7 @@ function loadProviderConfigs(
       config.apiUrl = process.env[`${envPrefix}API_URL`];
     }
   }
-  
+
   return loaded;
 }
 
@@ -188,39 +188,39 @@ function loadProviderConfigs(
  */
 export function validateProviderConfig(config: LLMProviderConfig): string[] {
   const errors: string[] = [];
-  
+
   if (!config.provider) {
     errors.push('Provider name is required');
   }
-  
+
   if (!config.model) {
     errors.push('Model is required');
   }
-  
+
   if (config.temperature !== undefined) {
     if (config.temperature < 0 || config.temperature > 2) {
       errors.push('Temperature must be between 0 and 2');
     }
   }
-  
+
   if (config.maxTokens !== undefined) {
     if (config.maxTokens < 1 || config.maxTokens > 100000) {
       errors.push('Max tokens must be between 1 and 100000');
     }
   }
-  
+
   if (config.topP !== undefined) {
     if (config.topP < 0 || config.topP > 1) {
       errors.push('Top-p must be between 0 and 1');
     }
   }
-  
+
   if (config.timeout !== undefined) {
     if (config.timeout < 1000 || config.timeout > 600000) {
       errors.push('Timeout must be between 1000ms and 600000ms');
     }
   }
-  
+
   return errors;
 }
 
@@ -294,7 +294,7 @@ export function getModelRecommendations(useCase: string): {
       },
     ],
   };
-  
+
   return recommendations[useCase] || recommendations['chat'];
 }
 
@@ -315,7 +315,7 @@ export function estimateMonthlyCost(
   // Get pricing from provider capabilities
   // This is a simplified calculation
   const pricing = getPricing(provider, model);
-  
+
   if (!pricing) {
     return {
       promptCost: 0,
@@ -324,13 +324,13 @@ export function estimateMonthlyCost(
       currency: 'USD',
     };
   }
-  
+
   const promptTokens = avgTokensPerRequest * 0.7; // Assume 70% prompt
   const completionTokens = avgTokensPerRequest * 0.3; // Assume 30% completion
-  
+
   const promptCost = (promptTokens * estimatedRequests / 1000) * pricing.promptCostPer1k;
   const completionCost = (completionTokens * estimatedRequests / 1000) * pricing.completionCostPer1k;
-  
+
   return {
     promptCost,
     completionCost,
@@ -371,6 +371,6 @@ function getPricing(provider: LLMProvider, model: string): {
       currency: 'USD',
     },
   };
-  
+
   return pricingData[`${provider}:${model}`] || null;
 }

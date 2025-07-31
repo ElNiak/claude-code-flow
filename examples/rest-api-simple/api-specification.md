@@ -53,6 +53,7 @@ interface ErrorResponse {
 ```
 
 **Status Codes**:
+
 - `200 OK`: Service is healthy
 
 ---
@@ -92,6 +93,7 @@ interface ErrorResponse {
 ```
 
 **Status Codes**:
+
 - `200 OK`: Success
 
 ---
@@ -122,6 +124,7 @@ interface ErrorResponse {
 ```
 
 **Status Codes**:
+
 - `200 OK`: Success
 - `404 Not Found`: Task not found
 
@@ -163,6 +166,7 @@ interface ErrorResponse {
 ```
 
 **Status Codes**:
+
 - `201 Created`: Success
 - `400 Bad Request`: Invalid input
 
@@ -209,6 +213,7 @@ interface ErrorResponse {
 ```
 
 **Status Codes**:
+
 - `200 OK`: Success
 - `400 Bad Request`: Invalid input
 - `404 Not Found`: Task not found
@@ -237,6 +242,7 @@ interface ErrorResponse {
 ```
 
 **Status Codes**:
+
 - `200 OK`: Success
 - `404 Not Found`: Task not found
 
@@ -333,6 +339,7 @@ The API includes a comprehensive test suite using Jest and Supertest. Tests cove
 - Response format verification
 
 Run tests with:
+
 ```bash
 npm test
 ```

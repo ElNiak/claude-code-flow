@@ -5,7 +5,7 @@
 function main() {
   console.log('Executing swarm objective: create an authentication service with JWT tokens and user registration in ./examples/auth-service');
   console.log('Implementation would be based on the specific requirements');
-  
+
   // TODO: Implement based on objective analysis
   // This is where the swarm would implement the specific functionality
 }

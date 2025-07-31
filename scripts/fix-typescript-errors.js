@@ -40,7 +40,7 @@ const ERROR_FIXES = {
       const content = await fs.readFile(file, 'utf8');
       const property = match[1];
       const type = match[2];
-      
+
       // Add type assertions for 'never' types
       if (type === 'never') {
         const updated = content.replace(
@@ -58,7 +58,7 @@ const ERROR_FIXES = {
     fix: async (file, match) => {
       const name = match[1];
       const content = await fs.readFile(file, 'utf8');
-      
+
       // Common missing imports
       const commonImports = {
         'process': "import process from 'node:process';",
@@ -67,7 +67,7 @@ const ERROR_FIXES = {
         '__dirname': "import { dirname } from 'node:path';\nimport { fileURLToPath } from 'node:url';\nconst __dirname = dirname(fileURLToPath(import.meta.url));",
         '__filename': "import { fileURLToPath } from 'node:url';\nconst __filename = fileURLToPath(import.meta.url);"
       };
-      
+
       if (commonImports[name] && !content.includes(commonImports[name])) {
         const lines = content.split('\n');
         const importIndex = lines.findIndex(line => line.startsWith('import'));
@@ -86,7 +86,7 @@ const ERROR_FIXES = {
       const content = await fs.readFile(file, 'utf8');
       const fromType = match[1];
       const toType = match[2];
-      
+
       // Fix 'never' type assignments
       if (toType === 'never') {
         const lines = content.split('\n');
@@ -108,7 +108,7 @@ const ERROR_FIXES = {
     fix: async (file, match) => {
       const modulePath = match[1];
       const content = await fs.readFile(file, 'utf8');
-      
+
       // Fix missing .js extensions
       if (!modulePath.endsWith('.js') && modulePath.startsWith('.')) {
         const updated = content.replace(
@@ -141,7 +141,7 @@ const ERROR_FIXES = {
       const content = await fs.readFile(file, 'utf8');
       const lines = content.split('\n');
       const errorLine = parseInt(match.input.match(/\((\d+),/)[1]) - 1;
-      
+
       if (lines[errorLine] && !lines[errorLine].includes('override')) {
         lines[errorLine] = lines[errorLine].replace(
           /(async\s+)?(\w+)\s*\(/,
@@ -156,13 +156,13 @@ const ERROR_FIXES = {
 // Main fix function
 async function fixTypeScriptErrors() {
   console.log('🔧 Starting TypeScript error fixes...\n');
-  
+
   // Get all errors
   const { stdout } = await execAsync('npm run build:ts 2>&1 || true');
   const errors = stdout.split('\n').filter(line => line.includes('error TS'));
-  
+
   console.log(`Found ${errors.length} TypeScript errors\n`);
-  
+
   // Group errors by type
   const errorGroups = {};
   for (const error of errors) {
@@ -175,27 +175,27 @@ async function fixTypeScriptErrors() {
       errorGroups[code].push(error);
     }
   }
-  
+
   // Display error summary
   console.log('📊 Error Summary:');
   for (const [code, errors] of Object.entries(errorGroups).sort((a, b) => b[1].length - a[1].length)) {
     console.log(`  ${code}: ${errors.length} errors`);
   }
   console.log();
-  
+
   // Fix errors in parallel batches
   const fixPromises = [];
-  
+
   for (const [code, errors] of Object.entries(errorGroups)) {
     if (ERROR_FIXES[code]) {
       console.log(`🔧 Fixing ${code} errors...`);
-      
+
       for (const error of errors.slice(0, 50)) { // Process 50 at a time
         const fileMatch = error.match(/([^(]+)\(/);
         if (fileMatch) {
           const file = fileMatch[1];
           const match = error.match(ERROR_FIXES[code].pattern);
-          
+
           if (match) {
             fixPromises.push(
               ERROR_FIXES[code].fix(file, match).catch(err => {
@@ -207,34 +207,34 @@ async function fixTypeScriptErrors() {
       }
     }
   }
-  
+
   // Wait for all fixes
   await Promise.all(fixPromises);
-  
+
   console.log('\n✅ Applied initial fixes. Running build again...\n');
-  
+
   // Run build again to see remaining errors
   const { stdout: stdout2 } = await execAsync('npm run build:ts 2>&1 || true');
   const remainingErrors = stdout2.split('\n').filter(line => line.includes('error TS')).length;
-  
+
   console.log(`📊 Remaining errors: ${remainingErrors}`);
-  
+
   return remainingErrors;
 }
 
 // Advanced fixes for specific patterns
 async function applyAdvancedFixes() {
   console.log('\n🔧 Applying advanced fixes...\n');
-  
+
   // Fix all .push() operations on never[] arrays
   const files = await execAsync("find src -name '*.ts' -type f");
   const fileList = files.stdout.split('\n').filter(f => f);
-  
+
   const fixes = fileList.map(async (file) => {
     try {
       const content = await fs.readFile(file, 'utf8');
       let updated = content;
-      
+
       // Fix array push operations
       updated = updated.replace(
         /(\w+)\.push\(/g,
@@ -246,7 +246,7 @@ async function applyAdvancedFixes() {
           return match;
         }
       );
-      
+
       // Fix import type issues
       updated = updated.replace(
         /import type \{([^}]+)\} from/g,
@@ -257,14 +257,14 @@ async function applyAdvancedFixes() {
             const name = imp.split(' as ')[0].trim();
             return new RegExp(`\\b${name}\\s*[\\({\\.]`).test(content);
           });
-          
+
           if (hasValueUsage) {
             return `import { ${imports} } from`;
           }
           return match;
         }
       );
-      
+
       if (updated !== content) {
         await fs.writeFile(file, updated);
       }
@@ -272,7 +272,7 @@ async function applyAdvancedFixes() {
       // Ignore errors
     }
   });
-  
+
   await Promise.all(fixes);
 }
 
@@ -281,18 +281,18 @@ async function applyAdvancedFixes() {
   try {
     // Initial fixes
     let remaining = await fixTypeScriptErrors();
-    
+
     // Apply advanced fixes if needed
     if (remaining > 500) {
       await applyAdvancedFixes();
       remaining = await fixTypeScriptErrors();
     }
-    
+
     // Final report
     console.log('\n📊 Final Report:');
     console.log(`  Errors fixed: ${1512 - remaining}`);
     console.log(`  Errors remaining: ${remaining}`);
-    
+
     if (remaining === 0) {
       console.log('\n✅ All TypeScript errors fixed!');
     } else {

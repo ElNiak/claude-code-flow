@@ -5,6 +5,7 @@ This document describes the comprehensive error handling implemented for the Cla
 ## Overview
 
 The enhanced error handling system provides:
+
 - **Automatic retry logic** with exponential backoff for transient failures
 - **Circuit breaker protection** to prevent cascading failures
 - **Health check monitoring** for proactive API status detection
@@ -18,26 +19,31 @@ The enhanced error handling system provides:
 These errors are automatically retried with exponential backoff:
 
 #### 500 Internal Server Error
+
 - **Class**: `ClaudeInternalServerError`
 - **Retry**: Yes (up to 3 times by default)
 - **Suggestions**: Wait and retry, check status page, use fallback services
 
 #### 503 Service Unavailable
+
 - **Class**: `ClaudeServiceUnavailableError`
 - **Retry**: Yes
 - **Suggestions**: Wait 5-10 minutes, check maintenance schedules
 
 #### 429 Rate Limit Exceeded
+
 - **Class**: `ClaudeRateLimitError`
 - **Retry**: Yes (respects `retry-after` header)
 - **Suggestions**: Implement throttling, batch requests, upgrade plan
 
 #### Network Timeout
+
 - **Class**: `ClaudeTimeoutError`
 - **Retry**: Yes
 - **Suggestions**: Check connection, simplify request, increase timeout
 
 #### Network Connection Error
+
 - **Class**: `ClaudeNetworkError`
 - **Retry**: Yes
 - **Suggestions**: Check internet, verify firewall/proxy settings
@@ -47,11 +53,13 @@ These errors are automatically retried with exponential backoff:
 These errors are not retried as they require user intervention:
 
 #### 401/403 Authentication Error
+
 - **Class**: `ClaudeAuthenticationError`
 - **Retry**: No
 - **Suggestions**: Verify API key, check expiration, regenerate key
 
 #### 400 Validation Error
+
 - **Class**: `ClaudeValidationError`
 - **Retry**: No
 - **Suggestions**: Check parameters, verify model name, review API docs
@@ -66,11 +74,11 @@ const client = new ClaudeAPIClient(logger, configManager, {
   retryAttempts: 3,              // Max retry attempts
   retryDelay: 1000,              // Base delay in ms
   retryJitter: true,             // Add randomization to prevent thundering herd
-  
+
   // Health check configuration
   enableHealthCheck: true,        // Enable periodic health checks
   healthCheckInterval: 300000,    // Check every 5 minutes
-  
+
   // Circuit breaker configuration
   circuitBreakerThreshold: 5,     // Open after 5 consecutive failures
   circuitBreakerTimeout: 60000,   // Timeout for each request
@@ -105,11 +113,11 @@ try {
   if (error instanceof ClaudeAPIError) {
     const errorInfo = getUserFriendlyError(error);
     console.error(`${errorInfo.title}: ${errorInfo.message}`);
-    
+
     if (errorInfo.retryable) {
       console.log('This error may be temporary. Please try again.');
     }
-    
+
     // Show suggestions to the user
     errorInfo.suggestions.forEach(suggestion => {
       console.log(`• ${suggestion}`);
@@ -147,7 +155,7 @@ client.on('error', ({ error, userFriendly }) => {
     statusCode: error.statusCode,
     retryable: error.retryable,
   });
-  
+
   // Show user-friendly message
   showUserNotification(userFriendly.title, userFriendly.message);
 });
@@ -222,7 +230,7 @@ if (error instanceof ClaudeAPIError && error.retryable) {
 const healthInterval = setInterval(async () => {
   const health = await client.performHealthCheck();
   metrics.record('claude.api.health', health.healthy ? 1 : 0);
-  
+
   if (health.latency) {
     metrics.record('claude.api.latency', health.latency);
   }
@@ -254,7 +262,7 @@ client.on('error', ({ error, userFriendly }) => {
     error: error.toJSON(),
     stack: error.stack,
   });
-  
+
   // User-facing logging
   logger.info('AI service temporarily unavailable', {
     title: userFriendly.title,
@@ -282,21 +290,23 @@ npm run example -- claude-api-error-handling
 If you're upgrading from the previous error handling:
 
 1. **Update error imports**:
+
    ```typescript
    // Old
    import { getErrorMessage } from '../utils/error-handler.js';
-   
+
    // New
    import { ClaudeAPIError, getUserFriendlyError } from '../api/claude-api-errors.js';
    ```
 
 2. **Update error handling**:
+
    ```typescript
    // Old
    } catch (error) {
      console.error(getErrorMessage(error));
    }
-   
+
    // New
    } catch (error) {
      if (error instanceof ClaudeAPIError) {
@@ -307,6 +317,7 @@ If you're upgrading from the previous error handling:
    ```
 
 3. **Enable health checks** (optional but recommended):
+
    ```typescript
    const client = new ClaudeAPIClient(logger, configManager, {
      enableHealthCheck: true,
@@ -319,6 +330,7 @@ If you're upgrading from the previous error handling:
 ### Circuit Breaker Opens Too Frequently
 
 Increase the threshold or timeout:
+
 ```typescript
 {
   circuitBreakerThreshold: 10,  // Allow more failures
@@ -329,6 +341,7 @@ Increase the threshold or timeout:
 ### Retries Taking Too Long
 
 Adjust retry parameters:
+
 ```typescript
 {
   retryAttempts: 2,      // Fewer retries
@@ -340,6 +353,7 @@ Adjust retry parameters:
 ### Health Checks Failing
 
 Check API key and network:
+
 ```bash
 # Test API key
 curl -X POST https://api.anthropic.com/v1/messages \

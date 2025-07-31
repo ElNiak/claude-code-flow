@@ -15,7 +15,7 @@ const protect = asyncHandler(async (req, res, next) => {
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     token = req.headers.authorization.split(' ')[1];
   }
-  
+
   // Check for token in cookies
   if (!token && req.cookies && req.cookies.token) {
     token = req.cookies.token;
@@ -40,7 +40,7 @@ const protect = asyncHandler(async (req, res, next) => {
 
     // Check if user still exists
     const user = await User.findById(decoded.id).select('-password');
-    
+
     if (!user) {
       throw new ApiError('User no longer exists', 401);
     }
@@ -95,7 +95,7 @@ const optionalAuth = asyncHandler(async (req, res, next) => {
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       const user = await User.findById(decoded.id).select('-password');
-      
+
       if (user && user.isActive) {
         req.user = user;
       }

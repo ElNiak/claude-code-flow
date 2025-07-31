@@ -10,6 +10,7 @@ This directory contains research documents and technical investigations for Clau
 ## Purpose
 
 These documents capture:
+
 - Technical investigations
 - API research
 - Integration possibilities
@@ -20,6 +21,7 @@ These documents capture:
 ## Contributing
 
 When adding new research:
+
 1. Create descriptive filenames
 2. Include date and context in the document
 3. Link to relevant issues or discussions

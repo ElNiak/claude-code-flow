@@ -22,9 +22,7 @@
       "max_cpu_percent": 80,
       "max_network_mbps": 100
     },
-    "output_formats": [
-      "json"
-    ],
+    "output_formats": ["json"],
     "output_directory": "./reports",
     "verbose": false
   },

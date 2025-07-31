@@ -31,15 +31,15 @@ TEMP_FILE=$(ls bin/claude-flow.tmp* 2>/dev/null | head -1)
 
 if [ -n "$TEMP_FILE" ] && [ -f "$TEMP_FILE" ]; then
     echo "📦 Found build artifact: $TEMP_FILE"
-    
+
     # Check if it's executable
     if [ -x "$TEMP_FILE" ]; then
         echo "✅ Build artifact is executable!"
-        
+
         # Move to final location
         mv -f "$TEMP_FILE" bin/claude-flow
         chmod +x bin/claude-flow
-        
+
         echo "✅ Build successful!"
         echo "Binary location: bin/claude-flow"
         exit 0
@@ -52,12 +52,12 @@ if [ -n "$TEMP_FILE" ] && [ -f "$TEMP_FILE" ]; then
     fi
 else
     echo "❌ No build artifact found"
-    
+
     # Restore backup
     if [ -f "bin/claude-flow.working" ]; then
         echo "🔄 Restoring working binary..."
         mv bin/claude-flow.working bin/claude-flow
     fi
-    
+
     exit 1
 fi

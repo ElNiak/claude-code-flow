@@ -9,7 +9,7 @@ beforeAll(async () => {
   // Create an in-memory MongoDB instance
   mongod = await MongoMemoryServer.create();
   const uri = mongod.getUri();
-  
+
   // Connect to the in-memory database
   await mongoose.connect(uri, {
     useNewUrlParser: true,

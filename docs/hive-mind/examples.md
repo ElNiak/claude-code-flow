@@ -26,6 +26,7 @@ npx claude-flow@2.0.0 hive-mind --task "Create CRUD API for books with title, au
 ```
 
 **Expected Output**:
+
 - `server.js` - Express server setup
 - `routes/books.js` - CRUD endpoints
 - `models/book.js` - Data model
@@ -43,6 +44,7 @@ npx claude-flow@2.0.0 hive-mind
 ```
 
 **Wizard Inputs**:
+
 ```
 Task: Add JWT authentication with refresh tokens to Express app
 Complexity: Medium
@@ -51,6 +53,7 @@ Timeline: Balanced
 ```
 
 **Expected Output**:
+
 - `middleware/auth.js` - Authentication middleware
 - `routes/auth.js` - Login/register endpoints
 - `models/user.js` - User model with bcrypt
@@ -71,6 +74,7 @@ npx claude-flow@2.0.0 hive-mind --task "Build todo app with React frontend, Node
 ```
 
 **Expected Structure**:
+
 ```
 todo-app/
 ├── backend/
@@ -92,6 +96,7 @@ todo-app/
 ```
 
 **Features Delivered**:
+
 - User registration/login
 - Todo CRUD operations
 - Real-time updates
@@ -110,6 +115,7 @@ npx claude-flow@2.0.0 hive-mind
 ```
 
 **Wizard Configuration**:
+
 ```yaml
 Task: "Build e-commerce platform with product catalog, shopping cart, user accounts, and payment integration"
 Complexity: Very High
@@ -123,6 +129,7 @@ Tech Stack:
 ```
 
 **Delivered Components**:
+
 - Product management system
 - Shopping cart with sessions
 - User authentication
@@ -145,6 +152,7 @@ npx claude-flow@2.0.0 hive-mind --task "Split monolithic Node.js API into user, 
 ```
 
 **Output Structure**:
+
 ```
 microservices/
 ├── api-gateway/
@@ -169,6 +177,7 @@ microservices/
 ```
 
 **Key Features**:
+
 - Service discovery
 - Load balancing
 - Centralized logging
@@ -187,6 +196,7 @@ npx claude-flow@2.0.0 hive-mind --task "Create GraphQL API for social media with
 ```
 
 **Delivered**:
+
 - GraphQL schema definitions
 - Resolvers for all types
 - Authentication integration
@@ -208,6 +218,7 @@ npx claude-flow@2.0.0 hive-mind
 ```
 
 **Configuration**:
+
 ```
 Task: Design event-driven architecture for order processing with inventory, payment, and shipping services
 Complexity: High
@@ -216,6 +227,7 @@ Tech: Node.js, RabbitMQ, PostgreSQL
 ```
 
 **Architecture Delivered**:
+
 - Message queue setup
 - Event publishers
 - Event consumers
@@ -235,6 +247,7 @@ npx claude-flow@2.0.0 hive-mind --task "Create serverless image processing API w
 ```
 
 **Output**:
+
 - Lambda functions
 - API Gateway configuration
 - S3 bucket setup
@@ -257,6 +270,7 @@ npx claude-flow@2.0.0 hive-mind --task "Migrate existing Express.js API to Fasti
 ```
 
 **Migration Process**:
+
 1. Analyzes existing codebase
 2. Maps Express patterns to Fastify
 3. Converts middleware
@@ -275,6 +289,7 @@ npx claude-flow@2.0.0 hive-mind
 ```
 
 **Wizard Input**:
+
 ```
 Task: Convert Node.js JavaScript project to TypeScript with proper types and interfaces
 Complexity: High
@@ -283,6 +298,7 @@ Context: Maintain backward compatibility, add strict typing
 ```
 
 **Deliverables**:
+
 - TypeScript configuration
 - Type definitions
 - Interface declarations
@@ -304,6 +320,7 @@ npx claude-flow@2.0.0 hive-mind --task "Optimize React app performance - reduce 
 ```
 
 **Optimizations Applied**:
+
 - Code splitting implementation
 - Lazy loading components
 - Memoization strategies
@@ -325,6 +342,7 @@ npx claude-flow@2.0.0 hive-mind --task "Optimize PostgreSQL database - analyze s
 ```
 
 **Delivered**:
+
 - Query analysis report
 - Index recommendations
 - Schema optimizations
@@ -346,6 +364,7 @@ npx claude-flow@2.0.0 hive-mind
 ```
 
 **Complex Configuration**:
+
 ```
 Task: Build multi-tenant SaaS platform with tenant isolation, billing, admin panel, and API
 Complexity: Very High
@@ -360,6 +379,7 @@ Tech Stack:
 ```
 
 **Complete System Includes**:
+
 - Tenant isolation architecture
 - Role-based access control
 - Billing and subscriptions
@@ -380,6 +400,7 @@ npx claude-flow@2.0.0 hive-mind --task "Build real-time analytics dashboard with
 ```
 
 **Components**:
+
 - WebSocket server
 - Real-time data pipeline
 - React dashboard
@@ -402,6 +423,7 @@ npx claude-flow@2.0.0 hive-mind --task "Create CI/CD pipeline with GitHub Action
 ```
 
 **Pipeline Includes**:
+
 - GitHub Actions workflows
 - Automated testing
 - Code quality checks
@@ -422,6 +444,7 @@ npx claude-flow@2.0.0 hive-mind --task "Generate complete documentation for exis
 ```
 
 **Documentation Created**:
+
 - API reference (OpenAPI)
 - Developer guides
 - User documentation
@@ -470,30 +493,35 @@ const results = await Promise.all([
 ## Tips for Success
 
 ### 1. Task Description
+
 - Be specific about requirements
 - Include technology preferences
 - Mention any constraints
 - Specify integrations needed
 
 ### 2. Complexity Selection
+
 - **Low**: Single feature, <1 hour traditional work
 - **Medium**: Multiple features, 2-4 hours traditional work
 - **High**: Complex system, 1-2 days traditional work
 - **Very High**: Enterprise system, 3+ days traditional work
 
 ### 3. Feature Selection
+
 - Select all relevant features
 - Don't worry about over-selection
 - Each feature gets specialized attention
 - More features = better coverage
 
 ### 4. Timeline Impact
+
 - **ASAP**: Fastest delivery, basic docs
 - **Balanced**: Good documentation and tests
 - **Thorough**: Comprehensive everything
 - **Learning**: Includes explanations
 
 ### 5. Monitoring
+
 - Watch agent activity
 - Check memory usage
 - Review discoveries
@@ -502,6 +530,7 @@ const results = await Promise.all([
 ## Troubleshooting Common Issues
 
 ### Agents Not Coordinating
+
 ```bash
 # Check status
 npx claude-flow@2.0.0 hive-mind swarm status
@@ -511,6 +540,7 @@ npx claude-flow@2.0.0 hive-mind swarm sync
 ```
 
 ### Task Taking Too Long
+
 ```bash
 # Monitor progress
 npx claude-flow@2.0.0 hive-mind monitor
@@ -520,6 +550,7 @@ npx claude-flow@2.0.0 hive-mind analyze bottlenecks
 ```
 
 ### Incomplete Results
+
 - Review task decomposition
 - Check agent completion status
 - Verify all dependencies met

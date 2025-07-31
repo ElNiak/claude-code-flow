@@ -5,6 +5,7 @@ The Claude Flow Advanced Memory Management System provides comprehensive capabil
 ## Features
 
 ### 🔍 Advanced Querying
+
 - **Flexible Search**: Multiple search criteria including full-text, patterns, and metadata
 - **Indexing**: Automatic indexing for efficient queries
 - **Aggregation**: Generate statistics and aggregations by namespace, type, owner, or tags
@@ -12,6 +13,7 @@ The Claude Flow Advanced Memory Management System provides comprehensive capabil
 - **Sorting**: Sort results by any field in ascending or descending order
 
 ### 📤 Export/Import Capabilities
+
 - **Multiple Formats**: JSON, CSV, XML, YAML support
 - **Compression**: Optional data compression during export
 - **Encryption**: Basic encryption support for sensitive data
@@ -20,6 +22,7 @@ The Claude Flow Advanced Memory Management System provides comprehensive capabil
 - **Conflict Resolution**: Multiple strategies for handling conflicts
 
 ### 📊 Comprehensive Statistics
+
 - **Usage Analytics**: Detailed memory usage and performance metrics
 - **Distribution Analysis**: Data distribution across namespaces, types, and owners
 - **Temporal Analysis**: Activity patterns over time
@@ -27,6 +30,7 @@ The Claude Flow Advanced Memory Management System provides comprehensive capabil
 - **Optimization Suggestions**: AI-powered recommendations for system improvements
 
 ### 🧹 Intelligent Cleanup
+
 - **Retention Policies**: Configurable retention rules by namespace/type
 - **Archiving**: Archive old entries before deletion
 - **Deduplication**: Remove duplicate entries intelligently
@@ -34,6 +38,7 @@ The Claude Flow Advanced Memory Management System provides comprehensive capabil
 - **Orphan Cleanup**: Remove broken references and orphaned data
 
 ### 🔗 Cross-Agent Sharing
+
 - **Memory Indexing**: Fast lookups across large datasets
 - **Compression**: Automatic compression for large entries
 - **Cross-agent coordination**: Shared memory spaces between agents
@@ -44,6 +49,7 @@ The Claude Flow Advanced Memory Management System provides comprehensive capabil
 ### Basic Operations
 
 #### Store Data
+
 ```bash
 # Basic storage
 claude-flow memory store "user_preferences" '{"theme": "dark", "lang": "en"}' \
@@ -62,6 +68,7 @@ claude-flow memory store "session_data" '{"user_id": 123, "token": "abc"}' \
 ```
 
 #### Retrieve Data
+
 ```bash
 # Basic retrieval
 claude-flow memory get "user_preferences" --namespace "app_config"
@@ -71,6 +78,7 @@ claude-flow memory get "user_preferences" --format json
 ```
 
 #### Update Data
+
 ```bash
 # Update entry (requires separate implementation)
 claude-flow memory update "user_preferences" '{"theme": "light"}' \
@@ -79,6 +87,7 @@ claude-flow memory update "user_preferences" '{"theme": "light"}' \
 ```
 
 #### Delete Data
+
 ```bash
 # Delete with confirmation
 claude-flow memory delete "user_preferences" --namespace "app_config" --confirm
@@ -87,6 +96,7 @@ claude-flow memory delete "user_preferences" --namespace "app_config" --confirm
 ### Advanced Querying
 
 #### Basic Query
+
 ```bash
 # Simple search
 claude-flow memory query "user" --namespace "app_config"
@@ -96,6 +106,7 @@ claude-flow memory query "dark theme" --full-text "theme preferences"
 ```
 
 #### Complex Queries
+
 ```bash
 # Multi-criteria search
 claude-flow memory query "config" \
@@ -116,6 +127,7 @@ claude-flow memory query "user_*" \
 ```
 
 #### Aggregation Queries
+
 ```bash
 # Generate aggregations
 claude-flow memory query "*" \
@@ -132,6 +144,7 @@ claude-flow memory query "*" \
 ### Export Operations
 
 #### Basic Export
+
 ```bash
 # JSON export
 claude-flow memory export "./backups/memory_backup.json" \
@@ -146,6 +159,7 @@ claude-flow memory export "./reports/user_data.csv" \
 ```
 
 #### Advanced Export
+
 ```bash
 # Compressed export
 claude-flow memory export "./backups/compressed_backup.json" \
@@ -166,6 +180,7 @@ claude-flow memory export "./analytics/recent_activity.json" \
 ```
 
 #### Multi-format Export
+
 ```bash
 # XML export
 claude-flow memory export "./data/memory_data.xml" --format xml
@@ -177,6 +192,7 @@ claude-flow memory export "./config/memory_config.yaml" --format yaml
 ### Import Operations
 
 #### Basic Import
+
 ```bash
 # JSON import
 claude-flow memory import "./data/backup.json" \
@@ -192,6 +208,7 @@ claude-flow memory import "./data/user_data.csv" \
 ```
 
 #### Advanced Import
+
 ```bash
 # Import with transformation
 claude-flow memory import "./data/legacy_data.json" \
@@ -207,6 +224,7 @@ claude-flow memory import "./data/test_data.json" \
 ```
 
 #### Conflict Resolution Strategies
+
 ```bash
 # Different conflict resolution strategies
 claude-flow memory import "./data/conflicts.json" --conflict-resolution "overwrite"
@@ -218,6 +236,7 @@ claude-flow memory import "./data/conflicts.json" --conflict-resolution "rename"
 ### Statistics and Analytics
 
 #### Basic Statistics
+
 ```bash
 # Overview statistics
 claude-flow memory stats
@@ -230,6 +249,7 @@ claude-flow memory stats --format json
 ```
 
 #### Export Statistics
+
 ```bash
 # Export statistics to file
 claude-flow memory stats --format json --export "./reports/memory_stats.json"
@@ -241,6 +261,7 @@ claude-flow memory stats --detailed --export "./reports/detailed_stats.json"
 ### Cleanup Operations
 
 #### Basic Cleanup
+
 ```bash
 # Standard cleanup
 claude-flow memory cleanup
@@ -250,6 +271,7 @@ claude-flow memory cleanup --dry-run
 ```
 
 #### Advanced Cleanup
+
 ```bash
 # Aggressive cleanup
 claude-flow memory cleanup --aggressive
@@ -266,6 +288,7 @@ claude-flow memory cleanup \
 ```
 
 #### Retention Policy Cleanup
+
 ```bash
 # Custom retention policies
 claude-flow memory cleanup \
@@ -286,6 +309,7 @@ claude-flow memory cleanup \
 ### Utility Commands
 
 #### List Resources
+
 ```bash
 # List all namespaces
 claude-flow memory namespaces
@@ -298,6 +322,7 @@ claude-flow memory tags
 ```
 
 #### List Entries
+
 ```bash
 # List recent entries
 claude-flow memory list --limit 20 --sort-by "updatedAt" --sort-order "desc"
@@ -310,6 +335,7 @@ claude-flow memory list --limit 10 --offset 20
 ```
 
 #### Configuration
+
 ```bash
 # Show current configuration
 claude-flow memory config --show
@@ -321,6 +347,7 @@ claude-flow memory config --set '{"autoCompress": true, "autoCleanup": false}'
 ## Advanced Usage Patterns
 
 ### Research Workflow Integration
+
 ```bash
 # Store research findings
 claude-flow memory store "research_findings_ai_trends" '{
@@ -344,6 +371,7 @@ claude-flow memory export "./reports/ai_research_2024.json" \
 ```
 
 ### Development Workflow Integration
+
 ```bash
 # Store architecture decisions
 claude-flow memory store "arch_decision_microservices" '{
@@ -364,6 +392,7 @@ claude-flow memory store "test_results_v1.2.0" '{
 ```
 
 ### Cross-Agent Coordination
+
 ```bash
 # Agent A stores task status
 claude-flow memory store "task_processing_status" '{
@@ -392,12 +421,14 @@ claude-flow memory update "task_processing_status" '{
 ### Performance Optimization
 
 #### Indexing Best Practices
+
 - Use consistent naming conventions for keys
 - Tag entries systematically for efficient querying
 - Use appropriate namespaces to partition data
 - Leverage type fields for categorization
 
 #### Memory Usage Optimization
+
 ```bash
 # Enable compression for large entries
 claude-flow memory config --set '{"autoCompress": true, "compressionThreshold": 1024}'
@@ -410,6 +441,7 @@ claude-flow memory config --set '{"cacheSize": 10000, "cacheTtl": 300000}'
 ```
 
 #### Query Optimization
+
 ```bash
 # Use specific namespaces to narrow search space
 claude-flow memory query "search_term" --namespace "specific_namespace"
@@ -424,6 +456,7 @@ claude-flow memory query "*" --aggregate-by "type" --limit 0
 ## Integration with SPARC Modes
 
 ### Automatic Memory Usage in SPARC
+
 ```javascript
 // In SPARC orchestrator mode
 TodoWrite([
@@ -442,6 +475,7 @@ Task("Analysis Agent", "Query memory for related research using tags and full-te
 ```
 
 ### Memory-Driven Coordination
+
 ```bash
 # Store coordination data between SPARC modes
 claude-flow memory store "sparc_session_context" '{
@@ -463,6 +497,7 @@ claude-flow memory query "sparc_session_context" \
 ### Common Issues and Solutions
 
 #### Memory Not Persisting
+
 ```bash
 # Check configuration
 claude-flow memory config --show
@@ -472,6 +507,7 @@ claude-flow memory config --set '{"persistenceEnabled": true}'
 ```
 
 #### Performance Issues
+
 ```bash
 # Check statistics for bottlenecks
 claude-flow memory stats --detailed
@@ -488,6 +524,7 @@ claude-flow memory config --set '{
 ```
 
 #### Data Corruption
+
 ```bash
 # Check for corrupted entries
 claude-flow memory stats | grep "Corrupted"
@@ -497,6 +534,7 @@ claude-flow memory cleanup --remove-orphaned --remove-duplicates
 ```
 
 #### Import/Export Issues
+
 ```bash
 # Validate data before import
 claude-flow memory import "./data.json" --validation --dry-run
@@ -553,26 +591,31 @@ await memory.cleanup({
 ## Best Practices
 
 ### 1. Namespace Organization
+
 - Use hierarchical namespaces: `project.module.component`
 - Separate different data types into different namespaces
 - Use consistent naming conventions
 
 ### 2. Tagging Strategy
+
 - Use descriptive, searchable tags
 - Include version tags for temporal queries
 - Tag by data source, purpose, and category
 
 ### 3. Data Lifecycle Management
+
 - Set appropriate TTL for temporary data
 - Use retention policies for automated cleanup
 - Archive important historical data
 
 ### 4. Performance Optimization
+
 - Enable indexing for frequently queried data
 - Use compression for large entries
 - Monitor statistics and optimize based on usage patterns
 
 ### 5. Security Considerations
+
 - Use appropriate access levels (private/shared/public)
 - Enable encryption for sensitive data exports
 - Implement proper backup and recovery procedures

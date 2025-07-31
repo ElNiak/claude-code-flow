@@ -30,41 +30,41 @@ export async function copyTemplates(targetDir, options = {}) {
 
   try {
     const templatesDir = join(__dirname, 'templates');
-    
+
     // Determine which template variants to use
-    const templateVariant = options.optimized ? 'optimized' : 
+    const templateVariant = options.optimized ? 'optimized' :
                           options.enhanced ? 'enhanced' :
-                          options.minimal ? 'minimal' : 
+                          options.minimal ? 'minimal' :
                           options.sparc ? 'sparc' : 'full';
 
     // Core files to copy
     const coreFiles = [
-      { 
-        source: 'CLAUDE.md', 
+      {
+        source: 'CLAUDE.md',
         destination: 'CLAUDE.md',
-        useVariant: true 
+        useVariant: true
       },
-      { 
-        source: 'memory-bank.md', 
+      {
+        source: 'memory-bank.md',
         destination: 'memory-bank.md',
-        useVariant: true 
+        useVariant: true
       },
-      { 
-        source: 'coordination.md', 
+      {
+        source: 'coordination.md',
         destination: 'coordination.md',
-        useVariant: true 
+        useVariant: true
       },
     ];
 
     // Copy core files
     for (const file of coreFiles) {
-      const sourceFile = file.useVariant && existsSync(join(templatesDir, `${file.source}.${templateVariant}`)) 
+      const sourceFile = file.useVariant && existsSync(join(templatesDir, `${file.source}.${templateVariant}`))
         ? `${file.source}.${templateVariant}`
         : file.source;
-      
+
       const sourcePath = join(templatesDir, sourceFile);
       const destPath = join(targetDir, file.destination);
-      
+
       if (await copyFile(sourcePath, destPath, options)) {
         results.copiedFiles.push(file.destination);
       } else if (!options.dryRun) {
@@ -75,16 +75,16 @@ export async function copyTemplates(targetDir, options = {}) {
     // Copy .claude directory structure
     if (options.enhanced || !options.minimal) {
       const claudeDir = join(targetDir, '.claude');
-      
+
       // Copy settings.json
       const settingsSource = options.enhanced ? 'settings.json.enhanced' : 'settings.json';
       const settingsPath = join(templatesDir, settingsSource);
       const settingsDest = join(claudeDir, 'settings.json');
-      
+
       if (!options.dryRun) {
         await fs.mkdir(claudeDir, { recursive: true });
       }
-      
+
       if (await copyFile(settingsPath, settingsDest, options)) {
         results.copiedFiles.push('.claude/settings.json');
       }
@@ -151,11 +151,11 @@ async function copyFile(source, destination, options) {
     if (!options.dryRun) {
       // Ensure destination directory exists
       await fs.mkdir(dirname(destination), { recursive: true });
-      
+
       // Copy the file
       const content = await fs.readFile(source, 'utf8');
       await fs.writeFile(destination, content);
-      
+
       // Preserve file permissions for executable scripts
       if (source.endsWith('.sh') || source.includes('claude-flow')) {
         await fs.chmod(destination, 0o755);
@@ -189,14 +189,14 @@ async function copyCommandTemplates(templatesDir, targetDir, options, results) {
 
     // Copy command categories
     const categories = await fs.readdir(commandsSourceDir);
-    
+
     for (const category of categories) {
       const categoryPath = join(commandsSourceDir, category);
       const stat = await fs.stat(categoryPath);
-      
+
       if (stat.isDirectory()) {
         const destCategoryPath = join(commandsDestDir, category);
-        
+
         if (!options.dryRun) {
           await fs.mkdir(destCategoryPath, { recursive: true });
         }
@@ -206,7 +206,7 @@ async function copyCommandTemplates(templatesDir, targetDir, options, results) {
         for (const file of files) {
           const sourcePath = join(categoryPath, file);
           const destPath = join(destCategoryPath, file);
-          
+
           if (await copyFile(sourcePath, destPath, options)) {
             results.copiedFiles.push(join('.claude', 'commands', category, file));
           }
@@ -223,7 +223,7 @@ async function copyCommandTemplates(templatesDir, targetDir, options, results) {
  */
 async function copySparcTemplates(templatesDir, targetDir, options, results) {
   const sparcDir = join(targetDir, '.claude', 'commands', 'sparc');
-  
+
   try {
     if (!options.dryRun) {
       await fs.mkdir(sparcDir, { recursive: true });
@@ -232,9 +232,9 @@ async function copySparcTemplates(templatesDir, targetDir, options, results) {
     // Get SPARC mode templates
     const { createSparcModeTemplates, createSparcModesOverview } = await import('./templates/sparc-modes.js');
     const sparcTemplates = createSparcModeTemplates();
-    
+
     // Filter templates if selectedModes is specified
-    const templatesToCreate = options.selectedModes 
+    const templatesToCreate = options.selectedModes
       ? Object.entries(sparcTemplates).filter(([filename]) => {
           const mode = filename.replace('.md', '');
           return options.selectedModes.includes(mode);
@@ -244,11 +244,11 @@ async function copySparcTemplates(templatesDir, targetDir, options, results) {
     // Write SPARC mode files
     for (const [filename, content] of templatesToCreate) {
       const destPath = join(sparcDir, filename);
-      
+
       if (!options.dryRun) {
         await fs.writeFile(destPath, content);
       }
-      
+
       console.log(`  ${options.dryRun ? '[DRY RUN] Would create' : '✓ Created'} .claude/commands/sparc/${filename}`);
       results.copiedFiles.push(join('.claude', 'commands', 'sparc', filename));
     }
@@ -274,7 +274,7 @@ async function copySparcTemplates(templatesDir, targetDir, options, results) {
  */
 async function copySwarmTemplates(templatesDir, targetDir, options, results) {
   const swarmDir = join(targetDir, '.claude', 'commands', 'swarm');
-  
+
   try {
     if (!options.dryRun) {
       await fs.mkdir(swarmDir, { recursive: true });
@@ -287,11 +287,11 @@ async function copySwarmTemplates(templatesDir, targetDir, options, results) {
     // Write swarm strategy files
     for (const [filename, content] of Object.entries(swarmTemplates)) {
       const destPath = join(swarmDir, filename);
-      
+
       if (!options.dryRun) {
         await fs.writeFile(destPath, content);
       }
-      
+
       console.log(`  ${options.dryRun ? '[DRY RUN] Would create' : '✓ Created'} .claude/commands/swarm/${filename}`);
       results.copiedFiles.push(join('.claude', 'commands', 'swarm', filename));
     }
@@ -305,7 +305,7 @@ async function copySwarmTemplates(templatesDir, targetDir, options, results) {
  */
 async function copyHelperScripts(templatesDir, targetDir, options, results) {
   const helpersDir = join(targetDir, '.claude', 'helpers');
-  
+
   try {
     if (!options.dryRun) {
       await fs.mkdir(helpersDir, { recursive: true });
@@ -313,17 +313,17 @@ async function copyHelperScripts(templatesDir, targetDir, options, results) {
 
     const helpers = ['setup-mcp.sh', 'quick-start.sh', 'github-setup.sh', 'github-safe.js'];
     const { createHelperScript } = await import('./templates/enhanced-templates.js');
-    
+
     for (const helper of helpers) {
       const content = createHelperScript(helper);
       if (content) {
         const destPath = join(helpersDir, helper);
-        
+
         if (!options.dryRun) {
           await fs.writeFile(destPath, content);
           await fs.chmod(destPath, 0o755);
         }
-        
+
         console.log(`  ${options.dryRun ? '[DRY RUN] Would create' : '✓ Created'} .claude/helpers/${helper}`);
         results.copiedFiles.push(join('.claude', 'helpers', helper));
       }
@@ -341,7 +341,7 @@ async function copyWrapperScripts(templatesDir, targetDir, options, results) {
     // Unix wrapper
     const unixWrapperPath = join(targetDir, 'claude-flow');
     const unixWrapperSource = join(templatesDir, 'claude-flow-universal');
-    
+
     if (await copyFile(unixWrapperSource, unixWrapperPath, options)) {
       if (!options.dryRun) {
         await fs.chmod(unixWrapperPath, 0o755);
@@ -352,7 +352,7 @@ async function copyWrapperScripts(templatesDir, targetDir, options, results) {
     // Windows batch wrapper
     const batchWrapperPath = join(targetDir, 'claude-flow.bat');
     const batchWrapperSource = join(templatesDir, 'claude-flow.bat');
-    
+
     if (await copyFile(batchWrapperSource, batchWrapperPath, options)) {
       results.copiedFiles.push('claude-flow.bat');
     }
@@ -360,7 +360,7 @@ async function copyWrapperScripts(templatesDir, targetDir, options, results) {
     // PowerShell wrapper
     const psWrapperPath = join(targetDir, 'claude-flow.ps1');
     const psWrapperSource = join(templatesDir, 'claude-flow.ps1');
-    
+
     if (await copyFile(psWrapperSource, psWrapperPath, options)) {
       results.copiedFiles.push('claude-flow.ps1');
     }
@@ -414,7 +414,7 @@ async function createDirectoryStructure(targetDir, options) {
  */
 async function createMemoryReadmeFiles(targetDir, options, results) {
   const { createAgentsReadme, createSessionsReadme } = await import('./templates/readme-files.js');
-  
+
   const readmeFiles = [
     { path: 'memory/agents/README.md', content: createAgentsReadme() },
     { path: 'memory/sessions/README.md', content: createSessionsReadme() },
@@ -422,7 +422,7 @@ async function createMemoryReadmeFiles(targetDir, options, results) {
 
   for (const { path, content } of readmeFiles) {
     const fullPath = join(targetDir, path);
-    
+
     try {
       if (!options.dryRun) {
         await fs.mkdir(dirname(fullPath), { recursive: true });
@@ -459,7 +459,7 @@ async function createMemoryReadmeFiles(targetDir, options, results) {
  */
 async function getTemplateContent(templatePath) {
   const filename = templatePath.split('/').pop();
-  
+
   // Map template files to their generator functions
   const templateGenerators = {
     'CLAUDE.md': async () => {
@@ -525,7 +525,7 @@ async function getTemplateContent(templatePath) {
   };
 
   const generator = templateGenerators[filename] || templateGenerators[filename.replace(/\.(sparc|minimal|optimized|enhanced)$/, '')];
-  
+
   if (generator) {
     try {
       return await generator();
@@ -543,14 +543,14 @@ async function getTemplateContent(templatePath) {
  */
 async function generateCommandTemplates(targetDir, options, results) {
   const { COMMAND_STRUCTURE, createCommandDoc } = await import('./templates/enhanced-templates.js');
-  
+
   for (const [category, commands] of Object.entries(COMMAND_STRUCTURE)) {
     const categoryDir = join(targetDir, '.claude', 'commands', category);
-    
+
     try {
       if (!options.dryRun) {
         await fs.mkdir(categoryDir, { recursive: true });
-        
+
         // Create category README
         const categoryReadme = `# ${category.charAt(0).toUpperCase() + category.slice(1)} Commands
 

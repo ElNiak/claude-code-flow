@@ -123,7 +123,7 @@ class SqliteMemoryStore {
     this.statements.set(
       'get',
       this.db.prepare(`
-      SELECT * FROM memory_entries 
+      SELECT * FROM memory_entries
       WHERE key = ? AND namespace = ? AND (expires_at IS NULL OR expires_at > strftime('%s', 'now'))
     `),
     );
@@ -132,7 +132,7 @@ class SqliteMemoryStore {
     this.statements.set(
       'list',
       this.db.prepare(`
-      SELECT * FROM memory_entries 
+      SELECT * FROM memory_entries
       WHERE namespace = ? AND (expires_at IS NULL OR expires_at > strftime('%s', 'now'))
       ORDER BY updated_at DESC
       LIMIT ?
@@ -151,8 +151,8 @@ class SqliteMemoryStore {
     this.statements.set(
       'search',
       this.db.prepare(`
-      SELECT * FROM memory_entries 
-      WHERE namespace = ? AND (key LIKE ? OR value LIKE ?) 
+      SELECT * FROM memory_entries
+      WHERE namespace = ? AND (key LIKE ? OR value LIKE ?)
       AND (expires_at IS NULL OR expires_at > strftime('%s', 'now'))
       ORDER BY access_count DESC, updated_at DESC
       LIMIT ?
@@ -171,7 +171,7 @@ class SqliteMemoryStore {
     this.statements.set(
       'updateAccess',
       this.db.prepare(`
-      UPDATE memory_entries 
+      UPDATE memory_entries
       SET accessed_at = strftime('%s', 'now'), access_count = access_count + 1
       WHERE key = ? AND namespace = ?
     `),

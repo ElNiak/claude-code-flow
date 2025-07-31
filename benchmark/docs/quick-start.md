@@ -58,6 +58,7 @@ After running a benchmark, you'll see:
 ```
 
 The JSON output includes:
+
 - **Task execution time**: How long each task took
 - **Resource usage**: CPU and memory consumption
 - **Success rate**: Percentage of successful tasks
@@ -66,6 +67,7 @@ The JSON output includes:
 ## 🎨 Common Scenarios
 
 ### Development Tasks
+
 ```bash
 swarm-benchmark run "Create REST API with authentication" \
   --strategy development \
@@ -74,6 +76,7 @@ swarm-benchmark run "Create REST API with authentication" \
 ```
 
 ### Research Tasks
+
 ```bash
 swarm-benchmark run "Analyze market trends" \
   --strategy research \
@@ -82,6 +85,7 @@ swarm-benchmark run "Analyze market trends" \
 ```
 
 ### Optimization Tasks
+
 ```bash
 swarm-benchmark run "Optimize database performance" \
   --strategy optimization \

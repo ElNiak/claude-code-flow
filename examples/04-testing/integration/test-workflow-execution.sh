@@ -24,9 +24,9 @@ declare -A TEST_RESULTS
 test_step() {
     local step_name=$1
     local condition=$2
-    
+
     echo -n "🧪 $step_name... "
-    
+
     if eval "$condition"; then
         echo -e "${GREEN}✓${NC}"
         TEST_RESULTS["$step_name"]="PASSED"
@@ -82,10 +82,10 @@ if [[ -f "$PARALLEL_WORKFLOW" ]]; then
     PARALLEL_OUTPUT="$OUTPUT_DIR/parallel"
     ../claude-flow orchestrate "$PARALLEL_WORKFLOW" --output "$PARALLEL_OUTPUT" --monitor --quiet &
     PID=$!
-    
+
     # Give it time to start
     sleep 3
-    
+
     # Check if process is running
     if ps -p $PID > /dev/null; then
         test_step "Parallel workflow started" "true"

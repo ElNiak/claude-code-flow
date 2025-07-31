@@ -30,7 +30,7 @@ export const MemoryTestUtils = {
 export const PerformanceTestUtils = {
   benchmark: async (fn: () => any | Promise<any>, options = { iterations: 100, concurrency: 1 }) => {
     const times: number[] = [];
-    
+
     for (let i = 0; i < options.iterations; i++) {
       const start = performance.now();
       if (options.concurrency > 1) {
@@ -42,20 +42,20 @@ export const PerformanceTestUtils = {
       const end = performance.now();
       times.push(end - start);
     }
-    
+
     const mean = times.reduce((a, b) => a + b, 0) / times.length;
     const min = Math.min(...times);
     const max = Math.max(...times);
-    
+
     return { stats: { mean, min, max, iterations: options.iterations } };
   },
-  
+
   loadTest: async (fn: () => Promise<any>, options: any) => {
     const startTime = Date.now();
     let totalRequests = 0;
     let successfulRequests = 0;
     const responseTimes: number[] = [];
-    
+
     while (Date.now() - startTime < options.duration) {
       const promises = [];
       for (let i = 0; i < options.maxConcurrency; i++) {
@@ -71,9 +71,9 @@ export const PerformanceTestUtils = {
       await Promise.all(promises);
       await AsyncTestUtils.delay(1000 / options.requestsPerSecond);
     }
-    
+
     const averageResponseTime = responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length;
-    
+
     return {
       totalRequests,
       successfulRequests,
@@ -88,7 +88,7 @@ export const TestAssertions = {
     expect(value).toBeGreaterThanOrEqual(min);
     expect(value).toBeLessThanOrEqual(max);
   },
-  
+
   assertThrowsAsync: async (fn: () => Promise<any>, errorType: any, messageIncludes?: string) => {
     try {
       await fn();
@@ -114,7 +114,7 @@ export const MockFactory = {
     execute: jest.fn(),
     ...overrides
   }),
-  
+
   createMockTask: (overrides?: any) => ({
     id: 'mock-task-' + Math.random(),
     description: 'Mock task',
@@ -131,12 +131,12 @@ export const FileSystemTestUtils = {
     const fs = await import('fs/promises');
     const path = await import('path');
     const os = await import('os');
-    
+
     const tempDir = path.join(os.tmpdir(), prefix + Date.now());
     await fs.mkdir(tempDir, { recursive: true });
     return tempDir;
   },
-  
+
   cleanup: async (paths: string[]) => {
     const fs = await import('fs/promises');
     for (const path of paths) {
@@ -159,7 +159,7 @@ export const TestDataGenerator = {
     }
     return result;
   },
-  
+
   largeDataset: (size: number) => {
     return Array.from({ length: size }, (_, i) => ({
       id: `item-${i}`,

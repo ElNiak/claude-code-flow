@@ -15,6 +15,7 @@ This guide explains the 5 coordination modes available for agent swarm orchestra
 ## 🎯 Centralized Mode
 
 ### Overview
+
 A single coordinator agent manages all tasks and delegates to worker agents.
 
 ```
@@ -24,12 +25,14 @@ A single coordinator agent manages all tasks and delegates to worker agents.
 ```
 
 ### Characteristics
+
 - **Structure**: Star topology with central coordinator
 - **Communication**: All through coordinator
 - **Decision Making**: Centralized
 - **Fault Tolerance**: Low (single point of failure)
 
 ### Usage Example
+
 ```bash
 swarm-benchmark run "Build user login form" \
   --mode centralized \
@@ -37,6 +40,7 @@ swarm-benchmark run "Build user login form" \
 ```
 
 ### When to Use
+
 - ✅ Small teams (2-4 agents)
 - ✅ Simple, well-defined tasks
 - ✅ Tasks requiring consistency
@@ -44,12 +48,14 @@ swarm-benchmark run "Build user login form" \
 - ❌ NOT for complex parallel work
 
 ### Performance Profile
+
 - **Coordination Overhead**: ~50ms
 - **Communication Latency**: ~25ms
 - **Scalability**: Limited (up to 5 agents)
 - **Efficiency**: High for small teams
 
 ### Best Practices
+
 1. Keep agent count low (≤4)
 2. Use for sequential tasks
 3. Assign clear roles to agents
@@ -58,6 +64,7 @@ swarm-benchmark run "Build user login form" \
 ## 🌐 Distributed Mode
 
 ### Overview
+
 Multiple coordinators share responsibility for task management.
 
 ```
@@ -67,12 +74,14 @@ Multiple coordinators share responsibility for task management.
 ```
 
 ### Characteristics
+
 - **Structure**: Multiple coordination points
 - **Communication**: Regional coordination
 - **Decision Making**: Distributed consensus
 - **Fault Tolerance**: High (redundancy)
 
 ### Usage Example
+
 ```bash
 swarm-benchmark run "Research cloud providers and pricing" \
   --mode distributed \
@@ -81,6 +90,7 @@ swarm-benchmark run "Research cloud providers and pricing" \
 ```
 
 ### When to Use
+
 - ✅ Medium teams (4-8 agents)
 - ✅ Parallel, independent tasks
 - ✅ Research and exploration
@@ -88,12 +98,14 @@ swarm-benchmark run "Research cloud providers and pricing" \
 - ❌ NOT for tightly coupled work
 
 ### Performance Profile
+
 - **Coordination Overhead**: ~100ms + network
 - **Communication Latency**: ~50ms
 - **Scalability**: Good (up to 10 agents)
 - **Efficiency**: High for parallel work
 
 ### Best Practices
+
 1. Balance coordinator count (2-3)
 2. Minimize inter-coordinator communication
 3. Use for embarrassingly parallel tasks
@@ -102,6 +114,7 @@ swarm-benchmark run "Research cloud providers and pricing" \
 ## 🌳 Hierarchical Mode
 
 ### Overview
+
 Tree structure with multiple levels of coordination.
 
 ```
@@ -113,12 +126,14 @@ Tree structure with multiple levels of coordination.
 ```
 
 ### Characteristics
+
 - **Structure**: Multi-level tree
 - **Communication**: Up/down the hierarchy
 - **Decision Making**: Delegated by level
 - **Fault Tolerance**: Medium
 
 ### Usage Example
+
 ```bash
 swarm-benchmark run "Develop microservices architecture" \
   --mode hierarchical \
@@ -127,6 +142,7 @@ swarm-benchmark run "Develop microservices architecture" \
 ```
 
 ### When to Use
+
 - ✅ Large teams (5-10 agents)
 - ✅ Complex, multi-part projects
 - ✅ Tasks with clear subtasks
@@ -134,18 +150,21 @@ swarm-benchmark run "Develop microservices architecture" \
 - ❌ NOT for simple tasks
 
 ### Performance Profile
+
 - **Coordination Overhead**: ~80ms per level
 - **Communication Latency**: ~40ms per hop
 - **Scalability**: Excellent (10+ agents)
 - **Efficiency**: Good for structured work
 
 ### Best Practices
+
 1. Keep hierarchy shallow (≤3 levels)
 2. Balance tree structure
 3. Clear responsibilities per level
 4. Minimize cross-branch communication
 
 ### Hierarchy Design
+
 ```python
 # Optimal hierarchy structure
 if agent_count <= 4:
@@ -159,6 +178,7 @@ else:
 ## 🕸️ Mesh Mode
 
 ### Overview
+
 Peer-to-peer network where agents communicate directly.
 
 ```
@@ -168,12 +188,14 @@ Peer-to-peer network where agents communicate directly.
 ```
 
 ### Characteristics
+
 - **Structure**: Fully connected network
 - **Communication**: Direct peer-to-peer
 - **Decision Making**: Consensus-based
 - **Fault Tolerance**: Very high
 
 ### Usage Example
+
 ```bash
 swarm-benchmark run "Analyze dataset collaboratively" \
   --mode mesh \
@@ -182,6 +204,7 @@ swarm-benchmark run "Analyze dataset collaboratively" \
 ```
 
 ### When to Use
+
 - ✅ Collaborative tasks
 - ✅ Peer review needed
 - ✅ Consensus decisions
@@ -189,18 +212,21 @@ swarm-benchmark run "Analyze dataset collaboratively" \
 - ❌ NOT for time-critical tasks
 
 ### Performance Profile
+
 - **Coordination Overhead**: ~150ms + negotiation
 - **Communication Latency**: ~30ms per peer
 - **Scalability**: Limited (up to 6 agents)
 - **Efficiency**: Lower due to overhead
 
 ### Best Practices
+
 1. Limit agent count (≤6)
 2. Use for quality-critical tasks
 3. Set consensus thresholds
 4. Monitor communication overhead
 
 ### Mesh Coordination
+
 ```python
 # Communication complexity
 connections = n * (n - 1) / 2  # Full mesh
@@ -211,6 +237,7 @@ connections = n * (n - 1) / 2  # Full mesh
 ## 🔄 Hybrid Mode
 
 ### Overview
+
 Adaptive coordination that switches between modes based on task requirements.
 
 ```
@@ -220,12 +247,14 @@ Task Analysis → Mode Selection → Dynamic Coordination
 ```
 
 ### Characteristics
+
 - **Structure**: Adaptive topology
 - **Communication**: Mode-dependent
 - **Decision Making**: Context-aware
 - **Fault Tolerance**: Adaptive
 
 ### Usage Example
+
 ```bash
 swarm-benchmark run "Complete project with research, development, and testing" \
   --mode hybrid \
@@ -234,6 +263,7 @@ swarm-benchmark run "Complete project with research, development, and testing" \
 ```
 
 ### When to Use
+
 - ✅ Mixed task types
 - ✅ Unknown optimal approach
 - ✅ Long-running projects
@@ -241,12 +271,14 @@ swarm-benchmark run "Complete project with research, development, and testing" \
 - ❌ NOT for simple, uniform tasks
 
 ### Performance Profile
+
 - **Coordination Overhead**: 100-200ms (variable)
 - **Communication Latency**: Mode-dependent
 - **Scalability**: Good (adaptive)
 - **Efficiency**: Optimizes per task
 
 ### Mode Selection Logic
+
 ```python
 def select_mode(task, agents):
     if agents <= 3:
@@ -262,6 +294,7 @@ def select_mode(task, agents):
 ```
 
 ### Best Practices
+
 1. Let system adapt naturally
 2. Monitor mode switching
 3. Set switching thresholds

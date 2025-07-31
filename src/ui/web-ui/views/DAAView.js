@@ -120,7 +120,7 @@ export default class DAAView {
             </div>
           </div>
         </div>
-        
+
         <div class="daa-tools">
           <h3>🔧 Quick Actions</h3>
           <div class="tool-buttons">
@@ -167,7 +167,7 @@ export default class DAAView {
       <div class="daa-agent-management">
         <div class="agent-creation-form">
           <h3>🤖 Create Dynamic Agent</h3>
-          
+
           <div class="form-group">
             <label>Agent Type:</label>
             <select id="agent-type">
@@ -179,17 +179,17 @@ export default class DAAView {
               <option value="custom">Custom</option>
             </select>
           </div>
-          
+
           <div class="form-group">
             <label>Agent Name:</label>
             <input type="text" id="agent-name" placeholder="Enter agent name...">
           </div>
-          
+
           <div class="form-group">
             <label>Capabilities (comma-separated):</label>
             <input type="text" id="agent-capabilities" placeholder="e.g., compute, analyze, coordinate">
           </div>
-          
+
           <div class="form-group">
             <label>Initial Resources:</label>
             <div class="resource-inputs">
@@ -198,12 +198,12 @@ export default class DAAView {
               <input type="number" id="priority-level" placeholder="Priority (1-10)" min="1" max="10">
             </div>
           </div>
-          
+
           <button onclick="this.createAgent()" class="daa-btn primary">
             🚀 Create Agent
           </button>
         </div>
-        
+
         <div class="active-agents">
           <h3>📋 Active Agents</h3>
           <div id="agents-list" class="agents-grid">
@@ -222,7 +222,7 @@ export default class DAAView {
       <div class="daa-capability-matching">
         <div class="capability-matcher">
           <h3>🔀 Capability Matching</h3>
-          
+
           <div class="form-group">
             <label>Task Requirements:</label>
             <textarea id="task-requirements" placeholder="Enter required capabilities...
@@ -232,7 +232,7 @@ Example:
 - skills: data_analysis, optimization
 - availability: immediate"></textarea>
           </div>
-          
+
           <div class="form-group">
             <label>Matching Strategy:</label>
             <select id="matching-strategy">
@@ -242,19 +242,19 @@ Example:
               <option value="priority-based">Priority Based</option>
             </select>
           </div>
-          
+
           <button onclick="this.matchCapabilities()" class="daa-btn primary">
             🔍 Find Matching Agents
           </button>
         </div>
-        
+
         <div class="matching-results">
           <h3>📊 Matching Results</h3>
           <div id="capability-matches" class="matches-display">
             <div class="no-matches">No matches found yet</div>
           </div>
         </div>
-        
+
         <div class="capability-matrix">
           <h3>🗂️ Capability Matrix</h3>
           <div id="capability-matrix-view" class="matrix-container">
@@ -273,7 +273,7 @@ Example:
       <div class="daa-resource-allocation">
         <div class="resource-allocator">
           <h3>📦 Resource Allocation</h3>
-          
+
           <div class="resource-overview">
             <h4>System Resources</h4>
             <div class="resource-meters">
@@ -300,17 +300,17 @@ Example:
               </div>
             </div>
           </div>
-          
+
           <div class="allocation-form">
             <h4>Allocate Resources</h4>
-            
+
             <div class="form-group">
               <label>Target Agent:</label>
               <select id="allocation-target">
                 <option value="">Select agent...</option>
               </select>
             </div>
-            
+
             <div class="form-group">
               <label>Resource Type:</label>
               <select id="resource-type">
@@ -321,18 +321,18 @@ Example:
                 <option value="custom">Custom Resource</option>
               </select>
             </div>
-            
+
             <div class="form-group">
               <label>Allocation Amount:</label>
               <input type="number" id="allocation-amount" placeholder="Amount to allocate">
             </div>
-            
+
             <button onclick="this.allocateResources()" class="daa-btn primary">
               📤 Allocate Resources
             </button>
           </div>
         </div>
-        
+
         <div class="allocation-history">
           <h3>📋 Allocation History</h3>
           <div id="allocation-history-list" class="history-list">
@@ -351,7 +351,7 @@ Example:
       <div class="daa-lifecycle-management">
         <div class="lifecycle-controls">
           <h3>🔄 Agent Lifecycle Management</h3>
-          
+
           <div class="lifecycle-actions">
             <div class="form-group">
               <label>Select Agent:</label>
@@ -359,7 +359,7 @@ Example:
                 <option value="">Choose agent...</option>
               </select>
             </div>
-            
+
             <div class="lifecycle-buttons">
               <button onclick="this.startAgent()" class="daa-btn success">
                 ▶️ Start
@@ -382,7 +382,7 @@ Example:
             </div>
           </div>
         </div>
-        
+
         <div class="lifecycle-visualization">
           <h3>📊 Lifecycle States</h3>
           <div id="lifecycle-diagram" class="lifecycle-viz">
@@ -392,7 +392,7 @@ Example:
             </svg>
           </div>
         </div>
-        
+
         <div class="lifecycle-events">
           <h3>📋 Lifecycle Events</h3>
           <div id="lifecycle-events-list" class="events-list">
@@ -411,24 +411,24 @@ Example:
       <div class="daa-communication">
         <div class="communication-panel">
           <h3>📡 Inter-Agent Communication</h3>
-          
+
           <div class="message-composer">
             <h4>Compose Message</h4>
-            
+
             <div class="form-group">
               <label>From Agent:</label>
               <select id="comm-from-agent">
                 <option value="">Select sender...</option>
               </select>
             </div>
-            
+
             <div class="form-group">
               <label>To Agent(s):</label>
               <select id="comm-to-agents" multiple>
                 <option value="broadcast">📢 Broadcast to All</option>
               </select>
             </div>
-            
+
             <div class="form-group">
               <label>Message Type:</label>
               <select id="comm-message-type">
@@ -439,18 +439,18 @@ Example:
                 <option value="sync">Synchronization</option>
               </select>
             </div>
-            
+
             <div class="form-group">
               <label>Message Content:</label>
               <textarea id="comm-message-content" placeholder="Enter message content..."></textarea>
             </div>
-            
+
             <button onclick="this.sendMessage()" class="daa-btn primary">
               📤 Send Message
             </button>
           </div>
         </div>
-        
+
         <div class="communication-log">
           <h3>📜 Communication Log</h3>
           <div class="log-controls">
@@ -475,10 +475,10 @@ Example:
       <div class="daa-consensus">
         <div class="consensus-panel">
           <h3>🤝 Consensus Mechanisms</h3>
-          
+
           <div class="consensus-proposal">
             <h4>Create Proposal</h4>
-            
+
             <div class="form-group">
               <label>Proposal Type:</label>
               <select id="consensus-type">
@@ -490,12 +490,12 @@ Example:
                 <option value="custom">Custom Proposal</option>
               </select>
             </div>
-            
+
             <div class="form-group">
               <label>Proposal Description:</label>
               <textarea id="proposal-description" placeholder="Describe the proposal..."></textarea>
             </div>
-            
+
             <div class="form-group">
               <label>Consensus Algorithm:</label>
               <select id="consensus-algorithm">
@@ -506,25 +506,25 @@ Example:
                 <option value="raft">Raft Consensus</option>
               </select>
             </div>
-            
+
             <div class="form-group">
               <label>Voting Timeout (seconds):</label>
               <input type="number" id="voting-timeout" value="60" min="10">
             </div>
-            
+
             <button onclick="this.createProposal()" class="daa-btn primary">
               📋 Create Proposal
             </button>
           </div>
         </div>
-        
+
         <div class="active-proposals">
           <h3>🗳️ Active Proposals</h3>
           <div id="proposals-list" class="proposals-container">
             <!-- Active proposals will be populated here -->
           </div>
         </div>
-        
+
         <div class="consensus-history">
           <h3>📊 Consensus History</h3>
           <div id="consensus-history-list" class="consensus-log">
@@ -543,7 +543,7 @@ Example:
       <div class="daa-fault-tolerance">
         <div class="fault-monitoring">
           <h3>🛡️ Fault Tolerance & Recovery</h3>
-          
+
           <div class="health-overview">
             <h4>System Health Status</h4>
             <div class="health-indicators">
@@ -564,10 +564,10 @@ Example:
               </div>
             </div>
           </div>
-          
+
           <div class="recovery-strategies">
             <h4>Recovery Strategies</h4>
-            
+
             <div class="form-group">
               <label>Fault Detection Method:</label>
               <select id="fault-detection">
@@ -577,7 +577,7 @@ Example:
                 <option value="combined">Combined Detection</option>
               </select>
             </div>
-            
+
             <div class="form-group">
               <label>Recovery Strategy:</label>
               <select id="recovery-strategy">
@@ -588,7 +588,7 @@ Example:
                 <option value="manual">Manual Intervention</option>
               </select>
             </div>
-            
+
             <button onclick="this.configureRecovery()" class="daa-btn primary">
               🔧 Configure Recovery
             </button>
@@ -597,14 +597,14 @@ Example:
             </button>
           </div>
         </div>
-        
+
         <div class="fault-events">
           <h3>🚨 Fault Events</h3>
           <div id="fault-events-list" class="fault-log">
             <!-- Fault events will be populated here -->
           </div>
         </div>
-        
+
         <div class="recovery-actions">
           <h3>🔧 Recovery Actions</h3>
           <div id="recovery-actions-list" class="recovery-log">
@@ -623,7 +623,7 @@ Example:
       <div class="daa-optimization">
         <div class="optimization-panel">
           <h3>⚡ Performance Optimization</h3>
-          
+
           <div class="optimization-metrics">
             <h4>Current Performance Metrics</h4>
             <div class="metrics-grid">
@@ -649,10 +649,10 @@ Example:
               </div>
             </div>
           </div>
-          
+
           <div class="optimization-controls">
             <h4>Optimization Options</h4>
-            
+
             <div class="form-group">
               <label>Optimization Target:</label>
               <select id="optimization-target">
@@ -663,7 +663,7 @@ Example:
                 <option value="cost">Cost Optimization</option>
               </select>
             </div>
-            
+
             <div class="form-group">
               <label>Optimization Algorithm:</label>
               <select id="optimization-algorithm">
@@ -674,7 +674,7 @@ Example:
                 <option value="reinforcement">Reinforcement Learning</option>
               </select>
             </div>
-            
+
             <div class="form-group">
               <label>Constraints:</label>
               <textarea id="optimization-constraints" placeholder="Define constraints...
@@ -683,7 +683,7 @@ Example:
 - min_agents: 3
 - max_response_time: 100ms"></textarea>
             </div>
-            
+
             <button onclick="this.startOptimization()" class="daa-btn primary">
               🚀 Start Optimization
             </button>
@@ -692,14 +692,14 @@ Example:
             </button>
           </div>
         </div>
-        
+
         <div class="optimization-results">
           <h3>📈 Optimization Results</h3>
           <div id="optimization-chart" class="chart-container">
             <!-- Optimization results chart will be rendered here -->
           </div>
         </div>
-        
+
         <div class="optimization-history">
           <h3>📋 Optimization History</h3>
           <div id="optimization-history-list" class="optimization-log">
@@ -718,33 +718,33 @@ Example:
       <div class="daa-fallback">
         <h2>🤖 Dynamic Agent Architecture</h2>
         <p>Complete DAA management interface with 8 integrated tools</p>
-        
+
         <div class="tool-sections">
           <div class="tool-section">
             <h3>🤖 Agent Management</h3>
             <button onclick="this.quickAction('daa_agent_create')">Create Agent</button>
             <button onclick="this.quickAction('daa_lifecycle_manage')">Lifecycle Management</button>
           </div>
-          
+
           <div class="tool-section">
             <h3>📦 Resource Management</h3>
             <button onclick="this.quickAction('daa_resource_alloc')">Allocate Resources</button>
             <button onclick="this.quickAction('daa_capability_match')">Match Capabilities</button>
           </div>
-          
+
           <div class="tool-section">
             <h3>📡 Coordination</h3>
             <button onclick="this.quickAction('daa_communication')">Agent Communication</button>
             <button onclick="this.quickAction('daa_consensus')">Consensus Mechanisms</button>
           </div>
-          
+
           <div class="tool-section">
             <h3>🛡️ Reliability</h3>
             <button onclick="this.quickAction('daa_fault_tolerance')">Fault Tolerance</button>
             <button onclick="this.quickAction('daa_optimization')">Performance Optimization</button>
           </div>
         </div>
-        
+
         <div id="daa-output" class="output-area">
           <h3>📊 Output</h3>
           <pre id="output-content">Ready for DAA operations...</pre>
@@ -1379,14 +1379,14 @@ if (typeof document !== 'undefined') {
     .daa-overview {
       padding: 20px;
     }
-    
+
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 16px;
       margin-bottom: 24px;
     }
-    
+
     .stat-card {
       display: flex;
       align-items: center;
@@ -1395,33 +1395,33 @@ if (typeof document !== 'undefined') {
       border-radius: 8px;
       border: 1px solid #444;
     }
-    
+
     .stat-icon {
       font-size: 24px;
       margin-right: 12px;
     }
-    
+
     .stat-value {
       font-size: 24px;
       font-weight: bold;
       color: #00d4ff;
     }
-    
+
     .stat-label {
       color: #888;
       font-size: 14px;
     }
-    
+
     .daa-tools {
       margin: 24px 0;
     }
-    
+
     .tool-buttons {
       display: flex;
       gap: 12px;
       flex-wrap: wrap;
     }
-    
+
     .daa-btn {
       padding: 10px 16px;
       border: none;
@@ -1430,56 +1430,56 @@ if (typeof document !== 'undefined') {
       font-weight: 500;
       transition: all 0.2s ease;
     }
-    
+
     .daa-btn.primary {
       background: #00d4ff;
       color: #000;
     }
-    
+
     .daa-btn.primary:hover {
       background: #00b8e6;
     }
-    
+
     .daa-btn.secondary {
       background: #444;
       color: #fff;
     }
-    
+
     .daa-btn.secondary:hover {
       background: #555;
     }
-    
+
     .daa-btn.success {
       background: #4caf50;
       color: #fff;
     }
-    
+
     .daa-btn.warning {
       background: #ff9800;
       color: #fff;
     }
-    
+
     .daa-btn.danger {
       background: #f44336;
       color: #fff;
     }
-    
+
     .daa-btn.info {
       background: #2196f3;
       color: #fff;
     }
-    
+
     .form-group {
       margin-bottom: 16px;
     }
-    
+
     .form-group label {
       display: block;
       margin-bottom: 4px;
       color: #fff;
       font-weight: 500;
     }
-    
+
     .form-group input,
     .form-group select,
     .form-group textarea {
@@ -1490,12 +1490,12 @@ if (typeof document !== 'undefined') {
       border-radius: 4px;
       color: #fff;
     }
-    
+
     .form-group textarea {
       height: 100px;
       resize: vertical;
     }
-    
+
     .network-container {
       background: #1a1a1a;
       border: 1px solid #444;
@@ -1503,49 +1503,49 @@ if (typeof document !== 'undefined') {
       padding: 20px;
       margin-top: 16px;
     }
-    
+
     .agents-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
       gap: 16px;
       margin-top: 16px;
     }
-    
+
     .agent-card {
       background: #2a2a2a;
       border: 1px solid #444;
       border-radius: 8px;
       padding: 16px;
     }
-    
+
     .agent-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
       margin-bottom: 8px;
     }
-    
+
     .agent-status {
       font-size: 12px;
       padding: 2px 8px;
       border-radius: 12px;
       background: #444;
     }
-    
+
     .agent-status.active {
       background: #4caf50;
     }
-    
+
     .agent-status.initializing {
       background: #2196f3;
     }
-    
+
     .agent-actions {
       display: flex;
       gap: 8px;
       margin-top: 8px;
     }
-    
+
     .mini-btn {
       padding: 4px 12px;
       font-size: 12px;
@@ -1555,26 +1555,26 @@ if (typeof document !== 'undefined') {
       background: #444;
       color: #fff;
     }
-    
+
     .mini-btn:hover {
       background: #555;
     }
-    
+
     .mini-btn.primary {
       background: #00d4ff;
       color: #000;
     }
-    
+
     .resource-inputs {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 8px;
     }
-    
+
     .resource-meter {
       margin-bottom: 16px;
     }
-    
+
     .meter-bar {
       position: relative;
       background: #1a1a1a;
@@ -1584,13 +1584,13 @@ if (typeof document !== 'undefined') {
       overflow: hidden;
       margin-top: 4px;
     }
-    
+
     .meter-fill {
       height: 100%;
       background: linear-gradient(90deg, #00d4ff, #0099cc);
       transition: width 0.3s ease;
     }
-    
+
     .meter-text {
       position: absolute;
       top: 50%;
@@ -1600,14 +1600,14 @@ if (typeof document !== 'undefined') {
       font-size: 12px;
       font-weight: bold;
     }
-    
+
     .lifecycle-buttons {
       display: flex;
       gap: 8px;
       flex-wrap: wrap;
       margin-top: 16px;
     }
-    
+
     .lifecycle-viz {
       background: #1a1a1a;
       border: 1px solid #444;
@@ -1618,7 +1618,7 @@ if (typeof document !== 'undefined') {
       justify-content: center;
       align-items: center;
     }
-    
+
     .comm-message {
       background: #2a2a2a;
       border: 1px solid #444;
@@ -1626,7 +1626,7 @@ if (typeof document !== 'undefined') {
       padding: 12px;
       margin-bottom: 8px;
     }
-    
+
     .message-header {
       display: flex;
       align-items: center;
@@ -1634,26 +1634,26 @@ if (typeof document !== 'undefined') {
       margin-bottom: 4px;
       font-size: 14px;
     }
-    
+
     .message-from {
       color: #00d4ff;
     }
-    
+
     .message-to {
       color: #4caf50;
     }
-    
+
     .message-time {
       margin-left: auto;
       color: #888;
       font-size: 12px;
     }
-    
+
     .message-type {
       color: #ff9800;
       font-weight: bold;
     }
-    
+
     .proposal-card {
       background: #2a2a2a;
       border: 1px solid #444;
@@ -1661,11 +1661,11 @@ if (typeof document !== 'undefined') {
       padding: 16px;
       margin-bottom: 16px;
     }
-    
+
     .proposal-card.active {
       border-color: #00d4ff;
     }
-    
+
     .vote-progress {
       background: #1a1a1a;
       border-radius: 4px;
@@ -1673,19 +1673,19 @@ if (typeof document !== 'undefined') {
       overflow: hidden;
       margin: 8px 0;
     }
-    
+
     .vote-bar {
       height: 100%;
       background: #4caf50;
       transition: width 0.3s ease;
     }
-    
+
     .health-indicators {
       display: flex;
       gap: 16px;
       margin-top: 16px;
     }
-    
+
     .health-indicator {
       flex: 1;
       text-align: center;
@@ -1694,38 +1694,38 @@ if (typeof document !== 'undefined') {
       background: #2a2a2a;
       border: 1px solid #444;
     }
-    
+
     .health-indicator.healthy {
       border-color: #4caf50;
     }
-    
+
     .health-indicator.warning {
       border-color: #ff9800;
     }
-    
+
     .health-indicator.critical {
       border-color: #f44336;
     }
-    
+
     .indicator-icon {
       font-size: 24px;
       display: block;
       margin-bottom: 8px;
     }
-    
+
     .indicator-value {
       font-size: 24px;
       font-weight: bold;
       display: block;
     }
-    
+
     .metrics-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 16px;
       margin-top: 16px;
     }
-    
+
     .metric-card {
       background: #2a2a2a;
       border: 1px solid #444;
@@ -1733,25 +1733,25 @@ if (typeof document !== 'undefined') {
       padding: 16px;
       text-align: center;
     }
-    
+
     .metric-label {
       color: #888;
       font-size: 14px;
       margin-bottom: 8px;
     }
-    
+
     .metric-value {
       font-size: 28px;
       font-weight: bold;
       color: #00d4ff;
       margin-bottom: 4px;
     }
-    
+
     .metric-trend {
       font-size: 14px;
       color: #888;
     }
-    
+
     .activity-list,
     .history-list,
     .events-list,
@@ -1767,7 +1767,7 @@ if (typeof document !== 'undefined') {
       border-radius: 8px;
       padding: 12px;
     }
-    
+
     .activity-item,
     .lifecycle-event,
     .fault-event,
@@ -1777,14 +1777,14 @@ if (typeof document !== 'undefined') {
       padding: 8px;
       border-bottom: 1px solid #333;
     }
-    
+
     .activity-item:last-child,
     .lifecycle-event:last-child,
     .fault-event:last-child,
     .optimization-result:last-child {
       border-bottom: none;
     }
-    
+
     .filter-btn {
       padding: 6px 12px;
       border: 1px solid #444;
@@ -1794,12 +1794,12 @@ if (typeof document !== 'undefined') {
       cursor: pointer;
       margin-right: 8px;
     }
-    
+
     .filter-btn.active {
       background: #444;
       color: #fff;
     }
-    
+
     .filter-btn:hover {
       background: #333;
       color: #fff;

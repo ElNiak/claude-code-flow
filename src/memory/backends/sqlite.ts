@@ -84,7 +84,7 @@ export class SQLiteBackend implements IMemoryBackend {
 
     const sql = `
       INSERT OR REPLACE INTO memory_entries (
-        id, agent_id, session_id, type, content, 
+        id, agent_id, session_id, type, content,
         context, timestamp, tags, version, parent_id, metadata
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;

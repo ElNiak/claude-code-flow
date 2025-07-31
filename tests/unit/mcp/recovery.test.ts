@@ -46,12 +46,12 @@ class MockTransport extends EventEmitter implements ITransport {
     if (!this.connected) {
       throw new Error('Not connected');
     }
-    
+
     // Mock heartbeat response
     if (request.method === 'heartbeat' && this.failHeartbeat) {
       throw new Error('Heartbeat failed');
     }
-    
+
     return { jsonrpc: '2.0', id: request.id, result: {} };
   }
 
@@ -95,16 +95,16 @@ describe('MCP Recovery Mechanisms', () => {
         transport: mockTransport,
         enableRecovery: false,
       });
-      
+
       await client.connect();
-      
+
       const monitor = new ConnectionHealthMonitor(client, logger);
       await monitor.start();
-      
+
       const health = await monitor.checkHealth();
       expect(health.healthy).toBe(true);
       expect(health.connectionState).toBe('connected');
-      
+
       await monitor.stop();
     });
 
@@ -113,33 +113,33 @@ describe('MCP Recovery Mechanisms', () => {
         transport: mockTransport,
         enableRecovery: false,
       });
-      
+
       await client.connect();
-      
+
       const monitor = new ConnectionHealthMonitor(client, logger, {
         heartbeatInterval: 100,
         heartbeatTimeout: 200,
         maxMissedHeartbeats: 2,
       });
-      
+
       let connectionLostEmitted = false;
       monitor.on('connectionLost', () => {
         connectionLostEmitted = true;
       });
-      
+
       await monitor.start();
-      
+
       // Simulate heartbeat failure
       mockTransport.setFailHeartbeat(true);
-      
+
       // Wait for heartbeat failures
       await new Promise(resolve => setTimeout(resolve, 600));
-      
+
       expect(connectionLostEmitted).toBe(true);
       const health = monitor.getHealthStatus();
       expect(health.healthy).toBe(false);
       expect(health.missedHeartbeats).toBeGreaterThanOrEqual(2);
-      
+
       await monitor.stop();
     });
   });
@@ -150,29 +150,29 @@ describe('MCP Recovery Mechanisms', () => {
         transport: mockTransport,
         enableRecovery: false,
       });
-      
+
       const manager = new ReconnectionManager(client, logger, {
         maxRetries: 3,
         initialDelay: 100,
         backoffMultiplier: 2,
       });
-      
+
       // Simulate disconnection
       mockTransport.setFailConnect(true);
-      
+
       let attempts = 0;
       manager.on('attemptStart', () => {
         attempts++;
       });
-      
+
       manager.startAutoReconnect();
-      
+
       // Wait for attempts
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
       expect(attempts).toBeGreaterThan(0);
       expect(attempts).toBeLessThanOrEqual(3);
-      
+
       manager.stopReconnection();
     });
 
@@ -181,19 +181,19 @@ describe('MCP Recovery Mechanisms', () => {
         transport: mockTransport,
         enableRecovery: false,
       });
-      
+
       await client.connect();
       await client.disconnect();
-      
+
       const manager = new ReconnectionManager(client, logger);
-      
+
       let success = false;
       manager.on('success', () => {
         success = true;
       });
-      
+
       const result = await manager.attemptReconnection();
-      
+
       expect(result).toBe(true);
       expect(success).toBe(true);
       expect(client.isConnected()).toBe(true);
@@ -203,9 +203,9 @@ describe('MCP Recovery Mechanisms', () => {
   describe('Fallback Coordinator', () => {
     test('should queue operations in fallback mode', async () => {
       const coordinator = new FallbackCoordinator(logger);
-      
+
       coordinator.enableCLIFallback();
-      
+
       coordinator.queueOperation({
         type: 'tool',
         method: 'test/method',
@@ -213,11 +213,11 @@ describe('MCP Recovery Mechanisms', () => {
         priority: 'high',
         retryable: true,
       });
-      
+
       const state = coordinator.getState();
       expect(state.isFallbackActive).toBe(true);
       expect(state.queuedOperations).toBe(1);
-      
+
       const operations = coordinator.getQueuedOperations();
       expect(operations).toHaveLength(1);
       expect(operations[0].method).toBe('test/method');
@@ -225,9 +225,9 @@ describe('MCP Recovery Mechanisms', () => {
 
     test('should process queue when fallback disabled', async () => {
       const coordinator = new FallbackCoordinator(logger);
-      
+
       coordinator.enableCLIFallback();
-      
+
       // Queue operations
       for (let i = 0; i < 3; i++) {
         coordinator.queueOperation({
@@ -238,17 +238,17 @@ describe('MCP Recovery Mechanisms', () => {
           retryable: true,
         });
       }
-      
+
       let processedCount = 0;
       coordinator.on('replayOperation', () => {
         processedCount++;
       });
-      
+
       coordinator.disableCLIFallback();
-      
+
       // Process queue should be triggered
       await new Promise(resolve => setTimeout(resolve, 100));
-      
+
       expect(processedCount).toBe(0); // No MCP client to replay
       expect(coordinator.getState().isFallbackActive).toBe(false);
     });
@@ -259,7 +259,7 @@ describe('MCP Recovery Mechanisms', () => {
       const stateManager = new ConnectionStateManager(logger, {
         enablePersistence: false, // Disable file persistence for tests
       });
-      
+
       const state = {
         sessionId: 'test-session',
         lastConnected: new Date(),
@@ -269,9 +269,9 @@ describe('MCP Recovery Mechanisms', () => {
         configuration: {},
         metadata: { test: true },
       };
-      
+
       stateManager.saveState(state);
-      
+
       const restored = stateManager.restoreState();
       expect(restored).toBeTruthy();
       expect(restored?.sessionId).toBe('test-session');
@@ -282,22 +282,22 @@ describe('MCP Recovery Mechanisms', () => {
       const stateManager = new ConnectionStateManager(logger, {
         enablePersistence: false,
       });
-      
+
       stateManager.recordEvent({
         type: 'connect',
         sessionId: 'session-1',
       });
-      
+
       stateManager.recordEvent({
         type: 'disconnect',
         sessionId: 'session-1',
       });
-      
+
       stateManager.recordEvent({
         type: 'reconnect',
         sessionId: 'session-1',
       });
-      
+
       const metrics = stateManager.getMetrics();
       expect(metrics.totalConnections).toBe(1);
       expect(metrics.totalDisconnections).toBe(1);
@@ -327,34 +327,34 @@ describe('MCP Recovery Mechanisms', () => {
           },
         },
       });
-      
+
       await client.connect();
-      
+
       let recoveryStarted = false;
       let fallbackActivated = false;
-      
+
       client.on('recoveryStart', () => {
         recoveryStarted = true;
       });
-      
+
       client.on('fallbackActivated', () => {
         fallbackActivated = true;
       });
-      
+
       // Simulate connection failure
       mockTransport.setFailHeartbeat(true);
       await client.disconnect();
       mockTransport.setFailConnect(true);
-      
+
       // Force recovery
       await client.forceRecovery();
-      
+
       // Wait for recovery attempts
       await new Promise(resolve => setTimeout(resolve, 500));
-      
+
       expect(recoveryStarted).toBe(true);
       expect(fallbackActivated).toBe(true);
-      
+
       const status = client.getRecoveryStatus();
       expect(status?.isRecoveryActive).toBe(true);
       expect(status?.fallbackState.isFallbackActive).toBe(true);
@@ -372,28 +372,28 @@ describe('MCP Recovery Mechanisms', () => {
           },
         },
       });
-      
+
       await client.connect();
-      
+
       let recoverySuccess = false;
       client.on('recoverySuccess', () => {
         recoverySuccess = true;
       });
-      
+
       // Simulate temporary failure
       await client.disconnect();
       mockTransport.setFailConnect(true);
-      
+
       // Start recovery
       const recoveryPromise = client.forceRecovery();
-      
+
       // Allow failure then fix
       await new Promise(resolve => setTimeout(resolve, 200));
       mockTransport.setFailConnect(false);
-      
+
       // Wait for recovery
       await new Promise(resolve => setTimeout(resolve, 300));
-      
+
       expect(recoverySuccess).toBe(true);
       expect(client.isConnected()).toBe(true);
     });

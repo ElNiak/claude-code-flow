@@ -5,6 +5,7 @@ This document describes the complete MCP implementation for Claude-Flow, providi
 ## Overview
 
 The MCP implementation includes:
+
 - **Full Protocol Compliance**: JSON-RPC 2.0 with MCP extensions
 - **Multiple Transports**: stdio, HTTP with WebSocket support
 - **Authentication & Authorization**: Token-based, Basic auth, and OAuth ready
@@ -36,6 +37,7 @@ The MCP implementation includes:
 The central server implementation that orchestrates all MCP functionality.
 
 **Key Features:**
+
 - Protocol version negotiation (2024-11-05)
 - Client capability negotiation
 - Tool registration and management
@@ -44,6 +46,7 @@ The central server implementation that orchestrates all MCP functionality.
 - Health monitoring and metrics
 
 **Usage:**
+
 ```typescript
 import { MCPServer } from './src/mcp/server.ts';
 
@@ -58,6 +61,7 @@ await server.start();
 For command-line integration and process communication.
 
 **Features:**
+
 - JSON-RPC message parsing
 - Line-buffered communication
 - Notification support
@@ -68,6 +72,7 @@ For command-line integration and process communication.
 For remote API access and web integration.
 
 **Features:**
+
 - RESTful JSON-RPC endpoint (`/rpc`)
 - WebSocket support (`/ws`) for real-time notifications
 - CORS handling
@@ -79,6 +84,7 @@ For remote API access and web integration.
 Tracks client connections and manages their lifecycle.
 
 **Features:**
+
 - Session creation and initialization
 - Protocol version validation
 - Session expiration and cleanup
@@ -86,6 +92,7 @@ Tracks client connections and manages their lifecycle.
 - Authentication state management
 
 **Session Lifecycle:**
+
 1. **Create**: New session with transport type
 2. **Initialize**: Protocol handshake and capability negotiation
 3. **Authenticate**: Optional authentication (if enabled)
@@ -97,11 +104,13 @@ Tracks client connections and manages their lifecycle.
 Flexible authentication system supporting multiple methods.
 
 **Supported Methods:**
+
 - **Token**: Bearer token validation
 - **Basic**: Username/password authentication
 - **OAuth**: JWT token validation (extensible)
 
 **Permission System:**
+
 ```typescript
 // Built-in permissions
 const permissions = {
@@ -118,6 +127,7 @@ const permissions = {
 Production-ready request management and protection.
 
 **Features:**
+
 - **Rate Limiting**: Token bucket algorithm per session/global
 - **Circuit Breaker**: Automatic failure detection and recovery
 - **Request Queuing**: Backpressure handling
@@ -128,6 +138,7 @@ Production-ready request management and protection.
 Manages tool registration, validation, and execution.
 
 **Features:**
+
 - JSON Schema validation
 - Namespace-based organization (`namespace/tool`)
 - Input/output validation
@@ -139,6 +150,7 @@ Manages tool registration, validation, and execution.
 Complete set of tools exposing Claude-Flow functionality.
 
 **Tool Categories:**
+
 - **Agent Management**: spawn, list, terminate, info
 - **Task Management**: create, list, status, cancel, assign
 - **Memory Management**: query, store, delete, export, import
@@ -420,6 +432,7 @@ deno run --allow-all scripts/test-mcp.ts --filter server
 ### Test Coverage
 
 The test suite includes:
+
 - **Unit Tests**: Individual component testing
 - **Integration Tests**: End-to-end workflow testing
 - **Performance Tests**: Load and stress testing
@@ -493,18 +506,21 @@ CMD ["deno", "run", "--allow-all", "src/cli/index.ts", "start", "--mcp-transport
 ### Common Issues
 
 **Connection Refused**
+
 ```bash
 # Check if server is running
 curl -f http://localhost:3000/rpc || echo "Server not running"
 ```
 
 **Authentication Errors**
+
 ```bash
 # Verify token
 curl -H "Authorization: Bearer your-token" http://localhost:3000/rpc
 ```
 
 **Rate Limiting**
+
 ```bash
 # Check current limits
 curl http://localhost:3000/rpc -d '{"jsonrpc":"2.0","id":1,"method":"system/metrics"}'

@@ -19,21 +19,27 @@ Interactive demonstrations showing Claude Flow creating various applications thr
 ## Demo Categories
 
 ### Quick Demos (`quick/`)
+
 - **quick-api-demo.sh**: Create a TODO API in under 2 minutes
+
   ```bash
   cd examples/03-demos/quick
   ./quick-api-demo.sh
   ```
 
 ### Interactive Demos (`interactive/`)
+
 - **chat-bot-demo.sh**: Build a customized chat bot with user input
+
   ```bash
   cd examples/03-demos/interactive
   ./chat-bot-demo.sh
   ```
 
 ### Swarm Demos (`swarm/`)
+
 - **multi-agent-demo.sh**: Watch 5 agents build a real-time dashboard
+
   ```bash
   cd examples/03-demos/swarm
   ./multi-agent-demo.sh
@@ -42,25 +48,33 @@ Interactive demonstrations showing Claude Flow creating various applications thr
 ## Original Demos
 
 ### create-swarm-sample.sh
+
 **Creates a note-taking CLI application** (929 lines)
+
 - Full CRUD operations for notes
 - Categories and search functionality
 - Complete test suite
 
 ### demo-swarm-app.sh
+
 **Weather CLI application demo** (407 lines)
+
 - Simulates swarm creating a weather app
 - Shows agent coordination
 - Creates working application
 
 ### rest-api-demo.sh
+
 **REST API creation demo** (342 lines)
+
 - Express.js API with CRUD endpoints
 - Database integration
 - API documentation
 
 ### swarm-showcase.sh
+
 **Task manager application** (407 lines)
+
 - Complete feature showcase
 - Priority management
 - Export/import functionality

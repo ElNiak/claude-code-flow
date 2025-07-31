@@ -177,7 +177,7 @@ To use this optimized SPARC mode, you can:
 ./claude-flow sparc workflow ${mode.slug}-workflow.json --batch-optimize --monitor
 \`\`\`
 
-For detailed ${mode.name} documentation and batchtools integration guides, see: 
+For detailed ${mode.name} documentation and batchtools integration guides, see:
 - Mode Guide: https://github.com/ruvnet/claude-code-flow/docs/sparc-${mode.slug}.md
 - Batchtools Integration: https://github.com/ruvnet/claude-code-flow/docs/batchtools-${mode.slug}.md
 `;

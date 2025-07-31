@@ -16,10 +16,10 @@ export class AnalyzerAgent {
 
   async analyzePerformanceMetrics(metrics: any): Promise<any> {
     console.log(`[${this.agentId}] Starting performance analysis...`);
-    
+
     // Simulate analysis work
     await this.simulateWork(800);
-    
+
     const analysis = {
       avgResponseTime: this.calculateAverage(metrics.response_times || []),
       errorRate: this.calculateErrorRate(metrics.error_counts || {}),
@@ -31,7 +31,7 @@ export class AnalyzerAgent {
         'Scale horizontally during peak hours'
       ]
     };
-    
+
     console.log(`[${this.agentId}] Performance analysis completed`);
     return {
       agentId: this.agentId,
@@ -42,9 +42,9 @@ export class AnalyzerAgent {
 
   async analyzeCodeQuality(path: string): Promise<any> {
     console.log(`[${this.agentId}] Analyzing code quality for: ${path}`);
-    
+
     await this.simulateWork(600);
-    
+
     const qualityMetrics = {
       complexity: Math.floor(Math.random() * 10) + 5,
       maintainability: Math.floor(Math.random() * 30) + 70,
@@ -56,7 +56,7 @@ export class AnalyzerAgent {
         minor: Math.floor(Math.random() * 20)
       }
     };
-    
+
     console.log(`[${this.agentId}] Code quality analysis completed`);
     return {
       agentId: this.agentId,
@@ -68,15 +68,15 @@ export class AnalyzerAgent {
 
   async analyzeSecurityVulnerabilities(): Promise<any> {
     console.log(`[${this.agentId}] Scanning for security vulnerabilities...`);
-    
+
     await this.simulateWork(1000);
-    
+
     const vulnerabilities = [
       { severity: 'high', type: 'SQL Injection', location: 'UserController.ts:45' },
       { severity: 'medium', type: 'Weak Password Policy', location: 'auth/config.ts:12' },
       { severity: 'low', type: 'Missing HTTPS redirect', location: 'server.ts:8' }
     ];
-    
+
     console.log(`[${this.agentId}] Security analysis completed`);
     return {
       agentId: this.agentId,
@@ -110,7 +110,7 @@ if (require.main === module) {
     cpu_usage: [45.2, 52.1, 48.7, 61.3],
     memory_usage: [1024, 1156, 1298, 1402]
   };
-  
+
   Promise.all([
     analyzer.analyzePerformanceMetrics(testMetrics),
     analyzer.analyzeCodeQuality('/src/modules/authentication'),

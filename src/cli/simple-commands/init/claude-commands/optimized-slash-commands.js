@@ -59,7 +59,7 @@ export async function createOptimizedClaudeSlashCommands(workingDir, selectedMod
       // Fallback to template copier if .roomodes doesn't exist
       console.log('  🔄 Using template copier for optimized SPARC commands...');
       const copyResults = await copyTemplates(workingDir, optimizedOptions);
-      
+
       if (!copyResults.success) {
         console.log(`  ⚠️  Template copier failed: ${copyResults.errors.join(', ')}`);
       }

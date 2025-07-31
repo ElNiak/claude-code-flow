@@ -282,40 +282,40 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+
     strategy:
       matrix:
         node-version: [16.x, 18.x, 20.x]
-        
+
     steps:
     - uses: actions/checkout@v3
-    
+
     - name: Use Node.js \${{ matrix.node-version }}
       uses: actions/setup-node@v3
       with:
         node-version: \${{ matrix.node-version }}
         cache: 'npm'
-        
+
     - name: Install dependencies
       run: npm ci
-      
+
     - name: Run tests
       run: npm test
-      
+
     - name: Run linter
       run: npm run lint
-      
+
     - name: Build project
       run: npm run build
-      
+
   security:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    
+
     - name: Run security audit
       run: npm audit --audit-level moderate
-      
+
     - name: Check for vulnerabilities
       run: npm audit --audit-level high
 `,
@@ -331,28 +331,28 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+
     strategy:
       matrix:
         python-version: [3.8, 3.9, 3.10, 3.11]
-        
+
     steps:
     - uses: actions/checkout@v3
-    
+
     - name: Set up Python \${{ matrix.python-version }}
       uses: actions/setup-python@v4
       with:
         python-version: \${{ matrix.python-version }}
-        
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install pytest pytest-cov
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-        
+
     - name: Run tests
       run: pytest --cov=./ --cov-report=xml
-      
+
     - name: Upload coverage
       uses: codecov/codecov-action@v3
       with:
@@ -370,16 +370,16 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v3
-    
+
     - name: Build Docker image
       run: docker build -t app .
-      
+
     - name: Run container tests
       run: docker run --rm app npm test
-      
+
     - name: Security scan
       uses: aquasecurity/trivy-action@master
       with:

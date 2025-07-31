@@ -22,9 +22,7 @@
       "max_cpu_percent": 80,
       "max_network_mbps": 100
     },
-    "output_formats": [
-      "json"
-    ],
+    "output_formats": ["json"],
     "output_directory": "./reports",
     "verbose": true
   },
@@ -58,11 +56,7 @@
       "status": "success",
       "output": {
         "research_findings": "Research completed for: Test research task",
-        "sources": [
-          "academic papers",
-          "documentation",
-          "best practices"
-        ],
+        "sources": ["academic papers", "documentation", "best practices"],
         "methodology": "comprehensive analysis"
       },
       "errors": [],

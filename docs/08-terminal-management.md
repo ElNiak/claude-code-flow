@@ -9,6 +9,7 @@ Claude-Flow's terminal management system provides efficient, pooled terminal ses
 The terminal manager maintains a sophisticated pool of reusable terminal sessions to optimize performance and resource usage.
 
 **Pool Configuration:**
+
 ```bash
 # Configure terminal pool size
 claude-flow config set terminal.poolSize 10
@@ -29,21 +30,22 @@ claude-flow terminal pool stats \
 ```
 
 **Pool Architecture Visualization:**
+
 ```mermaid
 graph TB
     TM[Terminal Manager] --> Pool[Terminal Pool]
     Pool --> Available[Available Terminals]
     Pool --> Active[Active Terminals]
     Pool --> Recycling[Recycling Queue]
-    
+
     Available --> T1[Terminal 1]
     Available --> T2[Terminal 2]
     Available --> T3[Terminal 3]
-    
+
     Active --> A1[Agent Session 1]
     Active --> A2[Agent Session 2]
     Active --> A3[Agent Session 3]
-    
+
     Recycling --> R1[Cleanup Process]
     Recycling --> R2[Health Check]
 ```
@@ -51,6 +53,7 @@ graph TB
 ### Terminal Types and Configuration
 
 **Supported Terminal Types:**
+
 ```bash
 # Auto-detection (recommended)
 claude-flow config set terminal.type auto
@@ -69,6 +72,7 @@ claude-flow config set terminal.type container
 ```
 
 **Advanced Terminal Configuration:**
+
 ```json
 {
   "terminal": {
@@ -110,6 +114,7 @@ claude-flow config set terminal.type container
 ### Creating and Managing Terminal Sessions
 
 **Basic Session Creation:**
+
 ```bash
 # Create new terminal session
 claude-flow terminal create \
@@ -133,6 +138,7 @@ claude-flow terminal create \
 ```
 
 **Advanced Session Configuration:**
+
 ```bash
 # Create session with resource limits
 claude-flow terminal create \
@@ -162,6 +168,7 @@ claude-flow terminal create \
 ### Session Control Operations
 
 **Session Lifecycle Management:**
+
 ```bash
 # List all active sessions
 claude-flow terminal list --detailed
@@ -191,6 +198,7 @@ claude-flow terminal terminate <session-id> \
 ```
 
 **Batch Session Operations:**
+
 ```bash
 # Create multiple sessions
 claude-flow terminal batch-create \
@@ -211,6 +219,7 @@ claude-flow terminal batch-restart \
 ### Session Configuration Files
 
 **session-configs.json:**
+
 ```json
 {
   "sessions": [
@@ -227,7 +236,7 @@ claude-flow terminal batch-restart \
     },
     {
       "name": "frontend-dev",
-      "shell": "bash", 
+      "shell": "bash",
       "workingDirectory": "/project/frontend",
       "environment": {
         "NODE_ENV": "development",
@@ -255,6 +264,7 @@ claude-flow terminal batch-restart \
 ### Basic Command Execution
 
 **Single Command Execution:**
+
 ```bash
 # Execute single command
 claude-flow terminal exec "ls -la" \
@@ -275,6 +285,7 @@ claude-flow terminal exec "npm run build" \
 ```
 
 **Command with Input/Output Handling:**
+
 ```bash
 # Execute command with input file
 claude-flow terminal exec "python script.py" \
@@ -293,6 +304,7 @@ claude-flow terminal exec "docker build ." \
 ### Batch Command Execution
 
 **Sequential Command Execution:**
+
 ```bash
 # Execute commands in sequence
 claude-flow terminal batch-exec \
@@ -309,6 +321,7 @@ claude-flow terminal batch-exec \
 ```
 
 **Parallel Command Execution:**
+
 ```bash
 # Execute commands in parallel
 claude-flow terminal parallel-exec \
@@ -325,6 +338,7 @@ claude-flow terminal multi-session-exec \
 ```
 
 **deployment-commands.txt:**
+
 ```bash
 # Deployment script with variables
 echo "Deploying version ${VERSION} to ${ENV}"
@@ -344,6 +358,7 @@ echo "Deployment complete"
 ### Interactive Command Execution
 
 **Interactive Session Management:**
+
 ```bash
 # Start interactive Python session
 claude-flow terminal exec-interactive "python3" \
@@ -365,6 +380,7 @@ claude-flow terminal shell <session-id> \
 ```
 
 **python-commands.txt:**
+
 ```python
 import pandas as pd
 import numpy as np
@@ -381,6 +397,7 @@ exit()
 ### Multi-Terminal Configuration
 
 **Creating Multi-Terminal Workflows:**
+
 ```bash
 # Create multi-terminal configuration
 claude-flow terminal multi-config create \
@@ -394,6 +411,7 @@ claude-flow terminal multi-launch "fullstack-development" \
 ```
 
 **multi-terminal-config.json:**
+
 ```json
 {
   "name": "fullstack-development",
@@ -524,6 +542,7 @@ claude-flow terminal multi-launch "fullstack-development" \
 ### Terminal Coordination
 
 **Coordinated Operations:**
+
 ```bash
 # Start terminals in dependency order
 claude-flow terminal multi-start "fullstack-development" \
@@ -551,6 +570,7 @@ claude-flow terminal multi-shutdown "fullstack-development" \
 ```
 
 **Dynamic Terminal Management:**
+
 ```bash
 # Add terminal to running configuration
 claude-flow terminal multi-add "fullstack-development" \
@@ -574,6 +594,7 @@ claude-flow terminal multi-scale "fullstack-development" \
 ### Terminal Recording and Playback
 
 **Session Recording:**
+
 ```bash
 # Start recording terminal session
 claude-flow terminal record <session-id> \
@@ -591,6 +612,7 @@ claude-flow terminal record <session-id> \
 ```
 
 **Session Playback:**
+
 ```bash
 # Replay terminal session
 claude-flow terminal replay "session-recording.json" \
@@ -614,6 +636,7 @@ claude-flow terminal export-script "session-recording.json" \
 ### Terminal Sharing and Collaboration
 
 **Session Sharing:**
+
 ```bash
 # Share terminal session with read-only access
 claude-flow terminal share <session-id> \
@@ -638,6 +661,7 @@ claude-flow terminal collaborate \
 ```
 
 **Join Shared Sessions:**
+
 ```bash
 # Join shared session with token
 claude-flow terminal join \
@@ -654,6 +678,7 @@ claude-flow terminal join \
 ### Terminal Automation
 
 **Automated Terminal Workflows:**
+
 ```bash
 # Create automation script
 claude-flow terminal automation create \
@@ -677,6 +702,7 @@ claude-flow terminal conditional-exec \
 ```
 
 **deployment-actions.json:**
+
 ```json
 {
   "automation": {
@@ -736,6 +762,7 @@ claude-flow terminal conditional-exec \
 ### VS Code Integration
 
 **VS Code Terminal Management:**
+
 ```bash
 # Launch VS Code with integrated terminals
 claude-flow terminal vscode-launch \
@@ -756,6 +783,7 @@ claude-flow terminal vscode-layout \
 ```
 
 **vscode-terminals.json:**
+
 ```json
 {
   "vscode_terminals": {
@@ -775,7 +803,7 @@ claude-flow terminal vscode-layout \
       {
         "name": "Frontend Development",
         "shell": "bash",
-        "cwd": "${workspaceFolder}/frontend", 
+        "cwd": "${workspaceFolder}/frontend",
         "env": {
           "NODE_ENV": "development"
         },
@@ -804,6 +832,7 @@ claude-flow terminal vscode-layout \
 ### Docker Integration
 
 **Container-Based Terminals:**
+
 ```bash
 # Create containerized terminal
 claude-flow terminal docker-create \
@@ -830,6 +859,7 @@ claude-flow terminal docker-compose \
 ### SSH Terminal Sessions
 
 **Remote Terminal Management:**
+
 ```bash
 # Create SSH terminal session
 claude-flow terminal ssh-create \
@@ -859,6 +889,7 @@ claude-flow terminal ssh-multi \
 ### Performance Monitoring
 
 **Real-time Terminal Metrics:**
+
 ```bash
 # Monitor terminal performance
 claude-flow terminal monitor \
@@ -885,6 +916,7 @@ claude-flow terminal performance-analysis \
 ### Health Checks and Diagnostics
 
 **Terminal Health Management:**
+
 ```bash
 # Comprehensive health check
 claude-flow terminal health-check \
@@ -908,6 +940,7 @@ claude-flow terminal network-test \
 ### Log Management
 
 **Terminal Logging:**
+
 ```bash
 # View terminal logs
 claude-flow terminal logs <session-id> \
@@ -934,6 +967,7 @@ claude-flow terminal export-history \
 ### Debugging and Troubleshooting
 
 **Terminal Debugging:**
+
 ```bash
 # Debug terminal session
 claude-flow terminal debug <session-id> \

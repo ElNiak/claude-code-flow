@@ -30,12 +30,14 @@ pwd
 ### 1. Permission Denied Errors
 
 #### Symptoms
+
 ```
 Error: EACCES: permission denied, mkdir '.claude'
 Error: EACCES: permission denied, open 'CLAUDE.md'
 ```
 
 #### Causes
+
 - Insufficient directory permissions
 - Running in read-only directory
 - File ownership issues
@@ -43,6 +45,7 @@ Error: EACCES: permission denied, open 'CLAUDE.md'
 #### Solutions
 
 **Solution 1: Fix Directory Permissions**
+
 ```bash
 # Check current permissions
 ls -la
@@ -59,6 +62,7 @@ npx claude-flow@latest init --sparc --force
 ```
 
 **Solution 2: Use Different Directory**
+
 ```bash
 # Create new directory with proper permissions
 mkdir ~/my-project
@@ -69,6 +73,7 @@ npx claude-flow@latest init --sparc --force
 ```
 
 **Solution 3: Run with Sudo (NOT recommended)**
+
 ```bash
 # Only if other solutions fail and you understand the security implications
 sudo npx claude-flow@latest init --sparc --force
@@ -78,12 +83,14 @@ sudo chown -R $USER:$USER .
 ### 2. Network and Package Issues
 
 #### Symptoms
+
 ```
 npm ERR! network request to https://registry.npmjs.org/claude-flow failed
 Error: create-sparc failed, creating basic SPARC structure manually...
 ```
 
 #### Causes
+
 - Network connectivity issues
 - Corporate firewall blocking npm registry
 - Proxy configuration problems
@@ -92,6 +99,7 @@ Error: create-sparc failed, creating basic SPARC structure manually...
 #### Solutions
 
 **Solution 1: Check and Fix Network**
+
 ```bash
 # Test connectivity
 ping registry.npmjs.org
@@ -107,6 +115,7 @@ npm config set https-proxy http://proxy.company.com:8080
 ```
 
 **Solution 2: Clear npm Cache**
+
 ```bash
 # Clear npm cache
 npm cache clean --force
@@ -119,6 +128,7 @@ npx -y claude-flow@latest init --sparc --force
 ```
 
 **Solution 3: Use Alternative Registry**
+
 ```bash
 # Temporarily use different registry
 npm config set registry https://registry.yarnpkg.com/
@@ -134,12 +144,14 @@ npm config set registry https://registry.npmjs.org/
 ### 3. File Conflicts and Overwrites
 
 #### Symptoms
+
 ```
 Warning: The following files already exist: CLAUDE.md, .roomodes
 Use --force to overwrite existing files
 ```
 
 #### Causes
+
 - Previous initialization attempt
 - Existing project configuration
 - Git merge conflicts
@@ -147,6 +159,7 @@ Use --force to overwrite existing files
 #### Solutions
 
 **Solution 1: Safe Backup and Overwrite**
+
 ```bash
 # Create timestamped backup
 mkdir backup-$(date +%Y%m%d-%H%M%S)
@@ -162,6 +175,7 @@ diff backup-*/CLAUDE.md CLAUDE.md || echo "Files are different - review changes"
 ```
 
 **Solution 2: Selective File Handling**
+
 ```bash
 # Remove specific files you want to regenerate
 rm CLAUDE.md .roomodes
@@ -172,6 +186,7 @@ npx claude-flow@latest init --sparc --force
 ```
 
 **Solution 3: Clean Slate Approach**
+
 ```bash
 # For complete fresh start (CAREFUL - backs up everything)
 mkdir ../project-backup-$(date +%Y%m%d)
@@ -189,12 +204,14 @@ npx claude-flow@latest init --sparc --force
 ### 4. Template Generation Errors
 
 #### Symptoms
+
 ```
 Error: Failed to generate template: ReferenceError: createSparcClaudeMd is not defined
 TypeError: Cannot read property 'generateOptimizedTemplate' of undefined
 ```
 
 #### Causes
+
 - Corrupted package installation
 - Version mismatch
 - Missing dependencies
@@ -202,6 +219,7 @@ TypeError: Cannot read property 'generateOptimizedTemplate' of undefined
 #### Solutions
 
 **Solution 1: Force Fresh Installation**
+
 ```bash
 # Uninstall any global installation
 npm uninstall -g claude-flow
@@ -215,6 +233,7 @@ npx -y claude-flow@latest init --sparc --force
 ```
 
 **Solution 2: Check Version Compatibility**
+
 ```bash
 # Check what version is being used
 npx claude-flow@latest --version
@@ -224,6 +243,7 @@ npx claude-flow@$(npm show claude-flow version) init --sparc --force
 ```
 
 **Solution 3: Manual Template Generation**
+
 ```bash
 # If automated generation fails, create basic structure manually
 mkdir -p .claude/commands memory coordination
@@ -271,6 +291,7 @@ echo "✅ Basic structure created manually"
 ### 5. SPARC Mode Loading Issues
 
 #### Symptoms
+
 ```
 Error: SPARC modes not found
 ./claude-flow sparc modes returns empty list
@@ -278,6 +299,7 @@ Command not found: ./claude-flow
 ```
 
 #### Causes
+
 - Incomplete initialization
 - Missing executable wrapper
 - Incorrect working directory
@@ -285,6 +307,7 @@ Command not found: ./claude-flow
 #### Solutions
 
 **Solution 1: Verify Complete Installation**
+
 ```bash
 # Check for required files
 ls -la | grep -E "(CLAUDE.md|\.roomodes|claude-flow)"
@@ -302,6 +325,7 @@ chmod +x ./claude-flow
 ```
 
 **Solution 2: Fix Path and Working Directory**
+
 ```bash
 # Ensure you're in the right directory
 pwd
@@ -315,6 +339,7 @@ cd /path/to/your/project
 ```
 
 **Solution 3: Regenerate SPARC Configuration**
+
 ```bash
 # Remove and regenerate SPARC files
 rm -f .roomodes
@@ -330,6 +355,7 @@ npx claude-flow@latest init --sparc --force
 ### 6. Memory System Initialization Issues
 
 #### Symptoms
+
 ```
 Error: Cannot initialize memory system
 Memory directory not accessible
@@ -337,6 +363,7 @@ Memory directory not accessible
 ```
 
 #### Causes
+
 - Permission issues with memory directory
 - Disk space problems
 - File system limitations
@@ -344,6 +371,7 @@ Memory directory not accessible
 #### Solutions
 
 **Solution 1: Fix Memory Directory Permissions**
+
 ```bash
 # Check memory directory
 ls -la memory/ 2>/dev/null || echo "Memory directory missing"
@@ -365,6 +393,7 @@ echo '{"agents":[],"tasks":[],"lastUpdated":'$(date +%s)'}' > memory/claude-flow
 ```
 
 **Solution 2: Check Disk Space**
+
 ```bash
 # Check available disk space
 df -h .
@@ -381,6 +410,7 @@ npx claude-flow@latest init --sparc --force
 ### 7. Claude Code Integration Issues
 
 #### Symptoms
+
 ```
 Claude Code slash commands not appearing
 /sparc command not found in Claude Code
@@ -388,6 +418,7 @@ Claude Code slash commands not appearing
 ```
 
 #### Causes
+
 - Incomplete slash command generation
 - Claude Code not reading configuration
 - File permission issues
@@ -395,6 +426,7 @@ Claude Code slash commands not appearing
 #### Solutions
 
 **Solution 1: Regenerate Slash Commands**
+
 ```bash
 # Remove and recreate slash commands
 rm -rf .claude/commands/
@@ -411,6 +443,7 @@ ls .claude/commands/ | grep sparc
 ```
 
 **Solution 2: Verify Claude Code Integration**
+
 ```bash
 # Check CLAUDE.md exists and is readable
 cat CLAUDE.md | head -10
@@ -423,6 +456,7 @@ find .claude -type f -name "*.md" | head -5
 ```
 
 **Solution 3: Manual Slash Command Creation**
+
 ```bash
 # Create slash commands directory
 mkdir -p .claude/commands/sparc
@@ -451,6 +485,7 @@ echo "✅ Basic slash commands created"
 ### 8. Performance Issues with Optimized Setup
 
 #### Symptoms
+
 ```
 Slow response times even with --sparc --force
 High token usage despite optimization claims
@@ -458,6 +493,7 @@ AI responses not meeting quality expectations
 ```
 
 #### Causes
+
 - Network latency
 - Suboptimal prompts for specific use case
 - Configuration not fully applied
@@ -465,6 +501,7 @@ AI responses not meeting quality expectations
 #### Solutions
 
 **Solution 1: Verify Optimized Configuration Applied**
+
 ```bash
 # Check if optimized templates were used
 grep -q "optimized" CLAUDE.md && echo "✅ Optimized template" || echo "❌ Standard template"
@@ -479,6 +516,7 @@ fi
 ```
 
 **Solution 2: Monitor Performance**
+
 ```bash
 # Enable performance monitoring
 ./claude-flow config set monitoring.enabled true
@@ -492,6 +530,7 @@ time ./claude-flow sparc "simple hello world function"
 ```
 
 **Solution 3: Optimize for Your Use Case**
+
 ```bash
 # Customize for your project type
 ./claude-flow config set project.type "web-app"  # or "api", "mobile", etc.
@@ -506,6 +545,7 @@ time ./claude-flow sparc "simple hello world function"
 ### Windows Users
 
 #### Common Windows Issues
+
 ```powershell
 # PowerShell execution policy
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
@@ -523,6 +563,7 @@ npx claude-flow %*
 ### macOS Users
 
 #### Common macOS Issues
+
 ```bash
 # Gatekeeper issues
 sudo spctl --master-disable  # Temporarily, not recommended for security
@@ -538,6 +579,7 @@ source ~/.zshrc
 ### Linux Users
 
 #### Common Linux Issues
+
 ```bash
 # SELinux issues (CentOS/RHEL)
 setsebool -P httpd_can_network_connect 1
@@ -611,9 +653,9 @@ if (version[0] < 16) {
 
 ### Community Support
 
-1. **GitHub Issues**: https://github.com/ruvnet/claude-code-flow/issues
-2. **Documentation**: https://github.com/ruvnet/claude-code-flow/docs
-3. **Discussions**: https://github.com/ruvnet/claude-code-flow/discussions
+1. **GitHub Issues**: <https://github.com/ruvnet/claude-code-flow/issues>
+2. **Documentation**: <https://github.com/ruvnet/claude-code-flow/docs>
+3. **Discussions**: <https://github.com/ruvnet/claude-code-flow/discussions>
 
 ### Reporting Bugs
 
@@ -630,7 +672,7 @@ echo "npm Version: $(npm --version)"
 echo "Operating System: $(uname -a)"
 echo "Working Directory: $(pwd)"
 echo "Directory Contents: $(ls -la)"
-echo "Environment Variables:" 
+echo "Environment Variables:"
 env | grep -E "(NODE|NPM|PATH)" | head -10
 ```
 
@@ -649,13 +691,13 @@ if [ "$confirm" = "yes" ]; then
   rm -f CLAUDE.md memory-bank.md coordination.md .roomodes
   rm -rf .claude/ memory/ coordination/
   rm -f claude-flow claude-flow.cmd
-  
+
   # Clear npm cache
   npm cache clean --force
-  
+
   # Fresh start
   npx -y claude-flow@latest init --sparc --force
-  
+
   echo "✅ Emergency recovery complete"
 else
   echo "❌ Emergency recovery cancelled"

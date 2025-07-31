@@ -45,7 +45,7 @@ export interface SteeringContext {
   examples?: string[];
 }
 
-export type WorkflowPhase = 
+export type WorkflowPhase =
   | 'Requirements Clarification'
   | 'Research & Design'
   | 'Implementation Planning'

@@ -31,9 +31,11 @@ The API will start on port 3000 by default, or use the PORT environment variable
 ## API Endpoints
 
 ### Root Endpoint
+
 - **GET /** - Welcome message and endpoint list
 
 ### Items Resource
+
 - **GET /api/items** - Get all items
 - **GET /api/items/:id** - Get a single item by ID
 - **POST /api/items** - Create a new item
@@ -41,21 +43,25 @@ The API will start on port 3000 by default, or use the PORT environment variable
 - **DELETE /api/items/:id** - Delete an item
 
 ### Health Check
+
 - **GET /health** - API health status
 
 ## Example Usage
 
 ### Get all items
+
 ```bash
 curl http://localhost:3000/api/items
 ```
 
 ### Get a single item
+
 ```bash
 curl http://localhost:3000/api/items/1
 ```
 
 ### Create a new item
+
 ```bash
 curl -X POST http://localhost:3000/api/items \
   -H "Content-Type: application/json" \
@@ -63,6 +69,7 @@ curl -X POST http://localhost:3000/api/items \
 ```
 
 ### Update an item
+
 ```bash
 curl -X PUT http://localhost:3000/api/items/1 \
   -H "Content-Type: application/json" \
@@ -70,6 +77,7 @@ curl -X PUT http://localhost:3000/api/items/1 \
 ```
 
 ### Delete an item
+
 ```bash
 curl -X DELETE http://localhost:3000/api/items/1
 ```
@@ -77,6 +85,7 @@ curl -X DELETE http://localhost:3000/api/items/1
 ## Response Format
 
 ### Success Response
+
 ```json
 {
   "id": 1,
@@ -86,6 +95,7 @@ curl -X DELETE http://localhost:3000/api/items/1
 ```
 
 ### Error Response
+
 ```json
 {
   "error": "Item not found"

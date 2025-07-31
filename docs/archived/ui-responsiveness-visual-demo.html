@@ -13,33 +13,33 @@
             color: #c9d1d9;
             line-height: 1.6;
         }
-        
+
         .demo-container {
             max-width: 1200px;
             margin: 0 auto;
         }
-        
+
         .demo-header {
             text-align: center;
             margin-bottom: 40px;
             border-bottom: 2px solid #21262d;
             padding-bottom: 20px;
         }
-        
+
         .viewport-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 20px;
             margin-bottom: 40px;
         }
-        
+
         .viewport-demo {
             border: 2px solid #30363d;
             border-radius: 8px;
             overflow: hidden;
             background: #161b22;
         }
-        
+
         .viewport-header {
             background: #21262d;
             padding: 10px 15px;
@@ -47,7 +47,7 @@
             color: #58a6ff;
             border-bottom: 1px solid #30363d;
         }
-        
+
         .viewport-frame {
             width: 100%;
             height: 300px;
@@ -55,7 +55,7 @@
             background: white;
             transform-origin: top left;
         }
-        
+
         /* Simulated responsive layouts */
         .layout-demo {
             padding: 15px;
@@ -63,7 +63,7 @@
             min-height: 250px;
             position: relative;
         }
-        
+
         .demo-header-bar {
             background: #161b22;
             border: 1px solid #30363d;
@@ -74,7 +74,7 @@
             justify-content: space-between;
             align-items: center;
         }
-        
+
         .demo-title {
             color: #c9d1d9;
             font-size: 14px;
@@ -82,12 +82,12 @@
             align-items: center;
             gap: 8px;
         }
-        
+
         .demo-buttons {
             display: flex;
             gap: 8px;
         }
-        
+
         .demo-button {
             background: transparent;
             border: 1px solid #30363d;
@@ -97,7 +97,7 @@
             font-size: 10px;
             cursor: pointer;
         }
-        
+
         .demo-content {
             background: #0d1117;
             border: 1px solid #30363d;
@@ -108,7 +108,7 @@
             font-size: 11px;
             color: #50fa7b;
         }
-        
+
         .demo-status {
             background: #161b22;
             border: 1px solid #30363d;
@@ -119,7 +119,7 @@
             display: flex;
             justify-content: space-between;
         }
-        
+
         .test-results {
             background: #161b22;
             border: 2px solid #30363d;
@@ -127,17 +127,17 @@
             padding: 20px;
             margin-bottom: 20px;
         }
-        
+
         .test-category {
             margin-bottom: 20px;
         }
-        
+
         .test-category h3 {
             color: #58a6ff;
             margin-bottom: 10px;
             font-size: 18px;
         }
-        
+
         .test-item {
             display: flex;
             justify-content: space-between;
@@ -148,36 +148,36 @@
             border: 1px solid #21262d;
             border-radius: 4px;
         }
-        
+
         .test-name {
             color: #c9d1d9;
         }
-        
+
         .test-status {
             padding: 4px 8px;
             border-radius: 3px;
             font-size: 12px;
             font-weight: bold;
         }
-        
+
         .test-status.pass {
             background: rgba(63, 185, 80, 0.2);
             color: #3fb950;
             border: 1px solid #3fb950;
         }
-        
+
         .test-status.excellent {
             background: rgba(80, 250, 123, 0.2);
             color: #50fa7b;
             border: 1px solid #50fa7b;
         }
-        
+
         .test-status.good {
             background: rgba(88, 166, 255, 0.2);
             color: #58a6ff;
             border: 1px solid #58a6ff;
         }
-        
+
         .breakpoint-info {
             background: #21262d;
             border: 1px solid #30363d;
@@ -185,14 +185,14 @@
             padding: 15px;
             margin-bottom: 20px;
         }
-        
+
         .breakpoint-list {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 10px;
             margin-top: 10px;
         }
-        
+
         .breakpoint-item {
             background: #0d1117;
             border: 1px solid #30363d;
@@ -200,42 +200,42 @@
             border-radius: 4px;
             text-align: center;
         }
-        
+
         .breakpoint-size {
             color: #58a6ff;
             font-weight: bold;
             font-size: 14px;
         }
-        
+
         .breakpoint-desc {
             color: #8b949e;
             font-size: 11px;
             margin-top: 5px;
         }
-        
+
         /* Responsive adjustments for demo itself */
         @media (max-width: 768px) {
             .viewport-grid {
                 grid-template-columns: 1fr;
             }
-            
+
             .demo-buttons {
                 flex-direction: column;
                 gap: 4px;
             }
-            
+
             .demo-button span:not(.icon) {
                 display: none;
             }
         }
-        
+
         @media (max-width: 480px) {
             .demo-header-bar {
                 flex-direction: column;
                 align-items: stretch;
                 gap: 8px;
             }
-            
+
             .demo-status {
                 flex-direction: column;
                 gap: 4px;
@@ -249,7 +249,7 @@
             <h1>🌊 Claude Flow UI Responsiveness Demo</h1>
             <p>Interactive demonstration of responsive design across different viewport sizes</p>
         </div>
-        
+
         <div class="breakpoint-info">
             <h3>📐 Responsive Breakpoints</h3>
             <div class="breakpoint-list">
@@ -283,7 +283,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="viewport-grid">
             <!-- Desktop Layout -->
             <div class="viewport-demo">
@@ -317,7 +317,7 @@ claude-flow> _
                     </div>
                 </div>
             </div>
-            
+
             <!-- Tablet Layout -->
             <div class="viewport-demo">
                 <div class="viewport-header">📱 Tablet (768x1024)</div>
@@ -335,7 +335,7 @@ claude-flow> _
                     </div>
                     <div class="demo-content">
                         🌊 Claude Flow v2.0.0
-                        
+
 STATUS: Online
 ACCESS: Type 'help'
 
@@ -347,7 +347,7 @@ claude-flow> _
                     </div>
                 </div>
             </div>
-            
+
             <!-- Mobile Layout -->
             <div class="viewport-demo">
                 <div class="viewport-header">📱 Mobile (375x667)</div>
@@ -374,10 +374,10 @@ claude-flow> _
                 </div>
             </div>
         </div>
-        
+
         <div class="test-results">
             <h2>🧪 Test Results Summary</h2>
-            
+
             <div class="test-category">
                 <h3>📱 Responsive Design (8/8 passed)</h3>
                 <div class="test-item">
@@ -413,7 +413,7 @@ claude-flow> _
                     <span class="test-status pass">PASS</span>
                 </div>
             </div>
-            
+
             <div class="test-category">
                 <h3>⚡ Performance Testing</h3>
                 <div class="test-item">
@@ -433,7 +433,7 @@ claude-flow> _
                     <span class="test-status excellent">60 FPS</span>
                 </div>
             </div>
-            
+
             <div class="test-category">
                 <h3>🚨 Error Handling</h3>
                 <div class="test-item">
@@ -453,7 +453,7 @@ claude-flow> _
                     <span class="test-status pass">PASS</span>
                 </div>
             </div>
-            
+
             <div class="test-category">
                 <h3>♿ Accessibility</h3>
                 <div class="test-item">
@@ -474,10 +474,10 @@ claude-flow> _
                 </div>
             </div>
         </div>
-        
+
         <div class="test-results">
             <h2>🔍 Key Features Tested</h2>
-            
+
             <div class="test-category">
                 <h3>📐 Responsive Breakpoints</h3>
                 <p>✅ CSS media queries properly target different viewport sizes</p>
@@ -485,7 +485,7 @@ claude-flow> _
                 <p>✅ Touch targets meet iOS guidelines (44px minimum)</p>
                 <p>✅ Font sizes scale appropriately for readability</p>
             </div>
-            
+
             <div class="test-category">
                 <h3>🎨 CSS Layout Systems</h3>
                 <p>✅ 16 Flexbox containers provide flexible layouts</p>
@@ -493,7 +493,7 @@ claude-flow> _
                 <p>✅ Main content area uses flex: 1 for proper height distribution</p>
                 <p>✅ Status bar adapts from horizontal to vertical on mobile</p>
             </div>
-            
+
             <div class="test-category">
                 <h3>📱 Mobile Adaptations</h3>
                 <p>✅ Settings panel becomes full-screen overlay on mobile</p>
@@ -501,7 +501,7 @@ claude-flow> _
                 <p>✅ Console output font size reduces for better fit</p>
                 <p>✅ Status bar hides non-essential items on small screens</p>
             </div>
-            
+
             <div class="test-category">
                 <h3>♿ Accessibility Features</h3>
                 <p>✅ ARIA labels on all interactive elements</p>
@@ -511,12 +511,12 @@ claude-flow> _
                 <p>✅ Reduced motion preference respected in animations</p>
             </div>
         </div>
-        
+
         <div class="test-results">
             <h2>📊 Test Coverage Analysis</h2>
             <p><strong>Overall Pass Rate: 100%</strong> (11/11 tests passed)</p>
             <p>Comprehensive testing covered all major responsive design patterns, performance metrics, error handling scenarios, and accessibility requirements.</p>
-            
+
             <h3>✨ Recommendations</h3>
             <p>• Consider adding service worker for offline functionality</p>
             <p>• All current responsive design implementations are working correctly</p>
@@ -524,13 +524,13 @@ claude-flow> _
             <p>• Accessibility compliance exceeds minimum requirements</p>
         </div>
     </div>
-    
+
     <script>
         // Add some interactivity to demonstrate responsive behavior
         window.addEventListener('resize', () => {
             const width = window.innerWidth;
             let breakpoint = '';
-            
+
             if (width >= 1920) breakpoint = 'Ultra-wide Desktop';
             else if (width >= 1366) breakpoint = 'Desktop';
             else if (width >= 1024) breakpoint = 'Tablet Landscape';
@@ -538,10 +538,10 @@ claude-flow> _
             else if (width >= 640) breakpoint = 'Mobile Landscape';
             else if (width >= 480) breakpoint = 'Mobile Portrait';
             else breakpoint = 'Small Mobile';
-            
+
             console.log(`Current breakpoint: ${breakpoint} (${width}px)`);
         });
-        
+
         // Initial breakpoint detection
         window.dispatchEvent(new Event('resize'));
     </script>

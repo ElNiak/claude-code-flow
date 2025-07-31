@@ -10,7 +10,7 @@ class UserService {
     if (existingUser) {
       throw new Error('User with this email already exists');
     }
-    
+
     const user = new User(userData);
     this.users.set(user.id, user);
     return user.toJSON();

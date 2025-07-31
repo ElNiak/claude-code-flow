@@ -9,6 +9,7 @@
 > **RECOMMENDED**: Use `npx claude-flow@2.0.0` for all operations until local build issues are resolved.
 
 ## 📋 Table of Contents
+
 1. [Quick Start (NPX)](#quick-start-npx)
 2. [Core Commands](#core-commands)
 3. [Agent Management](#agent-management)
@@ -25,6 +26,7 @@
 ## 🚀 Quick Start (NPX)
 
 ### Immediate Usage (Production Ready)
+
 ```bash
 # ✅ These commands work immediately:
 npx claude-flow@2.0.0 --help
@@ -40,6 +42,7 @@ npx claude-flow@2.0.0 swarm "build REST API" --strategy development --parallel
 ```
 
 ### Performance Benchmarks (NPX)
+
 - **Swarm Init**: 5.2ms average ✅
 - **Agent Spawn**: 3.4ms average ✅  
 - **Task Orchestration**: 6ms ✅
@@ -49,6 +52,7 @@ npx claude-flow@2.0.0 swarm "build REST API" --strategy development --parallel
 ## 🎯 Core Commands
 
 ### `init`
+
 Initialize Claude Flow in your project.
 
 ```bash
@@ -56,6 +60,7 @@ claude-flow init [options]
 ```
 
 **Options:**
+
 - `--sparc` - Initialize with SPARC methodology and ruv-swarm integration (recommended)
 - `--minimal` - Minimal setup without extra features
 - `--docker` - Include Docker configuration
@@ -64,6 +69,7 @@ claude-flow init [options]
 - `--ci` - CI/CD friendly initialization (no prompts)
 
 **Examples:**
+
 ```bash
 # Full enterprise setup
 ./claude-flow init --sparc
@@ -76,6 +82,7 @@ claude-flow init [options]
 ```
 
 ### `start`
+
 Start the Claude Flow orchestration system.
 
 ```bash
@@ -83,6 +90,7 @@ claude-flow start [options]
 ```
 
 **Options:**
+
 - `--ui` - Enable web UI (default: true)
 - `--port <number>` - UI port (default: 3000)
 - `--mcp` - Enable MCP server (default: true)
@@ -92,6 +100,7 @@ claude-flow start [options]
 - `--detached` - Run in background
 
 **Examples:**
+
 ```bash
 # Start with UI
 ./claude-flow start --ui
@@ -104,6 +113,7 @@ claude-flow start [options]
 ```
 
 ### `status`
+
 Show system status and health metrics.
 
 ```bash
@@ -111,11 +121,13 @@ claude-flow status [options]
 ```
 
 **Options:**
+
 - `--json` - Output in JSON format
 - `--detailed` - Show detailed metrics
 - `--watch` - Continuous monitoring
 
 **Output:**
+
 ```
 🌊 Claude Flow Status
 ├── Version: 2.0.0
@@ -129,6 +141,7 @@ claude-flow status [options]
 ```
 
 ### `stop`
+
 Stop the Claude Flow system.
 
 ```bash
@@ -136,6 +149,7 @@ claude-flow stop [options]
 ```
 
 **Options:**
+
 - `--force` - Force stop all processes
 - `--cleanup` - Clean up temporary files
 - `--save-state` - Save current state before stopping
@@ -143,6 +157,7 @@ claude-flow stop [options]
 ## 🤖 Agent Management
 
 ### `agent spawn`
+
 Create and spawn new agents.
 
 ```bash
@@ -150,6 +165,7 @@ claude-flow agent spawn <type> [name] [options]
 ```
 
 **Agent Types:**
+
 - `researcher` - Research and information gathering
 - `coder` - Code development and implementation  
 - `analyst` - Analysis and optimization
@@ -159,11 +175,13 @@ claude-flow agent spawn <type> [name] [options]
 - `reviewer` - Code review and validation
 
 **Options:**
+
 - `--capabilities <list>` - Specific capabilities (comma-separated)
 - `--max-tasks <number>` - Maximum concurrent tasks
 - `--priority <level>` - Agent priority (low, medium, high)
 
 **Examples:**
+
 ```bash
 # Spawn a researcher agent
 npx claude-flow@2.0.0 agent spawn researcher "Lead Researcher"
@@ -173,6 +191,7 @@ npx claude-flow@2.0.0 agent spawn coder "API Developer" --capabilities "rest-api
 ```
 
 ### `agent list`
+
 List all active agents.
 
 ```bash
@@ -180,6 +199,7 @@ claude-flow agent list [options]
 ```
 
 **Options:**
+
 - `--type <type>` - Filter by agent type
 - `--status <status>` - Filter by status (active, idle, busy)
 - `--json` - Output in JSON format
@@ -187,6 +207,7 @@ claude-flow agent list [options]
 ## 🐝 Swarm Operations
 
 ### `swarm`
+
 Deploy multi-agent swarms for complex objectives.
 
 ```bash
@@ -194,6 +215,7 @@ claude-flow swarm "<objective>" [options]
 ```
 
 **Options:**
+
 - `--strategy <type>` - Execution strategy:
   - `research` - Research and analysis focus
   - `development` - Code development focus
@@ -214,6 +236,7 @@ claude-flow swarm "<objective>" [options]
 - `--background` - Run in background
 
 **Examples:**
+
 ```bash
 # Basic swarm deployment
 npx claude-flow@2.0.0 swarm "Build a REST API with authentication"
@@ -229,6 +252,7 @@ npx claude-flow@2.0.0 swarm "Optimize database performance" --max-agents 8 --mod
 ```
 
 **Performance Metrics (NPX):**
+
 - Initialization: ~5.2ms
 - Agent Spawning: ~3.4ms per agent
 - Task Assignment: ~6ms
@@ -238,6 +262,7 @@ npx claude-flow@2.0.0 swarm "Optimize database performance" --max-agents 8 --mod
 ## 🚀 SPARC Development
 
 ### `sparc`
+
 SPARC (Specification, Pseudocode, Architecture, Refinement, Completion) development methodology.
 
 ```bash
@@ -245,6 +270,7 @@ claude-flow sparc [mode] [objective]
 ```
 
 **Available Modes (17 total):**
+
 - `architect` - System architecture and design
 - `code` - Code generation and implementation
 - `tdd` - Test-driven development workflow
@@ -264,11 +290,13 @@ claude-flow sparc [mode] [objective]
 - `iot` - IoT system development
 
 **Actions:**
+
 - `modes` - List all available modes
 - `info <mode>` - Show detailed mode information
 - `run <mode>` - Execute specific mode
 
 **Examples:**
+
 ```bash
 # Auto-mode selection
 npx claude-flow@2.0.0 sparc "design authentication system"
@@ -288,6 +316,7 @@ npx claude-flow@2.0.0 sparc info security
 ## 💾 Memory Operations
 
 ### `memory store`
+
 Store data in the shared memory system.
 
 ```bash
@@ -295,11 +324,13 @@ claude-flow memory store <key> <value> [options]
 ```
 
 **Options:**
+
 - `--partition <name>` - Memory partition (default: 'default')
 - `--ttl <seconds>` - Time to live
 - `--metadata <json>` - Additional metadata
 
 ### `memory get`
+
 Retrieve data from shared memory.
 
 ```bash
@@ -307,10 +338,12 @@ claude-flow memory get <key> [options]
 ```
 
 **Options:**
+
 - `--partition <name>` - Memory partition
 - `--json` - Output in JSON format
 
 ### `memory search`
+
 Search memory entries.
 
 ```bash
@@ -318,6 +351,7 @@ claude-flow memory search <query> [options]
 ```
 
 **Options:**
+
 - `--partition <name>` - Search specific partition
 - `--limit <number>` - Maximum results
 - `--type <type>` - Filter by data type
@@ -325,6 +359,7 @@ claude-flow memory search <query> [options]
 ## 📋 Task Management
 
 ### `task create`
+
 Create new tasks.
 
 ```bash
@@ -332,12 +367,14 @@ claude-flow task create "<description>" [options]
 ```
 
 **Options:**
+
 - `--priority <level>` - Task priority (low, medium, high, critical)
 - `--assign <agent>` - Assign to specific agent
 - `--dependencies <list>` - Task dependencies
 - `--deadline <date>` - Task deadline
 
 ### `task list`
+
 List all tasks.
 
 ```bash
@@ -345,6 +382,7 @@ claude-flow task list [options]
 ```
 
 **Options:**
+
 - `--status <status>` - Filter by status (pending, in_progress, completed, failed)
 - `--agent <agent>` - Filter by assigned agent
 - `--priority <level>` - Filter by priority
@@ -352,6 +390,7 @@ claude-flow task list [options]
 ## 🔌 MCP Integration
 
 ### `mcp start`
+
 Start MCP (Model Context Protocol) server.
 
 ```bash
@@ -359,11 +398,13 @@ claude-flow mcp start [options]
 ```
 
 **Options:**
+
 - `--port <number>` - MCP server port (default: 3001)
 - `--tools <list>` - Enable specific tools
 - `--auth` - Enable authentication
 
 ### `mcp tools`
+
 List available MCP tools.
 
 ```bash
@@ -371,6 +412,7 @@ claude-flow mcp tools [options]
 ```
 
 **Available Tools (27 total):**
+
 - `swarm_init` - Initialize swarm coordination
 - `agent_spawn` - Spawn specialized agents
 - `task_orchestrate` - Task orchestration
@@ -381,6 +423,7 @@ claude-flow mcp tools [options]
 ## 🐙 GitHub Integration
 
 ### `github`
+
 GitHub workflow automation.
 
 ```bash
@@ -388,6 +431,7 @@ claude-flow github <mode> [options]
 ```
 
 **Available Modes (6 total):**
+
 - `pr-manager` - Pull request management
 - `issue-tracker` - Issue tracking and management
 - `release-manager` - Release coordination
@@ -396,6 +440,7 @@ claude-flow github <mode> [options]
 - `sync-coordinator` - Cross-repository synchronization
 
 **Examples:**
+
 ```bash
 # PR management with multi-reviewer coordination
 npx claude-flow@2.0.0 github pr-manager "coordinate feature review"
@@ -410,6 +455,7 @@ npx claude-flow@2.0.0 github release-manager "prepare v2.1.0 release"
 ## 📊 Monitoring & Analytics
 
 ### `monitor`
+
 Real-time system monitoring.
 
 ```bash
@@ -417,12 +463,14 @@ claude-flow monitor [options]
 ```
 
 **Options:**
+
 - `--realtime` - Live updates
 - `--metrics` - Show performance metrics
 - `--agents` - Monitor agent activity
 - `--tasks` - Monitor task progress
 
 ### `status`
+
 System status overview.
 
 ```bash
@@ -430,6 +478,7 @@ claude-flow status [options]
 ```
 
 **Status Components:**
+
 - ✅ **Orchestrator**: Main coordination system
 - ✅ **MCP Server**: Model Context Protocol server
 - ✅ **Memory Bank**: Shared memory system
@@ -441,6 +490,7 @@ claude-flow status [options]
 ### 🔧 Local Build Issues
 
 **Problem**: TypeScript compilation errors (269+ errors)
+
 ```bash
 npm run build
 # Error: Cannot find module '../utils/error-handler.js'
@@ -449,6 +499,7 @@ npm run build
 **Root Cause**: Import/export resolution issues in hybrid Deno/Node.js codebase
 
 **Workaround**: Use NPX version for all operations
+
 ```bash
 # Instead of local build, use:
 npx claude-flow@2.0.0 <command>
@@ -457,6 +508,7 @@ npx claude-flow@2.0.0 <command>
 ### 🧪 Test Suite Issues
 
 **Problem**: Jest module resolution failures
+
 ```bash
 npm test
 # Error: Could not locate module ../utils/error-handler.js
@@ -469,6 +521,7 @@ npm test
 ### 🐝 Swarm LoadBalancer Error
 
 **Problem**: LoadBalancer not defined error in some swarm operations
+
 ```bash
 npx claude-flow swarm "test" --max-agents 2
 # Error: LoadBalancer is not defined
@@ -477,6 +530,7 @@ npx claude-flow swarm "test" --max-agents 2
 **Status**: Fixed in recent updates to swarm-new.js
 
 **Solution**: Use latest NPX version:
+
 ```bash
 npx claude-flow@2.0.0 swarm "your objective"
 ```
@@ -499,19 +553,21 @@ npx claude-flow@2.0.0 init --sparc
 
 ### 📞 Support Resources
 
-- **GitHub Issues**: https://github.com/ruvnet/claude-code-flow/issues
-- **Documentation**: https://github.com/ruvnet/claude-code-flow#readme
-- **ruv-swarm Integration**: https://github.com/ruvnet/ruv-FANN/tree/main/ruv-swarm
+- **GitHub Issues**: <https://github.com/ruvnet/claude-code-flow/issues>
+- **Documentation**: <https://github.com/ruvnet/claude-code-flow#readme>
+- **ruv-swarm Integration**: <https://github.com/ruvnet/ruv-FANN/tree/main/ruv-swarm>
 
 ### 🔄 Update Recommendations
 
 **For Immediate Use**:
+
 - ✅ Use `npx claude-flow@2.0.0` for all operations
 - ✅ All swarm intelligence features fully functional
 - ✅ Neural networks and memory persistence working
 - ✅ GitHub integration operational
 
 **For Development**:
+
 - ⚠️ Local build issues being resolved
 - ⚠️ Test suite improvements in progress
 - ⚠️ TypeScript errors being addressed
@@ -522,6 +578,7 @@ npx claude-flow@2.0.0 init --sparc
 *Version: 2.0.0*  
 *Status: NPX Production Ready | Local Build In Progress*
 claude-flow stop [options]
+
 ```
 
 **Options:**
@@ -536,6 +593,7 @@ claude-flow config <action> [key] [value]
 ```
 
 **Actions:**
+
 - `get <key>` - Get configuration value
 - `set <key> <value>` - Set configuration value
 - `list` - List all settings
@@ -543,6 +601,7 @@ claude-flow config <action> [key] [value]
 - `migrate` - Migrate old configuration
 
 **Examples:**
+
 ```bash
 # Set UI port
 ./claude-flow config set ui.port 8080
@@ -557,6 +616,7 @@ claude-flow config <action> [key] [value]
 ## 🤖 Agent Management
 
 ### `agent spawn`
+
 Create a new AI agent.
 
 ```bash
@@ -564,6 +624,7 @@ claude-flow agent spawn <type> [options]
 ```
 
 **Agent Types:**
+
 - `researcher` - Information gathering and analysis
 - `coder` - Code generation and implementation
 - `analyst` - Data analysis and insights
@@ -574,6 +635,7 @@ claude-flow agent spawn <type> [options]
 - `documenter` - Documentation
 
 **Options:**
+
 - `--name <string>` - Agent name
 - `--model <string>` - AI model to use
 - `--temperature <number>` - Creativity level (0-1)
@@ -583,6 +645,7 @@ claude-flow agent spawn <type> [options]
 - `--parent <id>` - Parent agent for hierarchy
 
 **Examples:**
+
 ```bash
 # Spawn researcher
 ./claude-flow agent spawn researcher --name "DataBot"
@@ -599,6 +662,7 @@ claude-flow agent spawn <type> [options]
 ```
 
 ### `agent list`
+
 List all active agents.
 
 ```bash
@@ -606,11 +670,13 @@ claude-flow agent list [options]
 ```
 
 **Options:**
+
 - `--format <table|json|tree>` - Output format
 - `--filter <string>` - Filter by type or status
 - `--sort <field>` - Sort by field
 
 **Output:**
+
 ```
 🤖 Active Agents (5)
 ├── coordinator-a1b2 [Coordinator] - Idle
@@ -621,6 +687,7 @@ claude-flow agent list [options]
 ```
 
 ### `agent info`
+
 Get detailed agent information.
 
 ```bash
@@ -628,6 +695,7 @@ claude-flow agent info <agent-id>
 ```
 
 ### `agent terminate`
+
 Terminate an agent.
 
 ```bash
@@ -635,10 +703,12 @@ claude-flow agent terminate <agent-id> [options]
 ```
 
 **Options:**
+
 - `--force` - Force termination
 - `--cascade` - Terminate child agents
 
 ### `agent assign`
+
 Assign task to agent.
 
 ```bash
@@ -646,6 +716,7 @@ claude-flow agent assign <agent-id> <task> [options]
 ```
 
 **Options:**
+
 - `--priority <high|medium|low>` - Task priority
 - `--deadline <time>` - Task deadline
 - `--dependencies <ids>` - Task dependencies
@@ -653,6 +724,7 @@ claude-flow agent assign <agent-id> <task> [options]
 ## 🐝 Swarm Operations
 
 ### `swarm init`
+
 Initialize a swarm with topology.
 
 ```bash
@@ -660,6 +732,7 @@ claude-flow swarm init [options]
 ```
 
 **Options:**
+
 - `--topology <type>` - Swarm topology
   - `hierarchical` - Tree structure (default)
   - `mesh` - Fully connected
@@ -672,6 +745,7 @@ claude-flow swarm init [options]
   - `adaptive` - Dynamic adjustment
 
 **Examples:**
+
 ```bash
 # Hierarchical swarm
 ./claude-flow swarm init --topology hierarchical --max-agents 10
@@ -681,6 +755,7 @@ claude-flow swarm init [options]
 ```
 
 ### `swarm`
+
 Execute task with swarm coordination.
 
 ```bash
@@ -688,6 +763,7 @@ claude-flow swarm <task> [options]
 ```
 
 **Options:**
+
 - `--strategy <type>` - Execution strategy
   - `development` - Full development cycle
   - `analysis` - Deep analysis
@@ -700,6 +776,7 @@ claude-flow swarm <task> [options]
 - `--timeout <minutes>` - Task timeout
 
 **Examples:**
+
 ```bash
 # Development task
 ./claude-flow swarm "Build REST API with authentication" \
@@ -714,6 +791,7 @@ claude-flow swarm <task> [options]
 ```
 
 ### `swarm status`
+
 Get swarm status and metrics.
 
 ```bash
@@ -721,10 +799,12 @@ claude-flow swarm status [options]
 ```
 
 **Options:**
+
 - `--detailed` - Show agent details
 - `--metrics` - Include performance metrics
 
 ### `swarm monitor`
+
 Real-time swarm monitoring.
 
 ```bash
@@ -732,12 +812,14 @@ claude-flow swarm monitor [options]
 ```
 
 **Options:**
+
 - `--dashboard` - Web dashboard
 - `--metrics <list>` - Specific metrics to track
 
 ## 🎯 SPARC Development
 
 ### `sparc run`
+
 Execute SPARC development mode.
 
 ```bash
@@ -745,6 +827,7 @@ claude-flow sparc run <mode> <prompt> [options]
 ```
 
 **Modes:**
+
 - `spec` - Specification writing
 - `pseudocode` - Pseudocode design
 - `architect` - System architecture
@@ -768,12 +851,14 @@ claude-flow sparc run <mode> <prompt> [options]
 - `devops` - DevOps automation
 
 **Options:**
+
 - `--context <file>` - Context file
 - `--output <file>` - Output file
 - `--chain <modes>` - Chain multiple modes
 - `--interactive` - Interactive mode
 
 **Examples:**
+
 ```bash
 # Architecture design
 ./claude-flow sparc run architect "design microservices for e-commerce"
@@ -786,6 +871,7 @@ claude-flow sparc run <mode> <prompt> [options]
 ```
 
 ### `sparc template`
+
 Manage SPARC templates.
 
 ```bash
@@ -793,6 +879,7 @@ claude-flow sparc template <action> [name]
 ```
 
 **Actions:**
+
 - `list` - List available templates
 - `create` - Create new template
 - `edit` - Edit template
@@ -802,6 +889,7 @@ claude-flow sparc template <action> [name]
 ## 🧠 Memory Operations
 
 ### `memory store`
+
 Store information in memory bank.
 
 ```bash
@@ -809,6 +897,7 @@ claude-flow memory store <key> <value> [options]
 ```
 
 **Options:**
+
 - `--type <type>` - Data type (text, json, file)
 - `--tags <list>` - Tags for categorization
 - `--ttl <seconds>` - Time to live
@@ -816,6 +905,7 @@ claude-flow memory store <key> <value> [options]
 - `--encrypt` - Encrypt sensitive data
 
 **Examples:**
+
 ```bash
 # Store text
 ./claude-flow memory store api-design "RESTful endpoints for user management"
@@ -829,6 +919,7 @@ claude-flow memory store <key> <value> [options]
 ```
 
 ### `memory query`
+
 Search memory bank.
 
 ```bash
@@ -836,12 +927,14 @@ claude-flow memory query <pattern> [options]
 ```
 
 **Options:**
+
 - `--type <type>` - Filter by type
 - `--tags <list>` - Filter by tags
 - `--limit <number>` - Result limit
 - `--format <format>` - Output format
 
 **Examples:**
+
 ```bash
 # Query by pattern
 ./claude-flow memory query "auth"
@@ -851,6 +944,7 @@ claude-flow memory query <pattern> [options]
 ```
 
 ### `memory delete`
+
 Delete memory entries.
 
 ```bash
@@ -858,10 +952,12 @@ claude-flow memory delete <key> [options]
 ```
 
 **Options:**
+
 - `--pattern` - Delete by pattern
 - `--confirm` - Skip confirmation
 
 ### `memory export`
+
 Export memory bank.
 
 ```bash
@@ -869,10 +965,12 @@ claude-flow memory export <file> [options]
 ```
 
 **Options:**
+
 - `--format <json|csv|sql>` - Export format
 - `--filter <pattern>` - Filter entries
 
 ### `memory import`
+
 Import memory data.
 
 ```bash
@@ -880,12 +978,14 @@ claude-flow memory import <file> [options]
 ```
 
 **Options:**
+
 - `--merge` - Merge with existing
 - `--overwrite` - Overwrite existing
 
 ## 📋 Task Management
 
 ### `task create`
+
 Create a new task.
 
 ```bash
@@ -893,6 +993,7 @@ claude-flow task create <type> <description> [options]
 ```
 
 **Task Types:**
+
 - `development` - Development task
 - `research` - Research task
 - `analysis` - Analysis task
@@ -901,6 +1002,7 @@ claude-flow task create <type> <description> [options]
 - `deployment` - Deployment task
 
 **Options:**
+
 - `--priority <level>` - Priority level
 - `--assign <agent>` - Assign to agent
 - `--dependencies <ids>` - Task dependencies
@@ -908,6 +1010,7 @@ claude-flow task create <type> <description> [options]
 - `--tags <list>` - Task tags
 
 **Examples:**
+
 ```bash
 # Create development task
 ./claude-flow task create development "Implement user authentication" \
@@ -920,6 +1023,7 @@ claude-flow task create <type> <description> [options]
 ```
 
 ### `task list`
+
 List tasks.
 
 ```bash
@@ -927,11 +1031,13 @@ claude-flow task list [options]
 ```
 
 **Options:**
+
 - `--status <status>` - Filter by status
 - `--assigned <agent>` - Filter by assignment
 - `--sort <field>` - Sort order
 
 ### `task update`
+
 Update task status.
 
 ```bash
@@ -939,11 +1045,13 @@ claude-flow task update <task-id> [options]
 ```
 
 **Options:**
+
 - `--status <status>` - New status
 - `--progress <percent>` - Progress update
 - `--notes <text>` - Add notes
 
 ### `task workflow`
+
 Execute task workflow.
 
 ```bash
@@ -951,12 +1059,14 @@ claude-flow task workflow <workflow-file> [options]
 ```
 
 **Options:**
+
 - `--parallel` - Parallel execution
 - `--dry-run` - Simulation mode
 
 ## 🔌 MCP Integration
 
 ### `mcp status`
+
 Check MCP server status.
 
 ```bash
@@ -964,10 +1074,12 @@ claude-flow mcp status [options]
 ```
 
 **Options:**
+
 - `--detailed` - Detailed information
 - `--tools` - List available tools
 
 ### `mcp tools`
+
 List available MCP tools.
 
 ```bash
@@ -975,10 +1087,12 @@ claude-flow mcp tools [options]
 ```
 
 **Options:**
+
 - `--category <cat>` - Filter by category
 - `--search <term>` - Search tools
 
 **Output:**
+
 ```
 🔧 Available MCP Tools (27)
 ├── Swarm Coordination (8)
@@ -997,6 +1111,7 @@ claude-flow mcp tools [options]
 ```
 
 ### `mcp call`
+
 Call MCP tool directly.
 
 ```bash
@@ -1004,6 +1119,7 @@ claude-flow mcp call <tool> [params] [options]
 ```
 
 **Examples:**
+
 ```bash
 # Initialize swarm
 ./claude-flow mcp call swarm_init \
@@ -1017,6 +1133,7 @@ claude-flow mcp call <tool> [params] [options]
 ## 🐙 GitHub Integration
 
 ### `github pr-manager`
+
 Manage pull requests with swarm intelligence.
 
 ```bash
@@ -1024,6 +1141,7 @@ claude-flow github pr-manager <description> [options]
 ```
 
 **Options:**
+
 - `--branch <name>` - Target branch
 - `--reviewers <list>` - Assign reviewers
 - `--labels <list>` - PR labels
@@ -1032,6 +1150,7 @@ claude-flow github pr-manager <description> [options]
 - `--update-docs` - Update documentation
 
 ### `github issue-solver`
+
 Analyze and solve GitHub issues.
 
 ```bash
@@ -1039,11 +1158,13 @@ claude-flow github issue-solver <issue> [options]
 ```
 
 **Options:**
+
 - `--deep-analysis` - Root cause analysis
 - `--auto-fix` - Generate fix
 - `--create-pr` - Create fix PR
 
 ### `github release-coordinator`
+
 Coordinate releases.
 
 ```bash
@@ -1051,12 +1172,14 @@ claude-flow github release-coordinator <version> [options]
 ```
 
 **Options:**
+
 - `--generate-changelog` - Auto changelog
 - `--run-tests` - Run test suite
 - `--publish-npm` - Publish to NPM
 - `--create-docker` - Build Docker image
 
 ### `github sync-packages`
+
 Synchronize packages across repositories.
 
 ```bash
@@ -1064,11 +1187,13 @@ claude-flow github sync-packages [options]
 ```
 
 **Options:**
+
 - `--repos <list>` - Target repositories
 - `--package <spec>` - Package specification
 - `--config <file>` - Sync configuration
 
 ### `github repo-architect`
+
 Optimize repository structure.
 
 ```bash
@@ -1076,6 +1201,7 @@ claude-flow github repo-architect [action] [options]
 ```
 
 **Options:**
+
 - `--template <type>` - Apply template
 - `--analyze` - Analyze structure
 - `--apply-standards` - Apply best practices
@@ -1083,6 +1209,7 @@ claude-flow github repo-architect [action] [options]
 ## 🏢 Enterprise Features
 
 ### `project`
+
 Project lifecycle management.
 
 ```bash
@@ -1090,6 +1217,7 @@ claude-flow project <action> [name] [options]
 ```
 
 **Actions:**
+
 - `create` - Create new project
 - `list` - List projects
 - `info` - Project information
@@ -1097,11 +1225,13 @@ claude-flow project <action> [name] [options]
 - `template` - Manage templates
 
 **Options:**
+
 - `--type <type>` - Project type
 - `--template <name>` - Use template
 - `--team <members>` - Assign team
 
 ### `deploy`
+
 Deployment automation.
 
 ```bash
@@ -1109,12 +1239,14 @@ claude-flow deploy <action> [target] [options]
 ```
 
 **Actions:**
+
 - `create` - Create deployment
 - `rollback` - Rollback deployment
 - `status` - Deployment status
 - `history` - Deployment history
 
 **Options:**
+
 - `--strategy <type>` - Deployment strategy
   - `blue-green` - Blue-green deployment
   - `canary` - Canary release
@@ -1122,6 +1254,7 @@ claude-flow deploy <action> [target] [options]
 - `--environment <env>` - Target environment
 
 ### `cloud`
+
 Multi-cloud resource management.
 
 ```bash
@@ -1129,16 +1262,19 @@ claude-flow cloud <action> [resource] [options]
 ```
 
 **Actions:**
+
 - `resources` - Manage resources
 - `costs` - Cost analysis
 - `optimize` - Optimization suggestions
 - `migrate` - Cloud migration
 
 **Options:**
+
 - `--provider <name>` - Cloud provider
 - `--region <region>` - Target region
 
 ### `security`
+
 Security management.
 
 ```bash
@@ -1146,16 +1282,19 @@ claude-flow security <action> [target] [options]
 ```
 
 **Actions:**
+
 - `scan` - Security scanning
 - `audit` - Security audit
 - `report` - Generate reports
 - `fix` - Auto-fix issues
 
 **Options:**
+
 - `--type <type>` - Scan type
 - `--severity <level>` - Severity filter
 
 ### `analytics`
+
 Performance analytics.
 
 ```bash
@@ -1163,18 +1302,21 @@ claude-flow analytics <action> [options]
 ```
 
 **Actions:**
+
 - `insights` - Generate insights
 - `report` - Create reports
 - `export` - Export data
 - `dashboard` - View dashboard
 
 **Options:**
+
 - `--timerange <range>` - Time range
 - `--metrics <list>` - Specific metrics
 
 ## 📊 Monitoring & Analytics
 
 ### `monitor`
+
 Real-time system monitoring.
 
 ```bash
@@ -1182,12 +1324,14 @@ claude-flow monitor [options]
 ```
 
 **Options:**
+
 - `--dashboard` - Web dashboard
 - `--metrics <list>` - Metrics to track
 - `--alerts` - Enable alerting
 - `--export` - Export metrics
 
 ### `logs`
+
 View system logs.
 
 ```bash
@@ -1195,12 +1339,14 @@ claude-flow logs [component] [options]
 ```
 
 **Options:**
+
 - `--follow` - Follow log output
 - `--since <time>` - Time filter
 - `--level <level>` - Log level filter
 - `--grep <pattern>` - Search pattern
 
 ### `benchmark`
+
 Run performance benchmarks.
 
 ```bash
@@ -1208,11 +1354,13 @@ claude-flow benchmark [test] [options]
 ```
 
 **Options:**
+
 - `--iterations <n>` - Test iterations
 - `--compare <baseline>` - Compare results
 - `--export` - Export results
 
 ### `diagnose`
+
 System diagnostics.
 
 ```bash
@@ -1220,6 +1368,7 @@ claude-flow diagnose [options]
 ```
 
 **Options:**
+
 - `--full` - Full diagnostic
 - `--component <name>` - Specific component
 - `--report` - Generate report
@@ -1249,6 +1398,7 @@ Available for all commands:
 ## 📚 Examples
 
 ### Complete Development Workflow
+
 ```bash
 # 1. Initialize project
 ./claude-flow init --sparc

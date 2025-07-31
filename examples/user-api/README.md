@@ -3,6 +3,7 @@
 This REST API was created by the Claude Flow Swarm system.
 
 ## Swarm Details
+
 - Swarm ID: swarm_aipkebfuq_nexjqmitd
 - Generated: 2025-06-14T23:27:00.976Z
 
@@ -15,16 +16,19 @@ npm install
 ## Usage
 
 Start the server:
+
 ```bash
 npm start
 ```
 
 Development mode:
+
 ```bash
 npm run dev
 ```
 
 Run tests:
+
 ```bash
 npm test
 ```

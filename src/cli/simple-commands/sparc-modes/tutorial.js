@@ -239,7 +239,7 @@ Each phase has exit criteria:
 
 ## Tutorial Completion
 
-Congratulations! You've learned SPARC by building "${taskDescription}". 
+Congratulations! You've learned SPARC by building "${taskDescription}".
 
 ### Review your journey:
 \`\`\`bash

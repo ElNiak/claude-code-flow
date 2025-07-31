@@ -5,6 +5,7 @@ This REST API now includes a complete product and order management system with a
 ## Features
 
 ### Product Management
+
 - **Full CRUD operations** for products with validation
 - **Advanced search** with text search, filters, and facets
 - **Category management** with subcategories
@@ -17,6 +18,7 @@ This REST API now includes a complete product and order management system with a
 - **Product analytics** and reporting
 
 ### Order Management
+
 - **Complete order lifecycle** from creation to delivery
 - **Order status tracking** with history
 - **Payment processing** integration ready
@@ -30,6 +32,7 @@ This REST API now includes a complete product and order management system with a
 ## Models
 
 ### Product Model (`src/models/product.model.js`)
+
 ```javascript
 {
   name: String,
@@ -74,6 +77,7 @@ This REST API now includes a complete product and order management system with a
 ```
 
 ### Order Model (`src/models/order.model.js`)
+
 ```javascript
 {
   orderNumber: String,
@@ -107,6 +111,7 @@ This REST API now includes a complete product and order management system with a
 ## API Endpoints
 
 ### Product Endpoints
+
 - `GET /api/products` - Search and list products with filters
 - `GET /api/products/:id` - Get product details
 - `POST /api/products` - Create new product (admin)
@@ -120,6 +125,7 @@ This REST API now includes a complete product and order management system with a
 - `GET /api/products/inventory/report` - Get inventory report (admin)
 
 ### Order Endpoints
+
 - `GET /api/orders` - Get user orders
 - `GET /api/orders/:id` - Get order details
 - `POST /api/orders` - Create new order
@@ -149,11 +155,13 @@ npm run seed:orders
 ## Usage Examples
 
 ### Search Products
+
 ```bash
 GET /api/products?q=wireless&category=Electronics&minPrice=50&maxPrice=200&sort=-rating
 ```
 
 ### Create Order
+
 ```bash
 POST /api/orders
 {
@@ -178,6 +186,7 @@ POST /api/orders
 ```
 
 ### Add Product Review
+
 ```bash
 POST /api/products/:id/reviews
 {
@@ -188,6 +197,7 @@ POST /api/products/:id/reviews
 ```
 
 ### Update Inventory
+
 ```bash
 PUT /api/products/:id/inventory
 {
@@ -199,6 +209,7 @@ PUT /api/products/:id/inventory
 ## Services
 
 ### ProductService (`src/services/product.service.js`)
+
 - Product caching with Redis
 - Bulk availability checking
 - Dynamic pricing calculations
@@ -207,6 +218,7 @@ PUT /api/products/:id/inventory
 - Analytics and reporting
 
 ### OrderService (`src/services/order.service.js`)
+
 - Order total calculations
 - Discount validation
 - Inventory reservation
@@ -218,6 +230,7 @@ PUT /api/products/:id/inventory
 ## Validators
 
 All endpoints include comprehensive validation:
+
 - Product creation/update validation
 - Order validation with address verification
 - Review validation with rating limits
@@ -270,12 +283,14 @@ All endpoints include comprehensive validation:
 ## Testing
 
 The system includes comprehensive test coverage:
+
 - Unit tests for models and services
 - Integration tests for API endpoints
 - Validation tests
 - Business logic tests
 
 Run tests with:
+
 ```bash
 npm test
 ```
@@ -283,6 +298,7 @@ npm test
 ## Environment Variables
 
 Add these to your `.env` file:
+
 ```env
 # Redis (for caching)
 REDIS_URL=redis://localhost:6379

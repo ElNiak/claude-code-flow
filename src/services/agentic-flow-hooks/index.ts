@@ -1,6 +1,6 @@
 /**
  * Agentic Flow Hook System
- * 
+ *
  * Main entry point for the hook system integration with agentic-flow.
  * Provides initialization, registration, and management of all hook types.
  */
@@ -32,30 +32,30 @@ const logger = new Logger({
  */
 export async function initializeAgenticFlowHooks(): Promise<void> {
   logger.info('Initializing agentic-flow hook system...');
-  
+
   try {
     // Register all hook types
     registerLLMHooks();
     logger.debug('LLM hooks registered');
-    
+
     registerMemoryHooks();
     logger.debug('Memory hooks registered');
-    
+
     registerNeuralHooks();
     logger.debug('Neural hooks registered');
-    
+
     registerPerformanceHooks();
     logger.debug('Performance hooks registered');
-    
+
     registerWorkflowHooks();
     logger.debug('Workflow hooks registered');
-    
+
     // Set up default pipelines
     await setupDefaultPipelines();
-    
+
     // Initialize metrics collection
     startMetricsCollection();
-    
+
     logger.info('Agentic-flow hook system initialized successfully');
   } catch (error) {
     logger.error('Failed to initialize agentic-flow hooks:', error);
@@ -90,7 +90,7 @@ async function setupDefaultPipelines(): Promise<void> {
     ],
     errorStrategy: 'continue',
   });
-  
+
   // Memory Operation Pipeline
   agenticHookManager.createPipeline({
     id: 'memory-operation-pipeline',
@@ -115,7 +115,7 @@ async function setupDefaultPipelines(): Promise<void> {
     ],
     errorStrategy: 'rollback',
   });
-  
+
   // Workflow Execution Pipeline
   agenticHookManager.createPipeline({
     id: 'workflow-execution-pipeline',
@@ -151,7 +151,7 @@ function startMetricsCollection(): void {
   // Collect metrics every 30 seconds
   setInterval(() => {
     const metrics = agenticHookManager.getMetrics();
-    
+
     // Log high-level metrics
     logger.debug('Hook system metrics:', {
       totalHooks: metrics['hooks.count'],
@@ -159,7 +159,7 @@ function startMetricsCollection(): void {
       errorRate: metrics['hooks.errors'] / metrics['hooks.executions'] || 0,
       cacheHitRate: metrics['hooks.cacheHits'] / metrics['hooks.executions'] || 0,
     });
-    
+
     // Emit metrics event
     agenticHookManager.emit('metrics:collected', metrics);
   }, 30000);
@@ -170,12 +170,12 @@ function startMetricsCollection(): void {
  */
 export async function shutdownAgenticFlowHooks(): Promise<void> {
   logger.info('Shutting down agentic-flow hook system...');
-  
+
   try {
     // Wait for active executions to complete
     const maxWaitTime = 10000; // 10 seconds
     const startTime = Date.now();
-    
+
     while (agenticHookManager.getMetrics()['executions.active'] > 0) {
       if (Date.now() - startTime > maxWaitTime) {
         logger.warn('Timeout waiting for active executions to complete');
@@ -183,10 +183,10 @@ export async function shutdownAgenticFlowHooks(): Promise<void> {
       }
       await new Promise(resolve => setTimeout(resolve, 100));
     }
-    
+
     // Remove all listeners
     agenticHookManager.removeAllListeners();
-    
+
     logger.info('Agentic-flow hook system shut down successfully');
   } catch (error) {
     logger.error('Error during hook system shutdown:', error);
@@ -204,7 +204,7 @@ export function getHookSystemStatus(): {
   activeExecutions: number;
 } {
   const metrics = agenticHookManager.getMetrics();
-  
+
   return {
     initialized: metrics['hooks.count'] > 0,
     metrics,
@@ -227,12 +227,12 @@ export function createHookContext(): HookContextBuilder {
       correlationId: this.generateCorrelationId(),
       metadata: {},
     };
-    
+
     withSession(sessionId: string): HookContextBuilder {
       this.context.sessionId = sessionId;
       return this;
     }
-    
+
     withMemory(namespace: string, provider: string): HookContextBuilder {
       this.context.memory = {
         namespace,
@@ -241,7 +241,7 @@ export function createHookContext(): HookContextBuilder {
       };
       return this;
     }
-    
+
     withNeural(modelId: string): HookContextBuilder {
       this.context.neural = {
         modelId,
@@ -257,11 +257,11 @@ export function createHookContext(): HookContextBuilder {
       };
       return this;
     }
-    
+
     withPerformance(metrics: PerformanceMetric[]): HookContextBuilder {
       const metricsMap = new Map<string, PerformanceMetric>();
       metrics.forEach(m => metricsMap.set(m.name, m));
-      
+
       this.context.performance = {
         metrics: metricsMap,
         bottlenecks: [],
@@ -269,17 +269,17 @@ export function createHookContext(): HookContextBuilder {
       };
       return this;
     }
-    
+
     withMetadata(metadata: Record<string, any>): HookContextBuilder {
       this.context.metadata = { ...this.context.metadata, ...metadata };
       return this;
     }
-    
+
     build(): AgenticHookContext {
       if (!this.context.sessionId) {
         this.context.sessionId = this.generateSessionId();
       }
-      
+
       if (!this.context.memory) {
         this.context.memory = {
           namespace: 'default',
@@ -287,7 +287,7 @@ export function createHookContext(): HookContextBuilder {
           cache: new Map(),
         };
       }
-      
+
       if (!this.context.neural) {
         this.context.neural = {
           modelId: 'default',
@@ -302,7 +302,7 @@ export function createHookContext(): HookContextBuilder {
           },
         };
       }
-      
+
       if (!this.context.performance) {
         this.context.performance = {
           metrics: new Map(),
@@ -310,47 +310,47 @@ export function createHookContext(): HookContextBuilder {
           optimizations: [],
         };
       }
-      
+
       return this.context as AgenticHookContext;
     }
-    
+
     private generateCorrelationId(): string {
       return `corr_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     }
-    
+
     private generateSessionId(): string {
       return `sess_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     }
-    
+
     private createPatternStore(): PatternStore {
       const patterns = new Map<string, Pattern>();
-      
+
       return {
         add(pattern: Pattern): void {
           patterns.set(pattern.id, pattern);
         },
-        
+
         get(id: string): Pattern | undefined {
           return patterns.get(id);
         },
-        
+
         findSimilar(pattern: Partial<Pattern>, threshold: number): Pattern[] {
           const results: Pattern[] = [];
-          
+
           for (const p of patterns.values()) {
             // Simple similarity check
             if (p.type === pattern.type && p.confidence >= threshold) {
               results.push(p);
             }
           }
-          
+
           return results;
         },
-        
+
         getByType(type: Pattern['type']): Pattern[] {
           return Array.from(patterns.values()).filter(p => p.type === type);
         },
-        
+
         prune(maxAge: number): void {
           const cutoff = Date.now() - maxAge;
           for (const [id, pattern] of patterns) {
@@ -359,11 +359,11 @@ export function createHookContext(): HookContextBuilder {
             }
           }
         },
-        
+
         export(): Pattern[] {
           return Array.from(patterns.values());
         },
-        
+
         import(newPatterns: Pattern[]): void {
           for (const pattern of newPatterns) {
             patterns.set(pattern.id, pattern);
@@ -372,7 +372,7 @@ export function createHookContext(): HookContextBuilder {
       };
     }
   }
-  
+
   return new ContextBuilder();
 }
 

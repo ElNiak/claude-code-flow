@@ -5,6 +5,7 @@
 The root directory has been cleaned and organized to contain only essential files:
 
 ### Configuration Files
+
 - **package.json** - NPM package configuration
 - **jest.config.js** - Jest testing configuration
 - **tsconfig.json** - TypeScript configuration
@@ -13,6 +14,7 @@ The root directory has been cleaned and organized to contain only essential file
 - **docker-compose.yml** - Docker configuration
 
 ### Core Files
+
 - **README.md** - Main project documentation
 - **LICENSE** - MIT license
 - **CHANGELOG.md** - Version history

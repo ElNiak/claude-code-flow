@@ -96,7 +96,7 @@ describe('Products API Tests', () => {
     it('should validate price is positive', async () => {
       const response = await request(app)
         .post('/api/v1/products')
-        .send({ 
+        .send({
           name: 'Test',
           price: -10,
           category: 'Test'
@@ -131,7 +131,7 @@ describe('Products API Tests', () => {
     it('should return 404 for non-existent product', async () => {
       const response = await request(app)
         .put('/api/v1/products/9999')
-        .send({ 
+        .send({
           name: 'Test',
           price: 10,
           category: 'Test'
@@ -148,7 +148,7 @@ describe('Products API Tests', () => {
       // First create a product to delete
       const createResponse = await request(app)
         .post('/api/v1/products')
-        .send({ 
+        .send({
           name: 'To Delete',
           price: 99.99,
           category: 'Test'

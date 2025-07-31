@@ -199,7 +199,7 @@ describe('Comprehensive Error Handling System', () => {
         test('should handle database connection failures gracefully', async () => {
             // Create persistence with invalid path
             const invalidPersistence = new EnhancedSwarmPersistence('/invalid/path/db.sqlite');
-            
+
             // Should fall back to in-memory mode
             await new Promise(resolve => setTimeout(resolve, 100)); // Allow initialization
             expect(invalidPersistence.isInMemoryMode).toBe(true);
@@ -281,7 +281,7 @@ describe('Comprehensive Error Handling System', () => {
 
         test('should perform health checks', async () => {
             const health = await persistence.performHealthCheck();
-            
+
             expect(health).toHaveProperty('persistence');
             expect(health).toHaveProperty('memory_store');
             expect(health).toHaveProperty('error_handling');
@@ -337,7 +337,7 @@ describe('Comprehensive Error Handling System', () => {
 
         test('should validate system capabilities', async () => {
             const capabilities = await wasmLoader.checkSystemCapabilities();
-            
+
             expect(capabilities).toHaveProperty('webassembly');
             expect(capabilities).toHaveProperty('simd');
             expect(capabilities).toHaveProperty('threads');
@@ -376,13 +376,13 @@ describe('Comprehensive Error Handling System', () => {
 
         test('should track loading progress', async () => {
             wasmLoader.startLoadingProgress('test-module');
-            
+
             const progress = wasmLoader.loadingProgress.get('test-module');
             expect(progress.started).toBeTruthy();
             expect(progress.completed).toBeFalsy();
 
             wasmLoader.completeLoadingProgress('test-module', true);
-            
+
             const completedProgress = wasmLoader.loadingProgress.get('test-module');
             expect(completedProgress.completed).toBeTruthy();
             expect(completedProgress.success).toBe(true);
@@ -390,7 +390,7 @@ describe('Comprehensive Error Handling System', () => {
 
         test('should provide comprehensive health check', async () => {
             const health = await wasmLoader.performHealthCheck();
-            
+
             expect(health).toHaveProperty('wasm_support');
             expect(health).toHaveProperty('modules');
             expect(health).toHaveProperty('memory');
@@ -508,11 +508,11 @@ describe('Comprehensive Error Handling System', () => {
 
         test('should cache validation results', async () => {
             const params = { topology: 'mesh', maxAgents: 5 };
-            
+
             // First validation should be computed
             await mcpTools.validateParameters('swarm_init', params);
             expect(mcpTools.validationCache.size).toBe(1);
-            
+
             // Second validation should use cache
             await mcpTools.validateParameters('swarm_init', params);
             expect(mcpTools.validationCache.size).toBe(1);
@@ -535,7 +535,7 @@ describe('Comprehensive Error Handling System', () => {
 
         test('should provide comprehensive health status', async () => {
             const health = await mcpTools.getHealthStatus();
-            
+
             expect(health).toHaveProperty('mcp_tools');
             expect(health).toHaveProperty('error_handling');
             expect(health).toHaveProperty('overall_health');
@@ -548,9 +548,9 @@ describe('Comprehensive Error Handling System', () => {
             // Simulate database failure affecting MCP operations
             const persistence = new EnhancedSwarmPersistence('/invalid/path');
             await new Promise(resolve => setTimeout(resolve, 100)); // Allow initialization
-            
+
             expect(persistence.isInMemoryMode).toBe(true);
-            
+
             // MCP operations should still work with in-memory fallback
             const result = await persistence.createSwarm({
                 id: 'test-swarm',
@@ -558,14 +558,14 @@ describe('Comprehensive Error Handling System', () => {
                 topology: 'mesh',
                 maxAgents: 3
             });
-            
+
             expect(result.changes).toBe(1);
         });
 
         test('should maintain system stability under high error rates', async () => {
             const errorCount = 50;
             const errors = [];
-            
+
             for (let i = 0; i < errorCount; i++) {
                 try {
                     await errorHandler.wrapOperation(async () => {
@@ -582,7 +582,7 @@ describe('Comprehensive Error Handling System', () => {
                     errors.push(error);
                 }
             }
-            
+
             // System should remain responsive
             const health = errorHandler.getHealthStatus();
             expect(health).toBeTruthy();
@@ -592,7 +592,7 @@ describe('Comprehensive Error Handling System', () => {
         test('should handle memory pressure gracefully', async () => {
             // Simulate memory pressure
             const largeData = new Array(1000000).fill('test-data');
-            
+
             try {
                 await errorHandler.wrapOperation(async () => {
                     // Simulate memory-intensive operation
@@ -612,7 +612,7 @@ describe('Comprehensive Error Handling System', () => {
         test('should recover from network partitions', async () => {
             let networkDown = true;
             let attempts = 0;
-            
+
             const networkOperation = async () => {
                 attempts++;
                 if (networkDown && attempts < 3) {
@@ -621,13 +621,13 @@ describe('Comprehensive Error Handling System', () => {
                 networkDown = false; // Simulate network recovery
                 return { connected: true, attempts };
             };
-            
+
             const result = await errorHandler.wrapOperation(networkOperation, {
                 category: ErrorCategory.NETWORK,
                 component: 'network-test',
                 operation: 'partition_recovery'
             });
-            
+
             expect(result.connected).toBe(true);
             expect(result.attempts).toBeGreaterThan(1);
         });
@@ -641,23 +641,23 @@ describe('Comprehensive Error Handling System', () => {
             const networkError = 'Network connection failed';
 
             const mcpTools = new RobustMCPTools();
-            
+
             const timeoutSuggestions = mcpTools.baseMCP.generateRecoverySuggestions(timeoutError);
             expect(timeoutSuggestions).toContain('Increase task timeout duration');
-            
+
             const memorySuggestions = mcpTools.baseMCP.generateRecoverySuggestions(memoryError);
             expect(memorySuggestions).toContain('Reduce memory usage in task execution');
-            
+
             const agentSuggestions = mcpTools.baseMCP.generateRecoverySuggestions(agentError);
             expect(agentSuggestions).toContain('Check agent availability and status');
-            
+
             const networkSuggestions = mcpTools.baseMCP.generateRecoverySuggestions(networkError);
             expect(networkSuggestions).toContain('Check network connectivity');
         });
 
         test('should calculate efficiency scores correctly', () => {
             const mcpTools = new RobustMCPTools();
-            
+
             const perfectResults = {
                 execution_summary: { success: true },
                 execution_time_ms: 1000,
@@ -666,10 +666,10 @@ describe('Comprehensive Error Handling System', () => {
                     overall_success_rate: 1.0
                 }
             };
-            
+
             const efficiency = mcpTools.baseMCP.calculateEfficiencyScore(perfectResults);
             expect(efficiency).toBeGreaterThan(0.8);
-            
+
             const poorResults = {
                 execution_summary: { success: false },
                 execution_time_ms: 120000, // 2 minutes
@@ -678,7 +678,7 @@ describe('Comprehensive Error Handling System', () => {
                     overall_success_rate: 0.3
                 }
             };
-            
+
             const poorEfficiency = mcpTools.baseMCP.calculateEfficiencyScore(poorResults);
             expect(poorEfficiency).toBeLessThan(0.5);
         });
@@ -687,10 +687,10 @@ describe('Comprehensive Error Handling System', () => {
     describe('Performance Impact Assessment', () => {
         test('should measure error handling overhead', async () => {
             const operationCount = 100;
-            
+
             // Measure overhead of error handling
             const startTime = performance.now();
-            
+
             for (let i = 0; i < operationCount; i++) {
                 await errorHandler.wrapOperation(async () => {
                     return { iteration: i };
@@ -700,10 +700,10 @@ describe('Comprehensive Error Handling System', () => {
                     operation: 'overhead_measurement'
                 });
             }
-            
+
             const totalTime = performance.now() - startTime;
             const averageOverhead = totalTime / operationCount;
-            
+
             // Error handling overhead should be minimal (< 5ms per operation)
             expect(averageOverhead).toBeLessThan(5);
         });
@@ -711,9 +711,9 @@ describe('Comprehensive Error Handling System', () => {
         test('should maintain performance under concurrent operations', async () => {
             const concurrentOperations = 20;
             const operations = [];
-            
+
             const startTime = performance.now();
-            
+
             for (let i = 0; i < concurrentOperations; i++) {
                 operations.push(
                     errorHandler.wrapOperation(async () => {
@@ -726,10 +726,10 @@ describe('Comprehensive Error Handling System', () => {
                     })
                 );
             }
-            
+
             const results = await Promise.all(operations);
             const totalTime = performance.now() - startTime;
-            
+
             expect(results).toHaveLength(concurrentOperations);
             expect(totalTime).toBeLessThan(1000); // Should complete within 1 second
         });

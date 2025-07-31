@@ -24,11 +24,11 @@ const userController = {
 
     // Build query
     const query = {};
-    
+
     if (role) query.role = role;
     if (isActive !== undefined) query.isActive = isActive;
     if (isEmailVerified !== undefined) query.isEmailVerified = isEmailVerified;
-    
+
     if (search) {
       query.$or = [
         { name: { $regex: search, $options: 'i' } },
@@ -39,7 +39,7 @@ const userController = {
     // Execute query with pagination
     const startIndex = (page - 1) * limit;
     const total = await User.countDocuments(query);
-    
+
     const users = await User.find(query)
       .sort(sort)
       .limit(limit)
@@ -189,7 +189,7 @@ const userController = {
     } else {
       // Remove all user tokens
       await Token.removeUserTokens(user._id);
-      
+
       // Delete user
       await user.deleteOne();
     }

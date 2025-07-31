@@ -111,7 +111,7 @@ export class MemoryMigration {
       const rows = oldDb
         .prepare(
           `
-        SELECT * FROM collective_memory 
+        SELECT * FROM collective_memory
         ORDER BY created_at ASC
       `,
         )
@@ -180,7 +180,7 @@ export class MemoryMigration {
       const rows = oldDb
         .prepare(
           `
-        SELECT * FROM memory 
+        SELECT * FROM memory
         ORDER BY created_at ASC
       `,
         )

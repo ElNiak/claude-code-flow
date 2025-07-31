@@ -44,7 +44,7 @@ describe('Hive Mind SIGINT Handler', () => {
 
     hiveMindProcess.stdout.on('data', (data) => {
       output += data.toString();
-      
+
       // Extract session ID from output
       const sessionMatch = output.match(/Session ID:\s+(\S+)/);
       if (sessionMatch && !sessionId) {
@@ -93,7 +93,7 @@ describe('Hive Mind SIGINT Handler', () => {
 
     hiveMindProcess.stdout.on('data', (data) => {
       output += data.toString();
-      
+
       const sessionMatch = output.match(/Session ID:\s+(\S+)/);
       if (sessionMatch && !sessionId) {
         sessionId = sessionMatch[1];
@@ -109,15 +109,15 @@ describe('Hive Mind SIGINT Handler', () => {
     hiveMindProcess.on('exit', () => {
       if (existsSync(dbPath) && sessionId) {
         const db = new Database(dbPath);
-        
+
         // Check for checkpoint
         const checkpoint = db.prepare(
           'SELECT * FROM session_checkpoints WHERE session_id = ? AND checkpoint_name = ?'
         ).get(sessionId, 'auto-pause');
-        
+
         expect(checkpoint).toBeTruthy();
         expect(checkpoint.checkpoint_data).toContain('paused_by_user');
-        
+
         db.close();
       }
 
@@ -129,7 +129,7 @@ describe('Hive Mind SIGINT Handler', () => {
     // This test requires claude command to be available
     const { execSync } = require('child_process');
     let claudeAvailable = false;
-    
+
     try {
       execSync('which claude', { stdio: 'ignore' });
       claudeAvailable = true;
@@ -140,7 +140,7 @@ describe('Hive Mind SIGINT Handler', () => {
     }
 
     hiveMindProcess = spawn(
-      'node', 
+      'node',
       [cliPath, 'hive-mind', 'spawn', 'Test Claude termination', '--claude'],
       {
         stdio: 'pipe',
@@ -153,7 +153,7 @@ describe('Hive Mind SIGINT Handler', () => {
 
     hiveMindProcess.stdout.on('data', (data) => {
       output += data.toString();
-      
+
       if (output.includes('Claude Code launched with Hive Mind coordination')) {
         claudeLaunched = true;
         setTimeout(() => {

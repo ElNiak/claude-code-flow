@@ -7,22 +7,26 @@ This simple REST API demonstrates clean, minimal architecture patterns using Exp
 ## 🏗️ Key Architecture Decisions
 
 ### 1. **Single-File Architecture**
+
 - All server logic in one `server.js` file (~200 lines)
 - Easy to understand and modify
 - Perfect for learning and prototyping
 
 ### 2. **In-Memory Data Storage**
+
 - No database complexity
 - Zero configuration
 - Fast development cycle
 - Data structure: Array of task objects
 
 ### 3. **Minimal Dependencies**
+
 - Production: Only Express.js
 - Development: Jest, Supertest, Nodemon
 - No unnecessary packages
 
 ### 4. **RESTful Design**
+
 - Resource-based URLs (`/api/v1/tasks`)
 - Proper HTTP methods and status codes
 - JSON request/response format
@@ -54,12 +58,14 @@ examples/rest-api-simple/
 ## 🛡️ Security Considerations
 
 ### Current (Simple) Implementation
+
 - No authentication/authorization
 - Basic input validation
 - Error messages don't expose internals
 - Suitable for development only
 
 ### Production Recommendations
+
 - Add JWT authentication
 - Implement rate limiting
 - Use HTTPS
@@ -69,6 +75,7 @@ examples/rest-api-simple/
 ## 🚀 Quick Start Implementation
 
 ### Option 1: Sequential SPARC Execution (~50 minutes)
+
 ```bash
 # Phase 1: Setup
 npx claude-flow sparc run code "Setup Express server with health endpoint" --non-interactive
@@ -87,6 +94,7 @@ npx claude-flow sparc run security-review "Review API security" --non-interactiv
 ```
 
 ### Option 2: Parallel Swarm Execution (~15 minutes)
+
 ```bash
 # Complete implementation with parallel agents
 npx claude-flow swarm "Build complete simple REST API from architecture docs" \
@@ -118,12 +126,14 @@ npx claude-flow monitor
 ## 💡 Extension Points
 
 ### Easy Additions
+
 1. **Pagination**: Add limit/offset query params
 2. **Filtering**: Add completed status filter
 3. **Sorting**: Add sort by date/title
 4. **Search**: Add title search capability
 
 ### Advanced Extensions
+
 1. **Database**: Replace in-memory with MongoDB/PostgreSQL
 2. **Authentication**: Add JWT-based auth
 3. **Caching**: Add Redis for performance

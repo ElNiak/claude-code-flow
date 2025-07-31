@@ -53,13 +53,13 @@ The Process Launcher creates a wrapper around the existing CLI that captures all
 interface ProcessLauncher {
   // Launch CLI with output capture
   launch(command: string[], options: LaunchOptions): Promise<CapturedProcess>;
-  
+
   // Attach to existing process (for hot-attach scenarios)
   attach(pid: number): Promise<CapturedProcess>;
-  
+
   // Terminate process gracefully
   terminate(processId: string, signal?: string): Promise<void>;
-  
+
   // Get process status
   getStatus(processId: string): ProcessStatus;
 }
@@ -78,16 +78,16 @@ interface CapturedProcess {
   processId: string;
   command: string[];
   startTime: Date;
-  
+
   // Streams
   stdout: NodeJS.ReadableStream;
   stderr: NodeJS.ReadableStream;
   stdin: NodeJS.WritableStream;
-  
+
   // Control
   kill(signal?: string): Promise<void>;
   wait(): Promise<number>;
-  
+
   // Events
   on(event: 'exit' | 'error' | 'spawn', listener: (...args: any[]) => void): void;
 }
@@ -99,14 +99,14 @@ interface CapturedProcess {
 class CLIProcessLauncher implements ProcessLauncher {
   private processes = new Map<string, CapturedProcess>();
   private outputInterceptor: OutputInterceptor;
-  
+
   constructor(private config: LauncherConfig) {
     this.outputInterceptor = new OutputInterceptor(config.interceptorOptions);
   }
-  
+
   async launch(command: string[], options: LaunchOptions): Promise<CapturedProcess> {
     const processId = generateId('process');
-    
+
     // Prepare environment
     const env = {
       ...process.env,
@@ -116,7 +116,7 @@ class CLIProcessLauncher implements ProcessLauncher {
       CLAUDE_FLOW_SESSION_ID: options.sessionId || 'default',
       CLAUDE_FLOW_PROCESS_ID: processId,
     };
-    
+
     // Spawn process with captured streams
     const childProcess = spawn(command[0], command.slice(1), {
       cwd: options.workingDirectory,
@@ -124,7 +124,7 @@ class CLIProcessLauncher implements ProcessLauncher {
       stdio: ['pipe', 'pipe', 'pipe'], // Capture all streams
       detached: false,
     });
-    
+
     // Create captured process wrapper
     const captured = new CapturedProcessImpl(
       childProcess,
@@ -132,14 +132,14 @@ class CLIProcessLauncher implements ProcessLauncher {
       command,
       this.outputInterceptor
     );
-    
+
     this.processes.set(processId, captured);
-    
+
     // Setup cleanup on exit
     captured.on('exit', () => {
       this.processes.delete(processId);
     });
-    
+
     return captured;
   }
 }
@@ -151,13 +151,13 @@ class CLIProcessLauncher implements ProcessLauncher {
 interface ProcessLifecycle {
   // Graceful shutdown sequence
   shutdown(): Promise<void>;
-  
+
   // Handle process crashes
   handleCrash(process: CapturedProcess, error: Error): Promise<void>;
-  
+
   // Restart failed processes
   restart(processId: string): Promise<CapturedProcess>;
-  
+
   // Cleanup resources
   cleanup(processId: string): Promise<void>;
 }
@@ -175,17 +175,17 @@ The Output Interceptor captures stdout/stderr in real-time while maintaining the
 interface OutputInterceptor {
   // Capture output from process streams
   captureStream(
-    stream: NodeJS.ReadableStream, 
+    stream: NodeJS.ReadableStream,
     type: 'stdout' | 'stderr',
     processId: string
   ): InterceptedStream;
-  
+
   // Apply output filtering
   filterOutput(data: Buffer, rules: FilterRule[]): Buffer;
-  
+
   // Buffer output for history
   bufferOutput(processId: string, data: Buffer, type: StreamType): void;
-  
+
   // Get buffered output
   getBufferedOutput(processId: string): BufferedOutput;
 }
@@ -194,7 +194,7 @@ interface InterceptedStream {
   processId: string;
   type: 'stdout' | 'stderr';
   stream: NodeJS.ReadableStream;
-  
+
   // Event emitters for real-time updates
   on(event: 'data', listener: (chunk: Buffer) => void): void;
   on(event: 'end', listener: () => void): void;
@@ -209,43 +209,43 @@ class OutputInterceptor {
   private buffers = new Map<string, CircularBuffer>();
   private filters: FilterRule[] = [];
   private streamMultiplexer: StreamMultiplexer;
-  
+
   constructor(private config: InterceptorConfig) {
     this.streamMultiplexer = new StreamMultiplexer();
     this.loadFilterRules();
   }
-  
+
   captureStream(
     stream: NodeJS.ReadableStream,
     type: 'stdout' | 'stderr',
     processId: string
   ): InterceptedStream {
     const intercepted = new InterceptedStreamImpl(processId, type);
-    
+
     // Create transform stream for filtering and buffering
     const transform = new Transform({
       transform: (chunk: Buffer, encoding, callback) => {
         // Apply filters
         const filtered = this.filterOutput(chunk, this.filters);
-        
+
         // Buffer for history
         this.bufferOutput(processId, filtered, type);
-        
+
         // Emit to multiplexer for real-time streaming
         this.streamMultiplexer.emit(processId, type, filtered);
-        
+
         // Pass through to original stream
         callback(null, filtered);
       }
     });
-    
+
     // Pipe original stream through transform
     stream.pipe(transform);
     intercepted.setStream(transform);
-    
+
     return intercepted;
   }
-  
+
   private loadFilterRules(): void {
     this.filters = [
       // Filter API keys and secrets
@@ -279,22 +279,22 @@ class CircularBuffer {
   private head = 0;
   private tail = 0;
   private size = 0;
-  
+
   constructor(private maxSize: number) {
     this.buffer = new Array(maxSize);
   }
-  
+
   push(data: Buffer): void {
     this.buffer[this.tail] = data;
     this.tail = (this.tail + 1) % this.maxSize;
-    
+
     if (this.size < this.maxSize) {
       this.size++;
     } else {
       this.head = (this.head + 1) % this.maxSize;
     }
   }
-  
+
   getAll(): Buffer[] {
     const result: Buffer[] = [];
     for (let i = 0; i < this.size; i++) {
@@ -303,7 +303,7 @@ class CircularBuffer {
     }
     return result;
   }
-  
+
   clear(): void {
     this.head = 0;
     this.tail = 0;
@@ -324,19 +324,19 @@ The Stream Manager handles distributing output to multiple web clients efficient
 interface StreamManager {
   // Register new client
   addClient(clientId: string, socket: WebSocket): void;
-  
+
   // Remove client
   removeClient(clientId: string): void;
-  
+
   // Broadcast to all clients
   broadcast(processId: string, type: StreamType, data: Buffer): void;
-  
+
   // Send to specific client
   sendToClient(clientId: string, message: StreamMessage): void;
-  
+
   // Get client list
   getClients(): string[];
-  
+
   // Client management
   manageClient(clientId: string): ClientManager;
 }
@@ -359,22 +359,22 @@ class StreamManager {
   private clients = new Map<string, ClientConnection>();
   private messageQueue = new Map<string, StreamMessage[]>();
   private sequenceNumbers = new Map<string, number>();
-  
+
   constructor(private config: StreamConfig) {}
-  
+
   addClient(clientId: string, socket: WebSocket): void {
     const connection = new ClientConnection(clientId, socket);
     this.clients.set(clientId, connection);
-    
+
     // Send buffered messages
     this.sendBufferedMessages(clientId);
-    
+
     // Setup event handlers
     connection.on('disconnect', () => {
       this.removeClient(clientId);
     });
   }
-  
+
   broadcast(processId: string, type: StreamType, data: Buffer): void {
     const message: StreamMessage = {
       type: 'output',
@@ -384,10 +384,10 @@ class StreamManager {
       timestamp: Date.now(),
       sequence: this.getNextSequence(processId),
     };
-    
+
     // Buffer message for late-joining clients
     this.bufferMessage(processId, message);
-    
+
     // Send to all connected clients
     for (const [clientId, connection] of this.clients) {
       if (connection.isActive()) {
@@ -395,11 +395,11 @@ class StreamManager {
       }
     }
   }
-  
+
   private sendBufferedMessages(clientId: string): void {
     const connection = this.clients.get(clientId);
     if (!connection) return;
-    
+
     // Send buffered messages for all active processes
     for (const [processId, messages] of this.messageQueue) {
       for (const message of messages) {
@@ -407,15 +407,15 @@ class StreamManager {
       }
     }
   }
-  
+
   private bufferMessage(processId: string, message: StreamMessage): void {
     if (!this.messageQueue.has(processId)) {
       this.messageQueue.set(processId, []);
     }
-    
+
     const buffer = this.messageQueue.get(processId)!;
     buffer.push(message);
-    
+
     // Keep only recent messages
     if (buffer.length > this.config.maxBufferSize) {
       buffer.shift();
@@ -430,10 +430,10 @@ class StreamManager {
 interface MessageBatcher {
   // Batch messages for efficiency
   batchMessages(messages: StreamMessage[]): BatchedMessage;
-  
+
   // Compress large messages
   compressMessage(message: StreamMessage): CompressedMessage;
-  
+
   // Handle message priorities
   prioritizeMessages(messages: StreamMessage[]): StreamMessage[];
 }
@@ -459,13 +459,13 @@ The State Manager ensures that CLI state is properly synchronized with web clien
 interface StateManager {
   // Sync CLI state with web clients
   syncState(processId: string): Promise<CLIState>;
-  
+
   // Update state from CLI
   updateFromCLI(processId: string, state: Partial<CLIState>): void;
-  
+
   // Get current state
   getCurrentState(processId: string): CLIState;
-  
+
   // State persistence
   persistState(processId: string): Promise<void>;
   restoreState(processId: string): Promise<CLIState>;
@@ -476,19 +476,19 @@ interface CLIState {
   sessionId: string;
   workingDirectory: string;
   environment: Record<string, string>;
-  
+
   // Agent states
   agents: AgentState[];
-  
+
   // Task states  
   tasks: TaskState[];
-  
+
   // Memory bank state
   memoryBank: MemoryBankState;
-  
+
   // Configuration
   config: ConfigState;
-  
+
   // Runtime info
   startTime: Date;
   lastUpdate: Date;
@@ -513,30 +513,30 @@ class StateManager {
   private states = new Map<string, CLIState>();
   private persistenceManager: PersistenceManager;
   private changeListeners = new Map<string, StateChangeListener[]>();
-  
+
   constructor(private config: StateConfig) {
     this.persistenceManager = new PersistenceManager(config.persistenceOptions);
   }
-  
+
   async syncState(processId: string): Promise<CLIState> {
     const state = this.states.get(processId);
     if (!state) {
       throw new Error(`No state found for process ${processId}`);
     }
-    
+
     // Fetch latest state from CLI process
     const updated = await this.fetchStateFromCLI(processId);
-    
+
     // Merge states
     const merged = this.mergeStates(state, updated);
     this.states.set(processId, merged);
-    
+
     // Notify listeners
     this.notifyStateChange(processId, merged);
-    
+
     return merged;
   }
-  
+
   private async fetchStateFromCLI(processId: string): Promise<Partial<CLIState>> {
     // Implementation depends on CLI integration method
     // Options:
@@ -544,13 +544,13 @@ class StateManager {
     // 2. IPC communication
     // 3. Memory-mapped files
     // 4. REST API endpoint
-    
+
     // For now, use file-based approach
     const stateFile = path.join(
       this.config.stateDirectory,
       `${processId}.state.json`
     );
-    
+
     try {
       const data = await fs.readFile(stateFile, 'utf8');
       return JSON.parse(data);
@@ -559,7 +559,7 @@ class StateManager {
       return {};
     }
   }
-  
+
   private notifyStateChange(processId: string, state: CLIState): void {
     const listeners = this.changeListeners.get(processId) || [];
     for (const listener of listeners) {
@@ -595,31 +595,31 @@ if (isWebMode) {
 // Minimal hooks in orchestrator.ts
 export class Orchestrator implements IOrchestrator {
   // ... existing code ...
-  
+
   private async notifyWebClients(event: string, data: any): Promise<void> {
     if (process.env.CLAUDE_FLOW_WEB_MODE === 'true') {
       const stateFile = path.join(
         process.env.CLAUDE_FLOW_STATE_DIR || './tmp',
         `${process.env.CLAUDE_FLOW_PROCESS_ID}.state.json`
       );
-      
+
       const state = {
         event,
         data,
         timestamp: new Date().toISOString(),
         ...this.getCurrentState()
       };
-      
+
       await fs.writeFile(stateFile, JSON.stringify(state, null, 2));
     }
   }
-  
+
   async spawnAgent(profile: AgentProfile): Promise<string> {
     const agentId = await this.originalSpawnAgent(profile);
-    
+
     // Notify web clients
     await this.notifyWebClients('agent_spawned', { agentId, profile });
-    
+
     return agentId;
   }
 }
@@ -633,21 +633,21 @@ interface WebConfig {
   enabled: boolean;
   port: number;
   host: string;
-  
+
   // Output capture settings
   capture: {
     bufferSize: number;
     filterRules: FilterRule[];
     compression: boolean;
   };
-  
+
   // Streaming settings
   streaming: {
     batchSize: number;
     batchTimeout: number;
     maxClients: number;
   };
-  
+
   // Security settings
   security: {
     allowedOrigins: string[];
@@ -665,13 +665,13 @@ interface WebConfig {
 interface ErrorHandler {
   // Handle process crashes
   handleProcessCrash(processId: string, error: Error): Promise<void>;
-  
+
   // Handle stream errors
   handleStreamError(streamId: string, error: Error): Promise<void>;
-  
+
   // Handle client disconnections
   handleClientDisconnect(clientId: string): Promise<void>;
-  
+
   // Recovery strategies
   recoverProcess(processId: string): Promise<boolean>;
   recoverStream(streamId: string): Promise<boolean>;
@@ -680,33 +680,33 @@ interface ErrorHandler {
 class ErrorHandler {
   async handleProcessCrash(processId: string, error: Error): Promise<void> {
     logger.error('Process crashed', { processId, error });
-    
+
     // Notify clients
-    this.streamManager.broadcast(processId, 'stderr', 
+    this.streamManager.broadcast(processId, 'stderr',
       Buffer.from(`Process crashed: ${error.message}\n`)
     );
-    
+
     // Attempt recovery if configured
     if (this.config.autoRecover) {
       await this.recoverProcess(processId);
     }
   }
-  
+
   async recoverProcess(processId: string): Promise<boolean> {
     try {
       // Get process configuration
       const config = this.processConfigs.get(processId);
       if (!config) return false;
-      
+
       // Restart process
       const newProcess = await this.processLauncher.launch(
         config.command,
         config.options
       );
-      
+
       // Update process mapping
       this.updateProcessMapping(processId, newProcess);
-      
+
       logger.info('Process recovered successfully', { processId });
       return true;
     } catch (error) {
@@ -725,10 +725,10 @@ class ErrorHandler {
 interface StreamOptimizer {
   // Compress output streams
   compressStream(stream: NodeJS.ReadableStream): NodeJS.ReadableStream;
-  
+
   // Batch small messages
   batchMessages(messages: StreamMessage[]): BatchedMessage[];
-  
+
   // Throttle high-frequency output
   throttleOutput(stream: NodeJS.ReadableStream, rate: number): NodeJS.ReadableStream;
 }
@@ -737,10 +737,10 @@ class StreamOptimizer {
   compressStream(stream: NodeJS.ReadableStream): NodeJS.ReadableStream {
     return stream.pipe(createGzip());
   }
-  
+
   throttleOutput(stream: NodeJS.ReadableStream, rate: number): NodeJS.ReadableStream {
     let lastEmit = 0;
-    
+
     return new Transform({
       transform(chunk, encoding, callback) {
         const now = Date.now();
@@ -763,10 +763,10 @@ class StreamOptimizer {
 interface MemoryManager {
   // Monitor memory usage
   getMemoryUsage(): MemoryUsage;
-  
+
   // Clean up old buffers
   cleanupBuffers(maxAge: number): void;
-  
+
   // Limit buffer sizes
   limitBufferSize(processId: string, maxSize: number): void;
 }
@@ -789,22 +789,22 @@ describe('OutputInterceptor', () => {
   test('should capture stdout correctly', async () => {
     const interceptor = new OutputInterceptor();
     const mockStream = new MockReadableStream();
-    
+
     const captured = interceptor.captureStream(mockStream, 'stdout', 'test-process');
-    
+
     // Simulate output
     mockStream.emit('data', Buffer.from('Hello World\n'));
-    
+
     // Verify capture
     expect(captured.getBufferedOutput()).toContain('Hello World\n');
   });
-  
+
   test('should filter sensitive information', () => {
     const interceptor = new OutputInterceptor();
     const input = Buffer.from('API_KEY=secret123 PASSWORD=mypass');
-    
+
     const filtered = interceptor.filterOutput(input, interceptor.getDefaultFilters());
-    
+
     expect(filtered.toString()).toContain('***FILTERED***');
     expect(filtered.toString()).not.toContain('secret123');
   });
@@ -818,14 +818,14 @@ describe('CLI Integration', () => {
   test('should capture output from real CLI process', async () => {
     const launcher = new CLIProcessLauncher();
     const process = await launcher.launch(['node', '--version']);
-    
+
     let output = '';
     process.stdout.on('data', (chunk) => {
       output += chunk.toString();
     });
-    
+
     await process.wait();
-    
+
     expect(output).toMatch(/v\d+\.\d+\.\d+/);
   });
 });

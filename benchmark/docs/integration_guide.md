@@ -66,7 +66,7 @@ config = SwarmConfig(
     monitor=True,
     output=OutputFormat.JSON,
     output_dir="./reports",
-    
+
     # Advanced options
     batch_optimized=True,
     memory_shared=True,
@@ -134,7 +134,7 @@ from swarm_benchmark.core.integration_utils import performance_monitoring
 # Monitor performance
 with performance_monitoring(interval=1.0) as monitor:
     result = executor.execute_swarm(config)
-    
+
 # Get metrics
 metrics = monitor.metrics.get_summary()
 print(f"Average CPU: {metrics['cpu']['avg']}%")
@@ -154,10 +154,10 @@ if not result.success:
     category = ErrorHandler.categorize_error(result.stderr)
     suggestion = ErrorHandler.get_recovery_suggestion(category)
     should_retry = ErrorHandler.should_retry(category)
-    
+
     print(f"Error category: {category}")
     print(f"Suggestion: {suggestion}")
-    
+
     if should_retry:
         # Retry with different configuration
         config.timeout *= 2
@@ -252,10 +252,10 @@ async def run_multiple_swarms():
         SwarmConfig(objective="Task 2", strategy=ExecutionStrategy.TESTING),
         SwarmConfig(objective="Task 3", strategy=ExecutionStrategy.ANALYSIS)
     ]
-    
+
     # Execute in parallel
     tasks = [
-        executor.execute_async("swarm", config) 
+        executor.execute_async("swarm", config)
         for config in configs
     ]
     results = await asyncio.gather(*tasks)
@@ -273,7 +273,7 @@ tracker.start()
 # Parse output stream
 for line in result.stdout.splitlines():
     tracker.parse_output_stream(line)
-    
+
 # Get summary
 summary = tracker.get_summary()
 print(f"Tasks completed: {summary['tasks']['completed']}")
@@ -329,12 +329,12 @@ for attempt in range(max_attempts):
     result = executor.execute_swarm(config)
     if result.success:
         break
-    
+
     if not ErrorHandler.should_retry(
         ErrorHandler.categorize_error(result.stderr)
     ):
         break
-        
+
     # Increase timeout for next attempt
     config.timeout *= 1.5
 ```
@@ -358,7 +358,7 @@ config.timeout = 120  # 2 hours
 
 # Or disable timeout
 result = executor._execute_command(
-    command, 
+    command,
     timeout=None
 )
 ```
@@ -393,7 +393,7 @@ from swarm_benchmark.core.claude_flow_executor import ClaudeFlowExecutor
 class MyBenchmark:
     def __init__(self):
         self.executor = ClaudeFlowExecutor()
-        
+
     def run_test(self):
         config = SwarmConfig(...)
         result = self.executor.execute_swarm(config)

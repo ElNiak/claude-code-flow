@@ -530,7 +530,7 @@ export class DiagnosticManager {
         <p><strong>Throughput:</strong> ${report.performance.throughput.toFixed(2)} ops/sec</p>
         <p><strong>Error Rate:</strong> ${(report.performance.errorRate * 100).toFixed(2)}%</p>
         <p><strong>Memory Leaks:</strong> ${report.performance.memoryLeaks ? 'Detected' : 'None detected'}</p>
-        
+
         ${
           report.performance.bottlenecks.length > 0
             ? `

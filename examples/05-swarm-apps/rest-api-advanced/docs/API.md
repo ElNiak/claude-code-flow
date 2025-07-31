@@ -126,13 +126,15 @@ Authorization: Bearer <your-jwt-token>
 The API implements rate limiting to prevent abuse:
 
 ### General Endpoints
+
 - **Limit**: 100 requests per 15 minutes per IP
-- **Headers**: 
+- **Headers**:
   - `X-RateLimit-Limit`: Total requests allowed
   - `X-RateLimit-Remaining`: Requests remaining
   - `X-RateLimit-Reset`: Reset timestamp
 
 ### Authentication Endpoints
+
 - **Limit**: 5 requests per 15 minutes per IP
 - **Note**: Only failed attempts count against the limit
 
@@ -208,6 +210,7 @@ POST /api/auth/register
 Create a new user account.
 
 **Request Body:**
+
 ```json
 {
   "email": "user@example.com",
@@ -217,6 +220,7 @@ Create a new user account.
 ```
 
 **Response (201):**
+
 ```json
 {
   "success": true,
@@ -242,6 +246,7 @@ POST /api/auth/login
 Authenticate user and receive tokens.
 
 **Request Body:**
+
 ```json
 {
   "email": "user@example.com",
@@ -250,6 +255,7 @@ Authenticate user and receive tokens.
 ```
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -274,6 +280,7 @@ POST /api/auth/refresh
 Get new access token using refresh token.
 
 **Request Body:**
+
 ```json
 {
   "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
@@ -281,6 +288,7 @@ Get new access token using refresh token.
 ```
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -298,11 +306,13 @@ POST /api/auth/logout
 Logout and blacklist current token.
 
 **Headers:**
+
 ```
 Authorization: Bearer <token>
 ```
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -319,11 +329,13 @@ GET /api/auth/me
 Get authenticated user details.
 
 **Headers:**
+
 ```
 Authorization: Bearer <token>
 ```
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -349,6 +361,7 @@ POST /api/auth/forgot-password
 Request password reset email.
 
 **Request Body:**
+
 ```json
 {
   "email": "user@example.com"
@@ -356,6 +369,7 @@ Request password reset email.
 ```
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -372,6 +386,7 @@ POST /api/auth/reset-password
 Reset password using token from email.
 
 **Request Body:**
+
 ```json
 {
   "token": "reset-token-from-email",
@@ -380,6 +395,7 @@ Reset password using token from email.
 ```
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -396,6 +412,7 @@ GET /api/auth/verify-email/:token
 Verify email address using token from email.
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -412,6 +429,7 @@ POST /api/auth/check-password
 Check password strength without creating account.
 
 **Request Body:**
+
 ```json
 {
   "password": "MyStr0ng!Pass"
@@ -419,6 +437,7 @@ Check password strength without creating account.
 ```
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -444,6 +463,7 @@ GET /api/products
 Get paginated list of products with filtering and sorting.
 
 **Query Parameters:**
+
 - `page` (default: 1) - Page number
 - `limit` (default: 20) - Items per page
 - `search` - Search by name or description
@@ -454,6 +474,7 @@ Get paginated list of products with filtering and sorting.
 - `inStock` - Filter by stock availability (true/false)
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -494,6 +515,7 @@ GET /api/products/:id
 Get detailed product information.
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -545,11 +567,13 @@ POST /api/products
 Create a new product.
 
 **Headers:**
+
 ```
 Authorization: Bearer <admin-token>
 ```
 
 **Request Body:**
+
 ```json
 {
   "name": "New Product",
@@ -567,6 +591,7 @@ Authorization: Bearer <admin-token>
 ```
 
 **Response (201):**
+
 ```json
 {
   "success": true,
@@ -591,11 +616,13 @@ PUT /api/products/:id
 Update product details.
 
 **Headers:**
+
 ```
 Authorization: Bearer <admin-token>
 ```
 
 **Request Body:**
+
 ```json
 {
   "name": "Updated Product Name",
@@ -605,6 +632,7 @@ Authorization: Bearer <admin-token>
 ```
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -627,11 +655,13 @@ DELETE /api/products/:id
 Delete a product.
 
 **Headers:**
+
 ```
 Authorization: Bearer <admin-token>
 ```
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -648,11 +678,13 @@ POST /api/products/:id/reviews
 Add a review to a product.
 
 **Headers:**
+
 ```
 Authorization: Bearer <token>
 ```
 
 **Request Body:**
+
 ```json
 {
   "rating": 5,
@@ -662,6 +694,7 @@ Authorization: Bearer <token>
 ```
 
 **Response (201):**
+
 ```json
 {
   "success": true,
@@ -691,11 +724,13 @@ PUT /api/products/:id/inventory
 Update product inventory.
 
 **Headers:**
+
 ```
 Authorization: Bearer <admin-token>
 ```
 
 **Request Body:**
+
 ```json
 {
   "stock": 50,
@@ -704,6 +739,7 @@ Authorization: Bearer <admin-token>
 ```
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -726,11 +762,13 @@ POST /api/orders
 Create a new order.
 
 **Headers:**
+
 ```
 Authorization: Bearer <token>
 ```
 
 **Request Body:**
+
 ```json
 {
   "items": [
@@ -753,6 +791,7 @@ Authorization: Bearer <token>
 ```
 
 **Response (201):**
+
 ```json
 {
   "success": true,
@@ -787,17 +826,20 @@ GET /api/orders
 Get authenticated user's orders.
 
 **Headers:**
+
 ```
 Authorization: Bearer <token>
 ```
 
 **Query Parameters:**
+
 - `page` (default: 1)
 - `limit` (default: 20)
 - `status` - Filter by order status
 - `sort` - Sort orders
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -829,11 +871,13 @@ GET /api/orders/:id
 Get detailed order information.
 
 **Headers:**
+
 ```
 Authorization: Bearer <token>
 ```
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -894,11 +938,13 @@ DELETE /api/orders/:id
 Cancel an order (only pending/processing orders).
 
 **Headers:**
+
 ```
 Authorization: Bearer <token>
 ```
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -915,11 +961,13 @@ PUT /api/orders/:id/status
 Update order status.
 
 **Headers:**
+
 ```
 Authorization: Bearer <admin-token>
 ```
 
 **Request Body:**
+
 ```json
 {
   "status": "processing" // "pending", "processing", "shipped", "delivered", "cancelled"
@@ -927,6 +975,7 @@ Authorization: Bearer <admin-token>
 ```
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -957,11 +1006,13 @@ POST /api/orders/:id/tracking
 Add shipping tracking information.
 
 **Headers:**
+
 ```
 Authorization: Bearer <admin-token>
 ```
 
 **Request Body:**
+
 ```json
 {
   "carrier": "FedEx",
@@ -971,6 +1022,7 @@ Authorization: Bearer <admin-token>
 ```
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -995,6 +1047,7 @@ GET /api/health
 Basic health check.
 
 **Response (200):**
+
 ```json
 {
   "status": "healthy",
@@ -1013,6 +1066,7 @@ GET /api/health/ready
 Check if all services are ready.
 
 **Response (200):**
+
 ```json
 {
   "status": "ready",
@@ -1032,6 +1086,7 @@ GET /api/health/live
 Check if the service is alive.
 
 **Response (200):**
+
 ```json
 {
   "status": "alive",
@@ -1149,16 +1204,19 @@ Check if the service is alive.
 ### Complete Purchase Flow
 
 1. **Browse Products**
+
    ```http
    GET /api/products?category=Electronics&sort=-rating
    ```
 
 2. **View Product Details**
+
    ```http
    GET /api/products/507f1f77bcf86cd799439011
    ```
 
 3. **Register/Login**
+
    ```http
    POST /api/auth/register
    {
@@ -1169,6 +1227,7 @@ Check if the service is alive.
    ```
 
 4. **Add Review (optional)**
+
    ```http
    POST /api/products/507f1f77bcf86cd799439011/reviews
    {
@@ -1178,6 +1237,7 @@ Check if the service is alive.
    ```
 
 5. **Create Order**
+
    ```http
    POST /api/orders
    {
@@ -1200,6 +1260,7 @@ Check if the service is alive.
    ```
 
 6. **Track Order**
+
    ```http
    GET /api/orders/507f1f77bcf86cd799439016
    ```
@@ -1207,6 +1268,7 @@ Check if the service is alive.
 ### Admin Product Management
 
 1. **Login as Admin**
+
    ```http
    POST /api/auth/login
    {
@@ -1216,6 +1278,7 @@ Check if the service is alive.
    ```
 
 2. **Create Product**
+
    ```http
    POST /api/products
    {
@@ -1229,6 +1292,7 @@ Check if the service is alive.
    ```
 
 3. **Update Inventory**
+
    ```http
    PUT /api/products/507f1f77bcf86cd799439011/inventory
    {
@@ -1238,14 +1302,15 @@ Check if the service is alive.
    ```
 
 4. **Process Orders**
+
    ```http
    GET /api/orders/admin/all?status=pending
-   
+
    PUT /api/orders/507f1f77bcf86cd799439016/status
    {
      "status": "processing"
    }
-   
+
    POST /api/orders/507f1f77bcf86cd799439016/tracking
    {
      "carrier": "FedEx",
@@ -1292,13 +1357,15 @@ Check if the service is alive.
 ## Support
 
 For API support, please contact:
-- Email: support@example.com
-- Documentation: https://api.example.com/docs
-- Status Page: https://status.example.com
+
+- Email: <support@example.com>
+- Documentation: <https://api.example.com/docs>
+- Status Page: <https://status.example.com>
 
 ## Changelog
 
 ### Version 1.0.0 (Current)
+
 - Initial release
 - Complete authentication system
 - Product catalog with reviews

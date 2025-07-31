@@ -77,7 +77,7 @@ function startWebUI(host: string, port: number) {
   const activeConnections: Set<any> = new Set();
 
   // CLI output capture system
-  let cliProcess: any = null;
+  const cliProcess: any = null;
 
   const consoleHTML = `
     <!DOCTYPE html>
@@ -229,7 +229,7 @@ function startWebUI(host: string, port: number) {
             const wsText = document.getElementById('ws-text');
             const cliStatus = document.getElementById('cli-status');
             const cliText = document.getElementById('cli-text');
-            
+
             let ws = null;
             let commandHistory = [];
             let historyIndex = -1;
@@ -238,44 +238,44 @@ function startWebUI(host: string, port: number) {
             let isReconnecting = false;
             const MAX_RECONNECT_ATTEMPTS = 10;
             const BASE_RECONNECT_DELAY = 1000;
-            
+
             function getReconnectDelay() {
                 // Exponential backoff with jitter
                 const exponentialDelay = Math.min(BASE_RECONNECT_DELAY * Math.pow(2, reconnectAttempts), 30000);
                 const jitter = Math.random() * 0.3 * exponentialDelay;
                 return exponentialDelay + jitter;
             }
-            
+
             function connect() {
                 if (isReconnecting || (ws && ws.readyState === WebSocket.CONNECTING)) {
                     console.log('Already connecting, skipping duplicate attempt');
                     return;
                 }
-                
+
                 isReconnecting = true;
                 const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
                 const wsUrl = \`\${protocol}//\${window.location.host}\`;
-                
+
                 try {
                     console.log(\`Attempting WebSocket connection to \${wsUrl}\`);
                     ws = new WebSocket(wsUrl);
-                    
+
                     ws.onopen = () => {
                         console.log('WebSocket connected successfully');
                         wsStatus.classList.remove('inactive');
                         wsText.textContent = 'Connected';
                         reconnectAttempts = 0;
                         isReconnecting = false;
-                        
+
                         if (reconnectTimer) {
                             clearTimeout(reconnectTimer);
                             reconnectTimer = null;
                         }
-                        
+
                         appendOutput('\n<span class="success">🔗 Connected to Claude-Flow Console</span>\n');
                         appendOutput('<span class="info">Type "help" for available commands or use any claude-flow command</span>\n\n');
                     };
-                    
+
                     ws.onmessage = (event) => {
                         try {
                             const data = JSON.parse(event.data);
@@ -285,18 +285,18 @@ function startWebUI(host: string, port: number) {
                             appendOutput(\`\n<span class="error">❌ Invalid message received: \${(error instanceof Error ? error.message : String(error))}</span>\n\`);
                         }
                     };
-                    
+
                     ws.onclose = (event) => {
                         console.log(\`WebSocket closed: code=\${event.code}, reason=\${event.reason}\`);
                         wsStatus.classList.add('inactive');
                         wsText.textContent = 'Disconnected';
                         isReconnecting = false;
-                        
+
                         if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
                             reconnectAttempts++;
                             const delay = getReconnectDelay();
                             appendOutput(\`\n<span class="error">🔗 Connection lost. Reconnecting in \${Math.round(delay/1000)}s... (attempt \${reconnectAttempts}/\${MAX_RECONNECT_ATTEMPTS})</span>\n\`);
-                            
+
                             reconnectTimer = setTimeout(() => {
                                 reconnectTimer = null;
                                 connect();
@@ -306,18 +306,18 @@ function startWebUI(host: string, port: number) {
                             wsText.textContent = 'Failed to connect';
                         }
                     };
-                    
+
                     ws.onerror = (error) => {
                         console.error('WebSocket error:', error);
                         appendOutput(\`\n<span class="error">❌ WebSocket error: \${(error instanceof Error ? error.message : String(error)) || 'Connection failed'}</span>\n\`);
                         isReconnecting = false;
                     };
-                    
+
                 } catch (error) {
                     console.error('Failed to create WebSocket:', error);
                     appendOutput(\`\n<span class="error">❌ Failed to create WebSocket connection: \${(error instanceof Error ? error.message : String(error))}</span>\n\`);
                     isReconnecting = false;
-                    
+
                     // Try reconnect if not exceeded max attempts
                     if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
                         reconnectAttempts++;
@@ -329,7 +329,7 @@ function startWebUI(host: string, port: number) {
                     }
                 }
             }
-            
+
             function handleMessage(data) {
                 switch (data.type) {
                     case 'output':
@@ -346,12 +346,12 @@ function startWebUI(host: string, port: number) {
                         break;
                 }
             }
-            
+
             function appendOutput(text) {
                 output.innerHTML += text;
                 output.scrollTop = output.scrollHeight;
             }
-            
+
             function updateStatus(status) {
                 // Update CLI status based on server response
                 if (status.cliActive) {
@@ -362,7 +362,7 @@ function startWebUI(host: string, port: number) {
                     cliText.textContent = 'CLI Inactive';
                 }
             }
-            
+
             function sendCommand(command) {
                 if (ws && ws.readyState === WebSocket.OPEN) {
                     appendOutput('<span class="prompt">claude-flow> </span>' + command + '\n');
@@ -370,7 +370,7 @@ function startWebUI(host: string, port: number) {
                         type: 'command',
                         data: command
                     }));
-                    
+
                     // Add to history
                     if (command.trim() && commandHistory[commandHistory.length - 1] !== command) {
                         commandHistory.push(command);
@@ -381,7 +381,7 @@ function startWebUI(host: string, port: number) {
                     historyIndex = commandHistory.length;
                 }
             }
-            
+
             // Input handling
             input.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') {
@@ -416,20 +416,20 @@ function startWebUI(host: string, port: number) {
                     }
                 }
             });
-            
+
             // Focus input on page load
             window.addEventListener('load', () => {
                 input.focus();
                 connect();
             });
-            
+
             // Implement heartbeat to detect stale connections
             setInterval(() => {
                 if (ws && ws.readyState === WebSocket.OPEN) {
                     ws.send(JSON.stringify({ type: 'ping', timestamp: Date.now() }));
                 }
             }, 30000); // Ping every 30 seconds
-            
+
             // Handle page visibility changes
             document.addEventListener('visibilitychange', () => {
                 if (!document.hidden && ws && ws.readyState !== WebSocket.OPEN) {
@@ -438,7 +438,7 @@ function startWebUI(host: string, port: number) {
                     connect();
                 }
             });
-            
+
             // Keep input focused
             document.addEventListener('click', () => {
                 input.focus();

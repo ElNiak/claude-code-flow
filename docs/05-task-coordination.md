@@ -9,6 +9,7 @@ Claude-Flow provides sophisticated task coordination capabilities with support f
 Information gathering and analysis tasks for knowledge acquisition.
 
 **Basic Research Task:**
+
 ```bash
 # Simple research task
 claude-flow task create research "Analyze competitor AI development tools" \
@@ -26,6 +27,7 @@ claude-flow task create research "Market analysis for AI development platforms" 
 ```
 
 **Research Task Configuration:**
+
 ```json
 {
   "type": "research",
@@ -55,6 +57,7 @@ claude-flow task create research "Market analysis for AI development platforms" 
 Code development and technical implementation tasks.
 
 **Basic Implementation:**
+
 ```bash
 # API development task
 claude-flow task create implementation "Develop user authentication API" \
@@ -71,6 +74,7 @@ claude-flow task create implementation "Build responsive dashboard UI" \
 ```
 
 **Complex Implementation with Subtasks:**
+
 ```bash
 # Microservices platform
 claude-flow task create implementation "Build e-commerce microservices platform" \
@@ -81,6 +85,7 @@ claude-flow task create implementation "Build e-commerce microservices platform"
 ```
 
 **Implementation Task Configuration:**
+
 ```json
 {
   "type": "implementation",
@@ -116,6 +121,7 @@ claude-flow task create implementation "Build e-commerce microservices platform"
 Data analysis, pattern recognition, and insights generation.
 
 **Data Analysis:**
+
 ```bash
 # User behavior analysis
 claude-flow task create analysis "Analyze user behavior patterns" \
@@ -133,6 +139,7 @@ claude-flow task create analysis "System performance optimization analysis" \
 ```
 
 **Analysis Task Configuration:**
+
 ```json
 {
   "type": "analysis",
@@ -160,6 +167,7 @@ claude-flow task create analysis "System performance optimization analysis" \
 Planning, orchestration, and project management tasks.
 
 **Project Coordination:**
+
 ```bash
 # Project planning
 claude-flow task create coordination "Plan Q2 product development roadmap" \
@@ -176,6 +184,7 @@ claude-flow task create coordination "Coordinate multi-team sprint execution" \
 ```
 
 **Coordination Task Configuration:**
+
 ```json
 {
   "type": "coordination",
@@ -194,7 +203,7 @@ claude-flow task create coordination "Coordinate multi-team sprint execution" \
     },
     {
       "name": "launch",
-      "duration": "2-weeks", 
+      "duration": "2-weeks",
       "activities": ["deployment", "monitoring", "support-preparation"]
     }
   ],
@@ -213,6 +222,7 @@ claude-flow task create coordination "Coordinate multi-team sprint execution" \
 Claude-Flow supports 5 priority levels with sophisticated scheduling algorithms.
 
 **Priority Configuration:**
+
 ```bash
 # Critical priority (level 1) - immediate execution
 claude-flow task create implementation "Fix security vulnerability CVE-2024-001" \
@@ -246,6 +256,7 @@ claude-flow task create maintenance "Clean up old log files and temporary data" 
 ### Advanced Scheduling
 
 **Time-Based Scheduling:**
+
 ```bash
 # Schedule for specific time
 claude-flow task create research "Weekly market analysis report" \
@@ -267,6 +278,7 @@ claude-flow task create analysis "Quarterly business review analysis" \
 ```
 
 **Resource-Based Scheduling:**
+
 ```bash
 # Schedule based on resource availability
 claude-flow task create implementation "Heavy computation task" \
@@ -286,6 +298,7 @@ claude-flow task create analysis "Large dataset processing" \
 ### Simple Dependencies
 
 **Linear Dependencies:**
+
 ```bash
 # Single dependency
 claude-flow task create implementation "Develop frontend components" \
@@ -303,6 +316,7 @@ claude-flow task create integration "Integrate payment system" \
 ### Complex Dependency Graphs
 
 **Dependency Chain Creation:**
+
 ```bash
 # Create dependency chain with IDs
 claude-flow task create research "Market research" --id market-research-001
@@ -318,6 +332,7 @@ claude-flow task dependencies --graph --output dependency-graph.png --format svg
 ```
 
 **Parallel Dependencies:**
+
 ```bash
 # Parallel execution with synchronization points
 claude-flow task create implementation "Backend API development" --id backend-api
@@ -332,6 +347,7 @@ claude-flow task create integration "System integration testing" \
 ### Conditional Dependencies
 
 **Conditional Dependency Configuration:**
+
 ```json
 {
   "task": "deploy-to-production",
@@ -364,6 +380,7 @@ claude-flow task create integration "System integration testing" \
 ### Simple Workflows
 
 **Basic Development Workflow:**
+
 ```bash
 # Create workflow from file
 claude-flow task workflow create --file simple-dev-workflow.json --name "Standard Development Process"
@@ -378,6 +395,7 @@ claude-flow task workflow abort <workflow-id> --save-progress
 ```
 
 **simple-dev-workflow.json:**
+
 ```json
 {
   "name": "Standard Development Workflow",
@@ -439,6 +457,7 @@ claude-flow task workflow abort <workflow-id> --save-progress
 ### Complex State Machine Workflows
 
 **Advanced Workflow with State Management:**
+
 ```json
 {
   "name": "Enterprise Software Development Lifecycle",
@@ -580,7 +599,7 @@ claude-flow task workflow abort <workflow-id> --save-progress
         },
         {
           "id": "security-testing",
-          "agent": "security-team", 
+          "agent": "security-team",
           "duration": "3d",
           "condition": "${security_level} == 'high'",
           "dependencies": ["integration-testing"]
@@ -676,6 +695,7 @@ claude-flow task workflow abort <workflow-id> --save-progress
 ### Event-Driven Workflows
 
 **Event-Driven Workflow Setup:**
+
 ```bash
 # Set up event-driven CI/CD pipeline
 claude-flow workflow event-driven create "ci-cd-pipeline" \
@@ -685,6 +705,7 @@ claude-flow workflow event-driven create "ci-cd-pipeline" \
 ```
 
 **event-handlers.json:**
+
 ```json
 {
   "git-push": {
@@ -734,6 +755,7 @@ claude-flow workflow event-driven create "ci-cd-pipeline" \
 ### Creating Workflow Templates
 
 **Template Definition:**
+
 ```bash
 # Create reusable template
 claude-flow workflow template create "microservice-development" \
@@ -749,6 +771,7 @@ claude-flow workflow template publish "microservice-development" \
 ```
 
 **microservice-template.json:**
+
 ```json
 {
   "name": "Microservice Development Template",
@@ -811,6 +834,7 @@ claude-flow workflow template publish "microservice-development" \
 ### Using Templates
 
 **Generate Workflow from Template:**
+
 ```bash
 # Use template with parameters
 claude-flow workflow generate \
@@ -832,6 +856,7 @@ claude-flow workflow customize-template "microservice-development" \
 ### Real-time Monitoring
 
 **Comprehensive Task Monitoring:**
+
 ```bash
 # Monitor all tasks with live dashboard
 claude-flow task monitor --all --dashboard --refresh 2s
@@ -850,6 +875,7 @@ claude-flow task monitor \
 ```
 
 **Performance Analytics:**
+
 ```bash
 # Task performance analysis
 claude-flow task analytics performance \
@@ -872,6 +898,7 @@ claude-flow task analytics productivity \
 ### Task Control Operations
 
 **Individual Task Control:**
+
 ```bash
 # Pause task with reason
 claude-flow task pause <task-id> \
@@ -899,6 +926,7 @@ claude-flow task reassign <task-id> \
 ```
 
 **Batch Operations:**
+
 ```bash
 # Batch pause by criteria
 claude-flow task batch-pause \
@@ -923,6 +951,7 @@ claude-flow task bulk-reassign \
 ### Load Balancing and Resource Management
 
 **Task Queue Optimization:**
+
 ```bash
 # Analyze queue performance
 claude-flow task queue-analysis \
@@ -941,6 +970,7 @@ claude-flow task schedule-optimize \
 ```
 
 **Agent Workload Balancing:**
+
 ```bash
 # Monitor agent workload
 claude-flow agent workload-monitor \

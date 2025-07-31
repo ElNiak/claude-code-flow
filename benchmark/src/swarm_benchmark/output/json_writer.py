@@ -10,30 +10,30 @@ from ..core.models import Benchmark, Result
 
 class JSONWriter:
     """Writes benchmark results to JSON files."""
-    
+
     def __init__(self):
         """Initialize the JSON writer."""
         pass
-    
+
     async def save_benchmark(self, benchmark: Benchmark, output_dir: Path) -> Path:
         """Save benchmark to JSON file.
-        
+
         Args:
             benchmark: Benchmark to save
             output_dir: Output directory
-            
+
         Returns:
             Path to saved file
         """
         output_file = output_dir / f"{benchmark.name}_{benchmark.id}.json"
-        
+
         benchmark_data = self._benchmark_to_dict(benchmark)
-        
-        with open(output_file, 'w', encoding='utf-8') as f:
+
+        with open(output_file, "w", encoding="utf-8") as f:
             json.dump(benchmark_data, f, indent=2, default=self._json_serializer)
-        
+
         return output_file
-    
+
     def _benchmark_to_dict(self, benchmark: Benchmark) -> Dict[str, Any]:
         """Convert benchmark to dictionary."""
         return {
@@ -46,13 +46,17 @@ class JSONWriter:
             "results": [self._result_to_dict(result) for result in benchmark.results],
             "metrics": self._metrics_to_dict(benchmark.metrics),
             "created_at": benchmark.created_at.isoformat(),
-            "started_at": benchmark.started_at.isoformat() if benchmark.started_at else None,
-            "completed_at": benchmark.completed_at.isoformat() if benchmark.completed_at else None,
+            "started_at": benchmark.started_at.isoformat()
+            if benchmark.started_at
+            else None,
+            "completed_at": benchmark.completed_at.isoformat()
+            if benchmark.completed_at
+            else None,
             "duration": benchmark.duration(),
             "error_log": benchmark.error_log,
-            "metadata": benchmark.metadata
+            "metadata": benchmark.metadata,
         }
-    
+
     def _config_to_dict(self, config) -> Dict[str, Any]:
         """Convert config to dictionary."""
         return {
@@ -72,9 +76,9 @@ class JSONWriter:
             "resource_limits": config.resource_limits,
             "output_formats": config.output_formats,
             "output_directory": config.output_directory,
-            "verbose": config.verbose
+            "verbose": config.verbose,
         }
-    
+
     def _task_to_dict(self, task) -> Dict[str, Any]:
         """Convert task to dictionary."""
         return {
@@ -90,14 +94,16 @@ class JSONWriter:
             "status": task.status.value,
             "created_at": task.created_at.isoformat(),
             "started_at": task.started_at.isoformat() if task.started_at else None,
-            "completed_at": task.completed_at.isoformat() if task.completed_at else None,
+            "completed_at": task.completed_at.isoformat()
+            if task.completed_at
+            else None,
             "duration": task.duration(),
             "assigned_agents": task.assigned_agents,
             "parent_task_id": task.parent_task_id,
             "subtasks": task.subtasks,
-            "dependencies": task.dependencies
+            "dependencies": task.dependencies,
         }
-    
+
     def _result_to_dict(self, result: Result) -> Dict[str, Any]:
         """Convert result to dictionary."""
         return {
@@ -116,7 +122,7 @@ class JSONWriter:
                 "error_rate": result.performance_metrics.error_rate,
                 "retry_count": result.performance_metrics.retry_count,
                 "coordination_overhead": result.performance_metrics.coordination_overhead,
-                "communication_latency": result.performance_metrics.communication_latency
+                "communication_latency": result.performance_metrics.communication_latency,
             },
             "quality_metrics": {
                 "accuracy_score": result.quality_metrics.accuracy_score,
@@ -125,7 +131,7 @@ class JSONWriter:
                 "relevance_score": result.quality_metrics.relevance_score,
                 "overall_quality": result.quality_metrics.overall_quality,
                 "review_score": result.quality_metrics.review_score,
-                "automated_score": result.quality_metrics.automated_score
+                "automated_score": result.quality_metrics.automated_score,
             },
             "resource_usage": {
                 "cpu_percent": result.resource_usage.cpu_percent,
@@ -135,15 +141,17 @@ class JSONWriter:
                 "disk_bytes_read": result.resource_usage.disk_bytes_read,
                 "disk_bytes_write": result.resource_usage.disk_bytes_write,
                 "peak_memory_mb": result.resource_usage.peak_memory_mb,
-                "average_cpu_percent": result.resource_usage.average_cpu_percent
+                "average_cpu_percent": result.resource_usage.average_cpu_percent,
             },
             "execution_details": result.execution_details,
             "created_at": result.created_at.isoformat(),
             "started_at": result.started_at.isoformat() if result.started_at else None,
-            "completed_at": result.completed_at.isoformat() if result.completed_at else None,
-            "duration": result.duration()
+            "completed_at": result.completed_at.isoformat()
+            if result.completed_at
+            else None,
+            "duration": result.duration(),
         }
-    
+
     def _metrics_to_dict(self, metrics) -> Dict[str, Any]:
         """Convert metrics to dictionary."""
         return {
@@ -161,9 +169,9 @@ class JSONWriter:
             "quality_score": metrics.quality_score,
             "peak_memory_usage": metrics.peak_memory_usage,
             "total_cpu_time": metrics.total_cpu_time,
-            "network_overhead": metrics.network_overhead
+            "network_overhead": metrics.network_overhead,
         }
-    
+
     def _json_serializer(self, obj):
         """JSON serializer for datetime and other objects."""
         if isinstance(obj, datetime):

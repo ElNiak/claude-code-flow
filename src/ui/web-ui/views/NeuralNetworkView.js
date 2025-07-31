@@ -109,7 +109,7 @@ export default class NeuralNetworkView {
             </div>
           </div>
         </div>
-        
+
         <div class="neural-tools">
           <h3>🔧 Quick Actions</h3>
           <div class="tool-buttons">
@@ -149,7 +149,7 @@ export default class NeuralNetworkView {
       <div class="neural-training">
         <div class="training-form">
           <h3>🧠 Neural Network Training</h3>
-          
+
           <div class="form-group">
             <label>Pattern Type:</label>
             <select id="pattern-type">
@@ -158,38 +158,38 @@ export default class NeuralNetworkView {
               <option value="prediction">Prediction</option>
             </select>
           </div>
-          
+
           <div class="form-group">
             <label>Training Data:</label>
             <textarea id="training-data" placeholder="Enter training data or file path..."></textarea>
           </div>
-          
+
           <div class="form-group">
             <label>Epochs:</label>
             <input type="number" id="epochs" value="50" min="1" max="1000">
           </div>
-          
+
           <div class="form-group">
             <label>Learning Rate:</label>
             <input type="number" id="learning-rate" value="0.001" step="0.001" min="0.0001" max="1">
           </div>
-          
+
           <button onclick="this.startTraining()" class="neural-btn primary">
             ⚡ Start Training
           </button>
         </div>
-        
+
         <div class="training-progress">
           <h3>📊 Training Progress</h3>
           <div id="training-status" class="status-display">
             <div class="status-idle">No training in progress</div>
           </div>
-          
+
           <div id="training-chart" class="chart-container">
             <!-- Training progress chart will be inserted here -->
           </div>
         </div>
-        
+
         <div class="training-history">
           <h3>📋 Training History</h3>
           <div id="training-history-list" class="history-list">
@@ -208,30 +208,30 @@ export default class NeuralNetworkView {
       <div class="neural-prediction">
         <div class="prediction-form">
           <h3>🔮 AI Prediction</h3>
-          
+
           <div class="form-group">
             <label>Model:</label>
             <select id="prediction-model">
               <option value="">Select a model...</option>
             </select>
           </div>
-          
+
           <div class="form-group">
             <label>Input Data:</label>
             <textarea id="prediction-input" placeholder="Enter input data for prediction..."></textarea>
           </div>
-          
+
           <button onclick="this.runPrediction()" class="neural-btn primary">
             🔮 Run Prediction
           </button>
         </div>
-        
+
         <div class="prediction-results">
           <h3>📊 Prediction Results</h3>
           <div id="prediction-output" class="results-display">
             <div class="no-results">No predictions yet</div>
           </div>
-          
+
           <div class="confidence-display">
             <h4>🎯 Confidence Score</h4>
             <div id="confidence-bar" class="confidence-bar">
@@ -240,7 +240,7 @@ export default class NeuralNetworkView {
             </div>
           </div>
         </div>
-        
+
         <div class="prediction-history">
           <h3>📋 Recent Predictions</h3>
           <div id="prediction-history-list" class="history-list">
@@ -259,7 +259,7 @@ export default class NeuralNetworkView {
       <div class="neural-patterns">
         <div class="pattern-analysis">
           <h3>🎯 Pattern Analysis</h3>
-          
+
           <div class="form-group">
             <label>Analysis Type:</label>
             <select id="analysis-type">
@@ -268,41 +268,41 @@ export default class NeuralNetworkView {
               <option value="predict">Predict</option>
             </select>
           </div>
-          
+
           <div class="form-group">
             <label>Operation:</label>
             <input type="text" id="pattern-operation" placeholder="Describe the operation...">
           </div>
-          
+
           <div class="form-group">
             <label>Outcome:</label>
             <input type="text" id="pattern-outcome" placeholder="Expected or actual outcome...">
           </div>
-          
+
           <button onclick="this.analyzePattern()" class="neural-btn primary">
             🎯 Analyze Pattern
           </button>
         </div>
-        
+
         <div class="pattern-results">
           <h3>📊 Pattern Insights</h3>
           <div id="pattern-insights" class="insights-display">
             <div class="no-insights">No pattern analysis yet</div>
           </div>
         </div>
-        
+
         <div class="cognitive-analysis">
           <h3>🧠 Cognitive Analysis</h3>
-          
+
           <div class="form-group">
             <label>Behavior to Analyze:</label>
             <textarea id="behavior-input" placeholder="Describe the behavior or process to analyze..."></textarea>
           </div>
-          
+
           <button onclick="this.analyzeCognitive()" class="neural-btn secondary">
             🧠 Analyze Behavior
           </button>
-          
+
           <div id="cognitive-results" class="cognitive-display">
             <!-- Cognitive analysis results will appear here -->
           </div>
@@ -319,7 +319,7 @@ export default class NeuralNetworkView {
       <div class="neural-models">
         <div class="model-management">
           <h3>💾 Model Management</h3>
-          
+
           <div class="model-actions">
             <button onclick="this.loadModel()" class="neural-btn primary">
               📥 Load Model
@@ -332,30 +332,30 @@ export default class NeuralNetworkView {
             </button>
           </div>
         </div>
-        
+
         <div class="model-list">
           <h3>📋 Available Models</h3>
           <div id="models-list" class="models-grid">
             <!-- Model cards will be populated here -->
           </div>
         </div>
-        
+
         <div class="model-operations">
           <h3>🔧 Model Operations</h3>
-          
+
           <div class="operation-grid">
             <div class="operation-card">
               <h4>🗜️ Compress Model</h4>
               <p>Reduce model size for faster inference</p>
               <button onclick="this.compressModel()" class="neural-btn">Compress</button>
             </div>
-            
+
             <div class="operation-card">
               <h4>🔄 Transfer Learning</h4>
               <p>Adapt model to new domain</p>
               <button onclick="this.transferLearn()" class="neural-btn">Transfer</button>
             </div>
-            
+
             <div class="operation-card">
               <h4>📊 Model Explain</h4>
               <p>Get AI explainability insights</p>
@@ -375,14 +375,14 @@ export default class NeuralNetworkView {
       <div class="neural-optimization">
         <div class="wasm-optimization">
           <h3>🚀 WASM SIMD Optimization</h3>
-          
+
           <div class="optimization-status">
             <div id="wasm-status" class="status-card">
               <div class="status-icon">🚀</div>
               <div class="status-text">Checking WASM status...</div>
             </div>
           </div>
-          
+
           <div class="optimization-controls">
             <button onclick="this.optimizeWasm()" class="neural-btn primary">
               ⚡ Optimize WASM
@@ -392,45 +392,45 @@ export default class NeuralNetworkView {
             </button>
           </div>
         </div>
-        
+
         <div class="inference-optimization">
           <h3>🔮 Inference Optimization</h3>
-          
+
           <div class="form-group">
             <label>Model for Inference:</label>
             <select id="inference-model">
               <option value="">Select model...</option>
             </select>
           </div>
-          
+
           <div class="form-group">
             <label>Test Data:</label>
             <textarea id="inference-data" placeholder="Enter test data array..."></textarea>
           </div>
-          
+
           <button onclick="this.runInference()" class="neural-btn primary">
             🔮 Run Inference
           </button>
-          
+
           <div id="inference-results" class="inference-display">
             <!-- Inference results will appear here -->
           </div>
         </div>
-        
+
         <div class="performance-metrics">
           <h3>📈 Performance Metrics</h3>
-          
+
           <div class="metrics-grid">
             <div class="metric-card">
               <div class="metric-label">Inference Speed</div>
               <div id="inference-speed" class="metric-value">-- ms</div>
             </div>
-            
+
             <div class="metric-card">
               <div class="metric-label">Memory Usage</div>
               <div id="memory-usage" class="metric-value">-- MB</div>
             </div>
-            
+
             <div class="metric-card">
               <div class="metric-label">WASM Speedup</div>
               <div id="wasm-speedup" class="metric-value">--x</div>
@@ -449,7 +449,7 @@ export default class NeuralNetworkView {
       <div class="neural-network-fallback">
         <h2>🧠 Neural Network Operations</h2>
         <p>Advanced neural network interface with 15 integrated tools</p>
-        
+
         <div class="tool-sections">
           <div class="tool-section">
             <h3>🧠 Training & Models</h3>
@@ -458,7 +458,7 @@ export default class NeuralNetworkView {
             <button onclick="this.quickAction('model_save')">Save Model</button>
             <button onclick="this.quickAction('model_load')">Load Model</button>
           </div>
-          
+
           <div class="tool-section">
             <h3>🔮 Prediction & Analysis</h3>
             <button onclick="this.quickAction('neural_predict')">Make Prediction</button>
@@ -466,7 +466,7 @@ export default class NeuralNetworkView {
             <button onclick="this.quickAction('cognitive_analyze')">Cognitive Analysis</button>
             <button onclick="this.quickAction('pattern_recognize')">Pattern Recognition</button>
           </div>
-          
+
           <div class="tool-section">
             <h3>⚡ Optimization</h3>
             <button onclick="this.quickAction('wasm_optimize')">WASM Optimization</button>
@@ -475,7 +475,7 @@ export default class NeuralNetworkView {
             <button onclick="this.quickAction('neural_explain')">Explain Model</button>
           </div>
         </div>
-        
+
         <div id="neural-output" class="output-area">
           <h3>📊 Output</h3>
           <pre id="output-content">Ready for neural operations...</pre>
@@ -769,14 +769,14 @@ if (typeof document !== 'undefined') {
     .neural-overview {
       padding: 20px;
     }
-    
+
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 16px;
       margin-bottom: 24px;
     }
-    
+
     .stat-card {
       display: flex;
       align-items: center;
@@ -785,33 +785,33 @@ if (typeof document !== 'undefined') {
       border-radius: 8px;
       border: 1px solid #444;
     }
-    
+
     .stat-icon {
       font-size: 24px;
       margin-right: 12px;
     }
-    
+
     .stat-value {
       font-size: 24px;
       font-weight: bold;
       color: #00d4ff;
     }
-    
+
     .stat-label {
       color: #888;
       font-size: 14px;
     }
-    
+
     .neural-tools {
       margin: 24px 0;
     }
-    
+
     .tool-buttons {
       display: flex;
       gap: 12px;
       flex-wrap: wrap;
     }
-    
+
     .neural-btn {
       padding: 10px 16px;
       border: none;
@@ -820,36 +820,36 @@ if (typeof document !== 'undefined') {
       font-weight: 500;
       transition: all 0.2s ease;
     }
-    
+
     .neural-btn.primary {
       background: #00d4ff;
       color: #000;
     }
-    
+
     .neural-btn.primary:hover {
       background: #00b8e6;
     }
-    
+
     .neural-btn.secondary {
       background: #444;
       color: #fff;
     }
-    
+
     .neural-btn.secondary:hover {
       background: #555;
     }
-    
+
     .form-group {
       margin-bottom: 16px;
     }
-    
+
     .form-group label {
       display: block;
       margin-bottom: 4px;
       color: #fff;
       font-weight: 500;
     }
-    
+
     .form-group input,
     .form-group select,
     .form-group textarea {
@@ -860,12 +860,12 @@ if (typeof document !== 'undefined') {
       border-radius: 4px;
       color: #fff;
     }
-    
+
     .form-group textarea {
       height: 100px;
       resize: vertical;
     }
-    
+
     .confidence-bar {
       position: relative;
       background: #1a1a1a;
@@ -874,13 +874,13 @@ if (typeof document !== 'undefined') {
       height: 24px;
       overflow: hidden;
     }
-    
+
     .confidence-fill {
       height: 100%;
       background: linear-gradient(90deg, #00d4ff, #0099cc);
       transition: width 0.3s ease;
     }
-    
+
     .confidence-text {
       position: absolute;
       top: 50%;
@@ -890,25 +890,25 @@ if (typeof document !== 'undefined') {
       font-size: 12px;
       font-weight: bold;
     }
-    
+
     .operation-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
       gap: 16px;
     }
-    
+
     .operation-card {
       background: #2a2a2a;
       border: 1px solid #444;
       border-radius: 8px;
       padding: 16px;
     }
-    
+
     .operation-card h4 {
       margin: 0 0 8px 0;
       color: #00d4ff;
     }
-    
+
     .operation-card p {
       margin: 0 0 12px 0;
       color: #888;

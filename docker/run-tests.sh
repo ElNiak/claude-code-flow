@@ -115,14 +115,14 @@ fi
 # Run integration tests
 if [ "$RUN_INTEGRATION" = true ]; then
     log_info "Running integration tests..."
-    
+
     # Start dependencies
     docker-compose -f $COMPOSE_FILE up -d hive-mind
-    
+
     # Wait for services to be ready
     log_info "Waiting for services to be ready..."
     sleep 10
-    
+
     # Run integration tests
     docker-compose -f $COMPOSE_FILE run --rm \
         -e TEST_SUITE=integration \
@@ -156,14 +156,14 @@ fi
 # Run E2E tests
 if [ "$RUN_E2E" = true ]; then
     log_info "Running end-to-end tests..."
-    
+
     # Start full stack
     docker-compose -f $COMPOSE_FILE --profile development up -d
-    
+
     # Wait for all services
     log_info "Waiting for full stack to be ready..."
     sleep 20
-    
+
     # Run E2E tests
     docker-compose -f $COMPOSE_FILE run --rm \
         -e TEST_SUITE=e2e \
@@ -189,7 +189,7 @@ fi
 # Generate test report
 if [ "$GENERATE_REPORT" = true ]; then
     log_info "Generating test report..."
-    
+
     cat > $TEST_RESULTS_DIR/summary.md << EOF
 # Hive Mind Test Results
 

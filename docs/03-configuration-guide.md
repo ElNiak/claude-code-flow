@@ -145,6 +145,7 @@ Manages terminal sessions and command execution.
 - **headless**: Use headless terminal sessions
 
 **Security Configuration:**
+
 ```json
 {
   "security": {
@@ -209,6 +210,7 @@ Controls the memory management system and storage.
 - **manual**: Manual conflict resolution required
 
 **Encryption Options:**
+
 ```json
 {
   "encryption": {
@@ -297,6 +299,7 @@ Model Context Protocol server settings.
 - **websocket**: WebSocket for real-time communication
 
 **Security Configuration:**
+
 ```json
 {
   "security": {
@@ -570,6 +573,7 @@ claude-flow config validate --strict
 ### Common Validation Errors
 
 **Invalid Range Values:**
+
 ```json
 {
   "orchestrator": {
@@ -579,6 +583,7 @@ claude-flow config validate --strict
 ```
 
 **Missing Required Fields:**
+
 ```json
 {
   "mcp": {
@@ -589,6 +594,7 @@ claude-flow config validate --strict
 ```
 
 **Type Mismatches:**
+
 ```json
 {
   "memory": {
@@ -600,26 +606,31 @@ claude-flow config validate --strict
 ## Best Practices
 
 ### 1. Environment Separation
+
 - Use separate configurations for dev/staging/production
 - Never commit sensitive values to version control
 - Use environment variables for secrets
 
 ### 2. Performance Tuning
+
 - Monitor system metrics to optimize settings
 - Adjust pool sizes based on workload
 - Enable compression for large datasets
 
 ### 3. Security Hardening
+
 - Enable encryption for sensitive data
 - Use TLS for remote communications
 - Implement proper access controls
 
 ### 4. Monitoring and Alerting
+
 - Configure appropriate log levels
 - Set up health check intervals
 - Monitor resource usage patterns
 
 ### 5. Backup and Recovery
+
 - Enable automatic backups
 - Test backup restoration procedures
 - Implement proper retention policies

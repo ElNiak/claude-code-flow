@@ -39,18 +39,21 @@ The current integration consists of multiple layers:
 ### 2. Current Implementation Issues
 
 #### 2.1 Complexity and Duplication
+
 - **Two parallel swarm implementations**: Built-in swarm and ruv-swarm
 - **Redundant configuration systems**: Multiple config managers
 - **Confusing tool naming**: Both `swarm/*` and `mcp__claude-flow__*` tools
 - **Command duplication**: CLI commands exist for both systems
 
 #### 2.2 Integration Challenges
+
 - **Process spawning**: Uses `npx ruv-swarm` for every command
 - **Error handling**: Limited error context from external commands
 - **Type safety**: Lost when crossing process boundaries
 - **Performance**: Each command spawns a new process
 
 #### 2.3 Developer Experience Issues
+
 - **Complex setup**: Multiple configuration files and settings
 - **Unclear API**: Mixing of MCP tools and direct CLI calls
 - **Documentation gaps**: Integration patterns not well documented
@@ -59,6 +62,7 @@ The current integration consists of multiple layers:
 ### 3. Current Usage Patterns
 
 #### 3.1 MCP Tool Usage
+
 ```javascript
 // Current pattern - verbose and process-heavy
 mcp__claude-flow__swarm_init({ topology: "mesh", maxAgents: 6 })
@@ -67,6 +71,7 @@ mcp__claude-flow__task_orchestrate({ task: "Research AI patterns" })
 ```
 
 #### 3.2 CLI Command Usage
+
 ```bash
 # Current pattern - requires shell execution
 claude-flow ruv-swarm init --topology mesh --max-agents 8
@@ -74,6 +79,7 @@ claude-flow ruv-swarm spawn researcher --name "AI Researcher"
 ```
 
 #### 3.3 Configuration Management
+
 ```javascript
 // Multiple configuration systems
 const ruvSwarmConfig = getRuvSwarmConfigManager(logger);
@@ -139,7 +145,7 @@ const result = await swarm.orchestrate('Research neural architectures');
 interface RuvSwarmSDK {
   // Initialization
   init(config?: SwarmConfig): Promise<void>;
-  
+
   // Swarm Management
   swarm: {
     create(preset?: SwarmPreset): Promise<Swarm>;
@@ -147,7 +153,7 @@ interface RuvSwarmSDK {
     monitor(options?: MonitorOptions): AsyncIterator<SwarmMetrics>;
     destroy(): Promise<void>;
   };
-  
+
   // Agent Management
   agents: {
     spawn(type: AgentType, options?: AgentOptions): Promise<Agent>;
@@ -155,7 +161,7 @@ interface RuvSwarmSDK {
     assign(agentId: string, task: Task): Promise<void>;
     metrics(agentId?: string): Promise<AgentMetrics>;
   };
-  
+
   // Task Orchestration
   tasks: {
     create(description: string, options?: TaskOptions): Promise<Task>;
@@ -163,7 +169,7 @@ interface RuvSwarmSDK {
     status(taskId?: string): Promise<TaskStatus>;
     cancel(taskId: string): Promise<void>;
   };
-  
+
   // Memory Operations
   memory: {
     store(key: string, value: any): Promise<void>;
@@ -171,7 +177,7 @@ interface RuvSwarmSDK {
     search(pattern: string): Promise<MemoryItem[]>;
     clear(pattern?: string): Promise<void>;
   };
-  
+
   // Presets and Patterns
   presets: {
     development: DevelopmentPreset;
@@ -239,17 +245,17 @@ const sequential = await swarm.patterns.sequential({
 ```typescript
 class MCPBridge {
   private mcpClient: MCPClient;
-  
+
   constructor(private config: BridgeConfig) {
     this.mcpClient = new MCPClient(config.mcpEndpoint);
   }
-  
+
   async callTool(toolName: string, params: any): Promise<any> {
     // Map SDK calls to MCP tools
     const mcpToolName = this.mapToMCPTool(toolName);
     return this.mcpClient.invoke(mcpToolName, params);
   }
-  
+
   private mapToMCPTool(sdkMethod: string): string {
     const mapping: Record<string, string> = {
       'swarm.init': 'mcp__claude-flow__swarm_init',
@@ -268,7 +274,7 @@ class MCPBridge {
 class RuvSwarmProcess {
   private process?: ChildProcess;
   private ready = false;
-  
+
   async start(config: ProcessConfig): Promise<void> {
     // Start ruv-swarm as a long-running process
     this.process = spawn('ruv-swarm', ['mcp', 'start', '--json'], {
@@ -279,11 +285,11 @@ class RuvSwarmProcess {
         RUV_SWARM_CONFIG: JSON.stringify(config)
       }
     });
-    
+
     // Handle process lifecycle
     await this.waitForReady();
   }
-  
+
   async sendCommand(command: Command): Promise<Response> {
     // Send commands via stdin/stdout instead of spawning new processes
     return this.ipc.send(command);
@@ -294,18 +300,21 @@ class RuvSwarmProcess {
 ### 5. Migration Strategy
 
 #### 5.1 Phase 1: SDK Development
+
 1. Create `@claude-flow/ruv-swarm-sdk` package
 2. Implement core SDK functionality
 3. Add preset configurations
 4. Create comprehensive examples
 
 #### 5.2 Phase 2: Integration Layer
+
 1. Update MCP tools to use SDK
 2. Create compatibility layer for existing code
 3. Update CLI commands to use SDK
 4. Deprecate duplicate implementations
 
 #### 5.3 Phase 3: Migration Tools
+
 1. Create migration script for configurations
 2. Provide code transformation tools
 3. Update documentation
@@ -380,30 +389,33 @@ const results = await testSwarm.runTests({
 ### 7. Performance Optimizations
 
 #### 7.1 Connection Pooling
+
 - Maintain persistent connections to ruv-swarm
 - Reuse processes instead of spawning new ones
 - Implement connection pooling for parallel operations
 
 #### 7.2 Caching Layer
+
 ```typescript
 class SwarmCache {
   async get(key: string): Promise<any> {
     // Check memory cache first
     if (this.memory.has(key)) return this.memory.get(key);
-    
+
     // Check persistent cache
     if (await this.persistent.has(key)) {
       const value = await this.persistent.get(key);
       this.memory.set(key, value);
       return value;
     }
-    
+
     return null;
   }
 }
 ```
 
 #### 7.3 Batch Operations
+
 ```typescript
 // Batch multiple operations
 const batch = swarm.batch();
@@ -479,24 +491,28 @@ expect(agent.id).toBe('mock-agent-1');
 ## Implementation Roadmap
 
 ### Phase 1: Foundation (Week 1-2)
+
 - [ ] Create SDK package structure
 - [ ] Implement core SwarmClient
 - [ ] Add basic agent and task management
 - [ ] Create initial tests
 
 ### Phase 2: Features (Week 3-4)
+
 - [ ] Implement preset system
 - [ ] Add workflow patterns
 - [ ] Create MCP bridge
 - [ ] Add monitoring capabilities
 
 ### Phase 3: Integration (Week 5-6)
+
 - [ ] Update Claude-Flow to use SDK
 - [ ] Create migration tools
 - [ ] Update documentation
 - [ ] Add comprehensive examples
 
 ### Phase 4: Optimization (Week 7-8)
+
 - [ ] Implement connection pooling
 - [ ] Add caching layer
 - [ ] Optimize batch operations
@@ -505,24 +521,28 @@ expect(agent.id).toBe('mock-agent-1');
 ## Benefits of SDK Approach
 
 ### 1. Developer Experience
+
 - **Intuitive API**: Natural, discoverable methods
 - **Type Safety**: Full TypeScript support
 - **Documentation**: Inline docs and examples
 - **Error Messages**: Clear, actionable errors
 
 ### 2. Performance
+
 - **Process Reuse**: 70% reduction in process spawning
 - **Batch Operations**: 5x improvement for multiple operations
 - **Caching**: 90% reduction in repeated operations
 - **Connection Pooling**: Optimal resource usage
 
 ### 3. Maintainability
+
 - **Single Source**: One SDK to maintain
 - **Clear Boundaries**: SDK handles all ruv-swarm interaction
 - **Testability**: Easy to mock and test
 - **Versioning**: Semantic versioning for SDK
 
 ### 4. Extensibility
+
 - **Plugin System**: Easy to add new capabilities
 - **Custom Presets**: User-defined workflows
 - **Middleware**: Intercept and modify operations

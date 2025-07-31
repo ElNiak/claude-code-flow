@@ -52,6 +52,7 @@ your-project/
 
 **Best for:** General development projects
 **Features:**
+
 - Complete SPARC methodology support
 - All 17+ development modes
 - Full documentation set
@@ -62,6 +63,7 @@ npx claude-flow init --sparc
 ```
 
 **Generated CLAUDE.md includes:**
+
 - Basic SPARC workflow instructions
 - Standard coding guidelines
 - General purpose tool configurations
@@ -71,6 +73,7 @@ npx claude-flow init --sparc
 
 **Best for:** Performance-critical projects, production use
 **Features:**
+
 - Pre-tuned prompts for faster responses
 - Reduced token usage patterns
 - Enhanced code quality gates
@@ -81,6 +84,7 @@ npx claude-flow init --sparc --force
 ```
 
 **Enhanced features:**
+
 - Streamlined system prompts (20% fewer tokens)
 - Mode-specific performance tuning
 - Advanced error handling patterns
@@ -90,6 +94,7 @@ npx claude-flow init --sparc --force
 
 **Best for:** Simple projects, quick prototypes
 **Features:**
+
 - Essential files only
 - Basic SPARC support
 - Lightweight configuration
@@ -100,6 +105,7 @@ npx claude-flow init --minimal
 ```
 
 **Minimal set includes:**
+
 - Basic CLAUDE.md
 - Essential memory structure
 - Core slash commands only
@@ -110,6 +116,7 @@ npx claude-flow init --minimal
 ### Project-Specific Templates
 
 #### Web Development Template
+
 ```javascript
 // Custom template for web projects
 export function createWebDevClaudeMd() {
@@ -141,6 +148,7 @@ export function createWebDevClaudeMd() {
 ```
 
 #### Mobile App Template
+
 ```javascript
 export function createMobileAppClaudeMd() {
   return `# Claude Code Configuration - Mobile Development
@@ -167,6 +175,7 @@ export function createMobileAppClaudeMd() {
 ### Custom SPARC Modes
 
 #### Domain-Specific Modes
+
 ```json
 {
   "blockchain-dev": {
@@ -195,6 +204,7 @@ export function createMobileAppClaudeMd() {
 ### Team-Specific Customizations
 
 #### Code Style Enforcement
+
 ```markdown
 ## Coding Standards (Team-Specific)
 
@@ -212,6 +222,7 @@ export function createMobileAppClaudeMd() {
 ```
 
 #### Quality Gates
+
 ```javascript
 // Custom quality thresholds
 export const QUALITY_THRESHOLDS = {
@@ -263,7 +274,7 @@ export class BaseTemplate {
   constructor(config) {
     this.config = config;
   }
-  
+
   generateClaudeMd() {
     return this.getBaseInstructions() + this.getSpecificInstructions();
   }
@@ -291,17 +302,17 @@ export function generateDynamicTemplate(projectPath) {
   const packageJson = readPackageJson(projectPath);
   const hasReact = packageJson.dependencies?.react;
   const hasExpress = packageJson.dependencies?.express;
-  
+
   const template = new BaseTemplate();
-  
+
   if (hasReact) {
     template.addFrontendConfig();
   }
-  
+
   if (hasExpress) {
     template.addBackendConfig();
   }
-  
+
   return template.generate();
 }
 ```
@@ -309,26 +320,31 @@ export function generateDynamicTemplate(projectPath) {
 ## Template Best Practices
 
 ### 1. Keep Templates Focused
+
 - One concern per template
 - Clear separation of responsibilities
 - Avoid feature bloat
 
 ### 2. Use Consistent Patterns
+
 - Follow established naming conventions
 - Maintain consistent file structure
 - Use standard configuration formats
 
 ### 3. Include Examples
+
 - Provide working code examples
 - Show expected outputs
 - Include troubleshooting scenarios
 
 ### 4. Version Control Templates
+
 - Track template changes
 - Use semantic versioning
 - Maintain backward compatibility
 
 ### 5. Test Templates
+
 - Validate generated configurations
 - Test with real projects
 - Automate template testing
@@ -336,6 +352,7 @@ export function generateDynamicTemplate(projectPath) {
 ## Creating Custom Templates
 
 ### Step 1: Define Template Structure
+
 ```javascript
 // my-custom-template.js
 export function createCustomTemplate(options = {}) {
@@ -344,7 +361,7 @@ export function createCustomTemplate(options = {}) {
     framework = 'vanilla',
     testingStrategy = 'jest'
   } = options;
-  
+
   return {
     claudeMd: generateClaudeMd(projectType, framework),
     sparcModes: generateSparcModes(testingStrategy),
@@ -354,6 +371,7 @@ export function createCustomTemplate(options = {}) {
 ```
 
 ### Step 2: Register Template
+
 ```javascript
 // Register in template registry
 import { registerTemplate } from './template-registry.js';
@@ -371,6 +389,7 @@ registerTemplate('my-custom', {
 ```
 
 ### Step 3: Use Custom Template
+
 ```bash
 npx claude-flow init --template my-custom --project-type web --framework react
 ```
@@ -378,6 +397,7 @@ npx claude-flow init --template my-custom --project-type web --framework react
 ## Template Validation
 
 ### Schema Validation
+
 ```json
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
@@ -400,6 +420,7 @@ npx claude-flow init --template my-custom --project-type web --framework react
 ```
 
 ### Automated Testing
+
 ```javascript
 // Template validation tests
 describe('Template Generation', () => {
@@ -408,7 +429,7 @@ describe('Template Generation', () => {
     expect(template.claudeMd).toContain('# Claude Code Configuration');
     expect(template.claudeMd).toContain('## SPARC Development');
   });
-  
+
   test('includes all required SPARC modes', () => {
     const template = createCustomTemplate();
     const requiredModes = ['architect', 'code', 'tdd', 'debug'];
@@ -422,6 +443,7 @@ describe('Template Generation', () => {
 ## Sharing Templates
 
 ### Template Packages
+
 Create npm packages for reusable templates:
 
 ```json
@@ -436,6 +458,7 @@ Create npm packages for reusable templates:
 ```
 
 ### Template Registry
+
 Contribute to the community template registry:
 
 ```bash
@@ -449,6 +472,7 @@ npx claude-flow template install @community/react-template
 ## Migration and Updates
 
 ### Template Migration
+
 When updating templates:
 
 1. **Backup existing configuration**
@@ -458,6 +482,7 @@ When updating templates:
 5. **Update documentation**
 
 ### Automated Migration
+
 ```bash
 # Migrate to new template version
 npx claude-flow template migrate --from 1.0 --to 2.0 --preserve-custom
@@ -483,6 +508,7 @@ npx claude-flow template migrate --from 1.0 --to 2.0 --preserve-custom
    - Use lazy loading
 
 ### Debug Mode
+
 ```bash
 # Debug template generation
 npx claude-flow init --template custom --debug --verbose
@@ -491,6 +517,7 @@ npx claude-flow init --template custom --debug --verbose
 ## Contributing Templates
 
 See our [Template Contribution Guide](./contributing-templates.md) for:
+
 - Template development standards
 - Testing requirements
 - Documentation guidelines

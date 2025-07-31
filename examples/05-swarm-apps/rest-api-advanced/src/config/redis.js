@@ -48,7 +48,7 @@ const initializeRedis = async () => {
 
     // Test the connection
     await redisClient.ping();
-    
+
     return redisClient;
   } catch (error) {
     logger.error('Redis initialization failed:', error);

@@ -39,7 +39,7 @@ scripts/build-migration.sh       # Build and distribution script
 ### 1. Migration Strategies
 
 - **Full Strategy**: Complete replacement of .claude folder (high risk, with backup)
-- **Selective Strategy**: Updates core files, preserves customizations (medium risk) 
+- **Selective Strategy**: Updates core files, preserves customizations (medium risk)
 - **Merge Strategy**: Merges configurations, preserves custom commands (low risk)
 
 ### 2. Risk Management
@@ -60,6 +60,7 @@ scripts/build-migration.sh       # Build and distribution script
 ## 📋 CLI Commands
 
 ### Analysis Commands
+
 ```bash
 # Basic analysis
 npx claude-flow migrate analyze
@@ -72,6 +73,7 @@ npx claude-flow migrate analyze /path/to/project
 ```
 
 ### Migration Commands
+
 ```bash
 # Preview changes (safe)
 npx claude-flow migrate --dry-run --verbose
@@ -90,6 +92,7 @@ npx claude-flow migrate --force
 ```
 
 ### Backup & Rollback Commands
+
 ```bash
 # List available backups
 npx claude-flow migrate rollback --list
@@ -105,6 +108,7 @@ npx claude-flow migrate rollback --force
 ```
 
 ### Validation Commands
+
 ```bash
 # Validate migration
 npx claude-flow migrate validate
@@ -119,33 +123,42 @@ npx claude-flow migrate status
 ## 🎯 Usage Scenarios
 
 ### Scenario 1: Fresh Project Setup
+
 ```bash
 npx claude-flow migrate --strategy full
 ```
+
 **Result**: Clean installation of all optimized prompts and configurations.
 
 ### Scenario 2: Existing Project with Custom Commands
+
 ```bash
 npx claude-flow migrate analyze --detailed
 npx claude-flow migrate --strategy selective --preserve-custom
 ```
+
 **Result**: Core files updated, custom commands preserved.
 
 ### Scenario 3: Complex Project with Configurations
+
 ```bash
 npx claude-flow migrate --strategy merge --preserve-custom
 npx claude-flow migrate validate --verbose
 ```
+
 **Result**: Configurations merged, custom content preserved.
 
 ### Scenario 4: Safe Preview Before Migration
+
 ```bash
 npx claude-flow migrate --dry-run --verbose
 npx claude-flow migrate --strategy selective
 ```
+
 **Result**: Risk-free preview of all changes before applying.
 
 ### Scenario 5: Batch Migration
+
 ```bash
 find . -name ".claude" -type d | while read dir; do
   project_path=$(dirname "$dir")
@@ -153,11 +166,13 @@ find . -name ".claude" -type d | while read dir; do
   npx claude-flow migrate "$project_path" --strategy selective --force
 done
 ```
+
 **Result**: Multiple projects migrated with consistent strategy.
 
 ## 🔧 API Usage
 
 ### Programmatic Migration
+
 ```typescript
 import { MigrationRunner, MigrationAnalyzer } from 'claude-flow/migration';
 
@@ -178,6 +193,7 @@ console.log(`Migration ${result.success ? 'succeeded' : 'failed'}`);
 ```
 
 ### Backup Management
+
 ```typescript
 import { RollbackManager } from 'claude-flow/migration';
 
@@ -196,12 +212,14 @@ await rollback.rollback(backup.metadata.backupId);
 ## 🧪 Testing
 
 ### Test Coverage
+
 - **Unit Tests**: All core components with edge cases
 - **Integration Tests**: End-to-end migration workflows
 - **Edge Case Tests**: Permission issues, corrupted files, concurrent access
 - **Performance Tests**: Large project handling and resource usage
 
 ### Running Tests
+
 ```bash
 # All tests
 npm test src/migration/
@@ -216,6 +234,7 @@ npm run test:coverage
 ## 📦 Build and Distribution
 
 ### Build System
+
 ```bash
 # Build migration system
 ./scripts/build-migration.sh
@@ -228,6 +247,7 @@ npm install -g ./dist/migration
 ```
 
 ### Package Structure
+
 ```
 dist/migration/
 ├── index.js                 # Compiled CLI entry point
@@ -241,12 +261,14 @@ dist/migration/
 ## 🔐 Security Considerations
 
 ### File Safety
+
 - **Checksums**: All files verified with SHA-256
 - **Permissions**: Original permissions preserved during restore
 - **Isolation**: Migrations run in project scope only
 - **Validation**: Content integrity verified post-migration
 
 ### Backup Security
+
 - **Local Storage**: Backups stored locally only
 - **No Network**: No external dependencies or data transmission
 - **Access Control**: Respects file system permissions
@@ -255,6 +277,7 @@ dist/migration/
 ## 📊 Performance Metrics
 
 ### Typical Performance
+
 - **Analysis**: ~100ms for standard project
 - **Full Migration**: ~500ms for complete replacement
 - **Selective Migration**: ~200ms preserving customizations
@@ -262,6 +285,7 @@ dist/migration/
 - **Backup Creation**: ~100ms for typical project
 
 ### Optimization Features
+
 - **Parallel Processing**: Concurrent file operations where safe
 - **Incremental Updates**: Only modify changed files
 - **Memory Efficiency**: Streaming for large files
@@ -270,12 +294,14 @@ dist/migration/
 ## 🛠️ Maintenance and Support
 
 ### Troubleshooting
+
 - **Debug Mode**: `export DEBUG=true` for detailed logging
 - **Log Files**: Migration logs stored in `logs/migration.log`
 - **Validation Tools**: Built-in integrity checking
 - **Recovery Options**: Multiple rollback mechanisms
 
 ### Extension Points
+
 - **Custom Analyzers**: Extend `MigrationAnalyzer` for new detection rules
 - **Custom Strategies**: Add new migration strategies to `MigrationRunner`
 - **Custom Validators**: Create validation rules in `MigrationValidator`
@@ -284,6 +310,7 @@ dist/migration/
 ## 📈 Future Enhancements
 
 ### Planned Features
+
 - **Git Integration**: Automatic commit creation during migration
 - **Remote Backups**: Cloud storage integration for backups
 - **Web UI**: Browser-based migration interface
@@ -291,6 +318,7 @@ dist/migration/
 - **Plugin Architecture**: Third-party extension support
 
 ### Integration Opportunities
+
 - **CI/CD Pipelines**: Automated migration in deployment workflows
 - **IDE Extensions**: VS Code integration for migration management
 - **Monitoring Systems**: Integration with application monitoring
@@ -299,6 +327,7 @@ dist/migration/
 ## 🎉 Migration Success Criteria
 
 ### Validation Checks
+
 - ✅ All required files present and valid
 - ✅ Command files contain proper structure
 - ✅ Configurations merged correctly
@@ -307,6 +336,7 @@ dist/migration/
 - ✅ Rollback capabilities verified
 
 ### Quality Assurance
+
 - ✅ Comprehensive test coverage (>90%)
 - ✅ Edge case handling
 - ✅ Performance benchmarks met
@@ -317,12 +347,14 @@ dist/migration/
 ## 📞 Support and Documentation
 
 ### Documentation
+
 - **README.md**: Complete user guide with examples
 - **API Documentation**: TypeScript definitions and JSDoc
 - **Migration Guide**: Step-by-step migration procedures
 - **Troubleshooting Guide**: Common issues and solutions
 
 ### Community Support
+
 - **GitHub Issues**: Bug reports and feature requests
 - **Example Repository**: Real-world migration examples
 - **Best Practices**: Community-driven recommendations
@@ -335,6 +367,7 @@ dist/migration/
 The Claude-Flow Migration System provides a robust, safe, and user-friendly way for existing projects to adopt optimized prompts and configurations. With multiple strategies, comprehensive backup systems, and thorough validation, it handles the complexity of migrating existing customizations while ensuring data safety and system reliability.
 
 **Key Achievements:**
+
 - ✅ Complete migration framework with 3 strategies
 - ✅ Comprehensive backup and rollback system  
 - ✅ Advanced risk detection and mitigation

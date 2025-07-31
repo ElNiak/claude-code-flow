@@ -1,6 +1,9 @@
 # Claude Code Configuration - SPARC Development Environment (Batchtools Optimized)
 
 ## Core Principles
+
+- NEVER RESET or CLEAN the repository or workspace except when explicitly
+  requested by the User.
 - Do what has been asked; nothing more, nothing less.
 - NEVER create files unless they're absolutely necessary for achieving your goal.
 - ALWAYS prefer editing an existing file to creating a new one.
@@ -50,6 +53,10 @@
 Use the agent `objective-analyst` to analyze the given objectives and determine
 the best approach for concurrent execution. This agent will help you identify
 independent operations that can be batched together for optimal performance.
+
+Reviewer agents are NEVER allowed to run concurrently to coder agents. Always after
+the coder agents have completed their tasks, the reviewer agents can be spawned
+to review the code changes.
 
 ### Concurrency Policy (Safety-First)
 

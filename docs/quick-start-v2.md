@@ -15,7 +15,7 @@ Claude Flow v2.0.0 is a complete reimagining of AI agent orchestration:
 
 ## Prerequisites
 
-- **Node.js 18+** 
+- **Node.js 18+**
 - **Claude Code CLI** (recommended) or standalone mode
 - **Terminal access** with bash support
 - **Internet connection** for MCP tool integration
@@ -69,6 +69,7 @@ claude-flow hive-mind init --topology mesh --agents 6
 ```
 
 The wizard will guide you through:
+
 - **Queen Selection**: Choose your coordination strategy
 - **Topology Setup**: Mesh, hierarchical, ring, or star configurations
 - **Agent Spawning**: Automatic intelligent agent deployment
@@ -81,6 +82,7 @@ claude-flow hive-mind status
 ```
 
 Expected output:
+
 ```
 🐝 Hive Mind v2.0.0 - Queen-Led Swarm Intelligence
 ├── 👑 Queen: Active (mesh topology)
@@ -357,12 +359,14 @@ Configure `claude-flow.swarm.json`:
 Claude Flow v2.0.0 delivers significant performance improvements:
 
 ### Speed Improvements
+
 - **Task Orchestration**: 2.8x faster than v1.0.0
 - **Agent Coordination**: 4.4x improvement with neural optimization
 - **Memory Operations**: 3.2x faster with enhanced indexing
 - **Neural Inference**: Real-time with WASM acceleration
 
 ### Efficiency Gains
+
 - **Token Usage**: 32.3% reduction through intelligent optimization
 - **Resource Utilization**: 45% improvement with load balancing
 - **Error Rates**: 67% reduction with predictive error handling
@@ -384,6 +388,7 @@ claude-flow benchmark optimize --auto-apply-safe --neural-insights
 ## Common Commands Reference (v2.0.0)
 
 ### Hive Mind Operations
+
 ```bash
 claude-flow hive-mind wizard              # Interactive setup
 claude-flow hive-mind status              # System status
@@ -392,6 +397,7 @@ claude-flow hive-mind backup              # Backup collective memory
 ```
 
 ### Intelligent Swarm Management
+
 ```bash
 claude-flow swarm auto-spawn              # Intelligent agent spawning
 claude-flow swarm monitor --live          # Real-time monitoring
@@ -400,6 +406,7 @@ claude-flow swarm coordinate              # Manual coordination
 ```
 
 ### Neural Network Operations
+
 ```bash
 claude-flow neural train                  # Train neural models
 claude-flow neural predict                # Make predictions
@@ -408,6 +415,7 @@ claude-flow neural optimize               # Optimize models
 ```
 
 ### Advanced Memory Operations
+
 ```bash
 claude-flow memory search --collective    # Collective memory search
 claude-flow memory analytics              # Memory analytics
@@ -416,6 +424,7 @@ claude-flow memory sync                   # Cross-session sync
 ```
 
 ### MCP Tools (87 Available)
+
 ```bash
 claude-flow mcp list-tools                # List all MCP tools
 claude-flow mcp swarm-init                # Initialize swarm coordination
@@ -463,21 +472,25 @@ claude-flow memory debug --access-patterns --optimization-hints
 After completing this quick start, explore these advanced v2.0.0 features:
 
 ### 🧠 Advanced Neural Features
+
 - [Neural Network Training](./neural-networks.md) - Custom model development
 - [Pattern Recognition](./pattern-recognition.md) - Automated workflow optimization
 - [Predictive Analytics](./predictive-analytics.md) - Proactive task management
 
 ### 🐝 Hive Mind Mastery  
+
 - [Queen Configuration](./hive-mind/queen-setup.md) - Advanced coordination strategies
 - [Collective Intelligence](./hive-mind/collective-intelligence.md) - Swarm learning
 - [Cross-Session Memory](./hive-mind/persistent-memory.md) - Knowledge continuity
 
 ### 🛠️ MCP Tools Mastery
+
 - [All 87 MCP Tools](./mcp-tools-reference.md) - Complete tool documentation
 - [Custom Tool Development](./custom-mcp-tools.md) - Build your own tools
 - [Integration Patterns](./integration-patterns.md) - Advanced use cases
 
 ### 🚀 Enterprise Features
+
 - [Production Deployment](./enterprise/deployment.md) - Scalable deployment
 - [Security Configuration](./enterprise/security.md) - Enterprise security
 - [Monitoring & Analytics](./enterprise/monitoring.md) - Production monitoring

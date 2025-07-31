@@ -16,9 +16,9 @@ export class MonitorAgent {
 
   async monitorSystemHealth(): Promise<any> {
     console.log(`[${this.agentId}] Monitoring system health...`);
-    
+
     await this.simulateWork(500);
-    
+
     const health = {
       overallHealth: Math.floor(Math.random() * 20) + 80,
       services: {
@@ -38,7 +38,7 @@ export class MonitorAgent {
         network: { in: '125 Mbps', out: '87 Mbps', connections: 3421 }
       }
     };
-    
+
     console.log(`[${this.agentId}] Health monitoring completed`);
     return {
       agentId: this.agentId,
@@ -50,9 +50,9 @@ export class MonitorAgent {
 
   async trackPerformanceMetrics(): Promise<any> {
     console.log(`[${this.agentId}] Tracking performance metrics...`);
-    
+
     await this.simulateWork(700);
-    
+
     const performance = {
       api: {
         requestsPerSecond: Math.floor(Math.random() * 500) + 800,
@@ -78,7 +78,7 @@ export class MonitorAgent {
         errorTrend: 'decreasing'
       }
     };
-    
+
     console.log(`[${this.agentId}] Performance tracking completed`);
     return {
       agentId: this.agentId,
@@ -89,9 +89,9 @@ export class MonitorAgent {
 
   async trackErrorsAndAlerts(): Promise<any> {
     console.log(`[${this.agentId}] Tracking errors and alerts...`);
-    
+
     await this.simulateWork(600);
-    
+
     const errorTracking = {
       last24Hours: {
         total: Math.floor(Math.random() * 200) + 50,
@@ -119,7 +119,7 @@ export class MonitorAgent {
         'Memory usage trending upward'
       ]
     };
-    
+
     console.log(`[${this.agentId}] Error tracking completed`);
     return {
       agentId: this.agentId,
@@ -130,9 +130,9 @@ export class MonitorAgent {
 
   async trackUptime(): Promise<any> {
     console.log(`[${this.agentId}] Tracking system uptime...`);
-    
+
     await this.simulateWork(300);
-    
+
     const uptime = {
       current: {
         days: Math.floor(Math.random() * 30) + 60,
@@ -158,7 +158,7 @@ export class MonitorAgent {
         { date: '2024-01-15', duration: '12 min', cause: 'Database failover' }
       ]
     };
-    
+
     console.log(`[${this.agentId}] Uptime tracking completed`);
     return {
       agentId: this.agentId,
@@ -169,9 +169,9 @@ export class MonitorAgent {
 
   async generateHealthReport(): Promise<any> {
     console.log(`[${this.agentId}] Generating comprehensive health report...`);
-    
+
     await this.simulateWork(1000);
-    
+
     const report = {
       reportId: `HR-${Date.now()}`,
       period: 'Last 24 hours',
@@ -198,7 +198,7 @@ export class MonitorAgent {
         { priority: 'Low', action: 'Update monitoring dashboards' }
       ]
     };
-    
+
     console.log(`[${this.agentId}] Health report generated`);
     return {
       agentId: this.agentId,
@@ -215,7 +215,7 @@ export class MonitorAgent {
 // Allow direct execution
 if (require.main === module) {
   const monitor = new MonitorAgent();
-  
+
   Promise.all([
     monitor.monitorSystemHealth(),
     monitor.trackPerformanceMetrics(),

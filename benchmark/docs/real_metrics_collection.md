@@ -245,6 +245,7 @@ trends = analyze_performance_trends(history)
 ### Overhead
 
 The metrics collection system is designed for minimal overhead:
+
 - ~2-5% CPU overhead for monitoring
 - ~10-20 MB memory overhead
 - Configurable sampling rates
@@ -252,6 +253,7 @@ The metrics collection system is designed for minimal overhead:
 ### Optimization
 
 For production benchmarks:
+
 - Use larger sampling intervals (0.1-0.5s)
 - Disable detailed collection for long runs
 - Use batch operations for efficiency

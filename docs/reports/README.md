@@ -5,7 +5,9 @@ This directory contains various analysis reports, performance metrics, and optim
 ## Contents
 
 ### Performance Comparison Reports
+
 JSON files containing detailed performance comparisons across different configurations:
+
 - `comparison-analysis-mesh_*.json`: Mesh topology analysis
 - `comparison-development-hierarchical_*.json`: Hierarchical development patterns
 - `comparison-optimization-hybrid_*.json`: Hybrid optimization strategies
@@ -13,10 +15,13 @@ JSON files containing detailed performance comparisons across different configur
 - `comparison-testing-distributed_*.json`: Distributed testing analysis
 
 ### Swarm Auto Reports
+
 - `swarm-auto-centralized-*.json`: Automated centralized swarm analysis
 
 ### Swarm Optimization
+
 The `swarm-optimization/` subdirectory contains:
+
 - Initial analysis and findings
 - Optimization recommendations
 - Strategy documents
@@ -25,6 +30,7 @@ The `swarm-optimization/` subdirectory contains:
 ## Report Format
 
 Most reports are in JSON format containing:
+
 - Timestamp and session information
 - Performance metrics
 - Resource utilization
@@ -34,6 +40,7 @@ Most reports are in JSON format containing:
 ## Using the Reports
 
 These reports are valuable for:
+
 1. Performance tuning
 2. Identifying bottlenecks
 3. Comparing different strategies
@@ -43,6 +50,7 @@ These reports are valuable for:
 ## Generating New Reports
 
 Reports are automatically generated during:
+
 - Performance benchmarks
 - Swarm executions
 - Optimization runs

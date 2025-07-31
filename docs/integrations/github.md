@@ -1,6 +1,7 @@
 # 🐙 Claude Flow v2.0.0 GitHub Integration Guide
 
 ## 📋 Table of Contents
+
 1. [Overview](#overview)
 2. [Quick Start](#quick-start)
 3. [GitHub Commands](#github-commands)
@@ -15,6 +16,7 @@
 ## 🎯 Overview
 
 Claude Flow v2.0.0 introduces powerful GitHub integration with intelligent swarm coordination:
+
 - **✅ 6 Specialized Command Modes** - PR, issue, release, sync, repo management
 - **✅ Multi-Agent Coordination** - Swarm intelligence for complex workflows
 - **✅ Automated Reviews** - Intelligent code review with multiple perspectives
@@ -25,6 +27,7 @@ Claude Flow v2.0.0 introduces powerful GitHub integration with intelligent swarm
 ## 🚀 Quick Start
 
 ### Setup GitHub Token
+
 ```bash
 # Set GitHub token (required for API access)
 export GITHUB_TOKEN=ghp_your_token_here
@@ -37,6 +40,7 @@ echo "GITHUB_TOKEN=ghp_your_token_here" >> .env
 ```
 
 ### Basic Usage
+
 ```bash
 # Create and manage pull request
 ./claude-flow github pr-manager "implement user authentication"
@@ -51,6 +55,7 @@ echo "GITHUB_TOKEN=ghp_your_token_here" >> .env
 ## 📝 GitHub Commands
 
 ### Command Overview
+
 | Command | Purpose | Example |
 |---------|---------|---------|
 | `pr-manager` | Create and manage pull requests | `./claude-flow github pr-manager "add new feature"` |
@@ -63,6 +68,7 @@ echo "GITHUB_TOKEN=ghp_your_token_here" >> .env
 ## 🔄 Pull Request Management
 
 ### Create Intelligent PR
+
 ```bash
 # Basic PR creation with swarm analysis
 ./claude-flow github pr-manager "implement OAuth2 authentication"
@@ -77,7 +83,9 @@ echo "GITHUB_TOKEN=ghp_your_token_here" >> .env
 ```
 
 ### PR Manager Workflow
+
 The PR manager spawns specialized agents:
+
 1. **📊 Analyzer Agent** - Reviews code changes and impact
 2. **📝 Documenter Agent** - Updates documentation
 3. **🧪 Tester Agent** - Suggests test cases
@@ -85,6 +93,7 @@ The PR manager spawns specialized agents:
 5. **🎯 Coordinator Agent** - Manages workflow
 
 ### Advanced PR Features
+
 ```bash
 # Create PR with comprehensive analysis
 ./claude-flow github pr-manager "major refactoring" \
@@ -100,6 +109,7 @@ The PR manager spawns specialized agents:
 ```
 
 ### Example PR Creation Output
+
 ```
 🐝 Spawning PR Management Swarm...
 ├── 📊 Analyzer: Examining 15 files changed
@@ -120,6 +130,7 @@ Review: 3 reviewers assigned
 ## 🐛 Issue Management
 
 ### Intelligent Issue Resolution
+
 ```bash
 # Analyze and create fix for issue
 ./claude-flow github issue-solver "#123"
@@ -132,6 +143,7 @@ Review: 3 reviewers assigned
 ```
 
 ### Issue Solver Workflow
+
 1. **🔍 Analysis** - Deep dive into issue details
 2. **🧠 Root Cause** - Identify underlying problems
 3. **💡 Solution Design** - Create fix approach
@@ -139,6 +151,7 @@ Review: 3 reviewers assigned
 5. **✅ Validation** - Test and verify solution
 
 ### Advanced Issue Features
+
 ```bash
 # Batch issue processing
 ./claude-flow github issue-solver \
@@ -156,6 +169,7 @@ Review: 3 reviewers assigned
 ## 🚀 Release Automation
 
 ### Orchestrate Release
+
 ```bash
 # Create new release
 ./claude-flow github release-coordinator "v2.1.0"
@@ -175,6 +189,7 @@ Review: 3 reviewers assigned
 ```
 
 ### Release Coordinator Workflow
+
 ```
 🚀 Release Coordination v2.1.0
 ├── 📋 Changelog Generation
@@ -200,6 +215,7 @@ Review: 3 reviewers assigned
 ```
 
 ### Release Configuration
+
 ```bash
 # Configure release settings
 ./claude-flow github config release \
@@ -216,6 +232,7 @@ Review: 3 reviewers assigned
 ## 🏗️ Repository Architecture
 
 ### Optimize Repository Structure
+
 ```bash
 # Analyze and optimize repo
 ./claude-flow github repo-architect "optimize for microservices"
@@ -233,6 +250,7 @@ Review: 3 reviewers assigned
 ```
 
 ### Repository Templates
+
 ```bash
 # Create from template
 ./claude-flow github repo-architect \
@@ -248,6 +266,7 @@ Review: 3 reviewers assigned
 ```
 
 ### Structure Optimization
+
 ```
 📁 Repository Architecture Analysis
 ├── 🎯 Current Score: 7.2/10
@@ -267,6 +286,7 @@ Review: 3 reviewers assigned
 ## 🔄 Cross-Repository Sync
 
 ### Synchronize Dependencies
+
 ```bash
 # Sync package versions across repos
 ./claude-flow github sync-packages \
@@ -279,6 +299,7 @@ Review: 3 reviewers assigned
 ```
 
 ### Sync Configuration
+
 ```json
 // sync-config.json
 {
@@ -302,6 +323,7 @@ Review: 3 reviewers assigned
 ```
 
 ### Batch Operations
+
 ```bash
 # Update multiple repos simultaneously
 ./claude-flow github sync-packages \
@@ -317,6 +339,7 @@ Review: 3 reviewers assigned
 ## 🐝 Swarm Integration
 
 ### Multi-Agent GitHub Workflows
+
 ```bash
 # Complex PR with swarm coordination
 ./claude-flow swarm "Create comprehensive PR for new feature" \
@@ -334,6 +357,7 @@ Review: 3 reviewers assigned
 ```
 
 ### Swarm-Powered Reviews
+
 ```bash
 # Multi-perspective code review
 ./claude-flow github review-coordinator "#789" \
@@ -349,6 +373,7 @@ Review: 3 reviewers assigned
 ```
 
 ### Automated Workflow Chains
+
 ```bash
 # Chain multiple GitHub operations
 ./claude-flow github workflow \
@@ -364,6 +389,7 @@ Review: 3 reviewers assigned
 ## 📋 Best Practices
 
 ### 1. PR Guidelines
+
 ```bash
 # Configure PR template
 ./claude-flow github config pr-template \
@@ -379,6 +405,7 @@ Review: 3 reviewers assigned
 ```
 
 ### 2. Issue Management
+
 ```bash
 # Set up issue templates
 ./claude-flow github config issue-templates \
@@ -393,6 +420,7 @@ Review: 3 reviewers assigned
 ```
 
 ### 3. Release Strategy
+
 ```bash
 # Configure semantic versioning
 ./claude-flow github config versioning \
@@ -407,6 +435,7 @@ Review: 3 reviewers assigned
 ```
 
 ### 4. Security Practices
+
 ```bash
 # Security scanning
 ./claude-flow github security scan \
@@ -423,6 +452,7 @@ Review: 3 reviewers assigned
 ## 🔧 Configuration
 
 ### GitHub Integration Settings
+
 ```json
 // .claude/github.config.json
 {
@@ -457,6 +487,7 @@ Review: 3 reviewers assigned
 ```
 
 ### Environment Variables
+
 ```bash
 # Required
 GITHUB_TOKEN=ghp_your_token
@@ -471,6 +502,7 @@ GITHUB_WEBHOOK_SECRET=your-secret
 ## 📊 Monitoring & Analytics
 
 ### PR Analytics
+
 ```bash
 # View PR metrics
 ./claude-flow github analytics pr \
@@ -483,6 +515,7 @@ GITHUB_WEBHOOK_SECRET=your-secret
 ```
 
 ### Activity Dashboard
+
 ```bash
 # Real-time GitHub activity
 ./claude-flow github monitor \
@@ -498,6 +531,7 @@ GITHUB_WEBHOOK_SECRET=your-secret
 ## 🎯 Examples
 
 ### Complete Feature Workflow
+
 ```bash
 # 1. Create issue
 ./claude-flow github issue create \

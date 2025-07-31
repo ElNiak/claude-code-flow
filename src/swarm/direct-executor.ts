@@ -718,7 +718,7 @@ router.post('/', (req, res) => {
 router.put('/:id', (req, res) => {
   const index = users.findIndex(u => u.id === parseInt(req.params.id));
   if (index === -1) return res.status(404).json({ error: 'User not found' });
-  
+
   users[index] = {
     ...users[index],
     ...req.body,
@@ -731,7 +731,7 @@ router.put('/:id', (req, res) => {
 router.delete('/:id', (req, res) => {
   const index = users.findIndex(u => u.id === parseInt(req.params.id));
   if (index === -1) return res.status(404).json({ error: 'User not found' });
-  
+
   users.splice(index, 1);
   res.status(204).send();
 });
@@ -791,7 +791,7 @@ program
       console.log(chalk.yellow('No todos found'));
       return;
     }
-    
+
     todos.forEach((todo, index) => {
       const status = todo.completed ? chalk.green('✓') : chalk.red('✗');
       console.log(\`\${index + 1}. \${status} \${todo.task}\`);
@@ -809,7 +809,7 @@ program
       console.log(chalk.red('Invalid todo ID'));
       return;
     }
-    
+
     const removed = todos.splice(index, 1);
     await saveTodos(todos);
     console.log(chalk.green('✓ Todo removed:', removed[0].task));
@@ -826,7 +826,7 @@ program
       console.log(chalk.red('Invalid todo ID'));
       return;
     }
-    
+
     todos[index].completed = true;
     todos[index].completedAt = new Date();
     await saveTodos(todos);
@@ -854,13 +854,13 @@ const users = new Map();
 
 io.on('connection', (socket) => {
   console.log('New user connected');
-  
+
   socket.on('join', (username) => {
     users.set(socket.id, username);
     socket.emit('history', messages);
     io.emit('userJoined', { username, userCount: users.size });
   });
-  
+
   socket.on('message', (data) => {
     const message = {
       id: Date.now(),
@@ -868,13 +868,13 @@ io.on('connection', (socket) => {
       text: data.text,
       timestamp: new Date()
     };
-    
+
     messages.push(message);
     if (messages.length > 100) messages.shift(); // Keep last 100 messages
-    
+
     io.emit('message', message);
   });
-  
+
   socket.on('disconnect', () => {
     const username = users.get(socket.id);
     users.delete(socket.id);
@@ -1001,31 +1001,31 @@ const users = [];
 app.post('/api/register', async (req, res) => {
   try {
     const { username, password } = req.body;
-    
+
     // Check if user exists
     if (users.find(u => u.username === username)) {
       return res.status(400).json({ error: 'User already exists' });
     }
-    
+
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
-    
+
     // Create user
     const user = {
       id: users.length + 1,
       username,
       password: hashedPassword
     };
-    
+
     users.push(user);
-    
+
     // Generate token
     const token = jwt.sign(
       { id: user.id, username: user.username },
       process.env.JWT_SECRET || 'default-secret',
       { expiresIn: '24h' }
     );
-    
+
     res.status(201).json({ token, user: { id: user.id, username: user.username } });
   } catch (error) {
     res.status(500).json({ error: 'Registration failed' });
@@ -1036,26 +1036,26 @@ app.post('/api/register', async (req, res) => {
 app.post('/api/login', async (req, res) => {
   try {
     const { username, password } = req.body;
-    
+
     // Find user
     const user = users.find(u => u.username === username);
     if (!user) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
-    
+
     // Verify password
     const validPassword = await bcrypt.compare(password, user.password);
     if (!validPassword) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
-    
+
     // Generate token
     const token = jwt.sign(
       { id: user.id, username: user.username },
       process.env.JWT_SECRET || 'default-secret',
       { expiresIn: '24h' }
     );
-    
+
     res.json({ token, user: { id: user.id, username: user.username } });
   } catch (error) {
     res.status(500).json({ error: 'Login failed' });
@@ -1078,11 +1078,11 @@ app.listen(port, () => {
 
 module.exports = (req, res, next) => {
   const token = req.header('Authorization')?.replace('Bearer ', '');
-  
+
   if (!token) {
     return res.status(401).json({ error: 'Access denied' });
   }
-  
+
   try {
     const verified = jwt.verify(token, process.env.JWT_SECRET || 'default-secret');
     req.user = verified;

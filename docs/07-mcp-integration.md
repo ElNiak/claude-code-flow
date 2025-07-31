@@ -7,6 +7,7 @@ Model Context Protocol (MCP) integration enables Claude-Flow to seamlessly conne
 ### Basic MCP Setup
 
 **Initialize MCP Configuration:**
+
 ```bash
 # Initialize MCP with default settings
 claude-flow mcp init
@@ -27,6 +28,7 @@ claude-flow mcp start \
 ```
 
 **Check MCP Server Status:**
+
 ```bash
 # Basic status check
 claude-flow mcp status
@@ -41,6 +43,7 @@ claude-flow mcp health-check --comprehensive
 ### MCP Configuration File
 
 **Complete MCP Configuration (mcp-config.json):**
+
 ```json
 {
   "server": {
@@ -158,6 +161,7 @@ claude-flow mcp health-check --comprehensive
 ### Transport Configuration
 
 **STDIO Transport (Default):**
+
 ```json
 {
   "transport": {
@@ -173,6 +177,7 @@ claude-flow mcp health-check --comprehensive
 ```
 
 **HTTP Transport:**
+
 ```json
 {
   "transport": {
@@ -191,6 +196,7 @@ claude-flow mcp health-check --comprehensive
 ```
 
 **WebSocket Transport:**
+
 ```json
 {
   "transport": {
@@ -209,6 +215,7 @@ claude-flow mcp health-check --comprehensive
 ### File System Tools
 
 **File Operations:**
+
 ```bash
 # Read file content
 claude-flow mcp invoke filesystem read_file \
@@ -234,6 +241,7 @@ claude-flow mcp invoke filesystem copy_file \
 ```
 
 **File Search and Analysis:**
+
 ```bash
 # Search for files by pattern
 claude-flow mcp invoke filesystem search_files \
@@ -258,6 +266,7 @@ claude-flow mcp invoke filesystem file_stats \
 ### Web Tools
 
 **Web Scraping and Data Extraction:**
+
 ```bash
 # Simple web scraping
 claude-flow mcp invoke web scrape_url \
@@ -279,6 +288,7 @@ claude-flow mcp invoke web download_file \
 ```
 
 **API Interactions:**
+
 ```bash
 # REST API calls
 claude-flow mcp invoke web api_request \
@@ -304,6 +314,7 @@ claude-flow mcp invoke web setup_webhook \
 ### Development Tools
 
 **Git Operations:**
+
 ```bash
 # Repository status
 claude-flow mcp invoke git status \
@@ -333,6 +344,7 @@ claude-flow mcp invoke git push \
 ```
 
 **Code Analysis:**
+
 ```bash
 # Static code analysis
 claude-flow mcp invoke code analyze \
@@ -357,6 +369,7 @@ claude-flow mcp invoke code dependencies \
 ```
 
 **Testing Tools:**
+
 ```bash
 # Run test suites
 claude-flow mcp invoke test run \
@@ -386,6 +399,7 @@ claude-flow mcp invoke test load \
 ### Tool Schema Definition
 
 **Basic Tool Schema:**
+
 ```json
 {
   "name": "database-query",
@@ -466,6 +480,7 @@ claude-flow mcp invoke test load \
 ### Tool Implementation Examples
 
 **Python Tool Implementation:**
+
 ```python
 #!/usr/bin/env python3
 """
@@ -487,14 +502,14 @@ class DatabaseQueryTool:
         self.name = "database-query"
         self.version = "1.2.0"
         self.logger = logging.getLogger(__name__)
-        
+
         # Security: Define allowed connection aliases
         self.allowed_connections = {
             "production-readonly": "postgresql://readonly:${RO_PASS}@prod-db:5432/app",
             "staging": "postgresql://user:${STAGING_PASS}@staging-db:5432/app",
             "development": "postgresql://dev:${DEV_PASS}@localhost:5432/app_dev"
         }
-        
+
         # Security: Define blocked query patterns
         self.blocked_patterns = [
             r"DROP\s+",
@@ -507,7 +522,7 @@ class DatabaseQueryTool:
             r"GRANT\s+",
             r"REVOKE\s+"
         ]
-    
+
     def validate_query(self, query: str, read_only: bool = True) -> bool:
         """Validate query for security compliance"""
         if read_only:
@@ -515,18 +530,18 @@ class DatabaseQueryTool:
                 if re.search(pattern, query, re.IGNORECASE):
                     raise ValueError(f"Query contains blocked pattern: {pattern}")
         return True
-    
+
     def get_connection_string(self, connection: str) -> str:
         """Get connection string from alias or validate direct connection"""
         if connection in self.allowed_connections:
             return self.allowed_connections[connection]
-        
+
         # For direct connection strings, validate format
         if connection.startswith(('postgresql://', 'postgres://')):
             return connection
-        
+
         raise ValueError(f"Invalid connection: {connection}")
-    
+
     def execute_query(self, params: Dict[str, Any]) -> Dict[str, Any]:
         """Execute database query with security and performance monitoring"""
         try:
@@ -536,14 +551,14 @@ class DatabaseQueryTool:
             query_params = params.get("parameters", {})
             timeout = params.get("timeout", 30)
             read_only = params.get("read_only", True)
-            
+
             # Security validation
             self.validate_query(query, read_only)
             connection_string = self.get_connection_string(connection_alias)
-            
+
             # Performance monitoring
             start_time = time.time()
-            
+
             # Execute query
             with psycopg2.connect(
                 connection_string,
@@ -552,10 +567,10 @@ class DatabaseQueryTool:
             ) as conn:
                 if read_only:
                     conn.set_session(readonly=True)
-                
+
                 with conn.cursor() as cursor:
                     cursor.execute(query, query_params)
-                    
+
                     if cursor.description:
                         # SELECT query - fetch results
                         rows = cursor.fetchall()
@@ -567,9 +582,9 @@ class DatabaseQueryTool:
                         result_rows = []
                         columns = []
                         row_count = cursor.rowcount
-            
+
             execution_time = (time.time() - start_time) * 1000
-            
+
             result = {
                 "success": True,
                 "rows": result_rows,
@@ -582,7 +597,7 @@ class DatabaseQueryTool:
                     "timestamp": time.time()
                 }
             }
-            
+
             # Audit logging
             self.logger.info(f"Query executed successfully", extra={
                 "connection": connection_alias,
@@ -590,9 +605,9 @@ class DatabaseQueryTool:
                 "executionTime": execution_time,
                 "queryHash": hash(query)
             })
-            
+
             return result
-            
+
         except psycopg2.Error as e:
             error_result = {
                 "success": False,
@@ -602,14 +617,14 @@ class DatabaseQueryTool:
                 "rowCount": 0,
                 "executionTime": 0
             }
-            
+
             self.logger.error(f"Database error: {e}", extra={
                 "connection": connection_alias,
                 "error": str(e)
             })
-            
+
             return error_result
-            
+
         except Exception as e:
             error_result = {
                 "success": False,
@@ -618,24 +633,24 @@ class DatabaseQueryTool:
                 "rowCount": 0,
                 "executionTime": 0
             }
-            
+
             self.logger.error(f"Tool error: {e}")
             return error_result
 
 def main():
     """Main entry point for MCP tool"""
     tool = DatabaseQueryTool()
-    
+
     try:
         # Read input from stdin
         input_data = json.loads(sys.stdin.read())
-        
+
         # Execute tool
         result = tool.execute_query(input_data)
-        
+
         # Output result
         print(json.dumps(result, indent=2))
-        
+
     except json.JSONDecodeError as e:
         error_output = {
             "success": False,
@@ -645,7 +660,7 @@ def main():
         }
         print(json.dumps(error_output))
         sys.exit(1)
-        
+
     except Exception as e:
         error_output = {
             "success": False,
@@ -661,6 +676,7 @@ if __name__ == "__main__":
 ```
 
 **Node.js Tool Implementation:**
+
 ```javascript
 #!/usr/bin/env node
 /**
@@ -813,10 +829,10 @@ class APITestingTool {
 
     evaluateAssertion(response, assertion) {
         const { path, operator, expected } = assertion;
-        
+
         // Extract value from response using path
         const actual = this.getValueByPath(response.data, path);
-        
+
         // Evaluate assertion
         switch (operator) {
             case 'equals':
@@ -839,7 +855,7 @@ class APITestingTool {
 
 async function main() {
     const tool = new APITestingTool();
-    
+
     try {
         // Read input from stdin
         const input = await new Promise((resolve, reject) => {
@@ -856,10 +872,10 @@ async function main() {
 
         // Execute tool
         const result = await tool.executeTest(input);
-        
+
         // Output result
         console.log(JSON.stringify(result, null, 2));
-        
+
     } catch (error) {
         const errorOutput = {
             success: false,
@@ -879,6 +895,7 @@ if (require.main === module) {
 ### Tool Registration
 
 **Register Custom Tools:**
+
 ```bash
 # Register Python tool
 claude-flow mcp tools register \
@@ -906,6 +923,7 @@ claude-flow mcp tools register \
 ```
 
 **Tool Testing:**
+
 ```bash
 # Test tool functionality
 claude-flow mcp tools test database-query \
@@ -929,6 +947,7 @@ claude-flow mcp tools integration-test \
 ### Tool Registry Management
 
 **Registry Configuration:**
+
 ```bash
 # Add remote tool registry
 claude-flow mcp registry add \
@@ -952,6 +971,7 @@ claude-flow mcp registry install \
 ```
 
 **Registry Tool Manifest:**
+
 ```json
 {
   "registry": "company-tools",
@@ -987,6 +1007,7 @@ claude-flow mcp registry install \
 ### Tool Proxying and Federation
 
 **API Gateway Integration:**
+
 ```bash
 # Set up tool proxy for internal APIs
 claude-flow mcp proxy create \
@@ -1007,6 +1028,7 @@ claude-flow mcp invoke internal-api-gateway:billing get_usage \
 ```
 
 **Tool Federation Setup:**
+
 ```json
 {
   "federation": {
@@ -1020,7 +1042,7 @@ claude-flow mcp invoke internal-api-gateway:billing get_usage \
         "priority": 1
       },
       {
-        "name": "production-cluster", 
+        "name": "production-cluster",
         "endpoint": "https://prod-mcp.company.com:3000",
         "auth": "mutual-tls",
         "tools": ["prod-*", "monitoring-*"],
@@ -1041,6 +1063,7 @@ claude-flow mcp invoke internal-api-gateway:billing get_usage \
 ### Authentication and Authorization
 
 **Token-Based Authentication:**
+
 ```bash
 # Generate MCP access token for agent
 claude-flow mcp auth generate-token \
@@ -1062,6 +1085,7 @@ claude-flow mcp auth list-tokens \
 ```
 
 **Role-Based Access Control:**
+
 ```json
 {
   "rbac": {
@@ -1105,6 +1129,7 @@ claude-flow mcp auth list-tokens \
 ### Tool Permissions and Sandboxing
 
 **Tool Permission Configuration:**
+
 ```bash
 # Grant specific tool permissions
 claude-flow mcp permissions grant \
@@ -1130,6 +1155,7 @@ claude-flow mcp audit \
 ```
 
 **Sandboxing Configuration:**
+
 ```json
 {
   "sandbox": {
@@ -1160,6 +1186,7 @@ claude-flow mcp audit \
 ### Tool Chaining and Workflows
 
 **Tool Chain Definition:**
+
 ```bash
 # Create tool chain
 claude-flow mcp chain create "data-processing-pipeline" \
@@ -1174,6 +1201,7 @@ claude-flow mcp chain execute "data-processing-pipeline" \
 ```
 
 **Tool Chain Configuration:**
+
 ```json
 {
   "name": "data-processing-pipeline",
@@ -1240,6 +1268,7 @@ claude-flow mcp chain execute "data-processing-pipeline" \
 ### Batch Operations and Parallel Execution
 
 **Batch Tool Execution:**
+
 ```bash
 # Execute multiple tools in parallel
 claude-flow mcp batch execute \
@@ -1258,6 +1287,7 @@ claude-flow mcp batch filesystem process_files \
 ```
 
 **Batch Input Configuration:**
+
 ```json
 {
   "batch_operations": [
@@ -1294,6 +1324,7 @@ claude-flow mcp batch filesystem process_files \
 ### Tool Monitoring and Analytics
 
 **Performance Monitoring:**
+
 ```bash
 # Monitor tool performance
 claude-flow mcp monitor \
@@ -1318,6 +1349,7 @@ claude-flow mcp report performance \
 ```
 
 **Usage Analytics:**
+
 ```bash
 # Tool usage statistics
 claude-flow mcp analytics usage \

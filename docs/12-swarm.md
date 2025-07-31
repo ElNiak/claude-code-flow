@@ -7,7 +7,9 @@ Swarm mode enables Claude to act as a master orchestrator, automatically spawnin
 ## Key Concepts
 
 ### Master Orchestrator
+
 The primary Claude instance that:
+
 - Analyzes objectives and creates execution plans
 - Spawns specialized agents as needed
 - Manages task dependencies and coordination
@@ -15,6 +17,7 @@ The primary Claude instance that:
 - Synthesizes results from all agents
 
 ### Agent Types
+
 - **Researcher**: Information gathering, web research, analysis
 - **Developer**: Code implementation, testing, debugging
 - **Analyst**: Data analysis, pattern recognition, insights
@@ -22,6 +25,7 @@ The primary Claude instance that:
 - **Coordinator**: Sub-task coordination, dependency management
 
 ### Orchestration Strategies
+
 - **Auto**: Automatically determine the best approach
 - **Research**: Focus on research and information gathering
 - **Development**: Focus on implementation and coding
@@ -30,6 +34,7 @@ The primary Claude instance that:
 ## Command Usage
 
 ### Basic Syntax
+
 ```bash
 claude-flow swarm <objective> [options]
 ```
@@ -54,11 +59,13 @@ claude-flow swarm <objective> [options]
 ## Examples
 
 ### Basic Swarm
+
 ```bash
 claude-flow swarm "Build a complete e-commerce platform with React and Node.js"
 ```
 
 ### Research-Focused Swarm
+
 ```bash
 claude-flow swarm "Research and document best practices for microservices architecture" \
   --strategy research \
@@ -67,6 +74,7 @@ claude-flow swarm "Research and document best practices for microservices archit
 ```
 
 ### Development Swarm with Review
+
 ```bash
 claude-flow swarm "Refactor the authentication system with modern security practices" \
   --strategy development \
@@ -76,6 +84,7 @@ claude-flow swarm "Refactor the authentication system with modern security pract
 ```
 
 ### Complex Project with Coordinator
+
 ```bash
 claude-flow swarm "Migrate monolithic application to microservices" \
   --coordinator \
@@ -85,6 +94,7 @@ claude-flow swarm "Migrate monolithic application to microservices" \
 ```
 
 ### Dry Run to Preview
+
 ```bash
 claude-flow swarm "Create mobile app" --dry-run --verbose
 ```
@@ -92,35 +102,45 @@ claude-flow swarm "Create mobile app" --dry-run --verbose
 ## How It Works
 
 ### 1. Objective Analysis
+
 The master orchestrator receives the objective and:
+
 - Breaks it down into major components
 - Identifies required skills and resources
 - Determines optimal agent composition
 - Creates a hierarchical task structure
 
 ### 2. Agent Spawning
+
 Based on the analysis, the orchestrator:
+
 - Spawns specialized agents with appropriate tools
 - Assigns specific responsibilities to each agent
 - Sets up communication channels
 - Establishes task dependencies
 
 ### 3. Task Distribution
+
 The orchestrator manages work distribution:
+
 - Assigns tasks based on agent capabilities
 - Monitors workload balance
 - Handles task handoffs
 - Manages parallel execution when enabled
 
 ### 4. Coordination & Communication
+
 Throughout execution:
+
 - Agents share discoveries via memory namespace
 - Progress updates flow to the orchestrator
 - Dependencies are automatically managed
 - Peer reviews occur if enabled
 
 ### 5. Result Synthesis
+
 As tasks complete:
+
 - Results are collected and validated
 - The orchestrator synthesizes findings
 - Final deliverables are assembled
@@ -129,6 +149,7 @@ As tasks complete:
 ## Memory Coordination
 
 All agents in a swarm share a memory namespace, enabling:
+
 - **Knowledge Sharing**: Discoveries are immediately available to all agents
 - **Duplicate Prevention**: Agents avoid redundant work
 - **Context Building**: Each agent builds on others' findings
@@ -137,28 +158,36 @@ All agents in a swarm share a memory namespace, enabling:
 ## Advanced Features
 
 ### Delegation Depth
+
 The `--max-depth` option controls how many levels of sub-agents can be created:
+
 - Depth 1: Only the master orchestrator
 - Depth 2: Master can spawn agents
 - Depth 3: Agents can spawn sub-agents
 - Depth 4+: Deep hierarchical structures
 
 ### Peer Review
+
 When `--review` is enabled:
+
 - Agents review each other's work
 - Quality checks occur automatically
 - Feedback loops improve outputs
 - Final results have higher quality
 
 ### Parallel Execution
+
 With `--parallel` flag:
+
 - Independent tasks run simultaneously
 - Resource utilization is maximized
 - Total execution time is reduced
 - Coordination overhead increases
 
 ### Dedicated Coordinator
+
 The `--coordinator` option:
+
 - Spawns a specialized coordination agent
 - Handles complex dependency management
 - Optimizes resource allocation
@@ -167,28 +196,33 @@ The `--coordinator` option:
 ## Best Practices
 
 ### 1. Clear Objectives
+
 - Be specific about desired outcomes
 - Include success criteria
 - Mention any constraints or requirements
 
 ### 2. Strategy Selection
+
 - Use `auto` for general tasks
 - Choose `research` for information-heavy projects
 - Select `development` for coding tasks
 - Pick `analysis` for data-centric work
 
 ### 3. Resource Management
+
 - Start with default agent limits
 - Increase `--max-agents` for complex projects
 - Monitor system resources during execution
 - Use `--timeout` to prevent runaway swarms
 
 ### 4. Review Process
+
 - Enable `--review` for critical projects
 - Allow extra time for review cycles
 - Consider peer review for quality assurance
 
 ### 5. Memory Namespace
+
 - Use project-specific namespaces
 - Clean up namespaces after completion
 - Share namespaces across related swarms
@@ -202,7 +236,7 @@ During execution, the master orchestrator provides regular status updates:
 - Active Agents: 4/6
 - Tasks Completed: 12/20
 - Current Phase: Implementation
-- Next Actions: 
+- Next Actions:
   - Complete user authentication module
   - Begin integration testing
   - Review API documentation
@@ -211,6 +245,7 @@ During execution, the master orchestrator provides regular status updates:
 ## Integration with Claude-Flow
 
 Swarm mode integrates seamlessly with other Claude-Flow features:
+
 - Uses the same persistence layer
 - Shares terminal pool resources
 - Leverages MCP tools
@@ -237,7 +272,9 @@ Swarm mode integrates seamlessly with other Claude-Flow features:
    - Clean up old namespaces
 
 ### Debug Mode
+
 Use `--verbose` for detailed logging:
+
 ```bash
 claude-flow swarm "debug task" --verbose --dry-run
 ```
@@ -245,6 +282,7 @@ claude-flow swarm "debug task" --verbose --dry-run
 ## Example Workflows
 
 ### Full Stack Application
+
 ```bash
 claude-flow swarm "Create a full-stack task management app with React, Node.js, PostgreSQL" \
   --strategy development \
@@ -255,6 +293,7 @@ claude-flow swarm "Create a full-stack task management app with React, Node.js, 
 ```
 
 ### Research Project
+
 ```bash
 claude-flow swarm "Research and compare top 10 JavaScript frameworks for enterprise applications" \
   --strategy research \
@@ -264,6 +303,7 @@ claude-flow swarm "Research and compare top 10 JavaScript frameworks for enterpr
 ```
 
 ### Code Migration
+
 ```bash
 claude-flow swarm "Migrate legacy jQuery application to modern React with TypeScript" \
   --strategy development \
@@ -290,6 +330,7 @@ claude-flow swarm "Migrate legacy jQuery application to modern React with TypeSc
 ## Future Enhancements
 
 Planned improvements for swarm mode:
+
 - Visual swarm monitoring dashboard
 - Dynamic agent scaling
 - Cross-swarm coordination

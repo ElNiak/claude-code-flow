@@ -9,11 +9,13 @@ Claude Flow v2.0.0 introduces significant improvements to environment handling, 
 ### 1. Automatic Environment Detection
 
 **v1 Behavior:**
+
 - Manual flag specification required
 - Errors when `--dangerously-skip-permissions` wasn't enough
 - No smart defaults based on environment
 
 **v2 Enhancement:**
+
 - Automatic detection of VS Code, CI/CD, Docker, SSH, etc.
 - Smart application of appropriate flags
 - Automatic retry with non-interactive mode on failure
@@ -21,6 +23,7 @@ Claude Flow v2.0.0 introduces significant improvements to environment handling, 
 ### 2. New CLI Flags
 
 **New in v2:**
+
 - `--non-interactive`: Full automation without any prompts
 - `--auto-approve`: Auto-approve all confirmations (use with caution)
 - `--prompt-defaults`: Supply JSON defaults for prompts
@@ -31,6 +34,7 @@ Claude Flow v2.0.0 introduces significant improvements to environment handling, 
 ### 3. Environment Variables
 
 **New Environment Variables:**
+
 ```bash
 # Enable non-interactive mode globally
 export CLAUDE_NON_INTERACTIVE=1
@@ -68,6 +72,7 @@ npx claude-flow@2.0.0 --version
 #### VS Code Tasks (tasks.json)
 
 **v1 Configuration:**
+
 ```json
 {
   "label": "Initialize Claude Flow",
@@ -78,6 +83,7 @@ npx claude-flow@2.0.0 --version
 ```
 
 **v2 Configuration:**
+
 ```json
 {
   "label": "Initialize Claude Flow",
@@ -96,6 +102,7 @@ npx claude-flow@2.0.0 --version
 #### CI/CD Workflows
 
 **v1 GitHub Actions:**
+
 ```yaml
 - name: Run Claude Flow
   run: |
@@ -104,6 +111,7 @@ npx claude-flow@2.0.0 --version
 ```
 
 **v2 GitHub Actions:**
+
 ```yaml
 - name: Run Claude Flow
   run: |
@@ -115,11 +123,13 @@ npx claude-flow@2.0.0 --version
 #### Docker Deployments
 
 **v1 Dockerfile:**
+
 ```dockerfile
 RUN npx claude-flow init --dangerously-skip-permissions --force
 ```
 
 **v2 Dockerfile:**
+
 ```dockerfile
 # v2 auto-detects Docker environment
 RUN npx claude-flow@2.0.0 init
@@ -132,6 +142,7 @@ RUN npx claude-flow@2.0.0 init
 ### Step 3: Update Package.json Scripts
 
 **v1 scripts:**
+
 ```json
 {
   "scripts": {
@@ -142,6 +153,7 @@ RUN npx claude-flow@2.0.0 init
 ```
 
 **v2 scripts:**
+
 ```json
 {
   "scripts": {
@@ -156,39 +168,45 @@ RUN npx claude-flow@2.0.0 init
 ### Step 4: Handle Breaking Changes
 
 #### 1. Flag Name Changes
+
 - `--force` → `--force` (no change, but now smarter)
 - `--skip-prompts` → `--non-interactive` (more descriptive)
 - `--yes` → `--auto-approve` (clearer intent)
 
 #### 2. Default Behavior Changes
+
 - v2 automatically applies `--dangerously-skip-permissions` in non-TTY environments
 - v2 automatically retries with `--non-interactive` on interactive errors
 - v2 provides sensible defaults for common prompts in non-interactive mode
 
 #### 3. Error Messages
+
 - v2 provides clearer error messages with actionable solutions
 - v2 includes environment detection info in error reports
 
 ### Step 5: Test Your Migration
 
 1. **Check Environment Detection:**
+
    ```bash
    npx claude-flow@2.0.0 env-check
    ```
 
 2. **Test in Your Environment:**
+
    ```bash
    # VS Code Terminal
    npx claude-flow@2.0.0 init --dry-run
-   
+
    # CI/CD (simulate)
    CI=true npx claude-flow@2.0.0 init --dry-run
-   
+
    # Docker (simulate)
    DOCKER_CONTAINER=true npx claude-flow@2.0.0 init --dry-run
    ```
 
 3. **Verify Prompt Defaults:**
+
    ```bash
    # Set defaults
    export CLAUDE_PROMPT_DEFAULTS='{"projectName":"my-project"}'
@@ -200,12 +218,14 @@ RUN npx claude-flow@2.0.0 init
 ### Issue 1: "Manual UI agreement needed" Error
 
 **v1 Workaround:**
+
 ```bash
 # Often didn't work completely
 claude-flow init --dangerously-skip-permissions
 ```
 
 **v2 Solution:**
+
 ```bash
 # Automatic detection and retry
 claude-flow init
@@ -217,10 +237,12 @@ claude-flow init --non-interactive
 ### Issue 2: VS Code Extension Commands Failing
 
 **v1 Problem:**
+
 - Extension commands run in output panel (no TTY)
 - Manual flags required but not always sufficient
 
 **v2 Solution:**
+
 - Automatic VS Code detection
 - Smart defaults applied
 - Automatic retry on failure
@@ -228,12 +250,14 @@ claude-flow init --non-interactive
 ### Issue 3: CI/CD Pipeline Hanging
 
 **v1 Problem:**
+
 ```yaml
 # Would hang waiting for input
 run: npx claude-flow init
 ```
 
 **v2 Solution:**
+
 ```yaml
 # Auto-detects CI and runs non-interactively
 run: npx claude-flow@2.0.0 init
@@ -242,12 +266,14 @@ run: npx claude-flow@2.0.0 init
 ### Issue 4: Docker Build Failures
 
 **v1 Problem:**
+
 ```dockerfile
 # Would fail without proper flags
 RUN npx claude-flow init
 ```
 
 **v2 Solution:**
+
 ```dockerfile
 # Auto-detects Docker environment
 RUN npx claude-flow@2.0.0 init
@@ -258,6 +284,7 @@ RUN npx claude-flow@2.0.0 init
 ### Custom Prompt Defaults
 
 Create `~/.claude-flow/prompt-defaults.json`:
+
 ```json
 {
   "global": [
@@ -309,6 +336,7 @@ CLAUDE_ENVIRONMENT=staging npx claude-flow@2.0.0 init
    - Use `env-check` to verify detection
 
 2. **Use Environment Variables for Consistency:**
+
    ```bash
    # .env.ci
    CLAUDE_NON_INTERACTIVE=1
@@ -317,19 +345,21 @@ CLAUDE_ENVIRONMENT=staging npx claude-flow@2.0.0 init
    ```
 
 3. **Test Before Production:**
+
    ```bash
    # Test with dry-run
    npx claude-flow@2.0.0 init --dry-run
-   
+
    # Check what flags would be applied
    npx claude-flow@2.0.0 env-check
    ```
 
 4. **Use Specific Flags When Needed:**
+
    ```bash
    # Force interactive even in CI
    CI=true npx claude-flow@2.0.0 init --interactive
-   
+
    # Force non-interactive even with TTY
    npx claude-flow@2.0.0 init --non-interactive
    ```
@@ -350,11 +380,13 @@ alias claude-flow='claude-flow --dangerously-skip-permissions'
 ## Getting Help
 
 1. **Check Environment:**
+
    ```bash
    npx claude-flow@2.0.0 env-check
    ```
 
 2. **Enable Debug Mode:**
+
    ```bash
    DEBUG=claude-flow:* npx claude-flow@2.0.0 init
    ```

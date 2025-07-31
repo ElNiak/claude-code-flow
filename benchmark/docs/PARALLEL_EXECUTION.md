@@ -15,7 +15,8 @@ The core execution engine that manages concurrent task execution with multiple e
 - **Asyncio-based execution**: For async/await compatible tasks
 - **Hybrid execution**: Automatically chooses the best mode based on task characteristics
 
-#### Features:
+#### Features
+
 - Priority-based task queue with configurable size limits
 - Resource monitoring and enforcement (CPU, memory)
 - Automatic resource violation detection and throttling
@@ -26,7 +27,8 @@ The core execution engine that manages concurrent task execution with multiple e
 
 Advanced task scheduling with multiple algorithms:
 
-#### Scheduling Algorithms:
+#### Scheduling Algorithms
+
 - **Round Robin**: Simple fair distribution
 - **Least Loaded**: Assigns tasks to least busy agents
 - **Capability-Based**: Matches task requirements to agent capabilities
@@ -34,7 +36,8 @@ Advanced task scheduling with multiple algorithms:
 - **Dynamic**: Multi-factor scheduling considering capabilities, workload, and performance
 - **Work Stealing**: Allows idle agents to steal tasks from busy agents
 
-#### Features:
+#### Features
+
 - Task dependency resolution with topological sorting
 - Agent capability indexing for O(1) capability matching
 - Work stealing queue for load balancing
@@ -45,7 +48,8 @@ Advanced task scheduling with multiple algorithms:
 
 High-level orchestration for managing complex benchmark suites:
 
-#### Features:
+#### Features
+
 - Parallel benchmark suite execution
 - Auto-scaling based on resource utilization
 - Progress tracking and reporting
@@ -96,7 +100,7 @@ await executor.stop()
 
 ```python
 from swarm_benchmark.core import (
-    OrchestrationManager, 
+    OrchestrationManager,
     OrchestrationConfig,
     SchedulingAlgorithm
 )
@@ -126,12 +130,14 @@ metrics = orchestrator.get_orchestration_metrics()
 ## Resource Management
 
 ### Resource Monitoring
+
 - Real-time CPU and memory usage tracking
 - Network I/O monitoring (when available)
 - Resource violation detection and logging
 - Peak usage tracking for capacity planning
 
 ### Resource Limits
+
 ```python
 ResourceLimits(
     max_cpu_percent=80.0,      # Maximum CPU usage percentage
@@ -146,14 +152,18 @@ ResourceLimits(
 ## Task Scheduling
 
 ### Task Priority
+
 Tasks can be assigned priorities (higher number = higher priority):
+
 - Priority 1-3: Low priority (eligible for work stealing)
 - Priority 4-6: Normal priority
 - Priority 7-9: High priority (assigned to best agents)
 - Priority 10: Critical (immediate execution)
 
 ### Agent Capabilities
+
 Agents have capabilities that are matched to task requirements:
+
 - Research: `research`, `analysis`, `web_search`
 - Development: `development`, `coding`, `architecture`
 - Analysis: `analysis`, `data_processing`, `statistics`
@@ -163,6 +173,7 @@ Agents have capabilities that are matched to task requirements:
 ## Metrics and Monitoring
 
 ### Execution Metrics
+
 ```python
 ExecutionMetrics(
     tasks_queued=0,            # Number of tasks waiting
@@ -178,6 +189,7 @@ ExecutionMetrics(
 ```
 
 ### Scheduling Metrics
+
 ```python
 SchedulingMetrics(
     total_scheduled=0,         # Total tasks scheduled
@@ -192,6 +204,7 @@ SchedulingMetrics(
 ## Performance Optimization
 
 ### Execution Modes
+
 Choose the appropriate execution mode based on your workload:
 
 1. **ASYNCIO**: Best for I/O-bound tasks with async/await support
@@ -245,21 +258,25 @@ result = await engine.run_benchmark(objective)
 ## Troubleshooting
 
 ### High CPU Usage
+
 - Reduce `max_concurrent_tasks`
 - Lower `max_cpu_percent` limit
 - Use THREAD mode instead of PROCESS for I/O tasks
 
 ### High Memory Usage
+
 - Reduce `max_memory_mb` limit
 - Limit queue size with `max_queue_size`
 - Use streaming/chunking for large data
 
 ### Poor Load Balance
+
 - Switch to DYNAMIC or WORK_STEALING scheduling
 - Enable work stealing
 - Check agent capability distribution
 
 ### Task Timeouts
+
 - Increase `task_timeout` for long-running tasks
 - Break large tasks into smaller subtasks
 - Check for resource contention

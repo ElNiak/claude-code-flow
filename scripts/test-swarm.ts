@@ -8,18 +8,18 @@ import { colors } from 'https://deno.land/x/cliffy@v1.0.0-rc.3/ansi/colors.ts';
 async function runTest(name: string, command: string[], expectedPatterns: string[]): Promise<boolean> {
   console.log(colors.blue(`\nTesting: ${name}`));
   console.log(colors.gray(`Command: ${command.join(' ')}`));
-  
+
   try {
     const cmd = new Deno.Command(command[0], {
       args: command.slice(1),
       stdout: 'piped',
       stderr: 'piped',
     });
-    
+
     const { code, stdout, stderr } = await cmd.output();
     const output = new TextDecoder().decode(stdout);
     const errorOutput = new TextDecoder().decode(stderr);
-    
+
     if (code !== 0 && !name.includes("dry-run")) {
       console.log(colors.red(`❌ Command failed with code ${code}`));
       if (errorOutput) {
@@ -27,7 +27,7 @@ async function runTest(name: string, command: string[], expectedPatterns: string
       }
       return false;
     }
-    
+
     // Check for expected patterns in output
     let allPatternsFound = true;
     for (const pattern of expectedPatterns) {
@@ -36,7 +36,7 @@ async function runTest(name: string, command: string[], expectedPatterns: string
         allPatternsFound = false;
       }
     }
-    
+
     if (allPatternsFound) {
       console.log(colors.green(`✅ Test passed`));
       return true;
@@ -45,7 +45,7 @@ async function runTest(name: string, command: string[], expectedPatterns: string
       console.log(colors.gray(`Output: ${output.substring(0, 200)}...`));
       return false;
     }
-    
+
   } catch (error) {
     console.log(colors.red(`❌ Error running test: ${(error as Error).message}`));
     return false;
@@ -55,7 +55,7 @@ async function runTest(name: string, command: string[], expectedPatterns: string
 async function main() {
   console.log(colors.bold('Claude-Flow Swarm Mode Test Suite'));
   console.log('='.repeat(50));
-  
+
   const tests = [
     {
       name: "Swarm demo dry-run",
@@ -80,8 +80,8 @@ async function main() {
     {
       name: "Swarm with all options",
       command: [
-        "./swarm-demo.ts", 
-        "Complex task", 
+        "./swarm-demo.ts",
+        "Complex task",
         "--max-agents", "10",
         "--max-depth", "4",
         "--research",
@@ -100,10 +100,10 @@ async function main() {
       ],
     },
   ];
-  
+
   let passedTests = 0;
   let failedTests = 0;
-  
+
   for (const test of tests) {
     const passed = await runTest(test.name, test.command, test.patterns);
     if (passed) {
@@ -112,19 +112,19 @@ async function main() {
       failedTests++;
     }
   }
-  
+
   console.log('\n' + '='.repeat(50));
   console.log(colors.bold('Test Summary:'));
   console.log(colors.green(`✅ Passed: ${passedTests}`));
   console.log(colors.red(`❌ Failed: ${failedTests}`));
   console.log(colors.blue(`📊 Total: ${tests.length}`));
-  
+
   if (failedTests === 0) {
     console.log(colors.green('\n🎉 All tests passed!'));
   } else {
     console.log(colors.red('\n⚠️  Some tests failed'));
   }
-  
+
   // Additional manual test instructions
   console.log('\n' + colors.bold('Manual Testing Instructions:'));
   console.log('1. Test with actual Claude CLI (if available):');

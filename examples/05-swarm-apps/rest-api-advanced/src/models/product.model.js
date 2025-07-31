@@ -310,16 +310,16 @@ productSchema.pre('save', function(next) {
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '');
-    
+
     // Add timestamp to ensure uniqueness
     this.slug = `${this.slug}-${Date.now()}`;
   }
-  
+
   // Ensure main image
   if (this.images.length > 0 && !this.images.some(img => img.isMain)) {
     this.images[0].isMain = true;
   }
-  
+
   next();
 });
 
@@ -330,7 +330,7 @@ productSchema.methods.addReview = async function(userId, rating, comment, isVeri
   if (existingReview) {
     throw new Error('You have already reviewed this product');
   }
-  
+
   // Add review
   this.reviews.push({
     user: userId,
@@ -339,10 +339,10 @@ productSchema.methods.addReview = async function(userId, rating, comment, isVeri
     isVerifiedPurchase,
     images,
   });
-  
+
   // Update rating statistics
   await this.updateRatingStats();
-  
+
   return this.save();
 };
 
@@ -352,14 +352,14 @@ productSchema.methods.updateReview = async function(userId, rating, comment, ima
   if (!review) {
     throw new Error('Review not found');
   }
-  
+
   review.rating = rating;
   review.comment = comment;
   if (images) review.images = images;
   review.updatedAt = Date.now();
-  
+
   await this.updateRatingStats();
-  
+
   return this.save();
 };
 
@@ -369,10 +369,10 @@ productSchema.methods.deleteReview = async function(userId) {
   if (reviewIndex === -1) {
     throw new Error('Review not found');
   }
-  
+
   this.reviews.splice(reviewIndex, 1);
   await this.updateRatingStats();
-  
+
   return this.save();
 };
 
@@ -386,15 +386,15 @@ productSchema.methods.updateRatingStats = function() {
     };
     return;
   }
-  
+
   const distribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
   let totalRating = 0;
-  
+
   this.reviews.forEach(review => {
     distribution[review.rating]++;
     totalRating += review.rating;
   });
-  
+
   this.rating = {
     average: totalRating / this.reviews.length,
     count: this.reviews.length,
@@ -405,7 +405,7 @@ productSchema.methods.updateRatingStats = function() {
 // Method to update inventory
 productSchema.methods.updateInventory = function(quantity, operation = 'set') {
   if (!this.inventory.trackInventory) return this;
-  
+
   switch (operation) {
     case 'set':
       this.inventory.quantity = quantity;
@@ -417,16 +417,16 @@ productSchema.methods.updateInventory = function(quantity, operation = 'set') {
       this.inventory.quantity = Math.max(0, this.inventory.quantity - quantity);
       break;
   }
-  
+
   return this.save();
 };
 
 // Method to check availability for quantity
 productSchema.methods.checkAvailability = function(quantity) {
   if (!this.inventory.trackInventory) return true;
-  
+
   if (this.inventory.allowBackorder) return true;
-  
+
   return this.inventory.quantity >= quantity;
 };
 
@@ -447,31 +447,31 @@ productSchema.statics.search = async function(query) {
     page = 1,
     limit = 20,
   } = query;
-  
+
   const filter = { status: 'active', visibility: { $in: ['visible', 'search'] } };
-  
+
   // Text search
   if (q) {
     filter.$text = { $search: q };
   }
-  
+
   // Category filters
   if (category) filter.category = category;
   if (subcategory) filter.subcategory = subcategory;
   if (brand) filter.brand = brand;
-  
+
   // Price range
   if (minPrice || maxPrice) {
     filter.price = {};
     if (minPrice) filter.price.$gte = minPrice;
     if (maxPrice) filter.price.$lte = maxPrice;
   }
-  
+
   // Tags
   if (tags && tags.length > 0) {
     filter.tags = { $in: Array.isArray(tags) ? tags : [tags] };
   }
-  
+
   // Stock
   if (inStock === true || inStock === 'true') {
     filter.$or = [
@@ -480,20 +480,20 @@ productSchema.statics.search = async function(query) {
       { 'inventory.allowBackorder': true },
     ];
   }
-  
+
   // Featured
   if (featured === true || featured === 'true') {
     filter.featured = true;
   }
-  
+
   // Rating
   if (minRating) {
     filter['rating.average'] = { $gte: minRating };
   }
-  
+
   // Build query
   let queryBuilder = this.find(filter);
-  
+
   // Add text score if searching
   if (q) {
     queryBuilder = queryBuilder.select({ score: { $meta: 'textScore' } });
@@ -502,17 +502,17 @@ productSchema.statics.search = async function(query) {
     // Apply regular sorting
     queryBuilder = queryBuilder.sort(sort);
   }
-  
+
   // Pagination
   const skip = (page - 1) * limit;
   queryBuilder = queryBuilder.skip(skip).limit(limit);
-  
+
   // Execute query
   const [products, total] = await Promise.all([
     queryBuilder.exec(),
     this.countDocuments(filter),
   ]);
-  
+
   return {
     products,
     pagination: {
@@ -542,7 +542,7 @@ productSchema.statics.getFeatured = function(limit = 10) {
 productSchema.statics.getRelated = async function(productId, limit = 6) {
   const product = await this.findById(productId);
   if (!product) return [];
-  
+
   // Find products in same category with similar tags
   return this.find({
     _id: { $ne: productId },

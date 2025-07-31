@@ -2,77 +2,52 @@
   "mcpServers": {
     "claude-flow": {
       "command": "npx",
-      "args": [
-        "claude-flow@alpha",
-        "mcp",
-        "start"
-      ],
+      "args": ["claude-flow@alpha", "mcp", "start"],
       "type": "stdio"
     },
     "ruv-swarm": {
       "command": "npx",
-      "args": [
-        "ruv-swarm@latest",
-        "mcp",
-        "start"
-      ],
+      "args": ["ruv-swarm@latest", "mcp", "start"],
       "type": "stdio"
     },
     "sequential-thinking": {
       "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-sequential-thinking"
-      ]
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
     },
     "perplexity-ask": {
       "command": "docker",
-      "args": [
-        "run",
-        "-i",
-        "--rm",
-        "-e",
-        "PERPLEXITY_API_KEY",
-        "mcp/perplexity-ask"
-      ],
+      "args": ["run", "-i", "--rm", "-e", "PERPLEXITY_API_KEY", "mcp/perplexity-ask"],
       "env": {
         "PERPLEXITY_API_KEY": "TODO-API-KEY"
       }
     },
     "context7": {
       "command": "npx",
-      "args": [
-        "-y",
-        "@upstash/context7-mcp"
-      ],
+      "args": ["-y", "@upstash/context7-mcp"],
       "type": "stdio"
     },
     "serena": {
       "command": "uvx",
       "args": [
-      "--from",
-      "git+https://github.com/oraios/serena",
-      "serena-mcp-server",
-      "--context",
-      "ide-assistant",
-      "--project",
-      "${PWD}",
-      "--tool-timeout",
-      "20",
-      "--mode",
-      "planning",
-      "--enable-web-dashboard",
-      "false"
+        "--from",
+        "git+https://github.com/oraios/serena",
+        "serena-mcp-server",
+        "--context",
+        "ide-assistant",
+        "--project",
+        "${PWD}",
+        "--tool-timeout",
+        "20",
+        "--mode",
+        "planning",
+        "--enable-web-dashboard",
+        "false"
       ],
       "type": "stdio"
     },
     "consult7": {
       "command": "uvx",
-      "args": [
-        "consult7",
-        "google",
-        "TODO-API-KEY"
-      ],
+      "args": ["consult7", "google", "TODO-API-KEY"],
       "type": "stdio"
     }
   }

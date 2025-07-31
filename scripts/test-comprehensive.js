@@ -113,7 +113,7 @@ class TestRunner {
   log(message, level = 'info') {
     const timestamp = new Date().toISOString();
     const prefix = `[${timestamp}]`;
-    
+
     switch (level) {
       case 'success':
         console.log(chalk.green(`${prefix} ✅ ${message}`));
@@ -133,9 +133,9 @@ class TestRunner {
 
   async runTest(test) {
     this.log(`Starting: ${test.name} - ${test.description}`);
-    
+
     const startTime = Date.now();
-    
+
     return new Promise((resolve) => {
       const child = spawn(test.command, test.args, {
         cwd: projectRoot,
@@ -145,12 +145,12 @@ class TestRunner {
 
       let stdout = '';
       let stderr = '';
-      
+
       if (!this.verbose) {
         child.stdout?.on('data', (data) => {
           stdout += data.toString();
         });
-        
+
         child.stderr?.on('data', (data) => {
           stderr += data.toString();
         });
@@ -174,7 +174,7 @@ class TestRunner {
       child.on('close', (code) => {
         clearTimeout(timeoutId);
         const duration = Date.now() - startTime;
-        
+
         const result = {
           name: test.name,
           success: code === 0,
@@ -183,7 +183,7 @@ class TestRunner {
           stdout: stdout,
           stderr: stderr
         };
-        
+
         if (code === 0) {
           this.log(`Completed: ${test.name} (${duration}ms)`, 'success');
         } else {
@@ -193,7 +193,7 @@ class TestRunner {
             console.log(stderr);
           }
         }
-        
+
         this.results.set(test.name, result);
         resolve(result);
       });
@@ -208,7 +208,7 @@ class TestRunner {
           stdout: stdout,
           stderr: stderr
         };
-        
+
         this.log(`Error: ${test.name} - ${error.message}`, 'error');
         this.results.set(test.name, result);
         resolve(result);
@@ -218,7 +218,7 @@ class TestRunner {
 
   async runTestSuite(tests, suiteName) {
     this.log(`\n🏃‍♂️ Running ${suiteName} (${tests.length} tests)`);
-    
+
     if (this.parallel) {
       const results = await Promise.all(tests.map(test => this.runTest(test)));
       return results;
@@ -227,7 +227,7 @@ class TestRunner {
       for (const test of tests) {
         const result = await this.runTest(test);
         results.push(result);
-        
+
         // Short delay between tests
         await new Promise(resolve => setTimeout(resolve, 1000));
       }
@@ -241,30 +241,30 @@ class TestRunner {
     const passed = results.filter(r => r.success).length;
     const failed = results.filter(r => !r.success).length;
     const total = results.length;
-    
+
     console.log('\n' + '='.repeat(80));
     console.log(chalk.bold.blue('📊 CLAUDE FLOW v2.0.0 TEST REPORT'));
     console.log('='.repeat(80));
-    
+
     console.log(`\n📈 Summary:`);
     console.log(`   Total Tests: ${total}`);
     console.log(`   Passed: ${chalk.green(passed)}`);
     console.log(`   Failed: ${chalk.red(failed)}`);
     console.log(`   Success Rate: ${chalk.cyan(((passed / total) * 100).toFixed(1))}%`);
     console.log(`   Total Time: ${chalk.yellow((totalTime / 1000).toFixed(2))}s`);
-    
+
     if (failed > 0) {
       console.log(`\n❌ Failed Tests:`);
       results.filter(r => !r.success).forEach(result => {
         console.log(`   • ${chalk.red(result.name)}: ${result.error || `Exit code ${result.exitCode}`}`);
       });
     }
-    
+
     console.log(`\n✅ Passed Tests:`);
     results.filter(r => r.success).forEach(result => {
       console.log(`   • ${chalk.green(result.name)}: ${(result.duration / 1000).toFixed(2)}s`);
     });
-    
+
     // Performance summary
     const performanceResults = results.filter(r => r.name.includes('Performance'));
     if (performanceResults.length > 0) {
@@ -277,9 +277,9 @@ class TestRunner {
         }
       });
     }
-    
+
     console.log('\n' + '='.repeat(80));
-    
+
     return {
       total,
       passed,
@@ -292,30 +292,30 @@ class TestRunner {
 
   async run() {
     this.log('🚀 Starting Claude Flow v2.0.0 Comprehensive Test Suite');
-    
+
     try {
       // Core test suites
       await this.runTestSuite(testSuites, 'Core Test Suites');
-      
+
       // Optional test suites
       if (this.includeLoad) {
         await this.runTestSuite(loadTests, 'Load Tests');
       }
-      
+
       if (this.includeDocker) {
         await this.runTestSuite(dockerTests, 'Docker Tests');
       }
-      
+
       if (this.includeNpx) {
         await this.runTestSuite(npxTests, 'NPX Tests');
       }
-      
+
     } catch (error) {
       this.log(`Test runner error: ${error.message}`, 'error');
     }
-    
+
     const report = this.generateReport();
-    
+
     // Exit with appropriate code
     process.exit(report.failed > 0 ? 1 : 0);
   }
@@ -332,7 +332,7 @@ function parseArgs() {
     parallel: args.includes('--parallel') || args.includes('-p'),
     help: args.includes('--help') || args.includes('-h')
   };
-  
+
   return options;
 }
 
@@ -372,12 +372,12 @@ ${chalk.bold('Test Suites:')}
 // Main execution
 async function main() {
   const options = parseArgs();
-  
+
   if (options.help) {
     showHelp();
     process.exit(0);
   }
-  
+
   const runner = new TestRunner(options);
   await runner.run();
 }

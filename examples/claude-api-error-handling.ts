@@ -5,7 +5,7 @@
  */
 
 import { ClaudeAPIClient } from '../src/api/claude-client.js';
-import { 
+import {
   ClaudeAPIError,
   ClaudeInternalServerError,
   ClaudeRateLimitError,
@@ -18,7 +18,7 @@ import { ConfigManager } from '../src/config/config-manager.js';
 async function main() {
   const logger = new ConsoleLogger();
   const configManager = ConfigManager.getInstance();
-  
+
   // Initialize the Claude client with enhanced error handling
   const client = new ClaudeAPIClient(logger, configManager, {
     enableHealthCheck: true,
@@ -47,7 +47,7 @@ async function main() {
     const response = await client.sendMessage([
       { role: 'user', content: 'Hello! Can you briefly explain error handling?' }
     ]);
-    
+
     console.log('✅ Success! Response:', response.content[0].text);
   } catch (error) {
     handleError(error);
@@ -112,7 +112,7 @@ function handleError(error: unknown) {
     console.log(`Message: ${errorInfo.message}`);
     console.log(`Status Code: ${error.statusCode || 'N/A'}`);
     console.log(`Retryable: ${error.retryable ? 'Yes' : 'No'}`);
-    
+
     if (errorInfo.suggestions.length > 0) {
       console.log('\n💡 Suggestions:');
       errorInfo.suggestions.forEach((suggestion, i) => {

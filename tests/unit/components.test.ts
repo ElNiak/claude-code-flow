@@ -38,22 +38,22 @@ describe('Component Unit Tests', () => {
     it('should emit and receive events', () => {
       const mockCallback = jest.fn();
       eventBus.on('test-event', mockCallback);
-      
+
       const testData = { message: 'test' };
       eventBus.emit('test-event', testData);
-      
+
       expect(mockCallback).toHaveBeenCalledWith(testData);
     });
 
     it('should handle multiple listeners', () => {
       const mockCallback1 = jest.fn();
       const mockCallback2 = jest.fn();
-      
+
       eventBus.on('test-event', mockCallback1);
       eventBus.on('test-event', mockCallback2);
-      
+
       eventBus.emit('test-event', { data: 'test' });
-      
+
       expect(mockCallback1).toHaveBeenCalled();
       expect(mockCallback2).toHaveBeenCalled();
     });
@@ -62,9 +62,9 @@ describe('Component Unit Tests', () => {
       const mockCallback = jest.fn();
       eventBus.on('test-event', mockCallback);
       eventBus.off('test-event', mockCallback);
-      
+
       eventBus.emit('test-event', { data: 'test' });
-      
+
       expect(mockCallback).not.toHaveBeenCalled();
     });
   });
@@ -86,11 +86,11 @@ describe('Component Unit Tests', () => {
 
     it('should log messages at different levels', () => {
       const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
-      
+
       logger.info('Info message');
       logger.warn('Warning message');
       logger.error('Error message');
-      
+
       expect(consoleSpy).toHaveBeenCalledTimes(3);
       consoleSpy.mockRestore();
     });
@@ -116,14 +116,14 @@ describe('Component Unit Tests', () => {
 
     it('should get and set configuration values', async () => {
       await configManager.load();
-      
+
       configManager.set('test.value', 'test');
       expect(configManager.get('test.value')).toBe('test');
     });
 
     it('should handle nested configuration paths', async () => {
       await configManager.load();
-      
+
       configManager.set('nested.deep.value', 'deep');
       expect(configManager.get('nested.deep.value')).toBe('deep');
     });
@@ -148,7 +148,7 @@ describe('Component Unit Tests', () => {
     it('should store and retrieve data', async () => {
       const testData = { test: 'value' };
       await memoryManager.set('test-key', testData);
-      
+
       const retrieved = await memoryManager.get('test-key');
       expect(retrieved).toEqual(testData);
     });
@@ -161,7 +161,7 @@ describe('Component Unit Tests', () => {
     it('should delete data', async () => {
       await memoryManager.set('delete-test', 'value');
       await memoryManager.delete('delete-test');
-      
+
       const result = await memoryManager.get('delete-test');
       expect(result).toBeNull();
     });
@@ -170,7 +170,7 @@ describe('Component Unit Tests', () => {
       await memoryManager.set('pattern:1', 'value1');
       await memoryManager.set('pattern:2', 'value2');
       await memoryManager.set('other:1', 'value3');
-      
+
       const keys = await memoryManager.keys('pattern:*');
       expect(keys).toContain('pattern:1');
       expect(keys).toContain('pattern:2');
@@ -199,7 +199,7 @@ describe('Component Unit Tests', () => {
         name: 'Test Researcher',
         capabilities: ['research', 'analysis']
       });
-      
+
       expect(agentId).toBeDefined();
       expect(typeof agentId).toBe('string');
     });
@@ -207,14 +207,14 @@ describe('Component Unit Tests', () => {
     it('should list active agents', async () => {
       await agentManager.spawnAgent('researcher', { name: 'Agent 1' });
       await agentManager.spawnAgent('coder', { name: 'Agent 2' });
-      
+
       const agents = await agentManager.listAgents();
       expect(agents.length).toBe(2);
     });
 
     it('should get agent by id', async () => {
       const agentId = await agentManager.spawnAgent('researcher', { name: 'Test Agent' });
-      
+
       const agent = await agentManager.getAgent(agentId);
       expect(agent).toBeDefined();
       expect(agent.id).toBe(agentId);
@@ -222,9 +222,9 @@ describe('Component Unit Tests', () => {
 
     it('should terminate agents', async () => {
       const agentId = await agentManager.spawnAgent('researcher', { name: 'Test Agent' });
-      
+
       await agentManager.terminateAgent(agentId);
-      
+
       const agent = await agentManager.getAgent(agentId);
       expect(agent).toBeNull();
     });
@@ -232,14 +232,14 @@ describe('Component Unit Tests', () => {
     it('should handle agent communication', async () => {
       const agentId1 = await agentManager.spawnAgent('researcher', { name: 'Agent 1' });
       const agentId2 = await agentManager.spawnAgent('coder', { name: 'Agent 2' });
-      
+
       const message = {
         from: agentId1,
         to: agentId2,
         type: 'request',
         data: { task: 'analyze data' }
       };
-      
+
       const response = await agentManager.sendMessage(message);
       expect(response).toBeDefined();
     });
@@ -252,7 +252,7 @@ describe('Component Unit Tests', () => {
     beforeEach(async () => {
       configManager = ConfigManager.getInstance();
       await configManager.load();
-      
+
       orchestrator = new Orchestrator(configManager, eventBus, logger);
       await orchestrator.initialize();
     });
@@ -272,14 +272,14 @@ describe('Component Unit Tests', () => {
         objective: 'Test objective',
         priority: 'high'
       };
-      
+
       const result = await orchestrator.submitTask(task);
       expect(result).toBeDefined();
     });
 
     it('should get orchestrator status', async () => {
       const status = await orchestrator.getStatus();
-      
+
       expect(status).toBeDefined();
       expect(status.status).toBeDefined();
       expect(status.activeTasks).toBeDefined();
@@ -292,10 +292,10 @@ describe('Component Unit Tests', () => {
         { id: 'task2', type: 'analysis', objective: 'Objective 2' },
         { id: 'task3', type: 'coding', objective: 'Objective 3' }
       ];
-      
+
       const promises = tasks.map(task => orchestrator.submitTask(task));
       const results = await Promise.all(promises);
-      
+
       expect(results).toHaveLength(3);
       results.forEach(result => {
         expect(result).toBeDefined();
@@ -309,23 +309,23 @@ describe('Component Unit Tests', () => {
       const mockComponent = {
         initialize: jest.fn().mockRejectedValue(new Error('Init failed'))
       };
-      
+
       await expect(mockComponent.initialize()).rejects.toThrow('Init failed');
     });
 
     it('should handle runtime errors', () => {
       const errorHandler = jest.fn();
       eventBus.on('error', errorHandler);
-      
+
       eventBus.emit('error', new Error('Runtime error'));
-      
+
       expect(errorHandler).toHaveBeenCalled();
     });
 
     it('should handle network errors', async () => {
       // Simulate network failure
       const mockNetworkOperation = jest.fn().mockRejectedValue(new Error('Network error'));
-      
+
       await expect(mockNetworkOperation()).rejects.toThrow('Network error');
     });
   });
@@ -334,17 +334,17 @@ describe('Component Unit Tests', () => {
     it('should handle high event throughput', () => {
       const mockHandler = jest.fn();
       eventBus.on('performance-test', mockHandler);
-      
+
       const eventCount = 1000;
       const startTime = Date.now();
-      
+
       for (let i = 0; i < eventCount; i++) {
         eventBus.emit('performance-test', { id: i });
       }
-      
+
       const endTime = Date.now();
       const duration = endTime - startTime;
-      
+
       expect(mockHandler).toHaveBeenCalledTimes(eventCount);
       expect(duration).toBeLessThan(1000); // Should complete in under 1 second
     });
@@ -352,19 +352,19 @@ describe('Component Unit Tests', () => {
     it('should handle memory efficiently', async () => {
       const memoryManager = new MemoryManager();
       await memoryManager.initialize();
-      
+
       // Store many items
       const itemCount = 1000;
       for (let i = 0; i < itemCount; i++) {
         await memoryManager.set(`item-${i}`, { data: `value-${i}` });
       }
-      
+
       // Retrieve items
       for (let i = 0; i < itemCount; i++) {
         const value = await memoryManager.get(`item-${i}`);
         expect(value).toEqual({ data: `value-${i}` });
       }
-      
+
       await memoryManager.shutdown();
     });
   });

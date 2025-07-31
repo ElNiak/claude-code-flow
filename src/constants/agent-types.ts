@@ -11,7 +11,7 @@ export type AgentType = string;
 // Legacy agent type mapping for backward compatibility
 export const LEGACY_AGENT_MAPPING = {
   analyst: 'code-analyzer',
-  coordinator: 'task-orchestrator', 
+  coordinator: 'task-orchestrator',
   optimizer: 'perf-analyzer',
   documenter: 'api-docs',
   monitor: 'performance-benchmarker',

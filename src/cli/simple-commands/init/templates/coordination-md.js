@@ -40,7 +40,7 @@ npx claude-flow agent list
 npx claude-flow agent info <agent-id>
 npx claude-flow agent terminate <agent-id>
 
-# Task Management  
+# Task Management
 npx claude-flow task create <type> <description> --priority <1-10> --deps <task-ids>
 npx claude-flow task list --verbose
 npx claude-flow task status <task-id>
@@ -141,7 +141,7 @@ npx claude-flow agent list
 npx claude-flow agent info <agent-id>
 npx claude-flow agent terminate <agent-id>
 
-# Task Management  
+# Task Management
 npx claude-flow task create <type> <description> --priority <1-10> --deps <task-ids>
 npx claude-flow task list --verbose
 npx claude-flow task status <task-id>

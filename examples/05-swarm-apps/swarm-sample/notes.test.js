@@ -1,7 +1,7 @@
 /**
  * Test Suite for Notes CLI
  * Created by Swarm Agent: Tester-1
- * 
+ *
  * Comprehensive testing following TDD principles
  */
 
@@ -61,7 +61,7 @@ describe('Notes CLI Test Suite', () => {
         it('should filter notes by tag', () => {
             const workNotes = manager.listNotes('work');
             assert.strictEqual(workNotes.length, 2);
-            
+
             const personalNotes = manager.listNotes('personal');
             assert.strictEqual(personalNotes.length, 1);
         });
@@ -111,7 +111,7 @@ describe('Notes CLI Test Suite', () => {
             const note = manager.addNote('To Delete', 'Delete me', []);
             const noteId = note.id;
             const initialCount = manager.notes.length;
-            
+
             const deleted = manager.deleteNote(noteId);
             assert.ok(deleted);
             assert.strictEqual(deleted.id, noteId);
@@ -131,7 +131,7 @@ describe('Notes CLI Test Suite', () => {
                 title: 'Updated',
                 content: 'Updated content'
             });
-            
+
             assert.strictEqual(updated.title, 'Updated');
             assert.strictEqual(updated.content, 'Updated content');
             assert.notStrictEqual(updated.updatedAt, note.createdAt);

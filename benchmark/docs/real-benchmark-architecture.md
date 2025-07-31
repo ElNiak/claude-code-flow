@@ -20,6 +20,7 @@ class RealBenchmarkEngine:
 ```
 
 **Key Features:**
+
 - Automatic claude-flow discovery across multiple paths
 - Subprocess-based execution with full isolation
 - Configurable parallelism and timeout handling
@@ -28,21 +29,27 @@ class RealBenchmarkEngine:
 ### 2. Resource Monitoring System
 
 #### ProcessMetrics
+
 Captures fine-grained resource usage data:
+
 - CPU utilization (per-process and children)
 - Memory consumption (RSS, peak usage)
 - I/O operations (read/write bytes and counts)
 - Temporal sampling for trend analysis
 
 #### ResourceMonitor
+
 Background thread-based monitoring:
+
 - Configurable sampling interval (default: 100ms)
 - Hierarchical process tracking (parent + children)
 - Non-blocking operation
 - Graceful handling of process termination
 
 #### SystemMonitor
+
 Overall system resource tracking:
+
 - Baseline measurements
 - System-wide CPU and memory usage
 - Disk and network I/O statistics
@@ -55,14 +62,18 @@ Task Definition → Command Building → Process Execution → Resource Monitori
 ```
 
 #### Command Building
+
 Intelligent command construction based on:
+
 - Task strategy type (SPARC mode vs. Swarm)
 - Coordination mode selection
 - Configuration parameters
 - Non-interactive flag enforcement
 
 #### Process Execution
+
 Asynchronous subprocess management:
+
 - `asyncio`-based process control
 - Configurable timeout enforcement
 - Stdout/stderr capture
@@ -82,6 +93,7 @@ QualityMetrics:
 ```
 
 Quality estimation algorithm:
+
 1. Base scoring on execution success
 2. Output analysis for completeness
 3. Error pattern detection
@@ -92,11 +104,13 @@ Quality estimation algorithm:
 Configurable parallelism modes:
 
 #### Sequential Mode
+
 - Ordered task execution
 - Predictable resource usage
 - Simplified debugging
 
 #### Parallel Mode
+
 - Semaphore-based concurrency control
 - Configurable max parallel tasks
 - Resource-aware scheduling
@@ -105,6 +119,7 @@ Configurable parallelism modes:
 ### 6. Data Models Integration
 
 Seamless integration with existing benchmark models:
+
 - `Task`: Enhanced with real execution parameters
 - `Result`: Populated with actual metrics
 - `Benchmark`: Comprehensive execution records
@@ -113,16 +128,19 @@ Seamless integration with existing benchmark models:
 ## Execution Modes
 
 ### 1. Single Task Benchmarking
+
 ```python
 result = await engine.run_benchmark("Create a REST API")
 ```
 
 ### 2. Batch Execution
+
 ```python
 results = await engine.execute_batch(task_list)
 ```
 
 ### 3. Comprehensive Mode Testing
+
 ```python
 all_results = await engine.benchmark_all_modes("Build a web app")
 ```
@@ -132,24 +150,28 @@ all_results = await engine.benchmark_all_modes("Build a web app")
 All 17 SPARC modes with specialized handling:
 
 ### Core Development Modes
+
 - **coder**: Code generation benchmarks
 - **architect**: System design evaluation
 - **reviewer**: Code review simulation
 - **tdd**: Test-driven development cycles
 
 ### Analysis & Research Modes
+
 - **researcher**: Information gathering tests
 - **analyzer**: Code analysis benchmarks
 - **optimizer**: Performance optimization
 - **debugger**: Issue resolution testing
 
 ### Creative & Support Modes
+
 - **designer**: UI/UX design tasks
 - **innovator**: Creative problem solving
 - **documenter**: Documentation generation
 - **tester**: Test suite creation
 
 ### Orchestration Modes
+
 - **orchestrator**: Multi-agent coordination
 - **swarm-coordinator**: Swarm management
 - **workflow-manager**: Process automation
@@ -159,6 +181,7 @@ All 17 SPARC modes with specialized handling:
 ## Swarm Strategy Support
 
 ### Strategies (6 types)
+
 1. **auto**: Adaptive strategy selection
 2. **research**: Information gathering swarms
 3. **development**: Code creation swarms
@@ -168,6 +191,7 @@ All 17 SPARC modes with specialized handling:
 7. **maintenance**: System maintenance swarms
 
 ### Coordination Modes (5 types)
+
 1. **centralized**: Single coordinator model
 2. **distributed**: Peer-to-peer coordination
 3. **hierarchical**: Multi-level management
@@ -177,6 +201,7 @@ All 17 SPARC modes with specialized handling:
 ## Monitoring & Metrics
 
 ### Performance Metrics
+
 - Execution time (wall clock)
 - Queue time (if applicable)
 - Throughput (tasks/second)
@@ -185,6 +210,7 @@ All 17 SPARC modes with specialized handling:
 - Coordination overhead
 
 ### Resource Metrics
+
 - CPU utilization (average, peak)
 - Memory usage (average, peak)
 - I/O operations (read/write)
@@ -193,6 +219,7 @@ All 17 SPARC modes with specialized handling:
 - Thread count
 
 ### Quality Metrics
+
 - Output quality scoring
 - Task completion assessment
 - Error rate analysis
@@ -201,14 +228,18 @@ All 17 SPARC modes with specialized handling:
 ## Output Formats
 
 ### JSON Reports
+
 Structured data with:
+
 - Complete execution details
 - Resource usage graphs
 - Quality assessments
 - Comparative analysis
 
 ### SQLite Database
+
 Queryable storage for:
+
 - Historical trending
 - Cross-benchmark analysis
 - Performance regression detection
@@ -217,12 +248,14 @@ Queryable storage for:
 ## Error Handling
 
 ### Graceful Degradation
+
 - Process timeout handling
 - Resource exhaustion management
 - Network failure resilience
 - Filesystem error recovery
 
 ### Error Classification
+
 - Execution errors
 - Resource errors
 - Quality failures
@@ -231,24 +264,28 @@ Queryable storage for:
 ## Best Practices
 
 ### 1. Resource Management
+
 - Use temporary workspaces for isolation
 - Clean up after execution
 - Monitor system resources
 - Set appropriate timeouts
 
 ### 2. Parallel Execution
+
 - Configure based on system capacity
 - Use semaphores for rate limiting
 - Monitor resource contention
 - Handle partial failures
 
 ### 3. Quality Assessment
+
 - Define task-specific quality criteria
 - Use multiple quality dimensions
 - Validate output correctness
 - Track quality trends
 
 ### 4. Performance Optimization
+
 - Batch similar tasks
 - Reuse process resources
 - Cache command templates
@@ -257,6 +294,7 @@ Queryable storage for:
 ## Integration Points
 
 ### 1. CLI Integration
+
 ```bash
 # Run real benchmarks
 python -m swarm_benchmark real --objective "Build a CLI tool" --all-modes
@@ -269,6 +307,7 @@ python -m swarm_benchmark real --strategy development --mode hierarchical
 ```
 
 ### 2. API Integration
+
 ```python
 from swarm_benchmark.core.real_benchmark_engine import RealBenchmarkEngine
 
@@ -277,6 +316,7 @@ results = await engine.run_benchmark("Create a web scraper")
 ```
 
 ### 3. Continuous Integration
+
 ```yaml
 # CI/CD pipeline integration
 - name: Run Claude-Flow Benchmarks
@@ -290,24 +330,28 @@ results = await engine.run_benchmark("Create a web scraper")
 ## Future Enhancements
 
 ### 1. Advanced Monitoring
+
 - GPU usage tracking
 - Container resource limits
 - Distributed execution support
 - Cloud provider integration
 
 ### 2. Quality Improvements
+
 - ML-based quality scoring
 - Semantic output analysis
 - Task-specific validators
 - Human evaluation integration
 
 ### 3. Scalability Features
+
 - Distributed benchmarking
 - Result streaming
 - Incremental processing
 - Cloud-native deployment
 
 ### 4. Analysis Capabilities
+
 - Real-time dashboards
 - Anomaly detection
 - Performance prediction

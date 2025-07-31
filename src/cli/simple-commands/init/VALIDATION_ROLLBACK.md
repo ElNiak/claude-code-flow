@@ -390,6 +390,7 @@ Test categories:
    ```
 
 4. **Partial Initialization**
+
    ```bash
    # Complete missing components
    claude-flow init --enhanced --sparc --force
@@ -418,6 +419,7 @@ If all automated recovery fails:
    ```
 
 3. **Fresh Installation**
+
    ```bash
    # Start completely fresh
    npx claude-flow@latest init --sparc --force

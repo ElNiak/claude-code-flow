@@ -325,14 +325,14 @@ class DAATools {
                     </div>
                 </div>
             </div>
-            
+
             <div class="daa-tabs">
                 <button class="daa-tab active" data-tab="agents">Agents</button>
                 <button class="daa-tab" data-tab="resources">Resources</button>
                 <button class="daa-tab" data-tab="communication">Communication</button>
                 <button class="daa-tab" data-tab="monitoring">Monitoring</button>
             </div>
-            
+
             <div class="daa-content">
                 ${this.createAgentsTab()}
                 ${this.createResourcesTab()}
@@ -363,14 +363,14 @@ class DAATools {
                         <button id="daa-create-agent">Create Agent</button>
                     </div>
                 </div>
-                
+
                 <div class="daa-section">
                     <h4>Agent Lifecycle</h4>
                     <div id="daa-lifecycle-visualization" class="daa-visualization">
                         <!-- Lifecycle visualization will be populated here -->
                     </div>
                 </div>
-                
+
                 <div class="daa-section">
                     <h4>Active Agents</h4>
                     <div id="daa-agents-list" class="daa-agents-grid">
@@ -402,14 +402,14 @@ class DAATools {
                         <button id="daa-allocate-resource">Allocate Resource</button>
                     </div>
                 </div>
-                
+
                 <div class="daa-section">
                     <h4>Resource Graphs</h4>
                     <div id="daa-resource-graphs" class="daa-visualization">
                         <canvas id="daa-resource-chart" width="600" height="300"></canvas>
                     </div>
                 </div>
-                
+
                 <div class="daa-section">
                     <h4>Resource Status</h4>
                     <div id="daa-resource-status" class="daa-status-grid">
@@ -429,7 +429,7 @@ class DAATools {
                         <svg id="daa-comm-diagram" width="600" height="400"></svg>
                     </div>
                 </div>
-                
+
                 <div class="daa-section">
                     <h4>Consensus Voting</h4>
                     <div class="daa-form">

@@ -9,6 +9,7 @@ This guide covers sophisticated usage patterns, enterprise deployment strategies
 Claude-Flow supports sophisticated multi-project environments with strong isolation boundaries and resource management.
 
 **Creating Isolated Project Environments:**
+
 ```bash
 # Create project with strict isolation
 claude-flow project create "microservices-platform" \
@@ -24,6 +25,7 @@ claude-flow project create "ai-research" \
 ```
 
 **Project Configuration Template:**
+
 ```json
 {
   "project": {
@@ -69,6 +71,7 @@ claude-flow project create "ai-research" \
 ```
 
 **Project Management Operations:**
+
 ```bash
 # Switch between projects
 claude-flow project switch "microservices-platform"
@@ -93,6 +96,7 @@ claude-flow project backup "microservices-platform" \
 ### Cross-Project Collaboration
 
 **Project Federation:**
+
 ```bash
 # Create project federation
 claude-flow federation create "development-ecosystem" \
@@ -114,6 +118,7 @@ claude-flow federation workflow "full-stack-deployment" \
 ```
 
 **Federation Configuration:**
+
 ```json
 {
   "federation": {
@@ -154,6 +159,7 @@ claude-flow federation workflow "full-stack-deployment" \
 ### High Availability Configuration
 
 **Multi-Node HA Deployment:**
+
 ```bash
 # Deploy HA cluster
 claude-flow deploy ha-cluster \
@@ -172,6 +178,7 @@ claude-flow ha configure-failover \
 ```
 
 **HA Configuration Template:**
+
 ```yaml
 apiVersion: claude-flow.dev/v1
 kind: HAConfiguration
@@ -218,6 +225,7 @@ spec:
 ### Horizontal Scaling Architecture
 
 **Auto-Scaling Configuration:**
+
 ```bash
 # Configure horizontal auto-scaling
 claude-flow scaling configure \
@@ -237,6 +245,7 @@ claude-flow scaling predictive \
 ```
 
 **Scaling Configuration:**
+
 ```json
 {
   "autoscaling": {
@@ -302,6 +311,7 @@ claude-flow scaling predictive \
 ### Security Hardening
 
 **Enterprise Security Configuration:**
+
 ```bash
 # Enable comprehensive security
 claude-flow security harden \
@@ -326,6 +336,7 @@ claude-flow security monitor \
 ```
 
 **Enterprise Security Policy:**
+
 ```yaml
 apiVersion: security.claude-flow.dev/v1
 kind: SecurityPolicy
@@ -384,6 +395,7 @@ spec:
 ### Hierarchical Agent Networks
 
 **Creating Complex Agent Hierarchies:**
+
 ```bash
 # Define enterprise agent hierarchy
 claude-flow agent hierarchy create "enterprise-development" \
@@ -400,6 +412,7 @@ claude-flow agent network create "ai-research-network" \
 ```
 
 **Enterprise Hierarchy Structure:**
+
 ```yaml
 apiVersion: agents.claude-flow.dev/v1
 kind: AgentHierarchy
@@ -449,6 +462,7 @@ spec:
 ### Dynamic Agent Provisioning
 
 **Intelligent Agent Provisioning:**
+
 ```bash
 # ML-based demand prediction
 claude-flow agent provision-ml \
@@ -472,6 +486,7 @@ claude-flow agent provision-optimized \
 ```
 
 **Provisioning Configuration:**
+
 ```json
 {
   "dynamicProvisioning": {
@@ -532,6 +547,7 @@ claude-flow agent provision-optimized \
 ### Specialized Agent Ecosystems
 
 **AI/ML Agent Ecosystem:**
+
 ```bash
 # Create ML specialist network
 claude-flow ecosystem create "ai-ml-specialists" \
@@ -553,6 +569,7 @@ claude-flow ecosystem create "research-network" \
 ### State Machine Workflows
 
 **Advanced State Machine Definition:**
+
 ```yaml
 apiVersion: workflows.claude-flow.dev/v1
 kind: StateMachineWorkflow
@@ -564,12 +581,12 @@ spec:
     security_level: "high"
     compliance_required: true
     deployment_target: "kubernetes"
-  
+
   states:
     initial:
       type: trigger
       next: requirements-gathering
-    
+
     requirements-gathering:
       type: parallel
       description: "Comprehensive requirements analysis"
@@ -582,7 +599,7 @@ spec:
             - priority-analysis
           duration: 2w
           deliverables: [stakeholder-map.md, requirements.md]
-        
+
         technical-feasibility:
           agent: technical-architect
           tasks:
@@ -591,7 +608,7 @@ spec:
             - performance-requirements
           duration: 1w
           deliverables: [feasibility-report.md, tech-constraints.md]
-        
+
         compliance-review:
           agent: compliance-officer
           condition: "${compliance_required}"
@@ -601,7 +618,7 @@ spec:
             - audit-requirements
           duration: 1w
           deliverables: [compliance-plan.md]
-      
+
       completion: all-branches
       validation:
         criteria:
@@ -609,7 +626,7 @@ spec:
           - stakeholder-approval
           - technical-feasibility-confirmed
       next: architecture-design
-    
+
     architecture-design:
       type: sequential
       description: "Comprehensive system architecture"
@@ -619,26 +636,26 @@ spec:
           duration: 1w
           inputs: [requirements.md, tech-constraints.md]
           outputs: [architecture-overview.md, component-diagram.png]
-        
+
         - id: security-architecture
           agent: security-architect
           condition: "${security_level} == 'high'"
           duration: 1w
           inputs: [architecture-overview.md, compliance-plan.md]
           outputs: [security-design.md, threat-model.md]
-        
+
         - id: data-architecture
           agent: data-architect
           duration: 1w
           inputs: [architecture-overview.md]
           outputs: [data-model.md, api-specifications.yaml]
-      
+
       quality-gates:
         - architecture-review-board
         - security-review
         - performance-review
       next: implementation-planning
-    
+
     implementation-planning:
       type: coordination
       agent: project-manager
@@ -648,7 +665,7 @@ spec:
         - development-environment-setup
       outputs: [project-plan.md, team-assignments.md]
       next: implementation
-    
+
     implementation:
       type: parallel
       description: "Multi-track development"
@@ -662,7 +679,7 @@ spec:
             - business-logic-implementation
             - database-design
             - integration-testing
-        
+
         frontend-development:
           agent: frontend-team
           methodology: agile
@@ -672,7 +689,7 @@ spec:
             - user-experience-implementation
             - integration-with-backend
             - accessibility-compliance
-        
+
         infrastructure-development:
           agent: devops-team
           tasks:
@@ -680,7 +697,7 @@ spec:
             - ci-cd-pipeline
             - monitoring-setup
             - security-hardening
-      
+
       synchronization-points:
         - at: 2w
           activities: [integration-checkpoint, demo-preparation]
@@ -688,12 +705,12 @@ spec:
           activities: [milestone-review, risk-assessment]
         - at: 6w
           activities: [system-integration, acceptance-testing]
-      
+
       quality-assurance:
         continuous: true
         gates: [code-review, automated-testing, security-scanning]
       next: testing-validation
-    
+
     testing-validation:
       type: sequential
       description: "Comprehensive testing and validation"
@@ -702,30 +719,30 @@ spec:
           agent: qa-team
           duration: 2w
           types: [functional, performance, security, compatibility]
-        
+
         - id: user-acceptance-testing
           agent: business-users
           duration: 1w
           dependencies: [system-testing]
-        
+
         - id: security-penetration-testing
           agent: security-team
           condition: "${security_level} == 'high'"
           duration: 1w
           dependencies: [system-testing]
-        
+
         - id: performance-testing
           agent: performance-team
           duration: 1w
           dependencies: [system-testing]
-      
+
       success-criteria:
         test-coverage: ">= 95%"
         performance: "response-time < 200ms"
         security: "no-critical-vulnerabilities"
         user-satisfaction: ">= 4.5/5"
       next: deployment-preparation
-    
+
     deployment-preparation:
       type: coordination
       agent: release-manager
@@ -736,7 +753,7 @@ spec:
         - team-training
       approvals: [technical-lead, security-officer, business-owner]
       next: production-deployment
-    
+
     production-deployment:
       type: sequential
       description: "Blue-green production deployment"
@@ -745,25 +762,25 @@ spec:
           agent: devops-team
           target: "${deployment_target}"
           strategy: blue-green
-        
+
         - id: smoke-testing
           agent: qa-team
           duration: 2h
           dependencies: [blue-environment-deployment]
-        
+
         - id: traffic-routing
           agent: devops-team
           strategy: gradual
           percentages: [10, 25, 50, 100]
           validation-at-each-step: true
           dependencies: [smoke-testing]
-      
+
       monitoring:
         metrics: [error-rate, response-time, throughput, resource-usage]
         alerts: [error-rate > 1%, response-time > 500ms]
         rollback-triggers: [error-rate > 5%, availability < 99%]
       next: post-deployment
-    
+
     post-deployment:
       type: monitoring
       duration: 2w
@@ -773,7 +790,7 @@ spec:
         - incident-response-readiness
         - documentation-finalization
       next: completion
-    
+
     completion:
       type: final
       activities:
@@ -781,7 +798,7 @@ spec:
         - knowledge-transfer
         - success-metrics-reporting
         - lessons-learned-documentation
-  
+
   error-handling:
     global:
       retry-policy:
@@ -793,7 +810,7 @@ spec:
       rollback:
         triggers: [critical-failure, security-breach, compliance-violation]
         strategy: previous-stable-state
-  
+
   monitoring:
     dashboards: true
     alerts: true
@@ -803,6 +820,7 @@ spec:
 ### Event-Driven Orchestration
 
 **Complex Event Processing:**
+
 ```bash
 # Set up event-driven orchestration
 claude-flow events configure \
@@ -818,6 +836,7 @@ claude-flow events processor create "intelligent-responder" \
 ```
 
 **Event Processing Configuration:**
+
 ```json
 {
   "eventDrivenOrchestration": {
@@ -829,7 +848,7 @@ claude-flow events processor create "intelligent-responder" \
         "retention": "30d"
       },
       {
-        "name": "production-events", 
+        "name": "production-events",
         "sources": ["monitoring", "logging", "alerts", "user-analytics"],
         "format": "cloud-events",
         "retention": "90d"
@@ -880,6 +899,7 @@ claude-flow events processor create "intelligent-responder" \
 ### Comprehensive Monitoring Stack
 
 **Enterprise Monitoring Setup:**
+
 ```bash
 # Deploy comprehensive monitoring
 claude-flow monitoring deploy \
@@ -897,6 +917,7 @@ claude-flow monitoring ai-enable \
 ```
 
 **Production Monitoring Configuration:**
+
 ```yaml
 apiVersion: monitoring.claude-flow.dev/v1
 kind: MonitoringStack
@@ -911,7 +932,7 @@ spec:
       storage:
         size: 100Gi
         class: fast-ssd
-    
+
     customMetrics:
       - name: agent_productivity
         query: completed_tasks / active_time
@@ -922,14 +943,14 @@ spec:
       - name: resource_efficiency
         query: (cpu_used + memory_used) / resources_allocated
         labels: [node, cluster, region]
-  
+
   logging:
     elasticsearch:
       nodes: 3
       retention: 90d
       indexTemplate: claude-flow-logs
       pipelines: [enrichment, anonymization, correlation]
-    
+
     logAggregation:
       - source: agents
         pattern: "agent-*"
@@ -937,19 +958,19 @@ spec:
       - source: workflows
         pattern: "workflow-*"
         enrichment: [workflow_type, complexity, business_impact]
-  
+
   tracing:
     jaeger:
       sampling: probabilistic
       samplingRate: 0.1
       retention: 7d
       dependencies: auto-discovery
-    
+
     distributedTracing:
       enabled: true
       propagation: w3c
       baggage: [user_id, project_id, workflow_id]
-  
+
   alerting:
     rules: production-alerts.yaml
     channels:
@@ -962,27 +983,27 @@ spec:
       - type: email
         severity: info
         recipients: ["ops-team@company.com"]
-  
+
   dashboards:
     grafana:
       datasources: [prometheus, elasticsearch, jaeger]
       dashboards: production-dashboards.json
       alerting: integrated
       rbac: true
-  
+
   aiOps:
     anomalyDetection:
       enabled: true
       algorithms: [isolation-forest, lstm, transformer]
       sensitivity: medium
       learningPeriod: 7d
-    
+
     predictiveAlerting:
       enabled: true
       horizon: 1h
       confidence: 0.8
       actionable: true
-    
+
     autoRemediation:
       enabled: selective
       approvedActions: [restart-service, scale-up, clear-cache]
@@ -992,6 +1013,7 @@ spec:
 ### Performance Analytics
 
 **Advanced Performance Analysis:**
+
 ```bash
 # ML-powered performance analysis
 claude-flow analytics performance \
@@ -1017,6 +1039,7 @@ claude-flow analytics capacity-planning \
 ### Cost Management and Optimization
 
 **Enterprise Cost Management:**
+
 ```bash
 # Cost analysis and optimization
 claude-flow cost analyze \
@@ -1044,6 +1067,7 @@ claude-flow optimize resources \
 ### Enterprise System Integration
 
 **ERP and Business System Integration:**
+
 ```bash
 # Enterprise service bus integration
 claude-flow integration enterprise \
@@ -1061,6 +1085,7 @@ claude-flow integration legacy \
 ### Cloud Platform Integration
 
 **Multi-Cloud Deployment:**
+
 ```bash
 # AWS integration
 claude-flow cloud aws deploy \
@@ -1083,6 +1108,7 @@ claude-flow cloud gcp deploy \
 ```
 
 **Kubernetes Deployment:**
+
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -1152,6 +1178,7 @@ spec:
 ### Backup and Recovery Strategy
 
 **Enterprise Backup Configuration:**
+
 ```bash
 # Configure comprehensive backup
 claude-flow backup configure \
@@ -1171,6 +1198,7 @@ claude-flow dr configure \
 ```
 
 **Backup Strategy Configuration:**
+
 ```yaml
 apiVersion: backup.claude-flow.dev/v1
 kind: BackupStrategy
@@ -1181,37 +1209,37 @@ spec:
     full: "0 2 * * 0"  # Weekly full backup
     incremental: "0 */6 * * *"  # Every 6 hours
     differential: "0 2 * * *"  # Daily differential
-  
+
   retention:
     daily: 30
     weekly: 12
     monthly: 12
     yearly: 7
-  
+
   storage:
     primary:
       type: s3
       bucket: claude-flow-backups-primary
       region: us-east-1
       encryption: AES256
-    
+
     secondary:
       type: azure-blob
       container: claude-flow-backups
       region: eastus
       encryption: customer-managed
-    
+
     tertiary:
       type: local
       path: /backup/claude-flow
       encryption: gpg
-  
+
   verification:
     enabled: true
     schedule: "0 4 * * *"
     methods: [checksum, restore-test]
     notification: true
-  
+
   compression:
     algorithm: lz4
     level: 3

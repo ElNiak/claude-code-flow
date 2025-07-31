@@ -85,13 +85,13 @@ class CoverageAnalyzer {
 
     // Load coverage data
     const coverageData = await this.loadCoverageData();
-    
+
     // Get all source files
     const sourceFiles = await this.getSourceFiles();
-    
+
     // Analyze each file
     const fileAnalysis = await this.analyzeFiles(sourceFiles, coverageData);
-    
+
     // Find uncovered files
     const coveredFiles = new Set(coverageData.map(d => this.normalizePath(d.url)));
     const uncoveredFiles = sourceFiles.filter(file => !coveredFiles.has(file));
@@ -122,13 +122,13 @@ class CoverageAnalyzer {
       throw new Error(`Coverage directory not found: ${this.coverageDir}`);
     }
 
-    for await (const entry of walk(this.coverageDir, { 
+    for await (const entry of walk(this.coverageDir, {
       exts: [".json"],
-      includeDirs: false 
+      includeDirs: false
     })) {
       const content = await Deno.readTextFile(entry.path);
       const data = JSON.parse(content);
-      
+
       if (data.url && data.ranges) {
         coverageFiles.push(data);
       }
@@ -158,13 +158,13 @@ class CoverageAnalyzer {
     if (url.startsWith("file://")) {
       url = url.replace("file://", "");
     }
-    
+
     // Remove leading slash and make relative to cwd
     const cwd = Deno.cwd();
     if (url.startsWith(cwd)) {
       url = url.replace(cwd + "/", "");
     }
-    
+
     return url;
   }
 
@@ -198,7 +198,7 @@ class CoverageAnalyzer {
 
     // Analyze covered lines
     const coveredLines = new Set<number>();
-    
+
     for (const range of coverage.ranges) {
       for (let line = range.start.line; line <= range.end.line; line++) {
         coveredLines.add(line);
@@ -239,14 +239,14 @@ class CoverageAnalyzer {
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
-      
+
       for (const pattern of patterns) {
         const match = line.match(pattern);
         if (match) {
           const functionName = match[1];
           const lineNumber = i + 1;
           const covered = checkCoverage ? (coveredLines?.has(lineNumber) ?? false) : false;
-          
+
           functions.push({
             name: functionName,
             line: lineNumber,
@@ -284,7 +284,7 @@ class CoverageAnalyzer {
       .map(file => {
         const coverageClass = file.coverage >= 80 ? 'high' : file.coverage >= 60 ? 'medium' : 'low';
         const coverageBar = `<div class="coverage-bar"><div class="coverage-fill ${coverageClass}" style="width: ${file.coverage}%"></div></div>`;
-        
+
         return `
           <tr class="${coverageClass}">
             <td><a href="#file-${file.path.replace(/[^a-zA-Z0-9]/g, '-')}">${file.path}</a></td>
@@ -337,14 +337,14 @@ class CoverageAnalyzer {
               <span class="value">${file.functions.filter(f => f.covered).length}/${file.functions.length}</span>
             </div>
           </div>
-          
+
           ${file.uncoveredLines.length > 0 ? `
             <div class="uncovered-lines">
               <h4>Uncovered Lines:</h4>
               <p>${uncoveredLinesStr}</p>
             </div>
           ` : ''}
-          
+
           ${file.functions.length > 0 ? `
             <div class="functions">
               <h4>Functions:</h4>
@@ -374,7 +374,7 @@ class CoverageAnalyzer {
         .header { background: white; padding: 30px; border-radius: 8px; margin-bottom: 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .header h1 { margin: 0; color: #2c3e50; }
         .header .timestamp { color: #7f8c8d; margin-top: 5px; }
-        
+
         .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
         .summary-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center; }
         .summary-card h3 { margin: 0 0 10px 0; color: #2c3e50; font-size: 14px; text-transform: uppercase; }
@@ -383,42 +383,42 @@ class CoverageAnalyzer {
         .summary-card .value.medium { color: #f39c12; }
         .summary-card .value.low { color: #e74c3c; }
         .summary-card .threshold { font-size: 12px; color: #7f8c8d; }
-        
+
         .coverage-status { padding: 15px; border-radius: 8px; margin-bottom: 30px; text-align: center; font-weight: bold; }
         .coverage-status.passed { background: #d4edda; color: #155724; }
         .coverage-status.failed { background: #f8d7da; color: #721c24; }
-        
+
         .files-table { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 30px; }
         .files-table h2 { margin: 0; padding: 20px; background: #2c3e50; color: white; }
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ecf0f1; }
         th { background: #f8f9fa; font-weight: 600; }
-        
+
         .coverage-bar { width: 100px; height: 20px; background: #ecf0f1; border-radius: 10px; overflow: hidden; }
         .coverage-fill { height: 100%; transition: width 0.3s ease; }
         .coverage-fill.high { background: linear-gradient(90deg, #27ae60, #2ecc71); }
         .coverage-fill.medium { background: linear-gradient(90deg, #f39c12, #e67e22); }
         .coverage-fill.low { background: linear-gradient(90deg, #e74c3c, #c0392b); }
-        
+
         .high { background-color: rgba(39, 174, 96, 0.1); }
         .medium { background-color: rgba(243, 156, 18, 0.1); }
         .low { background-color: rgba(231, 76, 60, 0.1); }
         .uncovered { background-color: rgba(231, 76, 60, 0.2); }
-        
+
         .file-detail { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .file-detail h3 { margin: 0 0 15px 0; color: #2c3e50; }
         .file-summary { display: flex; gap: 20px; margin-bottom: 20px; }
         .metric { display: flex; flex-direction: column; }
         .metric .label { font-size: 12px; color: #7f8c8d; text-transform: uppercase; }
         .metric .value { font-size: 18px; font-weight: bold; margin-top: 5px; }
-        
+
         .uncovered-lines { margin: 15px 0; }
         .uncovered-lines h4 { margin: 0 0 10px 0; color: #e74c3c; }
         .functions { margin: 15px 0; }
         .functions h4 { margin: 0 0 10px 0; color: #2c3e50; }
         .functions table { margin-top: 10px; }
         .covered { background-color: rgba(39, 174, 96, 0.1); }
-        
+
         .footer { text-align: center; margin-top: 40px; color: #7f8c8d; }
     </style>
 </head>
@@ -427,11 +427,11 @@ class CoverageAnalyzer {
         <h1>📊 Claude-Flow Coverage Report</h1>
         <div class="timestamp">Generated: ${report.timestamp}</div>
     </div>
-    
+
     <div class="coverage-status ${report.summary.passed ? 'passed' : 'failed'}">
         ${report.summary.passed ? '✅ Coverage thresholds passed' : '❌ Coverage thresholds not met'}
     </div>
-    
+
     <div class="summary">
         <div class="summary-card">
             <h3>Overall Coverage</h3>
@@ -452,7 +452,7 @@ class CoverageAnalyzer {
             <div class="value ${report.uncoveredFiles.length === 0 ? 'high' : 'low'}">${report.uncoveredFiles.length}</div>
         </div>
     </div>
-    
+
     <div class="files-table">
         <h2>📁 File Coverage</h2>
         <table>
@@ -472,12 +472,12 @@ class CoverageAnalyzer {
             </tbody>
         </table>
     </div>
-    
+
     <div class="file-details">
         <h2>📄 File Details</h2>
         ${fileDetails}
     </div>
-    
+
     <div class="footer">
         <p>Claude-Flow Coverage Report - Advanced AI Agent Orchestration System</p>
     </div>
@@ -498,12 +498,12 @@ class CoverageAnalyzer {
 
   private async generateTextReport(report: CoverageReport): Promise<void> {
     const lines: string[] = [];
-    
+
     lines.push("📊 CLAUDE-FLOW COVERAGE REPORT");
     lines.push("=".repeat(50));
     lines.push(`Generated: ${report.timestamp}`);
     lines.push("");
-    
+
     lines.push("📈 SUMMARY");
     lines.push("-".repeat(20));
     lines.push(`Overall Coverage: ${report.summary.coverage.toFixed(2)}%`);
@@ -511,23 +511,23 @@ class CoverageAnalyzer {
     lines.push(`Covered Lines: ${report.summary.coveredLines}/${report.summary.totalLines}`);
     lines.push(`Uncovered Files: ${report.uncoveredFiles.length}`);
     lines.push("");
-    
+
     lines.push("🎯 THRESHOLDS");
     lines.push("-".repeat(20));
     lines.push(`Lines: ${report.summary.coverage.toFixed(2)}% (threshold: ${report.summary.thresholds.lines}%)`);
     lines.push(`Status: ${report.summary.passed ? '✅ PASSED' : '❌ FAILED'}`);
     lines.push("");
-    
+
     if (report.files.length > 0) {
       lines.push("📁 FILES BY COVERAGE");
       lines.push("-".repeat(20));
-      
+
       const sortedFiles = [...report.files].sort((a, b) => a.coverage - b.coverage);
-      
+
       for (const file of sortedFiles) {
         const status = file.coverage >= 80 ? '✅' : file.coverage >= 60 ? '⚠️' : '❌';
         lines.push(`${status} ${file.path}: ${file.coverage.toFixed(2)}% (${file.coveredLines}/${file.totalLines} lines)`);
-        
+
         if (file.uncoveredLines.length > 0 && file.uncoveredLines.length <= 10) {
           lines.push(`   Uncovered lines: ${file.uncoveredLines.join(', ')}`);
         } else if (file.uncoveredLines.length > 10) {
@@ -536,7 +536,7 @@ class CoverageAnalyzer {
       }
       lines.push("");
     }
-    
+
     if (report.uncoveredFiles.length > 0) {
       lines.push("🚫 UNCOVERED FILES");
       lines.push("-".repeat(20));
@@ -545,10 +545,10 @@ class CoverageAnalyzer {
       }
       lines.push("");
     }
-    
+
     lines.push("💡 RECOMMENDATIONS");
     lines.push("-".repeat(20));
-    
+
     const lowCoverageFiles = report.files.filter(f => f.coverage < 60);
     if (lowCoverageFiles.length > 0) {
       lines.push("• Focus on improving coverage for these files:");
@@ -556,14 +556,14 @@ class CoverageAnalyzer {
         lines.push(`  - ${file.path} (${file.coverage.toFixed(2)}%)`);
       }
     }
-    
+
     if (report.uncoveredFiles.length > 0) {
       lines.push("• Add tests for uncovered files:");
       for (const file of report.uncoveredFiles.slice(0, 5)) {
         lines.push(`  - ${file}`);
       }
     }
-    
+
     if (report.summary.coverage >= 90) {
       lines.push("• Excellent coverage! Consider adding edge case tests.");
     } else if (report.summary.coverage >= 80) {
@@ -582,12 +582,12 @@ class CoverageAnalyzer {
                  coverage >= 80 ? 'green' :
                  coverage >= 70 ? 'yellow' :
                  coverage >= 60 ? 'orange' : 'red';
-    
+
     const badgeUrl = `https://img.shields.io/badge/coverage-${coverage.toFixed(1)}%25-${color}`;
-    
+
     const badgeMarkdown = `![Coverage](${badgeUrl})`;
     const badgeHTML = `<img src="${badgeUrl}" alt="Coverage ${coverage.toFixed(1)}%">`;
-    
+
     const badges = {
       url: badgeUrl,
       markdown: badgeMarkdown,
@@ -596,12 +596,12 @@ class CoverageAnalyzer {
       color,
       status: report.summary.passed ? 'passed' : 'failed',
     };
-    
+
     await Deno.writeTextFile(
       `${this.outputDir}/coverage-badges.json`,
       JSON.stringify(badges, null, 2)
     );
-    
+
     console.log("  ✅ Coverage badges generated");
   }
 }
@@ -662,25 +662,25 @@ EXAMPLES:
 
   try {
     const report = await analyzer.generateReport();
-    
+
     console.log("\n📊 COVERAGE SUMMARY");
     console.log("=".repeat(40));
     console.log(`Overall Coverage: ${report.summary.coverage.toFixed(2)}%`);
     console.log(`Total Files: ${report.summary.totalFiles}`);
     console.log(`Covered Lines: ${report.summary.coveredLines}/${report.summary.totalLines}`);
     console.log(`Uncovered Files: ${report.uncoveredFiles.length}`);
-    
+
     const status = report.summary.passed ? "✅ PASSED" : "❌ FAILED";
     console.log(`Status: ${status}`);
-    
+
     console.log(`\n📄 Reports generated in: ${args["output-dir"]}`);
     console.log(`  - Detailed HTML: coverage-detailed.html`);
     console.log(`  - JSON Data: coverage-report.json`);
     console.log(`  - Text Summary: coverage-report.txt`);
     console.log(`  - Badges: coverage-badges.json`);
-    
+
     Deno.exit(report.summary.passed ? 0 : 1);
-    
+
   } catch (error) {
     console.error("❌ Coverage analysis failed:", error.message);
     Deno.exit(1);

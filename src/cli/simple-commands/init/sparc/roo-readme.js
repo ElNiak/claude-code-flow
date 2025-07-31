@@ -22,7 +22,7 @@ This directory contains the SPARC (Specification, Pseudocode, Architecture, Refi
 SPARC is a systematic approach to software development:
 
 1. **Specification**: Define clear requirements and constraints
-2. **Pseudocode**: Create detailed logic flows and algorithms  
+2. **Pseudocode**: Create detailed logic flows and algorithms
 3. **Architecture**: Design system structure and components
 4. **Refinement**: Implement, test, and optimize using TDD
 5. **Completion**: Integrate, document, and validate
@@ -38,7 +38,7 @@ claude-flow sparc modes
 # Run specific mode
 claude-flow sparc run code "implement user authentication"
 
-# Execute full TDD workflow  
+# Execute full TDD workflow
 claude-flow sparc tdd "payment processing system"
 
 # Use custom workflow

@@ -1,27 +1,27 @@
 import { describe, it, expect } from '@jest/globals';
-import { 
-  createSparcClaudeMd, 
-  createFullClaudeMd, 
-  createMinimalClaudeMd 
+import {
+  createSparcClaudeMd,
+  createFullClaudeMd,
+  createMinimalClaudeMd
 } from "../../../../../src/cli/simple-commands/init/templates/claude-md.js";
-import { 
-  createFullMemoryBankMd, 
-  createMinimalMemoryBankMd 
+import {
+  createFullMemoryBankMd,
+  createMinimalMemoryBankMd
 } from "../../../../../src/cli/simple-commands/init/templates/memory-bank-md.js";
-import { 
-  createFullCoordinationMd, 
-  createMinimalCoordinationMd 
+import {
+  createFullCoordinationMd,
+  createMinimalCoordinationMd
 } from "../../../../../src/cli/simple-commands/init/templates/coordination-md.js";
-import { 
-  createAgentsReadme, 
-  createSessionsReadme 
+import {
+  createAgentsReadme,
+  createSessionsReadme
 } from "../../../../../src/cli/simple-commands/init/templates/readme-files.js";
 
 describe("Template Generation Tests", () => {
   describe("CLAUDE.md templates", () => {
     it("should generate full CLAUDE.md with proper structure", () => {
       const content = createFullClaudeMd();
-      
+
       expect(content).toContain("# Claude Code Configuration");
       expect(content).toContain("CRITICAL: CONCURRENT EXECUTION");
       expect(content).toContain("MANDATORY CONCURRENT PATTERNS");
@@ -30,10 +30,10 @@ describe("Template Generation Tests", () => {
 
     it("should generate minimal CLAUDE.md with basic info", () => {
       const content = createMinimalClaudeMd();
-      
+
       expect(content).toContain("# Claude Code Configuration");
       expect(content).toContain("Claude Code Configuration");
-      
+
       // Should be shorter than full version
       const fullContent = createFullClaudeMd();
       expect(content.length).toBeLessThan(fullContent.length);
@@ -41,7 +41,7 @@ describe("Template Generation Tests", () => {
 
     it("should generate SPARC-enhanced CLAUDE.md", () => {
       const content = createSparcClaudeMd();
-      
+
       expect(content).toContain("SPARC Development Environment");
       expect(content).toContain("## SPARC Development Commands");
       expect(content).toContain("## SPARC Methodology Workflow");
@@ -55,7 +55,7 @@ describe("Template Generation Tests", () => {
 
     it("should include proper SPARC commands in SPARC template", () => {
       const content = createSparcClaudeMd();
-      
+
       // Check for SPARC commands
       expect(content).toContain("./claude-flow sparc modes");
       expect(content).toContain("./claude-flow sparc run");
@@ -67,7 +67,7 @@ describe("Template Generation Tests", () => {
   describe("memory-bank.md templates", () => {
     it("should generate full memory bank with sections", () => {
       const content = createFullMemoryBankMd();
-      
+
       expect(content).toContain("# Memory Bank");
       expect(content).toContain("## Overview");
       expect(content).toContain("## Storage Backends");
@@ -77,10 +77,10 @@ describe("Template Generation Tests", () => {
 
     it("should generate minimal memory bank", () => {
       const content = createMinimalMemoryBankMd();
-      
+
       expect(content).toContain("# Memory Bank");
       expect(content).toContain("## Quick Reference");
-      
+
       // Should be shorter
       const fullContent = createFullMemoryBankMd();
       expect(content.length).toBeLessThan(fullContent.length);
@@ -90,7 +90,7 @@ describe("Template Generation Tests", () => {
   describe("coordination.md templates", () => {
     it("should generate full coordination with agent structure", () => {
       const content = createFullCoordinationMd();
-      
+
       expect(content).toContain("# Agent Coordination System");
       expect(content).toContain("## Overview");
       expect(content).toContain("## Agent Types and Capabilities");
@@ -100,10 +100,10 @@ describe("Template Generation Tests", () => {
 
     it("should generate minimal coordination", () => {
       const content = createMinimalCoordinationMd();
-      
+
       expect(content).toContain("# Agent Coordination");
       expect(content).toContain("## Quick Commands");
-      
+
       // Should be shorter
       const fullContent = createFullCoordinationMd();
       expect(content.length).toBeLessThan(fullContent.length);
@@ -113,7 +113,7 @@ describe("Template Generation Tests", () => {
   describe("README templates", () => {
     it("should generate agents README with proper format", () => {
       const content = createAgentsReadme();
-      
+
       expect(content).toContain("# Agent Memory Storage");
       expect(content).toContain("## Structure");
       expect(content).toContain("## Usage Guidelines");
@@ -122,7 +122,7 @@ describe("Template Generation Tests", () => {
 
     it("should generate sessions README with proper format", () => {
       const content = createSessionsReadme();
-      
+
       expect(content).toContain("# Session Memory Storage");
       expect(content).toContain("## Structure");
       expect(content).toContain("## Usage Guidelines");
@@ -154,7 +154,7 @@ describe("Template Generation Tests", () => {
 
     it("should include proper file extensions in examples", () => {
       const sparcTemplate = createSparcClaudeMd();
-      
+
       // Check for file extensions in examples
       expect(sparcTemplate).toContain(".json");
       expect(sparcTemplate).toContain(".md");
@@ -165,19 +165,19 @@ describe("Template Generation Tests", () => {
   describe("SPARC-specific content", () => {
     it("should include all SPARC modes in template", () => {
       const content = createSparcClaudeMd();
-      
+
       // Development modes
       expect(content).toContain("architect");
       expect(content).toContain("code");
       expect(content).toContain("tdd");
       expect(content).toContain("spec-pseudocode");
       expect(content).toContain("integration");
-      
+
       // Quality modes
       expect(content).toContain("debug");
       expect(content).toContain("security-review");
       expect(content).toContain("refinement-optimization-mode");
-      
+
       // Support modes
       expect(content).toContain("docs-writer");
       expect(content).toContain("devops");
@@ -187,7 +187,7 @@ describe("Template Generation Tests", () => {
 
     it("should include workflow examples", () => {
       const content = createSparcClaudeMd();
-      
+
       expect(content).toContain("### Feature Development Workflow");
       expect(content).toContain("### Bug Fix Workflow");
       expect(content).toContain("# 1. Start with specification");
@@ -197,7 +197,7 @@ describe("Template Generation Tests", () => {
 
     it("should include memory integration examples", () => {
       const content = createSparcClaudeMd();
-      
+
       expect(content).toContain("## SPARC Memory Integration");
       expect(content).toContain("memory store spec_auth");
       expect(content).toContain("memory store arch_decisions");

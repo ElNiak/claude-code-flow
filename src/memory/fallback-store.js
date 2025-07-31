@@ -22,7 +22,7 @@ class FallbackMemoryStore {
 
     // Check if SQLite is available before attempting initialization
     const sqliteAvailable = await isSQLiteAvailable();
-    
+
     if (!sqliteAvailable) {
       // Skip SQLite initialization if module can't be loaded
       const loadError = getLoadError();
@@ -30,12 +30,12 @@ class FallbackMemoryStore {
         `[${new Date().toISOString()}] WARN [fallback-store] SQLite module not available:`,
         loadError?.message || 'Unknown error',
       );
-      
+
       // Use in-memory store directly
       this.fallbackStore = new InMemoryStore(this.options);
       await this.fallbackStore.initialize();
       this.useFallback = true;
-      
+
       this._logFallbackUsage();
       return;
     }
@@ -67,7 +67,7 @@ class FallbackMemoryStore {
     console.error(
       `[${new Date().toISOString()}] INFO [fallback-store] Using in-memory store (data will not persist across sessions)`,
     );
-    
+
     if (isWindows()) {
       console.error(
         `[${new Date().toISOString()}] INFO [fallback-store] Windows detected. For persistent storage options, see: https://github.com/ruvnet/claude-code-flow/docs/windows-installation.md`,

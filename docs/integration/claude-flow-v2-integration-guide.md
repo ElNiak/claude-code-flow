@@ -79,6 +79,7 @@ npx claude-flow@2.0.0 coordination swarm-init --topology mesh --max-agents 6
 ### Available MCP Tools (87 Total)
 
 #### Core Coordination Tools (12)
+
 - `mcp__claude-flow__swarm_init` - Initialize swarm topology
 - `mcp__claude-flow__agent_spawn` - Create specialized agents
 - `mcp__claude-flow__task_orchestrate` - Coordinate complex workflows
@@ -93,6 +94,7 @@ npx claude-flow@2.0.0 coordination swarm-init --topology mesh --max-agents 6
 - `mcp__claude-flow__swarm_destroy` - Graceful shutdown
 
 #### Neural Network Tools (15)
+
 - `mcp__claude-flow__neural_train` - Train patterns with WASM
 - `mcp__claude-flow__neural_predict` - AI predictions
 - `mcp__claude-flow__neural_status` - Network status
@@ -110,6 +112,7 @@ npx claude-flow@2.0.0 coordination swarm-init --topology mesh --max-agents 6
 - `mcp__claude-flow__neural_explain` - AI explainability
 
 #### Memory & Persistence Tools (12)
+
 - `mcp__claude-flow__memory_usage` - Store/retrieve data
 - `mcp__claude-flow__memory_search` - Search memory patterns
 - `mcp__claude-flow__memory_backup` - Backup memory stores
@@ -198,6 +201,7 @@ npx claude-flow@2.0.0 memory backup \
 ### Architecture Overview
 
 Claude Flow v2.0.0 implements real neural networks using:
+
 - **QUDAG (Quantum-inspired Directed Acyclic Graphs)** - Efficient graph processing
 - **DAA (Dynamic Agent Architecture)** - Adaptive agent behavior
 - **WASM (WebAssembly)** - High-performance local execution
@@ -526,7 +530,7 @@ export const customCoordinationTool: MCPTool = {
       topology: input.complexity === 'high' ? 'hierarchical' : 'mesh',
       maxAgents: input.agents_required
     });
-    
+
     return {
       swarm_id: swarm.id,
       topology: swarm.topology,
@@ -657,18 +661,21 @@ python benchmark/continuous_performance_monitor.py \
 ### Expected Performance Metrics
 
 #### Swarm Coordination
+
 - **Task Completion Rate**: 94.7% (vs 78.3% baseline)
 - **Parallel Execution Efficiency**: 2.8-4.4x improvement
 - **Agent Spawning Time**: <200ms per agent
 - **Memory Coordination**: 32.3% token reduction
 
 #### Neural Networks
+
 - **Training Speed**: 2.8x faster (WASM vs JavaScript)
 - **Inference Latency**: <10ms average
 - **Model Accuracy**: 89% coordination tasks
 - **Compression Ratio**: 65% size reduction
 
 #### Memory System
+
 - **Read Operations**: 15,000 ops/sec
 - **Write Operations**: 8,000 ops/sec
 - **Search Performance**: <5ms for 1M entries
@@ -1215,8 +1222,8 @@ node --expose-gc -e "global.gc()"
 ### Support Resources
 
 - **Documentation**: `/workspaces/claude-code-flow/docs/`
-- **GitHub Issues**: https://github.com/ruvnet/claude-code-flow/issues
-- **Community**: https://github.com/ruvnet/claude-code-flow/discussions
+- **GitHub Issues**: <https://github.com/ruvnet/claude-code-flow/issues>
+- **Community**: <https://github.com/ruvnet/claude-code-flow/discussions>
 - **Performance Reports**: `/workspaces/claude-code-flow/benchmark/reports/`
 
 ---

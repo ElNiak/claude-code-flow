@@ -1,9 +1,11 @@
 # NPX SQLite Fallback Solution
 
 ## Issue
+
 When running `npx -y claude-flow@alpha init` in remote environments (GitHub Codespaces, Docker containers, CI/CD), the better-sqlite3 native module fails to load with binding errors.
 
 ## Root Cause
+
 - `npx` creates temporary directories for package execution
 - better-sqlite3 requires native bindings compiled for specific Node.js versions
 - The prebuilt binaries may not match the runtime environment
@@ -14,17 +16,20 @@ When running `npx -y claude-flow@alpha init` in remote environments (GitHub Code
 Claude Flow v2.0.0+ implements an automatic fallback mechanism:
 
 ### 1. **Primary Store (SQLite)**
+
 - Attempts to initialize better-sqlite3
 - Provides persistent memory across sessions
 - Full feature support with SQL queries
 
 ### 2. **Fallback Store (In-Memory)**
+
 - Automatically activated when SQLite fails
 - Same API as SQLite store
 - TTL support, search, namespaces
 - Data doesn't persist across sessions
 
 ### 3. **Transparent Operation**
+
 - No code changes required
 - Automatic detection and fallback
 - Clear logging of which store is used
@@ -33,6 +38,7 @@ Claude Flow v2.0.0+ implements an automatic fallback mechanism:
 ## Implementation Details
 
 ### Memory Store Classes
+
 ```javascript
 // Primary: SQLite-based persistent storage
 class SqliteMemoryStore {
@@ -65,12 +71,15 @@ class FallbackMemoryStore {
 ```
 
 ### Error Detection
+
 The fallback is triggered by these errors:
+
 - `Could not locate the bindings file`
 - `MODULE_NOT_FOUND` for better-sqlite3
 - Any SQLite initialization failure
 
 ### User Experience
+
 ```bash
 # If SQLite works (normal installation)
 [INFO] Initialized SQLite at: /app/.swarm/memory.db
@@ -84,6 +93,7 @@ The fallback is triggered by these errors:
 ## Testing
 
 ### Test Cases Covered
+
 1. **Normal SQLite Operation** - Local installations
 2. **Automatic Fallback** - When SQLite bindings fail
 3. **In-Memory Functionality** - All features work without persistence
@@ -91,6 +101,7 @@ The fallback is triggered by these errors:
 5. **Cross-Platform** - Works on Linux, macOS, Windows
 
 ### Validation Script
+
 ```bash
 # Test the fallback mechanism
 node test-fallback-memory/test-broken-sqlite.js
@@ -104,12 +115,14 @@ node test-fallback-memory/test-broken-sqlite.js
 ## Benefits
 
 ### For Users
+
 - **Zero Configuration** - Works out of the box with npx
 - **No Manual Setup** - Automatic detection and fallback
 - **Full Functionality** - All features work in both modes
 - **Clear Messaging** - Users know which mode is active
 
 ### For Developers
+
 - **Same API** - No code changes needed
 - **Graceful Degradation** - Persistent → In-memory fallback
 - **Easy Testing** - Can force either mode for tests
@@ -118,11 +131,13 @@ node test-fallback-memory/test-broken-sqlite.js
 ## Migration Path
 
 ### Existing Users
+
 - No changes required
 - Automatic upgrade with v2.0.0+
 - Backward compatible
 
 ### New Users
+
 - `npx` works immediately
 - Can upgrade to persistent storage later
 - Clear instructions provided
@@ -130,6 +145,7 @@ node test-fallback-memory/test-broken-sqlite.js
 ## Monitoring
 
 ### Status Checks
+
 ```javascript
 // Check which store is active
 const isUsingFallback = memoryStore.isUsingFallback();
@@ -139,6 +155,7 @@ console.log(`Store: ${isUsingFallback ? 'In-Memory' : 'SQLite'}`);
 ```
 
 ### Performance Metrics
+
 - In-memory: ~10x faster operations
 - SQLite: Persistent across sessions
 - Fallback detection: <50ms overhead

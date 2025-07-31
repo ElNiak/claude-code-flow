@@ -248,7 +248,7 @@ USAGE:
 
 COMMANDS:
   neural-train      Train neural patterns from operations
-  pattern-learn     Learn from specific operation outcomes  
+  pattern-learn     Learn from specific operation outcomes
   model-update      Update agent models with new insights
 
 NEURAL TRAIN OPTIONS:
@@ -272,7 +272,7 @@ EXAMPLES:
 
   # Learn from specific operation
   claude-flow training pattern-learn --operation "file-creation" --outcome "success"
-  
+
   # Update coordinator model
   claude-flow training model-update --agent-type coordinator --operation-result "efficient"
 
@@ -281,7 +281,7 @@ EXAMPLES:
 
 🎯 Neural training improves:
   • Task selection accuracy
-  • Agent performance prediction  
+  • Agent performance prediction
   • Coordination efficiency
   • Error prevention patterns
 `);

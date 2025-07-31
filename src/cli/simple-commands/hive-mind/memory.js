@@ -260,20 +260,20 @@ export class CollectiveMemory extends EventEmitter {
           size INTEGER DEFAULT 0,
           FOREIGN KEY (swarm_id) REFERENCES swarms(id)
         );
-        
+
         -- Optimized indexes
-        CREATE UNIQUE INDEX IF NOT EXISTS idx_memory_swarm_key 
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_memory_swarm_key
         ON collective_memory(swarm_id, key);
-        
-        CREATE INDEX IF NOT EXISTS idx_memory_type_accessed 
+
+        CREATE INDEX IF NOT EXISTS idx_memory_type_accessed
         ON collective_memory(type, accessed_at DESC);
-        
-        CREATE INDEX IF NOT EXISTS idx_memory_size_compressed 
+
+        CREATE INDEX IF NOT EXISTS idx_memory_size_compressed
         ON collective_memory(size, compressed);
-        
+
         -- Memory optimization view
         CREATE VIEW IF NOT EXISTS memory_stats AS
-        SELECT 
+        SELECT
           swarm_id,
           type,
           COUNT(*) as entry_count,
@@ -319,7 +319,7 @@ export class CollectiveMemory extends EventEmitter {
     this.statements.set(
       'insert',
       this.db.prepare(`
-      INSERT OR REPLACE INTO collective_memory 
+      INSERT OR REPLACE INTO collective_memory
       (id, swarm_id, key, value, type, confidence, created_by, compressed, size)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `),
@@ -328,7 +328,7 @@ export class CollectiveMemory extends EventEmitter {
     this.statements.set(
       'update',
       this.db.prepare(`
-      UPDATE collective_memory 
+      UPDATE collective_memory
       SET value = ?, accessed_at = strftime('%s','now'), access_count = access_count + 1,
           compressed = ?, size = ?
       WHERE swarm_id = ? AND key = ?
@@ -367,7 +367,7 @@ export class CollectiveMemory extends EventEmitter {
     this.statements.set(
       'getStats',
       this.db.prepare(`
-      SELECT 
+      SELECT
         COUNT(*) as count,
         SUM(size) as totalSize,
         AVG(confidence) as avgConfidence,
@@ -449,7 +449,7 @@ export class CollectiveMemory extends EventEmitter {
       const existing = this.db
         .prepare(
           `
-        SELECT id FROM collective_memory 
+        SELECT id FROM collective_memory
         WHERE swarm_id = ? AND key = ?
       `,
         )
@@ -460,8 +460,8 @@ export class CollectiveMemory extends EventEmitter {
         this.db
           .prepare(
             `
-          UPDATE collective_memory 
-          SET value = ?, type = ?, confidence = ?, 
+          UPDATE collective_memory
+          SET value = ?, type = ?, confidence = ?,
               accessed_at = CURRENT_TIMESTAMP, access_count = access_count + 1,
               compressed = ?, size = ?
           WHERE swarm_id = ? AND key = ?
@@ -481,7 +481,7 @@ export class CollectiveMemory extends EventEmitter {
         this.db
           .prepare(
             `
-          INSERT INTO collective_memory 
+          INSERT INTO collective_memory
           (id, swarm_id, key, value, type, confidence, created_by, compressed, size)
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         `,
@@ -600,7 +600,7 @@ export class CollectiveMemory extends EventEmitter {
       let query = `
         SELECT key, type, confidence, created_at, accessed_at, access_count
         FROM collective_memory
-        WHERE swarm_id = ? 
+        WHERE swarm_id = ?
         AND key LIKE ?
         AND confidence >= ?
       `;
@@ -642,7 +642,7 @@ export class CollectiveMemory extends EventEmitter {
         SELECT m1.key, m1.type, m1.confidence, m1.access_count
         FROM collective_memory m1
         JOIN collective_memory m2 ON m1.swarm_id = m2.swarm_id
-        WHERE m2.key = ? 
+        WHERE m2.key = ?
         AND m1.key != ?
         AND m1.swarm_id = ?
         AND ABS(julianday(m1.accessed_at) - julianday(m2.accessed_at)) < 0.01
@@ -957,7 +957,7 @@ export class CollectiveMemory extends EventEmitter {
     const stats = this.db
       .prepare(
         `
-      SELECT 
+      SELECT
         COUNT(*) as count,
         SUM(size) as totalSize,
         AVG(confidence) as avgConfidence,

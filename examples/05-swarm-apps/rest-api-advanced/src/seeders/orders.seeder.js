@@ -15,27 +15,27 @@ async function seedOrders() {
   try {
     // Connect to database
     await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/rest-api-advanced');
-    
+
     console.log('Connected to MongoDB');
-    
+
     // Clear existing orders
     await Order.deleteMany({});
     console.log('Cleared existing orders');
-    
+
     // Get all products
     const products = await Product.find({ status: 'active' }).limit(50);
     if (products.length === 0) {
       console.error('No products found. Please run products seeder first.');
       process.exit(1);
     }
-    
+
     // Create test users
     const users = [];
     for (let i = 0; i < 10; i++) {
       const firstName = firstNames[i];
       const lastName = lastNames[i];
       const email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}@example.com`;
-      
+
       let user = await User.findOne({ email });
       if (!user) {
         const hashedPassword = await bcrypt.hash('password123', 10);
@@ -58,31 +58,31 @@ async function seedOrders() {
       users.push(user);
     }
     console.log(`Created/verified ${users.length} users`);
-    
+
     // Create orders
     const orders = [];
     const orderStatuses = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'];
     const paymentMethods = ['credit_card', 'debit_card', 'paypal', 'stripe'];
     const shippingMethods = ['standard', 'express', 'overnight'];
-    
+
     // Create 50 orders over the past 90 days
     for (let i = 0; i < 50; i++) {
       const user = users[Math.floor(Math.random() * users.length)];
       const numItems = Math.floor(Math.random() * 4) + 1; // 1-4 items per order
       const orderDate = new Date(Date.now() - Math.random() * 90 * 24 * 60 * 60 * 1000);
-      
+
       // Select random products
       const orderItems = [];
       const selectedProducts = [];
-      
+
       for (let j = 0; j < numItems; j++) {
         let product;
         do {
           product = products[Math.floor(Math.random() * products.length)];
         } while (selectedProducts.includes(product._id.toString()));
-        
+
         selectedProducts.push(product._id.toString());
-        
+
         const quantity = Math.floor(Math.random() * 3) + 1;
         orderItems.push({
           product: product._id,
@@ -93,7 +93,7 @@ async function seedOrders() {
           subtotal: product.price * quantity,
         });
       }
-      
+
       // Calculate totals
       const subtotal = orderItems.reduce((total, item) => total + item.subtotal, 0);
       const taxRate = 8.5; // 8.5% tax
@@ -103,7 +103,7 @@ async function seedOrders() {
                             shippingMethod === 'express' ? 14.99 : 29.99;
       const discountAmount = Math.random() > 0.7 ? subtotal * 0.1 : 0; // 30% chance of 10% discount
       const totalAmount = subtotal + taxAmount + shippingAmount - discountAmount;
-      
+
       // Generate order status based on date
       const daysSinceOrder = (Date.now() - orderDate.getTime()) / (1000 * 60 * 60 * 24);
       let status;
@@ -118,7 +118,7 @@ async function seedOrders() {
       } else {
         status = Math.random() > 0.05 ? 'delivered' : 'cancelled';
       }
-      
+
       // Create shipping address
       const shippingAddress = {
         fullName: user.name,
@@ -132,7 +132,7 @@ async function seedOrders() {
         country: user.address.country,
         instructions: Math.random() > 0.8 ? 'Leave at door' : '',
       };
-      
+
       // Create order
       const order = {
         user: user._id,
@@ -161,7 +161,7 @@ async function seedOrders() {
         createdAt: orderDate,
         updatedAt: orderDate,
       };
-      
+
       // Add tracking for shipped/delivered orders
       if (['shipped', 'delivered'].includes(status)) {
         const shippedDate = new Date(orderDate.getTime() + 3 * 24 * 60 * 60 * 1000);
@@ -172,25 +172,25 @@ async function seedOrders() {
           estimatedDelivery: new Date(shippedDate.getTime() + 4 * 24 * 60 * 60 * 1000),
           shippedAt: shippedDate,
         };
-        
+
         if (status === 'delivered') {
           order.tracking.deliveredAt = new Date(shippedDate.getTime() + Math.floor(Math.random() * 4 + 2) * 24 * 60 * 60 * 1000);
         }
       }
-      
+
       // Add cancellation info for cancelled orders
       if (status === 'cancelled') {
         order.cancelReason = ['Changed mind', 'Found better price', 'Ordered by mistake', 'Product not needed anymore'][Math.floor(Math.random() * 4)];
         order.cancelledAt = new Date(orderDate.getTime() + Math.random() * 2 * 24 * 60 * 60 * 1000);
       }
-      
+
       orders.push(order);
     }
-    
+
     // Insert all orders
     const createdOrders = await Order.insertMany(orders);
     console.log(`Created ${createdOrders.length} orders`);
-    
+
     // Update product sales counts
     for (const order of createdOrders) {
       if (order.status !== 'cancelled') {
@@ -202,7 +202,7 @@ async function seedOrders() {
       }
     }
     console.log('Updated product sales counts');
-    
+
     // Display summary
     const summary = await Order.aggregate([
       {
@@ -215,7 +215,7 @@ async function seedOrders() {
       },
       { $sort: { _id: 1 } },
     ]);
-    
+
     console.log('\nOrder Summary by Status:');
     console.table(summary.map(s => ({
       Status: s._id,
@@ -223,7 +223,7 @@ async function seedOrders() {
       'Total Revenue': `$${s.totalRevenue.toFixed(2)}`,
       'Avg Order Value': `$${s.avgOrderValue.toFixed(2)}`,
     })));
-    
+
     // Monthly summary
     const monthlySummary = await Order.aggregate([
       {
@@ -235,14 +235,14 @@ async function seedOrders() {
       },
       { $sort: { _id: 1 } },
     ]);
-    
+
     console.log('\nMonthly Order Summary:');
     console.table(monthlySummary.map(s => ({
       Month: s._id,
       Orders: s.orders,
       Revenue: `$${s.revenue.toFixed(2)}`,
     })));
-    
+
     console.log('\nSeeding completed successfully!');
     process.exit(0);
   } catch (error) {

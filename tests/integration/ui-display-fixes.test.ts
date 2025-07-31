@@ -38,7 +38,7 @@ describe('UI Display Fixes Integration', () => {
         'Task Data:',
         JSON.stringify(task.task, null, 2)
       ].join('\n');
-      
+
       return details;
     };
 
@@ -126,7 +126,7 @@ describe('UI Display Fixes Integration', () => {
         }
         return strValue;
       }).join(',');
-      
+
       return [headers.join(','), valueRow].join('\n');
     };
 
@@ -135,9 +135,9 @@ describe('UI Display Fixes Integration', () => {
 
     // Verify CSV structure
     expect(lines).toHaveLength(2);
-    
+
     const headers = lines[0].split(',');
-    
+
     // Check for expected flattened headers
     expect(headers).toContain('timestamp');
     expect(headers).toContain('swarm.id');
@@ -150,7 +150,7 @@ describe('UI Display Fixes Integration', () => {
     expect(lines[1]).toContain('dev-swarm-123');
     expect(lines[1]).toContain('250.5');
     expect(lines[1]).toContain('[65.2,70.1,68.9,72.3]');
-    
+
     // Verify complex arrays are escaped (double quotes become quad quotes in CSV)
     expect(lines[1]).toContain('""type"":""timeout""');
   });
@@ -202,20 +202,20 @@ describe('UI Display Fixes Integration', () => {
         }
         return strValue;
       }).join(',');
-      
+
       return [headers.join(','), valueRow].join('\n');
     };
 
     const csv = jsonToCSV(edgeCaseData);
-    
+
     // Should not crash and should produce valid output
     expect(csv).toBeDefined();
     expect(csv.length).toBeGreaterThan(0);
-    
+
     const lines = csv.split('\n');
     // May have more than 2 lines due to newlines in data being preserved
     expect(lines.length).toBeGreaterThanOrEqual(2);
-    
+
     // Test task details formatting with edge case
     const edgeTask = {
       agentId: 'edge-agent',
@@ -239,12 +239,12 @@ describe('UI Display Fixes Integration', () => {
         'Task Data:',
         JSON.stringify(task.task, null, 2)
       ].join('\n');
-      
+
       return details;
     };
 
     const taskDetails = formatTaskDetails(edgeTask);
-    
+
     // Should handle special characters correctly
     expect(taskDetails).toContain('Task with "quotes" and');
     expect(taskDetails).toContain('multiple');

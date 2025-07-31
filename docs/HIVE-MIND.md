@@ -7,11 +7,13 @@ The Hive Mind system is an advanced swarm intelligence implementation for Claude
 ## Key Features
 
 ### 🐝 Queen-Led Coordination
+
 - **Strategic Queen**: Long-term planning and resource optimization
 - **Tactical Queen**: Task prioritization and rapid response
 - **Adaptive Queen**: Learning from decisions and evolving strategies
 
 ### 👥 Specialized Worker Agents
+
 - **Researcher**: Web research, data gathering, and analysis
 - **Coder**: Implementation, refactoring, and debugging
 - **Analyst**: Data analysis, performance metrics, and reporting
@@ -22,6 +24,7 @@ The Hive Mind system is an advanced swarm intelligence implementation for Claude
 - **Documenter**: Documentation and knowledge base creation
 
 ### 🧠 Collective Memory System
+
 - SQLite-backed persistent storage
 - Knowledge sharing between agents
 - Pattern recognition and learning
@@ -29,11 +32,13 @@ The Hive Mind system is an advanced swarm intelligence implementation for Claude
 - Configurable TTL and compression
 
 ### 🤝 Consensus Mechanisms
+
 - **Majority Voting**: Simple majority for quick decisions
 - **Weighted Voting**: Expertise-based weighted decisions
 - **Byzantine Consensus**: Fault-tolerant consensus for critical decisions
 
 ### ⚡ Advanced Features
+
 - Auto-scaling based on workload
 - Work stealing and load balancing
 - Parallel task execution
@@ -44,21 +49,25 @@ The Hive Mind system is an advanced swarm intelligence implementation for Claude
 ## Installation & Setup
 
 ### 1. Initialize Hive Mind
+
 ```bash
 claude-flow hive-mind init
 ```
 
 This creates:
+
 - `.hive-mind/` directory
 - SQLite database (`hive.db`)
 - Configuration file (`config.json`)
 
 ### 2. Interactive Setup
+
 ```bash
 claude-flow hive-mind wizard
 ```
 
 The wizard guides you through:
+
 - Creating new swarms
 - Selecting queen types
 - Configuring worker agents
@@ -66,6 +75,7 @@ The wizard guides you through:
 - Enabling features
 
 ### 3. Quick Start
+
 ```bash
 # Spawn a swarm with objective
 claude-flow hive-mind spawn "Build microservices architecture"
@@ -150,6 +160,7 @@ claude-flow hive-mind spawn "Create MVP for startup" \
 ## Database Schema
 
 ### Swarms Table
+
 ```sql
 CREATE TABLE swarms (
   id TEXT PRIMARY KEY,
@@ -162,6 +173,7 @@ CREATE TABLE swarms (
 ```
 
 ### Agents Table
+
 ```sql
 CREATE TABLE agents (
   id TEXT PRIMARY KEY,
@@ -176,6 +188,7 @@ CREATE TABLE agents (
 ```
 
 ### Collective Memory Table
+
 ```sql
 CREATE TABLE collective_memory (
   id TEXT PRIMARY KEY,
@@ -205,6 +218,7 @@ The Hive Mind system integrates all 87 MCP tools across 8 categories:
 ## Performance Metrics
 
 ### Efficiency Gains
+
 - **Task Completion**: 2.8-4.4x faster with parallel execution
 - **Decision Making**: 84.8% accuracy with consensus mechanisms
 - **Resource Utilization**: 32.3% reduction in redundant work
@@ -227,21 +241,25 @@ claude-flow hive-mind spawn "objective" --monitor
 ## Best Practices
 
 ### 1. Queen Selection
+
 - Use **Strategic** for long-term projects
 - Use **Tactical** for rapid development
 - Use **Adaptive** for research and exploration
 
 ### 2. Worker Configuration
+
 - Start with 4-6 workers for most tasks
 - Enable auto-scaling for variable workloads
 - Match worker types to project needs
 
 ### 3. Consensus Settings
+
 - Use **Majority** for speed
 - Use **Weighted** for balanced decisions
 - Use **Byzantine** for critical systems
 
 ### 4. Memory Management
+
 - Set appropriate TTLs for temporary data
 - Use compression for large datasets
 - Regularly consolidate similar memories
@@ -251,6 +269,7 @@ claude-flow hive-mind spawn "objective" --monitor
 ### Common Issues
 
 1. **"Hive Mind not initialized"**
+
    ```bash
    claude-flow hive-mind init
    ```
@@ -278,6 +297,7 @@ claude-flow hive-mind status --verbose
 ## Integration with Existing Systems
 
 ### With Standard Swarm
+
 ```bash
 # Upgrade existing swarm to hive mind
 claude-flow hive-mind init
@@ -285,6 +305,7 @@ claude-flow hive-mind spawn "Continue existing project"
 ```
 
 ### With GitHub Workflows
+
 ```bash
 # Automated PR management
 claude-flow hive-mind spawn "Review and merge PRs" \
@@ -293,6 +314,7 @@ claude-flow hive-mind spawn "Review and merge PRs" \
 ```
 
 ### With SPARC Modes
+
 ```bash
 # Combine with SPARC development
 claude-flow sparc architect "Design system"

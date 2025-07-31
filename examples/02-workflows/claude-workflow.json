@@ -23,7 +23,7 @@
       "coverage": 90
     },
     {
-      "id": "frontend-task", 
+      "id": "frontend-task",
       "name": "Build Frontend Components",
       "type": "implementation",
       "description": "Create React components for login, registration, and password reset flows",
@@ -56,7 +56,7 @@
     },
     {
       "id": "frontend-agent",
-      "type": "implementer", 
+      "type": "implementer",
       "capabilities": ["ui-development", "react", "component-design"],
       "assignedTasks": ["frontend-task"]
     },

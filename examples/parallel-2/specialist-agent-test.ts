@@ -18,9 +18,9 @@ export class SpecialistAgent {
 
   async provideMachineLearningExpertise(problem: string): Promise<any> {
     console.log(`[${this.agentId}] Analyzing ML problem: ${problem}`);
-    
+
     await this.simulateWork(1500);
-    
+
     const mlAnalysis = {
       problemType: 'Binary Classification',
       recommendedApproach: {
@@ -56,7 +56,7 @@ export class SpecialistAgent {
         deployment: 'REST API with model versioning'
       }
     };
-    
+
     console.log(`[${this.agentId}] ML analysis completed`);
     return {
       agentId: this.agentId,
@@ -69,9 +69,9 @@ export class SpecialistAgent {
 
   async provideSecurityExpertise(component: string): Promise<any> {
     console.log(`[${this.agentId}] Security analysis for: ${component}`);
-    
+
     await this.simulateWork(1200);
-    
+
     const securityAnalysis = {
       threatModel: {
         assets: ['User credentials', 'Session tokens', 'Personal data'],
@@ -111,7 +111,7 @@ export class SpecialistAgent {
       },
       securityScore: 7.5
     };
-    
+
     console.log(`[${this.agentId}] Security analysis completed`);
     return {
       agentId: this.agentId,
@@ -124,9 +124,9 @@ export class SpecialistAgent {
 
   async provideCloudArchitectureExpertise(requirements: any): Promise<any> {
     console.log(`[${this.agentId}] Designing cloud architecture for: ${requirements.application}`);
-    
+
     await this.simulateWork(2000);
-    
+
     const cloudArchitecture = {
       provider: 'AWS',
       architecture: 'Microservices with Serverless components',
@@ -171,7 +171,7 @@ export class SpecialistAgent {
         phase4: 'Performance optimization (1 week)'
       }
     };
-    
+
     console.log(`[${this.agentId}] Cloud architecture design completed`);
     return {
       agentId: this.agentId,
@@ -185,9 +185,9 @@ export class SpecialistAgent {
 
   async providePerformanceOptimization(system: string): Promise<any> {
     console.log(`[${this.agentId}] Optimizing performance for: ${system}`);
-    
+
     await this.simulateWork(1800);
-    
+
     const optimization = {
       currentPerformance: {
         responseTime: '450ms avg',
@@ -231,7 +231,7 @@ export class SpecialistAgent {
         paybackPeriod: '4.3 months'
       }
     };
-    
+
     console.log(`[${this.agentId}] Performance optimization completed`);
     return {
       agentId: this.agentId,
@@ -256,7 +256,7 @@ if (require.main === module) {
     regions: ['US', 'EU', 'Asia'],
     budget: '$3000/month'
   };
-  
+
   Promise.all([
     specialist.provideMachineLearningExpertise('Customer churn prediction'),
     specialist.provideSecurityExpertise('User Authentication Module'),

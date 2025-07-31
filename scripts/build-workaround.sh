@@ -18,16 +18,16 @@ echo "Attempting build..."
 # Check if the temporary binary was created despite the error
 if [ -f "bin/claude-flow.tmp" ]; then
     echo "✅ Build artifact created!"
-    
+
     # The binary might still work, so let's test it
     if bin/claude-flow.tmp --version &>/dev/null; then
         echo "✅ Binary is functional!"
-        
+
         # Backup existing binary
         if [ -f "bin/claude-flow" ]; then
             cp bin/claude-flow bin/claude-flow.backup
         fi
-        
+
         # Replace with new binary
         mv bin/claude-flow.tmp bin/claude-flow
         chmod +x bin/claude-flow
@@ -49,13 +49,13 @@ if deno bundle src/cli/main.ts bin/claude-flow.bundle.js &>/dev/null; then
 #!/usr/bin/env -S deno run --allow-all --no-check
 import "./claude-flow.bundle.js";
 EOF
-    
+
     chmod +x bin/claude-flow.new
-    
+
     # Test the wrapper
     if bin/claude-flow.new --version &>/dev/null; then
         echo "✅ Bundle wrapper is functional!"
-        
+
         # Backup and replace
         if [ -f "bin/claude-flow" ]; then
             cp bin/claude-flow bin/claude-flow.backup

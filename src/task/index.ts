@@ -203,7 +203,7 @@ const todos = await createTaskTodos(
 // This creates a structured todo list with:
 // - System architecture design (high priority)
 // - Frontend development (parallel execution)
-// - Backend development (parallel execution) 
+// - Backend development (parallel execution)
 // - Testing and integration (depends on frontend/backend)
 `,
 

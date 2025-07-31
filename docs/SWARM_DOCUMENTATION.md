@@ -14,6 +14,7 @@ The Claude Flow Swarm Mode enables self-orchestrating agent swarms that can work
 ## Current Implementation Status
 
 ### Working Features
+
 - ✅ Swarm initialization and configuration
 - ✅ Dry-run mode to preview configuration
 - ✅ Native terminal spawning (single orchestrator)
@@ -21,12 +22,14 @@ The Claude Flow Swarm Mode enables self-orchestrating agent swarms that can work
 - ✅ VS Code detection and script generation
 
 ### In Progress
+
 - 🚧 VS Code terminal API integration (macOS only currently)
 - 🚧 Multi-agent spawning in separate terminals
 - 🚧 Real-time swarm monitoring
 - 🚧 Agent communication through shared memory
 
 ### Known Limitations
+
 - VS Code terminal spawning requires macOS (AppleScript)
 - Linux/Windows users get manual instructions instead
 - Agent spawning tools (dispatch_agent) need MCP integration
@@ -35,22 +38,27 @@ The Claude Flow Swarm Mode enables self-orchestrating agent swarms that can work
 ## Usage
 
 ### Basic Usage
+
 ```bash
 claude-flow swarm "Your objective here"
 ```
 
 ### With Options
+
 Due to CLI parsing limitations, flags must come AFTER the objective:
+
 ```bash
 claude-flow swarm "Research cloud architectures" --strategy research --max-agents 5 --monitor
 ```
 
 ### Dry Run
+
 ```bash
 claude-flow swarm "Test objective" --dry-run
 ```
 
 ### VS Code Integration
+
 ```bash
 # Automatically detects VS Code environment
 claude-flow swarm "Build a feature" --vscode
@@ -78,11 +86,13 @@ claude-flow swarm "Create API" --vscode
 ## Terminal Integration
 
 ### Native Terminal Mode
+
 - Works on macOS, Linux, and Windows
 - Spawns new terminal windows using system commands
 - Each agent runs in its own terminal window
 
 ### VS Code Integration
+
 - Automatically detected when running in VS Code terminal
 - Spawns new terminal tabs within VS Code
 - Better integration with VS Code workspace
@@ -98,16 +108,19 @@ claude-flow swarm "Create API" --vscode
 ## Example Scenarios
 
 ### Research Task
+
 ```bash
 claude-flow swarm --strategy research --research "Research best practices for microservices"
 ```
 
 ### Development Task
+
 ```bash
 claude-flow swarm --strategy development --max-agents 3 "Build a REST API with authentication"
 ```
 
 ### Complex Project
+
 ```bash
 claude-flow swarm --parallel --review --coordinator "Design and implement a real-time chat system"
 ```
@@ -121,6 +134,7 @@ claude-flow swarm --monitor "Your task"
 ```
 
 This displays:
+
 - Active agents and their status
 - Task progress
 - Runtime statistics
@@ -136,19 +150,24 @@ This displays:
 ## Troubleshooting
 
 ### Claude CLI Not Found
+
 Make sure Claude desktop app is installed and the `claude` command is in your PATH:
+
 ```bash
 which claude
 ```
 
 ### Terminal Spawning Issues
+
 - **macOS**: Requires Terminal app access permissions
 - **Linux**: Requires gnome-terminal or compatible terminal
 - **Windows**: Requires cmd.exe access
 - **VS Code**: Must be running inside VS Code terminal
 
 ### Agent Communication
+
 Agents communicate through shared memory. If agents aren't coordinating:
+
 1. Check memory namespace is consistent
 2. Verify agents have started successfully
 3. Monitor agent output in their terminals

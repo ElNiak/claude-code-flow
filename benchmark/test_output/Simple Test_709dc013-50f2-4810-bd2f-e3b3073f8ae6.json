@@ -22,9 +22,7 @@
       "max_cpu_percent": 80,
       "max_network_mbps": 100
     },
-    "output_formats": [
-      "json"
-    ],
+    "output_formats": ["json"],
     "output_directory": "./test_output",
     "verbose": false
   },
@@ -58,11 +56,7 @@
       "status": "success",
       "output": {
         "code_implementation": "Code implementation completed for: Build a simple REST API",
-        "files_created": [
-          "main.py",
-          "utils.py",
-          "tests.py"
-        ],
+        "files_created": ["main.py", "utils.py", "tests.py"],
         "lines_of_code": 250,
         "test_coverage": 0.95,
         "code_quality": 0.9

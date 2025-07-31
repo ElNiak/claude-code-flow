@@ -7,6 +7,7 @@ Yes! `./claude-flow mcp start` now uses the Claude Code MCP wrapper by default.
 ## What Changed
 
 The `claude-flow mcp start` command has been updated to:
+
 1. **Default to wrapper mode** with stdio transport
 2. **Use Claude Code MCP** with automatic SPARC prompt injection
 3. **Fall back to legacy mode** only when explicitly requested
@@ -14,6 +15,7 @@ The `claude-flow mcp start` command has been updated to:
 ## How It Works
 
 ### Default Behavior (Wrapper Mode)
+
 ```bash
 # These all use the wrapper now:
 ./claude-flow mcp start
@@ -21,6 +23,7 @@ The `claude-flow mcp start` command has been updated to:
 ```
 
 When you run this, you'll see:
+
 ```
 ✅ Starting Claude-Flow MCP Server (Wrapper Mode)
 📦 Using Claude Code MCP pass-through with SPARC prompt injection
@@ -29,7 +32,9 @@ When you run this, you'll see:
 ```
 
 ### Using Legacy Mode
+
 If you need the old template-based server:
+
 ```bash
 # Option 1: Use --legacy flag
 ./claude-flow mcp start --legacy
@@ -66,6 +71,7 @@ CLAUDE_FLOW_LEGACY_MCP=true ./claude-flow mcp start
 ## What This Means
 
 When you use `./claude-flow mcp start`:
+
 - All SPARC tools (sparc_coder, sparc_researcher, etc.) get enhanced with SPARC prompts
 - Requests forward to Claude Code's Task tool
 - You get AI-generated responses instead of template-based ones
@@ -74,6 +80,7 @@ When you use `./claude-flow mcp start`:
 ## Testing
 
 To verify it's working:
+
 ```bash
 # Start the server
 ./claude-flow mcp start

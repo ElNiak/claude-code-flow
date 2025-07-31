@@ -3,6 +3,7 @@
 ## PHASE 1: IMMEDIATE DEPENDENCY FIXES (URGENT - 30 minutes)
 
 ### Step 1: Install Missing Dependencies
+
 ```bash
 # Install chalk for CLI coloring
 npm install chalk@4.1.2 @types/chalk@4.1.2
@@ -20,6 +21,7 @@ npm install inquirer@8.2.5 @types/inquirer@8.2.5
 ### Step 2: Fix Critical Import Errors
 
 #### Fix `src/cli/node-repl.ts`
+
 ```typescript
 // Add at top of file
 import chalk from 'chalk';
@@ -32,6 +34,7 @@ interface ExtendedInterface extends Interface {
 ```
 
 #### Fix `src/cli/simple-cli.ts`
+
 ```typescript
 // Define proper CLI options interface
 interface CliOptions {
@@ -52,6 +55,7 @@ interface CliOptions {
 ```
 
 ### Step 3: Fix Table Constructor Issues
+
 ```typescript
 // Fix all files using cli-table3
 import Table from 'cli-table3';
@@ -71,6 +75,7 @@ const table = new Table({
 ### Step 1: Create Missing Type Definitions
 
 #### Create `src/types/executor.ts`
+
 ```typescript
 export interface ClaudeExecutionOptions {
   timeout?: number;
@@ -103,6 +108,7 @@ export interface ExecutionResult {
 ```
 
 #### Create `src/types/swarm.ts`
+
 ```typescript
 export enum SwarmMode {
   PARALLEL = 'parallel',
@@ -148,6 +154,7 @@ export interface AgentState {
 ```
 
 #### Create `src/types/migration.ts`
+
 ```typescript
 export interface MigrationBackup {
   id: string;
@@ -168,12 +175,14 @@ export interface ResourceUsage {
 ### Step 2: Fix Import Statements
 
 #### Fix `src/swarm/executor-v2.ts`
+
 ```typescript
 import { ClaudeExecutionOptions, ClaudeExecutionOptionsV2, TaskExecutor, ExecutionConfig, ExecutionResult } from '../types/executor.js';
 import { createLogger } from '../core/logger.js';
 ```
 
 #### Fix `src/swarm/strategies/research.ts`
+
 ```typescript
 import { SwarmMode, TaskStatus, AgentStatus } from '../types/swarm.js';
 ```
@@ -181,6 +190,7 @@ import { SwarmMode, TaskStatus, AgentStatus } from '../types/swarm.js';
 ### Step 3: Fix Enum Compatibility Issues
 
 #### Fix `src/cli/commands/swarm-new.ts`
+
 ```typescript
 // Fix line 399: Replace 'parallel' with SwarmMode.PARALLEL
 mode: SwarmMode.PARALLEL
@@ -204,6 +214,7 @@ if (agent.status === AgentStatus.ACTIVE) {
 ### Step 1: Fix Missing Properties
 
 #### Fix Task Statistics
+
 ```typescript
 // Add missing properties to task stats
 interface TaskStats {
@@ -224,9 +235,10 @@ interface AgentStats {
 ```
 
 #### Fix File Operations
+
 ```typescript
 // Fix writeFileSync options
-fs.writeFileSync(filePath, content, { 
+fs.writeFileSync(filePath, content, {
   encoding: 'utf8',
   flag: 'w' // Remove 'append' property
 });
@@ -235,6 +247,7 @@ fs.writeFileSync(filePath, content, {
 ### Step 2: Fix Commander.js Issues
 
 #### Fix `src/cli/commands/task.ts`
+
 ```typescript
 // Fix command definition
 command
@@ -245,6 +258,7 @@ command
 ```
 
 #### Fix `src/cli/commands/workflow.ts`
+
 ```typescript
 // Fix subcommand definitions
 const listCmd = command
@@ -258,12 +272,14 @@ const listCmd = command
 ## PHASE 4: COMPATIBILITY FIXES (LOW PRIORITY - 1 hour)
 
 ### Step 1: Fix Buffer Type Issues
+
 ```typescript
 // Fix Buffer to string conversion
 const content = buffer.toString('utf8');
 ```
 
 ### Step 2: Fix Import Meta Issues
+
 ```typescript
 // Fix import.meta usage
 import { fileURLToPath } from 'url';
@@ -274,6 +290,7 @@ const __dirname = dirname(__filename);
 ```
 
 ### Step 3: Fix Timeout Type Issues
+
 ```typescript
 // Fix timeout type
 let timeoutId: NodeJS.Timeout | undefined;
@@ -289,6 +306,7 @@ let timeoutId: NodeJS.Timeout | undefined;
 ## VALIDATION COMMANDS
 
 After each phase, run:
+
 ```bash
 # Check for remaining errors
 npx tsc --noEmit

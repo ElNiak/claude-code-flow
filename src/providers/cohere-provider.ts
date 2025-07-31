@@ -156,7 +156,7 @@ export class CohereProvider extends BaseProvider {
   protected async doComplete(request: LLMRequest): Promise<LLMResponse> {
     const isChat = request.messages.length > 1 || request.messages[0].role !== 'user';
     const model = request.model || this.config.model;
-    
+
     if (isChat && model.startsWith('command')) {
       return this.doChatComplete(request);
     } else {
@@ -167,7 +167,7 @@ export class CohereProvider extends BaseProvider {
   private async doChatComplete(request: LLMRequest): Promise<LLMResponse> {
     const messages = this.convertMessages(request.messages);
     const systemMessage = request.messages.find(m => m.role === 'system');
-    
+
     const cohereRequest = {
       model: this.mapToCohereModel(request.model || this.config.model),
       messages,
@@ -200,7 +200,7 @@ export class CohereProvider extends BaseProvider {
       }
 
       const data: CohereChatResponse = await response.json();
-      
+
       // Calculate cost
       const pricing = this.capabilities.pricing![request.model || this.config.model];
       const promptCost = (data.meta.billed_units.input_tokens / 1000) * pricing.promptCostPer1k;
@@ -233,7 +233,7 @@ export class CohereProvider extends BaseProvider {
   private async doGenerateComplete(request: LLMRequest): Promise<LLMResponse> {
     // For generate endpoint, concatenate messages into a prompt
     const prompt = request.messages.map(m => m.content).join('\n\n');
-    
+
     const cohereRequest: CohereGenerateRequest = {
       model: this.mapToCohereModel(request.model || this.config.model),
       prompt,
@@ -266,7 +266,7 @@ export class CohereProvider extends BaseProvider {
 
       const data: CohereGenerateResponse = await response.json();
       const generation = data.generations[0];
-      
+
       // Calculate cost
       const pricing = this.capabilities.pricing![request.model || this.config.model];
       const promptCost = (data.meta.billed_units.input_tokens / 1000) * pricing.promptCostPer1k;
@@ -299,7 +299,7 @@ export class CohereProvider extends BaseProvider {
   protected async *doStreamComplete(request: LLMRequest): AsyncIterable<LLMStreamEvent> {
     const isChat = request.messages.length > 1 || request.messages[0].role !== 'user';
     const model = request.model || this.config.model;
-    
+
     if (isChat && model.startsWith('command')) {
       yield* this.streamChatComplete(request);
     } else {
@@ -310,7 +310,7 @@ export class CohereProvider extends BaseProvider {
   private async *streamChatComplete(request: LLMRequest): AsyncIterable<LLMStreamEvent> {
     const messages = this.convertMessages(request.messages);
     const systemMessage = request.messages.find(m => m.role === 'system');
-    
+
     const cohereRequest = {
       model: this.mapToCohereModel(request.model || this.config.model),
       messages,
@@ -355,10 +355,10 @@ export class CohereProvider extends BaseProvider {
 
         for (const line of lines) {
           if (line.trim() === '') continue;
-          
+
           try {
             const data = JSON.parse(line);
-            
+
             if (data.text) {
               totalContent += data.text;
               yield {
@@ -366,12 +366,12 @@ export class CohereProvider extends BaseProvider {
                 delta: { content: data.text },
               };
             }
-            
+
             if (data.is_finished) {
               // Estimate tokens for streaming
               const promptTokens = this.estimateTokens(JSON.stringify(request.messages));
               const completionTokens = this.estimateTokens(totalContent);
-              
+
               const pricing = this.capabilities.pricing![request.model || this.config.model];
               const promptCost = (promptTokens / 1000) * pricing.promptCostPer1k;
               const completionCost = (completionTokens / 1000) * pricing.completionCostPer1k;

@@ -44,21 +44,21 @@ async function runTest() {
   log('\n2️⃣ Testing memory_usage store operation...', 'yellow');
   try {
     const testKey = `verify_test_${Date.now()}`;
-    const testValue = { 
-      test: true, 
+    const testValue = {
+      test: true,
       timestamp: new Date().toISOString(),
       message: 'Testing MCP persistence for issue #312'
     };
-    
+
     const storeResult = execSync(
       `npx claude-flow@alpha mcp call memory_usage '{"action": "store", "key": "${testKey}", "value": ${JSON.stringify(JSON.stringify(testValue))}, "namespace": "verification"}'`,
       { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }
     );
-    
+
     if (storeResult.includes('"success":true') || storeResult.includes('"stored":true')) {
       log('✅ Store operation succeeded', 'green');
       testsPassed++;
-      
+
       // Store the key for later retrieval
       fs.writeFileSync('.test-key', testKey);
     } else {
@@ -74,12 +74,12 @@ async function runTest() {
   log('\n3️⃣ Testing memory_usage retrieve operation...', 'yellow');
   try {
     const testKey = fs.existsSync('.test-key') ? fs.readFileSync('.test-key', 'utf8') : `verify_test_${Date.now()}`;
-    
+
     const retrieveResult = execSync(
       `npx claude-flow@alpha mcp call memory_usage '{"action": "retrieve", "key": "${testKey}", "namespace": "verification"}'`,
       { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }
     );
-    
+
     if (retrieveResult.includes('"found":true')) {
       log('✅ Retrieve operation succeeded - data was persisted!', 'green');
       testsPassed++;
@@ -99,11 +99,11 @@ async function runTest() {
       `npx claude-flow@alpha mcp call memory_usage '{"action": "list", "namespace": "verification"}'`,
       { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }
     );
-    
+
     if (listResult.includes('"success":true')) {
       log('✅ List operation succeeded', 'green');
       testsPassed++;
-      
+
       // Try to parse and show entry count
       try {
         const parsed = JSON.parse(listResult);
@@ -129,7 +129,7 @@ async function runTest() {
       `npx claude-flow@alpha hooks notify --message "${message}" --level "test"`,
       { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }
     );
-    
+
     if (hookResult.includes('saved to .swarm/memory.db')) {
       log('✅ Hook notification persisted to database', 'green');
       testsPassed++;
@@ -156,7 +156,7 @@ async function runTest() {
   // Summary
   log('\n' + '='.repeat(50), 'yellow');
   log(`📊 Test Summary: ${testsPassed}/${testsTotal} passed`, testsPassed === testsTotal ? 'green' : 'yellow');
-  
+
   if (testsPassed === testsTotal) {
     log('\n✨ All tests passed!', 'green');
     log('🎯 MCP tools are properly persisting data to SQLite', 'green');

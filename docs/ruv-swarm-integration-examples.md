@@ -14,13 +14,13 @@ This example demonstrates the complete ruv-swarm coordination pattern for a comp
 // ✅ CORRECT: Everything in ONE message with BatchTool
 [BatchTool - Message 1]:
   // Initialize swarm with optimal topology
-  mcp__claude-flow__swarm_init({ 
-    topology: "hierarchical", 
-    maxAgents: 8, 
+  mcp__claude-flow__swarm_init({
+    topology: "hierarchical",
+    maxAgents: 8,
     strategy: "parallel",
-    autoOptimize: true 
+    autoOptimize: true
   })
-  
+
   // Spawn ALL agents simultaneously
   mcp__claude-flow__agent_spawn({ type: "architect", name: "System Designer" })
   mcp__claude-flow__agent_spawn({ type: "coder", name: "API Developer" })
@@ -29,7 +29,7 @@ This example demonstrates the complete ruv-swarm coordination pattern for a comp
   mcp__claude-flow__agent_spawn({ type: "tester", name: "QA Engineer" })
   mcp__claude-flow__agent_spawn({ type: "researcher", name: "Tech Lead" })
   mcp__claude-flow__agent_spawn({ type: "coordinator", name: "Project Manager" })
-  
+
   // Create comprehensive todo list
   TodoWrite({ todos: [
     { id: "architecture", content: "Design API architecture and component interfaces", status: "in_progress", priority: "high" },
@@ -40,24 +40,24 @@ This example demonstrates the complete ruv-swarm coordination pattern for a comp
     { id: "tests", content: "Write comprehensive test suite", status: "pending", priority: "medium" },
     { id: "documentation", content: "Generate API documentation", status: "pending", priority: "low" }
   ]})
-  
+
   // Start orchestration
-  mcp__claude-flow__task_orchestrate({ 
-    task: "Build complete REST API system", 
+  mcp__claude-flow__task_orchestrate({
+    task: "Build complete REST API system",
     strategy: "parallel",
-    dependencies: true 
+    dependencies: true
   })
-  
+
   // Store initial project context
-  mcp__claude-flow__memory_usage({ 
-    action: "store", 
-    key: "project/api-system/init", 
-    value: { 
+  mcp__claude-flow__memory_usage({
+    action: "store",
+    key: "project/api-system/init",
+    value: {
       started: Date.now(),
       requirements: "REST API with auth, database, tests",
       technology: "Node.js, Express, JWT, PostgreSQL",
       deadline: "7 days"
-    } 
+    }
   })
 ```
 
@@ -69,7 +69,7 @@ This example demonstrates the complete ruv-swarm coordination pattern for a comp
   Bash("mkdir -p rest-api-system/{src,tests,docs,config,scripts}")
   Bash("mkdir -p rest-api-system/src/{models,routes,middleware,services,controllers}")
   Bash("mkdir -p rest-api-system/tests/{unit,integration,e2e}")
-  
+
   // Initialize ALL base files at once
   Write("rest-api-system/package.json", packageJsonContent)
   Write("rest-api-system/.env.example", envExampleContent)
@@ -77,16 +77,16 @@ This example demonstrates the complete ruv-swarm coordination pattern for a comp
   Write("rest-api-system/src/server.js", serverBaseContent)
   Write("rest-api-system/src/config/database.js", dbConfigContent)
   Write("rest-api-system/src/config/auth.js", authConfigContent)
-  
+
   // Store file creation progress
-  mcp__claude-flow__memory_usage({ 
-    action: "store", 
-    key: "project/api-system/infrastructure", 
-    value: { 
+  mcp__claude-flow__memory_usage({
+    action: "store",
+    key: "project/api-system/infrastructure",
+    value: {
       directories: ["src", "tests", "docs", "config", "scripts"],
       baseFiles: ["package.json", "server.js", "database.js", "auth.js"],
       completed: Date.now()
-    } 
+    }
   })
 ```
 
@@ -98,7 +98,7 @@ This example demonstrates the complete ruv-swarm coordination pattern for a comp
   Read("rest-api-system/package.json")
   Read("rest-api-system/src/config/database.js")
   Read("rest-api-system/src/config/auth.js")
-  
+
   // Implement ALL core components simultaneously
   Write("rest-api-system/src/models/User.js", userModelContent)
   Write("rest-api-system/src/models/index.js", modelsIndexContent)
@@ -109,19 +109,19 @@ This example demonstrates the complete ruv-swarm coordination pattern for a comp
   Write("rest-api-system/src/routes/auth.js", authRoutesContent)
   Write("rest-api-system/src/routes/users.js", userRoutesContent)
   Write("rest-api-system/src/services/authService.js", authServiceContent)
-  
+
   // Update coordination memory
-  mcp__claude-flow__memory_usage({ 
-    action: "store", 
-    key: "project/api-system/components", 
-    value: { 
+  mcp__claude-flow__memory_usage({
+    action: "store",
+    key: "project/api-system/components",
+    value: {
       models: ["User"],
       controllers: ["auth", "user"],
       middleware: ["auth", "validation"],
       routes: ["auth", "users"],
       services: ["auth"],
       progress: "85%"
-    } 
+    }
   })
 ```
 
@@ -136,25 +136,25 @@ This example demonstrates the complete ruv-swarm coordination pattern for a comp
   Write("rest-api-system/tests/integration/users.test.js", userIntegrationTestContent)
   Write("rest-api-system/tests/e2e/api.test.js", e2eTestContent)
   Write("rest-api-system/jest.config.js", jestConfigContent)
-  
+
   // Run all validation commands
   Bash("cd rest-api-system && npm install")
   Bash("cd rest-api-system && npm run lint")
   Bash("cd rest-api-system && npm test")
   Bash("cd rest-api-system && npm run build")
-  
+
   // Final coordination update
-  mcp__claude-flow__memory_usage({ 
-    action: "store", 
-    key: "project/api-system/completion", 
-    value: { 
+  mcp__claude-flow__memory_usage({
+    action: "store",
+    key: "project/api-system/completion",
+    value: {
       testsCreated: ["unit", "integration", "e2e"],
       allTestsPassing: true,
       lintPassing: true,
       buildSuccessful: true,
       readyForDeployment: true,
       completedAt: Date.now()
-    } 
+    }
   })
 ```
 
@@ -173,7 +173,7 @@ This example demonstrates the complete ruv-swarm coordination pattern for a comp
   mcp__claude-flow__agent_spawn({ type: "analyst", name: "Trend Analyzer" })
   mcp__claude-flow__agent_spawn({ type: "reviewer", name: "Quality Checker" })
   mcp__claude-flow__agent_spawn({ type: "coordinator", name: "Research Lead" })
-  
+
   TodoWrite({ todos: [
     { id: "literature", content: "Conduct comprehensive literature review", status: "in_progress", priority: "high" },
     { id: "market", content: "Analyze current market trends", status: "pending", priority: "high" },
@@ -190,12 +190,12 @@ This example demonstrates the complete ruv-swarm coordination pattern for a comp
   WebSearch("latest trends in neural architecture search 2024")
   WebSearch("transformer model efficiency improvements")
   WebSearch("edge AI deployment strategies")
-  
+
   // Store findings simultaneously
   mcp__claude-flow__memory_usage({ action: "store", key: "research/nas/trends", value: searchResults1 })
   mcp__claude-flow__memory_usage({ action: "store", key: "research/transformers/efficiency", value: searchResults2 })
   mcp__claude-flow__memory_usage({ action: "store", key: "research/edge-ai/deployment", value: searchResults3 })
-  
+
   // Create research documentation
   Write("research-output/literature-review.md", literatureContent)
   Write("research-output/market-analysis.md", marketContent)
@@ -268,7 +268,7 @@ mcp__claude-flow__memory_usage({
 
 // Service-specific memory
 mcp__claude-flow__memory_usage({
-  action: "store", 
+  action: "store",
   key: "project/microservices/services/user/api",
   value: {
     endpoints: ["/users", "/users/:id", "/users/profile"],
@@ -378,11 +378,11 @@ npx ruv-swarm hook session-end \
   Write("src/models/Product.js", productModel)
   Write("src/models/Order.js", orderModel)
   Write("src/models/index.js", modelsIndex)
-  
+
   Write("src/controllers/userController.js", userController)
-  Write("src/controllers/productController.js", productController) 
+  Write("src/controllers/productController.js", productController)
   Write("src/controllers/orderController.js", orderController)
-  
+
   Write("tests/unit/models/user.test.js", userTest)
   Write("tests/unit/models/product.test.js", productTest)
   Write("tests/unit/models/order.test.js", orderTest)
@@ -406,26 +406,26 @@ npx ruv-swarm hook session-end \
 // ✅ Optimal: All agents spawned simultaneously with full coordination
 [BatchTool]:
   mcp__claude-flow__swarm_init({ topology: "mesh", maxAgents: 8, strategy: "parallel" })
-  
+
   // Backend team
   mcp__claude-flow__agent_spawn({ type: "architect", name: "Backend Architect" })
   mcp__claude-flow__agent_spawn({ type: "coder", name: "API Developer" })
   mcp__claude-flow__agent_spawn({ type: "analyst", name: "Database Designer" })
-  
+
   // Frontend team  
   mcp__claude-flow__agent_spawn({ type: "designer", name: "UI Designer" })
   mcp__claude-flow__agent_spawn({ type: "coder", name: "Frontend Developer" })
-  
+
   // Quality team
   mcp__claude-flow__agent_spawn({ type: "tester", name: "QA Engineer" })
   mcp__claude-flow__agent_spawn({ type: "reviewer", name: "Code Reviewer" })
-  
+
   // Coordination team
   mcp__claude-flow__agent_spawn({ type: "coordinator", name: "Project Manager" })
-  
+
   // Initialize shared memory for all agents
-  mcp__claude-flow__memory_usage({ 
-    action: "store", 
+  mcp__claude-flow__memory_usage({
+    action: "store",
     key: "swarm/shared/project-context",
     value: { initialized: Date.now(), agents: 8, strategy: "parallel" }
   })

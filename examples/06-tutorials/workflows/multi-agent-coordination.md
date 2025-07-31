@@ -5,6 +5,7 @@ Learn how to orchestrate complex workflows with multiple specialized agents work
 ## Overview
 
 Multi-agent systems in Claude Flow allow you to:
+
 - Parallelize work across specialized agents
 - Coordinate dependencies between tasks
 - Share information between agents
@@ -24,6 +25,7 @@ cd examples
 ```
 
 Common agent types:
+
 - **architect**: System design and planning
 - **developer**: Code implementation
 - **tester**: Test creation and validation
@@ -116,6 +118,7 @@ Create the e-commerce platform using the swarm system:
 Claude Flow supports different coordination patterns:
 
 #### Hub-Spoke Pattern
+
 Central coordinator manages all agents:
 
 ```bash
@@ -125,11 +128,13 @@ Central coordinator manages all agents:
 ```
 
 Best for:
+
 - Centralized control
 - Simple dependencies
 - Clear hierarchy
 
 #### Mesh Pattern
+
 Agents communicate directly:
 
 ```bash
@@ -139,11 +144,13 @@ Agents communicate directly:
 ```
 
 Best for:
+
 - Complex interdependencies
 - High collaboration needs
 - Distributed decision making
 
 #### Pipeline Pattern
+
 Sequential processing:
 
 ```bash
@@ -153,6 +160,7 @@ Sequential processing:
 ```
 
 Best for:
+
 - Linear workflows
 - Data transformation
 - Stage-based processing
@@ -275,6 +283,7 @@ Complete workflow for microservices:
 ```
 
 This creates:
+
 - Multiple service implementations
 - Shared API contracts
 - Integration tests
@@ -284,16 +293,19 @@ This creates:
 ## Monitoring and Debugging
 
 ### Real-time Monitoring
+
 ```bash
 ../claude-flow orchestrate ./workflow.json --monitor
 ```
 
 ### Debug Mode
+
 ```bash
 ../claude-flow orchestrate ./workflow.json --debug
 ```
 
 ### Performance Metrics
+
 ```bash
 ../claude-flow orchestrate ./workflow.json --metrics
 ```
@@ -301,26 +313,31 @@ This creates:
 ## Best Practices
 
 ### 1. Agent Specialization
+
 - Keep agents focused on specific domains
 - Don't overload single agents
 - Use appropriate agent types
 
 ### 2. Task Granularity
+
 - Break large tasks into smaller ones
 - Enable better parallelization
 - Easier to debug and retry
 
 ### 3. Dependency Management
+
 - Minimize dependencies where possible
 - Use parallel execution
 - Consider task priorities
 
 ### 4. Error Resilience
+
 - Plan for failures
 - Use checkpoints
 - Implement retry logic
 
 ### 5. Performance
+
 - Monitor resource usage
 - Optimize parallel execution
 - Cache intermediate results
@@ -328,6 +345,7 @@ This creates:
 ## Advanced Patterns
 
 ### Dynamic Agent Spawning
+
 ```json
 {
   "agents": {
@@ -342,6 +360,7 @@ This creates:
 ```
 
 ### Conditional Execution
+
 ```json
 {
   "tasks": [
@@ -354,6 +373,7 @@ This creates:
 ```
 
 ### Task Templates
+
 ```json
 {
   "templates": {
@@ -369,16 +389,19 @@ This creates:
 ## Troubleshooting
 
 ### Agents Not Starting
+
 - Check agent definitions
 - Verify capabilities match tasks
 - Review resource limits
 
 ### Tasks Stuck
+
 - Check dependencies
 - Look for circular dependencies
 - Verify agent availability
 
 ### Poor Performance
+
 - Reduce parallelism
 - Check resource constraints
 - Optimize task size
@@ -386,6 +409,7 @@ This creates:
 ## Summary
 
 You've learned:
+
 - ✅ Multi-agent workflow creation
 - ✅ Coordination patterns
 - ✅ Dependency management

@@ -1,6 +1,7 @@
 # 🐳 Claude Flow v2.0.0 Docker Deployment Guide
 
 ## 📋 Table of Contents
+
 1. [Overview](#overview)
 2. [Quick Start](#quick-start)
 3. [Docker Images](#docker-images)
@@ -15,6 +16,7 @@
 ## 🎯 Overview
 
 Claude Flow v2.0.0 provides enterprise-grade Docker support with:
+
 - **✅ Multi-stage builds** - 60% smaller images, faster deployments
 - **✅ Security hardening** - Non-root user, minimal attack surface
 - **✅ Health checks** - Automatic container recovery
@@ -24,6 +26,7 @@ Claude Flow v2.0.0 provides enterprise-grade Docker support with:
 ## 🚀 Quick Start
 
 ### Pull and Run
+
 ```bash
 # Pull the latest image
 docker pull ruvnet/claude-flow:2.0.0
@@ -36,6 +39,7 @@ docker run -it -v $(pwd):/app -p 3000:3000 ruvnet/claude-flow:2.0.0 init --sparc
 ```
 
 ### Build from Source
+
 ```bash
 # Clone repository
 git clone https://github.com/ruvnet/claude-code-flow.git
@@ -51,6 +55,7 @@ docker run -it -p 3000:3000 claude-flow:local
 ## 🏗️ Docker Images
 
 ### Available Tags
+
 | Tag | Description | Size | Use Case |
 |-----|-------------|------|----------|
 | `2.0.0`, `latest` | Latest stable release | 180MB | Production |
@@ -59,6 +64,7 @@ docker run -it -p 3000:3000 claude-flow:local
 | `2.0.0-cuda` | GPU support | 2.8GB | Neural processing |
 
 ### Multi-Architecture Support
+
 ```bash
 # Available architectures
 docker pull ruvnet/claude-flow:2.0.0 --platform linux/amd64
@@ -69,6 +75,7 @@ docker pull ruvnet/claude-flow:2.0.0 --platform linux/arm/v7
 ## ⚙️ Container Configuration
 
 ### Dockerfile (Production)
+
 ```dockerfile
 # Multi-stage build for optimal size
 FROM node:20-alpine AS builder
@@ -134,6 +141,7 @@ CMD ["node", "dist/cli/index.js", "start", "--ui"]
 ```
 
 ### Environment Variables
+
 ```bash
 # Core Configuration
 CLAUDE_FLOW_PORT=3000
@@ -164,6 +172,7 @@ SSL_ENABLED=false
 ## 🐙 Docker Compose
 
 ### Development Setup
+
 ```yaml
 # docker-compose.yml
 version: '3.8'
@@ -198,6 +207,7 @@ networks:
 ```
 
 ### Production Setup
+
 ```yaml
 # docker-compose.prod.yml
 version: '3.8'
@@ -269,6 +279,7 @@ networks:
 ```
 
 ### Scaling with Docker Compose
+
 ```yaml
 # docker-compose.scale.yml
 version: '3.8'
@@ -312,6 +323,7 @@ services:
 ## 🚀 Production Deployment
 
 ### 1. Build Production Image
+
 ```bash
 # Build with build args
 docker build \
@@ -324,6 +336,7 @@ docker build \
 ```
 
 ### 2. Security Scanning
+
 ```bash
 # Scan for vulnerabilities
 docker scan claude-flow:production
@@ -336,6 +349,7 @@ snyk test --docker claude-flow:production
 ```
 
 ### 3. Push to Registry
+
 ```bash
 # Tag for registry
 docker tag claude-flow:production myregistry.com/claude-flow:2.0.0
@@ -345,6 +359,7 @@ docker push myregistry.com/claude-flow:2.0.0
 ```
 
 ### 4. Deploy Script
+
 ```bash
 #!/bin/bash
 # deploy.sh
@@ -374,6 +389,7 @@ docker run -d \
 ## ☸️ Kubernetes Deployment
 
 ### Deployment Manifest
+
 ```yaml
 # claude-flow-deployment.yaml
 apiVersion: apps/v1
@@ -461,6 +477,7 @@ spec:
 ```
 
 ### Helm Chart
+
 ```bash
 # Install with Helm
 helm repo add claude-flow https://charts.claude-flow.io
@@ -477,6 +494,7 @@ helm install claude-flow claude-flow/claude-flow \
 ## 🔒 Security Best Practices
 
 ### 1. Image Security
+
 ```dockerfile
 # Use specific versions, not latest
 FROM node:20.11.0-alpine
@@ -495,6 +513,7 @@ COPY --chown=node:node . .
 ```
 
 ### 2. Runtime Security
+
 ```yaml
 # docker-compose.security.yml
 services:
@@ -512,6 +531,7 @@ services:
 ```
 
 ### 3. Network Security
+
 ```bash
 # Create custom network
 docker network create --driver bridge \
@@ -526,6 +546,7 @@ docker run --network=claude-secure ...
 ## 📊 Monitoring & Logging
 
 ### 1. Prometheus Metrics
+
 ```yaml
 # Add to docker-compose.yml
 prometheus:
@@ -537,6 +558,7 @@ prometheus:
 ```
 
 ### 2. Log Aggregation
+
 ```yaml
 # Fluentd configuration
 fluentd:
@@ -549,6 +571,7 @@ fluentd:
 ```
 
 ### 3. Health Monitoring
+
 ```bash
 # Monitor container health
 docker inspect claude-flow --format='{{.State.Health.Status}}'
@@ -562,6 +585,7 @@ docker inspect claude-flow --format='{{range .State.Health.Log}}{{.End}} | {{.Ex
 ### Common Issues
 
 #### 1. Container Exits Immediately
+
 ```bash
 # Check logs
 docker logs claude-flow
@@ -571,6 +595,7 @@ docker run -it --entrypoint /bin/sh ruvnet/claude-flow:2.0.0
 ```
 
 #### 2. Permission Errors
+
 ```bash
 # Fix volume permissions
 docker run --rm -v $(pwd):/app alpine chown -R 1001:1001 /app
@@ -580,6 +605,7 @@ docker run --user $(id -u):$(id -g) ...
 ```
 
 #### 3. Memory Issues
+
 ```bash
 # Increase memory limits
 docker run --memory="8g" --memory-swap="8g" ...
@@ -589,6 +615,7 @@ docker stats claude-flow
 ```
 
 #### 4. Network Connectivity
+
 ```bash
 # Test from container
 docker exec claude-flow ping google.com
@@ -599,6 +626,7 @@ docker network inspect bridge
 ```
 
 ### Debugging Commands
+
 ```bash
 # Interactive shell
 docker exec -it claude-flow /bin/sh

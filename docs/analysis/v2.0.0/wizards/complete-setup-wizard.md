@@ -236,22 +236,24 @@ Checking environment...
 ## Interactive Elements
 
 ### 1. Smart Defaults
+
 - Auto-detect project type from package.json
 - Suggest swarm configuration based on project
 - Pre-select commonly used options
 
 ### 2. Contextual Help
+
 ```
 ? What are you building? (Press '?' for more info)
   > Web Application
 
   [?] Project Types Explained:
-  
+
   Web Application: Best for full-stack apps with UI and backend
   - Includes frontend and backend developers
   - QA engineer for testing
   - Architect for system design
-  
+
   API Service: Optimized for API-only projects
   - Focus on backend developers
   - API testing specialist
@@ -259,6 +261,7 @@ Checking environment...
 ```
 
 ### 3. Validation & Error Recovery
+
 ```
 ⚠ Node.js version 18.x detected (requires 20+)
 
@@ -270,6 +273,7 @@ Would you like to:
 ```
 
 ### 4. Progress Indicators
+
 - Spinner animations for async operations
 - Progress bars for multi-step processes
 - Real-time agent status updates
@@ -278,6 +282,7 @@ Would you like to:
 ## Configuration File Output
 
 ### .claude/wizard-config.json
+
 ```json
 {
   "version": "2.0.0",
@@ -314,21 +319,25 @@ Would you like to:
 ## Wizard Features
 
 ### 1. Resume Capability
+
 - Save progress if interrupted
 - Detect partial installations
 - Offer to continue or restart
 
 ### 2. Offline Mode
+
 - Cache dependencies locally
 - Work without internet after initial setup
 - Sync when connection available
 
 ### 3. Preset Customization
+
 - Modify recommended presets
 - Save custom presets for reuse
 - Share presets with team
 
 ### 4. Multi-Language Support
+
 - English (default)
 - Spanish, French, German, Japanese, Chinese
 - Auto-detect from system locale
@@ -336,12 +345,14 @@ Would you like to:
 ## Implementation Details
 
 ### Technology Stack
+
 - **CLI Framework**: Inquirer.js for prompts
 - **Styling**: Chalk for colors, boxen for borders
 - **Progress**: ora for spinners, cli-progress for bars
 - **Validation**: Joi for input validation
 
 ### State Management
+
 ```typescript
 interface WizardState {
   currentStep: number;
@@ -352,6 +363,7 @@ interface WizardState {
 ```
 
 ### Error Handling
+
 - Graceful degradation for missing features
 - Clear error messages with solutions
 - Automatic retry for network failures

@@ -15,10 +15,12 @@ A comprehensive Python-based benchmarking tool for agent swarms that interfaces 
 ## 📦 Installation
 
 ### Prerequisites
+
 - Python 3.8 or higher
 - pip package manager
 
 ### Install from Source
+
 ```bash
 # Clone and install
 cd benchmark
@@ -29,6 +31,7 @@ pip install -e .
 ## 🎯 Quick Start
 
 ### Basic Usage
+
 ```bash
 # Run a simple research benchmark
 swarm-benchmark run "Research cloud architecture patterns" --strategy research
@@ -44,6 +47,7 @@ swarm-benchmark run "Optimize database performance" --strategy auto
 ```
 
 ### Example Output
+
 ```bash
 $ swarm-benchmark run "Test research task" --strategy research --verbose
 

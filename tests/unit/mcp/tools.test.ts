@@ -42,7 +42,7 @@ describe('ToolRegistry', () => {
       };
 
       registry.register(tool);
-      
+
       const retrievedTool = registry.getTool('test/tool');
       expect(retrievedTool).toBeDefined();
       expect(retrievedTool?.name).toBe('test/tool');
@@ -58,7 +58,7 @@ describe('ToolRegistry', () => {
       };
 
       registry.register(tool);
-      
+
       try {
         registry.register(tool);
         throw new Error('Should have thrown an error');
@@ -160,7 +160,7 @@ describe('ToolRegistry', () => {
       const tools = registry.listTools();
       expect(tools).toBeDefined();
       expect(tools.length).toBe(2);
-      
+
       const toolNames = tools.map(t => t.name);
       expect(toolNames.includes('test/tool1')).toBe(true);
       expect(toolNames.includes('test/tool2')).toBe(true);
@@ -259,9 +259,9 @@ describe('ToolRegistry', () => {
 
     it('should unregister a tool', () => {
       expect(registry.getTool('test/removable').toBeDefined());
-      
+
       registry.unregister('test/removable');
-      
+
       expect(registry.getTool('test/removable')).toBe(undefined);
     });
 

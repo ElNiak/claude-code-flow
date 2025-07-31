@@ -16,14 +16,14 @@ export interface ClaudeFlowToolContext extends MCPContext {
  */
 async function enhanceToolWithAgentTypes(tool: MCPTool): Promise<MCPTool> {
   const availableTypes = await getAvailableAgentTypes();
-  
+
   // Clone the tool to avoid modifying the original
   const enhancedTool = JSON.parse(JSON.stringify(tool));
-  
+
   // Find and populate enum fields for agent types
   function addEnumToAgentTypeFields(obj: any) {
     if (typeof obj !== 'object' || obj === null) return;
-    
+
     for (const [key, value] of Object.entries(obj)) {
       if (typeof value === 'object' && value !== null) {
         // Check if this is an agent type field
@@ -37,7 +37,7 @@ async function enhanceToolWithAgentTypes(tool: MCPTool): Promise<MCPTool> {
       }
     }
   }
-  
+
   addEnumToAgentTypeFields(enhancedTool.inputSchema);
   return enhancedTool;
 }

@@ -52,6 +52,38 @@ export function createWrapperScript(type = 'unix') {
   return template;
 }
 
+export function createMcpJson() {
+  const template = loadTemplate('mcp.json');
+  if (!template) {
+    return createMcpJsonFallback();
+  }
+  return template;
+}
+
+export function createVSCodeSettings() {
+  const template = loadTemplate('vscode-settings.json');
+  if (!template) {
+    return createVSCodeSettingsFallback();
+  }
+  return template;
+}
+
+export function createVSCodeTasks() {
+  const template = loadTemplate('vscode-tasks.json');
+  if (!template) {
+    return createVSCodeTasksFallback();
+  }
+  return template;
+}
+
+export function createVSCodeLaunch() {
+  const template = loadTemplate('vscode-launch.json');
+  if (!template) {
+    return createVSCodeLaunchFallback();
+  }
+  return template;
+}
+
 export function createCommandDoc(category, command) {
   const template = loadTemplate(`commands/${category}/${command}.md`);
   if (!template) {
@@ -1045,7 +1077,7 @@ if ! command -v gh &> /dev/null; then
     echo "Continuing without GitHub features..."
 else
     echo "✅ GitHub CLI found"
-    
+
     # Check auth status
     if gh auth status &> /dev/null; then
         echo "✅ GitHub authentication active"
@@ -1067,7 +1099,7 @@ echo "  - npx claude-flow issue triage"
 /**
  * Safe GitHub CLI Helper
  * Prevents timeout issues when using gh commands with special characters
- * 
+ *
  * Usage:
  *   ./github-safe.js issue comment 123 "Message with \`backticks\`"
  *   ./github-safe.js pr create --title "Title" --body "Complex body"
@@ -1103,31 +1135,31 @@ This helper prevents timeout issues with special characters like:
 const [command, subcommand, ...restArgs] = args;
 
 // Handle commands that need body content
-if ((command === 'issue' || command === 'pr') && 
+if ((command === 'issue' || command === 'pr') &&
     (subcommand === 'comment' || subcommand === 'create')) {
-  
+
   let bodyIndex = -1;
   let body = '';
-  
+
   if (subcommand === 'comment' && restArgs.length >= 2) {
     // Simple format: github-safe.js issue comment 123 "body"
     body = restArgs[1];
     bodyIndex = 1;
   } else {
-    // Flag format: --body "content" 
+    // Flag format: --body "content"
     bodyIndex = restArgs.indexOf('--body');
     if (bodyIndex !== -1 && bodyIndex < restArgs.length - 1) {
       body = restArgs[bodyIndex + 1];
     }
   }
-  
+
   if (body) {
     // Use temporary file for body content
     const tmpFile = join(tmpdir(), \`gh-body-\${randomBytes(8).toString('hex')}.tmp\`);
-    
+
     try {
       writeFileSync(tmpFile, body, 'utf8');
-      
+
       // Build new command with --body-file
       const newArgs = [...restArgs];
       if (subcommand === 'comment' && bodyIndex === 1) {
@@ -1139,16 +1171,16 @@ if ((command === 'issue' || command === 'pr') &&
         newArgs[bodyIndex] = '--body-file';
         newArgs[bodyIndex + 1] = tmpFile;
       }
-      
+
       // Execute safely
       const ghCommand = \`gh \${command} \${subcommand} \${newArgs.join(' ')}\`;
       console.log(\`Executing: \${ghCommand}\`);
-      
-      const result = execSync(ghCommand, { 
+
+      const result = execSync(ghCommand, {
         stdio: 'inherit',
         timeout: 30000 // 30 second timeout
       });
-      
+
     } catch (error) {
       console.error('Error:', error.message);
       process.exit(1);
@@ -1190,7 +1222,7 @@ function createWrapperScriptFallback(type) {
   const { spawn } = await import('child_process');
   const { resolve } = await import('path');
   const { fileURLToPath } = await import('url');
-  
+
   try {
     // Try to use import.meta.url (ES modules)
     const __filename = fileURLToPath(import.meta.url);
@@ -1211,7 +1243,7 @@ function createWrapperScriptFallback(type) {
         }
       } catch {}
     },
-    
+
     // 2. Parent node_modules (monorepo)
     async () => {
       try {
@@ -1222,7 +1254,7 @@ function createWrapperScriptFallback(type) {
         }
       } catch {}
     },
-    
+
     // 3. NPX with latest alpha version (prioritized over global)
     async () => {
       return spawn('npx', ['claude-flow@2.0.0-alpha.25', ...process.argv.slice(2)], { stdio: 'inherit' });
@@ -1245,7 +1277,7 @@ function createWrapperScriptFallback(type) {
       }
     } catch {}
   }
-  
+
   console.error('Could not find claude-flow. Please install it with: npm install claude-flow');
   process.exit(1);
 })();`;
@@ -1423,6 +1455,292 @@ function createEnhancedSettingsJsonFallback() {
         ],
       },
       includeCoAuthoredBy: true,
+    },
+    null,
+    2,
+  );
+}
+
+// MCP Configuration Fallback
+function createMcpJsonFallback() {
+  return JSON.stringify(
+    {
+      "mcpServers": {
+        "claude-flow": {
+          "command": "npx",
+          "args": ["claude-flow@alpha", "mcp", "start"],
+          "type": "stdio"
+        },
+        "ruv-swarm": {
+          "command": "npx",
+          "args": ["ruv-swarm@latest", "mcp", "start"],
+          "type": "stdio"
+        },
+        "sequential-thinking": {
+          "command": "npx",
+          "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+        },
+        "perplexity-ask": {
+          "command": "docker",
+          "args": ["run", "-i", "--rm", "-e", "PERPLEXITY_API_KEY", "mcp/perplexity-ask"],
+          "env": {
+            "PERPLEXITY_API_KEY": "${PERPLEXITY_API_KEY}"
+          }
+        },
+        "context7": {
+          "command": "npx",
+          "args": ["-y", "@upstash/context7-mcp"],
+          "type": "stdio"
+        },
+        "serena": {
+          "command": "uvx",
+          "args": [
+            "--from",
+            "git+https://github.com/oraios/serena",
+            "serena-mcp-server",
+            "--context",
+            "ide-assistant",
+            "--project",
+            "${PWD}",
+            "--tool-timeout",
+            "20",
+            "--mode",
+            "planning",
+            "--enable-web-dashboard",
+            "false"
+          ],
+          "type": "stdio"
+        },
+        "consult7": {
+          "command": "uvx",
+          "args": ["consult7", "google", "${GOOGLE_API_KEY}"],
+          "type": "stdio"
+        }
+      }
+    },
+    null,
+    2,
+  );
+}
+
+// VSCode Settings Fallback
+function createVSCodeSettingsFallback() {
+  return JSON.stringify(
+    {
+      "claude.mcpEnabled": true,
+      "claude.mcpServers": [
+        "claude-flow",
+        "ruv-swarm",
+        "sequential-thinking",
+        "perplexity-ask",
+        "context7",
+        "serena",
+        "consult7"
+      ],
+      "claude.workflow.sparcEnabled": true,
+      "claude.workflow.batchingEnabled": true,
+      "claude.workflow.parallelExecution": true,
+      "claude.coordination.swarmSupport": true,
+      "editor.formatOnSave": true,
+      "editor.codeActionsOnSave": {
+        "source.fixAll": true,
+        "source.organizeImports": true
+      },
+      "eslint.validate": [
+        "javascript",
+        "javascriptreact",
+        "typescript",
+        "typescriptreact"
+      ],
+      "eslint.format.enable": true,
+      "typescript.preferences.importModuleSpecifier": "relative",
+      "typescript.updateImportsOnFileMove.enabled": "always",
+      "typescript.suggest.autoImports": true,
+      "git.autofetch": true,
+      "git.enableSmartCommit": true,
+      "git.confirmSync": false,
+      "files.associations": {
+        "*.md": "markdown",
+        ".claude/**": "markdown",
+        ".mcp.json": "jsonc",
+        "*.sparc": "json"
+      },
+      "terminal.integrated.defaultProfile.osx": "bash",
+      "terminal.integrated.defaultProfile.linux": "bash",
+      "terminal.integrated.defaultProfile.windows": "PowerShell",
+      "debug.internalConsoleOptions": "openOnSessionStart",
+      "debug.console.acceptSuggestionOnEnter": "on",
+      "task.allowAutomaticTasks": "on",
+      "task.autoDetect": "on",
+      "task.showDecorations": true
+    },
+    null,
+    2,
+  );
+}
+
+// VSCode Tasks Fallback
+function createVSCodeTasksFallback() {
+  return JSON.stringify(
+    {
+      "version": "2.0.0",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "tasks": [
+        {
+          "label": "SPARC: Complete Pipeline",
+          "type": "shell",
+          "command": "npx",
+          "args": ["claude-flow", "sparc", "pipeline", "${input:taskDescription}"],
+          "group": {
+            "kind": "build",
+            "isDefault": true
+          },
+          "presentation": {
+            "echo": true,
+            "reveal": "always",
+            "focus": true,
+            "panel": "new",
+            "group": "sparc"
+          },
+          "problemMatcher": [],
+          "options": {
+            "cwd": "${workspaceFolder}"
+          }
+        },
+        {
+          "label": "Build",
+          "type": "npm",
+          "script": "build",
+          "group": {
+            "kind": "build",
+            "isDefault": false
+          },
+          "presentation": {
+            "echo": true,
+            "reveal": "silent",
+            "focus": false,
+            "panel": "shared"
+          },
+          "problemMatcher": ["$tsc"],
+          "options": {
+            "cwd": "${workspaceFolder}"
+          }
+        },
+        {
+          "label": "Test",
+          "type": "npm",
+          "script": "test",
+          "group": {
+            "kind": "test",
+            "isDefault": true
+          },
+          "presentation": {
+            "echo": true,
+            "reveal": "always",
+            "focus": true,
+            "panel": "new"
+          },
+          "problemMatcher": [],
+          "options": {
+            "cwd": "${workspaceFolder}"
+          }
+        }
+      ],
+      "inputs": [
+        {
+          "id": "taskDescription",
+          "description": "Enter task description for SPARC workflow",
+          "default": "Build new feature",
+          "type": "promptString"
+        }
+      ]
+    },
+    null,
+    2,
+  );
+}
+
+// VSCode Launch Configuration Fallback
+function createVSCodeLaunchFallback() {
+  return JSON.stringify(
+    {
+      "version": "0.2.0",
+      "configurations": [
+        {
+          "name": "Debug Node.js Application",
+          "type": "node",
+          "request": "launch",
+          "program": "${workspaceFolder}/src/index.js",
+          "args": [],
+          "cwd": "${workspaceFolder}",
+          "env": {
+            "NODE_ENV": "development",
+            "DEBUG": "*"
+          },
+          "skipFiles": [
+            "<node_internals>/**"
+          ],
+          "console": "integratedTerminal",
+          "sourceMaps": true,
+          "outFiles": [
+            "${workspaceFolder}/dist/**/*.js"
+          ]
+        },
+        {
+          "name": "Debug Claude Flow CLI",
+          "type": "node",
+          "request": "launch",
+          "program": "${workspaceFolder}/src/cli/simple-cli.js",
+          "args": ["${input:cliCommand}"],
+          "cwd": "${workspaceFolder}",
+          "env": {
+            "NODE_ENV": "development",
+            "DEBUG": "claude-flow:*",
+            "CLAUDE_FLOW_DEBUG": "true"
+          },
+          "skipFiles": [
+            "<node_internals>/**"
+          ],
+          "console": "integratedTerminal",
+          "sourceMaps": true
+        },
+        {
+          "name": "Debug Tests",
+          "type": "node",
+          "request": "launch",
+          "program": "${workspaceFolder}/node_modules/.bin/jest",
+          "args": [
+            "--runInBand",
+            "--detectOpenHandles",
+            "--forceExit"
+          ],
+          "cwd": "${workspaceFolder}",
+          "env": {
+            "NODE_ENV": "test",
+            "DEBUG": "test:*"
+          },
+          "skipFiles": [
+            "<node_internals>/**"
+          ],
+          "console": "integratedTerminal",
+          "sourceMaps": true
+        }
+      ],
+      "inputs": [
+        {
+          "id": "cliCommand",
+          "description": "Enter Claude Flow CLI command",
+          "default": "swarm init --topology hierarchical",
+          "type": "promptString"
+        }
+      ]
     },
     null,
     2,

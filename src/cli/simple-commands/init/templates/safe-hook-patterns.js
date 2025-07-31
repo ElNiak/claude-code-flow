@@ -187,7 +187,7 @@ touch "$LOCK_FILE"
 if [ -f "$LOG_FILE" ] && [ -s "$LOG_FILE" ]; then
     echo "Processing accumulated changes..."
     claude -c -p "Update history.md with recent session data" --skip-hooks
-    
+
     # Archive the log
     mv "$LOG_FILE" "~/.claude/session_log_$(date +%Y%m%d_%H%M%S).txt"
 fi
@@ -240,14 +240,14 @@ PROCESSING_INTERVAL = 300  # 5 minutes
 def process_queue():
     if not QUEUE_FILE.exists():
         return
-    
+
     # Read and clear queue atomically
     with open(QUEUE_FILE, 'r') as f:
         lines = f.readlines()
-    
+
     # Clear the queue
     QUEUE_FILE.unlink()
-    
+
     # Process commands
     for line in lines:
         try:

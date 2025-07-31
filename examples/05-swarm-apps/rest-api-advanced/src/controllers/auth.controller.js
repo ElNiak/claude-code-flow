@@ -179,7 +179,7 @@ const authController = {
 
     // Generate reset token
     const resetToken = await Token.createPasswordResetToken(user._id);
-    
+
     // Send reset email
     await authService.sendPasswordResetEmail(user, resetToken.token);
 

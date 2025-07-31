@@ -25,7 +25,7 @@ const TEST_SUITES: TestSuite[] = [
     parallel: true,
   },
   {
-    name: "integration", 
+    name: "integration",
     pattern: "tests/integration/**/*.test.ts",
     description: "Integration tests for component interactions",
     timeout: 60000,
@@ -33,7 +33,7 @@ const TEST_SUITES: TestSuite[] = [
   },
   {
     name: "e2e",
-    pattern: "tests/e2e/**/*.test.ts", 
+    pattern: "tests/e2e/**/*.test.ts",
     description: "End-to-end CLI and workflow tests",
     timeout: 120000,
     parallel: false,
@@ -79,16 +79,16 @@ class TestRunner {
       }
 
       console.log(`\n📋 Running ${suite.name} tests: ${suite.description}`);
-      
+
       const startTime = Date.now();
       const passed = await this.runSuite(suite);
       const duration = Date.now() - startTime;
-      
+
       results.push({ suite: suiteName, passed, duration });
-      
+
       if (!passed) {
         allPassed = false;
-        
+
         if (this.options.failFast) {
           console.log("\n💥 Fail-fast enabled, stopping test execution");
           break;
@@ -165,7 +165,7 @@ class TestRunner {
     // Write output to files
     const suiteOutputFile = `${this.options.outputDir}/${suite.name}-output.txt`;
     await Deno.writeTextFile(suiteOutputFile, output);
-    
+
     if (errorOutput) {
       const suiteErrorFile = `${this.options.outputDir}/${suite.name}-errors.txt`;
       await Deno.writeTextFile(suiteErrorFile, errorOutput);
@@ -182,7 +182,7 @@ class TestRunner {
     const passed = code === 0;
     const status = passed ? "✅ PASSED" : "❌ FAILED";
     const durationStr = `${duration}ms`;
-    
+
     console.log(`  ${status} (${durationStr})`);
 
     if (!passed && !this.options.verbose) {
@@ -213,7 +213,7 @@ class TestRunner {
 
   private async generateCoverageReport(): Promise<void> {
     const coverageDir = `${this.options.outputDir}/coverage`;
-    
+
     if (await exists(coverageDir)) {
       console.log("  Generating coverage reports...");
 
@@ -239,7 +239,7 @@ class TestRunner {
           "--lcov",
           `--output=${this.options.outputDir}/coverage.lcov`,
         ],
-        stdout: "piped", 
+        stdout: "piped",
         stderr: "piped",
       });
 
@@ -258,9 +258,9 @@ class TestRunner {
 
       const { stdout } = await textCommand.output();
       const coverageSummary = new TextDecoder().decode(stdout);
-      
+
       await Deno.writeTextFile(
-        `${this.options.outputDir}/coverage-summary.txt`, 
+        `${this.options.outputDir}/coverage-summary.txt`,
         coverageSummary
       );
 
@@ -272,7 +272,7 @@ class TestRunner {
     const testsuites = results.map(result => {
       const errors = result.passed ? 0 : 1;
       const failures = result.passed ? 0 : 1;
-      
+
       return `    <testsuite name="${result.suite}" tests="1" errors="${errors}" failures="${failures}" time="${result.duration / 1000}">
       <testcase name="${result.suite}-tests" classname="Claude-Flow.${result.suite}" time="${result.duration / 1000}">
         ${!result.passed ? '<failure message="Test suite failed" type="TestFailure">Test suite execution failed</failure>' : ''}
@@ -298,7 +298,7 @@ ${testsuites}
     const suiteRows = results.map(result => {
       const status = result.passed ? "✅ PASSED" : "❌ FAILED";
       const statusClass = result.passed ? "passed" : "failed";
-      
+
       return `
         <tr class="${statusClass}">
           <td>${result.suite}</td>
@@ -340,7 +340,7 @@ ${testsuites}
         <h1>🧪 Claude-Flow Test Report</h1>
         <p>Generated on: ${timestamp}</p>
     </div>
-    
+
     <div class="summary">
         <div class="metric total">
             <h3>Total Tests</h3>
@@ -402,7 +402,7 @@ ${testsuites}
     };
 
     await Deno.writeTextFile(
-      `${this.options.outputDir}/report.json`, 
+      `${this.options.outputDir}/report.json`,
       JSON.stringify(report, null, 2)
     );
     console.log("  ✅ JSON report generated");
@@ -431,7 +431,7 @@ ${testsuites}
 
     const overallStatus = allPassed ? "✅ ALL TESTS PASSED" : "❌ SOME TESTS FAILED";
     console.log(`\n${overallStatus}`);
-    
+
     if (!allPassed) {
       console.log("\nFailed suites:");
       results.filter(r => !r.passed).forEach(r => {
@@ -445,11 +445,11 @@ async function main(): Promise<void> {
   const args = parseArgs(Deno.args, {
     string: ["suites", "filter", "output-dir"],
     boolean: [
-      "coverage", 
-      "watch", 
-      "parallel", 
-      "verbose", 
-      "fail-fast", 
+      "coverage",
+      "watch",
+      "parallel",
+      "verbose",
+      "fail-fast",
       "update-snapshots",
       "help"
     ],
@@ -530,7 +530,7 @@ EXAMPLES:
   // Validate suites
   const validSuites = TEST_SUITES.map(s => s.name);
   const invalidSuites = options.suites.filter(s => !validSuites.includes(s));
-  
+
   if (invalidSuites.length > 0) {
     console.error(`❌ Invalid test suites: ${invalidSuites.join(", ")}`);
     console.error(`Available suites: ${validSuites.join(", ")}`);
@@ -541,13 +541,13 @@ EXAMPLES:
 
   if (options.watch) {
     console.log("👀 Watch mode enabled - tests will re-run on file changes");
-    
+
     // Simple watch implementation
     const watcher = Deno.watchFs(["./src", "./tests"], { recursive: true });
-    
+
     // Run tests initially
     await runner.run();
-    
+
     for await (const event of watcher) {
       if (event.kind === "modify" && event.paths.some(p => p.endsWith(".ts"))) {
         console.log("\n🔄 Files changed, re-running tests...");

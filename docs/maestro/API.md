@@ -30,36 +30,46 @@ interface MaestroSwarmConfig {
 ### Core Methods
 
 #### initialize(): Promise<string>
+
 Initializes the specs-driven hive mind swarm with 8 specialized agents.
 
 **Returns:** Swarm ID string
 
 #### createSpec(featureName: string, initialRequest: string): Promise<void>
+
 Creates initial feature specification using requirements_analyst agent.
 
 **Parameters:**
+
 - `featureName` - Name of the feature
 - `initialRequest` - Initial feature description
 
 #### generateDesign(featureName: string): Promise<void>
+
 Generates technical design using 2 design_architect agents with consensus validation.
 
 #### generateTasks(featureName: string): Promise<void>
+
 Creates implementation task breakdown using task_planner agent.
 
 #### implementTask(featureName: string, taskId: number): Promise<void>
+
 Implements specific task using implementation_coder agents.
 
 #### approvePhase(featureName: string): Promise<void>
+
 Approves current workflow phase with optional consensus validation.
 
 #### getWorkflowState(featureName: string): MaestroWorkflowState | undefined
+
 Returns current workflow state for feature.
 
 #### createSteeringDocument(domain: string, content: string): Promise<void>
+
 Creates governance document in native swarm memory.
 
 #### shutdown(): Promise<void>
+
 Gracefully shuts down the swarm coordinator.
 
 ## Agent Types
@@ -126,6 +136,7 @@ npx claude-flow maestro init-steering [domain] [--content <content>]
 ## Error Handling
 
 The coordinator includes comprehensive error handling for:
+
 - Swarm initialization timeouts
 - Consensus validation failures
 - Agent spawning limits

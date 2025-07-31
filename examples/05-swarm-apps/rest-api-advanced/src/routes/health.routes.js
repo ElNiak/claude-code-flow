@@ -63,10 +63,10 @@ router.get('/', (req, res) => {
  */
 router.get('/detailed', async (req, res) => {
   const redis = getRedisClient();
-  
+
   // Check MongoDB connection
   const mongoStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
-  
+
   // Check Redis connection
   let redisStatus = 'disconnected';
   try {
@@ -130,7 +130,7 @@ router.get('/detailed', async (req, res) => {
  */
 router.get('/ready', async (req, res) => {
   const mongoReady = mongoose.connection.readyState === 1;
-  
+
   if (mongoReady) {
     res.status(200).json({ ready: true });
   } else {

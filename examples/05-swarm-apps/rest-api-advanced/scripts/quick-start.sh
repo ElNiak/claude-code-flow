@@ -28,7 +28,7 @@ wait_for_service() {
     local attempt=1
 
     echo -n "Waiting for $service to be ready..."
-    
+
     while ! nc -z "$host" "$port" 2>/dev/null; do
         if [ $attempt -eq $max_attempts ]; then
             echo -e " ${RED}Failed!${NC}"
@@ -39,7 +39,7 @@ wait_for_service() {
         sleep 1
         ((attempt++))
     done
-    
+
     echo -e " ${GREEN}Ready!${NC}"
     return 0
 }
@@ -76,10 +76,10 @@ echo -e "${GREEN}✅ All prerequisites met!${NC}"
 if [ ! -f .env ]; then
     echo -e "${YELLOW}📝 Creating .env file from .env.example...${NC}"
     cp .env.example .env
-    
+
     # Generate a secure JWT secret
     JWT_SECRET=$(openssl rand -base64 32 | tr -d "=+/" | cut -c1-32)
-    
+
     # Update .env with generated secret
     if [[ "$OSTYPE" == "darwin"* ]]; then
         # macOS
@@ -88,7 +88,7 @@ if [ ! -f .env ]; then
         # Linux
         sed -i "s/JWT_SECRET=.*/JWT_SECRET=$JWT_SECRET/" .env
     fi
-    
+
     echo -e "${GREEN}✅ Generated secure JWT secret${NC}"
 fi
 

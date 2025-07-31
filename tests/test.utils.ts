@@ -66,7 +66,7 @@ export const waitForCondition = async (
   interval: number = 100
 ): Promise<void> => {
   const startTime = Date.now();
-  
+
   while (!condition()) {
     if (Date.now() - startTime > timeout) {
       throw new Error('Condition not met within timeout');
@@ -79,11 +79,11 @@ export const waitForCondition = async (
 export const setupTestEnvironment = () => {
   // Reset all mocks
   jest.clearAllMocks();
-  
+
   // Set test environment variables
   process.env.NODE_ENV = 'test';
   process.env.LOG_LEVEL = 'error';
-  
+
   return {
     logger: mockLogger,
     coordinationSystem: mockCoordinationSystem,
@@ -94,7 +94,7 @@ export const setupTestEnvironment = () => {
 
 export const teardownTestEnvironment = () => {
   jest.clearAllMocks();
-  
+
   // Clean up environment variables
   delete process.env.LOG_LEVEL;
 };
@@ -145,31 +145,31 @@ export class FakeTime {
   constructor() {
     jest.useFakeTimers();
   }
-  
+
   install() {
     jest.useFakeTimers();
   }
-  
+
   restore() {
     jest.useRealTimers();
   }
-  
+
   uninstall() {
     jest.useRealTimers();
   }
-  
+
   tick(ms: number) {
     jest.advanceTimersByTime(ms);
   }
-  
+
   async tickAsync(ms: number) {
     await jest.advanceTimersByTimeAsync(ms);
   }
-  
+
   runAll() {
     jest.runAllTimers();
   }
-  
+
   runPending() {
     jest.runOnlyPendingTimers();
   }
@@ -214,7 +214,7 @@ export class TestDataBuilder {
       ...overrides
     };
   }
-  
+
   static createTestTask(overrides?: any) {
     return {
       id: 'test-task-1',
@@ -224,7 +224,7 @@ export class TestDataBuilder {
       ...overrides
     };
   }
-  
+
   static createTestMemory(overrides?: any) {
     return {
       id: 'test-memory-1',
@@ -237,7 +237,7 @@ export class TestDataBuilder {
       ...overrides
     };
   }
-  
+
   static config() {
     return {
       orchestrator: {
@@ -256,7 +256,7 @@ export class TestDataBuilder {
       }
     };
   }
-  
+
   static agentProfile(overrides?: any) {
     return {
       id: 'test-agent-' + Math.random().toString(36).substr(2, 9),
@@ -268,7 +268,7 @@ export class TestDataBuilder {
       ...overrides
     };
   }
-  
+
   static task(overrides?: any) {
     return {
       id: 'test-task-' + Math.random().toString(36).substr(2, 9),

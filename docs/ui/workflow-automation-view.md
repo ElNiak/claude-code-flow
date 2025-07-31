@@ -7,6 +7,7 @@ The WorkflowAutomationView provides a comprehensive interface for all workflow a
 ## Features
 
 ### 1. Visual Workflow Builder
+
 - **Drag-and-drop interface** with 6 component types:
   - 🎯 Trigger - Start workflow events
   - ⚡ Action - Execute operations
@@ -18,27 +19,32 @@ The WorkflowAutomationView provides a comprehensive interface for all workflow a
 ### 2. Implemented Tools (11 Total)
 
 #### Workflow Management
+
 - `workflow_create` - Create custom workflows with visual builder
 - `workflow_execute` - Execute saved workflows
 - `workflow_template` - Manage workflow templates
 
 #### Automation
+
 - `automation_setup` - Configure automation rules
 - `trigger_setup` - Set up event triggers
 - `scheduler_manage` - Task scheduling with calendar view
 
 #### Pipeline & CI/CD
+
 - `pipeline_create` - Build CI/CD pipelines
 - `batch_process` - Batch processing operations
 - `parallel_execute` - Parallel task execution
 
 #### Advanced Features
+
 - `sparc_mode` - Run SPARC development modes
 - `task_orchestrate` - Complex task orchestration
 
 ### 3. SPARC Modes Integration
 
 All 15 SPARC modes are integrated:
+
 - 🏗️ Architect - System Design
 - 💻 Code - Implementation
 - 🧪 TDD - Test-Driven Development
@@ -56,43 +62,52 @@ All 15 SPARC modes are integrated:
 - 🔨 Generic Task Handler
 
 #### Boomerang Pattern
+
 The view supports the boomerang orchestration pattern for iterative development:
+
 1. Research Phase → 2. Design Phase → 3. Implementation Phase → 4. Testing Phase → 5. Refinement Phase → Loop Back
 
 ### 4. User Interface Components
 
 #### Overview Tab
+
 - Statistics dashboard showing active workflows, pipelines, rules, and scheduled tasks
 - Quick action buttons for common operations
 - Recent activity log
 
 #### Workflows Tab
+
 - Visual workflow builder with drag-and-drop
 - Component palette and properties panel
 - Saved workflows grid
 
 #### Automation Tab
+
 - Rule builder with trigger events and actions
 - Active rules management
 - Event trigger configuration
 
 #### Pipelines Tab
+
 - CI/CD pipeline builder
 - Pipeline monitor with real-time status
 - Execution history
 
 #### Scheduler Tab
+
 - Task scheduling interface
 - Calendar view for scheduled tasks
 - Support for one-time, recurring, and cron schedules
 
 #### SPARC Modes Tab
+
 - Mode selector with descriptions
 - Task configuration
 - Boomerang pattern orchestration
 - Execution history
 
 #### Batch & Parallel Tab
+
 - Batch processing configuration
 - Parallel task management
 - Execution monitor
@@ -144,6 +159,7 @@ eventBus.on('tool:executed', (data) => {
 ## Styling
 
 The view includes comprehensive CSS styling for:
+
 - Dark theme with Claude Flow branding
 - Responsive design for mobile devices
 - Smooth transitions and animations

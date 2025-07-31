@@ -19,14 +19,14 @@ export const debugTestCase = {
       "reference",
       "event listener"
     ];
-    
-    const hasDiagnostics = debugConcepts.some(concept => 
+
+    const hasDiagnostics = debugConcepts.some(concept =>
       output.toLowerCase().includes(concept)
     );
-    
+
     const hasSolution = output.includes("fix") || output.includes("solution") || output.includes("resolved");
     const hasCode = output.includes("```") || output.includes("function") || output.includes("const");
-    
+
     return hasDiagnostics && hasSolution && hasCode;
   }
 };

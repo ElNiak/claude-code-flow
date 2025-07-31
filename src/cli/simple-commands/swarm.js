@@ -29,7 +29,7 @@ EXAMPLES:
 DEFAULT BEHAVIOR:
   Swarm now opens Claude Code by default with comprehensive MCP tool instructions
   including memory coordination, agent management, and task orchestration.
-  
+
   Use --executor flag to run with the built-in executor instead of Claude Code
 
 STRATEGIES:
@@ -238,17 +238,17 @@ If you need to do X operations, they should be in 1 message, not X messages.
   mcp__claude-flow__agent_spawn {"type": "coder", "name": "BackendDev"}
   mcp__claude-flow__agent_spawn {"type": "coder", "name": "FrontendDev"}
   mcp__claude-flow__agent_spawn {"type": "tester", "name": "QAEngineer"}
-  
+
   // Initialize ALL memory keys
   mcp__claude-flow__memory_store {"key": "swarm/objective", "value": "${objective}"}
   mcp__claude-flow__memory_store {"key": "swarm/config", "value": {"strategy": "${strategy}", "mode": "${mode}"}}
-  
+
   // Create task hierarchy
   mcp__claude-flow__task_create {"name": "${objective}", "type": "parent", "id": "main"}
   mcp__claude-flow__task_create {"name": "Research Phase", "parent": "main"}
   mcp__claude-flow__task_create {"name": "Design Phase", "parent": "main"}
   mcp__claude-flow__task_create {"name": "Implementation", "parent": "main"}
-  
+
   // Initialize comprehensive todo list
   TodoWrite {"todos": [
     {"id": "1", "content": "Initialize ${maxAgents} agent swarm", "status": "completed", "priority": "high"},
@@ -267,10 +267,10 @@ If you need to do X operations, they should be in 1 message, not X messages.
   mcp__claude-flow__task_assign {"taskId": "design-1", "agentId": "architect-1"}
   mcp__claude-flow__task_assign {"taskId": "code-1", "agentId": "coder-1"}
   mcp__claude-flow__task_assign {"taskId": "code-2", "agentId": "coder-2"}
-  
+
   // Communicate to all agents
   mcp__claude-flow__agent_communicate {"to": "all", "message": "Begin phase 1"}
-  
+
   // Update multiple task statuses
   mcp__claude-flow__task_update {"taskId": "research-1", "status": "in_progress"}
   mcp__claude-flow__task_update {"taskId": "design-1", "status": "pending"}
@@ -283,7 +283,7 @@ If you need to do X operations, they should be in 1 message, not X messages.
   mcp__claude-flow__memory_store {"key": "research/requirements", "value": {...}}
   mcp__claude-flow__memory_store {"key": "research/constraints", "value": {...}}
   mcp__claude-flow__memory_store {"key": "architecture/decisions", "value": {...}}
-  
+
   // Retrieve related data
   mcp__claude-flow__memory_retrieve {"key": "research/*"}
   mcp__claude-flow__memory_search {"pattern": "architecture"}
@@ -296,12 +296,12 @@ If you need to do X operations, they should be in 1 message, not X messages.
   Read {"file_path": "/src/index.js"}
   Read {"file_path": "/src/config.js"}
   Read {"file_path": "/package.json"}
-  
+
   // Write multiple files
   Write {"file_path": "/src/api/auth.js", "content": "..."}
   Write {"file_path": "/src/api/users.js", "content": "..."}
   Write {"file_path": "/tests/auth.test.js", "content": "..."}
-  
+
   // Update memory with results
   mcp__claude-flow__memory_store {"key": "code/api/auth", "value": "implemented"}
   mcp__claude-flow__memory_store {"key": "code/api/users", "value": "implemented"}
@@ -351,7 +351,7 @@ ${agentRecommendations}
    - Create ALL initial todos at once
    - Store initial memory state
    - Create task hierarchy
-   
+
    Example:
    \`\`\`
    [BatchTool]:
@@ -369,7 +369,7 @@ ${agentRecommendations}
    - Assign multiple tasks in one batch
    - Update multiple statuses together
    - Store multiple results simultaneously
-   
+
 3. **MONITORING (Combined Operations):**
    - Check all agent statuses together
    - Retrieve multiple memory items
@@ -423,7 +423,7 @@ ${
   enableSparc
     ? `
 1. SPARC METHODOLOGY WITH PARALLEL EXECUTION:
-   
+
    S - Specification Phase (Single BatchTool):
    \`\`\`
    [BatchTool]:
@@ -433,7 +433,7 @@ ${
      mcp__claude-flow__task_create { name: "Requirement 3" }
      mcp__claude-flow__agent_spawn { type: "researcher", name: "SpecAnalyst" }
    \`\`\`
-   
+
    P - Pseudocode Phase (Single BatchTool):
    \`\`\`
    [BatchTool]:
@@ -442,7 +442,7 @@ ${
      mcp__claude-flow__task_create { name: "Design Data Model" }
      mcp__claude-flow__agent_communicate { to: "all", message: "Review design" }
    \`\`\`
-   
+
    A - Architecture Phase (Single BatchTool):
    \`\`\`
    [BatchTool]:
@@ -451,7 +451,7 @@ ${
      mcp__claude-flow__task_create { name: "Backend", subtasks: [...] }
      mcp__claude-flow__task_create { name: "Frontend", subtasks: [...] }
    \`\`\`
-   
+
    R - Refinement Phase (Single BatchTool):
    \`\`\`
    [BatchTool]:
@@ -460,7 +460,7 @@ ${
      mcp__claude-flow__task_update { taskId: "2", progress: 75 }
      mcp__claude-flow__memory_store { key: "learnings/iteration1", value: {...} }
    \`\`\`
-   
+
    C - Completion Phase (Single BatchTool):
    \`\`\`
    [BatchTool]:
@@ -472,7 +472,7 @@ ${
 `
     : `
 1. STANDARD SWARM EXECUTION WITH PARALLEL OPERATIONS:
-   
+
    Initial Setup (Single BatchTool):
    \`\`\`
    [BatchTool]:
@@ -482,7 +482,7 @@ ${
      mcp__claude-flow__agent_spawn { type: "tester" }
      mcp__claude-flow__memory_store { key: "init", value: {...} }
    \`\`\`
-   
+
    Task Assignment (Single BatchTool):
    \`\`\`
    [BatchTool]:
@@ -490,7 +490,7 @@ ${
      mcp__claude-flow__task_assign { taskId: "2", agentId: "agent-2" }
      mcp__claude-flow__task_assign { taskId: "3", agentId: "agent-3" }
    \`\`\`
-   
+
    Monitoring & Updates (Single BatchTool):
    \`\`\`
    [BatchTool]:
@@ -1224,7 +1224,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-  res.json({ 
+  res.json({
     status: 'healthy',
     service: 'REST API',
     swarmId: '${swarmId}',

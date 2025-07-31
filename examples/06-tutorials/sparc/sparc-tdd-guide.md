@@ -5,6 +5,7 @@ Learn how to use SPARC methodology for systematic TDD with Claude Flow.
 ## What is SPARC?
 
 SPARC stands for:
+
 - **S**pecification: Define requirements clearly
 - **P**seudocode: Plan the logic
 - **A**rchitecture: Design the structure
@@ -35,6 +36,7 @@ cd examples
 ```
 
 This creates:
+
 - Detailed requirements document
 - User stories
 - Acceptance criteria
@@ -54,6 +56,7 @@ Plan the implementation logic:
 ```
 
 Output includes:
+
 - Algorithm descriptions
 - Data flow diagrams
 - State transitions
@@ -73,6 +76,7 @@ Design the system structure:
 ```
 
 Creates:
+
 - System diagrams
 - API specifications
 - Database designs
@@ -89,9 +93,10 @@ Now we implement using Test-Driven Development:
   --architecture ./output/auth-architecture.md
 ```
 
-#### The TDD Cycle:
+#### The TDD Cycle
 
 1. **RED Phase** - Write failing tests first:
+
    ```javascript
    // Generated test example
    describe('Authentication', () => {
@@ -105,6 +110,7 @@ Now we implement using Test-Driven Development:
    ```
 
 2. **GREEN Phase** - Implement minimal code to pass:
+
    ```javascript
    // Generated implementation
    async hashPassword(password) {
@@ -114,6 +120,7 @@ Now we implement using Test-Driven Development:
    ```
 
 3. **REFACTOR Phase** - Optimize and clean up:
+
    ```javascript
    // Refactored version
    async hashPassword(password, rounds = 10) {
@@ -189,24 +196,28 @@ Define test templates:
 ## Best Practices
 
 ### 1. Specification Quality
+
 - Be specific about requirements
 - Include error scenarios
 - Define performance criteria
 - Document security needs
 
 ### 2. TDD Discipline
+
 - Always write tests first
 - One test at a time
 - Keep tests simple
 - Test behavior, not implementation
 
 ### 3. Architecture Decisions
+
 - Document why, not just what
 - Consider scalability early
 - Plan for change
 - Keep it simple
 
 ### 4. Integration Points
+
 - Test boundaries thoroughly
 - Mock external services
 - Verify error propagation
@@ -215,12 +226,14 @@ Define test templates:
 ## Common Patterns
 
 ### Authentication Flow
+
 ```bash
 ../claude-flow sparc tdd "implement login flow" \
   --pattern "request-validate-authenticate-respond"
 ```
 
 ### CRUD Operations
+
 ```bash
 ../claude-flow sparc tdd "implement user CRUD" \
   --pattern "rest-api" \
@@ -228,6 +241,7 @@ Define test templates:
 ```
 
 ### Event-Driven Systems
+
 ```bash
 ../claude-flow sparc tdd "implement event handlers" \
   --pattern "pub-sub" \
@@ -237,16 +251,19 @@ Define test templates:
 ## Troubleshooting
 
 ### Tests Not Running
+
 - Check test file naming (*.test.js)
 - Verify test runner configuration
 - Ensure dependencies installed
 
 ### Coverage Too Low
+
 - Add edge case tests
 - Test error conditions
 - Cover all branches
 
 ### Integration Failures
+
 - Check service dependencies
 - Verify environment variables
 - Test in isolation first
@@ -254,6 +271,7 @@ Define test templates:
 ## Summary
 
 You've learned:
+
 - ✅ SPARC methodology phases
 - ✅ TDD implementation cycle
 - ✅ Integration and security testing

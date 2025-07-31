@@ -7,6 +7,7 @@ This comprehensive troubleshooting guide covers common issues, diagnostic proced
 ### Installation Problems
 
 **Issue: Command not found after installation**
+
 ```bash
 # Diagnosis
 which claude-flow
@@ -29,6 +30,7 @@ claude-flow help
 ```
 
 **Issue: Permission denied errors**
+
 ```bash
 # Diagnosis
 ls -la $(which claude-flow)
@@ -51,6 +53,7 @@ npx claude-flow --version
 ```
 
 **Issue: Deno compilation failures**
+
 ```bash
 # Diagnosis
 deno --version
@@ -74,6 +77,7 @@ deno info src/cli/index.ts
 ### Configuration Issues
 
 **Issue: Configuration file not found or invalid**
+
 ```bash
 # Diagnosis
 claude-flow config show
@@ -95,6 +99,7 @@ claude-flow config init --force --backup-existing
 ```
 
 **Issue: Environment variable conflicts**
+
 ```bash
 # Diagnosis
 env | grep CLAUDE_FLOW
@@ -118,6 +123,7 @@ claude-flow config show --include-env
 ### Agent Spawning Problems
 
 **Issue: Agents fail to spawn**
+
 ```bash
 # Diagnosis
 claude-flow agent list --all
@@ -143,6 +149,7 @@ claude-flow system optimize --free-memory
 ```
 
 **Issue: Agent communication failures**
+
 ```bash
 # Diagnosis
 claude-flow agent health --all
@@ -164,6 +171,7 @@ claude-flow network test --internal --external
 ```
 
 **Issue: Agents consuming excessive resources**
+
 ```bash
 # Diagnosis
 claude-flow agent resources --top 10
@@ -185,6 +193,7 @@ claude-flow agent restart <agent-id> --graceful
 ### Agent Performance Issues
 
 **Issue: Agents responding slowly**
+
 ```bash
 # Diagnosis
 claude-flow agent performance-analysis --all
@@ -208,6 +217,7 @@ claude-flow performance optimize --focus agents
 ### Task Queue Issues
 
 **Issue: Tasks stuck in pending state**
+
 ```bash
 # Diagnosis
 claude-flow task list --status pending --detailed
@@ -227,6 +237,7 @@ claude-flow coordination queue reset --type pending --backup
 ```
 
 **Issue: Task execution timeouts**
+
 ```bash
 # Diagnosis
 claude-flow task logs <task-id> --tail 100
@@ -247,6 +258,7 @@ claude-flow task force-complete <task-id> --with-partial-results
 ```
 
 **Issue: Dependency resolution failures**
+
 ```bash
 # Diagnosis
 claude-flow task dependencies <task-id> --validate
@@ -268,6 +280,7 @@ claude-flow coordination reset-dependencies --rebuild
 ### Workflow Execution Issues
 
 **Issue: Workflows failing to start**
+
 ```bash
 # Diagnosis
 claude-flow task workflow validate <workflow-file>
@@ -291,6 +304,7 @@ claude-flow task workflow debug <workflow-id> --step-by-step
 ### Memory Synchronization Problems
 
 **Issue: Memory conflicts between agents**
+
 ```bash
 # Diagnosis
 claude-flow memory conflicts --check-all
@@ -311,6 +325,7 @@ claude-flow memory sync-reset --full-rebuild
 ```
 
 **Issue: Memory usage growing unchecked**
+
 ```bash
 # Diagnosis
 claude-flow memory stats --detailed --breakdown
@@ -331,6 +346,7 @@ claude-flow memory archive --older-than 30d --compress
 ```
 
 **Issue: Memory corruption or data loss**
+
 ```bash
 # Diagnosis
 claude-flow memory integrity-check --full
@@ -353,6 +369,7 @@ claude-flow memory emergency-recovery --from-fragments
 ### Memory Performance Issues
 
 **Issue: Slow memory operations**
+
 ```bash
 # Diagnosis
 claude-flow memory performance-analysis
@@ -378,6 +395,7 @@ claude-flow memory analyze-statistics
 ### Terminal Session Problems
 
 **Issue: Terminal sessions not starting**
+
 ```bash
 # Diagnosis
 claude-flow terminal pool status
@@ -399,6 +417,7 @@ claude-flow config set terminal.shellPreference '["bash","zsh","sh"]'
 ```
 
 **Issue: Commands hanging or timing out**
+
 ```bash
 # Diagnosis
 claude-flow terminal logs <session-id> --tail 50
@@ -418,6 +437,7 @@ claude-flow terminal restart <session-id> --clean-state
 ```
 
 **Issue: Terminal pool exhaustion**
+
 ```bash
 # Diagnosis
 claude-flow terminal pool stats --utilization
@@ -439,6 +459,7 @@ claude-flow config set terminal.recycleAfter 50
 ### Multi-Terminal Coordination Issues
 
 **Issue: Multi-terminal workflows failing**
+
 ```bash
 # Diagnosis
 claude-flow terminal multi-status <workflow-name>
@@ -463,6 +484,7 @@ claude-flow terminal multi-optimize <workflow-name> --reduce-dependencies
 ### MCP Server Problems
 
 **Issue: MCP server not starting**
+
 ```bash
 # Diagnosis
 claude-flow mcp status --detailed
@@ -483,6 +505,7 @@ claude-flow mcp validate-config --fix-issues
 ```
 
 **Issue: Tools not responding or timing out**
+
 ```bash
 # Diagnosis
 claude-flow mcp tools list --health
@@ -502,6 +525,7 @@ claude-flow mcp tools debug <tool-name> --trace
 ```
 
 **Issue: Tool authentication failures**
+
 ```bash
 # Diagnosis
 claude-flow mcp auth status
@@ -524,6 +548,7 @@ claude-flow mcp auth reset --confirm
 ### Tool Integration Issues
 
 **Issue: Custom tools not loading**
+
 ```bash
 # Diagnosis
 claude-flow mcp tools validate <tool-path>
@@ -548,6 +573,7 @@ claude-flow mcp tools rebuild-registry
 ### Network Diagnostics
 
 **Issue: Network connectivity problems**
+
 ```bash
 # Diagnosis
 claude-flow network test --comprehensive
@@ -570,6 +596,7 @@ sudo iptables -A INPUT -p tcp --dport 3000 -j ACCEPT
 ```
 
 **Issue: SSL/TLS certificate problems**
+
 ```bash
 # Diagnosis
 openssl s_client -connect api.example.com:443
@@ -593,6 +620,7 @@ claude-flow config set network.customCA "/path/to/ca-cert.pem"
 ### System Performance Problems
 
 **Issue: High CPU or memory usage**
+
 ```bash
 # Diagnosis
 claude-flow system resources --detailed
@@ -613,6 +641,7 @@ claude-flow monitoring enable --alerts true
 ```
 
 **Issue: Slow response times**
+
 ```bash
 # Diagnosis
 claude-flow performance analyze --duration 5m
@@ -635,6 +664,7 @@ claude-flow memory optimize --rebuild-indexes
 ### Resource Exhaustion
 
 **Issue: Out of memory errors**
+
 ```bash
 # Diagnosis
 free -h
@@ -658,6 +688,7 @@ claude-flow config set orchestrator.maxConcurrentAgents 3
 ```
 
 **Issue: Disk space exhaustion**
+
 ```bash
 # Diagnosis
 df -h
@@ -683,6 +714,7 @@ claude-flow migrate --data-directory /mnt/large-disk/claude-flow
 ### System Diagnostics
 
 **Comprehensive System Check:**
+
 ```bash
 # Full system diagnostic
 claude-flow diagnose --comprehensive --output diagnostic-report.json
@@ -695,6 +727,7 @@ claude-flow diagnose --component mcp --test-tools
 ```
 
 **Performance Diagnostics:**
+
 ```bash
 # Performance profiling
 claude-flow profile --duration 10m --output performance-profile.json
@@ -708,6 +741,7 @@ claude-flow resources --continuous --alert-thresholds "cpu:80,memory:90"
 ### Log Analysis
 
 **Centralized Log Analysis:**
+
 ```bash
 # View all system logs
 claude-flow logs --all-components --since 1h
@@ -725,6 +759,7 @@ claude-flow logs pattern-analysis --detect-anomalies
 ### Debug Information Collection
 
 **Collecting Debug Information:**
+
 ```bash
 # Generate comprehensive debug package
 claude-flow debug-info collect \
@@ -747,6 +782,7 @@ claude-flow debug-info collect \
 ### Emergency Recovery
 
 **System Recovery Procedures:**
+
 ```bash
 # Safe mode startup
 claude-flow start --safe-mode --minimal-agents --read-only-memory
@@ -762,6 +798,7 @@ claude-flow restore --backup claude-flow-backup-20241215.tar.gz --verify
 ```
 
 **Data Recovery:**
+
 ```bash
 # Memory data recovery
 claude-flow memory recover --from-logs --since last-backup
@@ -780,6 +817,7 @@ claude-flow export --emergency --all-data --output emergency-export.json
 ### Built-in Help and Documentation
 
 **Interactive Help:**
+
 ```bash
 # General help
 claude-flow help
@@ -795,18 +833,21 @@ claude-flow self-check --fix-issues --report-problems
 ### Support Resources
 
 **Community Support:**
-- **GitHub Issues**: https://github.com/ruvnet/claude-code-flow/issues
-- **Discussions**: https://github.com/ruvnet/claude-code-flow/discussions
-- **Discord Community**: https://discord.gg/claude-flow
+
+- **GitHub Issues**: <https://github.com/ruvnet/claude-code-flow/issues>
+- **Discussions**: <https://github.com/ruvnet/claude-code-flow/discussions>
+- **Discord Community**: <https://discord.gg/claude-flow>
 
 **Professional Support:**
-- **Enterprise Support**: support@claude-flow.dev
-- **Consulting Services**: consulting@claude-flow.dev
-- **Training Programs**: training@claude-flow.dev
+
+- **Enterprise Support**: <support@claude-flow.dev>
+- **Consulting Services**: <consulting@claude-flow.dev>
+- **Training Programs**: <training@claude-flow.dev>
 
 ### Reporting Issues
 
 **Issue Reporting:**
+
 ```bash
 # Generate issue report
 claude-flow report-issue \
@@ -824,6 +865,7 @@ gh issue create \
 ```
 
 **Best Practices for Issue Reporting:**
+
 1. Include Claude-Flow version: `claude-flow --version`
 2. Provide system information: `claude-flow system-info`
 3. Include relevant logs and error messages

@@ -32,7 +32,7 @@ class BuildMonitor {
       exec('npm run build', (error, stdout, stderr) => {
         const buildOutput = stderr || stdout;
         const errors = this.parseErrors(buildOutput);
-        
+
         const buildResult = {
           timestamp: new Date().toISOString(),
           errorCount: errors.length,
@@ -48,11 +48,11 @@ class BuildMonitor {
 
   parseErrors(buildOutput) {
     if (!buildOutput) return [];
-    
-    const errorLines = buildOutput.split('\n').filter(line => 
+
+    const errorLines = buildOutput.split('\n').filter(line =>
       line.includes('error TS') || line.includes('Error:')
     );
-    
+
     return errorLines.map(line => {
       const match = line.match(/([^:]+):\s*error\s+TS(\d+):\s*(.+)/);
       if (match) {
@@ -70,13 +70,13 @@ class BuildMonitor {
     try {
       // Check for swarm agent updates
       const result = await new Promise((resolve) => {
-        exec('npx ruv-swarm hook pre-search --query "agent-progress" --cache-results true', 
+        exec('npx ruv-swarm hook pre-search --query "agent-progress" --cache-results true',
           (error, stdout) => {
             resolve(stdout || '');
           }
         );
       });
-      
+
       return result.includes('progress') || result.includes('fixed');
     } catch (error) {
       return false;
@@ -87,46 +87,46 @@ class BuildMonitor {
     console.log('🐝 Build-Verifier Agent - Continuous Monitoring Active');
     console.log(`📊 Baseline: ${this.errorCount} TypeScript errors`);
     console.log('🎯 Target: 0 errors for alpha release');
-    
+
     while (this.monitoringActive) {
       try {
         // Check for swarm activity
         const swarmActivity = await this.checkSwarmMemory();
-        
+
         if (swarmActivity) {
           console.log('🔄 Swarm activity detected - Running build verification...');
           const buildResult = await this.runBuild();
-          
+
           if (buildResult.errorCount < this.errorCount) {
             const reduction = this.errorCount - buildResult.errorCount;
             console.log(`✅ Progress! Errors reduced by ${reduction}: ${this.errorCount} → ${buildResult.errorCount}`);
-            
+
             // Update baseline
             this.errorCount = buildResult.errorCount;
-            
+
             // Store progress
             await this.storeProgress(buildResult);
-            
+
             // Alert swarm
             await this.alertSwarm(buildResult);
           } else if (buildResult.errorCount > this.errorCount) {
             const increase = buildResult.errorCount - this.errorCount;
             console.log(`⚠️  WARNING: New errors introduced! +${increase} errors: ${this.errorCount} → ${buildResult.errorCount}`);
-            
+
             // Alert swarm of regression
             await this.alertRegression(buildResult);
           }
-          
+
           if (buildResult.errorCount === 0) {
             console.log('🎉 ALPHA RELEASE READY: ZERO ERRORS ACHIEVED!');
             await this.certifyAlphaReady();
             break;
           }
         }
-        
+
         // Wait before next check
         await new Promise(resolve => setTimeout(resolve, 30000)); // 30 second intervals
-        
+
       } catch (error) {
         console.error('❌ Monitor error:', error.message);
         await new Promise(resolve => setTimeout(resolve, 60000)); // 1 minute on error
@@ -145,7 +145,7 @@ class BuildMonitor {
   async alertSwarm(buildResult) {
     const message = `🔨 BUILD UPDATE: ${buildResult.errorCount} errors remaining. Progress: ${this.errorCount - buildResult.errorCount} errors fixed.`;
     console.log(message);
-    
+
     try {
       exec(`npx ruv-swarm hook notification --message "${message}" --telemetry true`);
     } catch (error) {
@@ -156,7 +156,7 @@ class BuildMonitor {
   async alertRegression(buildResult) {
     const message = `⚠️ REGRESSION ALERT: ${buildResult.errorCount - this.errorCount} new errors introduced. Review recent changes.`;
     console.log(message);
-    
+
     try {
       exec(`npx ruv-swarm hook notification --message "${message}" --telemetry true`);
     } catch (error) {
@@ -172,12 +172,12 @@ class BuildMonitor {
       buildSuccess: true,
       verifiedBy: 'Build-Verifier-Agent'
     };
-    
+
     console.log('🏆 ALPHA CERTIFICATION COMPLETE');
     console.log('✅ Zero TypeScript compilation errors');
     console.log('✅ Build successful');
     console.log('✅ Ready for alpha release');
-    
+
     try {
       exec(`npx ruv-swarm hook notification --message "🏆 ALPHA CERTIFICATION: Zero errors achieved! Build ready for alpha release." --telemetry true`);
       exec(`npx ruv-swarm hook post-task --task-id "alpha-build-verification" --analyze-performance true`);
@@ -194,7 +194,7 @@ class BuildMonitor {
       errorCategories: this.errorCategories,
       status: this.errorCount === 0 ? 'ALPHA_READY' : 'IN_PROGRESS'
     };
-    
+
     fs.writeFileSync('build-verification-status.json', JSON.stringify(report, null, 2));
     return report;
   }

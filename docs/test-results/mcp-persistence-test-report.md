@@ -24,6 +24,7 @@ The investigation confirms that Claude Flow's MCP tools are successfully persist
 ### 2. Database Schema ✅
 
 The SQLite database contains the following tables:
+
 - `memory_entries` - Primary key-value storage with TTL support
 - `session_state` - Session persistence
 - `mcp_tool_usage` - Tool usage tracking
@@ -56,6 +57,7 @@ Current database statistics show active usage:
 ### 4. Hooks Integration ✅
 
 All Claude Flow hooks successfully persist to SQLite:
+
 - `hooks notify` - Saves notifications to database
 - `hooks post-edit` - Stores file edit history
 - `hooks pre-task` - Records task initialization
@@ -117,6 +119,7 @@ npx claude-flow@alpha hooks post-edit --file "test.js" --memory-key "test/edit"
 ### MCP Tool Integration Issue
 
 The direct MCP tool invocation (`npx claude-flow@alpha mcp call memory_usage`) appears to have a CLI parsing issue, but the underlying storage mechanism is working correctly through:
+
 - Hooks system
 - Internal MCP server usage
 - Direct orchestrator integration

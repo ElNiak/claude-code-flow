@@ -41,7 +41,7 @@ async function getHiveMindMetrics() {
     const stats = db
       .prepare(
         `
-      SELECT 
+      SELECT
         (SELECT COUNT(*) FROM swarms) as total_swarms,
         (SELECT COUNT(*) FROM agents) as total_agents,
         (SELECT COUNT(*) FROM tasks) as total_tasks,
@@ -55,7 +55,7 @@ async function getHiveMindMetrics() {
     const swarmBreakdown = db
       .prepare(
         `
-      SELECT 
+      SELECT
         s.id,
         s.name,
         s.objective,
@@ -102,7 +102,7 @@ async function getRuvSwarmMetrics() {
     const stats = db
       .prepare(
         `
-      SELECT 
+      SELECT
         (SELECT COUNT(*) FROM swarms) as total_swarms,
         (SELECT COUNT(*) FROM agents) as total_agents,
         (SELECT COUNT(*) FROM tasks) as total_tasks,
@@ -116,7 +116,7 @@ async function getRuvSwarmMetrics() {
     const swarmBreakdown = db
       .prepare(
         `
-      SELECT 
+      SELECT
         s.id,
         s.name,
         s.topology,

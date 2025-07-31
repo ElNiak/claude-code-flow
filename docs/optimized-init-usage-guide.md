@@ -29,6 +29,7 @@ ls -la           # Verify write permissions
 ### 2. Initialization Commands
 
 #### Recommended Optimized Setup
+
 ```bash
 # For new projects (recommended)
 npx -y claude-flow@latest init --sparc --force
@@ -40,6 +41,7 @@ npx claude-flow@latest init --sparc --force
 ```
 
 #### Alternative Setups
+
 ```bash
 # Standard SPARC (without optimizations)
 npx claude-flow@latest init --sparc
@@ -75,6 +77,7 @@ After initialization, verify everything is working:
 ### 4. Understanding What Gets Created
 
 #### Directory Structure
+
 ```
 your-project/
 ├── CLAUDE.md                 # AI-readable project instructions (optimized)
@@ -103,18 +106,21 @@ your-project/
 #### Key Files Explained
 
 **CLAUDE.md (Optimized Version)**
+
 - Enhanced with performance-tuned instructions
 - Pre-configured best practices
 - Optimized prompt patterns
 - Quality gates and success criteria
 
 **.roomodes (Optimized Version)**
+
 - 20+ SPARC development modes
 - Streamlined system prompts (20% fewer tokens)
 - Mode-specific tool restrictions
 - Performance-optimized context windows
 
 **Claude Code Slash Commands**
+
 - `/sparc` - Main SPARC orchestrator
 - `/sparc-architect` - System design mode
 - `/sparc-code` - Implementation mode
@@ -124,6 +130,7 @@ your-project/
 ### 5. First Steps After Installation
 
 #### Step 1: Customize for Your Project
+
 ```bash
 # Edit CLAUDE.md to add project-specific context
 echo "
@@ -142,6 +149,7 @@ echo "
 ```
 
 #### Step 2: Test Core Functionality
+
 ```bash
 # Start with a simple task
 ./claude-flow sparc "create a simple calculator function with tests"
@@ -153,6 +161,7 @@ echo "
 ```
 
 #### Step 3: Set Up Team Collaboration
+
 ```bash
 # Initialize shared memory
 ./claude-flow memory store "project-start" "Project initialized with optimized Claude-Flow setup"
@@ -167,6 +176,7 @@ echo "
 ### 6. Performance Optimization Tips
 
 #### Monitor Performance
+
 ```bash
 # Enable performance monitoring
 ./claude-flow config set monitoring.enabled true
@@ -179,6 +189,7 @@ echo "
 ```
 
 #### Optimize for Your Use Case
+
 ```bash
 # Web development optimization
 ./claude-flow config set focus "frontend,backend,api-design"
@@ -197,6 +208,7 @@ echo "
 ### 7. Advanced Configuration
 
 #### Custom SPARC Modes
+
 Create project-specific modes by editing `.roomodes`:
 
 ```json
@@ -215,6 +227,7 @@ Create project-specific modes by editing `.roomodes`:
 ```
 
 #### Team-Specific Customizations
+
 ```bash
 # Create team configuration file
 cat > team-config.json << 'EOF'
@@ -245,6 +258,7 @@ EOF
 ### 8. Integration with Development Workflow
 
 #### Git Integration
+
 ```bash
 # Add Claude-Flow files to git
 git add CLAUDE.md .roomodes .claude/ memory-bank.md coordination.md
@@ -266,6 +280,7 @@ coordination/memory_bank/*.temp
 ```
 
 #### CI/CD Integration
+
 ```yaml
 # .github/workflows/claude-flow-quality.yml
 name: Claude-Flow Quality Check
@@ -279,15 +294,15 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: '18'
-      
+
       - name: Install Claude-Flow
         run: npm install -g claude-flow
-      
+
       - name: Validate Configuration
         run: |
           ./claude-flow config validate
           ./claude-flow sparc modes --validate
-      
+
       - name: Run Quality Gates
         run: |
           ./claude-flow sparc run security-review "automated security scan"
@@ -297,6 +312,7 @@ jobs:
 ### 9. Team Onboarding
 
 #### New Team Member Setup
+
 ```bash
 # Quick onboarding script
 #!/bin/bash
@@ -325,6 +341,7 @@ echo "Try: ./claude-flow sparc 'hello world function'"
 ```
 
 #### Team Training Materials
+
 ```bash
 # Generate training documentation
 ./claude-flow sparc run docs-writer "create Claude-Flow training guide for new developers"
@@ -341,6 +358,7 @@ echo "Try: ./claude-flow sparc 'hello world function'"
 ### 10. Maintenance and Updates
 
 #### Regular Maintenance
+
 ```bash
 # Weekly maintenance script
 #!/bin/bash
@@ -362,6 +380,7 @@ echo "✅ Maintenance complete"
 ```
 
 #### Update Process
+
 ```bash
 # Before updating
 ./claude-flow memory export pre-update-backup.json
@@ -382,6 +401,7 @@ npx claude-flow@latest init --sparc --force
 ### 11. Troubleshooting Common Issues
 
 #### Performance Issues
+
 ```bash
 # Debug slow responses
 ./claude-flow config set logging.level debug
@@ -395,6 +415,7 @@ npx claude-flow@latest init --sparc --force
 ```
 
 #### Configuration Issues
+
 ```bash
 # Reset to defaults
 ./claude-flow config reset
@@ -410,6 +431,7 @@ npx claude-flow@latest init --sparc --force
 ### 12. Best Practices Summary
 
 #### Do's
+
 ✅ Always use `--sparc --force` for new projects  
 ✅ Backup before major updates  
 ✅ Customize for your project type  
@@ -418,6 +440,7 @@ npx claude-flow@latest init --sparc --force
 ✅ Use version control for configurations  
 
 #### Don'ts
+
 ❌ Don't skip the verification steps  
 ❌ Don't ignore performance monitoring  
 ❌ Don't customize without understanding  
@@ -427,6 +450,7 @@ npx claude-flow@latest init --sparc --force
 ### 13. Getting Help
 
 #### Built-in Help
+
 ```bash
 # Command help
 ./claude-flow init --help
@@ -439,13 +463,15 @@ npx claude-flow@latest init --sparc --force
 ```
 
 #### Community Resources
-- **Documentation**: https://github.com/ruvnet/claude-code-flow/docs
-- **Issues**: https://github.com/ruvnet/claude-code-flow/issues
-- **Discussions**: https://github.com/ruvnet/claude-code-flow/discussions
+
+- **Documentation**: <https://github.com/ruvnet/claude-code-flow/docs>
+- **Issues**: <https://github.com/ruvnet/claude-code-flow/issues>
+- **Discussions**: <https://github.com/ruvnet/claude-code-flow/discussions>
 
 #### Success Metrics
 
 Track these metrics to measure optimization success:
+
 - Response time: Target <5s for simple tasks
 - Token usage: ~20% reduction vs standard
 - Success rate: >85% first-attempt success

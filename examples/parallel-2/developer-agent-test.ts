@@ -16,9 +16,9 @@ export class DeveloperAgent {
 
   async generateCode(feature: string): Promise<any> {
     console.log(`[${this.agentId}] Generating code for: ${feature}`);
-    
+
     await this.simulateWork(1200);
-    
+
     const code = {
       language: 'TypeScript',
       framework: 'Express.js',
@@ -32,7 +32,7 @@ export class DeveloperAgent {
       dependencies: ['express', 'jsonwebtoken', 'bcrypt'],
       testCoverage: Math.floor(Math.random() * 30) + 70
     };
-    
+
     console.log(`[${this.agentId}] Code generation completed`);
     return {
       agentId: this.agentId,
@@ -44,9 +44,9 @@ export class DeveloperAgent {
 
   async refactorCode(module: string): Promise<any> {
     console.log(`[${this.agentId}] Refactoring: ${module}`);
-    
+
     await this.simulateWork(800);
-    
+
     const refactoring = {
       filesRefactored: Math.floor(Math.random() * 10) + 5,
       linesChanged: Math.floor(Math.random() * 500) + 200,
@@ -62,7 +62,7 @@ export class DeveloperAgent {
         after: Math.floor(Math.random() * 15) + 85
       }
     };
-    
+
     console.log(`[${this.agentId}] Refactoring completed`);
     return {
       agentId: this.agentId,
@@ -74,9 +74,9 @@ export class DeveloperAgent {
 
   async debugIssue(issue: string): Promise<any> {
     console.log(`[${this.agentId}] Debugging issue: ${issue}`);
-    
+
     await this.simulateWork(1500);
-    
+
     const debugging = {
       issueIdentified: true,
       rootCause: 'Race condition in async token validation',
@@ -95,7 +95,7 @@ export class DeveloperAgent {
         'Add monitoring for race conditions'
       ]
     };
-    
+
     console.log(`[${this.agentId}] Debugging completed`);
     return {
       agentId: this.agentId,
@@ -107,9 +107,9 @@ export class DeveloperAgent {
 
   async implementFeature(specification: any): Promise<any> {
     console.log(`[${this.agentId}] Implementing feature from specification`);
-    
+
     await this.simulateWork(2000);
-    
+
     const implementation = {
       componentsCreated: Math.floor(Math.random() * 5) + 3,
       testsWritten: Math.floor(Math.random() * 20) + 10,
@@ -118,7 +118,7 @@ export class DeveloperAgent {
       estimatedComplexity: 'medium',
       completionStatus: '100%'
     };
-    
+
     console.log(`[${this.agentId}] Feature implementation completed`);
     return {
       agentId: this.agentId,
@@ -135,7 +135,7 @@ export class DeveloperAgent {
 // Allow direct execution
 if (require.main === module) {
   const developer = new DeveloperAgent();
-  
+
   Promise.all([
     developer.generateCode('user authentication'),
     developer.refactorCode('legacy payment module'),

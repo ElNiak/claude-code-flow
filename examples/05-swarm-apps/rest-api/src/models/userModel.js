@@ -13,7 +13,7 @@ const userModel = {
   findAll: async ({ page = 1, limit = 10, sort = 'id' }) => {
     const startIndex = (page - 1) * limit;
     const endIndex = startIndex + limit;
-    
+
     // Simple sorting
     const sortedUsers = [...users].sort((a, b) => {
       if (sort === 'name') return a.name.localeCompare(b.name);
@@ -21,7 +21,7 @@ const userModel = {
       if (sort === 'age') return a.age - b.age;
       return a.id - b.id;
     });
-    
+
     return sortedUsers.slice(startIndex, endIndex);
   },
 
@@ -38,7 +38,7 @@ const userModel = {
       createdAt: new Date(),
       updatedAt: new Date()
     };
-    
+
     users.push(newUser);
     return newUser;
   },
@@ -46,28 +46,28 @@ const userModel = {
   // Update user
   update: async (id, updateData) => {
     const userIndex = users.findIndex(user => user.id === parseInt(id));
-    
+
     if (userIndex === -1) {
       return null;
     }
-    
+
     users[userIndex] = {
       ...users[userIndex],
       ...updateData,
       updatedAt: new Date()
     };
-    
+
     return users[userIndex];
   },
 
   // Delete user
   delete: async (id) => {
     const userIndex = users.findIndex(user => user.id === parseInt(id));
-    
+
     if (userIndex === -1) {
       return false;
     }
-    
+
     users.splice(userIndex, 1);
     return true;
   },

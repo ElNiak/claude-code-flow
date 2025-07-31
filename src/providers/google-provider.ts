@@ -149,9 +149,9 @@ export class GoogleProvider extends BaseProvider {
   protected async doComplete(request: LLMRequest): Promise<LLMResponse> {
     const googleRequest = this.buildGoogleRequest(request);
     const model = this.mapToGoogleModel(request.model || this.config.model);
-    
+
     const url = `${this.baseUrl}/models/${model}:generateContent?key=${this.config.apiKey}`;
-    
+
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), this.config.timeout || 60000);
 
@@ -172,7 +172,7 @@ export class GoogleProvider extends BaseProvider {
       }
 
       const data: GoogleAIResponse = await response.json();
-      
+
       if (!data.candidates || data.candidates.length === 0) {
         throw new LLMProviderError(
           'No response generated',
@@ -185,7 +185,7 @@ export class GoogleProvider extends BaseProvider {
 
       const candidate = data.candidates[0];
       const content = candidate.content.parts.map(part => part.text).join('');
-      
+
       // Calculate cost
       const usageData = data.usageMetadata || {
         promptTokenCount: this.estimateTokens(JSON.stringify(request.messages)),
@@ -225,9 +225,9 @@ export class GoogleProvider extends BaseProvider {
   protected async *doStreamComplete(request: LLMRequest): AsyncIterable<LLMStreamEvent> {
     const googleRequest = this.buildGoogleRequest(request);
     const model = this.mapToGoogleModel(request.model || this.config.model);
-    
+
     const url = `${this.baseUrl}/models/${model}:streamGenerateContent?key=${this.config.apiKey}`;
-    
+
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), (this.config.timeout || 60000) * 2);
 
@@ -262,14 +262,14 @@ export class GoogleProvider extends BaseProvider {
 
         for (const line of lines) {
           if (line.trim() === '') continue;
-          
+
           try {
             const data: GoogleAIResponse = JSON.parse(line);
-            
+
             if (data.candidates && data.candidates.length > 0) {
               const candidate = data.candidates[0];
               const content = candidate.content.parts.map(part => part.text).join('');
-              
+
               if (content) {
                 totalContent += content;
                 yield {
@@ -277,7 +277,7 @@ export class GoogleProvider extends BaseProvider {
                   delta: { content },
                 };
               }
-              
+
               if (data.usageMetadata) {
                 promptTokens = data.usageMetadata.promptTokenCount;
                 completionTokens = data.usageMetadata.candidatesTokenCount;
@@ -362,7 +362,7 @@ export class GoogleProvider extends BaseProvider {
   private buildGoogleRequest(request: LLMRequest): GoogleAIRequest {
     // Convert messages to Google format
     const contents: GoogleAIRequest['contents'] = [];
-    
+
     for (const message of request.messages) {
       // Skip system messages or prepend to first user message
       if (message.role === 'system') {
@@ -374,7 +374,7 @@ export class GoogleProvider extends BaseProvider {
         }
         continue;
       }
-      
+
       contents.push({
         role: message.role === 'assistant' ? 'model' : 'user',
         parts: [{ text: message.content }],

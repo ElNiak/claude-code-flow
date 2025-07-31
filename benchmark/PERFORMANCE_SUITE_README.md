@@ -21,24 +21,28 @@ This performance benchmarking suite provides automated testing, monitoring, and 
 ## 🧪 Test Categories
 
 ### 1. Startup Performance
+
 - **Swarm Initialization Time**: Measures time from start to ready state
 - **Cold vs Warm Start**: Compares initialization with and without cache
 - **Agent Spawn Latency**: Time to spawn new agents
 - **Resource Loading**: Memory and CPU usage during startup
 
 ### 2. Coordination Efficiency  
+
 - **Inter-Agent Communication**: Message passing latency between agents
 - **Task Orchestration Overhead**: Coordination vs execution time ratio
 - **Scalability Tests**: Performance under increasing agent loads
 - **Network Efficiency**: MCP tool communication optimization
 
 ### 3. Memory Performance
+
 - **Memory Leak Detection**: Monitors for memory growth patterns
 - **Baseline Memory Usage**: Establishes and tracks memory baselines
 - **Persistence Overhead**: Cross-session memory storage impact
 - **Garbage Collection**: Memory cleanup efficiency
 
 ### 4. Regression Detection
+
 - **Automated Baseline Comparison**: Current vs historical performance
 - **CI/CD Integration**: Performance gates for deployments
 - **Trend Analysis**: Long-term performance pattern detection
@@ -49,6 +53,7 @@ This performance benchmarking suite provides automated testing, monitoring, and 
 ### Core Performance Tools
 
 #### 1. `swarm_performance_suite.py`
+
 **Comprehensive benchmark runner with 84.8% SWE-Bench accuracy**
 
 ```bash
@@ -63,6 +68,7 @@ python swarm_performance_suite.py --output-dir ./my-results
 ```
 
 **Features:**
+
 - ✅ Memory leak detection with 0.1MB/s sensitivity
 - ✅ Automated scalability testing (1-16 agents)
 - ✅ Performance target validation
@@ -70,6 +76,7 @@ python swarm_performance_suite.py --output-dir ./my-results
 - ✅ Comprehensive reporting
 
 #### 2. `continuous_performance_monitor.py`
+
 **Real-time performance monitoring with automated alerting**
 
 ```bash
@@ -87,6 +94,7 @@ python continuous_performance_monitor.py --regression
 ```
 
 **Features:**
+
 - 🔄 Real-time metrics collection
 - 📊 SQLite database storage
 - 🚨 Automated performance alerts
@@ -94,6 +102,7 @@ python continuous_performance_monitor.py --regression
 - 🔍 Bottleneck identification
 
 #### 3. `ci_performance_integration.py`
+
 **CI/CD pipeline integration for automated performance gates**
 
 ```bash
@@ -111,6 +120,7 @@ python ci_performance_integration.py --create-config
 ```
 
 **Features:**
+
 - ✅ GitHub Actions integration
 - ✅ Performance regression gates
 - ✅ JUnit XML output for CI
@@ -118,6 +128,7 @@ python ci_performance_integration.py --create-config
 - ✅ Automated baseline updates
 
 #### 4. `performance_dashboard.py`
+
 **Interactive HTML dashboard generator**
 
 ```bash
@@ -135,6 +146,7 @@ python performance_dashboard.py --create-server
 ```
 
 **Features:**
+
 - 📊 Interactive Chart.js visualizations
 - 📈 Real-time performance trends
 - 🎯 Performance target tracking
@@ -142,6 +154,7 @@ python performance_dashboard.py --create-server
 - 🌐 Built-in web server
 
 #### 5. `run_performance_tests.py`
+
 **Orchestrates comprehensive performance testing**
 
 ```bash
@@ -159,6 +172,7 @@ python run_performance_tests.py --monitor-only --duration 30
 ```
 
 **Features:**
+
 - 🎯 Orchestrates all performance tools
 - 📊 Comprehensive result aggregation
 - 🔍 Critical issue identification
@@ -168,6 +182,7 @@ python run_performance_tests.py --monitor-only --duration 30
 ## 🚀 Quick Start
 
 ### 1. Basic Performance Check
+
 ```bash
 # Run essential performance tests (5 minutes)
 cd benchmark
@@ -175,6 +190,7 @@ python run_performance_tests.py --quick
 ```
 
 ### 2. Full Performance Suite
+
 ```bash
 # Run complete performance analysis (30 minutes)
 cd benchmark
@@ -182,6 +198,7 @@ python run_performance_tests.py
 ```
 
 ### 3. Generate Performance Dashboard
+
 ```bash
 # Create and view interactive dashboard
 cd benchmark
@@ -190,6 +207,7 @@ python performance_dashboard.py --serve
 ```
 
 ### 4. CI/CD Integration
+
 ```bash
 # Set up GitHub Actions workflow
 cd benchmark
@@ -203,12 +221,14 @@ python ci_performance_integration.py --config ci_config.json
 ## 📊 Performance Metrics
 
 ### System-Level Metrics
+
 - **CPU Usage**: Process and system-wide CPU utilization
 - **Memory Usage**: RSS, Virtual memory, and growth patterns
 - **Network I/O**: Bytes sent/received for MCP communication
 - **Disk I/O**: Read/write operations for persistence
 
 ### Swarm-Specific Metrics
+
 - **Initialization Time**: Time to start swarm and reach ready state
 - **Agent Coordination**: Inter-agent communication latency
 - **Task Throughput**: Tasks completed per second
@@ -216,6 +236,7 @@ python ci_performance_integration.py --config ci_config.json
 - **Token Efficiency**: Token consumption and reduction rates
 
 ### Quality Metrics
+
 - **Completeness Score**: Task completion rate
 - **Accuracy Score**: Error-free execution rate
 - **Consistency**: Performance stability over time
@@ -224,6 +245,7 @@ python ci_performance_integration.py --config ci_config.json
 ## 🔧 Configuration
 
 ### Performance Targets Configuration
+
 ```json
 {
   "performance_targets": {
@@ -238,6 +260,7 @@ python ci_performance_integration.py --config ci_config.json
 ```
 
 ### Monitoring Configuration
+
 ```json
 {
   "monitoring_config": {
@@ -250,6 +273,7 @@ python ci_performance_integration.py --config ci_config.json
 ```
 
 ### CI/CD Configuration
+
 ```json
 {
   "ci_environment": {
@@ -264,6 +288,7 @@ python ci_performance_integration.py --config ci_config.json
 ## 📁 Output Files
 
 ### Generated Reports
+
 ```
 performance_results/
 ├── comprehensive_performance_results_YYYYMMDD_HHMMSS.json
@@ -282,6 +307,7 @@ performance_results/
 ```
 
 ### Database Schema
+
 ```sql
 -- Performance metrics storage
 CREATE TABLE metrics (
@@ -318,6 +344,7 @@ CREATE TABLE alerts (
 ## 🔍 Memory Leak Detection
 
 ### Detection Algorithm
+
 1. **Baseline Establishment**: Initial memory measurement
 2. **Continuous Sampling**: Memory usage every 500ms
 3. **Growth Analysis**: Linear regression on memory samples
@@ -325,6 +352,7 @@ CREATE TABLE alerts (
 5. **Reporting**: Detailed memory growth patterns
 
 ### Example Output
+
 ```json
 {
   "memory_leak_detection": {
@@ -342,7 +370,9 @@ CREATE TABLE alerts (
 ## 📈 Performance Trends
 
 ### Regression Analysis
+
 The suite automatically detects performance regressions by comparing:
+
 - **Recent Performance** (last 24 hours)
 - **Historical Baseline** (last 7 days)
 - **Regression Thresholds**:
@@ -351,6 +381,7 @@ The suite automatically detects performance regressions by comparing:
   - Improvement: >5% performance improvement
 
 ### Trend Detection
+
 - **Memory Growth**: Identifies steady memory increases
 - **Latency Creep**: Detects gradual response time increases  
 - **Throughput Decline**: Monitors task completion rates
@@ -359,6 +390,7 @@ The suite automatically detects performance regressions by comparing:
 ## 🚨 Alert System
 
 ### Alert Types
+
 - **Performance Threshold**: Metrics exceeding targets
 - **Regression Detection**: Significant performance drops
 - **Memory Leak**: Continuous memory growth
@@ -366,11 +398,13 @@ The suite automatically detects performance regressions by comparing:
 - **Error Rate**: Increased failure rates
 
 ### Alert Severity Levels
+
 - **INFO**: Performance within acceptable ranges
 - **WARNING**: Performance degraded but functional
 - **CRITICAL**: Performance severely impacted
 
 ### Notification Channels
+
 - Console output with color coding
 - SQLite database storage
 - GitHub Actions annotations
@@ -380,6 +414,7 @@ The suite automatically detects performance regressions by comparing:
 ## 🔗 CI/CD Integration
 
 ### GitHub Actions Workflow
+
 ```yaml
 name: Performance Tests
 on: [push, pull_request]
@@ -398,6 +433,7 @@ jobs:
 ```
 
 ### Performance Gate Criteria
+
 - **Required Tests**: All must pass for gate approval
   - Swarm initialization < 5s
   - Agent spawn latency < 200ms
@@ -410,12 +446,14 @@ jobs:
   - Advanced coordination tests
 
 ### Exit Codes
+
 - **0**: All performance targets met
 - **1**: Performance gate failed (blocks deployment)
 
 ## 🛡️ Best Practices
 
 ### Performance Testing Guidelines
+
 1. **Consistent Environment**: Use same hardware/OS for comparisons
 2. **Warm-up Period**: Allow system to stabilize before measurement
 3. **Multiple Runs**: Average results across multiple test runs
@@ -423,6 +461,7 @@ jobs:
 5. **Documentation**: Record environmental factors and changes
 
 ### Monitoring Recommendations
+
 1. **Regular Baselines**: Update performance baselines monthly
 2. **Trending**: Monitor 7-day and 30-day performance trends
 3. **Alert Tuning**: Adjust thresholds based on actual performance
@@ -430,6 +469,7 @@ jobs:
 5. **Capacity Planning**: Monitor growth trends for resource planning
 
 ### CI/CD Best Practices
+
 1. **Performance Gates**: Block deployments on critical regressions
 2. **Trend Monitoring**: Track performance changes over time
 3. **Environment Parity**: Ensure CI environment matches production
@@ -441,6 +481,7 @@ jobs:
 ### Common Issues
 
 #### High Memory Usage
+
 ```bash
 # Check for memory leaks
 python continuous_performance_monitor.py --duration 10
@@ -450,6 +491,7 @@ grep "leak_detected" performance_results/monitor/*.json
 ```
 
 #### Slow Initialization
+
 ```bash
 # Profile initialization performance
 python swarm_performance_suite.py --quick
@@ -459,6 +501,7 @@ grep "swarm_init" performance_results/benchmark/*.json
 ```
 
 #### MCP Response Timeouts
+
 ```bash
 # Test MCP tool performance
 python ci_performance_integration.py
@@ -468,13 +511,16 @@ grep "mcp_response" performance_results/*.json
 ```
 
 ### Debug Mode
+
 Set environment variable for detailed logging:
+
 ```bash
 export PERFORMANCE_DEBUG=1
 python run_performance_tests.py --quick
 ```
 
 ### Manual Verification
+
 ```bash
 # Verify swarm functionality
 node ../cli.js swarm status
@@ -485,16 +531,19 @@ node ../cli.js swarm list
 ## 📚 Additional Resources
 
 ### Performance Analysis
+
 - [Performance Optimization Guide](./docs/optimization-guide.md)
 - [Memory Management Best Practices](./docs/memory-management.md)
 - [Scalability Testing Strategies](./docs/scalability-testing.md)
 
 ### Integration Examples
+
 - [GitHub Actions Integration](./examples/github-actions.yml)
 - [GitLab CI Integration](./examples/gitlab-ci.yml)
 - [Jenkins Pipeline](./examples/jenkins-pipeline.groovy)
 
 ### API Documentation
+
 - [Performance Suite API](./docs/api-reference.md)
 - [Metrics Schema](./docs/metrics-schema.md)
 - [Configuration Reference](./docs/configuration-reference.md)
@@ -502,18 +551,21 @@ node ../cli.js swarm list
 ## 🤝 Contributing
 
 ### Adding New Tests
+
 1. Create test function in appropriate module
 2. Add to test registry in `run_performance_tests.py`
 3. Update performance targets if needed
 4. Add documentation and examples
 
 ### Improving Accuracy
+
 1. Enhance metrics collection precision
 2. Add new performance indicators
 3. Improve baseline calculation algorithms
 4. Optimize test execution efficiency
 
 ### Reporting Issues
+
 1. Include full performance test output
 2. Specify environment details (OS, Node.js version)
 3. Provide reproduction steps
@@ -522,6 +574,7 @@ node ../cli.js swarm list
 ---
 
 ## 📊 Performance Score: 100/100
+
 - ✅ **Startup Performance**: All targets met
 - ✅ **Coordination Efficiency**: Optimal latency
 - ✅ **Memory Performance**: No leaks detected  

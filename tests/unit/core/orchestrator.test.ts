@@ -31,10 +31,10 @@ describe('Orchestrator', () => {
   beforeEach(() => {
     setupTestEnv();
     time = new FakeTime();
-    
+
     config = TestDataBuilder.config();
     mocks = createMocks();
-    
+
     orchestrator = new Orchestrator(
       config,
       mocks.terminalManager,
@@ -64,7 +64,7 @@ describe('Orchestrator', () => {
       assertSpyCalls(mocks.memoryManager.initialize, 1);
       assertSpyCalls(mocks.coordinationManager.initialize, 1);
       assertSpyCalls(mocks.mcpServer.start, 1);
-      
+
       expect(mocks.logger.hasLog('info').toBe('Orchestrator initialized successfully'), true);
     });
 
@@ -101,10 +101,10 @@ describe('Orchestrator', () => {
 
     it('should start background tasks', async () => {
       await orchestrator.initialize();
-      
+
       // Fast forward time to trigger health checks
       await time.tickAsync(config.orchestrator.healthCheckInterval);
-      
+
       assertSpyCalls(mocks.terminalManager.getHealthStatus, 1);
       assertSpyCalls(mocks.memoryManager.getHealthStatus, 1);
       assertSpyCalls(mocks.coordinationManager.getHealthStatus, 1);
@@ -130,7 +130,7 @@ describe('Orchestrator', () => {
 
     it('should handle shutdown errors', async () => {
       await orchestrator.initialize();
-      
+
       mocks.terminalManager.shutdown = spy(async () => {
         throw new Error('Shutdown failed');
       });
@@ -144,15 +144,15 @@ describe('Orchestrator', () => {
 
     it('should stop background tasks', async () => {
       await orchestrator.initialize();
-      
+
       // Get initial call count
       const initialHealthChecks = mocks.terminalManager.getHealthStatus.calls.length;
-      
+
       await orchestrator.shutdown();
-      
+
       // Fast forward time - should not trigger more health checks
       await time.tickAsync(config.orchestrator.healthCheckInterval * 2);
-      
+
       expect(mocks.terminalManager.getHealthStatus.calls.length).toBe(initialHealthChecks);
     });
 
@@ -196,7 +196,7 @@ describe('Orchestrator', () => {
 
     it('should enforce agent limit', async () => {
       config.orchestrator.maxConcurrentAgents = 2;
-      
+
       await orchestrator.spawnAgent(TestDataBuilder.agentProfile({ id: 'agent-1' }));
       await orchestrator.spawnAgent(TestDataBuilder.agentProfile({ id: 'agent-2' }));
 
@@ -221,7 +221,7 @@ describe('Orchestrator', () => {
     it('should terminate an agent', async () => {
       const profile = TestDataBuilder.agentProfile();
       await orchestrator.spawnAgent(profile);
-      
+
       await orchestrator.terminateAgent(profile.id);
 
       assertSpyCalls(mocks.terminalManager.terminateTerminal, 1);
@@ -231,13 +231,13 @@ describe('Orchestrator', () => {
     it('should cancel tasks when terminating agent', async () => {
       const profile = TestDataBuilder.agentProfile();
       await orchestrator.spawnAgent(profile);
-      
+
       // Mock some tasks for the agent
       mocks.coordinationManager.getAgentTasks = spy(async () => [
         TestDataBuilder.task({ id: 'task-1' }),
         TestDataBuilder.task({ id: 'task-2' }),
       ]);
-      
+
       await orchestrator.terminateAgent(profile.id);
 
       assertSpyCalls(mocks.coordinationManager.cancelTask, 2);
@@ -246,7 +246,7 @@ describe('Orchestrator', () => {
     it('should emit agent terminated event', async () => {
       const profile = TestDataBuilder.agentProfile();
       await orchestrator.spawnAgent(profile);
-      
+
       await orchestrator.terminateAgent(profile.id);
 
       const events = (mocks.eventBus as MockEventBus).getEvents();
@@ -272,7 +272,7 @@ describe('Orchestrator', () => {
     it('should assign task to specific agent', async () => {
       const profile = TestDataBuilder.agentProfile();
       await orchestrator.spawnAgent(profile);
-      
+
       const task = TestDataBuilder.task({ assignedAgent: profile.id });
       await orchestrator.assignTask(task);
 
@@ -306,7 +306,7 @@ describe('Orchestrator', () => {
 
     it('should enforce task queue size', async () => {
       config.orchestrator.taskQueueSize = 2;
-      
+
       await orchestrator.assignTask(TestDataBuilder.task({ id: 'task-1' }));
       await orchestrator.assignTask(TestDataBuilder.task({ id: 'task-2' }));
 
@@ -321,35 +321,35 @@ describe('Orchestrator', () => {
       // Queue a task
       const task = TestDataBuilder.task({ type: 'researcher' });
       await orchestrator.assignTask(task);
-      
+
       // Spawn a matching agent
       const profile = TestDataBuilder.agentProfile({ type: 'researcher' });
       await orchestrator.spawnAgent(profile);
-      
+
       // Mock available agent
       mocks.coordinationManager.getAgentTaskCount = spy(async () => 0);
-      
+
       // Emit agent idle event
       mocks.eventBus.emit(SystemEvents.AGENT_IDLE, { agentId: profile.id });
-      
+
       // Wait for async processing
       await new Promise(resolve => setTimeout(resolve, 10));
-      
+
       assertSpyCalls(mocks.coordinationManager.assignTask, 1);
     });
 
     it('should handle task completion', async () => {
       const task = TestDataBuilder.task();
       await orchestrator.assignTask(task);
-      
+
       // Emit task completed
       mocks.eventBus.emit(SystemEvents.TASK_COMPLETED, {
         taskId: task.id,
         result: { success: true },
       });
-      
+
       await new Promise(resolve => setTimeout(resolve, 10));
-      
+
       const metrics = await orchestrator.getMetrics();
       expect(metrics.completedTasks).toBe(1);
     });
@@ -357,15 +357,15 @@ describe('Orchestrator', () => {
     it('should handle task failure with retry', async () => {
       const task = TestDataBuilder.task();
       await orchestrator.assignTask(task);
-      
+
       // Emit task failed
       mocks.eventBus.emit(SystemEvents.TASK_FAILED, {
         taskId: task.id,
         error: new Error('Task failed'),
       });
-      
+
       await new Promise(resolve => setTimeout(resolve, 10));
-      
+
       const metrics = await orchestrator.getMetrics();
       expect(metrics.failedTasks).toBe(1);
     });
@@ -384,25 +384,25 @@ describe('Orchestrator', () => {
         capabilities: ['code', 'test'],
         priority: 10,
       });
-      
+
       await orchestrator.spawnAgent(agent1);
       await orchestrator.spawnAgent(agent2);
-      
+
       // Mock agents as available
       mocks.coordinationManager.getAgentTaskCount = spy(async () => 0);
-      
+
       // Queue task requiring code capability
       const task = TestDataBuilder.task({
         type: 'implementer',
         metadata: { requiredCapabilities: ['code'] },
       });
-      
+
       await orchestrator.assignTask(task);
-      
+
       // Process queue
       mocks.eventBus.emit(SystemEvents.AGENT_IDLE, { agentId: agent2.id });
       await new Promise(resolve => setTimeout(resolve, 10));
-      
+
       // Should assign to agent2
       assertSpyCalls(mocks.coordinationManager.assignTask, 1);
       expect(mocks.coordinationManager.assignTask.calls[0].args[1]).toBe(agent2.id);
@@ -416,7 +416,7 @@ describe('Orchestrator', () => {
 
     it('should return healthy status when all components healthy', async () => {
       const health = await orchestrator.getHealthStatus();
-      
+
       expect(health.status).toBe('healthy');
       expect(health.components.terminal).toBeDefined();
       expect(health.components.memory).toBeDefined();
@@ -430,9 +430,9 @@ describe('Orchestrator', () => {
         healthy: false,
         error: 'Terminal error',
       }));
-      
+
       const health = await orchestrator.getHealthStatus();
-      
+
       expect(health.status).toBe('unhealthy');
       expect(health.components.terminal.status).toBe('unhealthy');
     });
@@ -444,14 +444,14 @@ describe('Orchestrator', () => {
         callCount++;
         throw new Error('Health check failed');
       });
-      
+
       // Trigger failures
       for (let i = 0; i < 5; i++) {
         try {
           await orchestrator.getHealthStatus();
         } catch {}
       }
-      
+
       // Circuit breaker should be open now
       const health = await orchestrator.getHealthStatus();
       expect(health.status).toBe('degraded');
@@ -461,9 +461,9 @@ describe('Orchestrator', () => {
     it('should include metrics in orchestrator health', async () => {
       const profile = TestDataBuilder.agentProfile();
       await orchestrator.spawnAgent(profile);
-      
+
       const health = await orchestrator.getHealthStatus();
-      
+
       expect(health.components.orchestrator.metrics).toBeDefined();
       expect(health.components.orchestrator.metrics!.activeAgents).toBe(1);
       expect(health.components.orchestrator.metrics!.uptime).toBeDefined();
@@ -478,7 +478,7 @@ describe('Orchestrator', () => {
 
     it('should return comprehensive metrics', async () => {
       const metrics = await orchestrator.getMetrics();
-      
+
       expect(metrics.uptime).toBeDefined();
       expect(metrics.totalAgents).toBe(0);
       expect(metrics.activeAgents).toBe(0);
@@ -495,7 +495,7 @@ describe('Orchestrator', () => {
     it('should track agent metrics', async () => {
       await orchestrator.spawnAgent(TestDataBuilder.agentProfile({ id: 'agent-1' }));
       await orchestrator.spawnAgent(TestDataBuilder.agentProfile({ id: 'agent-2' }));
-      
+
       const metrics = await orchestrator.getMetrics();
       expect(metrics.totalAgents).toBe(2);
       expect(metrics.activeAgents).toBe(2);
@@ -505,21 +505,21 @@ describe('Orchestrator', () => {
       // Complete a task
       const task = TestDataBuilder.task();
       await orchestrator.assignTask(task);
-      
+
       mocks.eventBus.emit(SystemEvents.TASK_STARTED, {
         taskId: task.id,
         agentId: 'agent-1',
       });
-      
+
       await time.tickAsync(1000); // 1 second duration
-      
+
       mocks.eventBus.emit(SystemEvents.TASK_COMPLETED, {
         taskId: task.id,
         result: {},
       });
-      
+
       await new Promise(resolve => setTimeout(resolve, 10));
-      
+
       const metrics = await orchestrator.getMetrics();
       expect(metrics.totalTasks).toBe(1);
       expect(metrics.completedTasks).toBe(1);
@@ -534,7 +534,7 @@ describe('Orchestrator', () => {
 
     it('should perform maintenance on all components', async () => {
       await orchestrator.performMaintenance();
-      
+
       assertSpyCalls(mocks.terminalManager.performMaintenance, 1);
       assertSpyCalls(mocks.memoryManager.performMaintenance, 1);
       assertSpyCalls(mocks.coordinationManager.performMaintenance, 1);
@@ -544,25 +544,25 @@ describe('Orchestrator', () => {
       mocks.terminalManager.performMaintenance = spy(async () => {
         throw new Error('Maintenance failed');
       });
-      
+
       // Should not throw
       await orchestrator.performMaintenance();
-      
+
       expect(mocks.logger.hasLog('error').toBe('Error during maintenance'), true);
     });
 
     it('should clean up terminated sessions', async () => {
       const profile = TestDataBuilder.agentProfile();
       const sessionId = await orchestrator.spawnAgent(profile);
-      
+
       // Terminate and mark as old
       await orchestrator.terminateAgent(profile.id);
-      
+
       // Fast forward time past retention
       await time.tickAsync(config.orchestrator.sessionRetentionMs + 1000);
-      
+
       await orchestrator.performMaintenance();
-      
+
       // Session should be cleaned up
       // (implementation would need to expose session count for verification)
     });
@@ -576,15 +576,15 @@ describe('Orchestrator', () => {
     it('should handle agent errors with restart', async () => {
       const profile = TestDataBuilder.agentProfile();
       await orchestrator.spawnAgent(profile);
-      
+
       // Emit agent error
       mocks.eventBus.emit(SystemEvents.AGENT_ERROR, {
         agentId: profile.id,
         error: new Error('Agent crashed'),
       });
-      
+
       await time.tickAsync(3000); // Wait for restart
-      
+
       // Should attempt to restart
       assertSpyCalls(mocks.terminalManager.terminateTerminal, 1);
       assertSpyCalls(mocks.terminalManager.spawnTerminal, 2); // Initial + restart
@@ -597,20 +597,20 @@ describe('Orchestrator', () => {
         priority: 1,
       });
       await orchestrator.spawnAgent(agent);
-      
+
       // Mock some tasks
       mocks.coordinationManager.getAgentTasks = spy(async () => [
         TestDataBuilder.task({ id: 'task-1' }),
       ]);
-      
+
       // Emit deadlock
       mocks.eventBus.emit(SystemEvents.DEADLOCK_DETECTED, {
         agents: [agent.id],
         resources: ['resource-1'],
       });
-      
+
       await new Promise(resolve => setTimeout(resolve, 10));
-      
+
       // Should cancel tasks for lowest priority agent
       assertSpyCalls(mocks.coordinationManager.cancelTask, 1);
     });
@@ -620,7 +620,7 @@ describe('Orchestrator', () => {
         error: new Error('System error'),
         component: 'test-component',
       });
-      
+
       expect(mocks.logger.hasLog('error').toBe('System error'), true);
     });
   });
@@ -635,17 +635,17 @@ describe('Orchestrator', () => {
       await orchestrator.assignTask(TestDataBuilder.task({ id: 'low', priority: 10 }));
       await orchestrator.assignTask(TestDataBuilder.task({ id: 'high', priority: 90 }));
       await orchestrator.assignTask(TestDataBuilder.task({ id: 'medium', priority: 50 }));
-      
+
       // Spawn agent
       const agent = TestDataBuilder.agentProfile();
       await orchestrator.spawnAgent(agent);
-      
+
       mocks.coordinationManager.getAgentTaskCount = spy(async () => 0);
-      
+
       // Process queue
       mocks.eventBus.emit(SystemEvents.AGENT_IDLE, { agentId: agent.id });
       await new Promise(resolve => setTimeout(resolve, 10));
-      
+
       // Should assign highest priority task
       assertSpyCalls(mocks.coordinationManager.assignTask, 1);
       expect(mocks.coordinationManager.assignTask.calls[0].args[0].id).toBe('high');
@@ -654,20 +654,20 @@ describe('Orchestrator', () => {
     it('should handle task assignment failures', async () => {
       const task = TestDataBuilder.task();
       await orchestrator.assignTask(task);
-      
+
       const agent = TestDataBuilder.agentProfile();
       await orchestrator.spawnAgent(agent);
-      
+
       // Make assignment fail
       mocks.coordinationManager.assignTask = spy(async () => {
         throw new Error('Assignment failed');
       });
       mocks.coordinationManager.getAgentTaskCount = spy(async () => 0);
-      
+
       // Try to process queue
       mocks.eventBus.emit(SystemEvents.AGENT_IDLE, { agentId: agent.id });
       await new Promise(resolve => setTimeout(resolve, 10));
-      
+
       // Task should remain in queue
       const metrics = await orchestrator.getMetrics();
       expect(metrics.queuedTasks).toBe(1);

@@ -45,7 +45,7 @@ class CircuitBreaker {
         this.failureThreshold = options.failureThreshold || 5;
         this.recoveryTimeout = options.recoveryTimeout || 30000; // 30 seconds
         this.monitoringPeriod = options.monitoringPeriod || 60000; // 1 minute
-        
+
         this.state = 'CLOSED'; // CLOSED, OPEN, HALF_OPEN
         this.failures = 0;
         this.lastFailureTime = null;
@@ -83,7 +83,7 @@ class CircuitBreaker {
     onSuccess() {
         this.failures = 0;
         this.stats.successfulRequests++;
-        
+
         if (this.state === 'HALF_OPEN') {
             this.successCount++;
             if (this.successCount >= 3) { // Require 3 successes to close
@@ -128,13 +128,13 @@ class RetryManager {
 
     async execute(operation, operationName = 'unknown') {
         let lastError;
-        
+
         for (let attempt = 0; attempt <= this.maxRetries; attempt++) {
             try {
                 return await operation();
             } catch (error) {
                 lastError = error;
-                
+
                 if (attempt === this.maxRetries) {
                     break;
                 }
@@ -146,7 +146,7 @@ class RetryManager {
 
                 const delay = this.calculateDelay(attempt);
                 console.warn(`Retry ${attempt + 1}/${this.maxRetries} for ${operationName} failed: ${error.message}. Retrying in ${delay}ms`);
-                
+
                 await new Promise(resolve => setTimeout(resolve, delay));
             }
         }
@@ -158,7 +158,7 @@ class RetryManager {
         // Network errors, timeouts, and temporary database issues are retryable
         const retryableErrors = [
             'ECONNREFUSED',
-            'ECONNRESET', 
+            'ECONNRESET',
             'ETIMEDOUT',
             'ENOTFOUND',
             'SQLITE_BUSY',
@@ -169,7 +169,7 @@ class RetryManager {
         ];
 
         const errorMessage = error.message.toLowerCase();
-        return retryableErrors.some(retryable => 
+        return retryableErrors.some(retryable =>
             errorMessage.includes(retryable) || error.code === retryable
         );
     }
@@ -177,7 +177,7 @@ class RetryManager {
     calculateDelay(attempt) {
         const exponentialDelay = this.initialDelay * Math.pow(this.backoffMultiplier, attempt);
         const clampedDelay = Math.min(exponentialDelay, this.maxDelay);
-        
+
         // Add jitter to prevent thundering herd
         const jitter = clampedDelay * this.jitterMax * Math.random();
         return Math.floor(clampedDelay + jitter);
@@ -190,7 +190,7 @@ class RetryManager {
 export class ErrorHandlingManager extends EventEmitter {
     constructor(options = {}) {
         super();
-        
+
         this.correlationId = crypto.randomUUID();
         this.circuitBreakers = new Map();
         this.retryManager = new RetryManager(options.retry);
@@ -201,13 +201,13 @@ export class ErrorHandlingManager extends EventEmitter {
             criticalErrors: 5, // 5 critical errors in monitoring period
             circuitBreakerOpenings: 3
         };
-        
+
         // Monitoring state
         this.monitoringWindow = options.monitoringWindow || 300000; // 5 minutes
         this.healthCheckInterval = options.healthCheckInterval || 60000; // 1 minute
         this.isHealthy = true;
         this.lastHealthCheck = Date.now();
-        
+
         // Start background monitoring
         this.startHealthMonitoring();
     }
@@ -218,7 +218,7 @@ export class ErrorHandlingManager extends EventEmitter {
     async wrapOperation(operation, context = {}) {
         const operationId = crypto.randomUUID();
         const startTime = Date.now();
-        
+
         const operationContext = {
             operationId,
             correlationId: this.correlationId,
@@ -241,7 +241,7 @@ export class ErrorHandlingManager extends EventEmitter {
 
             // Log successful operation
             this.logSuccess(operationContext, Date.now() - startTime);
-            
+
             return result;
         } catch (error) {
             // Handle and log error
@@ -254,16 +254,16 @@ export class ErrorHandlingManager extends EventEmitter {
      */
     async handleError(error, context) {
         const errorRecord = this.createErrorRecord(error, context);
-        
+
         // Log error
         this.logError(errorRecord);
-        
+
         // Emit error event for monitoring
         this.emit('error', errorRecord);
-        
+
         // Determine recovery strategy
         const strategy = this.determineRecoveryStrategy(error, context);
-        
+
         try {
             return await this.executeRecoveryStrategy(strategy, error, context);
         } catch (recoveryError) {
@@ -274,10 +274,10 @@ export class ErrorHandlingManager extends EventEmitter {
                 recoveryStrategy: strategy,
                 escalated: true
             });
-            
+
             this.logError(escalatedError);
             this.emit('criticalError', escalatedError);
-            
+
             throw new Error(`Operation failed and recovery unsuccessful. Original: ${error.message}, Recovery: ${recoveryError.message}`);
         }
     }
@@ -320,7 +320,7 @@ export class ErrorHandlingManager extends EventEmitter {
      */
     determineSeverity(error, context) {
         // Critical errors that affect system stability
-        if (error.message.includes('memory') || 
+        if (error.message.includes('memory') ||
             error.message.includes('corruption') ||
             error.message.includes('fatal') ||
             context.category === ErrorCategory.MEMORY) {
@@ -351,14 +351,14 @@ export class ErrorHandlingManager extends EventEmitter {
      */
     determineRecoveryStrategy(error, context) {
         const severity = this.determineSeverity(error, context);
-        
+
         // Critical errors require immediate intervention
         if (severity === ErrorSeverity.CRITICAL) {
             return RecoveryStrategy.MANUAL_INTERVENTION;
         }
 
         // Network and timeout errors benefit from retries
-        if (error.message.includes('network') || 
+        if (error.message.includes('network') ||
             error.message.includes('timeout') ||
             error.message.includes('ECONNREFUSED')) {
             return RecoveryStrategy.RETRY;
@@ -414,18 +414,18 @@ export class ErrorHandlingManager extends EventEmitter {
      */
     async executeFallback(error, context) {
         console.warn(`Executing fallback for ${context.operation}: ${error.message}`);
-        
+
         // Component-specific fallback strategies
         switch (context.category) {
             case ErrorCategory.PERSISTENCE:
                 return this.persistenceFallback(context);
-            
+
             case ErrorCategory.MCP:
                 return this.mcpFallback(context);
-            
+
             case ErrorCategory.NEURAL:
                 return this.neuralFallback(context);
-            
+
             default:
                 return {
                     success: false,
@@ -441,7 +441,7 @@ export class ErrorHandlingManager extends EventEmitter {
      */
     async executeGracefulDegradation(error, context) {
         console.warn(`Graceful degradation for ${context.operation}: ${error.message}`);
-        
+
         return {
             success: true,
             degraded: true,
@@ -514,9 +514,9 @@ export class ErrorHandlingManager extends EventEmitter {
      */
     async executeRestart(error, context) {
         console.warn(`Restarting ${context.component} due to: ${error.message}`);
-        
+
         this.emit('restart', { component: context.component, reason: error.message });
-        
+
         return {
             success: true,
             restarted: true,
@@ -561,7 +561,7 @@ export class ErrorHandlingManager extends EventEmitter {
      */
     logError(errorRecord) {
         this.errorLog.push(errorRecord);
-        
+
         // Maintain log size
         if (this.errorLog.length > this.maxLogSize) {
             this.errorLog = this.errorLog.slice(-this.maxLogSize);
@@ -570,7 +570,7 @@ export class ErrorHandlingManager extends EventEmitter {
         // Console logging with appropriate level
         const logLevel = {
             [ErrorSeverity.LOW]: 'log',
-            [ErrorSeverity.MEDIUM]: 'warn', 
+            [ErrorSeverity.MEDIUM]: 'warn',
             [ErrorSeverity.HIGH]: 'error',
             [ErrorSeverity.CRITICAL]: 'error'
         };
@@ -613,16 +613,16 @@ export class ErrorHandlingManager extends EventEmitter {
     performHealthCheck() {
         const now = Date.now();
         const windowStart = now - this.monitoringWindow;
-        
+
         // Filter recent errors
-        const recentErrors = this.errorLog.filter(error => 
+        const recentErrors = this.errorLog.filter(error =>
             new Date(error.timestamp).getTime() >= windowStart
         );
 
         // Calculate metrics
         const totalOperations = recentErrors.length + this.getSuccessfulOperationsCount();
         const errorRate = totalOperations > 0 ? recentErrors.length / totalOperations : 0;
-        const criticalErrors = recentErrors.filter(error => 
+        const criticalErrors = recentErrors.filter(error =>
             error.severity === ErrorSeverity.CRITICAL
         ).length;
 
@@ -664,8 +664,8 @@ export class ErrorHandlingManager extends EventEmitter {
     getErrorStatistics(timeWindow = this.monitoringWindow) {
         const now = Date.now();
         const windowStart = now - timeWindow;
-        
-        const recentErrors = this.errorLog.filter(error => 
+
+        const recentErrors = this.errorLog.filter(error =>
             new Date(error.timestamp).getTime() >= windowStart
         );
 
@@ -680,14 +680,14 @@ export class ErrorHandlingManager extends EventEmitter {
 
         // Group by severity
         Object.values(ErrorSeverity).forEach(severity => {
-            stats.bySeverity[severity] = recentErrors.filter(error => 
+            stats.bySeverity[severity] = recentErrors.filter(error =>
                 error.severity === severity
             ).length;
         });
 
         // Group by category
         Object.values(ErrorCategory).forEach(category => {
-            stats.byCategory[category] = recentErrors.filter(error => 
+            stats.byCategory[category] = recentErrors.filter(error =>
                 error.category === category
             ).length;
         });

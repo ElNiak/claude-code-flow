@@ -16,9 +16,9 @@ export class ResearcherAgent {
 
   async conductResearch(topic: string): Promise<any> {
     console.log(`[${this.agentId}] Researching: ${topic}`);
-    
+
     await this.simulateWork(1000);
-    
+
     const research = {
       sources: [
         { title: 'RESTful Web Services', relevance: 0.95, year: 2023 },
@@ -39,7 +39,7 @@ export class ResearcherAgent {
       ],
       confidence: 0.87
     };
-    
+
     console.log(`[${this.agentId}] Research completed`);
     return {
       agentId: this.agentId,
@@ -51,9 +51,9 @@ export class ResearcherAgent {
 
   async analyzeData(data: number[]): Promise<any> {
     console.log(`[${this.agentId}] Analyzing data set with ${data.length} points`);
-    
+
     await this.simulateWork(600);
-    
+
     const analysis = {
       mean: this.calculateMean(data),
       median: this.calculateMedian(data),
@@ -66,7 +66,7 @@ export class ResearcherAgent {
         'One significant outlier identified'
       ]
     };
-    
+
     console.log(`[${this.agentId}] Data analysis completed`);
     return {
       agentId: this.agentId,
@@ -78,9 +78,9 @@ export class ResearcherAgent {
 
   async gatherRequirements(project: string): Promise<any> {
     console.log(`[${this.agentId}] Gathering requirements for: ${project}`);
-    
+
     await this.simulateWork(1200);
-    
+
     const requirements = {
       functional: [
         'User registration and authentication',
@@ -104,7 +104,7 @@ export class ResearcherAgent {
       stakeholders: ['Product Team', 'Security Team', 'DevOps', 'QA Team'],
       priority: 'High'
     };
-    
+
     console.log(`[${this.agentId}] Requirements gathering completed`);
     return {
       agentId: this.agentId,
@@ -116,9 +116,9 @@ export class ResearcherAgent {
 
   async analyzeTechnology(tech: string): Promise<any> {
     console.log(`[${this.agentId}] Analyzing technology: ${tech}`);
-    
+
     await this.simulateWork(800);
-    
+
     const techAnalysis = {
       maturity: 'Stable',
       communitySupport: 'Excellent',
@@ -139,7 +139,7 @@ export class ResearcherAgent {
       alternatives: ['JavaScript', 'Flow', 'ReasonML'],
       recommendation: 'Highly recommended for large-scale applications'
     };
-    
+
     console.log(`[${this.agentId}] Technology analysis completed`);
     return {
       agentId: this.agentId,
@@ -185,7 +185,7 @@ export class ResearcherAgent {
 // Allow direct execution
 if (require.main === module) {
   const researcher = new ResearcherAgent();
-  
+
   Promise.all([
     researcher.conductResearch('REST API best practices'),
     researcher.analyzeData([42, 38, 51, 47, 39, 52, 48, 45, 98, 41]),

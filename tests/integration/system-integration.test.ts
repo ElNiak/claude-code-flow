@@ -26,7 +26,7 @@ describe('SystemIntegration', () => {
   beforeEach(() => {
     // Reset all mocks
     jest.clearAllMocks();
-    
+
     // Create fresh instance
     systemIntegration = SystemIntegration.getInstance();
     mockEventBus = EventBus.getInstance() as jest.Mocked<EventBus>;
@@ -47,9 +47,9 @@ describe('SystemIntegration', () => {
       };
 
       await systemIntegration.initialize(config);
-      
+
       expect(systemIntegration.isReady()).toBe(true);
-      
+
       // Verify initialization status
       const status = systemIntegration.getInitializationStatus();
       expect(status.initialized).toBe(true);
@@ -76,9 +76,9 @@ describe('SystemIntegration', () => {
     it('should not reinitialize if already initialized', async () => {
       await systemIntegration.initialize();
       const firstInitTime = Date.now();
-      
+
       await systemIntegration.initialize();
-      
+
       // Should not reinitialize
       expect(systemIntegration.isReady()).toBe(true);
     });
@@ -92,17 +92,17 @@ describe('SystemIntegration', () => {
     it('should return correct components by name', () => {
       const orchestrator = systemIntegration.getComponent('orchestrator');
       expect(orchestrator).toBeDefined();
-      
+
       const agentManager = systemIntegration.getComponent('agentManager');
       expect(agentManager).toBeDefined();
-      
+
       const nonExistent = systemIntegration.getComponent('nonExistent');
       expect(nonExistent).toBeNull();
     });
 
     it('should track component statuses', async () => {
       const health = await systemIntegration.getSystemHealth();
-      
+
       expect(health.overall).toBe('healthy');
       expect(health.components).toBeDefined();
       expect(health.metrics.totalComponents).toBeGreaterThan(0);
@@ -144,13 +144,13 @@ describe('SystemIntegration', () => {
 
     it('should calculate correct health metrics', async () => {
       const health = await systemIntegration.getSystemHealth();
-      
+
       expect(health.metrics.totalComponents).toBe(
-        health.metrics.healthyComponents + 
-        health.metrics.unhealthyComponents + 
+        health.metrics.healthyComponents +
+        health.metrics.unhealthyComponents +
         health.metrics.warningComponents
       );
-      
+
       expect(health.timestamp).toBeLessThanOrEqual(Date.now());
       expect(health.metrics.uptime).toBeGreaterThanOrEqual(0);
     });
@@ -163,11 +163,11 @@ describe('SystemIntegration', () => {
 
     it('should handle system ready event', async () => {
       const eventSpy = jest.spyOn(mockEventBus, 'emit');
-      
+
       // Re-initialize to trigger ready event
       await systemIntegration.shutdown();
       await systemIntegration.initialize();
-      
+
       expect(eventSpy).toHaveBeenCalledWith('system:ready', expect.objectContaining({
         timestamp: expect.any(Number),
         components: expect.any(Array),
@@ -177,7 +177,7 @@ describe('SystemIntegration', () => {
 
     it('should handle component status updates', () => {
       const eventSpy = jest.spyOn(mockEventBus, 'emit');
-      
+
       // Simulate status update
       mockEventBus.emit('component:status', {
         component: 'test-component',
@@ -194,7 +194,7 @@ describe('SystemIntegration', () => {
 
     it('should handle system errors', () => {
       const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
-      
+
       // Simulate system error
       mockEventBus.emit('system:error', {
         component: 'test-component',
@@ -210,20 +210,20 @@ describe('SystemIntegration', () => {
     it('should shutdown all components gracefully', async () => {
       await systemIntegration.initialize();
       expect(systemIntegration.isReady()).toBe(true);
-      
+
       await systemIntegration.shutdown();
       expect(systemIntegration.isReady()).toBe(false);
     });
 
     it('should handle shutdown errors gracefully', async () => {
       await systemIntegration.initialize();
-      
+
       // Mock a component to fail shutdown
       const mockOrchestrator = systemIntegration.getComponent('orchestrator');
       if (mockOrchestrator) {
         (mockOrchestrator as any).shutdown = jest.fn().mockRejectedValue(new Error('Shutdown failed'));
       }
-      
+
       // Should not throw
       await expect(systemIntegration.shutdown()).resolves.not.toThrow();
     });
@@ -273,7 +273,7 @@ describe('SystemIntegration', () => {
     it('should always return the same instance', () => {
       const instance1 = SystemIntegration.getInstance();
       const instance2 = SystemIntegration.getInstance();
-      
+
       expect(instance1).toBe(instance2);
     });
   });

@@ -20,26 +20,26 @@ export PATH="/home/codespace/.deno/bin:$PATH"
 echo "🏗️  Building Claude Flow..."
 if deno compile --allow-all --no-check --output=bin/claude-flow.tmp src/cli/main.ts 2>/dev/null; then
     echo "✅ Build successful!"
-    
+
     # Remove old binary and move new one
     if [ -f "bin/claude-flow.tmp" ]; then
         mv -f bin/claude-flow.tmp bin/claude-flow
         chmod +x bin/claude-flow
         echo "✅ Binary updated successfully!"
-        
+
         # Remove backup since build was successful
         rm -f bin/claude-flow.backup
     fi
 else
     echo "❌ Build failed!"
-    
+
     # Restore backup if build failed
     if [ -f "bin/claude-flow.backup" ]; then
         echo "🔄 Restoring backup..."
         mv bin/claude-flow.backup bin/claude-flow
         echo "✅ Backup restored!"
     fi
-    
+
     exit 1
 fi
 
@@ -47,7 +47,7 @@ fi
 echo "🏗️  Building Prompt Copier CLI..."
 if deno compile --allow-all --no-check --output=bin/prompt-copier.tmp src/swarm/prompt-cli.ts 2>/dev/null; then
     echo "✅ Prompt copier build successful!"
-    
+
     if [ -f "bin/prompt-copier.tmp" ]; then
         mv -f bin/prompt-copier.tmp bin/prompt-copier
         chmod +x bin/prompt-copier

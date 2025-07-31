@@ -56,10 +56,10 @@ describe('Structured Error Handling Patterns', () => {
 
       for (const testCase of testCases) {
         consoleErrorSpy.mockClear();
-        
+
         // Emit structured error
         mockRlErr.emit('line', JSON.stringify({ error: testCase.error }));
-        
+
         // Verify appropriate logging
         if (testCase.expectedLog) {
           expect(consoleErrorSpy).toHaveBeenCalledWith(
@@ -127,7 +127,7 @@ describe('Structured Error Handling Patterns', () => {
       for (const test of patternTests) {
         consoleErrorSpy.mockClear();
         mockRlErr.emit('line', test.line);
-        
+
         expect(consoleErrorSpy).toHaveBeenCalledWith(
           expect.stringContaining(test.expectedLog)
         );
@@ -165,7 +165,7 @@ describe('Structured Error Handling Patterns', () => {
 
   describe('Error Recovery and Resilience', () => {
     test('should continue operation after handling known errors', async () => {
-      const wrapper = new RuvSwarmWrapper({ 
+      const wrapper = new RuvSwarmWrapper({
         silent: true,
         autoRestart: true,
         maxRestarts: 3
@@ -173,7 +173,7 @@ describe('Structured Error Handling Patterns', () => {
 
       // Track if the wrapper continues to function
       let isOperational = true;
-      
+
       const mockRlErr = new EventEmitter();
       jest.doMock('readline', () => ({
         createInterface: jest.fn(() => mockRlErr)
@@ -205,7 +205,7 @@ describe('Structured Error Handling Patterns', () => {
       for (const component of components) {
         try {
           const module = await import(component.path);
-          
+
           // Verify error handling is present
           if (component.name === 'RuvSwarmWrapper') {
             expect(module.RuvSwarmWrapper).toBeDefined();

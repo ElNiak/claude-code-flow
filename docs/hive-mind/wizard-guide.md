@@ -34,16 +34,19 @@ Press Enter to begin...
 ```
 
 **What to Enter:**
+
 - Be specific but concise
 - Include key requirements
 - Mention technologies if you have preferences
 
 **Good Examples:**
+
 - "Build a REST API with JWT authentication and PostgreSQL"
 - "Create a React dashboard with real-time charts and user management"
 - "Migrate Express.js app to use TypeScript and add unit tests"
 
 **Poor Examples:**
+
 - "Make an app" (too vague)
 - "Fix my code" (no context)
 - "Something with AI" (unclear goal)
@@ -62,12 +65,14 @@ Select complexity (1-4): _
 ```
 
 **Guidelines:**
+
 - **Simple**: 1-2 hours of traditional work
 - **Medium**: 2-8 hours of traditional work
 - **High**: 1-3 days of traditional work
 - **Very High**: 3+ days of traditional work
 
 **Impact of Selection:**
+
 - Determines number of agents spawned
 - Affects coordination strategy
 - Influences time estimates
@@ -92,6 +97,7 @@ Use arrow keys to navigate, Space to select, Enter to continue
 ```
 
 **Tips:**
+
 - Select all that apply to your project
 - More features = more specialized agents
 - Each feature gets dedicated attention
@@ -111,6 +117,7 @@ Select preference (1-4): _
 ```
 
 **What Each Means:**
+
 - **ASAP**: Maximum parallelization, minimal explanations
 - **Balanced**: Optimal for most projects
 - **Thorough**: Comprehensive testing and documentation
@@ -130,6 +137,7 @@ Press Enter to skip or type your preferences: _
 ```
 
 **Examples:**
+
 - "Backend: Node.js with Express, Frontend: React with TypeScript"
 - "Python FastAPI, PostgreSQL, Redis for caching"
 - "Next.js full-stack with Prisma ORM"
@@ -150,6 +158,7 @@ Enter additional context or press Enter to skip: _
 ```
 
 **When to Use:**
+
 - Existing codebase constraints
 - Specific business requirements
 - Performance targets
@@ -177,6 +186,7 @@ Proceed with this configuration? (Y/n): _
 ```
 
 **Options:**
+
 - **Y/Enter**: Start Hive Mind orchestration
 - **n**: Return to modify options
 - **Ctrl+C**: Cancel entirely
@@ -345,6 +355,7 @@ npx claude-flow@2.0.0 hive-mind --template rest-api
 ```
 
 Available templates:
+
 - `rest-api` - REST API with authentication
 - `full-stack` - Complete web application
 - `microservices` - Microservice architecture
@@ -362,30 +373,35 @@ npx claude-flow@2.0.0 hive-mind --replay ./hive-mind-task-12345.json
 ## Tips for Best Results
 
 ### 1. Task Description
+
 - Be specific about your needs
 - Include acceptance criteria
 - Mention any constraints
 - Specify integrations needed
 
 ### 2. Feature Selection
+
 - Don't be afraid to select many features
 - Each feature gets specialized attention
 - More features = better coverage
 - Agents coordinate automatically
 
 ### 3. Technology Choices
+
 - Let Hive Mind choose if unsure
 - Specify only strong preferences
 - Include version requirements
 - Mention existing tech stack
 
 ### 4. Timeline Selection
+
 - ASAP for prototypes
 - Balanced for production
 - Thorough for critical systems
 - Learning for education
 
 ### 5. Monitoring
+
 - Watch agent coordination
 - Note any blockers
 - Check memory usage
@@ -433,16 +449,19 @@ Result: Complete migration with documentation
 ## Troubleshooting
 
 ### Wizard Freezes
+
 - Check terminal compatibility
 - Try `--non-interactive` mode
 - Use web UI instead
 
 ### Unclear Options
+
 - Use help: `npx claude-flow@2.0.0 hive-mind --help`
 - Check examples in this guide
 - Start simple, add complexity
 
 ### Task Too Vague
+
 - Add specific requirements
 - List desired features
 - Include example outputs

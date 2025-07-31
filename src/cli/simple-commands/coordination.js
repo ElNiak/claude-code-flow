@@ -56,7 +56,7 @@ async function swarmInitCommand(subArgs, flags) {
 
   // Check if ruv-swarm is available
   const isAvailable = await checkRuvSwarmAvailable();
-  
+
   if (isAvailable) {
     try {
       console.log(`\n🔄 Initializing real swarm with ruv-swarm...`);
@@ -89,7 +89,7 @@ async function swarmInitCommand(subArgs, flags) {
       isAvailable = false; // Trigger fallback
     }
   }
-  
+
   if (!isAvailable) {
     // Fallback: Initialize coordination without ruv-swarm
     console.log(`\n🔄 Initializing local swarm coordination...`);
@@ -259,7 +259,7 @@ SWARM-INIT OPTIONS:
 
 AGENT-SPAWN OPTIONS:
   --type <type>        Agent type (default: general)
-                       Options: coordinator, coder, developer, researcher, analyst, analyzer, 
+                       Options: coordinator, coder, developer, researcher, analyst, analyzer,
                        tester, architect, reviewer, optimizer, general
   --name <name>        Custom agent name (auto-generated if not provided)
   --swarm-id <id>      Target swarm for agent coordination

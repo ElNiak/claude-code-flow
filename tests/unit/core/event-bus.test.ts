@@ -2,15 +2,15 @@
  * Unit tests for EventBus
  */
 
-import { 
-  describe, 
-  it, 
-  beforeEach, 
+import {
+  describe,
+  it,
+  beforeEach,
   afterEach,
-  assertEquals, 
+  assertEquals,
   assertExists,
   assertRejects,
-  spy, 
+  spy,
   assertSpyCalls,
 } from '../../../test.utils';
 import { EventBus } from '../../../src/core/event-bus.ts';
@@ -41,7 +41,7 @@ describe('EventBus', () => {
     const handler = spy();
 
     eventBus.on(SystemEvents.AGENT_SPAWNED, handler);
-    
+
     const eventData = {
       agentId: 'test-agent',
       profile: {
@@ -118,7 +118,7 @@ describe('EventBus', () => {
 
   it('should filter events', () => {
     const handler = spy();
-    
+
     eventBus.onFiltered(
       SystemEvents.TASK_COMPLETED,
       (data: any) => data.taskId === 'task-1',
@@ -134,43 +134,43 @@ describe('EventBus', () => {
 
   it('should remove event listeners', () => {
     const handler = spy();
-    
+
     eventBus.on(SystemEvents.AGENT_ERROR, handler);
     eventBus.emit(SystemEvents.AGENT_ERROR as any, { agentId: 'test', error: new Error('test') });
-    
+
     assertSpyCalls(handler, 1);
-    
+
     eventBus.off(SystemEvents.AGENT_ERROR, handler);
     eventBus.emit(SystemEvents.AGENT_ERROR as any, { agentId: 'test', error: new Error('test') });
-    
+
     assertSpyCalls(handler, 1); // Still 1, not called again
   });
 
   it('should remove all listeners for an event', () => {
     const handler1 = spy();
     const handler2 = spy();
-    
+
     eventBus.on(SystemEvents.MEMORY_CREATED, handler1);
     eventBus.on(SystemEvents.MEMORY_CREATED, handler2);
-    
+
     eventBus.removeAllListeners(SystemEvents.MEMORY_CREATED);
     eventBus.emit(SystemEvents.MEMORY_CREATED as any, { entry: {} });
-    
+
     assertSpyCalls(handler1, 0);
     assertSpyCalls(handler2, 0);
   });
 
   it('should track event statistics', () => {
     const debugBus = EventBus.getInstance(true);
-    
+
     debugBus.emit(SystemEvents.TASK_CREATED as any, { task: {} });
     debugBus.emit(SystemEvents.TASK_CREATED as any, { task: {} });
     debugBus.emit(SystemEvents.TASK_COMPLETED as any, { taskId: 'test' });
-    
+
     const stats = debugBus.getEventStats();
     const taskCreatedStat = stats.find(s => s.event === SystemEvents.TASK_CREATED);
     const taskCompletedStat = stats.find(s => s.event === SystemEvents.TASK_COMPLETED);
-    
+
     expect(taskCreatedStat).toBeDefined();
     expect(taskCompletedStat).toBeDefined();
     expect(taskCreatedStat!.count).toBe(2);
@@ -179,11 +179,11 @@ describe('EventBus', () => {
 
   it('should reset event statistics', () => {
     const debugBus = EventBus.getInstance(true);
-    
+
     debugBus.emit(SystemEvents.SYSTEM_ERROR as any, { error: new Error('test'), component: 'test' });
     let stats = debugBus.getEventStats();
     expect(stats.length > 0).toBe(true);
-    
+
     debugBus.resetStats();
     stats = debugBus.getEventStats();
     expect(stats.length).toBe(0);

@@ -12,6 +12,7 @@ npx claude-flow sparc run code "Refactor index.js to server.js for REST API: cha
 ```
 
 **Tasks**:
+
 - Rename `index.js` to `server.js`
 - Change resource from "items" to "tasks"
 - Update endpoints to use `/api/v1/tasks`
@@ -26,6 +27,7 @@ npx claude-flow sparc run tdd "Create Jest test suite for tasks REST API with fu
 ```
 
 **Tasks**:
+
 - Install Jest and Supertest dependencies
 - Create `server.test.js` with comprehensive tests
 - Test all CRUD operations
@@ -40,6 +42,7 @@ npx claude-flow sparc run code "Implement query parameters for tasks API: filter
 ```
 
 **Tasks**:
+
 - Add query parameter parsing
 - Implement filtering by completed status
 - Add pagination (limit/offset)
@@ -54,6 +57,7 @@ npx claude-flow sparc run code "Implement proper error handling for tasks API wi
 ```
 
 **Tasks**:
+
 - Create consistent error response format
 - Add request validation middleware
 - Implement X-Request-ID header
@@ -68,6 +72,7 @@ npx claude-flow sparc run security-review "Review tasks REST API for security vu
 ```
 
 **Tasks**:
+
 - Review input validation
 - Check for information leakage in errors
 - Validate data sanitization
@@ -82,6 +87,7 @@ npx claude-flow sparc run refinement-optimization-mode "Optimize tasks API query
 ```
 
 **Tasks**:
+
 - Optimize filtering algorithms
 - Improve pagination efficiency
 - Review memory usage patterns
@@ -96,6 +102,7 @@ npx claude-flow sparc run docs-writer "Update REST API documentation to match im
 ```
 
 **Tasks**:
+
 - Update README.md for tasks (not items)
 - Ensure API specification matches implementation
 - Add usage examples
@@ -110,6 +117,7 @@ npx claude-flow sparc run integration "Perform end-to-end testing of tasks REST 
 ```
 
 **Tasks**:
+
 - Run full test suite
 - Manual testing with test-api.js
 - Verify all endpoints
@@ -140,6 +148,7 @@ npx claude-flow monitor
 If you prefer to execute each phase manually:
 
 1. **Start with core refactoring**:
+
    ```bash
    cd /workspaces/claude-code-flow/examples/rest-api-simple
    # Backup current implementation
@@ -147,16 +156,19 @@ If you prefer to execute each phase manually:
    ```
 
 2. **Update dependencies**:
+
    ```bash
    npm install --save-dev jest supertest
    ```
 
 3. **Run tests after each phase**:
+
    ```bash
    npm test
    ```
 
 4. **Test the API manually**:
+
    ```bash
    npm run dev
    # In another terminal:

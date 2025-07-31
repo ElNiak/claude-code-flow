@@ -37,29 +37,29 @@ const MIGRATIONS = [
         size INTEGER NOT NULL DEFAULT 0,
         UNIQUE(key, namespace)
       );
-      
+
       -- Metadata table for system information
       CREATE TABLE IF NOT EXISTS metadata (
         key TEXT PRIMARY KEY,
         value TEXT NOT NULL,
         updated_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now'))
       );
-      
+
       -- Migrations tracking table
       CREATE TABLE IF NOT EXISTS migrations (
         version INTEGER PRIMARY KEY,
         description TEXT,
         applied_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now'))
       );
-      
+
       -- Performance indexes
       CREATE INDEX IF NOT EXISTS idx_memory_namespace ON memory_store(namespace);
       CREATE INDEX IF NOT EXISTS idx_memory_expires ON memory_store(expires_at) WHERE expires_at IS NOT NULL;
       CREATE INDEX IF NOT EXISTS idx_memory_accessed ON memory_store(accessed_at);
       CREATE INDEX IF NOT EXISTS idx_memory_key_namespace ON memory_store(key, namespace);
-      
+
       -- Insert initial metadata
-      INSERT OR IGNORE INTO metadata (key, value) VALUES 
+      INSERT OR IGNORE INTO metadata (key, value) VALUES
         ('version', '1.0.0'),
         ('created_at', strftime('%s', 'now'));
     `,
@@ -70,10 +70,10 @@ const MIGRATIONS = [
     sql: `
       -- Add tags column
       ALTER TABLE memory_store ADD COLUMN tags TEXT;
-      
+
       -- Create tags index for faster searching
       CREATE INDEX IF NOT EXISTS idx_memory_tags ON memory_store(tags) WHERE tags IS NOT NULL;
-      
+
       -- Update version
       UPDATE metadata SET value = '1.1.0', updated_at = strftime('%s', 'now') WHERE key = 'version';
     `,
@@ -667,7 +667,7 @@ export class SharedMemory extends EventEmitter {
     this.statements.set(
       'updateAccess',
       this.db.prepare(`
-      UPDATE memory_store 
+      UPDATE memory_store
       SET accessed_at = strftime('%s', 'now'), access_count = access_count + 1
       WHERE key = ? AND namespace = ?
     `),
@@ -685,9 +685,9 @@ export class SharedMemory extends EventEmitter {
     this.statements.set(
       'list',
       this.db.prepare(`
-      SELECT * FROM memory_store 
-      WHERE namespace = ? 
-      ORDER BY accessed_at DESC 
+      SELECT * FROM memory_store
+      WHERE namespace = ?
+      ORDER BY accessed_at DESC
       LIMIT ? OFFSET ?
     `),
     );
@@ -704,7 +704,7 @@ export class SharedMemory extends EventEmitter {
     this.statements.set(
       'stats',
       this.db.prepare(`
-      SELECT 
+      SELECT
         namespace,
         COUNT(*) as count,
         SUM(size) as total_size,
@@ -719,7 +719,7 @@ export class SharedMemory extends EventEmitter {
     this.statements.set(
       'gc',
       this.db.prepare(`
-      DELETE FROM memory_store 
+      DELETE FROM memory_store
       WHERE expires_at IS NOT NULL AND expires_at < strftime('%s', 'now')
     `),
     );

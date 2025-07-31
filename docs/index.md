@@ -7,11 +7,13 @@ Welcome to the complete documentation for Claude-Flow - an advanced AI agent orc
 This comprehensive documentation covers all aspects of Claude-Flow, from quick start guides to advanced API integration.
 
 ### 🚀 Getting Started
+
 - **[Quick Start Guide](./quick-start.md)** - Get up and running in minutes
 - **[Installation](./quick-start.md#installation)** - Multiple installation methods
 - **[First Steps](./quick-start.md#first-run)** - Your first agent and task
 
 ### 🛠 Core Guides
+
 - **[CLI Reference](./cli-reference.md)** - Complete command-line interface documentation
 - **[Configuration](./configuration.md)** - System configuration and customization
 - **[Agent Management](./agent-management.md)** - Creating and managing AI agents
@@ -21,6 +23,7 @@ This comprehensive documentation covers all aspects of Claude-Flow, from quick s
 - **[MCP Integration](./mcp-integration.md)** - Model Context Protocol implementation
 
 ### 🔧 Advanced Topics
+
 - **[API Reference](./api/)** - Programmatic interface documentation
 - **[Examples](./examples/)** - Practical usage examples and templates
 - **[Deployment](./deployment/)** - Production deployment strategies
@@ -31,30 +34,35 @@ This comprehensive documentation covers all aspects of Claude-Flow, from quick s
 Claude-Flow is a sophisticated multi-agent orchestration system that enables you to:
 
 ### 🤖 Multi-Agent Orchestration
+
 - Spawn and coordinate multiple Claude agents with different roles
 - Intelligent task assignment and load balancing
 - Inter-agent communication and collaboration
 - Dynamic agent lifecycle management
 
 ### 📋 Advanced Task Management
+
 - Priority-based task scheduling with dependencies
 - Complex workflow orchestration with parallel execution
 - Automated retry and error recovery mechanisms
 - Real-time progress monitoring and reporting
 
 ### 🧠 Intelligent Memory System
+
 - Persistent memory with SQLite and Markdown backends
 - Vector-based semantic search and retrieval
 - CRDT-based conflict resolution for collaboration
 - Namespace isolation and access control
 
 ### 💻 Seamless Terminal Integration
+
 - Efficient terminal pooling and session management
 - VSCode Terminal API integration
 - Command execution with security sandboxing
 - Cross-platform compatibility
 
 ### 🔗 Extensible Tool Integration
+
 - Model Context Protocol (MCP) server implementation
 - Dynamic tool discovery and registration
 - Secure tool execution with sandboxing
@@ -107,18 +115,21 @@ claude-flow status --watch
 ## 📖 Documentation Structure
 
 ### For Users
+
 - **[Quick Start](./quick-start.md)** - Immediate hands-on introduction
 - **[CLI Reference](./cli-reference.md)** - Complete command documentation
 - **[Configuration](./configuration.md)** - Customization and settings
 - **[Examples](./examples/)** - Real-world usage scenarios
 
 ### For Developers
+
 - **[API Reference](./api/)** - Programmatic interfaces
 - **[Agent Management](./agent-management.md)** - Agent development
 - **[MCP Integration](./mcp-integration.md)** - Tool development
 - **[Memory System](./memory-system.md)** - Memory architecture
 
 ### For Administrators
+
 - **[Deployment](./deployment/)** - Production setup
 - **[Configuration](./configuration.md)** - System administration
 - **[Troubleshooting](./troubleshooting.md)** - Issue resolution
@@ -127,18 +138,21 @@ claude-flow status --watch
 ## 🎓 Learning Path
 
 ### Beginner
+
 1. Start with [Quick Start Guide](./quick-start.md)
 2. Explore [CLI Reference](./cli-reference.md) basics
 3. Try [Simple Examples](./examples/)
 4. Learn [Agent Management](./agent-management.md) fundamentals
 
 ### Intermediate
+
 1. Master [Task Orchestration](./task-orchestration.md)
 2. Understand [Memory System](./memory-system.md)
 3. Configure [Terminal Integration](./terminal-integration.md)
 4. Explore [Advanced Examples](./examples/)
 
 ### Advanced
+
 1. Study [API Reference](./api/) for programmatic use
 2. Develop custom tools with [MCP Integration](./mcp-integration.md)
 3. Plan [Production Deployment](./deployment/)
@@ -186,24 +200,28 @@ Powerful terminal management with:
 ## 📊 Use Cases
 
 ### Research and Analysis
+
 - Academic research automation
 - Market analysis workflows
 - Competitive intelligence gathering
 - Data analysis pipelines
 
 ### Software Development
+
 - Code review automation
 - Testing and QA workflows
 - Documentation generation
 - CI/CD integration
 
 ### Business Operations
+
 - Customer support automation
 - Content creation pipelines
 - Process optimization
 - Report generation
 
 ### Data Processing
+
 - ETL workflow automation
 - Analytics report generation
 - Data quality monitoring
@@ -212,24 +230,28 @@ Powerful terminal management with:
 ## 🌟 Why Choose Claude-Flow?
 
 ### ✅ Production Ready
+
 - 100% test coverage
 - Comprehensive error handling
 - Performance optimized
 - Security hardened
 
 ### ✅ Developer Friendly
+
 - TypeScript/JavaScript API
 - Comprehensive documentation
 - Rich example library
 - Active community support
 
 ### ✅ Highly Configurable
+
 - Flexible configuration system
 - Multiple deployment options
 - Extensible architecture
 - Custom agent development
 
 ### ✅ Enterprise Grade
+
 - Multi-tenant support
 - Advanced security features
 - Monitoring and metrics
@@ -238,12 +260,14 @@ Powerful terminal management with:
 ## 🤝 Community and Support
 
 ### Getting Help
+
 - **[GitHub Issues](https://github.com/ruvnet/claude-code-flow/issues)** - Bug reports and feature requests
 - **[GitHub Discussions](https://github.com/ruvnet/claude-code-flow/discussions)** - Community Q&A
 - **[Discord](https://discord.gg/claude-flow)** - Real-time chat support
 - **[Documentation](https://claude-flow.dev/docs)** - Comprehensive guides
 
 ### Contributing
+
 - **[Contributing Guide](./contributing.md)** - How to contribute
 - **[Code of Conduct](./code-of-conduct.md)** - Community guidelines
 - **[Development Setup](./development.md)** - Local development
@@ -252,12 +276,14 @@ Powerful terminal management with:
 ## 📅 What's Next?
 
 ### Current Development
+
 - Enhanced web UI for visual workflow design
 - Plugin system for custom integrations
 - Advanced analytics and reporting
 - Performance optimizations
 
 ### Roadmap
+
 - Distributed orchestration support
 - Integration with more AI models
 - Enhanced collaboration features

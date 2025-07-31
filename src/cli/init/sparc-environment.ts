@@ -128,7 +128,7 @@ function createClaudeMd(): string {
 ## 🎯 Purpose of This Configuration
 This CLAUDE.md file configures Claude Code to help you BUILD YOUR OWN APPLICATIONS using the claude-flow orchestration system. Claude-flow is a tool to help you develop software - it is NOT the project you should be modifying.
 
-**IMPORTANT**: 
+**IMPORTANT**:
 - Use claude-flow commands to BUILD YOUR APPLICATION
 - DO NOT modify the claude-flow system itself
 - Focus on YOUR PROJECT'S code, not the orchestration tool
@@ -347,7 +347,7 @@ TodoWrite([
     priority: "high"
   },
   {
-    id: "implement_auth", 
+    id: "implement_auth",
     content: "Implement authentication for YOUR app",
     status: "pending",
     priority: "high"

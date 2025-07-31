@@ -65,6 +65,7 @@ claude-flow swarm <objective> [options]
 ## Troubleshooting
 
 If you get "Claude CLI not found", ensure:
+
 1. Claude desktop app is installed
 2. The `claude` command is available in your PATH
 3. You can test with: `which claude`

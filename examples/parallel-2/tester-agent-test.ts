@@ -16,9 +16,9 @@ export class TesterAgent {
 
   async writeUnitTests(component: string): Promise<any> {
     console.log(`[${this.agentId}] Writing unit tests for: ${component}`);
-    
+
     await this.simulateWork(1000);
-    
+
     const unitTests = {
       framework: 'Jest',
       testCases: Math.floor(Math.random() * 20) + 15,
@@ -39,7 +39,7 @@ export class TesterAgent {
         'Concurrent access'
       ]
     };
-    
+
     console.log(`[${this.agentId}] Unit tests created`);
     return {
       agentId: this.agentId,
@@ -51,12 +51,12 @@ export class TesterAgent {
 
   async runIntegrationTests(system: string): Promise<any> {
     console.log(`[${this.agentId}] Running integration tests for: ${system}`);
-    
+
     await this.simulateWork(2000);
-    
+
     const totalTests = Math.floor(Math.random() * 30) + 20;
     const passedTests = Math.floor(totalTests * 0.9);
-    
+
     const integrationResults = {
       totalTests,
       passed: passedTests,
@@ -80,7 +80,7 @@ export class TesterAgent {
         'Improve error message validation'
       ]
     };
-    
+
     console.log(`[${this.agentId}] Integration tests completed`);
     return {
       agentId: this.agentId,
@@ -92,9 +92,9 @@ export class TesterAgent {
 
   async runPerformanceTests(endpoint: string): Promise<any> {
     console.log(`[${this.agentId}] Running performance tests for: ${endpoint}`);
-    
+
     await this.simulateWork(3000);
-    
+
     const performanceResults = {
       endpoint,
       virtualUsers: 1000,
@@ -120,7 +120,7 @@ export class TesterAgent {
       ],
       passedSLA: true
     };
-    
+
     console.log(`[${this.agentId}] Performance tests completed`);
     return {
       agentId: this.agentId,
@@ -132,9 +132,9 @@ export class TesterAgent {
 
   async runSecurityTests(component: string): Promise<any> {
     console.log(`[${this.agentId}] Running security tests for: ${component}`);
-    
+
     await this.simulateWork(2500);
-    
+
     const securityResults = {
       vulnerabilitiesFound: 3,
       criticalIssues: 0,
@@ -161,7 +161,7 @@ export class TesterAgent {
         GDPR: '90%'
       }
     };
-    
+
     console.log(`[${this.agentId}] Security tests completed`);
     return {
       agentId: this.agentId,
@@ -179,7 +179,7 @@ export class TesterAgent {
 // Allow direct execution
 if (require.main === module) {
   const tester = new TesterAgent();
-  
+
   Promise.all([
     tester.writeUnitTests('UserAuthentication'),
     tester.runIntegrationTests('Authentication System'),

@@ -11,7 +11,12 @@
     "lint": "eslint src/ tests/",
     "format": "prettier --write \"**/*.{js,json,md}\""
   },
-  "keywords": ["rest", "api", "express", "nodejs"],
+  "keywords": [
+    "rest",
+    "api",
+    "express",
+    "nodejs"
+  ],
   "author": "Claude Flow",
   "license": "MIT",
   "dependencies": {

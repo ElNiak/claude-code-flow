@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.0.0-alpha.70] - 2025-01-22
 
 ### 🔧 Critical Quote Handling Fix
+
 - **Hook Commands**: Fixed "Unterminated quoted string" errors in all hook commands
   - Replaced complex `printf` and nested quotes with simpler `cat | jq | tr | xargs` pipeline
   - Used `jq -r '.field // empty'` instead of problematic `'.field // ""'` syntax
@@ -15,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Fixed both init template and current settings.json files
 
 ### 🛠️ Command Improvements  
+
 - **Simplified Pipeline**: More reliable command parsing without quote conflicts
 - **Better Error Handling**: Clean failures instead of shell syntax errors
 - **Consistent Syntax**: All hook commands use identical, tested patterns
@@ -22,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.0.0-alpha.69] - 2025-01-22
 
 ### 🔧 Critical Fix
+
 - **Init Template**: Fixed `claude-flow init` creating broken settings.json with xargs quote errors
   - Updated template to use `printf '%s\0'` instead of problematic `cat | jq | xargs -I` pipeline
   - Changed to `xargs -0` with single quotes around `{}` placeholders  
@@ -29,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - All new projects initialized with `claude-flow init` now have working hooks
 
 ### 🛠️ Template Improvements
+
 - **Safer Command Execution**: Printf-based approach prevents quote parsing issues
 - **Better Error Handling**: Commands fail gracefully instead of breaking xargs
 - **Cleaner Syntax**: Simplified hook commands for better reliability
@@ -36,6 +40,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.0.0-alpha.68] - 2025-01-22
 
 ### 🔧 Critical Bug Fixes
+
 - **Hook Execution**: Fixed xargs unmatched quote error in PreToolUse:Bash and PostToolUse:Bash hooks
   - Updated to use `xargs -0` with null-delimited input to properly handle commands with quotes
   - Changed from double quotes to single quotes around command placeholders
@@ -45,17 +50,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Temporary workaround: hooks fail gracefully with non-blocking errors
 
 ### 🛠️ Improvements
+
 - **Hook Reliability**: Enhanced quote and special character handling in all hook commands
 - **Error Handling**: Improved error reporting for missing commands
 - **Settings Format**: Updated .claude/settings.json with fixed hook configurations
 
 ### 📝 Known Issues
+
 - Neural commands (`neural predict`, `neural train`, etc.) are not yet implemented in alpha version
 - Memory store command requires proper key-value syntax
 
 ## [2.0.0-alpha.67] - 2025-01-21
 
 ### 🐝 Hive Mind Enhancement
+
 - **Hive Mind Integration**: Fixed settings.json validation errors for Claude Code compatibility
 - **Configuration Fix**: Removed unrecognized fields (checkpoints, memory, neural, github, optimization)
 - **Hook Names**: Corrected invalid hook names to match Claude Code 1.0.51+ format
@@ -63,39 +71,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Removed invalid `checkpoint` and `error` hooks
 
 ### 🔧 Infrastructure
+
 - **Settings Validation**: Now passes `/doctor` command validation
 - **Claude Code Compatibility**: Full compatibility with Claude Code 1.0.51+ settings format
 - **Version Update**: Bumped to alpha.67 across all version references
 
 ### 📚 Documentation
+
 - Updated version references in help text and CLI commands
 - Enhanced hive-mind documentation with corrected hook configurations
 
 ## [2.0.0-alpha.66] - 2025-01-20
 
 ### 🔧 Bug Fixes
+
 - **Hooks Command**: Fixed "command.toLowerCase is not a function" error in hooks pre-command
 - **ARM64 Support**: Improved ARM64 compatibility for better-sqlite3 on macOS (#378)
 - Added type checking for command parameter in hooks to handle empty/missing values
 - Enhanced postinstall script with ARM64 detection and automatic rebuild
 
 ### 🚀 New Features
+
 - Automatic SQLite binding verification and rebuild for Apple Silicon Macs
 - Graceful fallback to in-memory storage if SQLite bindings fail
 - Better error handling and user feedback during installation
 
 ### 🏗️ Infrastructure
+
 - Added `node20-macos-arm64` target to pkg configuration
 - Improved boolean parameter parsing in hooks commands
 - Enhanced platform detection for ARM64 architecture
 
 ### 📚 Documentation
+
 - Added ARM64 troubleshooting guide
 - Updated hooks command usage examples
 
 ## [2.0.0-alpha.65] - 2025-01-20
 
 ### 🔧 Bug Fixes
+
 - **CRITICAL**: Fixed "table agents has no column named role" error in hive-mind wizard (#403)
 - Added missing `role` column to agents table schema in init/index.js
 - Fixed TypeScript build errors preventing compilation
@@ -103,44 +118,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed missing type definitions in multiple modules
 
 ### 🏗️ Infrastructure
+
 - **Database Schema**: Synchronized agents table schema across all modules
 - **Build System**: Fixed critical TypeScript compilation errors
 - **Type Safety**: Added proper type annotations throughout codebase
 
 ### 📚 Documentation
+
 - Added migration instructions for existing databases
 - Updated test suite with schema validation tests
 
 ## [2.0.0-alpha.64] - 2025-01-18
 
 ### 🔧 Bug Fixes
+
 - Fixed wrapper script hardcoded to use outdated alpha-27 version
 - Updated wrapper to use `@alpha` tag for always getting latest alpha version
 - Ensures `./claude-flow` wrapper always uses the most recent alpha release
 
 ### 📦 Dependencies
+
 - No dependency changes, only template fix
 
 ## [2.0.0-alpha.63] - 2025-01-18
 
 ### 🚀 Major Features
+
 - **MCP/NPX Fallback Pattern**: All 60+ command files now include both MCP tools (preferred) and NPX CLI (fallback)
 - **SPARC Included by Default**: No more `--sparc` flag needed, SPARC commands automatically initialized
 - **Complete Environment Init**: Creates 112+ files including both databases properly initialized
 
 ### 🏗️ Infrastructure
+
 - **Template System**: Updated template generation to include MCP/NPX fallback patterns
 - **Init Command**: Fixed missing imports for createAgentsReadme and createSessionsReadme
 - **Database Init**: Added .hive-mind directory creation and hive.db initialization with schema
 - **SPARC Integration**: Made SPARC included by default in v2.0.0 flow
 
 ### 🛠️ Improvements
+
 - Updated all 18 SPARC command files in .claude/commands/sparc/ with MCP/NPX fallback
 - Updated 5 swarm strategy files with MCP/NPX patterns
 - Enhanced init command to create complete environment with 113 files
 - Fixed copyRevisedTemplates to include SPARC files
 
 ### 📚 Documentation
+
 - Updated CLAUDE.md template with comprehensive MCP/NPX usage examples
 - Added fallback guidance to all command documentation
 - Enhanced GitHub integration documentation with gh CLI usage
@@ -148,12 +171,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.0.0-alpha.62] - 2025-01-18
 
 ### 🔒 Security Fixes
+
 - **CRITICAL**: Removed vulnerable `pkg` dependency (GHSA-22r3-9w55-cj54) - Local privilege escalation vulnerability
 - Replaced `pkg` with secure `@vercel/ncc` alternative for binary building
 - Security score improved from 55/100 to 75/100
 - All npm audit vulnerabilities resolved (0 vulnerabilities)
 
 ### 🚀 Infrastructure Improvements
+
 - **CI/CD Pipeline**: Re-enabled ALL security gates with strict enforcement
   - Removed all `|| true` and `|| echo` fallbacks
   - Added production dependency audit (moderate level)
@@ -168,6 +193,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Core tests now passing
 
 ### 🛠️ Code Quality Improvements
+
 - **ESLint**: Fixed 145 errors (16% reduction from 900 to 755)
   - Removed 104 unused `getErrorMessage` imports
   - Fixed non-null assertions with proper null checks
@@ -183,12 +209,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Created `.prettierrc.json` for consistent formatting
 
 ### 📚 Documentation
+
 - Created `SECURITY_AUDIT_REPORT.md` with detailed security findings
 - Created `FIX_SUMMARY.md` documenting all code quality fixes
 - Created `FUNCTIONALITY_REVIEW.md` verifying all features work
 - Updated GitHub issue #362 with comprehensive progress reports
 
 ### ✅ Verified Working Features
+
 - All core CLI commands operational
 - SPARC development system functional
 - Hive Mind system ready
@@ -198,6 +226,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Help system comprehensive
 
 ### 🐛 Known Issues
+
 - ESLint: 755 warnings remaining (mostly `any` types)
 - TypeScript: 413 errors remaining (complex type issues)
 - Some integration tests need implementation
@@ -206,7 +235,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.0.0-alpha.61] - 2025-01-17
 
 ### Added
-- **Neural Training Enhancements**: 
+
+- **Neural Training Enhancements**:
   - Enhanced neural training with real WASM acceleration achieving 92.9% accuracy
   - Added task-predictor model for improved agent coordination
   - Implemented SIMD support for faster neural computations
@@ -224,6 +254,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Enhanced version display in CLI output
 
 ### Fixed
+
 - **Issue #351**: Fixed `swarm_status` MCP tool returning mock response instead of real data
   - Removed dependency on uninitialized `databaseManager`
   - Updated to use memory store (SQLite) for swarm data retrieval
@@ -239,12 +270,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Resolved critical bug that blocked system integration startup
 
 ### Changed
-- **MCP Server Memory Integration**: 
+
+- **MCP Server Memory Integration**:
   - `swarm_status` now retrieves data from persistent memory store
   - `agent_spawn` stores agents with swarm-scoped keys (`agent:{swarmId}:{agentId}`)
   - `task_orchestrate` now stores tasks in memory (previously only attempted database storage)
   - `getActiveSwarmId()` method updated to use memory store
-  
+
 - **System Integration Memory Setup**:
   - MemoryManager now receives EventBus and Logger instances from SystemIntegration
   - Memory configuration is created with sensible defaults during initialization
@@ -263,50 +295,59 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### 🚀 Major Hook System Overhaul (Issue #280)
 
 #### **Complete Resolution of Hook Inconsistencies**
+
 - **Hook name compatibility**: Both `pre-command` and `pre-bash` work identically
 - **Parameter mapping**: All settings.json template parameters implemented
 - **Dual format support**: Both dash-case (`--validate-safety`) and camelCase (`validateSafety`) work
 - **100% settings.json compatibility**: All template commands work without modification
 
 #### **Enhanced Safety Features**
+
 - **Dangerous command blocking**: Prevents `rm -rf`, `format`, `del /f`, etc.
 - **Safety validation**: Real-time command analysis and blocking
 - **Resource preparation**: Automatic working directory setup
 - **Command logging**: Full audit trail in SQLite memory store
 
 #### **Intelligent Agent Assignment**
+
 - **File-type based recommendations**: `.js` → `javascript-developer`, `.py` → `python-developer`
 - **Context-aware assignment**: Automatic agent matching based on file extensions
 - **Load context functionality**: Pre-operation context loading for better decisions
 
 #### **Neural Pattern Training**
+
 - **Confidence scoring**: 70-100% confidence levels for pattern recognition
 - **Learning simulation**: Adaptive pattern training for syntax, structure, performance, security
 - **Memory persistence**: Cross-session learning data storage
 
 #### **Comprehensive Session Management**
+
 - **State persistence**: Full session state saved to SQLite database
 - **Metrics export**: Detailed session statistics and performance data
 - **Summary generation**: Automatic session summaries with key metrics
 - **Cross-session memory**: Persistent memory across development sessions
 
 #### **Technical Improvements**
+
 - **SQLite integration**: Robust memory store with error handling
 - **Performance tracking**: Real-time metrics collection and analysis
 - **Enhanced TypeScript types**: Complete interface coverage for all hook parameters
 - **Comprehensive testing**: Integration tests for all hook functionality
 
 ### Fixed
+
 - **Issue #280**: Complete resolution of hook parameter inconsistencies
 - **Parameter validation**: All settings.json template parameters now work correctly
 - **Hook name aliases**: Pre-command/pre-bash and post-command/post-bash compatibility
 - **Memory storage**: Reliable SQLite-based persistence system
 
 ### Dependencies
+
 - **Added**: `diskusage@1.1.3` for system resource monitoring
 - **Updated**: Package version to 2.0.0-alpha.56
 
 ### Testing
+
 - **Integration tests**: Comprehensive test suite for hook consistency
 - **Template validation**: Settings.json command validation tests
 - **Manual testing**: All hook variations tested and verified
@@ -315,6 +356,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.0.0-alpha.51] - 2025-01-14
 
 ### Changed
+
 - Version bump with updated CLI version strings
 - All features from alpha.50 included
 
@@ -323,6 +365,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 #### **Hive Mind Resume Functionality**
+
 - **Session persistence** across swarm operations with automatic tracking
 - **Auto-save system** with 30-second intervals and critical event saves
 - **Resume capabilities** with full context restoration and progress tracking
@@ -332,6 +375,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Complete documentation** in `docs/hive-mind-resume.md`
 
 #### **Technical Infrastructure**
+
 - **HiveMindSessionManager** class for session lifecycle management
 - **AutoSaveMiddleware** for automatic state persistence
 - **Database schema** with sessions, checkpoints, and logs tables
@@ -339,12 +383,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Progress tracking** with completion percentage calculations
 
 ### Fixed
+
 - **Session ID tracking** in spawn command output
 - **Auto-save timing** for consistent 30-second intervals
 - **Error recovery** for corrupted session data
 - **Claude Code prompt** generation for resumed sessions
 
 ### Performance
+
 - **Minimal overhead**: < 1% CPU usage for auto-save
 - **Fast resume**: < 2 seconds session restoration
 - **Efficient storage**: Compressed checkpoint data
@@ -355,6 +401,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 #### **Complete ruv-swarm Integration**
+
 - **27 MCP tools** for comprehensive workflow automation
 - **Multi-agent task coordination** with swarm intelligence and hierarchical topology
 - **Neural network capabilities** with cognitive diversity patterns (convergent, divergent, lateral, systems, critical, adaptive)
@@ -363,6 +410,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **WASM-powered neural processing** with SIMD optimization support
 
 #### **GitHub Workflow Automation**
+
 - **6 specialized command modes** in `.claude/commands/github/`:
   - `pr-manager`: Automated pull request management with swarm coordination
   - `issue-tracker`: Intelligent issue management and progress tracking
@@ -376,6 +424,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Release coordination** with comprehensive validation pipelines
 
 #### **Production-Ready Infrastructure**
+
 - **Multi-stage Docker builds** with 60% performance improvement over previous builds
 - **Comprehensive testing suite** with 67 CLI tests achieving 100% pass rate
 - **Docker Compose orchestration** for development, testing, and production environments
@@ -384,6 +433,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Security hardening** with non-root containers and best practices implementation
 
 #### **Enhanced CLI Capabilities**
+
 - **Advanced swarm coordination commands** with `npx claude-flow swarm`
 - **GitHub integration commands** accessible through enhanced CLI interface
 - **Improved error handling** and validation with detailed error messages
@@ -392,6 +442,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Performance benchmarking** tools integrated into CLI
 
 #### **Enterprise Features**
+
 - **Enterprise-grade documentation** with comprehensive integration guides
 - **Production deployment** configurations and best practices
 - **Performance metrics** and monitoring capabilities
@@ -401,28 +452,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 #### **Node.js Requirements**
+
 - **Upgraded minimum version** from `>=18.0.0` to `>=20.0.0` for optimal ruv-swarm compatibility
 - **Added npm requirement** of `>=9.0.0` for enhanced package management features
 
 #### **Package Dependencies**
+
 - **Updated better-sqlite3** from `^11.10.0` to `^12.2.0` for improved compatibility
 - **Added ruv-swarm dependency** for complete swarm coordination capabilities
 - **Enhanced package keywords** for better discoverability on npm registry
 - **Optimized file inclusion** for npm publishing with focus on essential files
 
 #### **CLI Command Structure**
+
 - **Enhanced all commands** with swarm coordination capabilities
 - **Improved command organization** with specialized GitHub workflow commands
 - **Better error handling** throughout the CLI interface
 - **Enhanced help documentation** with comprehensive examples
 
 #### **Documentation**
+
 - **Complete overhaul** focusing on enterprise features and v2.0.0 capabilities
 - **Added comprehensive integration guides** for ruv-swarm and GitHub workflows
 - **Enhanced README.md** with enterprise-focused content and clear value propositions
 - **Improved code examples** and usage documentation
 
 #### **Configuration**
+
 - **New `.claude/commands/github/` directory** structure for GitHub workflow commands
 - **Enhanced npm publishing** configuration with automated workflows
 - **Improved package metadata** for better npm registry presentation
@@ -431,24 +487,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 #### **Dependency Resolution**
+
 - **Resolved file path dependency issues** for ruv-swarm integration
 - **Fixed version compatibility** conflicts between packages
 - **Improved dependency alignment** across the entire ecosystem
 - **Enhanced package installation** reliability
 
 #### **Version Compatibility**
+
 - **Aligned Node.js requirements** across claude-code-flow and ruv-swarm
 - **Fixed better-sqlite3 version** conflicts for cross-platform compatibility
 - **Resolved npm installation** issues in Docker environments
 - **Enhanced cross-platform** compatibility validation
 
 #### **Memory Coordination**
+
 - **Improved cross-package state management** with enhanced memory persistence
 - **Fixed memory leaks** in long-running swarm operations
 - **Enhanced memory efficiency** for large-scale operations
 - **Optimized memory coordination** between agents
 
 #### **Error Handling**
+
 - **Enhanced error messages** with actionable guidance and context
 - **Improved error recovery** mechanisms for robust operation
 - **Better error logging** for debugging and troubleshooting
@@ -457,18 +517,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 
 #### **Docker Security**
+
 - **Implemented security hardening** in container configurations
 - **Added non-root user** execution for enhanced security
 - **Enhanced container isolation** and network security
 - **Implemented security scanning** in CI/CD pipelines
 
 #### **Dependency Security**
+
 - **Updated dependencies** to resolve security vulnerabilities
 - **Implemented automated security** scanning with npm audit
 - **Enhanced access control** for GitHub integrations
 - **Added vulnerability monitoring** for continuous security
 
 #### **Access Control**
+
 - **Enhanced permission management** for GitHub integrations
 - **Improved API security** for MCP tool interactions
 - **Added authentication** validation for sensitive operations
@@ -477,18 +540,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Performance
 
 #### **Build Performance**
+
 - **60% faster Docker builds** through multi-stage optimization
 - **Improved package installation** speed with optimized dependencies
 - **Enhanced build caching** for development workflows
 - **Optimized binary compilation** for faster CLI startup
 
 #### **Runtime Performance**
+
 - **Sub-10ms MCP response times** for optimal user experience
 - **Improved memory efficiency** with optimized coordination algorithms
 - **Enhanced CPU utilization** for better resource management
 - **Faster CLI startup** times with optimized initialization
 
 #### **Testing Performance**
+
 - **100% CLI test success rate** with comprehensive validation
 - **Faster test execution** with parallel testing capabilities
 - **Improved test coverage** across all major features
@@ -501,16 +567,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Prerequisites
 
 1. **Update Node.js** to version 20 or higher:
+
    ```bash
    # Check current version
    node --version
-   
+
    # Update to Node.js 20+ (using nvm)
    nvm install 20
    nvm use 20
    ```
 
 2. **Update npm** to version 9 or higher:
+
    ```bash
    npm install -g npm@latest
    ```
@@ -518,16 +586,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Installation
 
 1. **Uninstall previous version** (if installed globally):
+
    ```bash
    npm uninstall -g claude-flow
    ```
 
 2. **Install v2.0.0**:
+
    ```bash
    npm install -g claude-flow@2.0.0
    ```
 
 3. **Verify installation**:
+
    ```bash
    claude-flow --version  # Should show 2.0.0
    claude-flow --help     # Verify all commands available
@@ -536,16 +607,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Configuration Updates
 
 1. **Initialize new features**:
+
    ```bash
    npx claude-flow init --sparc
    ```
 
 2. **Test swarm capabilities**:
+
    ```bash
    npx claude-flow swarm init
    ```
 
 3. **Explore GitHub integration**:
+
    ```bash
    npx claude-flow github --help
    ```
@@ -553,17 +627,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Breaking Changes
 
 #### Command Structure
+
 - **All commands** now support swarm coordination
 - **New GitHub commands** available in `.claude/commands/github/`
 - **Enhanced error handling** may change error message formats
 - **Existing commands** remain backward compatible
 
 #### Dependencies
+
 - **ruv-swarm** is now a required dependency
 - **better-sqlite3** updated to v12.2.0
 - **Node.js 20+** is required for optimal performance
 
 #### Configuration
+
 - **New configuration files** in `.claude/commands/github/`
 - **Enhanced MCP integration** requires ruv-swarm setup
 - **Updated package metadata** for npm publishing
@@ -571,6 +648,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### New Features
 
 #### Swarm Coordination
+
 ```bash
 # Initialize swarm
 npx claude-flow swarm init
@@ -584,6 +662,7 @@ npx claude-flow task orchestrate "complex development task"
 ```
 
 #### GitHub Integration
+
 ```bash
 # Automated PR management
 npx claude-flow github pr-manager "review and merge feature branch"
@@ -596,6 +675,7 @@ npx claude-flow github release-manager "prepare v2.0.0 release"
 ```
 
 #### Docker Development
+
 ```bash
 # Build Docker environment
 docker-compose -f infrastructure/docker/docker-compose.yml up
@@ -630,11 +710,13 @@ cd infrastructure/docker && docker-compose up
 ## [1.0.71] - 2025-07-01
 
 ### Fixed
+
 - Enhanced stability and performance improvements
 - Improved error handling in core orchestration
 - Updated dependencies for security
 
 ### Added
+
 - Improved CLI interface
 - Enhanced configuration management
 - Better error reporting
@@ -644,6 +726,7 @@ cd infrastructure/docker && docker-compose up
 ## [1.0.0] - 2025-01-01
 
 ### Added
+
 - Initial release of claude-flow
 - Basic AI agent orchestration
 - CLI interface for agent management

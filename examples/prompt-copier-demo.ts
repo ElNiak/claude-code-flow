@@ -2,7 +2,7 @@
 
 /**
  * Prompt Copier Demo
- * 
+ *
  * This demo showcases the robust prompt copying mechanism capabilities:
  * - Basic copying functionality
  * - Enhanced parallel processing
@@ -19,14 +19,14 @@ import { ensureDir } from 'https://deno.land/std@0.208.0/fs/mod.ts';
 
 async function createDemoData() {
   console.log('🔧 Setting up demo data...');
-  
+
   const demoDir = './demo-prompt-copying';
   const sourceDir = path.join(demoDir, 'source');
   const destDir = path.join(demoDir, 'destination');
-  
+
   await ensureDir(sourceDir);
   await ensureDir(destDir);
-  
+
   // Create sample prompt files
   const prompts = [
     {
@@ -56,7 +56,7 @@ You are a TDD expert focused on writing tests first and implementing clean, test
 
 ## Your Process
 1. **Red**: Write failing tests first
-2. **Green**: Implement minimal code to pass tests  
+2. **Green**: Implement minimal code to pass tests
 3. **Refactor**: Clean up and optimize code
 4. **Repeat**: Continue until feature is complete
 
@@ -143,15 +143,15 @@ You are a senior developer focused on writing clean, maintainable, and efficient
       content: ''
     }
   ];
-  
+
   for (const prompt of prompts) {
     const filePath = path.join(sourceDir, prompt.path);
     const dir = path.dirname(filePath);
-    
+
     await ensureDir(dir);
     await Deno.writeTextFile(filePath, prompt.content);
   }
-  
+
   console.log('✅ Demo data created');
   return { sourceDir, destDir, demoDir };
 }
@@ -159,10 +159,10 @@ You are a senior developer focused on writing clean, maintainable, and efficient
 async function demonstrateBasicCopying(sourceDir: string, destDir: string) {
   console.log('\n📋 Demo 1: Basic Copying');
   console.log('========================');
-  
+
   const basicDestDir = path.join(destDir, 'basic');
   await ensureDir(basicDestDir);
-  
+
   try {
     const result = await copyPrompts({
       source: sourceDir,
@@ -171,19 +171,19 @@ async function demonstrateBasicCopying(sourceDir: string, destDir: string) {
       verify: true,
       conflictResolution: 'backup'
     });
-    
+
     console.log(`✅ Basic copy completed`);
     console.log(`   Files copied: ${result.copiedFiles}`);
     console.log(`   Duration: ${result.duration}ms`);
     console.log(`   Success: ${result.success}`);
-    
+
     if (result.errors.length > 0) {
       console.log('   Errors:');
       result.errors.forEach(error => {
         console.log(`     - ${error.file}: ${error.error}`);
       });
     }
-    
+
   } catch (error) {
     console.error('❌ Basic copying failed:', error.message);
   }
@@ -192,13 +192,13 @@ async function demonstrateBasicCopying(sourceDir: string, destDir: string) {
 async function demonstrateEnhancedCopying(sourceDir: string, destDir: string) {
   console.log('\n⚡ Demo 2: Enhanced Parallel Copying');
   console.log('==================================');
-  
+
   const enhancedDestDir = path.join(destDir, 'enhanced');
   await ensureDir(enhancedDestDir);
-  
+
   try {
     let progress: any = null;
-    
+
     const result = await copyPromptsEnhanced({
       source: sourceDir,
       destination: enhancedDestDir,
@@ -211,19 +211,19 @@ async function demonstrateEnhancedCopying(sourceDir: string, destDir: string) {
           console.log('Progress:');
         }
         progress.update(prog.completed);
-        
+
         if (prog.completed === prog.total) {
           progress.complete();
         }
       }
     });
-    
+
     console.log(`✅ Enhanced copy completed`);
     console.log(`   Files copied: ${result.copiedFiles}`);
     console.log(`   Duration: ${result.duration}ms`);
     console.log(`   Workers used: 4`);
     console.log(`   Success: ${result.success}`);
-    
+
   } catch (error) {
     console.error('❌ Enhanced copying failed:', error.message);
   }
@@ -232,15 +232,15 @@ async function demonstrateEnhancedCopying(sourceDir: string, destDir: string) {
 async function demonstrateValidation(sourceDir: string) {
   console.log('\n🔍 Demo 3: File Validation');
   console.log('========================');
-  
+
   try {
     // Find all prompt files
     const files: string[] = [];
-    
+
     async function scanDir(dir: string) {
       for await (const entry of Deno.readDir(dir)) {
         const fullPath = path.join(dir, entry.name);
-        
+
         if (entry.isFile && (entry.name.endsWith('.md') || entry.name.endsWith('.txt'))) {
           files.push(fullPath);
         } else if (entry.isDirectory) {
@@ -248,17 +248,17 @@ async function demonstrateValidation(sourceDir: string) {
         }
       }
     }
-    
+
     await scanDir(sourceDir);
-    
+
     console.log(`Found ${files.length} prompt files to validate`);
-    
+
     let validFiles = 0;
     let invalidFiles = 0;
-    
+
     for (const file of files) {
       const result = await PromptValidator.validatePromptFile(file);
-      
+
       if (result.valid) {
         validFiles++;
         console.log(`✅ ${path.basename(file)}`);
@@ -269,17 +269,17 @@ async function demonstrateValidation(sourceDir: string) {
           console.log(`   - ${issue}`);
         });
       }
-      
+
       if (result.metadata && Object.keys(result.metadata).length > 0) {
         console.log(`   Metadata: ${JSON.stringify(result.metadata)}`);
       }
     }
-    
+
     console.log(`\nValidation Summary:`);
     console.log(`   Valid: ${validFiles}`);
     console.log(`   Invalid: ${invalidFiles}`);
     console.log(`   Total: ${files.length}`);
-    
+
   } catch (error) {
     console.error('❌ Validation failed:', error.message);
   }
@@ -288,11 +288,11 @@ async function demonstrateValidation(sourceDir: string) {
 async function demonstrateConfigManagement(demoDir: string) {
   console.log('\n⚙️  Demo 4: Configuration Management');
   console.log('==================================');
-  
+
   try {
     const configPath = path.join(demoDir, '.prompt-config.json');
     const manager = new PromptConfigManager(configPath);
-    
+
     // Initialize with custom config
     await manager.saveConfig({
       destinationDirectory: './custom-prompts',
@@ -311,23 +311,23 @@ async function demonstrateConfigManagement(demoDir: string) {
         }
       }
     });
-    
+
     console.log('✅ Configuration saved');
-    
+
     // Load and display config
     const config = await manager.loadConfig();
     console.log('Current configuration:');
     console.log(JSON.stringify(config, null, 2));
-    
+
     // Show available profiles
     const profiles = manager.listProfiles();
     console.log(`\nAvailable profiles: ${profiles.join(', ')}`);
-    
+
     // Get specific profile
     const demoProfile = manager.getProfile('demo');
     console.log('\nDemo profile settings:');
     console.log(JSON.stringify(demoProfile, null, 2));
-    
+
   } catch (error) {
     console.error('❌ Configuration management failed:', error.message);
   }
@@ -336,27 +336,27 @@ async function demonstrateConfigManagement(demoDir: string) {
 async function demonstratePromptManager(sourceDir: string, destDir: string, demoDir: string) {
   console.log('\n🎯 Demo 5: Prompt Manager');
   console.log('========================');
-  
+
   try {
     const managerDestDir = path.join(destDir, 'manager');
     await ensureDir(managerDestDir);
-    
+
     const manager = new PromptManager({
       basePath: demoDir,
       defaultProfile: 'sparc',
       autoDiscovery: true
     });
-    
+
     // Initialize manager
     await manager.initialize();
     console.log('✅ Manager initialized');
-    
+
     // Update config to use our demo directories
     await manager.updateConfig({
       sourceDirectories: [path.relative(demoDir, sourceDir)],
       destinationDirectory: path.relative(demoDir, managerDestDir)
     });
-    
+
     // Copy prompts using manager
     const result = await manager.copyPrompts({
       verify: true,
@@ -366,18 +366,18 @@ async function demonstratePromptManager(sourceDir: string, destDir: string, demo
         }
       }
     });
-    
+
     console.log('✅ Manager copy completed');
     console.log(`   Files copied: ${result.copiedFiles}`);
     console.log(`   Duration: ${result.duration}ms`);
-    
+
     // Validate prompts
     const validation = await manager.validatePrompts();
     console.log('\nValidation Results:');
     console.log(`   Total files: ${validation.totalFiles}`);
     console.log(`   Valid files: ${validation.validFiles}`);
     console.log(`   Invalid files: ${validation.invalidFiles}`);
-    
+
     // Generate report
     const report = await manager.generateReport();
     console.log('\nSystem Report:');
@@ -388,7 +388,7 @@ async function demonstratePromptManager(sourceDir: string, destDir: string, demo
         console.log(`       Files: ${source.fileCount}, Size: ${Math.round(source.totalSize! / 1024)}KB`);
       }
     });
-    
+
   } catch (error) {
     console.error('❌ Prompt manager demo failed:', error.message);
   }
@@ -397,10 +397,10 @@ async function demonstratePromptManager(sourceDir: string, destDir: string, demo
 async function demonstrateConflictResolution(sourceDir: string, destDir: string) {
   console.log('\n🔄 Demo 6: Conflict Resolution');
   console.log('=============================');
-  
+
   const conflictDestDir = path.join(destDir, 'conflicts');
   await ensureDir(conflictDestDir);
-  
+
   try {
     // First copy to establish baseline
     await copyPrompts({
@@ -408,44 +408,44 @@ async function demonstrateConflictResolution(sourceDir: string, destDir: string)
       destination: conflictDestDir,
       conflictResolution: 'overwrite'
     });
-    
+
     // Modify a file to create conflict
     const testFile = path.join(conflictDestDir, 'sparc', 'architect.md');
     await Deno.writeTextFile(testFile, '# Modified Content\nThis file was modified.');
-    
+
     console.log('Created conflict by modifying architect.md');
-    
+
     // Test different conflict resolution strategies
     const strategies = ['skip', 'backup', 'merge', 'overwrite'] as const;
-    
+
     for (const strategy of strategies) {
       console.log(`\nTesting ${strategy} strategy:`);
-      
+
       const strategyDestDir = path.join(conflictDestDir, strategy);
       await ensureDir(strategyDestDir);
-      
+
       // Copy existing file to create conflict
       await Deno.copyFile(testFile, path.join(strategyDestDir, 'architect.md'));
-      
+
       const result = await copyPrompts({
         source: path.join(sourceDir, 'sparc'),
         destination: strategyDestDir,
         conflictResolution: strategy
       });
-      
+
       console.log(`   Result: ${result.success ? 'Success' : 'Failed'}`);
       console.log(`   Copied: ${result.copiedFiles}, Skipped: ${result.skippedFiles}`);
-      
+
       if (result.backupLocation) {
         console.log(`   Backup created: ${path.basename(result.backupLocation)}`);
       }
-      
+
       // Check final content
       try {
         const finalContent = await Deno.readTextFile(path.join(strategyDestDir, 'architect.md'));
         const isOriginal = finalContent.includes('expert system architect');
         const isModified = finalContent.includes('Modified Content');
-        
+
         if (strategy === 'skip') {
           console.log(`   Content: ${isModified ? 'Modified (skipped)' : 'Original'}`);
         } else if (strategy === 'merge') {
@@ -457,7 +457,7 @@ async function demonstrateConflictResolution(sourceDir: string, destDir: string)
         console.log('   Content: File not found');
       }
     }
-    
+
   } catch (error) {
     console.error('❌ Conflict resolution demo failed:', error.message);
   }
@@ -465,7 +465,7 @@ async function demonstrateConflictResolution(sourceDir: string, destDir: string)
 
 async function cleanup(demoDir: string) {
   console.log('\n🧹 Cleaning up demo data...');
-  
+
   try {
     await Deno.remove(demoDir, { recursive: true });
     console.log('✅ Cleanup completed');
@@ -478,11 +478,11 @@ async function main() {
   console.log('🚀 Prompt Copier Demo');
   console.log('====================');
   console.log('This demo showcases the robust prompt copying mechanism capabilities.\n');
-  
+
   try {
     // Setup demo data
     const { sourceDir, destDir, demoDir } = await createDemoData();
-    
+
     // Run all demonstrations
     await demonstrateBasicCopying(sourceDir, destDir);
     await demonstrateEnhancedCopying(sourceDir, destDir);
@@ -490,7 +490,7 @@ async function main() {
     await demonstrateConfigManagement(demoDir);
     await demonstratePromptManager(sourceDir, destDir, demoDir);
     await demonstrateConflictResolution(sourceDir, destDir);
-    
+
     console.log('\n🎉 All demos completed successfully!');
     console.log('\nDemo Features Showcased:');
     console.log('✅ Basic file copying with verification');
@@ -499,7 +499,7 @@ async function main() {
     console.log('✅ Configuration management with profiles');
     console.log('✅ High-level prompt manager interface');
     console.log('✅ Intelligent conflict resolution strategies');
-    
+
     // Cleanup
     const shouldCleanup = confirm('\nClean up demo files?');
     if (shouldCleanup) {
@@ -507,7 +507,7 @@ async function main() {
     } else {
       console.log(`Demo files preserved in: ${demoDir}`);
     }
-    
+
   } catch (error) {
     console.error('\n❌ Demo failed:', error.message);
     console.error(error.stack);

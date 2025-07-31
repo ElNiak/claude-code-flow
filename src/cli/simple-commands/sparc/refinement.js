@@ -301,18 +301,18 @@ export class SparcRefinement extends SparcPhase {
     // Arrange
     const input = ${this.generateTestInput(testCase)};
     const expected = ${this.generateExpectedOutput(testCase)};
-    
+
     // Act
     ${
       testCase.type === 'negative'
         ? `
     const action = () => ${functionName}(input);
-    
+
     // Assert
     expect(action).toThrow();`
         : `
     const result = await ${functionName}(input);
-    
+
     // Assert
     expect(result).toEqual(expected);`
     }
@@ -349,7 +349,7 @@ export class SparcRefinement extends SparcPhase {
   if (!input || typeof input !== 'object') {
     throw new Error('Invalid input');
   }
-  
+
   // TODO: Implement actual logic
   return { success: false, message: 'Not implemented' };
 }`;
@@ -359,15 +359,15 @@ export class SparcRefinement extends SparcPhase {
   if (!input) {
     throw new Error('Input required');
   }
-  
+
   // Basic validation
   validateInput(input);
-  
+
   // Minimal business logic
   const result = processInput(input);
-  
-  return { 
-    success: true, 
+
+  return {
+    success: true,
     data: result,
     timestamp: new Date().toISOString()
   };
@@ -541,10 +541,10 @@ export class ${className} {
     if (this.initialized) {
       throw new Error('${className} already initialized');
     }
-    
+
     // Initialize dependencies
     ${component.dependencies.map((dep) => `await this.${dep.toLowerCase()}.initialize();`).join('\n    ')}
-    
+
     this.initialized = true;
     console.log('${className} initialized successfully');
   }
@@ -553,17 +553,17 @@ export class ${className} {
     if (!this.initialized) {
       throw new Error('${className} not initialized');
     }
-    
+
     try {
       // Validate input
       this.validateInput(input);
-      
+
       // Process request
       const result = await this.processRequest(input);
-      
+
       // Log success
       console.log(\`${className} executed successfully: \${JSON.stringify(result)}\`);
-      
+
       return result;
     } catch (error) {
       console.error(\`${className} execution failed: \${error.message}\`);
@@ -575,11 +575,11 @@ export class ${className} {
     if (!input) {
       throw new Error('Input is required');
     }
-    
+
     if (typeof input !== 'object') {
       throw new Error('Input must be an object');
     }
-    
+
     // Component-specific validation
     ${this.generateComponentValidation(component)}
   }
@@ -592,7 +592,7 @@ export class ${className} {
   async cleanup() {
     // Cleanup resources
     ${component.dependencies.map((dep) => `await this.${dep.toLowerCase()}.cleanup();`).join('\n    ')}
-    
+
     this.initialized = false;
     console.log('${className} cleanup completed');
   }
@@ -662,11 +662,11 @@ export default ${className};`;
       case 'controller':
         return `// Handle HTTP request
     const { method, path, body, query } = input;
-    
+
     // Route to appropriate handler
     const handler = this.getHandler(method, path);
     const result = await handler(body, query);
-    
+
     return {
       status: 200,
       data: result,
@@ -676,13 +676,13 @@ export default ${className};`;
       case 'service':
         return `// Process business logic
     const { data, operation } = input;
-    
+
     // Apply business rules
     const processedData = await this.applyBusinessRules(data, operation);
-    
+
     // Execute operation
     const result = await this.executeOperation(processedData, operation);
-    
+
     return {
       success: true,
       result: result,
@@ -692,7 +692,7 @@ export default ${className};`;
       case 'repository':
         return `// Handle data operations
     const { operation, entity, data } = input;
-    
+
     switch (operation) {
       case 'create':
         return await this.create(entity, data);
@@ -711,7 +711,7 @@ export default ${className};`;
     const processedInput = await this.preProcess(input);
     const result = await this.process(processedInput);
     const finalResult = await this.postProcess(result);
-    
+
     return finalResult;`;
     }
   }
@@ -732,10 +732,10 @@ describe('${className}', () => {
   beforeEach(async () => {
     // Setup mocks
     ${component.dependencies.map((dep) => `mock${dep} = new Mock${dep}();`).join('\n    ')}
-    
+
     // Create instance
     ${className.toLowerCase()} = new ${className}(${component.dependencies.map((dep) => `mock${dep}`).join(', ')});
-    
+
     // Initialize
     await ${className.toLowerCase()}.initialize();
   });
@@ -758,21 +758,21 @@ describe('${className}', () => {
     test('should execute successfully with valid input', async () => {
       const input = ${this.generateValidTestInput(component)};
       const result = await ${className.toLowerCase()}.execute(input);
-      
+
       expect(result).toBeDefined();
       expect(result.success).toBe(true);
     });
 
     test('should throw error with invalid input', async () => {
       const input = null;
-      
+
       await expect(${className.toLowerCase()}.execute(input)).rejects.toThrow();
     });
 
     test('should throw error when not initialized', async () => {
       const uninitializedInstance = new ${className}(${component.dependencies.map((dep) => `mock${dep}`).join(', ')});
       const input = ${this.generateValidTestInput(component)};
-      
+
       await expect(uninitializedInstance.execute(input)).rejects.toThrow();
     });
   });
@@ -780,13 +780,13 @@ describe('${className}', () => {
   describe('validation', () => {
     test('should validate input correctly', () => {
       const validInput = ${this.generateValidTestInput(component)};
-      
+
       expect(() => ${className.toLowerCase()}.validateInput(validInput)).not.toThrow();
     });
 
     test('should reject invalid input', () => {
       const invalidInput = ${this.generateInvalidTestInput(component)};
-      
+
       expect(() => ${className.toLowerCase()}.validateInput(invalidInput)).toThrow();
     });
   });
@@ -794,7 +794,7 @@ describe('${className}', () => {
   describe('status', () => {
     test('should return correct status', () => {
       const status = ${className.toLowerCase()}.getStatus();
-      
+
       expect(status.component).toBe('${className}');
       expect(status.initialized).toBe(true);
       expect(status.uptime).toBeGreaterThan(0);

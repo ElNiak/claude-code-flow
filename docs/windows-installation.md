@@ -21,25 +21,28 @@ This will automatically use in-memory storage if SQLite fails to load. Your data
 Install the necessary build tools to compile native modules:
 
 1. **Install Node.js** (version 18 or higher)
-   - Download from: https://nodejs.org/
+   - Download from: <https://nodejs.org/>
 
 2. **Install Windows Build Tools**
-   
+
    Run PowerShell as Administrator:
+
    ```powershell
    npm install --global windows-build-tools
    ```
-   
+
    Or install manually:
-   - Visual Studio Build Tools: https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2022
-   - Python 3.x: https://www.python.org/downloads/
+   - Visual Studio Build Tools: <https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2022>
+   - Python 3.x: <https://www.python.org/downloads/>
 
 3. **Configure npm for Python**
+
    ```bash
    npm config set python python3
    ```
 
 4. **Install Claude Flow locally**
+
    ```bash
    npm install claude-flow@alpha
    npx claude-flow init
@@ -62,13 +65,15 @@ npm install claude-flow@alpha --build-from-source=false
 WSL provides a full Linux environment on Windows:
 
 1. **Install WSL**
-   
+
    In PowerShell as Administrator:
+
    ```powershell
    wsl --install
    ```
 
 2. **Install Node.js in WSL**
+
    ```bash
    # In WSL terminal
    curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
@@ -76,6 +81,7 @@ WSL provides a full Linux environment on Windows:
    ```
 
 3. **Use Claude Flow in WSL**
+
    ```bash
    npx -y claude-flow@alpha init
    ```
@@ -85,9 +91,10 @@ WSL provides a full Linux environment on Windows:
 Use Claude Flow in a containerized environment:
 
 1. **Install Docker Desktop for Windows**
-   - Download from: https://www.docker.com/products/docker-desktop/
+   - Download from: <https://www.docker.com/products/docker-desktop/>
 
 2. **Run Claude Flow in Docker**
+
    ```bash
    docker run -it node:18 npx -y claude-flow@alpha init
    ```
@@ -97,18 +104,24 @@ Use Claude Flow in a containerized environment:
 ### Common Errors
 
 #### "Could not locate the bindings file"
+
 This means better-sqlite3 couldn't find or load its native bindings. Solutions:
+
 - Use the automatic fallback (no action needed)
 - Install Windows Build Tools (Option 1)
 - Use WSL or Docker (Options 3 or 4)
 
 #### "The specified module could not be found"
+
 Windows can't load the SQLite DLL. Solutions:
-- Install Visual C++ Redistributables: https://aka.ms/vs/17/release/vc_redist.x64.exe
+
+- Install Visual C++ Redistributables: <https://aka.ms/vs/17/release/vc_redist.x64.exe>
 - Use pre-built binaries (Option 2)
 
 #### Permission Errors
+
 If you get EPERM or access denied errors:
+
 - Run your terminal as Administrator
 - Use a different directory (avoid system directories)
 - Check antivirus software isn't blocking file creation
@@ -141,10 +154,12 @@ Run with: `node test-sqlite.js`
 ## Integration with IDEs
 
 ### Visual Studio Code
+
 - Works well with WSL Remote extension
 - Native Windows terminal may need build tools
 
 ### JetBrains IDEs
+
 - Configure Node.js interpreter correctly
 - May need to set npm proxy settings
 
@@ -185,9 +200,9 @@ Always use in-memory storage:
 
 ## Getting Help
 
-- GitHub Issues: https://github.com/ruvnet/claude-code-flow/issues
+- GitHub Issues: <https://github.com/ruvnet/claude-code-flow/issues>
 - Discord: [Join our community]
-- Documentation: https://claude-flow.dev/docs
+- Documentation: <https://claude-flow.dev/docs>
 
 ## Summary
 

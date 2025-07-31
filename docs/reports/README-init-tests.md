@@ -7,7 +7,9 @@ This directory contains comprehensive tests for the `claude-flow init` command, 
 ### Unit Tests (`tests/unit/cli/commands/init/`)
 
 #### `init-command.test.ts`
+
 Core functionality tests for the init command:
+
 - Basic initialization with no flags
 - Minimal mode initialization (`--minimal`)
 - SPARC mode initialization (`--sparc`)
@@ -17,7 +19,9 @@ Core functionality tests for the init command:
 - Error scenarios
 
 #### `templates.test.ts`
+
 Template generation and content validation:
+
 - CLAUDE.md template variations (full, minimal, SPARC)
 - memory-bank.md template generation
 - coordination.md template generation
@@ -26,7 +30,9 @@ Template generation and content validation:
 - SPARC-specific content validation
 
 #### `sparc-structure.test.ts`
+
 SPARC development environment setup:
+
 - .roo directory structure creation
 - .roomodes configuration file generation
 - Workflow template creation
@@ -35,7 +41,9 @@ SPARC development environment setup:
 - Existing file preservation
 
 #### `validation.test.ts`
+
 File integrity and configuration correctness:
+
 - JSON file validation (syntax and structure)
 - Markdown file formatting validation
 - Directory structure verification
@@ -44,7 +52,9 @@ File integrity and configuration correctness:
 - Cross-file reference validation
 
 #### `rollback.test.ts`
+
 Error handling and rollback functionality:
+
 - Partial failure scenarios
 - Permission error handling
 - Concurrent access conflicts
@@ -55,7 +65,9 @@ Error handling and rollback functionality:
 ### Integration Tests (`tests/integration/cli/init/`)
 
 #### `full-init-flow.test.ts`
+
 Complete initialization flow testing:
+
 - Empty project initialization
 - Existing file handling
 - Force overwrite scenarios
@@ -64,7 +76,9 @@ Complete initialization flow testing:
 - Real CLI command execution
 
 #### `selective-modes.test.ts`
+
 Mode-specific initialization testing:
+
 - Standard vs minimal mode differences
 - SPARC vs non-SPARC initialization
 - Progressive initialization (minimal → full → SPARC)
@@ -72,7 +86,9 @@ Mode-specific initialization testing:
 - Mode-specific file validation
 
 #### `e2e-workflow.test.ts`
+
 End-to-end workflow and real-world scenarios:
+
 - New project from scratch
 - Existing Node.js project integration
 - Git repository compatibility
@@ -83,7 +99,9 @@ End-to-end workflow and real-world scenarios:
 ### Performance Tests (`tests/performance/cli/init/`)
 
 #### `init-performance.test.ts`
+
 Performance and resource usage validation:
+
 - Basic initialization timing
 - SPARC initialization performance
 - Concurrent initialization efficiency
@@ -95,6 +113,7 @@ Performance and resource usage validation:
 ## Test Scenarios Covered
 
 ### Basic Functionality
+
 - ✅ Empty directory initialization
 - ✅ Existing file detection and warnings
 - ✅ Force overwrite behavior
@@ -102,6 +121,7 @@ Performance and resource usage validation:
 - ✅ Flag parsing and validation
 
 ### File Operations
+
 - ✅ Directory structure creation
 - ✅ Template file generation
 - ✅ Executable wrapper creation
@@ -109,6 +129,7 @@ Performance and resource usage validation:
 - ✅ Markdown documentation files
 
 ### SPARC Integration
+
 - ✅ External create-sparc execution
 - ✅ Fallback to manual creation
 - ✅ .roomodes configuration
@@ -116,6 +137,7 @@ Performance and resource usage validation:
 - ✅ Claude slash commands creation
 
 ### Error Handling
+
 - ✅ Permission errors
 - ✅ File conflicts
 - ✅ Directory creation failures
@@ -124,6 +146,7 @@ Performance and resource usage validation:
 - ✅ Concurrent access conflicts
 
 ### Real-World Scenarios
+
 - ✅ Node.js project integration
 - ✅ Git repository compatibility
 - ✅ Large project structures
@@ -131,6 +154,7 @@ Performance and resource usage validation:
 - ✅ Cross-platform compatibility
 
 ### Performance Validation
+
 - ✅ Timing constraints (< 10s basic, < 30s SPARC)
 - ✅ Memory usage limits (< 50MB increase)
 - ✅ Concurrent execution efficiency
@@ -140,6 +164,7 @@ Performance and resource usage validation:
 ## Running the Tests
 
 ### Quick Start
+
 ```bash
 # Run all init command tests
 ./scripts/test-init-command.ts
@@ -152,6 +177,7 @@ Performance and resource usage validation:
 ```
 
 ### Test Categories
+
 ```bash
 # Run only unit tests
 ./scripts/test-init-command.ts --unit
@@ -164,6 +190,7 @@ Performance and resource usage validation:
 ```
 
 ### Specific Test Suites
+
 ```bash
 # List available test suites
 ./scripts/test-init-command.ts --list
@@ -175,6 +202,7 @@ Performance and resource usage validation:
 ```
 
 ### Development Options
+
 ```bash
 # Stop on first failure
 ./scripts/test-init-command.ts --fail-fast
@@ -184,6 +212,7 @@ Performance and resource usage validation:
 ```
 
 ### Using Deno Test Directly
+
 ```bash
 # Run specific test file
 deno test --allow-all tests/unit/cli/commands/init/init-command.test.ts
@@ -198,21 +227,27 @@ deno coverage coverage --html
 ## Test Data and Fixtures
 
 ### Temporary Directories
+
 All tests use temporary directories created with `Deno.makeTempDir()` to ensure:
+
 - Test isolation
 - No interference with existing files
 - Automatic cleanup
 - Cross-platform compatibility
 
 ### Mock Data
+
 Tests create realistic project structures including:
+
 - Node.js projects with package.json
 - Git repositories with commits
 - Large directory structures
 - Various file types and permissions
 
 ### Environment Variables
+
 Tests handle various environment scenarios:
+
 - Different working directories
 - Limited PATH environments
 - Permission restrictions
@@ -221,11 +256,13 @@ Tests handle various environment scenarios:
 ## Test Coverage Goals
 
 ### Code Coverage
+
 - **Target: 90%+ line coverage** for init command modules
 - **Target: 85%+ branch coverage** for error handling paths
 - **Target: 100% function coverage** for public APIs
 
 ### Scenario Coverage
+
 - ✅ All command-line flag combinations
 - ✅ All error conditions and edge cases
 - ✅ All file system permission scenarios
@@ -233,6 +270,7 @@ Tests handle various environment scenarios:
 - ✅ All performance requirements
 
 ### Platform Coverage
+
 - ✅ Linux/Unix systems
 - ✅ Windows compatibility
 - ✅ macOS compatibility
@@ -241,6 +279,7 @@ Tests handle various environment scenarios:
 ## Adding New Tests
 
 ### Unit Test Guidelines
+
 1. Focus on single responsibility
 2. Use descriptive test names
 3. Test both success and failure paths
@@ -248,6 +287,7 @@ Tests handle various environment scenarios:
 5. Use temporary directories for file operations
 
 ### Integration Test Guidelines
+
 1. Test realistic user workflows
 2. Validate end-to-end functionality
 3. Include performance assertions
@@ -255,6 +295,7 @@ Tests handle various environment scenarios:
 5. Verify user experience quality
 
 ### Performance Test Guidelines
+
 1. Set realistic timing constraints
 2. Monitor memory usage
 3. Test scalability scenarios
@@ -262,6 +303,7 @@ Tests handle various environment scenarios:
 5. Include concurrent execution tests
 
 ### Example Test Structure
+
 ```typescript
 describe("Feature Name Tests", () => {
   let testDir: string;
@@ -300,20 +342,25 @@ describe("Feature Name Tests", () => {
 ## Continuous Integration
 
 ### CI Pipeline Integration
+
 The test suite is designed to integrate with CI/CD pipelines:
+
 - Parallel test execution support
 - JUnit XML output (via --reporter)
 - Coverage reporting
 - Fail-fast options for quick feedback
 
 ### Test Environment Requirements
+
 - Deno runtime with --allow-all permissions
 - Git available for repository tests
 - Sufficient disk space for temporary directories
 - File system permission support
 
 ### Performance Monitoring
+
 Tests include timing assertions to catch performance regressions:
+
 - Basic init: < 10 seconds
 - SPARC init: < 30 seconds
 - Large project init: < 15 seconds
@@ -324,6 +371,7 @@ Tests include timing assertions to catch performance regressions:
 ### Common Issues
 
 #### Permission Errors
+
 ```bash
 # Ensure test runner has proper permissions
 chmod +x ./scripts/test-init-command.ts
@@ -333,12 +381,14 @@ deno run --allow-all scripts/test-init-command.ts
 ```
 
 #### Temporary Directory Cleanup
+
 ```bash
 # Manual cleanup if tests fail to clean up
 find /tmp -name "claude_flow_*_test_*" -type d -exec rm -rf {} +
 ```
 
 #### Git Configuration for Tests
+
 ```bash
 # Set git config for CI environments
 git config --global user.email "test@example.com"
@@ -346,6 +396,7 @@ git config --global user.name "Test User"
 ```
 
 ### Debug Mode
+
 ```bash
 # Run with maximum verbosity
 ./scripts/test-init-command.ts --verbose --fail-fast --suite init-command
@@ -363,6 +414,7 @@ When adding new init command features:
 6. **Update this README** with new test coverage
 
 ### Test Review Checklist
+
 - [ ] Tests are isolated and don't interfere with each other
 - [ ] All temporary files and directories are cleaned up
 - [ ] Error cases are thoroughly tested

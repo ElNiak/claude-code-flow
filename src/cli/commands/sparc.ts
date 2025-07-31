@@ -418,7 +418,7 @@ npx claude-flow memory store ${memoryNamespace}_${flags.tddPhase || 'results'} "
 ### Integration with Other SPARC Modes
 When working with other SPARC modes, use memory to:
 - Share findings with spec-pseudocode mode
-- Pass requirements to architect mode  
+- Pass requirements to architect mode
 - Coordinate with code and tdd modes
 - Communicate results to integration mode
 

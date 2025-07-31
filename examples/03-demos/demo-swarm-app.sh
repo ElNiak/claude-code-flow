@@ -74,7 +74,7 @@ cat > "$APP_DIR/index.js" << 'EOF'
 /**
  * Weather CLI Application
  * Created by Claude Flow Swarm System
- * 
+ *
  * This demonstrates the swarm's ability to create functional applications
  * through coordinated agent tasks.
  */
@@ -92,7 +92,7 @@ const SWARM_INFO = {
 // Simple weather fetcher (using wttr.in)
 function getWeather(location = '') {
   const url = `https://wttr.in/${location}?format=3`;
-  
+
   return new Promise((resolve, reject) => {
     https.get(url, (res) => {
       let data = '';
@@ -105,18 +105,18 @@ function getWeather(location = '') {
 // Main CLI function
 async function main() {
   const args = process.argv.slice(2);
-  
+
   console.log('🌤️  Weather CLI - Created by Claude Flow Swarm');
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  
+
   if (args[0] === '--info') {
     console.log('\n📊 Swarm Creation Info:');
     console.log(JSON.stringify(SWARM_INFO, null, 2));
     return;
   }
-  
+
   const location = args.join(' ') || 'New York';
-  
+
   try {
     console.log(`\n📍 Fetching weather for: ${location}`);
     const weather = await getWeather(location);

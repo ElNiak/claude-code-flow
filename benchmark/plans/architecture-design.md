@@ -55,50 +55,58 @@
 ## 🧩 Core Components
 
 ### 1. CLI Interface (`cli/`)
+
 - **Command Parser** - Parse command line arguments
 - **Validation Engine** - Validate inputs and options
 - **Help System** - Provide contextual help
 - **Configuration Manager** - Handle config files
 
 ### 2. Benchmark Engine (`core/`)
+
 - **Orchestrator** - Main coordination logic
 - **Scheduler** - Task scheduling and queuing
 - **Executor** - Task execution management
 - **Result Aggregator** - Collect and process results
 
 ### 3. Strategy Framework (`strategies/`)
+
 Each strategy implements the `Strategy` interface:
+
 ```python
 class Strategy(ABC):
     @abstractmethod
     async def execute(self, task: Task) -> Result:
         pass
-    
+
     @abstractmethod
     def get_metrics(self) -> Dict[str, Any]:
         pass
 ```
 
 ### 4. Coordination Framework (`modes/`)
+
 Each mode implements the `CoordinationMode` interface:
+
 ```python
 class CoordinationMode(ABC):
     @abstractmethod
     async def coordinate(self, agents: List[Agent], tasks: List[Task]) -> Results:
         pass
-    
+
     @abstractmethod
     def get_coordination_metrics(self) -> Dict[str, Any]:
         pass
 ```
 
 ### 5. Metrics Collection (`metrics/`)
+
 - **Performance Monitor** - Time, throughput, latency
 - **Resource Monitor** - CPU, memory, network, disk
 - **Quality Assessor** - Result quality metrics
 - **Coordination Analyzer** - Communication overhead
 
 ### 6. Output Framework (`output/`)
+
 - **JSON Writer** - Structured data export
 - **SQLite Manager** - Database operations
 - **Report Generator** - Human-readable reports
@@ -107,6 +115,7 @@ class CoordinationMode(ABC):
 ## 📋 Data Models
 
 ### Task Model
+
 ```python
 @dataclass
 class Task:
@@ -122,6 +131,7 @@ class Task:
 ```
 
 ### Agent Model
+
 ```python
 @dataclass
 class Agent:
@@ -135,6 +145,7 @@ class Agent:
 ```
 
 ### Result Model
+
 ```python
 @dataclass
 class Result:
@@ -150,6 +161,7 @@ class Result:
 ```
 
 ### Benchmark Model
+
 ```python
 @dataclass
 class Benchmark:
@@ -169,21 +181,25 @@ class Benchmark:
 ## 🔄 Data Flow
 
 ### 1. Input Processing
+
 ```
 CLI Command → Validation → Configuration → Task Generation
 ```
 
 ### 2. Execution Flow
+
 ```
 Task Queue → Strategy Selection → Agent Assignment → Coordination → Execution
 ```
 
 ### 3. Metrics Collection
+
 ```
 Execution Events → Metric Collectors → Aggregation → Storage
 ```
 
 ### 4. Output Generation
+
 ```
 Results → Processors → Formatters → Writers → Files/Database
 ```
@@ -191,6 +207,7 @@ Results → Processors → Formatters → Writers → Files/Database
 ## 🏛️ Module Architecture
 
 ### Core Module (`core/`)
+
 ```python
 core/
 ├── __init__.py
@@ -202,6 +219,7 @@ core/
 ```
 
 ### Strategy Module (`strategies/`)
+
 ```python
 strategies/
 ├── __init__.py
@@ -216,6 +234,7 @@ strategies/
 ```
 
 ### Coordination Module (`modes/`)
+
 ```python
 modes/
 ├── __init__.py
@@ -228,6 +247,7 @@ modes/
 ```
 
 ### Metrics Module (`metrics/`)
+
 ```python
 metrics/
 ├── __init__.py
@@ -239,6 +259,7 @@ metrics/
 ```
 
 ### Output Module (`output/`)
+
 ```python
 output/
 ├── __init__.py
@@ -252,6 +273,7 @@ output/
 ## 🔧 Configuration System
 
 ### Configuration Hierarchy
+
 1. Default configuration (built-in)
 2. System configuration (/etc/swarm-benchmark/)
 3. User configuration (~/.swarm-benchmark/)
@@ -259,6 +281,7 @@ output/
 5. Command line arguments
 
 ### Configuration Schema
+
 ```json
 {
   "benchmark": {
@@ -295,18 +318,21 @@ output/
 ## 🔐 Security Considerations
 
 ### Input Validation
+
 - Sanitize all command line inputs
 - Validate configuration files
 - Prevent injection attacks
 - Rate limiting for API calls
 
 ### Resource Protection
+
 - Memory usage limits
 - CPU usage monitoring
 - Network rate limiting
 - Disk space checks
 
 ### Data Protection
+
 - Secure storage of sensitive data
 - Encryption for network communication
 - Access control for configuration
@@ -315,18 +341,21 @@ output/
 ## 🚀 Performance Optimization
 
 ### Asynchronous Operations
+
 - Non-blocking I/O operations
 - Concurrent task execution
 - Efficient resource pooling
 - Smart scheduling algorithms
 
 ### Memory Management
+
 - Lazy loading of large datasets
 - Streaming data processing
 - Garbage collection optimization
 - Memory usage monitoring
 
 ### Caching Strategy
+
 - Result caching for repeated operations
 - Configuration caching
 - Metric aggregation caching
@@ -335,18 +364,21 @@ output/
 ## 📊 Monitoring and Observability
 
 ### Logging Strategy
+
 - Structured logging with JSON format
 - Log levels: DEBUG, INFO, WARN, ERROR
 - Centralized log aggregation
 - Performance logging
 
 ### Metrics Collection
+
 - Real-time performance metrics
 - Resource utilization tracking
 - Error rate monitoring
 - Custom business metrics
 
 ### Health Checks
+
 - System health monitoring
 - Service availability checks
 - Performance threshold alerts

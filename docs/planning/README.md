@@ -18,6 +18,7 @@ This directory contains planning and phase documents for Claude Flow development
 ## Document Structure
 
 Each phase document includes:
+
 - Objectives
 - Key deliverables
 - Technical requirements
@@ -28,6 +29,7 @@ Each phase document includes:
 ## Workflow
 
 The phases are designed to be executed sequentially:
+
 1. Research and planning establishes foundation
 2. Specification defines exact requirements
 3. Pseudocode validates algorithms
@@ -38,6 +40,7 @@ The phases are designed to be executed sequentially:
 ## Contributing
 
 When updating planning documents:
+
 - Maintain phase numbering consistency
 - Update dependent phases if changes affect them
 - Include revision history at document end

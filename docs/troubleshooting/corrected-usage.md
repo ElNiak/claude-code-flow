@@ -5,6 +5,7 @@
 All commands must be prefixed with `claude-flow`:
 
 ### 🧠 Swarm Commands
+
 ```bash
 # CORRECT:
 claude-flow swarm "Build a REST API with authentication"
@@ -16,6 +17,7 @@ swarm "Build a REST API"  # ❌ Won't work
 ```
 
 ### 🐙 GitHub Commands
+
 ```bash
 # CORRECT:
 claude-flow github pr-manager "create feature PR with tests"
@@ -27,6 +29,7 @@ github pr-manager "create PR"  # ❌ Won't work
 ```
 
 ### 🤖 Agent Commands
+
 ```bash
 # CORRECT:
 claude-flow agent spawn researcher --name "DataBot"
@@ -39,6 +42,7 @@ spawn researcher  # ❌ Won't work
 ```
 
 ### 💾 Memory Commands
+
 ```bash
 # CORRECT:
 claude-flow memory store architecture "microservices pattern"
@@ -50,6 +54,7 @@ memory store key value  # ❌ Won't work
 ```
 
 ### 🚀 SPARC Commands
+
 ```bash
 # CORRECT:
 claude-flow sparc "design authentication system"
@@ -61,6 +66,7 @@ sparc architect "design"  # ❌ Won't work
 ```
 
 ### 📋 Other Commands
+
 ```bash
 # CORRECT:
 claude-flow init --sparc
@@ -81,6 +87,7 @@ status  # ❌ Won't work
 ## 🔍 GET HELP
 
 ### Main Help
+
 ```bash
 claude-flow --help
 claude-flow help
@@ -88,6 +95,7 @@ claude-flow  # (no arguments also shows help)
 ```
 
 ### Command-Specific Help
+
 ```bash
 claude-flow swarm --help
 claude-flow github --help
@@ -129,18 +137,21 @@ claude-flow status --verbose
 ## 🎯 INSTALLATION
 
 ### Global Installation (Recommended)
+
 ```bash
 npm install -g claude-flow@2.0.0
 claude-flow init --sparc
 ```
 
 ### Local Installation
+
 ```bash
 npm install claude-flow@2.0.0
 npx claude-flow init --sparc
 ```
 
 ### Direct NPX Usage
+
 ```bash
 npx claude-flow@2.0.0 init --sparc
 npx claude-flow@2.0.0 swarm "Build app"

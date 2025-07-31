@@ -7,12 +7,14 @@ Claude-Flow's memory management system provides intelligent, persistent storage 
 The memory bank consists of several interconnected layers:
 
 ### Memory Layers
+
 - **Agent Sessions**: Individual agent working memory
 - **Shared Knowledge**: Cross-agent persistent knowledge base
 - **Project Memory**: Project-specific data and artifacts
 - **System Memory**: System state and configuration history
 
 ### Storage Backends
+
 - **SQLite**: Structured data, queries, and indexes
 - **Markdown**: Human-readable documentation and content
 - **Hybrid**: Combined approach for optimal performance
@@ -22,6 +24,7 @@ The memory bank consists of several interconnected layers:
 ### Storing Information
 
 **Simple Memory Storage:**
+
 ```bash
 # Store a discovery
 claude-flow memory store \
@@ -40,6 +43,7 @@ claude-flow memory store \
 ```
 
 **Structured Memory Entry:**
+
 ```json
 {
   "type": "technical-discovery",
@@ -67,6 +71,7 @@ claude-flow memory store \
 ### Querying Memory
 
 **Basic Queries:**
+
 ```bash
 # Query by agent
 claude-flow memory query \
@@ -89,6 +94,7 @@ claude-flow memory search "caching strategy" \
 ```
 
 **Advanced Query Patterns:**
+
 ```bash
 # Complex query with multiple filters
 claude-flow memory query \
@@ -119,6 +125,7 @@ claude-flow memory related <memory-id> \
 ### Categorization and Organization
 
 **Category Management:**
+
 ```bash
 # Create knowledge categories
 claude-flow memory category create "machine-learning" \
@@ -138,6 +145,7 @@ claude-flow memory category update "machine-learning" \
 ```
 
 **Knowledge Schema Example:**
+
 ```json
 {
   "category": "machine-learning",
@@ -150,7 +158,7 @@ claude-flow memory category update "machine-learning" \
         "values": ["linear-regression", "random-forest", "neural-network", "svm"]
       },
       "problem_type": {
-        "type": "enum", 
+        "type": "enum",
         "values": ["classification", "regression", "clustering", "reinforcement"]
       },
       "performance_metrics": {
@@ -169,6 +177,7 @@ claude-flow memory category update "machine-learning" \
 ### Knowledge Entry Types
 
 **Technical Discovery Entries:**
+
 ```json
 {
   "type": "technical-discovery",
@@ -204,6 +213,7 @@ claude-flow memory category update "machine-learning" \
 ```
 
 **Problem-Solution Entries:**
+
 ```json
 {
   "type": "problem-solution",
@@ -254,6 +264,7 @@ claude-flow memory category update "machine-learning" \
 ```
 
 **Best Practices Entries:**
+
 ```json
 {
   "type": "best-practice",
@@ -290,6 +301,7 @@ claude-flow memory category update "machine-learning" \
 ### Memory Relationships and Linking
 
 **Creating Memory Links:**
+
 ```bash
 # Link related memories
 claude-flow memory link <memory-id-1> <memory-id-2> \
@@ -311,6 +323,7 @@ claude-flow memory link <memory-id-1> <memory-id-2> \
 ```
 
 **Exploring Memory Networks:**
+
 ```bash
 # Find related memories
 claude-flow memory related <memory-id> \
@@ -335,6 +348,7 @@ claude-flow memory cluster-analysis \
 ### Memory Validation and Scoring
 
 **Knowledge Validation:**
+
 ```bash
 # Validate memory entry
 claude-flow memory validate <memory-id> \
@@ -354,6 +368,7 @@ claude-flow memory cross-validate \
 ```
 
 **Scoring and Ranking:**
+
 ```bash
 # Score memory entry
 claude-flow memory score <memory-id> \
@@ -381,6 +396,7 @@ claude-flow memory rank \
 ### Conflict Resolution
 
 **Detecting Conflicts:**
+
 ```bash
 # Check for conflicts
 claude-flow memory conflicts --check-all
@@ -397,6 +413,7 @@ claude-flow memory conflicts monitor \
 ```
 
 **Resolving Conflicts:**
+
 ```bash
 # Manual conflict resolution
 claude-flow memory resolve-conflict <conflict-id> \
@@ -416,6 +433,7 @@ claude-flow memory resolve-conflict <conflict-id> \
 ```
 
 **Conflict Resolution Strategies:**
+
 ```json
 {
   "conflict_id": "conf-001",
@@ -441,6 +459,7 @@ claude-flow memory resolve-conflict <conflict-id> \
 ### Memory Synchronization
 
 **Sync Configuration:**
+
 ```bash
 # Configure sync settings
 claude-flow config set memory.syncInterval 3000
@@ -458,6 +477,7 @@ claude-flow memory sync-agents \
 ```
 
 **Distributed Memory Management:**
+
 ```bash
 # Set up distributed memory
 claude-flow memory distributed configure \
@@ -477,6 +497,7 @@ claude-flow memory sync-status \
 ### Usage Analytics
 
 **Memory Usage Patterns:**
+
 ```bash
 # Analyze memory usage
 claude-flow memory analytics usage \
@@ -497,6 +518,7 @@ claude-flow memory analytics access-patterns \
 ```
 
 **Knowledge Discovery:**
+
 ```bash
 # Discover knowledge gaps
 claude-flow memory analytics gaps \
@@ -520,6 +542,7 @@ claude-flow memory analytics impact \
 ### Learning Analytics
 
 **Agent Learning Progression:**
+
 ```bash
 # Analyze learning progression
 claude-flow memory learning-analysis <agent-id> \
@@ -544,6 +567,7 @@ claude-flow memory learning-effectiveness \
 ### Backup Operations
 
 **Creating Backups:**
+
 ```bash
 # Full memory backup
 claude-flow memory backup \
@@ -567,6 +591,7 @@ claude-flow memory backup \
 ```
 
 **Automated Backup Configuration:**
+
 ```json
 {
   "backup": {
@@ -592,6 +617,7 @@ claude-flow memory backup \
 ### Recovery Operations
 
 **Restore from Backup:**
+
 ```bash
 # Full restore
 claude-flow memory restore \
@@ -613,6 +639,7 @@ claude-flow memory restore \
 ```
 
 **Recovery Validation:**
+
 ```bash
 # Validate restored data
 claude-flow memory validate-restore \
@@ -632,6 +659,7 @@ claude-flow memory test-recovery \
 ### Performance Optimization
 
 **Cache Optimization:**
+
 ```bash
 # Analyze cache performance
 claude-flow memory cache-analysis \
@@ -652,6 +680,7 @@ claude-flow memory warm-cache \
 ```
 
 **Storage Optimization:**
+
 ```bash
 # Analyze storage usage
 claude-flow memory storage-analysis \
@@ -675,6 +704,7 @@ claude-flow memory cleanup \
 ### Query Optimization
 
 **Index Management:**
+
 ```bash
 # Analyze query performance
 claude-flow memory query-analysis \

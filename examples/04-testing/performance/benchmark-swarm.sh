@@ -27,14 +27,14 @@ benchmark() {
     local test_name=$1
     local command=$2
     local iterations=${3:-$ITERATIONS}
-    
+
     echo "🏃 Benchmarking: $test_name"
     echo "   Command: $command"
     echo -n "   Running $iterations iterations: "
-    
+
     local total_time=0
     local times=()
-    
+
     for i in $(seq 1 $iterations); do
         echo -n "."
         start_timer
@@ -43,16 +43,16 @@ benchmark() {
         times+=($elapsed)
         total_time=$(echo "$total_time + $elapsed" | bc)
     done
-    
+
     echo " Done!"
-    
+
     # Calculate statistics
     local avg_time=$(echo "scale=3; $total_time / $iterations" | bc)
     local min_time=$(printf '%s\n' "${times[@]}" | sort -n | head -1)
     local max_time=$(printf '%s\n' "${times[@]}" | sort -n | tail -1)
-    
+
     BENCHMARKS["$test_name"]="avg=$avg_time|min=$min_time|max=$max_time"
-    
+
     echo "   📊 Results: Avg: ${avg_time}s, Min: ${min_time}s, Max: ${max_time}s"
     echo ""
 }
@@ -109,12 +109,12 @@ slowest_op=""
 for op in "${!BENCHMARKS[@]}"; do
     IFS='|' read -ra STATS <<< "${BENCHMARKS[$op]}"
     avg_time=$(echo "${STATS[0]}" | cut -d'=' -f2)
-    
+
     if (( $(echo "$avg_time < $fastest_time" | bc -l) )); then
         fastest_time=$avg_time
         fastest_op=$op
     fi
-    
+
     if (( $(echo "$avg_time > $slowest_time" | bc -l) )); then
         slowest_time=$avg_time
         slowest_op=$op

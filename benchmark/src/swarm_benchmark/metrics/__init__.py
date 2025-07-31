@@ -7,7 +7,7 @@ from .metrics_aggregator import MetricsAggregator
 
 __all__ = [
     "PerformanceCollector",
-    "ResourceMonitor", 
+    "ResourceMonitor",
     "ProcessTracker",
-    "MetricsAggregator"
+    "MetricsAggregator",
 ]

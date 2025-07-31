@@ -67,15 +67,19 @@ claude-flow swarm "Evaluate code quality and technical debt" --read-only --max-a
 ## Use Cases
 
 ### Security Audits
+
 Perfect for identifying vulnerabilities without modifying code.
 
 ### Code Reviews
+
 Comprehensive analysis of pull requests and code changes.
 
 ### Architecture Analysis
+
 Document and analyze system architecture patterns.
 
 ### Technical Debt Assessment
+
 Identify areas for improvement without making changes.
 
 For more details, see the [examples](../examples/analysis-mode-example.md).

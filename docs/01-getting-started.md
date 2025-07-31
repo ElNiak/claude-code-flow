@@ -5,6 +5,7 @@ Welcome to Claude-Flow, an advanced AI agent orchestration system designed for s
 ## Quick Installation
 
 ### Option 1: NPX (Recommended for First-Time Users)
+
 ```bash
 # Run directly without installation
 npx claude-flow
@@ -15,6 +16,7 @@ claude-flow --version
 ```
 
 ### Option 2: Deno Installation
+
 ```bash
 # Install with Deno
 deno install --allow-all --name claude-flow https://raw.githubusercontent.com/ruvnet/claude-code-flow/main/src/cli/index.ts
@@ -24,6 +26,7 @@ claude-flow --help
 ```
 
 ### Option 3: From Source
+
 ```bash
 # Clone the repository
 git clone https://github.com/ruvnet/claude-code-flow.git
@@ -39,6 +42,7 @@ deno task dev
 ## Initial Setup
 
 ### 1. Initialize Configuration
+
 ```bash
 # Create default configuration file
 claude-flow config init
@@ -48,6 +52,7 @@ claude-flow config show
 ```
 
 ### 2. Start the Orchestrator
+
 ```bash
 # Basic start
 claude-flow start
@@ -60,6 +65,7 @@ claude-flow start --port 3000
 ```
 
 ### 3. Verify System Health
+
 ```bash
 # Check system status
 claude-flow agent list
@@ -72,6 +78,7 @@ claude-flow mcp status
 Let's create a simple research workflow to demonstrate Claude-Flow's capabilities:
 
 ### Step 1: Spawn a Research Agent
+
 ```bash
 # Create a research agent
 claude-flow agent spawn researcher --name "Research Assistant"
@@ -81,6 +88,7 @@ claude-flow agent list
 ```
 
 ### Step 2: Create a Research Task
+
 ```bash
 # Create a research task
 claude-flow task create research "Analyze current trends in AI development tools" \
@@ -92,6 +100,7 @@ claude-flow task list
 ```
 
 ### Step 3: Monitor Progress
+
 ```bash
 # Monitor task execution
 claude-flow task monitor --follow
@@ -101,6 +110,7 @@ claude-flow agent info <agent-id>
 ```
 
 ### Step 4: Review Results
+
 ```bash
 # Query memory for research findings
 claude-flow memory query --filter "AI development tools" --recent
@@ -119,6 +129,7 @@ claude-flow repl
 ```
 
 In REPL mode, you can:
+
 ```bash
 # Get help
 > help
@@ -139,28 +150,36 @@ In REPL mode, you can:
 ## Basic Concepts
 
 ### Agents
+
 Agents are specialized AI workers with specific capabilities:
+
 - **Researcher**: Information gathering and analysis
 - **Implementer**: Code development and technical tasks
 - **Analyst**: Data analysis and pattern recognition
 - **Coordinator**: Planning and task delegation
 
 ### Tasks
+
 Tasks represent work to be done:
+
 - **Research**: Information gathering
 - **Implementation**: Code development
 - **Analysis**: Data processing
 - **Coordination**: Planning and management
 
 ### Memory Bank
+
 The memory system stores:
+
 - Agent discoveries and insights
 - Task progress and results
 - Shared knowledge across agents
 - Project history and context
 
 ### MCP Integration
+
 Model Context Protocol enables:
+
 - External tool integration
 - API connectivity
 - Custom tool development
@@ -169,6 +188,7 @@ Model Context Protocol enables:
 ## Common Commands Reference
 
 ### Agent Management
+
 ```bash
 # List all agents
 claude-flow agent list
@@ -181,6 +201,7 @@ claude-flow agent terminate <agent-id>
 ```
 
 ### Task Management
+
 ```bash
 # List all tasks
 claude-flow task list
@@ -193,6 +214,7 @@ claude-flow task cancel <task-id>
 ```
 
 ### Memory Operations
+
 ```bash
 # Search memory
 claude-flow memory query --search "keyword"
@@ -205,6 +227,7 @@ claude-flow memory cleanup --older-than 30d
 ```
 
 ### Configuration
+
 ```bash
 # View current config
 claude-flow config show
@@ -233,7 +256,9 @@ claude-flow config init --force
 ## Troubleshooting Common Issues
 
 ### Installation Problems
+
 If you encounter permission issues:
+
 ```bash
 # For NPM
 npm config set prefix ~/.npm-global
@@ -244,7 +269,9 @@ export PATH="$HOME/.deno/bin:$PATH"
 ```
 
 ### Configuration Issues
+
 If configuration fails to initialize:
+
 ```bash
 # Check directory permissions
 ls -la $(pwd)
@@ -255,7 +282,9 @@ claude-flow config init --force
 ```
 
 ### Agent Startup Issues
+
 If agents fail to start:
+
 ```bash
 # Check system resources
 claude-flow system resources

@@ -143,7 +143,7 @@ async function initHiveMind(flags) {
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
       );
-      
+
       CREATE TABLE IF NOT EXISTS agents (
         id TEXT PRIMARY KEY,
         swarm_id TEXT,
@@ -155,7 +155,7 @@ async function initHiveMind(flags) {
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (swarm_id) REFERENCES swarms(id)
       );
-      
+
       CREATE TABLE IF NOT EXISTS tasks (
         id TEXT PRIMARY KEY,
         swarm_id TEXT,
@@ -169,7 +169,7 @@ async function initHiveMind(flags) {
         FOREIGN KEY (swarm_id) REFERENCES swarms(id),
         FOREIGN KEY (agent_id) REFERENCES agents(id)
       );
-      
+
       CREATE TABLE IF NOT EXISTS collective_memory (
         id TEXT PRIMARY KEY,
         swarm_id TEXT,
@@ -185,7 +185,7 @@ async function initHiveMind(flags) {
         size INTEGER DEFAULT 0,
         FOREIGN KEY (swarm_id) REFERENCES swarms(id)
       );
-      
+
       CREATE TABLE IF NOT EXISTS consensus_decisions (
         id TEXT PRIMARY KEY,
         swarm_id TEXT,
@@ -530,7 +530,7 @@ async function spawnSwarm(args, flags) {
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME
       );
-      
+
       CREATE TABLE IF NOT EXISTS agents (
         id TEXT PRIMARY KEY,
         swarm_id TEXT NOT NULL,
@@ -542,7 +542,7 @@ async function spawnSwarm(args, flags) {
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (swarm_id) REFERENCES swarms(id)
       );
-      
+
       CREATE TABLE IF NOT EXISTS tasks (
         id TEXT PRIMARY KEY,
         swarm_id TEXT NOT NULL,
@@ -556,7 +556,7 @@ async function spawnSwarm(args, flags) {
         FOREIGN KEY (swarm_id) REFERENCES swarms(id),
         FOREIGN KEY (agent_id) REFERENCES agents(id)
       );
-      
+
       CREATE TABLE IF NOT EXISTS collective_memory (
         id TEXT PRIMARY KEY,
         swarm_id TEXT,
@@ -572,7 +572,7 @@ async function spawnSwarm(args, flags) {
         size INTEGER DEFAULT 0,
         FOREIGN KEY (swarm_id) REFERENCES swarms(id)
       );
-      
+
       CREATE TABLE IF NOT EXISTS consensus_decisions (
         id TEXT PRIMARY KEY,
         swarm_id TEXT,
@@ -765,11 +765,11 @@ async function spawnSwarm(args, flags) {
       isExiting = true;
 
       console.log('\n\n' + chalk.yellow('⏸️  Pausing session...'));
-      
+
       try {
         // Save current checkpoint using the existing session manager
         // const sessionManager = new HiveMindSessionManager(); // Use existing one
-        
+
         // Create checkpoint data
         const checkpointData = {
           timestamp: new Date().toISOString(),
@@ -780,26 +780,26 @@ async function spawnSwarm(args, flags) {
           status: 'paused_by_user',
           reason: 'User pressed Ctrl+C',
         };
-        
+
         // Save checkpoint
         await sessionManager.saveCheckpoint(sessionId, 'auto-pause', checkpointData);
-        
+
         // Pause the session
         await sessionManager.pauseSession(sessionId);
-        
+
         // Close session manager
         sessionManager.close();
-        
+
         console.log(chalk.green('✓') + ' Session paused successfully');
         console.log(chalk.cyan('\nTo resume this session, run:'));
         console.log(chalk.bold(`  claude-flow hive-mind resume ${sessionId}`));
         console.log();
-        
+
         // Clean up auto-save if active
         if (global.autoSaveInterval) {
           clearInterval(global.autoSaveInterval);
         }
-        
+
         process.exit(0);
       } catch (error) {
         console.error(chalk.red('Error pausing session:'), error.message);
@@ -879,8 +879,8 @@ async function showStatus(flags) {
     const swarms = db
       .prepare(
         `
-      SELECT * FROM swarms 
-      WHERE status = 'active' 
+      SELECT * FROM swarms
+      WHERE status = 'active'
       ORDER BY created_at DESC
     `,
       )
@@ -907,7 +907,7 @@ async function showStatus(flags) {
       const agents = db
         .prepare(
           `
-        SELECT * FROM agents 
+        SELECT * FROM agents
         WHERE swarm_id = ?
       `,
         )
@@ -934,7 +934,7 @@ async function showStatus(flags) {
       const taskStats = db
         .prepare(
           `
-        SELECT 
+        SELECT
           COUNT(*) as total,
           SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed,
           SUM(CASE WHEN status = 'in_progress' THEN 1 ELSE 0 END) as in_progress,
@@ -1093,7 +1093,7 @@ async function showMetrics(flags) {
     const overallStats = db
       .prepare(
         `
-      SELECT 
+      SELECT
         (SELECT COUNT(*) FROM swarms) as total_swarms,
         (SELECT COUNT(*) FROM agents) as total_agents,
         (SELECT COUNT(*) FROM tasks) as total_tasks,
@@ -1108,7 +1108,7 @@ async function showMetrics(flags) {
     const taskBreakdown = db
       .prepare(
         `
-      SELECT 
+      SELECT
         status,
         COUNT(*) as count
       FROM tasks
@@ -1159,7 +1159,7 @@ async function showMetrics(flags) {
       const hasCompletedAt = db
         .prepare(
           `
-        SELECT COUNT(*) as count FROM pragma_table_info('tasks') 
+        SELECT COUNT(*) as count FROM pragma_table_info('tasks')
         WHERE name = 'completed_at'
       `,
         )
@@ -1169,13 +1169,13 @@ async function showMetrics(flags) {
         agentPerf = db
           .prepare(
             `
-          SELECT 
+          SELECT
             a.name,
             a.type,
             COUNT(t.id) as tasks_assigned,
             SUM(CASE WHEN t.status = 'completed' THEN 1 ELSE 0 END) as tasks_completed,
-            AVG(CASE WHEN t.completed_at IS NOT NULL 
-              THEN (julianday(t.completed_at) - julianday(t.created_at)) * 24 * 60 
+            AVG(CASE WHEN t.completed_at IS NOT NULL
+              THEN (julianday(t.completed_at) - julianday(t.created_at)) * 24 * 60
               ELSE NULL END) as avg_completion_minutes
           FROM agents a
           LEFT JOIN tasks t ON a.id = t.agent_id
@@ -1191,7 +1191,7 @@ async function showMetrics(flags) {
         agentPerf = db
           .prepare(
             `
-          SELECT 
+          SELECT
             a.name,
             a.type,
             COUNT(t.id) as tasks_assigned,
@@ -1232,7 +1232,7 @@ async function showMetrics(flags) {
     const swarmPerf = db
       .prepare(
         `
-      SELECT 
+      SELECT
         s.name,
         s.objective,
         (SELECT COUNT(*) FROM agents a WHERE a.swarm_id = s.id) as agent_count,
@@ -1273,7 +1273,7 @@ async function showMetrics(flags) {
       const hasCompletedAt = db
         .prepare(
           `
-        SELECT COUNT(*) as count FROM pragma_table_info('tasks') 
+        SELECT COUNT(*) as count FROM pragma_table_info('tasks')
         WHERE name = 'completed_at'
       `,
         )
@@ -1283,9 +1283,9 @@ async function showMetrics(flags) {
         avgTaskTime = db
           .prepare(
             `
-          SELECT 
-            AVG(CASE WHEN completed_at IS NOT NULL 
-              THEN (julianday(completed_at) - julianday(created_at)) * 24 * 60 
+          SELECT
+            AVG(CASE WHEN completed_at IS NOT NULL
+              THEN (julianday(completed_at) - julianday(created_at)) * 24 * 60
               ELSE NULL END) as avg_minutes
           FROM tasks
           WHERE status = 'completed'
@@ -1304,7 +1304,7 @@ async function showMetrics(flags) {
       const hasCompletedAt = db
         .prepare(
           `
-        SELECT COUNT(*) as count FROM pragma_table_info('tasks') 
+        SELECT COUNT(*) as count FROM pragma_table_info('tasks')
         WHERE name = 'completed_at'
       `,
         )
@@ -1314,12 +1314,12 @@ async function showMetrics(flags) {
         agentTypePerf = db
           .prepare(
             `
-          SELECT 
+          SELECT
             a.type,
             COUNT(t.id) as total_tasks,
             SUM(CASE WHEN t.status = 'completed' THEN 1 ELSE 0 END) as completed_tasks,
-            AVG(CASE WHEN t.completed_at IS NOT NULL 
-              THEN (julianday(t.completed_at) - julianday(t.created_at)) * 24 * 60 
+            AVG(CASE WHEN t.completed_at IS NOT NULL
+              THEN (julianday(t.completed_at) - julianday(t.created_at)) * 24 * 60
               ELSE NULL END) as avg_completion_minutes
           FROM agents a
           LEFT JOIN tasks t ON a.id = t.agent_id
@@ -1334,7 +1334,7 @@ async function showMetrics(flags) {
         agentTypePerf = db
           .prepare(
             `
-          SELECT 
+          SELECT
             a.type,
             COUNT(t.id) as total_tasks,
             SUM(CASE WHEN t.status = 'completed' THEN 1 ELSE 0 END) as completed_tasks,
@@ -1970,7 +1970,7 @@ async function spawnClaudeCodeInstances(swarmId, swarmName, objective, workers, 
           isExiting = true;
 
           console.log('\n\n' + chalk.yellow('⏸️  Pausing session and terminating Claude Code...'));
-          
+
           try {
             // Terminate Claude Code process
             if (claudeProcess && !claudeProcess.killed) {
@@ -1987,15 +1987,15 @@ async function spawnClaudeCodeInstances(swarmId, swarmName, objective, workers, 
                 reason: 'User pressed Ctrl+C during Claude Code execution',
                 claudePid: claudeProcess.pid,
               };
-              
+
               await sessionManager.saveCheckpoint(sessionId, 'auto-pause-claude', checkpointData);
               await sessionManager.pauseSession(sessionId);
-              
+
               console.log(chalk.green('✓') + ' Session paused successfully');
               console.log(chalk.cyan('\nTo resume this session, run:'));
               console.log(chalk.bold(`  claude-flow hive-mind resume ${sessionId}`));
             }
-            
+
             sessionManager.close();
             process.exit(0);
           } catch (error) {
@@ -2772,7 +2772,7 @@ async function launchClaudeWithContext(prompt, flags) {
         } else if (code !== null) {
           console.log(chalk.red(`\n✗ Claude Code exited with code ${code}`));
         }
-        
+
         // Clean up signal handlers
         process.removeListener('SIGINT', sigintHandler);
         process.removeListener('SIGTERM', sigintHandler);

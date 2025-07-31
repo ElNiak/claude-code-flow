@@ -37,6 +37,7 @@ npx claude-flow maestro create-spec my-feature "Create user authentication syste
 ```
 
 This automatically:
+
 - Initializes native hive mind with specs-driven topology
 - Spawns 8 specialized agents (requirements_analyst, design_architect x2, etc.)
 - Creates initial requirements.md using collective intelligence
@@ -48,6 +49,7 @@ npx claude-flow maestro generate-design my-feature
 ```
 
 This uses:
+
 - **Parallel execution**: 2 design_architect agents work simultaneously
 - **Native consensus**: Agents must agree on final design
 - **SwarmOrchestrator**: Handles coordination and result aggregation
@@ -123,31 +125,37 @@ await hiveMind.communication.broadcast({
 ## Agent Specialization
 
 ### Requirements Analyst
+
 - **Capabilities**: `requirements_analysis`, `user_story_creation`, `acceptance_criteria`
 - **Phase**: Requirements Clarification
 - **Strategy**: Sequential execution for consistency
 
 ### Design Architects (2 agents)
+
 - **Capabilities**: `system_design`, `architecture`, `specs_driven_design`
 - **Phase**: Research & Design
 - **Strategy**: Parallel execution with consensus validation
 
 ### Task Planner
+
 - **Capabilities**: `task_management`, `workflow_orchestration`
 - **Phase**: Implementation Planning
 - **Strategy**: Sequential for coherent task breakdown
 
 ### Implementation Coders (2 agents)
+
 - **Capabilities**: `code_generation`, `implementation`, `debugging`
 - **Phase**: Task Execution
 - **Strategy**: Parallel execution for faster implementation
 
 ### Quality Reviewer
+
 - **Capabilities**: `code_review`, `quality_assurance`, `testing`
 - **Phase**: Quality Gates
 - **Strategy**: Sequential validation with blocking gates
 
 ### Steering Documenter
+
 - **Capabilities**: `documentation_generation`, `governance`
 - **Phase**: Cross-cutting (all phases)
 - **Strategy**: Maintains governance consistency
@@ -213,28 +221,37 @@ npx claude-flow maestro implement-task my-feature 1 \
 ### Common Issues
 
 **Swarm Initialization Timeout**
+
 ```bash
 Error: Swarm initialization timeout
 ```
+
 Solution: Check network connectivity and increase timeout:
+
 ```bash
 npx claude-flow maestro create-spec my-feature --timeout 60000
 ```
 
 **Consensus Failure**
+
 ```bash
 Error: Consensus failed for design validation
 ```
+
 Solution: Lower consensus threshold or retry:
+
 ```bash
 npx claude-flow maestro generate-design my-feature --consensus-threshold 0.5
 ```
 
 **Agent Spawning Errors**
+
 ```bash
 Error: Maximum agent limit reached
 ```
+
 Solution: The swarm is at capacity. Wait for tasks to complete or increase limit:
+
 ```bash
 npx claude-flow maestro create-spec my-feature --max-agents 12
 ```
@@ -281,6 +298,7 @@ npx claude-flow maestro agent-stats
 ## API Reference
 
 See detailed API documentation:
+
 - [Maestro API Reference](./API.md) - Complete API documentation for native hive mind implementation
 
 ## Testing & Validation
@@ -301,6 +319,7 @@ node tests/maestro/test-specs-driven-workflow.cjs
 ## Implementation Status
 
 ### ✅ Completed Features
+
 - **Native Hive Mind Coordination**: Full integration with SwarmOrchestrator
 - **Specs-Driven Topology**: 6 specialized agent types with optimized workflow
 - **Consensus Validation**: Byzantine fault-tolerant decision making
@@ -310,12 +329,14 @@ node tests/maestro/test-specs-driven-workflow.cjs
 - **Performance Optimization**: 50% resource reduction with parallel execution
 
 ### 🧹 Cleanup & Consolidation
+
 - **Removed Legacy Files**: maestro-orchestrator.ts, agent-reuse system, duplicate services
 - **Consolidated Documentation**: Single README.md and API.md instead of multiple directories
 - **Unified Test Suite**: Comprehensive validation and workflow testing
 - **Streamlined Architecture**: Clean, maintainable codebase with clear separation of concerns
 
 ### 📊 Validation Results
+
 - **98.8% Test Success Rate**: All critical validations passing
 - **Zero Critical Issues**: Native hive mind implementation fully functional
 - **Complete Workflow**: End-to-end specs-driven development validated

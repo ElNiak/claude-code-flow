@@ -34,7 +34,7 @@ describe('AuthService', () => {
         role: 'user',
       };
       const mockToken = 'mock.jwt.token';
-      
+
       jwt.sign.mockReturnValue(mockToken);
 
       const token = authService.generateAccessToken(user);

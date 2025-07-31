@@ -25,7 +25,7 @@ import { initializeTerminalBridge } from './claude-flow/terminal/vscode-bridge';
 export function activate(context: vscode.ExtensionContext) {
   // Initialize the terminal bridge
   initializeTerminalBridge(context);
-  
+
   // Your extension code here
 }
 ```
@@ -89,7 +89,7 @@ Stream terminal output in real-time:
 const unsubscribe = await claudeFlow.streamOutput(terminalId, (output) => {
   // Display output in VSCode output channel
   outputChannel.append(output);
-  
+
   // Or update a webview
   webview.postMessage({ type: 'terminal-output', data: output });
 });
@@ -221,10 +221,10 @@ let outputChannel: vscode.OutputChannel;
 export async function activate(context: vscode.ExtensionContext) {
   // Initialize terminal bridge
   initializeTerminalBridge(context);
-  
+
   // Create output channel
   outputChannel = vscode.window.createOutputChannel('Claude-Flow');
-  
+
   // Initialize Claude-Flow
   claudeFlow = new ClaudeFlow({
     terminal: {
@@ -235,16 +235,16 @@ export async function activate(context: vscode.ExtensionContext) {
       commandTimeout: 60000,
     },
   });
-  
+
   await claudeFlow.initialize();
-  
+
   // Register commands
   context.subscriptions.push(
     vscode.commands.registerCommand('claude-flow.runTask', async () => {
       const task = await vscode.window.showInputBox({
         prompt: 'Enter task description',
       });
-      
+
       if (task) {
         await runTask(task);
       }
@@ -262,23 +262,23 @@ async function runTask(task: string) {
     maxConcurrentTasks: 1,
     priority: 1,
   });
-  
+
   try {
     // Stream output
     const unsubscribe = await claudeFlow.streamOutput(
       terminalId,
       (output) => outputChannel.append(output)
     );
-    
+
     // Execute task
     outputChannel.appendLine(`Running task: ${task}`);
     const result = await claudeFlow.executeCommand(
       terminalId,
       task
     );
-    
+
     outputChannel.appendLine(`Task completed: ${result}`);
-    
+
     // Clean up
     unsubscribe();
   } finally {

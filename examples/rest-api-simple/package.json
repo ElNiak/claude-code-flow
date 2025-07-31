@@ -7,7 +7,12 @@
     "start": "node index.js",
     "dev": "nodemon index.js"
   },
-  "keywords": ["rest", "api", "simple", "example"],
+  "keywords": [
+    "rest",
+    "api",
+    "simple",
+    "example"
+  ],
   "author": "",
   "license": "MIT",
   "dependencies": {

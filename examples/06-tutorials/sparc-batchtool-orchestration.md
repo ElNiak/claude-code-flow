@@ -1,12 +1,15 @@
 # SPARC BatchTool Orchestration Guide
 
 ## Overview
+
 BatchTool enables powerful parallel and concurrent execution of SPARC modes, allowing for sophisticated orchestration patterns that dramatically accelerate development workflows.
 
 ## Key Concepts
 
 ### 1. Parallel Execution
+
 Run multiple independent SPARC modes simultaneously:
+
 ```bash
 batchtool run --parallel \
   "npx claude-flow sparc run code 'user authentication' --non-interactive" \
@@ -15,7 +18,9 @@ batchtool run --parallel \
 ```
 
 ### 2. Boomerang Pattern
+
 Iterative development where each phase informs the next:
+
 ```bash
 batchtool orchestrate --boomerang \
   --phase1 "Research and gather requirements" \
@@ -26,7 +31,9 @@ batchtool orchestrate --boomerang \
 ```
 
 ### 3. Dependency-Aware Execution
+
 Handle task dependencies intelligently:
+
 ```bash
 batchtool run --dependency-aware \
   --task "db:npx claude-flow sparc run code 'database layer' --non-interactive" \
@@ -37,6 +44,7 @@ batchtool run --dependency-aware \
 ## Complete Workflow Examples
 
 ### Full Application Development
+
 ```bash
 # Complete application development with SPARC + BatchTool
 batchtool orchestrate --name "full-app-development" --boomerang \
@@ -61,6 +69,7 @@ batchtool orchestrate --name "full-app-development" --boomerang \
 ```
 
 ### Microservices Development
+
 ```bash
 # Develop multiple microservices concurrently
 batchtool run --parallel --tag "microservices" \
@@ -78,6 +87,7 @@ batchtool run --sequential \
 ```
 
 ### Feature Development Sprint
+
 ```bash
 # Sprint planning and execution
 batchtool orchestrate --sprint "feature-sprint-1" \
@@ -99,6 +109,7 @@ batchtool orchestrate --sprint "feature-sprint-1" \
 ## Advanced Patterns
 
 ### 1. Continuous Refinement Loop
+
 ```bash
 # Continuous improvement cycle
 while true; do
@@ -112,6 +123,7 @@ done
 ```
 
 ### 2. A/B Implementation Testing
+
 ```bash
 # Implement two approaches in parallel and compare
 batchtool run --ab-test \
@@ -121,6 +133,7 @@ batchtool run --ab-test \
 ```
 
 ### 3. Progressive Enhancement
+
 ```bash
 # Build features progressively
 batchtool orchestrate --progressive \
@@ -134,6 +147,7 @@ batchtool orchestrate --progressive \
 ## Monitoring and Control
 
 ### Real-time Monitoring
+
 ```bash
 # Monitor all running SPARC tasks
 batchtool monitor --dashboard --refresh 5s
@@ -146,6 +160,7 @@ batchtool logs --follow --filter "error|warning"
 ```
 
 ### Resource Management
+
 ```bash
 # Limit concurrent executions
 batchtool config --max-concurrent 5
@@ -166,21 +181,25 @@ batchtool run --priority high \
    - Enables proper log capture and monitoring
 
 2. **Tag related tasks for easier management**
+
    ```bash
    batchtool run --tag "auth-system" --parallel ...
    ```
 
 3. **Implement proper error handling**
+
    ```bash
    batchtool run --on-error retry --max-retries 3 ...
    ```
 
 4. **Use memory namespaces to share context**
+
    ```bash
    --namespace "project-x-auth"
    ```
 
 5. **Monitor resource usage**
+
    ```bash
    batchtool stats --orchestration "my-workflow"
    ```
@@ -197,12 +216,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      
+
       - name: Install dependencies
         run: |
           npm install -g claude-flow
           npm install -g batchtool
-      
+
       - name: Run SPARC orchestration
         run: |
           batchtool orchestrate --boomerang \
@@ -215,11 +234,13 @@ jobs:
 ## Troubleshooting
 
 ### Common Issues
+
 1. **Tasks not running in parallel**: Ensure BatchTool is installed and --non-interactive flag is used
 2. **Memory namespace conflicts**: Use unique namespaces for different workflows
 3. **Resource exhaustion**: Limit concurrent executions with --max-concurrent
 
 ### Debug Commands
+
 ```bash
 # Enable verbose logging
 batchtool run --verbose --debug ...

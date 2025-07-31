@@ -33,7 +33,7 @@ app.post('/api/items', (req, res) => {
   if (!name || !description) {
     return res.status(400).json({ error: 'Name and description are required' });
   }
-  
+
   const newItem = {
     id: nextId++,
     name,
@@ -47,18 +47,18 @@ app.post('/api/items', (req, res) => {
 app.put('/api/items/:id', (req, res) => {
   const id = parseInt(req.params.id);
   const { name, description } = req.body;
-  
+
   const itemIndex = items.findIndex(i => i.id === id);
   if (itemIndex === -1) {
     return res.status(404).json({ error: 'Item not found' });
   }
-  
+
   items[itemIndex] = {
     id,
     name: name || items[itemIndex].name,
     description: description || items[itemIndex].description
   };
-  
+
   res.json(items[itemIndex]);
 });
 
@@ -66,11 +66,11 @@ app.put('/api/items/:id', (req, res) => {
 app.delete('/api/items/:id', (req, res) => {
   const id = parseInt(req.params.id);
   const itemIndex = items.findIndex(i => i.id === id);
-  
+
   if (itemIndex === -1) {
     return res.status(404).json({ error: 'Item not found' });
   }
-  
+
   items.splice(itemIndex, 1);
   res.status(204).send();
 });

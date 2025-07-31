@@ -22,15 +22,15 @@ async function fixShebangLine(filePath) {
       // Find the shebang line
       const lines = content.split('\n');
       const shebangIndex = lines.findIndex(line => line.startsWith('#!/usr/bin/env node'));
-      
+
       if (shebangIndex > 0) {
         // Remove the shebang from its current position
         const shebangLine = lines[shebangIndex];
         lines.splice(shebangIndex, 1);
-        
+
         // Add it to the beginning
         lines.unshift(shebangLine);
-        
+
         content = lines.join('\n');
         modified = true;
       }
@@ -51,7 +51,7 @@ async function findTypeScriptFiles(dir) {
 
   for (const entry of entries) {
     const fullPath = join(dir, entry.name);
-    
+
     if (entry.isDirectory() && !entry.name.includes('node_modules') && !entry.name.includes('dist')) {
       files.push(...await findTypeScriptFiles(fullPath));
     } else if (entry.isFile() && entry.name.endsWith('.ts')) {
@@ -65,13 +65,13 @@ async function findTypeScriptFiles(dir) {
 async function main() {
   const srcDir = join(dirname(__dirname), 'src');
   const files = await findTypeScriptFiles(srcDir);
-  
+
   console.log(`Found ${files.length} TypeScript files to check for shebang issues...`);
-  
+
   for (const file of files) {
     await fixShebangLine(file);
   }
-  
+
   console.log('✅ Shebang fixes complete!');
 }
 

@@ -133,7 +133,7 @@ export class OllamaProvider extends BaseProvider {
 
   protected async doInitialize(): Promise<void> {
     this.baseUrl = this.config.apiUrl || 'http://localhost:11434';
-    
+
     // Check if Ollama is running and get available models
     try {
       await this.fetchAvailableModels();
@@ -148,10 +148,10 @@ export class OllamaProvider extends BaseProvider {
       if (!response.ok) {
         throw new Error(`Failed to fetch models: ${response.status}`);
       }
-      
+
       const data = await response.json();
       this.availableModels.clear();
-      
+
       if (data.models && Array.isArray(data.models)) {
         data.models.forEach((model: OllamaModelInfo) => {
           this.availableModels.add(model.name);
@@ -215,7 +215,7 @@ export class OllamaProvider extends BaseProvider {
       }
 
       const data: OllamaResponse = await response.json();
-      
+
       // Calculate metrics
       const promptTokens = data.prompt_eval_count || this.estimateTokens(JSON.stringify(request.messages));
       const completionTokens = data.eval_count || this.estimateTokens(data.message?.content || '');
@@ -247,14 +247,14 @@ export class OllamaProvider extends BaseProvider {
       };
     } catch (error) {
       clearTimeout(timeout);
-      
+
       // Check if Ollama is running
       if (error instanceof TypeError && error.message.includes('fetch')) {
         throw new ProviderUnavailableError('ollama', {
           message: 'Cannot connect to Ollama. Make sure Ollama is running on ' + this.baseUrl,
         });
       }
-      
+
       throw this.transformError(error);
     }
   }
@@ -310,10 +310,10 @@ export class OllamaProvider extends BaseProvider {
 
         for (const line of lines) {
           if (line.trim() === '') continue;
-          
+
           try {
             const data: OllamaResponse = JSON.parse(line);
-            
+
             if (data.message?.content) {
               totalContent += data.message.content;
               yield {
@@ -321,11 +321,11 @@ export class OllamaProvider extends BaseProvider {
                 delta: { content: data.message.content },
               };
             }
-            
+
             if (data.done) {
               promptTokens = data.prompt_eval_count || this.estimateTokens(JSON.stringify(request.messages));
               completionTokens = data.eval_count || this.estimateTokens(totalContent);
-              
+
               yield {
                 type: 'done',
                 usage: {
@@ -348,13 +348,13 @@ export class OllamaProvider extends BaseProvider {
       }
     } catch (error) {
       clearTimeout(timeout);
-      
+
       if (error instanceof TypeError && error.message.includes('fetch')) {
         throw new ProviderUnavailableError('ollama', {
           message: 'Cannot connect to Ollama. Make sure Ollama is running on ' + this.baseUrl,
         });
       }
-      
+
       throw this.transformError(error);
     } finally {
       clearTimeout(timeout);
@@ -364,16 +364,16 @@ export class OllamaProvider extends BaseProvider {
   async listModels(): Promise<LLMModel[]> {
     // Refresh available models
     await this.fetchAvailableModels();
-    
+
     // Return intersection of supported models and available models
-    return this.capabilities.supportedModels.filter(model => 
+    return this.capabilities.supportedModels.filter(model =>
       this.availableModels.has(this.mapToOllamaModel(model))
     );
   }
 
   async getModelInfo(model: LLMModel): Promise<ModelInfo> {
     const ollamaModel = this.mapToOllamaModel(model);
-    
+
     try {
       const response = await fetch(`${this.baseUrl}/api/show`, {
         method: 'POST',
@@ -388,7 +388,7 @@ export class OllamaProvider extends BaseProvider {
       }
 
       const data = await response.json();
-      
+
       return {
         model,
         name: data.name || model,
@@ -420,7 +420,7 @@ export class OllamaProvider extends BaseProvider {
   protected async doHealthCheck(): Promise<HealthCheckResult> {
     try {
       const response = await fetch(`${this.baseUrl}/api/tags`);
-      
+
       if (!response.ok) {
         throw new Error(`Health check failed: ${response.status}`);
       }

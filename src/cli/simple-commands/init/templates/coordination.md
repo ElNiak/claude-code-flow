@@ -1,6 +1,7 @@
 # Coordination
 
 ## Task Orchestration
+
 This file coordinates tasks and workflows across the project.
 
 ## Active Tasks

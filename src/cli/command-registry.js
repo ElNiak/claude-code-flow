@@ -58,7 +58,7 @@ The --sparc flag creates a complete development environment:
   • CLAUDE.md for AI-readable project instructions
   • Pre-configured modes: architect, code, tdd, debug, security, and more
   • Ready for TDD workflows and automated code generation
-  
+
 First-time users should run: npx claude-flow@latest init --sparc`,
   });
 
@@ -232,7 +232,7 @@ First-time users should run: npx claude-flow@latest init --sparc`,
 Hive Mind System Features:
   • Queen-led coordination with specialized worker agents
   • Collective memory and knowledge sharing
-  • Consensus building for critical decisions  
+  • Consensus building for critical decisions
   • Auto-scaling based on workload
   • Parallel task execution with work stealing
   • Real-time monitoring and metrics
@@ -270,7 +270,7 @@ Hive Mind Database Optimization Features:
   • Task archival for space management
   • Behavioral pattern tracking
   • Database integrity checking
-  
+
 Optimization Levels:
   • v1.0 → v1.1: Basic performance indexes
   • v1.1 → v1.2: Advanced query optimization
@@ -335,7 +335,7 @@ Batch operations support:
   • Parallel processing with resource management
   • Progress tracking and detailed reporting
   • Configuration validation and estimation tools
-  
+
 Use with init command:
   claude-flow init --batch-init project1,project2,project3
   claude-flow init --config batch-config.json --parallel`,
@@ -361,7 +361,7 @@ GitHub automation modes:
   • release-manager: Release coordination and deployment pipelines
   • repo-architect: Repository structure optimization
   • sync-coordinator: Multi-package synchronization and version alignment
-  
+
 Advanced features:
   • Multi-reviewer coordination with automated scheduling
   • Intelligent issue categorization and assignment
@@ -383,7 +383,7 @@ Neural training commands:
   • neural-train: Train neural patterns from operations
   • pattern-learn: Learn from specific operation outcomes
   • model-update: Update agent models with new insights
-  
+
 Improves task selection accuracy, agent performance prediction, and coordination efficiency.`,
   });
 
@@ -401,7 +401,7 @@ Analysis commands:
   • bottleneck-detect: Detect performance bottlenecks in the system
   • performance-report: Generate comprehensive performance reports
   • token-usage: Analyze token consumption and costs
-  
+
 Helps with performance optimization, cost management, and resource allocation.`,
   });
 
@@ -419,7 +419,7 @@ Automation commands:
   • auto-agent: Automatically spawn optimal agents based on task complexity
   • smart-spawn: Intelligently spawn agents based on specific requirements
   • workflow-select: Select and configure optimal workflows for project types
-  
+
 Provides optimal resource allocation and intelligent agent selection.`,
   });
 
@@ -437,7 +437,7 @@ Coordination commands:
   • swarm-init: Initialize swarm coordination infrastructure
   • agent-spawn: Spawn and coordinate new agents
   • task-orchestrate: Orchestrate task execution across agents
-  
+
 Enables intelligent task distribution, agent synchronization, and shared memory coordination.`,
   });
 
@@ -457,7 +457,7 @@ Hooks commands:
   • pre-edit: Execute before file modifications (backup & validation)
   • post-edit: Execute after file modifications (tracking & coordination)
   • session-end: Execute at session termination (cleanup & export)
-  
+
 Enables automated preparation & cleanup, performance tracking, and coordination synchronization.`,
   });
 
@@ -475,13 +475,13 @@ Enables automated preparation & cleanup, performance tracking, and coordination 
     details: `
 🚨 CRITICAL: Stop hooks calling 'claude' commands create INFINITE LOOPS that can:
   • Bypass API rate limits
-  • Cost thousands of dollars per day  
+  • Cost thousands of dollars per day
   • Make your system unresponsive
 
 Hook Safety commands:
   • validate: Check Claude Code settings for dangerous patterns
   • status: Show current safety status and execution context
-  • reset: Reset circuit breakers and execution counters  
+  • reset: Reset circuit breakers and execution counters
   • safe-mode: Enable/disable safe mode (skips all hooks)
 
 SAFE ALTERNATIVES:
@@ -538,14 +538,14 @@ Hive Mind features:
   • 📊 Real-time monitoring dashboard
   • 🧪 SPARC methodology integration
   • 💾 Distributed memory and knowledge sharing
-  
+
 Agent types:
   • Queen: Orchestrator and decision maker
-  • Architect: System design and planning  
+  • Architect: System design and planning
   • Worker: Implementation and execution
   • Scout: Research and exploration
   • Guardian: Quality and validation
-  
+
 Options:
   --topology <type>         Swarm topology (default: hierarchical)
   --consensus <type>        Decision mechanism (default: quorum)
@@ -579,7 +579,7 @@ Advanced swarm coordination features:
   • 27+ neural models for cognitive approaches
   • Persistent memory across sessions
   • Automatic topology optimization
-  
+
 Commands:
   init        - Initialize swarm with specified topology
   status      - Get current swarm status and metrics
@@ -655,12 +655,12 @@ Advanced configuration management features:
   • Automatic synchronization between config systems
   • Import/export capabilities with validation
   • Real-time status monitoring and validation
-  
+
 Presets:
   development  - Hierarchical topology, specialized strategy, 8 agents
-  research     - Mesh topology, adaptive strategy, 12 agents  
+  research     - Mesh topology, adaptive strategy, 12 agents
   production   - Star topology, balanced strategy, 6 agents
-  
+
 Commands:
   setup        - Initialize ruv-swarm integration
   sync         - Synchronize configurations

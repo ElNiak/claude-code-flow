@@ -1,10 +1,10 @@
 /**
  * Maestro CLI Bridge - Optimization Implementation
- * 
+ *
  * This bridge provides optimized CLI integration for the Maestro specifications-driven
  * development framework, implementing performance enhancements and intelligent features
  * while maintaining compatibility with existing infrastructure.
- * 
+ *
  * Key optimizations:
  * - Parallel dependency initialization with caching
  * - Performance monitoring integration
@@ -85,7 +85,7 @@ export class MaestroCLIBridge {
       console.log(chalk.blue('🚀 Initializing Maestro orchestrator...'));
 
       // Parallel initialization with caching
-      const [config, eventBus, logger, memoryManager, agentManager, mainOrchestrator] = 
+      const [config, eventBus, logger, memoryManager, agentManager, mainOrchestrator] =
         await Promise.all([
           this.getOrCreateConfig(),
           this.getOrCreateEventBus(),
@@ -113,9 +113,9 @@ export class MaestroCLIBridge {
 
       this.initialized = true;
       const duration = Date.now() - startTime;
-      
+
       console.log(chalk.green(`✅ Maestro orchestrator ready (${duration}ms)`));
-      
+
       // Report performance metrics
       await this.reportPerformanceMetric('orchestrator_init', duration, true);
 
@@ -124,7 +124,7 @@ export class MaestroCLIBridge {
     } catch (error) {
       const duration = Date.now() - startTime;
       await this.reportPerformanceMetric('orchestrator_init', duration, false, error instanceof Error ? error.message : String(error));
-      
+
       console.error(chalk.red(`❌ Failed to initialize Maestro orchestrator: ${error instanceof Error ? error.message : String(error)}`));
       throw error;
     }
@@ -155,7 +155,7 @@ export class MaestroCLIBridge {
       });
 
       const result = await fn();
-      
+
       const endTime = Date.now();
       const endMemory = process.memoryUsage().heapUsed;
       const duration = endTime - startTime;
@@ -169,11 +169,11 @@ export class MaestroCLIBridge {
         metric: `${operation}_complete`,
         value: duration,
         unit: 'milliseconds',
-        context: { 
-          operation, 
-          success: true, 
+        context: {
+          operation,
+          success: true,
           memoryDelta: memoryDelta / 1024 / 1024, // MB
-          ...context 
+          ...context
         }
       });
 
@@ -190,12 +190,12 @@ export class MaestroCLIBridge {
         metric: `${operation}_error`,
         value: duration,
         unit: 'milliseconds',
-        context: { 
-          operation, 
-          success: false, 
+        context: {
+          operation,
+          success: false,
           error: error instanceof Error ? error.message : String(error),
           memoryDelta: memoryDelta / 1024 / 1024, // MB
-          ...context 
+          ...context
         }
       });
 
@@ -233,7 +233,7 @@ export class MaestroCLIBridge {
    */
   private async getOrCreateConfig(): Promise<Config> {
     const cacheKey = 'config';
-    
+
     if (this.bridgeConfig.cacheEnabled && this.initializationCache.has(cacheKey)) {
       return this.initializationCache.get(cacheKey);
     }
@@ -257,7 +257,7 @@ export class MaestroCLIBridge {
    */
   private async getOrCreateEventBus(): Promise<IEventBus> {
     const cacheKey = 'eventBus';
-    
+
     if (this.bridgeConfig.cacheEnabled && this.initializationCache.has(cacheKey)) {
       return this.initializationCache.get(cacheKey);
     }
@@ -277,7 +277,7 @@ export class MaestroCLIBridge {
    */
   private async getOrCreateLogger(): Promise<ILogger> {
     const cacheKey = 'logger';
-    
+
     if (this.bridgeConfig.cacheEnabled && this.initializationCache.has(cacheKey)) {
       return this.initializationCache.get(cacheKey);
     }
@@ -314,7 +314,7 @@ export class MaestroCLIBridge {
    */
   private async getOrCreateMemoryManager(): Promise<IMemoryManager> {
     const cacheKey = 'memoryManager';
-    
+
     if (this.bridgeConfig.cacheEnabled && this.initializationCache.has(cacheKey)) {
       return this.initializationCache.get(cacheKey);
     }
@@ -346,7 +346,7 @@ export class MaestroCLIBridge {
    */
   private async getOrCreateAgentManager(): Promise<AgentManager> {
     const cacheKey = 'agentManager';
-    
+
     if (this.bridgeConfig.cacheEnabled && this.initializationCache.has(cacheKey)) {
       return this.initializationCache.get(cacheKey);
     }
@@ -356,7 +356,7 @@ export class MaestroCLIBridge {
     const eventBus = await this.getOrCreateEventBus();
     const logger = await this.getOrCreateLogger();
     const memoryManager = await this.getOrCreateMemoryManager();
-    
+
     const agentManager = new AgentManager(
       { maxAgents: 10 }, // AgentManagerConfig
       logger,
@@ -376,7 +376,7 @@ export class MaestroCLIBridge {
    */
   private async getOrCreateMainOrchestrator(): Promise<Orchestrator> {
     const cacheKey = 'mainOrchestrator';
-    
+
     if (this.bridgeConfig.cacheEnabled && this.initializationCache.has(cacheKey)) {
       return this.initializationCache.get(cacheKey);
     }
@@ -386,12 +386,12 @@ export class MaestroCLIBridge {
     const eventBus = await this.getOrCreateEventBus();
     const logger = await this.getOrCreateLogger();
     const memoryManager = await this.getOrCreateMemoryManager();
-    
+
     // Create mock dependencies for orchestrator
     const mockTerminalManager = {} as any;
     const mockCoordinationManager = {} as any;
     const mockMCPServer = {} as any;
-    
+
     const orchestrator = new Orchestrator(
       config,
       mockTerminalManager,
@@ -472,8 +472,8 @@ export class MaestroCLIBridge {
   getPerformanceSummary(): any {
     const successful = this.performanceMetrics.filter(m => m.success);
     const failed = this.performanceMetrics.filter(m => !m.success);
-    
-    const avgDuration = successful.length > 0 
+
+    const avgDuration = successful.length > 0
       ? successful.reduce((sum, m) => sum + m.duration, 0) / successful.length
       : 0;
 
@@ -481,7 +481,7 @@ export class MaestroCLIBridge {
       totalOperations: this.performanceMetrics.length,
       successfulOperations: successful.length,
       failedOperations: failed.length,
-      successRate: this.performanceMetrics.length > 0 
+      successRate: this.performanceMetrics.length > 0
         ? (successful.length / this.performanceMetrics.length) * 100
         : 0,
       averageDuration: Math.round(avgDuration),
@@ -547,10 +547,10 @@ export class MaestroCLIBridge {
     if (this.swarmCoordinator) {
       await this.swarmCoordinator.shutdown();
     }
-    
+
     this.clearCache();
     this.performanceMetrics = [];
-    
+
     console.log(chalk.green('✅ Maestro CLI bridge shutdown complete'));
   }
 }

@@ -94,7 +94,7 @@ You have access to the advanced Claude-Flow swarm system with the following capa
 
 ### 🤖 Agent Types Available:
 - **Coordinator**: Plans and delegates tasks to other agents
-- **Developer**: Writes code and implements solutions  
+- **Developer**: Writes code and implements solutions
 - **Researcher**: Gathers and analyzes information
 - **Analyzer**: Identifies patterns and generates insights
 - **Tester**: Creates and runs tests for quality assurance
@@ -306,7 +306,7 @@ export function getSwarmOrchestration(taskDescription, memoryNamespace) {
    \`\`\`bash
    # Ensure Claude-Flow is properly initialized
    npx claude-flow status
-   
+
    # Check memory system
    npx claude-flow memory stats
    \`\`\`
@@ -356,10 +356,10 @@ export function getSwarmOrchestration(taskDescription, memoryNamespace) {
    \`\`\`bash
    # Monitor swarm progress
    npx claude-flow monitor
-   
+
    # Check specific swarm status
    npx claude-flow status
-   
+
    # View agent activities
    npx claude-flow agent list
    \`\`\`
@@ -368,13 +368,13 @@ export function getSwarmOrchestration(taskDescription, memoryNamespace) {
    \`\`\`bash
    # Store important findings for all agents
    npx claude-flow memory store "${memoryNamespace}_findings" "key insights and decisions"
-   
+
    # Store progress updates
    npx claude-flow memory store "${memoryNamespace}_progress" "current completion status"
-   
+
    # Store blockers or issues
    npx claude-flow memory store "${memoryNamespace}_blockers" "any impediments or questions"
-   
+
    # Query shared knowledge
    npx claude-flow memory query "${memoryNamespace}" --limit 10
    \`\`\`
@@ -390,7 +390,7 @@ export function getSwarmOrchestration(taskDescription, memoryNamespace) {
     \`\`\`bash
     # Store final results
     npx claude-flow memory store "${memoryNamespace}_final" "completed task summary and results"
-    
+
     # Store lessons learned
     npx claude-flow memory store "${memoryNamespace}_lessons" "insights for future similar tasks"
     \`\`\`

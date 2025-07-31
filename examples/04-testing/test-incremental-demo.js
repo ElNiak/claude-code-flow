@@ -12,7 +12,7 @@ class VersionedStore {
   constructor() {
     this.data = new Map();
   }
-  
+
   set(key, value) {
     this.data.set(key, {
       value,
@@ -22,29 +22,29 @@ class VersionedStore {
       history: []
     });
   }
-  
+
   update(key, newValue) {
     const existing = this.data.get(key);
     if (!existing) throw new Error('Key not found');
-    
+
     existing.history.push({
       value: existing.value,
       version: existing.version,
       timestamp: existing.updatedAt
     });
-    
+
     existing.value = newValue;
     existing.version++;
     existing.updatedAt = Date.now();
-    
+
     // Keep only last 10 versions
     if (existing.history.length > 10) {
       existing.history.shift();
     }
-    
+
     return existing;
   }
-  
+
   get(key) {
     return this.data.get(key);
   }
@@ -55,17 +55,17 @@ class MetricsCounter {
   constructor() {
     this.counters = {};
   }
-  
+
   increment(name) {
     this.counters[name] = (this.counters[name] || 0) + 1;
     return this.counters[name];
   }
-  
+
   decrement(name) {
     this.counters[name] = (this.counters[name] || 0) - 1;
     return this.counters[name];
   }
-  
+
   getStats() {
     return { ...this.counters };
   }
@@ -74,7 +74,7 @@ class MetricsCounter {
 // Pattern 3: Deep Merge Updates
 function deepMerge(target, source) {
   const result = { ...target };
-  
+
   for (const key in source) {
     if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
       result[key] = deepMerge(result[key] || {}, source[key]);
@@ -82,7 +82,7 @@ function deepMerge(target, source) {
       result[key] = source[key];
     }
   }
-  
+
   return result;
 }
 
@@ -94,7 +94,7 @@ class IncrementalCache {
     this.hits = 0;
     this.misses = 0;
   }
-  
+
   set(key, value) {
     if (this.cache.size >= this.maxSize) {
       const firstKey = this.cache.keys().next().value;
@@ -102,7 +102,7 @@ class IncrementalCache {
     }
     this.cache.set(key, value);
   }
-  
+
   get(key) {
     if (this.cache.has(key)) {
       this.hits++;
@@ -111,7 +111,7 @@ class IncrementalCache {
     this.misses++;
     return null;
   }
-  
+
   stats() {
     return {
       size: this.cache.size,
@@ -208,7 +208,7 @@ console.log(`  📊 Cache stats: ${JSON.stringify(cacheStats, null, 2)}`);
 console.log('\n5️⃣ Testing Concurrent Updates');
 async function simulateConcurrentUpdates() {
   const sharedCounter = { value: 0, updates: 0 };
-  
+
   const updateCounter = async (agentId, updates) => {
     for (let i = 0; i < updates; i++) {
       // Simulate async work
@@ -217,15 +217,15 @@ async function simulateConcurrentUpdates() {
       sharedCounter.updates++;
     }
   };
-  
+
   // Simulate 5 agents doing 10 updates each
   const agents = [];
   for (let i = 0; i < 5; i++) {
     agents.push(updateCounter(i, 10));
   }
-  
+
   await Promise.all(agents);
-  
+
   console.log(`  ✓ Final counter value: ${sharedCounter.value}`);
   console.log(`  ✓ Total updates: ${sharedCounter.updates}`);
   console.log(`  ✓ Expected: 50, Actual: ${sharedCounter.value}`);
@@ -236,20 +236,20 @@ console.log('\n6️⃣ Testing Batch Processing Progress');
 async function processBatch() {
   const items = Array(20).fill(null).map((_, i) => ({ id: i, processed: false }));
   let processed = 0;
-  
+
   for (const item of items) {
     item.processed = true;
     processed++;
-    
+
     if (processed % 5 === 0) {
       const progress = (processed / items.length) * 100;
       console.log(`  📊 Progress: ${progress}% (${processed}/${items.length})`);
     }
-    
+
     // Simulate processing time
     await new Promise(resolve => setTimeout(resolve, 50));
   }
-  
+
   console.log('  ✅ Batch processing complete');
 }
 
@@ -257,6 +257,6 @@ async function processBatch() {
 (async () => {
   await simulateConcurrentUpdates();
   await processBatch();
-  
+
   console.log('\n✨ All incremental update patterns demonstrated successfully!');
 })();

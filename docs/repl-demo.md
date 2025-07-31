@@ -11,6 +11,7 @@ claude-flow repl
 ## Available Commands
 
 ### System Commands
+
 - `help` - Show all available commands
 - `status` - Display system status
 - `config [key]` - Show configuration
@@ -19,6 +20,7 @@ claude-flow repl
 - `exit` or `quit` - Exit REPL
 
 ### Agent Management
+
 ```bash
 # Spawn a new agent
 agent spawn researcher bot1
@@ -34,6 +36,7 @@ agent terminate bot1
 ```
 
 ### Task Management
+
 ```bash
 # Create a task
 task create research "Analyze market trends"
@@ -49,6 +52,7 @@ task status task-123
 ```
 
 ### Memory Operations
+
 ```bash
 # Store data
 memory store analysis "Market is trending upward"
@@ -64,6 +68,7 @@ memory clear
 ```
 
 ### Terminal Sessions
+
 ```bash
 # Create terminal
 terminal create dev-session
@@ -84,6 +89,7 @@ terminal detach
 ### Special Features
 
 **Shell Commands:**
+
 ```bash
 # Execute shell command with !
 !pwd
@@ -91,6 +97,7 @@ terminal detach
 ```
 
 **Search History:**
+
 ```bash
 # Search command history
 /agent

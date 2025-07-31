@@ -5,6 +5,7 @@
 ### 🚨 Critical Bugs
 
 #### **Issue #312 - MCP Tools Don't Actually Write to Database (SHOWSTOPPER)**
+
 - **Priority**: CRITICAL - #1 PRIORITY
 - **Problem**: MCP tools return success but don't persist ANY data to SQLite
 - **Impact**: Users think work is saved but databases remain empty - complete data loss
@@ -21,21 +22,23 @@
 - **Expected outcome**: All MCP operations actually persist data to SQLite
 
 #### **Issue #330 - Hive-mind Wizard Hangs and Never Creates Prompt File**
+
 - **Priority**: CRITICAL (Breaks Core Feature)
 - **Problem**: Wizard completes but work never starts, prompt file never saved
 - **Impact**: Users can't use hive-mind feature at all without manual workarounds
 - **Root Cause**: Prompt file only saved if Claude CLI is NOT installed (backwards logic)
-- **Solution**: 
+- **Solution**:
   - Always save prompt file regardless of Claude installation
   - Fix stdio handling to prevent terminal conflicts
   - Add clear instructions for two-terminal workflow
   - Use proper non-interactive flags when spawning Claude
-- **Files to modify**: 
+- **Files to modify**:
   - `src/cli/simple-commands/hive-mind.js` (spawnClaudeCodeInstances function)
   - `src/cli/commands/hive-mind/spawn.ts`
 - **Expected outcome**: Hive-mind wizard works seamlessly, saves prompt file, provides clear next steps
 
 #### **Issue #325 - Hive Session Management: Can't Stop or Resume Sessions**
+
 - **Priority**: HIGH (Core Feature Broken)
 - **Problem**: Ctrl+C leaves orphaned processes, sessions stay "active", can't resume
 - **Impact**: Users have zombie processes consuming resources, no clean shutdown
@@ -54,6 +57,7 @@
 ### 🤖 Claude API Integration
 
 #### **Issue #331 - Implement Temperature Control & Model Selection**
+
 - **Priority**: High (Core Functionality)
 - **Problem**: Configuration files have non-functional Claude API settings
 - **Impact**: Users expect temperature, model selection, and token limits to work
@@ -64,7 +68,7 @@
   - Add model selection (claude-3-opus, claude-3-sonnet, claude-3-haiku)
   - Add token limit enforcement
   - Add fallback model support
-- **Files to modify**: 
+- **Files to modify**:
   - `src/core/orchestrator.ts`
   - `src/config/config-manager.ts`
   - `examples/01-configurations/` (restore cleaned configs)
@@ -72,7 +76,8 @@
 
 ### 🔧 TypeScript Compilation Fixes
 
-#### **Issue #290 - Complete TypeScript Migration** 
+#### **Issue #290 - Complete TypeScript Migration**
+
 - **Priority**: High (Build System)
 - **Problem**: 643+ TypeScript compilation errors preventing clean builds
 - **Impact**: Development workflow issues, can't use compiled TypeScript
@@ -83,7 +88,7 @@
   - Fix missing `override` modifiers
   - Resolve implicit 'any' types
   - Complete remaining file conversions from issue #290
-- **Files to modify**: 
+- **Files to modify**:
   - `src/cli/runtime-detector.ts`
   - `src/cli/repl.ts`
   - `src/cli/simple-cli.ts`
@@ -93,6 +98,7 @@
 ### 🧪 Testing & Validation
 
 #### **Test Suite Stabilization**
+
 - **Priority**: Medium (Quality Assurance)
 - **Problem**: Tests failing due to environment setup and missing imports
 - **Impact**: Unreliable CI/CD and development workflow
@@ -107,6 +113,7 @@
 ### 📋 Configuration Management
 
 #### **Config System Overhaul**
+
 - **Priority**: Medium (Developer Experience)
 - **Problem**: Configuration system has dead/non-functional options
 - **Impact**: Confusing user experience with features that don't work
@@ -121,6 +128,7 @@
 ### 📚 Documentation & Help System
 
 #### **Issue #323 - CLI Help Text Improvements**
+
 - **Priority**: Low (Core Already Implemented)
 - **Problem**: Help text was decentralized and inconsistent
 - **Current Status**: ✅ Core implementation complete in `src/cli/help-text.js`
@@ -136,17 +144,20 @@
 
 ## 🚀 Success Criteria for Alpha 58
 
-### ✅ Must Have:
+### ✅ Must Have
+
 1. **FIX DATABASE PERSISTENCE**: MCP tools MUST write to SQLite (Issue #312)
 2. **Claude API Integration**: Temperature, model selection, and token limits working
 3. **Clean TypeScript Build**: Zero compilation errors
 4. **Functional Configs**: All configuration options either work or are removed
 
-### 🎯 Should Have:
+### 🎯 Should Have
+
 4. **Stable Tests**: Passing test suite with reliable CI/CD
 5. **Documentation Updates**: Accurate docs reflecting actual functionality
 
-### 💎 Nice to Have:
+### 💎 Nice to Have
+
 6. **Performance Improvements**: Based on Alpha 57 usage feedback
 7. **Enhanced Error Handling**: Better user-facing error messages
 
@@ -160,6 +171,7 @@
 ## 🔄 Migration from Alpha 57
 
 Users upgrading from Alpha 57 to Alpha 58 will get:
+
 - **Working Claude API features** that were previously just configuration placeholders
 - **Faster, more reliable builds** with clean TypeScript compilation
 - **Cleaner configuration** with only functional options
