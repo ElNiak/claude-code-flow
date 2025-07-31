@@ -131,7 +131,6 @@ Benchmark
 
 Metric	Baseline	Candidate	Δ
 
-
 ---
 
 ## Root Artifacts Policy (Strict)
