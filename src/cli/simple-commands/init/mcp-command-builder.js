@@ -10,23 +10,23 @@
  */
 export function buildMcpCommand(serverConfig) {
   const { command, args = [] } = serverConfig;
-  
+
   switch (command) {
     case 'npx':
       return `npx ${args.join(' ')}`;
-    
+
     case 'docker':
       return `docker ${args.join(' ')}`;
-    
+
     case 'uvx':
       return `uvx ${args.join(' ')}`;
-    
+
     default:
       // Handle legacy format where command is the full command string
       if (typeof command === 'string' && !args.length) {
         return command;
       }
-      
+
       // Unknown command type, return as-is
       console.warn(`Unknown command type: ${command}`);
       return `${command} ${args.join(' ')}`;
@@ -41,7 +41,7 @@ export function buildMcpCommand(serverConfig) {
 export function validateEnvironmentVariables(serverConfig) {
   const { env = {} } = serverConfig;
   const missing = [];
-  
+
   for (const [key, value] of Object.entries(env)) {
     // Check if env var is required (marked as TODO-API-KEY or similar)
     if (value && (value.includes('TODO') || value.includes('REPLACE'))) {
@@ -50,7 +50,7 @@ export function validateEnvironmentVariables(serverConfig) {
       }
     }
   }
-  
+
   return {
     valid: missing.length === 0,
     missing
@@ -64,14 +64,14 @@ export function validateEnvironmentVariables(serverConfig) {
  */
 export function prepareServerConfig(serverConfig) {
   const config = { ...serverConfig };
-  
+
   // Handle environment variables in args
   if (config.args) {
     config.args = config.args.map(arg => {
       if (typeof arg === 'string') {
         // Replace ${PWD} with current working directory
         arg = arg.replace('${PWD}', process.cwd());
-        
+
         // Replace other environment variables
         arg = arg.replace(/\$\{([^}]+)\}/g, (match, envVar) => {
           return process.env[envVar] || match;
@@ -80,6 +80,6 @@ export function prepareServerConfig(serverConfig) {
       return arg;
     });
   }
-  
+
   return config;
 }

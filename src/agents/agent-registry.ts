@@ -4,7 +4,7 @@
  */
 
 import type { DistributedMemorySystem } from '../memory/distributed-memory.js';
-import type { AgentState, AgentId, AgentType, AgentStatus } from '../swarm/types.js';
+import type { AgentState, AgentType, AgentStatus } from '../swarm/types.js';
 import { EventEmitter } from 'node:events';
 
 export interface AgentRegistryEntry {
@@ -204,7 +204,7 @@ export class AgentRegistry extends EventEmitter {
     }
 
     if (query.healthThreshold !== undefined) {
-      agents = agents.filter((agent) => agent.health >= query.healthThreshold!);
+      agents = agents.filter((agent) => agent.health >= (query.healthThreshold ?? 0));
     }
 
     if (query.namePattern) {
@@ -215,19 +215,19 @@ export class AgentRegistry extends EventEmitter {
     if (query.tags && query.tags.length > 0) {
       const entries = Array.from(this.cache.values());
       const matchingEntries = entries.filter((entry) =>
-        query.tags!.some((tag) => entry.tags.includes(tag)),
+        (query.tags ?? []).some((tag) => entry.tags.includes(tag)),
       );
       agents = matchingEntries.map((entry) => entry.agent);
     }
 
     if (query.createdAfter) {
       const entries = Array.from(this.cache.values());
-      const matchingEntries = entries.filter((entry) => entry.createdAt >= query.createdAfter!);
+      const matchingEntries = entries.filter((entry) => entry.createdAt >= (query.createdAfter ?? new Date(0)));
       agents = matchingEntries.map((entry) => entry.agent);
     }
 
     if (query.lastActiveAfter) {
-      agents = agents.filter((agent) => agent.metrics.lastActivity >= query.lastActiveAfter!);
+      agents = agents.filter((agent) => agent.metrics.lastActivity >= (query.lastActiveAfter ?? new Date(0)));
     }
 
     return agents;

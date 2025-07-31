@@ -39,14 +39,17 @@ tests/
 The testing framework validates all 7 MCP servers:
 
 ### NPX Servers (2)
+
 - **claude-flow**: Core orchestration server
 - **ruv-swarm**: Enhanced coordination server
 
 ### Docker Servers (2)  
+
 - **context7**: Documentation retrieval server
 - **serena**: LSP symbol resolution bridge
 
 ### UVX Servers (3)
+
 - **sequential-thinking**: Problem-solving server
 - **perplexity-ask**: Web research server  
 - **consult7**: Advanced reasoning server
@@ -128,6 +131,7 @@ npx jest tests/rollback/mcp-phase1-rollback.test.js
 ### Validation Coverage
 
 #### MCP Server Integration
+
 - ✅ Server configuration validation
 - ✅ Dry-run mode testing
 - ✅ Environment variable handling
@@ -136,6 +140,7 @@ npx jest tests/rollback/mcp-phase1-rollback.test.js
 - ✅ Health check validation
 
 #### Template System
+
 - ✅ Template generation correctness
 - ✅ Syntax validation (JSON, Markdown, Scripts)
 - ✅ Placeholder replacement verification
@@ -144,6 +149,7 @@ npx jest tests/rollback/mcp-phase1-rollback.test.js
 - ✅ Cross-platform script generation
 
 #### End-to-End Workflows
+
 - ✅ Complete init process validation
 - ✅ MCP server connectivity testing
 - ✅ SPARC methodology integration
@@ -151,6 +157,7 @@ npx jest tests/rollback/mcp-phase1-rollback.test.js
 - ✅ Rollback capability validation
 
 #### Performance Requirements
+
 - ✅ MCP setup under 10 seconds
 - ✅ Template generation under 1 second
 - ✅ Memory usage under 150MB peak
@@ -158,6 +165,7 @@ npx jest tests/rollback/mcp-phase1-rollback.test.js
 - ✅ Scalability with multiple projects
 
 #### Cross-Platform Compatibility
+
 - ✅ Windows (cmd, PowerShell, Docker Desktop)
 - ✅ macOS (bash, Homebrew, Docker Desktop)
 - ✅ Linux (bash, package managers, Docker Engine)
@@ -166,6 +174,7 @@ npx jest tests/rollback/mcp-phase1-rollback.test.js
 - ✅ Permission model variations
 
 #### Rollback Validation
+
 - ✅ Atomic operation rollback
 - ✅ System state consistency
 - ✅ Partial failure recovery
@@ -195,6 +204,7 @@ npx jest tests/rollback/mcp-phase1-rollback.test.js
 ## Error Scenarios Tested
 
 ### Network Failures
+
 - Docker server connectivity issues
 - NPX package download failures
 - UVX installation problems
@@ -202,6 +212,7 @@ npx jest tests/rollback/mcp-phase1-rollback.test.js
 - Offline mode fallbacks
 
 ### File System Issues  
+
 - Permission denied errors
 - Disk space exhaustion
 - Path resolution failures
@@ -209,6 +220,7 @@ npx jest tests/rollback/mcp-phase1-rollback.test.js
 - Lock file conflicts
 
 ### System Resource Constraints
+
 - Memory limitations
 - CPU overload
 - Concurrent operation conflicts
@@ -216,6 +228,7 @@ npx jest tests/rollback/mcp-phase1-rollback.test.js
 - Handle leak detection
 
 ### Platform-Specific Issues
+
 - Windows UAC prompts
 - macOS Gatekeeper restrictions
 - Linux package manager variations
@@ -225,12 +238,14 @@ npx jest tests/rollback/mcp-phase1-rollback.test.js
 ## Quality Assurance Metrics
 
 ### Test Coverage Requirements
+
 - **Statements**: > 80%
 - **Branches**: > 75%  
 - **Functions**: > 80%
 - **Lines**: > 80%
 
 ### Reliability Targets
+
 - **Test Stability**: > 99% pass rate
 - **Performance Consistency**: < 10% variance
 - **Cross-Platform Compatibility**: 100% platform coverage
@@ -239,18 +254,21 @@ npx jest tests/rollback/mcp-phase1-rollback.test.js
 ## Integration with Existing Infrastructure
 
 ### ValidationSystem Integration
+
 - Leverages existing `ValidationSystem` class
 - Extends pre/post validation capabilities
 - Integrates with health check mechanisms
 - Maintains consistency with current patterns
 
 ### Jest Configuration Compatibility
+
 - Uses existing `jest.config.js` setup
 - Follows established mock patterns
 - Integrates with coverage reporting
 - Maintains CI/CD compatibility
 
 ### Package.json Scripts Integration
+
 ```json
 {
   "scripts": {
@@ -268,18 +286,21 @@ npx jest tests/rollback/mcp-phase1-rollback.test.js
 ## Continuous Integration
 
 ### Pre-commit Hooks
+
 - Run unit and integration tests
 - Validate test coverage thresholds
 - Check for test file consistency
 - Verify mock implementations
 
 ### CI Pipeline Integration
+
 - Parallel test execution across platforms
 - Performance regression detection
 - Cross-platform compatibility validation
 - Automated rollback scenario testing
 
 ### Quality Gates
+
 - All tests must pass before merge
 - Coverage thresholds must be maintained
 - Performance benchmarks must be met
@@ -290,6 +311,7 @@ npx jest tests/rollback/mcp-phase1-rollback.test.js
 ### Common Issues
 
 #### Mock Configuration
+
 ```javascript
 // Ensure mocks are properly reset
 beforeEach(() => {
@@ -298,6 +320,7 @@ beforeEach(() => {
 ```
 
 #### Platform Testing
+
 ```javascript
 // Save and restore platform
 const originalPlatform = process.platform;
@@ -307,6 +330,7 @@ Object.defineProperty(process, 'platform', { value: originalPlatform });
 ```
 
 #### Async Test Handling
+
 ```javascript
 // Proper async test patterns
 it('should handle async operations', async () => {
@@ -316,6 +340,7 @@ it('should handle async operations', async () => {
 ```
 
 ### Debug Mode
+
 ```bash
 # Run tests in debug mode
 npm run test:debug

@@ -1,4 +1,5 @@
 # Claude-Flow MCP Automation Enhancement Roadmap
+
 **Solo Developer Implementation Guide with Minimal Changes Strategy**
 
 ---
@@ -21,30 +22,35 @@
 
 ### ✅ **WHAT'S ALREADY THERE (90% Complete)**
 
-#### **MCP Infrastructure** 
+#### **MCP Infrastructure**
+
 - **File**: `src/cli/simple-commands/init/index.js`
 - **Function**: `setupMcpServers()` (lines 58-99)
 - **Status**: ✅ Handles 2 of 7 MCP servers
 - **Enhancement**: Extend to handle all 7 servers from `.mcp.example.json`
 
 #### **Template System**
+
 - **File**: `src/cli/simple-commands/init/templates/enhanced-templates.js`
 - **Functions**: `loadTemplate()`, `createEnhancedSettingsJson()`, etc.
 - **Status**: ✅ Sophisticated template loading with fallbacks
 - **Enhancement**: Add MCP configuration generation functions
 
 #### **Agent System**
+
 - **File**: `src/cli/simple-commands/init/agent-copier.js`
 - **Directory**: `.claude/agents/` (54+ agents)
 - **Status**: ✅ Complete agent copying and validation system
 - **Enhancement**: Add MCP-aware agent generation
 
 #### **Pre-commit System**
+
 - **File**: `.pre-commit-config.yaml`
 - **Status**: ✅ Advanced configuration with modern tooling
 - **Enhancement**: Add MCP validation hooks
 
 #### **Validation & Rollback**
+
 - **Directory**: `src/cli/simple-commands/init/validation/`
 - **Directory**: `src/cli/simple-commands/init/rollback/`
 - **Status**: ✅ Complete validation and rollback systems
@@ -57,6 +63,7 @@
 ### **🔧 FUNCTION EXTENSIONS (Not New Systems)**
 
 #### **1. MCP Server Extension**
+
 ```javascript
 // File: src/cli/simple-commands/init/index.js
 // Lines: 58-99 (setupMcpServers function)
@@ -81,6 +88,7 @@ const servers = [
 ```
 
 #### **2. Template System Extension**
+
 ```javascript
 // File: src/cli/simple-commands/init/templates/enhanced-templates.js
 // Addition: New function for MCP configuration
@@ -103,6 +111,7 @@ export function createVSCodeSettings() {
 ```
 
 #### **3. Agent System Enhancement**
+
 ```javascript
 // File: src/cli/simple-commands/init/agent-copier.js
 // Addition: MCP-aware agent mapping function
@@ -115,7 +124,7 @@ export async function generateMcpAwareAgents(mcpServers, targetDir) {
     'consult7': ['researcher', 'analyst'],
     'perplexity-ask': ['researcher', 'analyst']
   };
-  
+
   // Generate agents based on available MCP tools
   for (const server of mcpServers) {
     const agents = agentMappings[server.name] || [];
@@ -131,21 +140,25 @@ export async function generateMcpAwareAgents(mcpServers, targetDir) {
 ### ✅ **PERFECT ALIGNMENT WITH CORE PRINCIPLES**
 
 #### **Minimal Changes Strategy**
+
 - ✅ **"ALWAYS prefer editing an existing file to creating a new one"** → Our function extension approach
 - ✅ **"Smallest reasonable change"** → Extending setupMcpServers() from 2 to 7 servers
 - ✅ **"No overengineering"** → Using existing template system rather than building new
 
 #### **Grounded Development Integration**
+
 - ✅ **Context7 + Serena before coding** → Added to each phase TODO list
 - ✅ **Sequential thinking during coding** → Integrated into implementation steps  
 - ✅ **Validation after coding** → Lint/typecheck/tests required at each phase
 
 #### **Concurrent Execution Compliance**
+
 - ✅ **Batch independent operations** → Parallel file reads, template generation
 - ✅ **Pipeline dependent operations** → Sequential phases with dependencies
 - ✅ **TodoWrite batching** → All todos in single calls (5-10+ minimum)
 
 #### **SPARC Methodology Alignment**
+
 - ✅ **Specification Phase** → Requirements analysis (Phase 1)
 - ✅ **Architecture Phase** → System design (Phase 2)  
 - ✅ **Refinement Phase** → Implementation (Phase 3)
@@ -158,9 +171,10 @@ export async function generateMcpAwareAgents(mcpServers, targetDir) {
 ### **📅 PHASE 1: MCP CORE ENHANCEMENT (Week 1)**
 
 #### **Day 1-2: MCP Server Extension**
+
 ```yaml
 Objective: Extend setupMcpServers() from 2 to 7 servers
-Files Modified: 
+Files Modified:
   - src/cli/simple-commands/init/index.js (lines 58-99)
 Risk Level: LOW (function extension only)
 Rollback: Git checkout of single function
@@ -170,24 +184,28 @@ Testing: npm run test:cli
 **Precise TODO List (Following CLAUDE.md Grounded Development):**
 
 **BEFORE Coding (Context7 + Serena Integration):**
+
 - [ ] **T1.1**: Backup current `setupMcpServers()` function
 - [ ] **T1.1a**: `mcp__serena__get_symbols_overview "src/cli/simple-commands/init" --max_answer_chars=10000`
 - [ ] **T1.1b**: `mcp__serena__find_symbol "setupMcpServers" --include_body=true`
 
 **DURING Coding (Sequential + Serena Integration):**
+
 - [ ] **T1.2**: `mcp__sequential-thinking__sequentialthinking --thought="Plan MCP server extension approach"`
 - [ ] **T1.3**: Add 5 new server configurations to servers array
-- [ ] **T1.4**: `mcp__serena__replace_symbol_body "setupMcpServers" --body="enhanced-implementation"` 
+- [ ] **T1.4**: `mcp__serena__replace_symbol_body "setupMcpServers" --body="enhanced-implementation"`
 - [ ] **T1.5**: Add error handling for uvx and docker commands
 - [ ] **T1.6**: Test server setup with `--dry-run` flag
 
 **AFTER Coding (Validation):**
+
 - [ ] **T1.7**: `mcp__serena__find_referencing_symbols "setupMcpServers"`
 - [ ] **T1.8**: Validate against `.mcp.example.json` structure
 - [ ] **T1.9**: `npm run lint && npm run typecheck`
 - [ ] **T1.10**: Update function documentation
 
 #### **Day 3-4: Template System Enhancement**
+
 ```yaml
 Objective: Add MCP configuration generation to template system
 Files Modified:
@@ -199,6 +217,7 @@ Testing: Template generation validation
 ```
 
 **Precise TODO List:**
+
 - [ ] **T1.7**: Create `.mcp.json` template file
 - [ ] **T1.8**: Add `createMcpJson()` function to enhanced-templates.js
 - [ ] **T1.9**: Add `createMcpJsonFallback()` hardcoded version
@@ -207,6 +226,7 @@ Testing: Template generation validation
 - [ ] **T1.12**: Validate generated .mcp.json structure
 
 #### **Day 5: Integration Testing**
+
 - [ ] **T1.13**: End-to-end testing of enhanced init command
 - [ ] **T1.14**: Validation with existing projects
 - [ ] **T1.15**: Performance testing of extended server setup
@@ -216,6 +236,7 @@ Testing: Template generation validation
 ### **📅 PHASE 2: AGENT SYSTEM ENHANCEMENT (Week 2)**
 
 #### **Day 6-8: MCP-Aware Agent Generation**
+
 ```yaml
 Objective: Enhance agent-copier.js with MCP tool mapping
 Files Modified:
@@ -227,6 +248,7 @@ Testing: Agent validation system
 ```
 
 **Precise TODO List:**
+
 - [ ] **T2.1**: Create MCP tool to agent capability mapping
 - [ ] **T2.2**: Add `generateMcpAwareAgents()` function
 - [ ] **T2.3**: Create agent templates for each MCP tool
@@ -235,6 +257,7 @@ Testing: Agent validation system
 - [ ] **T2.6**: Test agent generation with different MCP configurations
 
 #### **Day 9-10: VSCode Integration**
+
 ```yaml
 Objective: Add VSCode diagnostic configuration generation
 Files Modified:
@@ -246,6 +269,7 @@ Testing: VSCode configuration validation
 ```
 
 **Precise TODO List:**
+
 - [ ] **T2.7**: Create `.vscode/` template directory structure
 - [ ] **T2.8**: Add `createVSCodeSettings()` function
 - [ ] **T2.9**: Add `createVSCodeTasks()` function
@@ -258,6 +282,7 @@ Testing: VSCode configuration validation
 ### **📅 PHASE 3: AUTOMATION & INTEGRATION (Week 3)**
 
 #### **Day 11-13: Pre-commit Enhancement**
+
 ```yaml
 Objective: Add MCP validation to pre-commit system
 Files Modified:
@@ -269,6 +294,7 @@ Testing: Pre-commit hook execution
 ```
 
 **Precise TODO List:**
+
 - [ ] **T3.1**: Add MCP configuration validation hook
 - [ ] **T3.2**: Create MCP server connectivity validator
 - [ ] **T3.3**: Add agent-MCP compatibility validator
@@ -277,6 +303,7 @@ Testing: Pre-commit hook execution
 - [ ] **T3.6**: Create validation documentation
 
 #### **Day 14-15: Git Hooks Integration**
+
 ```yaml
 Objective: Add automatic MCP updates on git operations
 Files Modified:
@@ -288,6 +315,7 @@ Testing: Git operations in test repository
 ```
 
 **Precise TODO List:**
+
 - [ ] **T3.7**: Design git hooks for MCP auto-updates
 - [ ] **T3.8**: Create `setupGitHooks()` function
 - [ ] **T3.9**: Add MCP update triggers on relevant git operations
@@ -300,6 +328,7 @@ Testing: Git operations in test repository
 ### **📅 PHASE 4: TESTING & DOCUMENTATION (Week 4)**
 
 #### **Day 16-18: Comprehensive Testing**
+
 ```yaml
 Objective: Full system testing and validation
 Files Modified: Test files, documentation
@@ -309,6 +338,7 @@ Testing: All automated tests plus manual validation
 ```
 
 **Precise TODO List:**
+
 - [ ] **T4.1**: Update all existing tests for new functionality
 - [ ] **T4.2**: Create integration tests for MCP automation
 - [ ] **T4.3**: Performance testing with all 7 MCP servers
@@ -317,6 +347,7 @@ Testing: All automated tests plus manual validation
 - [ ] **T4.6**: Security testing for new automation features
 
 #### **Day 19-21: Documentation & Polish**
+
 ```yaml
 Objective: Complete documentation and user guides
 Files Modified: Documentation files, README updates
@@ -326,6 +357,7 @@ Testing: Documentation accuracy validation
 ```
 
 **Precise TODO List:**
+
 - [ ] **T4.7**: Update README with new MCP automation features
 - [ ] **T4.8**: Create user guide for enhanced init command
 - [ ] **T4.9**: Document new CLI flags and options
@@ -338,6 +370,7 @@ Testing: Documentation accuracy validation
 ## 🔄 **DEPENDENCY MAPPING**
 
 ### **Sequential Dependencies**
+
 ```mermaid
 graph TD
     T1.1[Backup setupMcpServers] --> T1.2[Extend server array]
@@ -350,6 +383,7 @@ graph TD
 ```
 
 ### **Parallel Opportunities**
+
 ```yaml
 Week 1 Parallel:
   - T1.1-T1.6 (MCP server extension) || T1.7-T1.12 (Template system)
@@ -368,6 +402,7 @@ Week 4 Parallel:
 ### **Rollback Points by Phase**
 
 #### **Phase 1 Rollback**
+
 ```bash
 # If MCP server extension fails
 git checkout HEAD~1 -- src/cli/simple-commands/init/index.js
@@ -379,6 +414,7 @@ rm -f src/cli/simple-commands/init/templates/.mcp.json
 ```
 
 #### **Phase 2 Rollback**
+
 ```bash
 # If agent system fails
 git checkout HEAD~1 -- src/cli/simple-commands/init/agent-copier.js
@@ -390,6 +426,7 @@ git checkout HEAD~1 -- src/cli/simple-commands/init/templates/enhanced-templates
 ```
 
 #### **Phase 3 Rollback**
+
 ```bash
 # If pre-commit fails
 git checkout HEAD~1 -- .pre-commit-config.yaml
@@ -402,6 +439,7 @@ git checkout HEAD~1 -- src/cli/simple-commands/init/gitignore-updater.js
 ```
 
 ### **Atomic Operations**
+
 ```javascript
 // Use existing rollback system for atomic operations
 import { createAtomicOperation } from './rollback/index.js';
@@ -421,6 +459,7 @@ await mcpEnhancement.execute(); // Auto-rollback on failure
 ## ⏱️ **EFFORT ESTIMATION**
 
 ### **Time Estimates**
+
 ```yaml
 Phase 1 (MCP Core): 5 days
   - setupMcpServers extension: 2 days
@@ -444,6 +483,7 @@ Buffer: +3-5 days for unexpected issues
 ```
 
 ### **Complexity Analysis**
+
 ```yaml
 Low Complexity (60%):
   - Function extensions
@@ -466,6 +506,7 @@ High Complexity (10%):
 ## 🎯 **SUCCESS CRITERIA**
 
 ### **Functional Requirements**
+
 - [ ] All 7 MCP servers automatically configured during init
 - [ ] Dynamic agent generation based on available MCP tools
 - [ ] Automatic .mcp.json generation with validation
@@ -474,6 +515,7 @@ High Complexity (10%):
 - [ ] Git hooks updating MCP configurations on relevant changes
 
 ### **Non-Functional Requirements**
+
 - [ ] 100% backward compatibility with existing init command
 - [ ] < 30 seconds total initialization time
 - [ ] Complete rollback capability for all phases
@@ -481,6 +523,7 @@ High Complexity (10%):
 - [ ] Comprehensive test coverage (>90%)
 
 ### **Quality Gates**
+
 - [ ] All existing tests pass
 - [ ] New functionality tested
 - [ ] Documentation complete and accurate
@@ -492,6 +535,7 @@ High Complexity (10%):
 ## 🔧 **DEVELOPMENT WORKFLOW**
 
 ### **Daily Workflow**
+
 ```bash
 # Start of day
 git checkout main
@@ -510,6 +554,7 @@ git push origin feature/phase-N-task-X
 ```
 
 ### **Phase Completion Checklist**
+
 ```yaml
 Before moving to next phase:
   - [ ] All TODO items completed
@@ -525,6 +570,7 @@ Before moving to next phase:
 ## 📚 **REFERENCE FILES**
 
 ### **Key Files to Understand**
+
 ```yaml
 Core Init System:
   - src/cli/simple-commands/init/index.js (main init logic)
@@ -546,6 +592,7 @@ Validation & Rollback:
 ```
 
 ### **Documentation to Review**
+
 ```yaml
 Implementation Guides:
   - docs/07-mcp-integration.md
@@ -562,6 +609,7 @@ Architecture:
 ## 🎯 **IMMEDIATE NEXT STEPS**
 
 ### **Week 1 Kickoff**
+
 1. **Day 1 Morning**: Review all reference files and documentation
 2. **Day 1 Afternoon**: Set up development environment and testing
 3. **Day 2**: Begin Phase 1 implementation with T1.1-T1.3
@@ -570,6 +618,7 @@ Architecture:
 6. **Day 5**: Phase 1 testing and validation
 
 ### **Success Metrics**
+
 - End of Week 1: MCP automation working for all 7 servers
 - End of Week 2: Agent generation and VSCode integration complete
 - End of Week 3: Full automation with git hooks functional

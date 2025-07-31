@@ -1,5 +1,5 @@
 /**
- * Phase 1 MCP Unit Tests
+ * MCP Server Setup Unit Tests
  * Comprehensive unit testing for MCP server functions and template generation
  */
 
@@ -48,11 +48,11 @@ const mockCreateEnhancedSettingsJson = createEnhancedSettingsJson as jest.Mocked
 const mockCreateWrapperScript = createWrapperScript as jest.MockedFunction<typeof createWrapperScript>;
 const mockCreateCommandDoc = createCommandDoc as jest.MockedFunction<typeof createCommandDoc>;
 
-describe('Phase 1 MCP Unit Tests', () => {
+describe('MCP Server Setup Unit Tests', () => {
   beforeEach(() => {
     // Reset all mocks before each test
     jest.clearAllMocks();
-    
+
     // Setup default mock implementations
     mockExecSync.mockReturnValue(Buffer.from('success'));
     mockFs.mkdir.mockResolvedValue(undefined);
@@ -385,7 +385,7 @@ describe('Phase 1 MCP Unit Tests', () => {
   describe('Environment Variable Handling', () => {
     it('should handle missing environment variables', () => {
       const originalEnv = process.env;
-      
+
       // Clear environment variables
       process.env = {};
 
@@ -400,14 +400,14 @@ describe('Phase 1 MCP Unit Tests', () => {
 
     it('should use environment variables when available', () => {
       const originalEnv = process.env;
-      
+
       // Set test environment variables
       process.env.CONTEXT7_API_KEY = 'test-key';
       process.env.PERPLEXITY_API_KEY = 'test-perplexity-key';
 
       const settings = createEnhancedSettingsJson();
       expect(settings).toBeTruthy();
-      
+
       // Environment variables should be referenced in config
       // (This depends on the actual implementation)
 
@@ -443,7 +443,7 @@ const MOCK_SETTINGS_JSON = `{
       "description": "Claude Flow MCP server with swarm orchestration (alpha)"
     },
     "ruv-swarm": {
-      "command": "npx", 
+      "command": "npx",
       "args": ["ruv-swarm", "mcp", "start"],
       "description": "ruv-swarm MCP server for enhanced coordination"
     },

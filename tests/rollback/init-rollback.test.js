@@ -1,5 +1,5 @@
 /**
- * Phase 1 MCP Rollback Validation Tests
+ * Init Rollback Validation Tests
  * Comprehensive testing for atomic operation rollback and system state consistency
  */
 
@@ -46,7 +46,7 @@ interface RollbackOperation {
   rollbackFunction: () => Promise<void>;
 }
 
-describe('Phase 1 MCP Rollback Validation Tests', () => {
+describe('Init Rollback Validation Tests', () => {
   let testWorkingDir: string;
   let systemSnapshot: SystemSnapshot;
   let rollbackOperations: RollbackOperation[];
@@ -58,7 +58,7 @@ describe('Phase 1 MCP Rollback Validation Tests', () => {
 
     // Reset all mocks
     jest.clearAllMocks();
-    
+
     // Setup default mock behaviors
     mockExecSync.mockReturnValue(Buffer.from('success'));
     mockFs.mkdir.mockResolvedValue(undefined);

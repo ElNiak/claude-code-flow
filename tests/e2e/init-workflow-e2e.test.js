@@ -1,5 +1,5 @@
 /**
- * Phase 1 MCP End-to-End Tests
+ * Init Workflow End-to-End Tests
  * Complete workflow testing for MCP enhancements integration
  */
 
@@ -27,7 +27,7 @@ const mockExecSync = execSync as jest.MockedFunction<typeof execSync>;
 const mockSpawn = spawn as jest.MockedFunction<typeof spawn>;
 const mockFs = fs as jest.Mocked<typeof fs>;
 
-describe('Phase 1 MCP End-to-End Tests', () => {
+describe('Init Workflow End-to-End Tests', () => {
   let testProjectDir: string;
   let testWorkspaceDir: string;
 
@@ -35,11 +35,11 @@ describe('Phase 1 MCP End-to-End Tests', () => {
     // Create test directories
     testProjectDir = path.join(os.tmpdir(), 'claude-flow-e2e-project-' + Date.now());
     testWorkspaceDir = path.join(os.tmpdir(), 'claude-flow-e2e-workspace-' + Date.now());
-    
+
     await fs.mkdir(testProjectDir, { recursive: true }).catch(() => {});
     await fs.mkdir(testWorkspaceDir, { recursive: true }).catch(() => {});
 
-    console.log('🔄 Starting Phase 1 MCP End-to-End Tests...');
+    console.log('🔄 Starting Init Workflow End-to-End Tests...');
     console.log(`📁 Test Project: ${testProjectDir}`);
     console.log(`📁 Test Workspace: ${testWorkspaceDir}`);
   });
@@ -48,14 +48,14 @@ describe('Phase 1 MCP End-to-End Tests', () => {
     // Cleanup test directories
     await fs.rm(testProjectDir, { recursive: true, force: true }).catch(() => {});
     await fs.rm(testWorkspaceDir, { recursive: true, force: true }).catch(() => {});
-    
-    console.log('✅ Phase 1 MCP End-to-End Tests completed');
+
+    console.log('✅ Init Workflow End-to-End Tests completed');
   });
 
   beforeEach(() => {
     // Reset all mocks
     jest.clearAllMocks();
-    
+
     // Setup default mock behaviors
     mockExecSync.mockReturnValue(Buffer.from('success'));
     mockFs.mkdir.mockResolvedValue(undefined);
@@ -127,7 +127,7 @@ describe('Phase 1 MCP End-to-End Tests', () => {
       mockExecSync.mockImplementation((command) => {
         callCount++;
         const cmd = command.toString();
-        
+
         if (cmd.includes('claude mcp add') && callCount > 3) {
           throw new Error('Server configuration failed');
         }
@@ -342,7 +342,7 @@ describe('Phase 1 MCP End-to-End Tests', () => {
 
           expect(platformTest.success).toBe(true);
           expect(platformTest.platformOptimizations).toBe(true);
-          
+
           // Platform-specific validations
           if (platform === 'win32') {
             expect(platformTest.windowsScriptsGenerated).toBe(true);
@@ -436,25 +436,25 @@ describe('Phase 1 MCP End-to-End Tests', () => {
 
 async function runFullInitWorkflow(options: any): Promise<any> {
   const startTime = Date.now();
-  
+
   try {
     // Step 1: Pre-validation
     await mockStep('preValidation', 200);
-    
+
     // Step 2: MCP server setup
     if (options.mcpServers) {
       await mockStep('mcpServerSetup', 800);
     }
-    
+
     // Step 3: Template generation
     await mockStep('templateGeneration', 300);
-    
+
     // Step 4: VSCode integration
     await mockStep('vscodeIntegration', 200);
-    
+
     // Step 5: Post-validation
     await mockStep('postValidation', 150);
-    
+
     // Step 6: Health check
     await mockStep('healthCheck', 100);
 

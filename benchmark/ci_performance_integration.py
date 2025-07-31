@@ -28,11 +28,26 @@ import argparse
 sys.path.insert(0, str(Path(__file__).parent))
 
 try:
-    from swarm_performance_suite import (
-        SwarmPerformanceBenchmark,
-        SwarmPerformanceTarget,
-    )
-    from continuous_performance_monitor import PerformanceMonitor
+    # Use importlib to test availability before importing
+    if importlib.util.find_spec("swarm_performance_suite"):
+        from swarm_performance_suite import (
+            SwarmPerformanceBenchmark,
+            SwarmPerformanceTarget,
+        )
+
+        SWARM_SUITE_AVAILABLE = True
+    else:
+        SwarmPerformanceBenchmark = None
+        SwarmPerformanceTarget = None
+        SWARM_SUITE_AVAILABLE = False
+
+    if importlib.util.find_spec("continuous_performance_monitor"):
+        from continuous_performance_monitor import PerformanceMonitor
+
+        MONITOR_AVAILABLE = True
+    else:
+        PerformanceMonitor = None
+        MONITOR_AVAILABLE = False
 except ImportError as e:
     print(f"Warning: Could not import performance modules: {e}")
     print("Running with basic functionality only")
@@ -471,7 +486,7 @@ class CIPerformanceGate:
                 ["node", "--version"], capture_output=True, text=True
             )
             return result.stdout.strip() if result.returncode == 0 else "unknown"
-        except:
+        except Exception:
             return "unknown"
 
     async def _save_ci_artifacts(self, gate_results: Dict[str, Any]):

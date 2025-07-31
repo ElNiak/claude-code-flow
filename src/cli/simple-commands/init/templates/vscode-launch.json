@@ -12,14 +12,10 @@
         "NODE_ENV": "development",
         "DEBUG": "*"
       },
-      "skipFiles": [
-        "<node_internals>/**"
-      ],
+      "skipFiles": ["<node_internals>/**"],
       "console": "integratedTerminal",
       "sourceMaps": true,
-      "outFiles": [
-        "${workspaceFolder}/dist/**/*.js"
-      ]
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"]
     },
     {
       "name": "Debug Claude Flow CLI",
@@ -33,9 +29,7 @@
         "DEBUG": "claude-flow:*",
         "CLAUDE_FLOW_DEBUG": "true"
       },
-      "skipFiles": [
-        "<node_internals>/**"
-      ],
+      "skipFiles": ["<node_internals>/**"],
       "console": "integratedTerminal",
       "sourceMaps": true
     },
@@ -44,19 +38,13 @@
       "type": "node",
       "request": "launch",
       "program": "${workspaceFolder}/node_modules/.bin/jest",
-      "args": [
-        "--runInBand",
-        "--detectOpenHandles",
-        "--forceExit"
-      ],
+      "args": ["--runInBand", "--detectOpenHandles", "--forceExit"],
       "cwd": "${workspaceFolder}",
       "env": {
         "NODE_ENV": "test",
         "DEBUG": "test:*"
       },
-      "skipFiles": [
-        "<node_internals>/**"
-      ],
+      "skipFiles": ["<node_internals>/**"],
       "console": "integratedTerminal",
       "sourceMaps": true
     }

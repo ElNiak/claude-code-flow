@@ -64,7 +64,7 @@ to review the code changes.
 and idempotent (e.g., multiple reads).  
 Use **sequential/pipelined** steps when any of the following are true:
 
-- Ordering/causal dependencies exist.
+- Ordering/causal dependencies exist (actions depend on outputs of previous ones).
 - External rate-limits or side effects could conflict.
 - A later step depends on results from an earlier step.
 - Error isolation is needed to avoid cascading failures.

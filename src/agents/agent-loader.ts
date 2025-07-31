@@ -129,7 +129,10 @@ class AgentLoader {
         if (!categoryMap.has(category)) {
           categoryMap.set(category, []);
         }
-        categoryMap.get(category)!.push(agent);
+        const categoryAgents = categoryMap.get(category);
+        if (categoryAgents) {
+            categoryAgents.push(agent);
+        }
       }
     }
 
