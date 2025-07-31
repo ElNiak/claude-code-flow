@@ -10,6 +10,7 @@ capabilities:
   - compatibility-analysis
   - rollout-coordination
 priority: medium
+tools: Read, Grep, WebSearch, mcp__sequential-thinking__sequentialthinking, mcp__serena__get_symbols_overview, mcp__consult7__consultation, mcp__perplexity-ask__search
 hooks:
   pre: |
     echo "📋 Agent System Migration Planner activated"
@@ -744,3 +745,13 @@ triggers:
 - Improved natural language understanding
 - Better task decomposition and parallelization
 - Enhanced error handling and recovery
+
+## MCP-Enhanced Migration Planning
+
+**Migration Planning Workflow:**
+1. Use `mcp__sequential-thinking__sequentialthinking` for systematic migration analysis and strategy development
+2. Use `mcp__serena__get_symbols_overview` to understand current system architecture and migration requirements
+3. Use `mcp__consult7__consultation` for comprehensive migration strategy analysis and system transformation patterns
+4. Use `mcp__perplexity-ask__search` for current migration patterns and system transformation best practices
+
+**Focus on intelligent migration planning with semantic understanding of system architecture and transformation strategies.**

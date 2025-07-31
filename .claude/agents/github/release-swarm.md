@@ -3,25 +3,7 @@ name: release-swarm
 description: Orchestrate complex software releases using AI swarms that handle everything from changelog generation to multi-platform deployment
 type: coordination
 color: "#4ECDC4"
-tools:
-  - Bash
-  - Read
-  - Write
-  - Edit
-  - TodoWrite
-  - TodoRead
-  - Task
-  - WebFetch
-  - mcp__github__create_pull_request
-  - mcp__github__merge_pull_request
-  - mcp__github__create_branch
-  - mcp__github__push_files
-  - mcp__github__create_issue
-  - mcp__claude-flow__swarm_init
-  - mcp__claude-flow__agent_spawn
-  - mcp__claude-flow__task_orchestrate
-  - mcp__claude-flow__parallel_execute
-  - mcp__claude-flow__load_balance
+tools: Bash, Read, Write, Edit, TodoWrite, TodoRead, Task, WebFetch, mcp__github__create_pull_request, mcp__github__merge_pull_request, mcp__github__create_branch, mcp__github__push_files, mcp__github__create_issue, mcp__claude-flow__swarm_init, mcp__claude-flow__agent_spawn, mcp__claude-flow__task_orchestrate, mcp__claude-flow__parallel_execute, mcp__claude-flow__load_balance
 hooks:
   pre_task: |
     echo "🐝 Initializing release swarm coordination..."
@@ -117,7 +99,7 @@ release:
   versioning:
     strategy: semantic
     breaking-keywords: ["BREAKING", "!"]
-    
+
   changelog:
     sections:
       - title: "🚀 Features"
@@ -126,30 +108,30 @@ release:
         labels: ["bug", "fix"]
       - title: "📚 Documentation"
         labels: ["docs", "documentation"]
-        
+
   artifacts:
     - name: npm-package
       build: npm run build
       publish: npm publish
-      
+
     - name: docker-image
       build: docker build -t app:$VERSION .
       publish: docker push app:$VERSION
-      
+
     - name: binaries
       build: ./scripts/build-binaries.sh
       upload: github-release
-      
+
   deployment:
     environments:
       - name: staging
         auto-deploy: true
         validation: npm run test:e2e
-        
+
       - name: production
         approval-required: true
         rollback-enabled: true
-        
+
   notifications:
     - slack: releases-channel
     - email: stakeholders@company.com
@@ -267,12 +249,12 @@ deployment:
       metrics:
         - error-rate < 0.1%
         - latency-p99 < 200ms
-        
+
     - name: partial
       percentage: 25
       duration: 4h
       validation: automated-tests
-      
+
     - name: full
       percentage: 100
       approval: required
@@ -315,55 +297,55 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          
+
       - name: Setup GitHub CLI
         run: echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
-          
+
       - name: Initialize Release Swarm
         run: |
           # Get release tag and previous tag
           RELEASE_TAG=${{ github.ref_name }}
           PREV_TAG=$(gh release list --limit 2 --json tagName -q '.[1].tagName')
-          
+
           # Get PRs and commits for changelog
           PRS=$(gh pr list --state merged --base main --json number,title,labels,author \
             --search "merged:>=$(gh release view $PREV_TAG --json publishedAt -q .publishedAt)")
-          
+
           npx ruv-swarm github release-init \
             --tag $RELEASE_TAG \
             --previous-tag $PREV_TAG \
             --prs "$PRS" \
             --spawn-agents "changelog,version,build,test,deploy"
-            
+
       - name: Generate Release Assets
         run: |
           # Generate changelog from PR data
           CHANGELOG=$(npx ruv-swarm github release-changelog \
             --format markdown)
-          
+
           # Update release notes
           gh release edit ${{ github.ref_name }} \
             --notes "$CHANGELOG"
-          
+
           # Generate and upload assets
           npx ruv-swarm github release-assets \
             --changelog \
             --binaries \
             --documentation
-            
+
       - name: Upload Release Assets
         run: |
           # Upload generated assets to GitHub release
           for file in dist/*; do
             gh release upload ${{ github.ref_name }} "$file"
           done
-          
+
       - name: Publish Release
         run: |
           # Publish to package registries
           npx ruv-swarm github release-publish \
             --platforms all
-          
+
           # Create announcement issue
           gh issue create \
             --title "🚀 Released ${{ github.ref_name }}" \

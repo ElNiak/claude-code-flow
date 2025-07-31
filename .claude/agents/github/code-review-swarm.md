@@ -1,7 +1,7 @@
 ---
 name: code-review-swarm
 description: Deploy specialized AI agents to perform comprehensive, intelligent code reviews that go beyond traditional static analysis
-tools: mcp__claude-flow__swarm_init, mcp__claude-flow__agent_spawn, mcp__claude-flow__task_orchestrate, Bash, Read, Write, TodoWrite
+tools: mcp__claude-flow__swarm_init, mcp__claude-flow__agent_spawn, mcp__claude-flow__task_orchestrate, Bash, Read, Write, TodoWrite, mcp__serena__get_symbols_overview, mcp__serena__find_symbol, mcp__serena__find_referencing_symbols, mcp__sequential-thinking__sequentialthinking, mcp__consult7__consultation
 color: blue
 type: development
 capabilities:
@@ -109,12 +109,12 @@ review:
     - architecture
     - accessibility
     - i18n
-  
+
   thresholds:
     security: block
     performance: warn
     style: suggest
-    
+
   rules:
     security:
       - no-eval
@@ -270,25 +270,25 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          
+
       - name: Setup GitHub CLI
         run: echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
-          
+
       - name: Run Review Swarm
         run: |
           # Get PR context with gh CLI
           PR_NUM=${{ github.event.pull_request.number }}
           PR_DATA=$(gh pr view $PR_NUM --json files,title,body,labels)
-          
+
           # Run swarm review
           REVIEW_OUTPUT=$(npx ruv-swarm github review-all \
             --pr $PR_NUM \
             --pr-data "$PR_DATA" \
             --agents "security,performance,style,architecture")
-          
+
           # Post review results
           echo "$REVIEW_OUTPUT" | gh pr review $PR_NUM --comment -F -
-          
+
           # Update PR status
           if echo "$REVIEW_OUTPUT" | grep -q "approved"; then
             gh pr review $PR_NUM --approve
@@ -344,7 +344,7 @@ echo "$COMMENTS" | jq -c '.[]' | while read -r comment; do
   FILE=$(echo "$comment" | jq -r '.path')
   LINE=$(echo "$comment" | jq -r '.line')
   BODY=$(echo "$comment" | jq -r '.body')
-  
+
   # Create review with inline comments
   gh api \
     --method POST \
@@ -363,7 +363,7 @@ done
 
 **Severity**: 🔴 Critical / 🟡 High / 🟢 Low
 
-**Description**: 
+**Description**:
 [Clear explanation of the security issue]
 
 **Impact**:
@@ -460,7 +460,7 @@ npx ruv-swarm github review-train \
 class CustomReviewAgent {
   async review(pr) {
     const issues = [];
-    
+
     // Custom logic here
     if (await this.checkCustomRule(pr)) {
       issues.push({
@@ -469,7 +469,7 @@ class CustomReviewAgent {
         suggestion: 'Fix suggestion'
       });
     }
-    
+
     return issues;
   }
 }
@@ -534,5 +534,15 @@ npx ruv-swarm github review-report \
   --include "summary,details,trends" \
   --email-stakeholders
 ```
+
+## MCP-Enhanced Code Review Capabilities
+
+**Review Analysis Workflow:**
+1. Use `mcp__serena__get_symbols_overview` to understand code structure changes
+2. Use `mcp__serena__find_symbol` and `mcp__serena__find_referencing_symbols` for impact analysis
+3. Use `mcp__sequential-thinking__sequentialthinking` for systematic review planning
+4. Use `mcp__consult7__consultation` for large codebase architectural reviews
+
+**Focus on semantic code understanding and structured review processes for comprehensive analysis.**
 
 See also: [swarm-pr.md](./swarm-pr.md), [workflow-automation.md](./workflow-automation.md)

@@ -1,5 +1,6 @@
 ---
 name: "api-docs"
+tools: Read, Write, mcp__context7__get-library-docs, mcp__context7__resolve-library-id, mcp__serena__get_symbols_overview, mcp__serena__find_symbol, mcp__serena__search_for_pattern, mcp__sequential-thinking__sequentialthinking, mcp__consult7__consultation, mcp__perplexity-ask__search
 color: "indigo"
 type: "documentation"
 version: "1.0.0"
@@ -30,17 +31,8 @@ triggers:
     - "documentation"
     - "api"
 capabilities:
-  allowed_tools:
-    - Read
-    - Write
-    - Edit
-    - MultiEdit
-    - Grep
-    - Glob
-  restricted_tools:
-    - Bash  # No need for execution
-    - Task  # Focused on documentation
-    - WebSearch
+  allowed_tools: Read, Write, Edit, MultiEdit, Grep, Glob
+  restricted_tools: Bash  # No need for execution, Task  # Focused on documentation, WebSearch
   max_file_operations: 50
   max_execution_time: 300
   memory_access: "read"
@@ -172,3 +164,15 @@ components:
 - Error response documentation
 - Security requirements
 - Rate limiting information
+
+## MCP-Enhanced OpenAPI Documentation
+
+**API Documentation Workflow:**
+1. Use `mcp__sequential-thinking__sequentialthinking` for systematic API documentation planning and structure
+2. Use `mcp__serena__get_symbols_overview` to understand existing API endpoints and structure
+3. Use `mcp__serena__find_symbol` and `mcp__serena__search_for_pattern` to locate API routes, controllers, and schemas
+4. Use `mcp__context7__resolve-library-id` and `mcp__context7__get-library-docs` for OpenAPI specification and tooling documentation
+5. Use `mcp__consult7__consultation` for comprehensive API codebase analysis and documentation generation
+6. Use `mcp__perplexity-ask__search` for current OpenAPI best practices and documentation standards
+
+**Focus on comprehensive API documentation with semantic understanding of endpoint structure and behavior.**

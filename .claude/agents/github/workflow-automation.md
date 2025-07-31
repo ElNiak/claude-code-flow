@@ -3,27 +3,7 @@ name: workflow-automation
 description: GitHub Actions workflow automation agent that creates intelligent, self-organizing CI/CD pipelines with adaptive multi-agent coordination and automated optimization
 type: automation
 color: "#E74C3C"
-tools:
-  - mcp__github__create_workflow
-  - mcp__github__update_workflow
-  - mcp__github__list_workflows
-  - mcp__github__get_workflow_runs
-  - mcp__github__create_workflow_dispatch
-  - mcp__claude-flow__swarm_init
-  - mcp__claude-flow__agent_spawn
-  - mcp__claude-flow__task_orchestrate
-  - mcp__claude-flow__memory_usage
-  - mcp__claude-flow__performance_report
-  - mcp__claude-flow__bottleneck_analyze
-  - mcp__claude-flow__workflow_create
-  - mcp__claude-flow__automation_setup
-  - TodoWrite
-  - TodoRead
-  - Bash
-  - Read
-  - Write
-  - Edit
-  - Grep
+tools: mcp__github__create_workflow, mcp__github__update_workflow, mcp__github__list_workflows, mcp__github__get_workflow_runs, mcp__github__create_workflow_dispatch, mcp__claude-flow__swarm_init, mcp__claude-flow__agent_spawn, mcp__claude-flow__task_orchestrate, mcp__claude-flow__memory_usage, mcp__claude-flow__performance_report, mcp__claude-flow__bottleneck_analyze, mcp__claude-flow__workflow_create, mcp__claude-flow__automation_setup, TodoWrite, TodoRead, Bash, Read, Write, Edit, Grep, mcp__sequential-thinking__sequentialthinking, mcp__serena__get_symbols_overview, mcp__consult7__consultation, mcp__perplexity-ask__search
 hooks:
   pre:
     - "Initialize workflow automation swarm with adaptive pipeline intelligence"
@@ -53,13 +33,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Initialize Swarm
         uses: ruvnet/swarm-action@v1
         with:
           topology: mesh
           max-agents: 6
-          
+
       - name: Analyze Changes
         run: |
           npx ruv-swarm actions analyze \
@@ -101,13 +81,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Detect Languages
         id: detect
         run: |
           npx ruv-swarm actions detect-stack \
             --output json > stack.json
-            
+
       - name: Dynamic Build Matrix
         run: |
           npx ruv-swarm actions create-matrix \
@@ -134,7 +114,7 @@ jobs:
           SECURITY_ISSUES=$(npx ruv-swarm actions security \
             --deep-scan \
             --format json)
-          
+
           # Create issues for complex security problems
           echo "$SECURITY_ISSUES" | jq -r '.issues[]? | @base64' | while read -r issue; do
             _jq() {
@@ -224,7 +204,7 @@ jobs:
           npx ruv-swarm actions deploy-risk \
             --changes ${{ github.sha }} \
             --history 30d
-            
+
       - name: Choose Strategy
         run: |
           npx ruv-swarm actions deploy-strategy \
@@ -273,7 +253,7 @@ async function run() {
     topology: 'mesh',
     agents: ['analyzer', 'optimizer']
   });
-  
+
   await swarm.execute(core.getInput('task'));
 }
 ```
@@ -294,7 +274,7 @@ jobs:
             --detect-frameworks \
             --optimize-coverage)
           echo "matrix=${MATRIX}" >> $GITHUB_OUTPUT
-  
+
   test:
     needs: generate-matrix
     strategy:
@@ -355,13 +335,13 @@ jobs:
         run: |
           # Get PR details using gh CLI
           PR_DATA=$(gh pr view ${{ github.event.pull_request.number }} --json files,labels)
-          
+
           # Run validation with swarm
           RESULTS=$(npx ruv-swarm actions pr-validate \
             --spawn-agents "linter,tester,security,docs" \
             --parallel \
             --pr-data "$PR_DATA")
-          
+
           # Post results as PR comment
           gh pr comment ${{ github.event.pull_request.number }} \
             --body "$RESULTS"
@@ -548,13 +528,13 @@ mcp__claude-flow__memory_usage {
 const createIntelligentWorkflow = async (repoContext) => {
   // Initialize workflow generation swarm
   await mcp__claude_flow__swarm_init({ topology: "hierarchical", maxAgents: 8 });
-  
+
   // Spawn specialized workflow agents
   await mcp__claude_flow__agent_spawn({ type: "architect", name: "Workflow Architect" });
   await mcp__claude_flow__agent_spawn({ type: "coder", name: "YAML Generator" });
   await mcp__claude_flow__agent_spawn({ type: "optimizer", name: "Performance Optimizer" });
   await mcp__claude_flow__agent_spawn({ type: "tester", name: "Workflow Validator" });
-  
+
   // Create adaptive workflow based on repository analysis
   const workflow = await mcp__claude_flow__workflow_create({
     name: "Intelligent CI/CD Pipeline",
@@ -581,7 +561,7 @@ const createIntelligentWorkflow = async (repoContext) => {
       "scheduled_optimization"
     ]
   });
-  
+
   // Store workflow configuration in memory
   await mcp__claude_flow__memory_usage({
     action: "store",
@@ -594,7 +574,7 @@ const createIntelligentWorkflow = async (repoContext) => {
       cost_reduction: "25%"
     }
   });
-  
+
   return workflow;
 };
 ```
@@ -631,5 +611,15 @@ mcp__claude-flow__task_orchestrate {
   priority: "medium"
 }
 ```
+
+## MCP-Enhanced Workflow Automation
+
+**Workflow Development Process:**
+1. Use `mcp__sequential-thinking__sequentialthinking` for systematic workflow planning
+2. Use `mcp__serena__get_symbols_overview` to understand codebase CI/CD requirements
+3. Use `mcp__consult7__consultation` for complex workflow pattern analysis
+4. Use `mcp__perplexity-ask__search` for latest GitHub Actions best practices
+
+**Focus on intelligent workflow creation with semantic codebase understanding.**
 
 See also: [swarm-pr.md](./swarm-pr.md), [swarm-issue.md](./swarm-issue.md), [sync-coordinator.md](./sync-coordinator.md)

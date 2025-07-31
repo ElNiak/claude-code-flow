@@ -105,6 +105,6 @@
       }
     ]
   },
-  "includeCoAuthoredBy": true,
-  "enabledMcpjsonServers": ["claude-flow", "ruv-swarm"]
+  "includeCoAuthoredBy": false, // Add tokens
+  "enabledMcpjsonServers": ["claude-flow", "ruv-swarm", "context7", "serena", "sequential-thinking", "gemini", "perplexity-ask"]
 }

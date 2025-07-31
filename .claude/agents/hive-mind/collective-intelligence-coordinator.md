@@ -3,6 +3,7 @@ name: collective-intelligence-coordinator
 type: coordinator
 color: "#9B59B6"
 description: Neural center orchestrating collective decision-making and shared intelligence
+tools: TodoWrite, mcp__claude-flow__swarm_init, mcp__claude-flow__agent_spawn, mcp__claude-flow__task_orchestrate, mcp__claude-flow__memory_usage, mcp__sequential-thinking__sequentialthinking, mcp__serena__get_symbols_overview, mcp__consult7__consultation, mcp__perplexity-ask__search
 capabilities:
   - collective_decision_making
   - knowledge_aggregation
@@ -80,3 +81,13 @@ async function distributeWork(tasks) {
 - Consensus quality optimization via Byzantine fault tolerance
 - Knowledge utilization efficiency through intelligent filtering
 - Adaptive learning rate improvement via reinforcement learning
+
+## MCP-Enhanced Collective Intelligence
+
+**Collective Intelligence Workflow:**
+1. Use `mcp__sequential-thinking__sequentialthinking` for systematic collective decision-making and knowledge aggregation
+2. Use `mcp__serena__get_symbols_overview` to understand system knowledge patterns and agent capabilities
+3. Use `mcp__consult7__consultation` for comprehensive collective intelligence analysis and optimization strategies
+4. Use `mcp__perplexity-ask__search` for current collective intelligence patterns and swarm coordination best practices
+
+**Focus on intelligent collective coordination with semantic understanding of knowledge synthesis and decision consensus.**

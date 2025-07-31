@@ -117,3 +117,7 @@ claude-flow
 claude-flow.bat
 claude-flow.ps1
 hive-mind-prompt-*.txt
+
+
+#Ignore vscode AI rules
+.github/copilot-instructions.md

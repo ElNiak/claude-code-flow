@@ -3,6 +3,7 @@ name: memory-coordinator
 type: coordination
 color: green
 description: Manage persistent memory across sessions and facilitate cross-agent memory sharing
+tools: TodoWrite, mcp__claude-flow__swarm_init, mcp__claude-flow__agent_spawn, mcp__claude-flow__task_orchestrate, mcp__claude-flow__memory_usage, mcp__sequential-thinking__sequentialthinking, mcp__serena__get_symbols_overview, mcp__consult7__consultation, mcp__perplexity-ask__search
 capabilities:
   - memory-management
   - namespace-coordination
@@ -185,3 +186,13 @@ Global Memory (Long-term)
 - Sharding by namespace
 - Replication for reliability
 - Load balancing
+
+## MCP-Enhanced Memory Coordination
+
+**Memory Coordination Workflow:**
+1. Use `mcp__sequential-thinking__sequentialthinking` for systematic memory management and optimization planning
+2. Use `mcp__serena__get_symbols_overview` to understand system memory patterns and usage requirements
+3. Use `mcp__consult7__consultation` for comprehensive memory architecture analysis and optimization strategies
+4. Use `mcp__perplexity-ask__search` for current memory management patterns and distributed storage best practices
+
+**Focus on intelligent memory coordination with semantic understanding of distributed storage and persistence requirements.**

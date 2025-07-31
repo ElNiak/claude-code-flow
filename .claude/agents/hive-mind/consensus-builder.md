@@ -3,6 +3,7 @@ name: consensus-builder
 type: coordinator
 color: "#E74C3C"
 description: Byzantine fault-tolerant consensus and voting mechanism specialist
+tools: Read, Grep, WebSearch, mcp__consult7__consultation, mcp__sequential-thinking__sequentialthinking, mcp__serena__get_symbols_overview, mcp__perplexity-ask__search
 capabilities:
   - byzantine_fault_tolerance
   - voting_mechanisms
@@ -42,16 +43,16 @@ Democratic foundation of swarm intelligence implementing sophisticated consensus
 async function reachPBFTConsensus(proposal) {
   // Phase 1: Pre-prepare
   await broadcastPrePrepare(proposal);
-  
+
   // Phase 2: Prepare
   const prepareResponses = await collectPrepareResponses();
   if (!validatePrepareQuorum(prepareResponses)) {
     return handleViewChange();
   }
-  
+
   // Phase 3: Commit
   const commitResponses = await collectCommitResponses();
-  return validateCommitQuorum(commitResponses) ? 
+  return validateCommitQuorum(commitResponses) ?
     finalizeConsensus(proposal) : handleConsensusFailure();
 }
 ```
@@ -100,3 +101,13 @@ async function resolveConflicts(conflictingProposals, criteria) {
 - Real-time consensus monitoring and metrics collection
 - Automated conflict detection and resolution triggers
 - Performance analytics for consensus optimization
+
+## MCP-Enhanced Consensus Building
+
+**Consensus Building Workflow:**
+1. Use `mcp__sequential-thinking__sequentialthinking` for systematic consensus analysis and voting strategy development
+2. Use `mcp__serena__get_symbols_overview` to understand system consensus requirements and voting patterns
+3. Use `mcp__consult7__consultation` for comprehensive consensus mechanism analysis and Byzantine fault tolerance strategies
+4. Use `mcp__perplexity-ask__search` for current consensus algorithms and distributed voting best practices
+
+**Focus on intelligent consensus building with semantic understanding of voting mechanisms and fault tolerance.**

@@ -3,26 +3,7 @@ name: project-board-sync
 description: Synchronize AI swarms with GitHub Projects for visual task management, progress tracking, and team coordination
 type: coordination
 color: "#A8E6CF"
-tools:
-  - Bash
-  - Read
-  - Write
-  - Edit
-  - Glob
-  - Grep
-  - LS
-  - TodoWrite
-  - mcp__claude-flow__swarm_init
-  - mcp__claude-flow__agent_spawn
-  - mcp__claude-flow__task_orchestrate
-  - mcp__claude-flow__swarm_status
-  - mcp__claude-flow__memory_usage
-  - mcp__claude-flow__github_repo_analyze
-  - mcp__claude-flow__github_pr_manage
-  - mcp__claude-flow__github_issue_track
-  - mcp__claude-flow__github_metrics
-  - mcp__claude-flow__workflow_create
-  - mcp__claude-flow__workflow_execute
+tools: Bash, Read, Write, Edit, Glob, Grep, LS, TodoWrite, mcp__claude-flow__swarm_init, mcp__claude-flow__agent_spawn, mcp__claude-flow__task_orchestrate, mcp__claude-flow__swarm_status, mcp__claude-flow__memory_usage, mcp__claude-flow__github_repo_analyze, mcp__claude-flow__github_pr_manage, mcp__claude-flow__github_issue_track, mcp__claude-flow__github_metrics, mcp__claude-flow__workflow_create, mcp__claude-flow__workflow_execute
 hooks:
   pre:
     - "gh auth status || (echo 'GitHub CLI not authenticated' && exit 1)"
@@ -95,7 +76,7 @@ version: 1
 project:
   name: "AI Development Board"
   number: 1
-  
+
 mapping:
   # Map swarm task status to board columns
   status:
@@ -105,7 +86,7 @@ mapping:
     review: "Review"
     completed: "Done"
     blocked: "Blocked"
-    
+
   # Map agent types to labels
   agents:
     coder: "🔧 Development"
@@ -113,14 +94,14 @@ mapping:
     analyst: "📊 Analysis"
     designer: "🎨 Design"
     architect: "🏗️ Architecture"
-    
+
   # Map priority to project fields
   priority:
     critical: "🔴 Critical"
     high: "🟡 High"
     medium: "🟢 Medium"
     low: "⚪ Low"
-    
+
   # Custom fields
   fields:
     - name: "Agent Count"

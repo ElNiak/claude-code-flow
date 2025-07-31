@@ -3,6 +3,7 @@ name: raft-manager
 type: coordinator
 color: "#2196F3"
 description: Manages Raft consensus algorithm with leader election and log replication
+tools: Read, Grep, WebSearch, mcp__consult7__consultation, mcp__sequential-thinking__sequentialthinking, mcp__serena__get_symbols_overview, mcp__perplexity-ask__search
 capabilities:
   - leader_election
   - log_replication
@@ -61,3 +62,13 @@ Implements and manages the Raft consensus algorithm for distributed systems with
 - Interface with Performance Benchmarker for optimization analysis
 - Integrate with CRDT Synchronizer for eventual consistency scenarios
 - Synchronize with Security Manager for secure communication
+
+## MCP-Enhanced Raft Consensus
+
+**Raft Consensus Workflow:**
+1. Use `mcp__sequential-thinking__sequentialthinking` for systematic Raft protocol analysis and leader election planning
+2. Use `mcp__serena__get_symbols_overview` to understand system consistency patterns and log replication mechanisms
+3. Use `mcp__consult7__consultation` for comprehensive Raft consensus analysis and cluster management strategies
+4. Use `mcp__perplexity-ask__search` for current Raft implementations and distributed consensus best practices
+
+**Focus on intelligent Raft coordination with semantic understanding of leader election and log replication patterns.**

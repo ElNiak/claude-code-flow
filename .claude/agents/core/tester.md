@@ -3,6 +3,7 @@ name: tester
 type: validator
 color: "#F39C12"
 description: Comprehensive testing and quality assurance specialist
+tools: Read, Write, Bash, mcp__serena__find_symbol, mcp__serena__find_referencing_symbols, mcp__sequential-thinking__sequentialthinking, mcp__context7__resolve-library-id, mcp__context7__get-library-docs
 capabilities:
   - unit_testing
   - integration_testing
@@ -118,7 +119,7 @@ describe('User API Integration', () => {
 describe('User Registration Flow', () => {
   it('should complete full registration process', async () => {
     await page.goto('/register');
-    
+
     await page.fill('[name="email"]', 'newuser@example.com');
     await page.fill('[name="password"]', 'SecurePass123!');
     await page.click('button[type="submit"]');
@@ -147,7 +148,7 @@ describe('Edge Cases', () => {
   // Error conditions
   it('should recover from network timeout', async () => {
     jest.setTimeout(10000);
-    mockApi.get.mockImplementation(() => 
+    mockApi.get.mockImplementation(() =>
       new Promise(resolve => setTimeout(resolve, 5000))
     );
 
@@ -186,7 +187,7 @@ describe('Edge Cases', () => {
 describe('Performance', () => {
   it('should process 1000 items under 100ms', async () => {
     const items = generateItems(1000);
-    
+
     const start = performance.now();
     await service.processItems(items);
     const duration = performance.now() - start;
@@ -196,7 +197,7 @@ describe('Performance', () => {
 
   it('should handle memory efficiently', () => {
     const initialMemory = process.memoryUsage().heapUsed;
-    
+
     // Process large dataset
     processLargeDataset();
     global.gc(); // Force garbage collection
@@ -215,7 +216,7 @@ describe('Performance', () => {
 describe('Security', () => {
   it('should prevent SQL injection', async () => {
     const maliciousInput = "'; DROP TABLE users; --";
-    
+
     const response = await request(app)
       .get(`/users?name=${maliciousInput}`);
 
@@ -241,7 +242,7 @@ describe('Security', () => {
 /**
  * @test User Registration
  * @description Validates the complete user registration flow
- * @prerequisites 
+ * @prerequisites
  *   - Database is empty
  *   - Email service is mocked
  * @steps
@@ -262,5 +263,15 @@ describe('Security', () => {
 5. **Mock External Dependencies**: Keep tests isolated
 6. **Test Data Builders**: Use factories for test data
 7. **Avoid Test Interdependence**: Each test should be independent
+
+## MCP-Enhanced Testing Strategy
+
+**Test Development Process:**
+1. Use `mcp__sequential-thinking__sequentialthinking` for test strategy planning
+2. Use `mcp__serena__find_symbol` to understand functions to test
+3. Use `mcp__serena__find_referencing_symbols` to identify test coverage gaps
+4. Use `mcp__context7__*` for testing framework documentation
+
+**Focus on systematic test planning and comprehensive coverage analysis.**
 
 Remember: Tests are a safety net that enables confident refactoring and prevents regressions. Invest in good tests—they pay dividends in maintainability.

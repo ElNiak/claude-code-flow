@@ -3,6 +3,7 @@ name: byzantine-coordinator
 type: coordinator
 color: "#9C27B0"
 description: Coordinates Byzantine fault-tolerant consensus protocols with malicious actor detection
+tools: TodoWrite, mcp__claude-flow__swarm_init, mcp__claude-flow__agent_spawn, mcp__claude-flow__task_orchestrate, mcp__claude-flow__memory_usage, mcp__sequential-thinking__sequentialthinking, mcp__serena__get_symbols_overview, mcp__consult7__consultation, mcp__perplexity-ask__search
 capabilities:
   - pbft_consensus
   - malicious_detection
@@ -61,3 +62,13 @@ Coordinates Byzantine fault-tolerant consensus protocols ensuring system integri
 - Interface with Quorum Manager for fault tolerance adjustments
 - Integrate with Performance Benchmarker for optimization metrics
 - Synchronize with CRDT Synchronizer for state consistency
+
+## MCP-Enhanced Byzantine Consensus
+
+**Byzantine Consensus Workflow:**
+1. Use `mcp__sequential-thinking__sequentialthinking` for systematic Byzantine fault tolerance analysis and PBFT protocol planning
+2. Use `mcp__serena__get_symbols_overview` to understand system security patterns and consensus message flows
+3. Use `mcp__consult7__consultation` for comprehensive Byzantine fault analysis and malicious actor detection strategies
+4. Use `mcp__perplexity-ask__search` for current Byzantine consensus algorithms and fault tolerance best practices
+
+**Focus on intelligent Byzantine coordination with semantic understanding of fault tolerance and security mechanisms.**

@@ -3,22 +3,7 @@ name: swarm-issue
 description: GitHub issue-based swarm coordination agent that transforms issues into intelligent multi-agent tasks with automatic decomposition and progress tracking
 type: coordination
 color: "#FF6B35"
-tools:
-  - mcp__github__get_issue
-  - mcp__github__create_issue
-  - mcp__github__update_issue
-  - mcp__github__list_issues
-  - mcp__github__create_issue_comment
-  - mcp__claude-flow__swarm_init
-  - mcp__claude-flow__agent_spawn
-  - mcp__claude-flow__task_orchestrate
-  - mcp__claude-flow__memory_usage
-  - TodoWrite
-  - TodoRead
-  - Bash
-  - Grep
-  - Read
-  - Write
+tools: mcp__github__get_issue, mcp__github__create_issue, mcp__github__update_issue, mcp__github__list_issues, mcp__github__create_issue_comment, mcp__claude-flow__swarm_init, mcp__claude-flow__agent_spawn, mcp__claude-flow__task_orchestrate, mcp__claude-flow__memory_usage, TodoWrite, TodoRead, Bash, Grep, Read, Write, mcp__sequential-thinking__sequentialthinking, mcp__serena__get_symbols_overview, mcp__consult7__consultation
 hooks:
   pre:
     - "Initialize swarm coordination system for GitHub issue management"
@@ -191,7 +176,7 @@ gh issue edit 456 --body "$UPDATED_BODY"
 echo "$SUBTASKS" | jq -r '.tasks[] | select(.priority == "high")' | while read -r task; do
   TITLE=$(echo "$task" | jq -r '.title')
   BODY=$(echo "$task" | jq -r '.description')
-  
+
   gh issue create \
     --title "$TITLE" \
     --body "$BODY
@@ -354,12 +339,12 @@ STALE_ISSUES=$(gh issue list --state open --json number,title,updatedAt,labels \
 echo "$STALE_ISSUES" | jq -r '.number' | while read -r num; do
   # Get full issue context
   ISSUE=$(gh issue view $num --json title,body,comments,labels)
-  
+
   # Analyze with swarm
   ACTION=$(npx ruv-swarm github analyze-stale \
     --issue "$ISSUE" \
     --suggest-action)
-  
+
   case "$ACTION" in
     "close")
       # Add stale label and warning comment
@@ -544,7 +529,7 @@ const preHook = async (issue) => {
   // Initialize swarm with issue-specific topology
   const topology = determineTopology(issue.complexity);
   await mcp__claude_flow__swarm_init({ topology, maxAgents: 6 });
-  
+
   // Store issue context for swarm agents
   await mcp__claude_flow__memory_usage({
     action: "store",
@@ -557,17 +542,26 @@ const preHook = async (issue) => {
 const postHook = async (results) => {
   // Update issue with swarm progress
   await updateIssueProgress(results);
-  
+
   // Generate follow-up tasks
   await createFollowupTasks(results.remainingWork);
-  
+
   // Store completion metrics
   await mcp__claude_flow__memory_usage({
-    action: "store", 
+    action: "store",
     key: `issue/${issue.number}/completion`,
     value: { metrics: results.metrics, timestamp: Date.now() }
   });
 };
 ```
+
+## MCP-Enhanced Issue Swarm Management
+
+**Issue Analysis Workflow:**
+1. Use `mcp__sequential-thinking__sequentialthinking` for systematic issue decomposition
+2. Use `mcp__serena__get_symbols_overview` to understand codebase context for issues
+3. Use `mcp__consult7__consultation` for complex issue analysis and solution planning
+
+**Focus on structured issue analysis with comprehensive semantic understanding.**
 
 See also: [swarm-pr.md](./swarm-pr.md), [sync-coordinator.md](./sync-coordinator.md), [workflow-automation.md](./workflow-automation.md)

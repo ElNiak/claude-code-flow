@@ -3,6 +3,7 @@ name: smart-agent
 color: "orange"
 type: automation
 description: Intelligent agent coordination and dynamic spawning specialist
+tools: Read, Grep, WebSearch, mcp__sequential-thinking__sequentialthinking, mcp__serena__get_symbols_overview, mcp__consult7__consultation, mcp__perplexity-ask__search
 capabilities:
   - intelligent-spawning
   - capability-matching
@@ -203,3 +204,13 @@ Output: Resource predictions
 - Automatic reinforcement
 - Strategy adjustment
 - Graceful degradation
+
+## MCP-Enhanced Smart Agent Coordination
+
+**Smart Agent Coordination Workflow:**
+1. Use `mcp__sequential-thinking__sequentialthinking` for systematic agent analysis and intelligent spawning planning
+2. Use `mcp__serena__get_symbols_overview` to understand system requirements and capability matching
+3. Use `mcp__consult7__consultation` for comprehensive automation strategy analysis and optimization patterns  
+4. Use `mcp__perplexity-ask__search` for current intelligent automation patterns and agent coordination best practices
+
+**Focus on intelligent agent coordination with semantic understanding of task requirements and capability optimization.**

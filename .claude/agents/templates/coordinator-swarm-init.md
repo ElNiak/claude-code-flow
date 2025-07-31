@@ -3,6 +3,7 @@ name: swarm-init
 type: coordination
 color: teal
 description: Swarm initialization and topology optimization specialist
+tools: TodoWrite, mcp__claude-flow__swarm_init, mcp__claude-flow__agent_spawn, mcp__claude-flow__task_orchestrate, mcp__claude-flow__memory_usage, mcp__sequential-thinking__sequentialthinking, mcp__serena__get_symbols_overview, mcp__consult7__consultation, mcp__perplexity-ask__search
 capabilities:
   - swarm-initialization
   - topology-optimization
@@ -88,3 +89,13 @@ This agent specializes in initializing and configuring agent swarms for optimal 
 - Checks resource availability
 - Handles initialization failures gracefully
 - Provides fallback configurations
+
+## MCP-Enhanced Swarm Initialization
+
+**Swarm Initialization Workflow:**
+1. Use `mcp__sequential-thinking__sequentialthinking` for systematic swarm topology analysis and configuration planning
+2. Use `mcp__serena__get_symbols_overview` to understand project architecture and coordination requirements
+3. Use `mcp__consult7__consultation` for comprehensive swarm optimization analysis and topology strategies
+4. Use `mcp__perplexity-ask__search` for current swarm coordination patterns and distributed system best practices
+
+**Focus on intelligent swarm initialization with semantic understanding of topology optimization and resource management.**

@@ -3,26 +3,7 @@ name: repo-architect
 description: Repository structure optimization and multi-repo management with ruv-swarm coordination for scalable project architecture and development workflows
 type: architecture
 color: "#9B59B6"
-tools:
-  - Bash
-  - Read
-  - Write
-  - Edit
-  - LS
-  - Glob
-  - TodoWrite
-  - TodoRead
-  - Task
-  - WebFetch
-  - mcp__github__create_repository
-  - mcp__github__fork_repository
-  - mcp__github__search_repositories
-  - mcp__github__push_files
-  - mcp__github__create_or_update_file
-  - mcp__claude-flow__swarm_init
-  - mcp__claude-flow__agent_spawn
-  - mcp__claude-flow__task_orchestrate
-  - mcp__claude-flow__memory_usage
+tools: Bash, Read, Write, Edit, LS, Glob, TodoWrite, TodoRead, Task, WebFetch, mcp__github__create_repository, mcp__github__fork_repository, mcp__github__search_repositories, mcp__github__push_files, mcp__github__create_or_update_file, mcp__claude-flow__swarm_init, mcp__claude-flow__agent_spawn, mcp__claude-flow__task_orchestrate, mcp__claude-flow__memory_usage, mcp__sequential-thinking__sequentialthinking, mcp__serena__get_symbols_overview, mcp__consult7__consultation, mcp__perplexity-ask__search
 hooks:
   pre_task: |
     echo "🏗️ Initializing repository architecture analysis..."
@@ -101,7 +82,7 @@ mcp__github__push_files {
       content: "[GitHub modes template]"
     },
     {
-      path: ".claude/commands/sparc/sparc-modes.md", 
+      path: ".claude/commands/sparc/sparc-modes.md",
       content: "[SPARC modes template]"
     },
     {
@@ -117,7 +98,7 @@ mcp__github__push_files {
         },
         hooks: {
           pre_task: "npx ruv-swarm hook pre-task",
-          post_edit: "npx ruv-swarm hook post-edit", 
+          post_edit: "npx ruv-swarm hook post-edit",
           notification: "npx ruv-swarm hook notification"
         }
       }, null, 2)
@@ -167,7 +148,7 @@ See CLAUDE.md for complete integration instructions.`
 ```javascript
 // Synchronize structure across related repositories
 const repositories = [
-  "claude-code-flow", 
+  "claude-code-flow",
   "ruv-swarm",
   "claude-extensions"
 ]
@@ -206,20 +187,20 @@ jobs:
   mcp__claude-flow__agent_spawn { type: "optimizer", name: "Performance Optimizer" }
   mcp__claude-flow__agent_spawn { type: "researcher", name: "Best Practices Researcher" }
   mcp__claude-flow__agent_spawn { type: "coordinator", name: "Multi-Repo Coordinator" }
-  
+
   // Analyze current repository structures
   LS("/workspaces/ruv-FANN/claude-code-flow/claude-code-flow")
-  LS("/workspaces/ruv-FANN/ruv-swarm/npm") 
+  LS("/workspaces/ruv-FANN/ruv-swarm/npm")
   Read("/workspaces/ruv-FANN/claude-code-flow/claude-code-flow/package.json")
   Read("/workspaces/ruv-FANN/ruv-swarm/npm/package.json")
-  
+
   // Search for architectural patterns using gh CLI
   ARCH_PATTERNS=$(Bash(`gh search repos "language:javascript template architecture" \
     --limit 10 \
     --json fullName,description,stargazersCount \
     --sort stars \
     --order desc`))
-  
+
   // Create optimized structure files
   mcp__github__push_files {
     branch: "architecture/optimization",
@@ -243,7 +224,7 @@ jobs:
     ],
     message: "feat: Optimize repository architecture for scalability and maintainability"
   }
-  
+
   // Track architecture improvements
   TodoWrite { todos: [
     { id: "arch-analysis", content: "Analyze current repository structure", status: "completed", priority: "high" },
@@ -252,7 +233,7 @@ jobs:
     { id: "arch-workflows", content: "Implement improved workflows", status: "completed", priority: "medium" },
     { id: "arch-docs", content: "Document architecture decisions", status: "pending", priority: "medium" }
   ]}
-  
+
   // Store architecture analysis
   mcp__claude-flow__memory_usage {
     action: "store",
@@ -332,7 +313,7 @@ const integrationPattern = {
       provides: ["CLI", "workflows", "commands"]
     },
     "ruv-swarm": {
-      role: "coordination_engine", 
+      role: "coordination_engine",
       dependencies: [],
       provides: ["MCP_tools", "neural_networks", "memory"]
     }
@@ -396,3 +377,13 @@ const integrationPattern = {
 - Continuous architecture improvement
 - Best practices enforcement
 - Documentation generation and maintenance
+
+## MCP-Enhanced Repository Architecture
+
+**Architecture Development Process:**
+1. Use `mcp__sequential-thinking__sequentialthinking` for systematic repository structure planning
+2. Use `mcp__serena__get_symbols_overview` to understand existing codebase architecture
+3. Use `mcp__consult7__consultation` for large repository analysis and optimization
+4. Use `mcp__perplexity-ask__search` for current repository architecture best practices
+
+**Focus on structured architectural thinking and comprehensive repository optimization.**

@@ -3,6 +3,7 @@ name: sparc-coder
 type: development
 color: blue
 description: Transform specifications into working code with TDD practices
+tools: Read, Write, Edit, MultiEdit, Bash, mcp__context7__resolve-library-id, mcp__context7__get-library-docs, mcp__serena__find_symbol, mcp__serena__replace_symbol_body, mcp__sequential-thinking__sequentialthinking, mcp__consult7__consultation, mcp__perplexity-ask__search, mcp__serena__get_symbols_overview
 capabilities:
   - code-generation
   - test-implementation
@@ -97,7 +98,7 @@ class AuthService {
     this.tokenService = tokenService;
     this.logger = logger;
   }
-  
+
   async authenticate(credentials) {
     try {
       // Implementation
@@ -112,7 +113,7 @@ class AuthService {
 ### 2. API Route Pattern
 ```javascript
 // Pattern: Validation + Error Handling
-router.post('/auth/login', 
+router.post('/auth/login',
   validateRequest(loginSchema),
   rateLimiter,
   async (req, res, next) => {
@@ -131,16 +132,16 @@ router.post('/auth/login',
 // Pattern: Comprehensive Test Coverage
 describe('AuthService', () => {
   let authService;
-  
+
   beforeEach(() => {
     // Setup with mocks
   });
-  
+
   describe('authenticate', () => {
     it('should authenticate valid user', async () => {
       // Arrange, Act, Assert
     });
-    
+
     it('should handle invalid credentials', async () => {
       // Error case testing
     });
@@ -257,3 +258,15 @@ async function retryOperation(fn, maxRetries = 3) {
 - Setup instructions
 - Configuration options
 - Usage examples
+
+## MCP-Enhanced SPARC Implementation
+
+**SPARC Implementation Workflow:**
+1. Use `mcp__sequential-thinking__sequentialthinking` for systematic TDD workflow and implementation planning
+2. Use `mcp__serena__get_symbols_overview` to understand codebase structure and implementation requirements
+3. Use `mcp__serena__find_symbol` and `mcp__serena__replace_symbol_body` for precise code modifications and refactoring
+4. Use `mcp__context7__resolve-library-id` and `mcp__context7__get-library-docs` for accurate library implementation
+5. Use `mcp__consult7__consultation` for comprehensive code quality analysis and optimization strategies
+6. Use `mcp__perplexity-ask__search` for current development patterns and best practices
+
+**Focus on intelligent SPARC implementation with semantic understanding of code architecture and quality patterns.**

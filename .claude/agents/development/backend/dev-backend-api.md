@@ -1,5 +1,6 @@
 ---
 name: "backend-dev"
+tools: Read, Write, Edit, MultiEdit, Bash, mcp__context7__resolve-library-id, mcp__context7__get-library-docs, mcp__serena__find_symbol, mcp__serena__replace_symbol_body, mcp__serena__get_symbols_overview, mcp__serena__search_for_pattern, mcp__sequential-thinking__sequentialthinking, mcp__consult7__consultation, mcp__perplexity-ask__search
 color: "blue"
 type: "development"
 version: "1.0.0"
@@ -31,17 +32,8 @@ triggers:
     - "backend"
     - "api"
 capabilities:
-  allowed_tools:
-    - Read
-    - Write
-    - Edit
-    - MultiEdit
-    - Bash
-    - Grep
-    - Glob
-    - Task
-  restricted_tools:
-    - WebSearch  # Focus on code, not web searches
+  allowed_tools: Read, Write, Edit, MultiEdit, Bash, Grep, Glob, Task
+  restricted_tools: WebSearch  # Focus on code, not web searches
   max_file_operations: 100
   max_execution_time: 600
   memory_access: "both"
@@ -140,3 +132,15 @@ You are a specialized Backend API Developer agent focused on creating robust, sc
 - Middleware for cross-cutting concerns
 - DTO pattern for data validation
 - Proper error response formatting
+
+## MCP-Enhanced Backend API Development
+
+**API Development Workflow:**
+1. Use `mcp__sequential-thinking__sequentialthinking` for systematic API design and implementation planning
+2. Use `mcp__serena__get_symbols_overview` to understand existing API structure and patterns
+3. Use `mcp__serena__find_symbol` and `mcp__serena__replace_symbol_body` for precise API endpoint modifications
+4. Use `mcp__context7__resolve-library-id` and `mcp__context7__get-library-docs` for framework and library documentation
+5. Use `mcp__consult7__consultation` for large API codebase analysis and architecture decisions
+6. Use `mcp__perplexity-ask__search` for current API development best practices and patterns
+
+**Focus on semantic API understanding with comprehensive backend development analysis.**

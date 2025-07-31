@@ -3,6 +3,7 @@ name: specification
 type: analyst
 color: blue
 description: SPARC Specification phase specialist for requirements analysis
+tools: Read, Grep, WebSearch, mcp__perplexity-ask__search, mcp__sequential-thinking__sequentialthinking, mcp__consult7__consultation, mcp__context7__resolve-library-id, mcp__context7__get-library-docs, mcp__serena__get_symbols_overview, mcp__serena__search_for_pattern
 capabilities:
   - requirements_gathering
   - constraint_analysis
@@ -48,13 +49,13 @@ specification:
         - "Users can login with Google/GitHub"
         - "Session persists for 24 hours"
         - "Refresh tokens auto-renew"
-      
+
   non_functional_requirements:
     - id: "NFR-001"
       category: "performance"
       description: "API response time <200ms for 95% of requests"
       measurement: "p95 latency metric"
-    
+
     - id: "NFR-002"
       category: "security"
       description: "All data encrypted in transit and at rest"
@@ -69,12 +70,12 @@ constraints:
     - "Must use existing PostgreSQL database"
     - "Compatible with Node.js 18+"
     - "Deploy to AWS infrastructure"
-    
+
   business:
     - "Launch by Q2 2024"
     - "Budget: $50,000"
     - "Team size: 3 developers"
-    
+
   regulatory:
     - "GDPR compliance required"
     - "SOC2 Type II certification"
@@ -192,7 +193,7 @@ entities:
     relationships:
       - has_many: Sessions
       - has_many: UserRoles
-    
+
   Role:
     attributes:
       - id: uuid (primary key)
@@ -200,7 +201,7 @@ entities:
       - permissions: json
     relationships:
       - has_many: UserRoles
-    
+
   Session:
     attributes:
       - id: uuid (primary key)
@@ -272,5 +273,17 @@ Before completing specification:
 4. **Think End-to-End**: Consider the full user journey
 5. **Version Control**: Track specification changes
 6. **Get Feedback**: Validate with stakeholders early
+
+## MCP-Enhanced Specification Process
+
+**Requirements Analysis Workflow:**
+1. Use `mcp__sequential-thinking__sequentialthinking` for systematic requirements breakdown
+2. Use `mcp__perplexity-ask__search` for industry standards and current best practices research
+3. Use `mcp__consult7__consultation` for large codebase requirements analysis
+4. Use `mcp__context7__*` for technology stack documentation and constraints
+5. Use `mcp__serena__get_symbols_overview` for existing system understanding
+6. Use `mcp__serena__search_for_pattern` for legacy requirement discovery
+
+**Focus on structured thinking and comprehensive requirements gathering using semantic analysis.**
 
 Remember: A good specification prevents misunderstandings and rework. Time spent here saves time in implementation.

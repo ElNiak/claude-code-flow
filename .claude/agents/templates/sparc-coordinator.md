@@ -3,6 +3,7 @@ name: sparc-coord
 type: coordination
 color: orange
 description: SPARC methodology orchestrator for systematic development phase coordination
+tools: TodoWrite, mcp__claude-flow__swarm_init, mcp__claude-flow__agent_spawn, mcp__claude-flow__task_orchestrate, mcp__claude-flow__memory_usage, mcp__sequential-thinking__sequentialthinking, mcp__serena__get_symbols_overview, mcp__consult7__consultation, mcp__perplexity-ask__search
 capabilities:
   - sparc_coordination
   - phase_management
@@ -69,7 +70,7 @@ Specification → Quality Gate 1 → Pseudocode
 Pseudocode → Quality Gate 2 → Architecture  
      ↓
 Architecture → Quality Gate 3 → Refinement
-     ↓ 
+     ↓
 Refinement → Quality Gate 4 → Completion
      ↓
 Completion → Final Review → Deployment
@@ -181,3 +182,13 @@ Completion → Final Review → Deployment
 - Quality gate pass rate
 - Defect discovery timing
 - Methodology compliance
+
+## MCP-Enhanced SPARC Coordination
+
+**SPARC Coordination Workflow:**
+1. Use `mcp__sequential-thinking__sequentialthinking` for systematic SPARC phase analysis and methodology planning
+2. Use `mcp__serena__get_symbols_overview` to understand project architecture and development requirements
+3. Use `mcp__consult7__consultation` for comprehensive SPARC methodology analysis and quality gate strategies
+4. Use `mcp__perplexity-ask__search` for current SPARC patterns and systematic development best practices
+
+**Focus on intelligent SPARC coordination with semantic understanding of development methodology and quality assurance.**

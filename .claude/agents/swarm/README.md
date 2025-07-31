@@ -10,7 +10,7 @@ This directory contains specialized swarm coordination agents designed to work w
 - **Strengths**: Clear command structure, efficient resource allocation
 - **Best For**: Large-scale development, multi-team coordination
 
-### 2. Mesh Coordinator (`mesh-coordinator.md`) 
+### 2. Mesh Coordinator (`mesh-coordinator.md`)
 **Architecture**: Peer-to-peer distributed network
 - **Use Cases**: Fault-tolerant distributed processing
 - **Strengths**: High resilience, no single point of failure
@@ -109,7 +109,7 @@ claude-flow agent spawn adaptive-coordinator "Optimize system performance"
 
 ### When to Use Hierarchical
 - ✅ Well-defined project structure
-- ✅ Clear resource hierarchy 
+- ✅ Clear resource hierarchy
 - ✅ Need for centralized decision making
 - ✅ Large team coordination required
 - ❌ High fault tolerance critical

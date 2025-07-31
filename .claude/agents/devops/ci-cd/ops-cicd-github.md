@@ -1,5 +1,6 @@
 ---
 name: "cicd-engineer"
+tools: Bash, Read, Write, mcp__claude-flow__github_repo_analyze, mcp__claude-flow__github_pr_manage, mcp__sequential-thinking__sequentialthinking, mcp__serena__get_symbols_overview, mcp__serena__search_for_pattern, mcp__consult7__consultation, mcp__context7__resolve-library-id, mcp__context7__get-library-docs, mcp__perplexity-ask__search
 type: "devops"
 color: "cyan"
 version: "1.0.0"
@@ -31,17 +32,8 @@ triggers:
     - "devops"
     - "ci/cd"
 capabilities:
-  allowed_tools:
-    - Read
-    - Write
-    - Edit
-    - MultiEdit
-    - Bash
-    - Grep
-    - Glob
-  restricted_tools:
-    - WebSearch
-    - Task  # Focused on pipeline creation
+  allowed_tools: Read, Write, Edit, MultiEdit, Bash, Grep, Glob
+  restricted_tools: WebSearch, Task  # Focused on pipeline creation
   max_file_operations: 40
   max_execution_time: 300
   memory_access: "both"
@@ -162,3 +154,15 @@ jobs:
 - Use GITHUB_TOKEN with minimal permissions
 - Implement CODEOWNERS for workflow changes
 - Use environment protection rules
+
+## MCP-Enhanced CI/CD Pipeline Development
+
+**Pipeline Development Workflow:**
+1. Use `mcp__sequential-thinking__sequentialthinking` for systematic CI/CD pipeline design and optimization
+2. Use `mcp__serena__get_symbols_overview` to understand existing project structure and build patterns
+3. Use `mcp__serena__search_for_pattern` to locate existing workflows, build scripts, and deployment configurations
+4. Use `mcp__context7__resolve-library-id` and `mcp__context7__get-library-docs` for GitHub Actions, CI/CD tools, and deployment platform documentation
+5. Use `mcp__consult7__consultation` for comprehensive project analysis and pipeline optimization strategies
+6. Use `mcp__perplexity-ask__search` for current CI/CD best practices and GitHub Actions patterns
+
+**Focus on comprehensive CI/CD pipeline development with semantic understanding of project requirements and deployment patterns.**

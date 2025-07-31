@@ -3,6 +3,7 @@ name: refinement
 type: developer
 color: violet
 description: SPARC Refinement phase specialist for iterative improvement
+tools: Read, Grep, WebSearch, mcp__sequential-thinking__sequentialthinking, mcp__serena__find_symbol, mcp__serena__find_referencing_symbols, mcp__serena__get_symbols_overview, mcp__consult7__consultation, mcp__context7__resolve-library-id, mcp__context7__get-library-docs
 capabilities:
   - code_optimization
   - test_development
@@ -66,7 +67,7 @@ describe('AuthenticationService', () => {
         email: credentials.email,
         passwordHash: await hash(credentials.password)
       };
-      
+
       mockUserRepo.findByEmail.mockResolvedValue(mockUser);
 
       // Act
@@ -173,7 +174,7 @@ export class AuthenticationService {
   private recordFailedAttempt(email: string): void {
     const current = this.failedAttempts.get(email) || 0;
     this.failedAttempts.set(email, current + 1);
-    
+
     this.logger.warn('Failed login attempt', {
       email,
       attempts: current + 1
@@ -202,7 +203,7 @@ export class AuthenticationService {
     try {
       const user = await this.authenticateUser(credentials);
       const session = await this.createSession(user);
-      
+
       // Emit event for other services
       await this.eventBus.emit('user.logged_in', {
         userId: user.id,
@@ -241,7 +242,7 @@ export class AuthenticationService {
   private async handleLoginFailure(email: string, error: Error): Promise<void> {
     if (error instanceof UnauthorizedException) {
       const attempts = await this.incrementFailedAttempts(email);
-      
+
       if (attempts >= this.config.maxLoginAttempts) {
         await this.lockAccount(email);
       }
@@ -259,8 +260,8 @@ export class AuthenticationService {
 describe('Performance', () => {
   it('should handle 1000 concurrent login requests', async () => {
     const startTime = performance.now();
-    
-    const promises = Array(1000).fill(null).map((_, i) => 
+
+    const promises = Array(1000).fill(null).map((_, i) =>
       service.login({
         email: `user${i}@example.com`,
         password: 'password'
@@ -268,7 +269,7 @@ describe('Performance', () => {
     );
 
     await Promise.all(promises);
-    
+
     const duration = performance.now() - startTime;
     expect(duration).toBeLessThan(5000); // Should complete in 5 seconds
   });
@@ -283,12 +284,12 @@ async function getUserPermissions(userId: string): Promise<string[]> {
   const user = await db.query('SELECT * FROM users WHERE id = ?', [userId]);
   const roles = await db.query('SELECT * FROM user_roles WHERE user_id = ?', [userId]);
   const permissions = [];
-  
+
   for (const role of roles) {
     const perms = await db.query('SELECT * FROM role_permissions WHERE role_id = ?', [role.id]);
     permissions.push(...perms);
   }
-  
+
   return permissions;
 }
 
@@ -310,7 +311,7 @@ async function getUserPermissions(userId: string): Promise<string[]> {
 
   // Cache for 5 minutes
   await cache.set(`permissions:${userId}`, permissions, 300);
-  
+
   return permissions;
 }
 ```
@@ -384,13 +385,13 @@ function retry(attempts = 3, delay = 1000) {
 
     descriptor.value = async function(...args: any[]) {
       let lastError: Error;
-      
+
       for (let i = 0; i < attempts; i++) {
         try {
           return await originalMethod.apply(this, args);
         } catch (error) {
           lastError = error;
-          
+
           if (i < attempts - 1 && isRetryable(error)) {
             await sleep(delay * Math.pow(2, i)); // Exponential backoff
           } else {
@@ -398,7 +399,7 @@ function retry(attempts = 3, delay = 1000) {
           }
         }
       }
-      
+
       throw lastError;
     };
   };
@@ -442,14 +443,14 @@ export class CircuitBreaker {
   private onFailure(): void {
     this.failures++;
     this.lastFailureTime = new Date();
-    
+
     if (this.failures >= this.threshold) {
       this.state = 'OPEN';
     }
   }
 
   private shouldAttemptReset(): boolean {
-    return this.lastFailureTime 
+    return this.lastFailureTime
       && (Date.now() - this.lastFailureTime.getTime()) > this.timeout;
   }
 }
@@ -521,5 +522,16 @@ function getUserProcessor(user: User): UserProcessor {
 4. **Performance Budgets**: Set and monitor performance targets
 5. **Error Recovery**: Plan for failure scenarios
 6. **Documentation**: Keep docs in sync with code
+
+## MCP-Enhanced Refinement Process
+
+**Code Refinement Workflow:**
+1. Use `mcp__sequential-thinking__sequentialthinking` for systematic refactoring planning
+2. Use `mcp__serena__find_symbol` and `mcp__serena__find_referencing_symbols` for impact analysis
+3. Use `mcp__serena__get_symbols_overview` for code structure understanding
+4. Use `mcp__consult7__consultation` for large codebase refactoring analysis
+5. Use `mcp__context7__*` for testing framework and optimization library documentation
+
+**Focus on semantic code understanding and structured refinement approaches.**
 
 Remember: Refinement is an iterative process. Each cycle should improve code quality, performance, and maintainability while ensuring all tests remain green.

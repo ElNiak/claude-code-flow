@@ -3,24 +3,7 @@ name: multi-repo-swarm
 description: Cross-repository swarm orchestration for organization-wide automation and intelligent collaboration
 type: coordination
 color: "#FF6B35"
-tools:
-  - Bash
-  - Read
-  - Write
-  - Edit
-  - Glob
-  - Grep
-  - LS
-  - TodoWrite
-  - mcp__claude-flow__swarm_init
-  - mcp__claude-flow__agent_spawn
-  - mcp__claude-flow__task_orchestrate
-  - mcp__claude-flow__swarm_status
-  - mcp__claude-flow__memory_usage
-  - mcp__claude-flow__github_repo_analyze
-  - mcp__claude-flow__github_pr_manage
-  - mcp__claude-flow__github_sync_coord
-  - mcp__claude-flow__github_metrics
+tools: Bash, Read, Write, Edit, Glob, Grep, LS, TodoWrite, mcp__claude-flow__swarm_init, mcp__claude-flow__agent_spawn, mcp__claude-flow__task_orchestrate, mcp__claude-flow__swarm_status, mcp__claude-flow__memory_usage, mcp__claude-flow__github_repo_analyze, mcp__claude-flow__github_pr_manage, mcp__claude-flow__github_sync_coord, mcp__claude-flow__github_metrics, mcp__sequential-thinking__sequentialthinking, mcp__serena__get_symbols_overview, mcp__consult7__consultation
 hooks:
   pre:
     - "gh auth status || (echo 'GitHub CLI not authenticated' && exit 1)"
@@ -96,26 +79,26 @@ MATCHING_REPOS=$(gh repo list org --limit 100 --json name \
 echo "$MATCHING_REPOS" | while read -r repo; do
   # Clone repo
   gh repo clone org/$repo /tmp/$repo -- --depth=1
-  
+
   # Execute task
   cd /tmp/$repo
   npx ruv-swarm github task-execute \
     --task "update-dependencies" \
     --repo "org/$repo"
-  
+
   # Create PR if changes exist
   if [[ -n $(git status --porcelain) ]]; then
     git checkout -b update-dependencies-$(date +%Y%m%d)
     git add -A
     git commit -m "chore: Update dependencies"
-    
+
     # Push and create PR
     git push origin HEAD
     PR_URL=$(gh pr create \
       --title "Update dependencies" \
       --body "Automated dependency update across services" \
       --label "dependencies,automated")
-    
+
     echo "$PR_URL" >> /tmp/created-prs.txt
   fi
   cd -
@@ -138,12 +121,12 @@ repositories:
     url: github.com/my-org/frontend
     role: ui
     agents: [coder, designer, tester]
-    
+
   - name: backend
     url: github.com/my-org/backend
     role: api
     agents: [architect, coder, tester]
-    
+
   - name: shared
     url: github.com/my-org/shared
     role: library
@@ -153,7 +136,7 @@ coordination:
   topology: hierarchical
   communication: webhook
   memory: redis://shared-memory
-  
+
 dependencies:
   - from: frontend
     to: [backend, shared]
@@ -208,10 +191,10 @@ echo "$TS_REPOS" | while read -r repo; do
   # Clone and update
   gh repo clone org/$repo /tmp/$repo -- --depth=1
   cd /tmp/$repo
-  
+
   # Update dependency
   npm install --save-dev typescript@5.0.0
-  
+
   # Test changes
   if npm test; then
     # Create PR
@@ -220,7 +203,7 @@ echo "$TS_REPOS" | while read -r repo; do
     git commit -m "chore: Update TypeScript to 5.0.0
 
 Part of #$TRACKING_ISSUE"
-    
+
     git push origin HEAD
     gh pr create \
       --title "Update TypeScript to 5.0.0" \
@@ -303,7 +286,7 @@ type SwarmStatus {
 kafka:
   brokers: ['kafka1:9092', 'kafka2:9092']
   topics:
-    swarm-events: 
+    swarm-events:
       partitions: 10
       replication: 3
     swarm-memory:
@@ -549,5 +532,14 @@ npx ruv-swarm github cross-team \
   --assign-by-expertise \
   --track-progress
 ```
+
+## MCP-Enhanced Multi-Repo Coordination
+
+**Multi-Repository Analysis Workflow:**
+1. Use `mcp__sequential-thinking__sequentialthinking` for systematic cross-repo coordination planning
+2. Use `mcp__serena__get_symbols_overview` to understand codebase relationships across repositories
+3. Use `mcp__consult7__consultation` for large-scale multi-repository architecture analysis
+
+**Focus on structured multi-repo coordination with comprehensive semantic understanding.**
 
 See also: [swarm-pr.md](./swarm-pr.md), [project-board-sync.md](./project-board-sync.md)

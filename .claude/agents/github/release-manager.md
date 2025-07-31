@@ -3,24 +3,7 @@ name: release-manager
 description: Automated release coordination and deployment with ruv-swarm orchestration for seamless version management, testing, and deployment across multiple packages
 type: development
 color: "#FF6B35"
-tools:
-  - Bash
-  - Read
-  - Write
-  - Edit
-  - TodoWrite
-  - TodoRead
-  - Task
-  - WebFetch
-  - mcp__github__create_pull_request
-  - mcp__github__merge_pull_request
-  - mcp__github__create_branch
-  - mcp__github__push_files
-  - mcp__github__create_issue
-  - mcp__claude-flow__swarm_init
-  - mcp__claude-flow__agent_spawn
-  - mcp__claude-flow__task_orchestrate
-  - mcp__claude-flow__memory_usage
+tools: Bash, Read, Write, Edit, TodoWrite, TodoRead, Task, WebFetch, mcp__github__create_pull_request, mcp__github__merge_pull_request, mcp__github__create_branch, mcp__github__push_files, mcp__github__create_issue, mcp__claude-flow__swarm_init, mcp__claude-flow__agent_spawn, mcp__claude-flow__task_orchestrate, mcp__claude-flow__memory_usage, mcp__sequential-thinking__sequentialthinking, mcp__serena__get_symbols_overview, mcp__consult7__consultation
 hooks:
   pre_task: |
     echo "🚀 Initializing release management pipeline..."
@@ -81,7 +64,7 @@ mcp__claude-flow__task_orchestrate {
 // Update versions across packages
 mcp__github__push_files {
   owner: "ruvnet",
-  repo: "ruv-FANN", 
+  repo: "ruv-FANN",
   branch: "release/v1.0.72",
   files: [
     {
@@ -93,7 +76,7 @@ mcp__github__push_files {
       }, null, 2)
     },
     {
-      path: "ruv-swarm/npm/package.json", 
+      path: "ruv-swarm/npm/package.json",
       content: JSON.stringify({
         name: "ruv-swarm",
         version: "1.0.12",
@@ -143,7 +126,7 @@ mcp__github__create_pull_request {
   owner: "ruvnet",
   repo: "ruv-FANN",
   title: "Release v1.0.72: GitHub Integration and Swarm Enhancements",
-  head: "release/v1.0.72", 
+  head: "release/v1.0.72",
   base: "main",
   body: `## 🚀 Release v1.0.72
 
@@ -213,25 +196,25 @@ This release is production-ready with comprehensive validation and testing.
   mcp__claude-flow__agent_spawn { type: "coder", name: "Version Controller" }
   mcp__claude-flow__agent_spawn { type: "analyst", name: "Performance Analyst" }
   mcp__claude-flow__agent_spawn { type: "researcher", name: "Compatibility Checker" }
-  
+
   // Create release branch and prepare files using gh CLI
   Bash("gh api repos/:owner/:repo/git/refs --method POST -f ref='refs/heads/release/v1.0.72' -f sha=$(gh api repos/:owner/:repo/git/refs/heads/main --jq '.object.sha')")
-  
+
   // Clone and update release files
   Bash("gh repo clone :owner/:repo /tmp/release-v1.0.72 -- --branch release/v1.0.72 --depth=1")
-  
+
   // Update all release-related files
   Write("/tmp/release-v1.0.72/claude-code-flow/claude-code-flow/package.json", "[updated package.json]")
   Write("/tmp/release-v1.0.72/ruv-swarm/npm/package.json", "[updated package.json]")
   Write("/tmp/release-v1.0.72/CHANGELOG.md", "[release changelog]")
   Write("/tmp/release-v1.0.72/RELEASE_NOTES.md", "[detailed release notes]")
-  
+
   Bash("cd /tmp/release-v1.0.72 && git add -A && git commit -m 'release: Prepare v1.0.72 with comprehensive updates' && git push")
-  
+
   // Run comprehensive validation
   Bash("cd /workspaces/ruv-FANN/claude-code-flow/claude-code-flow && npm install && npm test && npm run lint && npm run build")
   Bash("cd /workspaces/ruv-FANN/ruv-swarm/npm && npm install && npm run test:all && npm run lint")
-  
+
   // Create release PR using gh CLI
   Bash(`gh pr create \
     --repo :owner/:repo \
@@ -239,8 +222,8 @@ This release is production-ready with comprehensive validation and testing.
     --head "release/v1.0.72" \
     --base "main" \
     --body "[comprehensive release description]"`)
-  
-  
+
+
   // Track release progress
   TodoWrite { todos: [
     { id: "rel-prep", content: "Prepare release branch and files", status: "completed", priority: "critical" },
@@ -249,10 +232,10 @@ This release is production-ready with comprehensive validation and testing.
     { id: "rel-review", content: "Code review and approval", status: "pending", priority: "high" },
     { id: "rel-merge", content: "Merge and deploy release", status: "pending", priority: "critical" }
   ]}
-  
+
   // Store release state
   mcp__claude-flow__memory_usage {
-    action: "store", 
+    action: "store",
     key: "release/v1.0.72/status",
     value: {
       timestamp: Date.now(),
@@ -271,7 +254,7 @@ This release is production-ready with comprehensive validation and testing.
 ```javascript
 const versionStrategy = {
   major: "Breaking changes or architecture overhauls",
-  minor: "New features, GitHub integration, swarm enhancements", 
+  minor: "New features, GitHub integration, swarm enhancements",
   patch: "Bug fixes, documentation updates, dependency updates",
   coordination: "Cross-package version alignment"
 }
@@ -365,3 +348,12 @@ jobs:
 - Error rate monitoring
 - User adoption metrics
 - Feedback collection and analysis
+
+## MCP-Enhanced Release Management
+
+**Release Planning Workflow:**
+1. Use `mcp__sequential-thinking__sequentialthinking` for systematic release planning
+2. Use `mcp__serena__get_symbols_overview` to understand codebase changes and impact
+3. Use `mcp__consult7__consultation` for large codebase release impact analysis
+
+**Focus on structured release planning with comprehensive codebase understanding.**

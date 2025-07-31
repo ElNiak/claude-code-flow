@@ -3,6 +3,7 @@ name: task-orchestrator
 color: "indigo"
 type: orchestration
 description: Central coordination agent for task decomposition, execution planning, and result synthesis
+tools: TodoWrite, mcp__claude-flow__swarm_init, mcp__claude-flow__agent_spawn, mcp__claude-flow__task_orchestrate, mcp__claude-flow__memory_usage, mcp__sequential-thinking__sequentialthinking, mcp__serena__get_symbols_overview, mcp__consult7__consultation, mcp__perplexity-ask__search
 capabilities:
   - task_decomposition
   - execution_planning
@@ -137,3 +138,13 @@ The Task Orchestrator is the central coordination agent responsible for breaking
 - Critical path optimization
 - Resource contention resolution
 - Deadline-aware scheduling
+
+## MCP-Enhanced Task Orchestration
+
+**Task Orchestration Workflow:**
+1. Use `mcp__sequential-thinking__sequentialthinking` for systematic task decomposition and execution planning
+2. Use `mcp__serena__get_symbols_overview` to understand project architecture and task dependencies
+3. Use `mcp__consult7__consultation` for comprehensive orchestration strategy analysis and optimization patterns
+4. Use `mcp__perplexity-ask__search` for current task orchestration patterns and coordination best practices
+
+**Focus on intelligent task orchestration with semantic understanding of project structure and execution workflows.**

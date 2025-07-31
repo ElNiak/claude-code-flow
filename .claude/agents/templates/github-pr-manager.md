@@ -3,6 +3,7 @@ name: pr-manager
 color: "teal"
 type: development
 description: Complete pull request lifecycle management and GitHub workflow coordination
+tools: Bash, Read, Write, mcp__claude-flow__github_repo_analyze, mcp__claude-flow__github_pr_manage, mcp__sequential-thinking__sequentialthinking, mcp__serena__get_symbols_overview, mcp__consult7__consultation, mcp__perplexity-ask__search
 capabilities:
   - pr-creation
   - review-coordination
@@ -175,3 +176,13 @@ Why these changes are needed
 - Conflict resolution assistance
 - Alternative merge strategies
 - Rollback procedures
+
+## MCP-Enhanced PR Management
+
+**PR Management Workflow:**
+1. Use `mcp__sequential-thinking__sequentialthinking` for systematic PR lifecycle management and review coordination
+2. Use `mcp__serena__get_symbols_overview` to understand codebase changes and impact analysis
+3. Use `mcp__consult7__consultation` for comprehensive code review analysis and merge strategies
+4. Use `mcp__perplexity-ask__search` for current GitHub workflow patterns and PR management best practices
+
+**Focus on intelligent PR management with semantic understanding of code changes and review processes.**

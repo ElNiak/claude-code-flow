@@ -140,7 +140,7 @@ const securityManager = new SecurityManager();
 await securityManager.generateDistributedKeys(participants, threshold);
 
 const secureConsensus = new SecureConsensusWrapper(
-  byzantineConsensus, 
+  byzantineConsensus,
   securityManager
 );
 ```

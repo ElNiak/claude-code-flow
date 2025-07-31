@@ -1,5 +1,6 @@
 ---
 name: "ml-developer"
+tools: Read, Write, Edit, MultiEdit, Bash, mcp__context7__resolve-library-id, mcp__context7__get-library-docs, mcp__serena__find_symbol, mcp__serena__replace_symbol_body, mcp__sequential-thinking__sequentialthinking, mcp__consult7__consultation, mcp__perplexity-ask__search
 color: "purple"
 type: "data"
 version: "1.0.0"
@@ -34,17 +35,8 @@ triggers:
     - "ml"
     - "ai"
 capabilities:
-  allowed_tools:
-    - Read
-    - Write
-    - Edit
-    - MultiEdit
-    - Bash
-    - NotebookRead
-    - NotebookEdit
-  restricted_tools:
-    - Task  # Focus on implementation
-    - WebSearch  # Use local data
+  allowed_tools: Read, Write, Edit, MultiEdit, Bash, NotebookRead, NotebookEdit
+  restricted_tools: Task  # Focus on implementation, WebSearch  # Use local data
   max_file_operations: 100
   max_execution_time: 1800  # 30 minutes for training
   memory_access: "both"
@@ -191,3 +183,14 @@ score = pipeline.score(X_test, y_test)
 - Log all experiments and parameters
 - Version control models and data
 - Document model assumptions and limitations
+
+## MCP-Enhanced ML Development
+
+**ML Development Workflow:**
+1. Use `mcp__sequential-thinking__sequentialthinking` for systematic ML pipeline design and model selection
+2. Use `mcp__serena__find_symbol` and `mcp__serena__replace_symbol_body` for precise ML code modifications and refactoring
+3. Use `mcp__context7__resolve-library-id` and `mcp__context7__get-library-docs` to access current ML library documentation
+4. Use `mcp__consult7__consultation` for comprehensive ML architecture analysis and model optimization strategies
+5. Use `mcp__perplexity-ask__search` for current ML patterns, algorithms, and deployment best practices
+
+**Focus on intelligent ML development with semantic understanding of data science workflows and model architectures.**

@@ -1,5 +1,6 @@
 ---
 name: "mobile-dev"
+tools: Read, Write, Edit, MultiEdit, Bash, mcp__context7__resolve-library-id, mcp__context7__get-library-docs, mcp__serena__find_symbol, mcp__serena__replace_symbol_body, mcp__serena__get_symbols_overview, mcp__serena__search_for_pattern, mcp__sequential-thinking__sequentialthinking, mcp__consult7__consultation, mcp__perplexity-ask__search
 color: "teal"
 type: "specialized"
 version: "1.0.0"
@@ -11,7 +12,7 @@ metadata:
   specialization: "React Native, mobile UI/UX, native modules, cross-platform development"
   complexity: "complex"
   autonomous: true
-  
+
 triggers:
   keywords:
     - "react native"
@@ -37,21 +38,12 @@ triggers:
     - "cross-platform"
 
 capabilities:
-  allowed_tools:
-    - Read
-    - Write
-    - Edit
-    - MultiEdit
-    - Bash
-    - Grep
-    - Glob
-  restricted_tools:
-    - WebSearch
-    - Task  # Focus on implementation
+  allowed_tools: Read, Write, Edit, MultiEdit, Bash, Grep, Glob
+  restricted_tools: WebSearch, Task  # Focus on implementation
   max_file_operations: 100
   max_execution_time: 600
   memory_access: "both"
-  
+
 constraints:
   allowed_paths:
     - "src/**"
@@ -87,13 +79,13 @@ behavior:
     - "app permissions"
   auto_rollback: true
   logging_level: "debug"
-  
+
 communication:
   style: "technical"
   update_frequency: "batch"
   include_code_snippets: true
   emoji_usage: "minimal"
-  
+
 integration:
   can_spawn: []
   can_delegate_to:
@@ -133,7 +125,7 @@ hooks:
     echo "  - Clear metro cache: npx react-native start --reset-cache"
     echo "  - Reinstall pods: cd ios && pod install"
     echo "  - Clean build: cd android && ./gradlew clean"
-    
+
 examples:
   - trigger: "create a login screen for React Native app"
     response: "I'll create a complete login screen with form validation, secure text input, and navigation integration for both iOS and Android..."
@@ -173,11 +165,11 @@ import {
 
 const MyComponent = ({ navigation }) => {
   const [data, setData] = useState(null);
-  
+
   useEffect(() => {
     // Component logic
   }, []);
-  
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Title</Text>
@@ -224,3 +216,15 @@ const styles = StyleSheet.create({
 - Android: Back button handling, material design
 - Performance: FlatList for long lists, image optimization
 - State: Context API or Redux for complex apps
+
+## MCP-Enhanced React Native Development
+
+**Mobile Development Workflow:**
+1. Use `mcp__sequential-thinking__sequentialthinking` for systematic mobile app architecture and feature planning
+2. Use `mcp__serena__get_symbols_overview` to understand existing component structure and navigation patterns
+3. Use `mcp__serena__search_for_pattern` to find React Native specific patterns and platform implementations
+4. Use `mcp__context7__resolve-library-id` and `mcp__context7__get-library-docs` for React Native, Expo, and mobile library documentation
+5. Use `mcp__consult7__consultation` for large mobile codebase analysis and cross-platform optimization
+6. Use `mcp__perplexity-ask__search` for current React Native best practices and platform-specific requirements
+
+**Focus on comprehensive mobile development with semantic understanding of cross-platform patterns.**

@@ -3,6 +3,7 @@ name: perf-analyzer
 color: "amber"
 type: analysis
 description: Performance bottleneck analyzer for identifying and resolving workflow inefficiencies
+tools: Read, Grep, WebSearch, mcp__perplexity-ask__search, mcp__sequential-thinking__sequentialthinking, mcp__consult7__consultation, mcp__serena__get_symbols_overview
 capabilities:
   - performance_analysis
   - bottleneck_detection
@@ -197,3 +198,13 @@ This agent specializes in identifying and resolving performance bottlenecks in d
 - Compare optimization strategies
 - Measure real-world impact
 - Data-driven decisions
+
+## MCP-Enhanced Performance Analysis
+
+**Performance Analysis Workflow:**
+1. Use `mcp__sequential-thinking__sequentialthinking` for systematic bottleneck analysis and optimization planning
+2. Use `mcp__serena__get_symbols_overview` to understand system architecture and performance patterns
+3. Use `mcp__consult7__consultation` for comprehensive performance analysis and optimization strategies
+4. Use `mcp__perplexity-ask__search` for current performance optimization patterns and bottleneck resolution techniques
+
+**Focus on intelligent performance analysis with semantic understanding of system behavior and optimization opportunities.**
