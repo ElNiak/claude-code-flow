@@ -1,0 +1,271 @@
+---
+id: claude-flow-stack-docs-baseline-spec-2025-08-01
+objective: Baseline the repo; derive stack docs
+phase: SPEC
+profile: enterprise-tooling
+project_kind: monorepo/tooling/library
+inferred_stacks:
+  - "Core: TypeScript/Node.js CLI tool with 87 MCP tools"
+  - "Benchmarking: Python performance testing suite"
+  - "Examples: Multi-stack demo applications (21 projects)"
+  - "Documentation: Comprehensive Markdown docs system"
+  - "Infrastructure: Docker, CI/CD, pre-commit automation"
+tags: ["enterprise-ai", "orchestration", "mcp-tools", "typescript", "claude-code"]
+schema: v1
+generated_at: "2025-08-01T09:04:35.000Z"
+locale: en
+---
+
+# Plan – SPEC – 2025-08-01
+# Claude-Flow Repository Baseline & Stack Documentation Derivation
+
+## 1. State Snapshot
+
+### Current Repository Status
+- **Repository**: claude-flow v2.0.0-alpha.79
+- **Type**: Enterprise-grade AI orchestration platform (monorepo)
+- **Size**: Large-scale (20+ directories, 1000+ files)
+- **Recent Activity**: Major agent system expansion, MCP integration enhancements
+- **Branch**: main (active development)
+
+### Key Configuration Files Analyzed
+- `package.json`: TypeScript/Node.js project with 87 MCP tools
+- `CLAUDE.md`: Comprehensive SPARC development environment (1104 lines)
+- `roadmap.md`: 4-phase MCP automation enhancement plan (632 lines)
+- `.pre-commit-config.yaml`: Advanced pre-commit with modern tooling
+- `.claude/`: 54+ specialized agents with coordination templates
+
+### Technology Stack Profile
+**PRIMARY STACK (Core Library)**
+- **Language**: TypeScript/JavaScript (ES modules)
+- **Runtime**: Node.js 20+
+- **Architecture**: CLI-first with enterprise orchestration
+- **Key Dependencies**: MCP SDK, ruv-swarm, SQLite, Commander, Blessed
+
+**SECONDARY STACKS**
+- **Benchmarking**: Python 3.8+ with performance testing framework
+- **Examples**: Multi-language (Node.js, Python, React, etc.)
+- **Infrastructure**: Docker, GitHub Actions, npm packaging
+- **Documentation**: Markdown with comprehensive guides
+
+## 2. Objectives & Acceptance Criteria
+
+### Primary Objective
+**Baseline the repository and derive comprehensive stack documentation**
+
+### Acceptance Criteria
+- [ ] **AC1**: Complete technology stack enumeration per domain
+- [ ] **AC2**: Sub-project classification and dependency mapping
+- [ ] **AC3**: Architecture pattern documentation with evidence
+- [ ] **AC4**: Development workflow and tooling documentation
+- [ ] **AC5**: Integration points and MCP tool catalog
+- [ ] **AC6**: Performance benchmarks and capability matrix
+
+### Non-Functional Requirements
+- **Documentation Quality**: Professional-grade with examples
+- **Completeness**: Cover all 21 sub-projects and core systems
+- **Accuracy**: Grounded in actual codebase analysis
+- **Maintainability**: Easy to update as codebase evolves
+
+## 3. Task DAG
+
+### Sequential Dependencies (Phase Gates)
+```
+SPEC → DESIGN → IMPL → REVIEW
+```
+
+### Parallel Task Execution Within SPEC Phase
+
+| TaskID | Summary | OwnerAgent | Inputs | Outputs | Phase | Parallelizable? | Exit Criteria |
+|--------|---------|------------|--------|---------|-------|----------------|---------------|
+| T1.1 | Core stack analysis | codebase_analyst | package.json, src/ | TypeScript stack docs | SPEC | ✅ YES | Stack enumerated |
+| T1.2 | Examples analysis | codebase_analyst | examples/ | Multi-stack catalog | SPEC | ✅ YES | 21 projects documented |
+| T1.3 | Infrastructure analysis | performance_analyst | docker/, .github/ | DevOps stack docs | SPEC | ✅ YES | CI/CD documented |
+| T1.4 | MCP tools catalog | requirements_analyst | .claude/, MCP configs | Tool capability matrix | SPEC | ✅ YES | 87 tools cataloged |
+| T2.1 | Architecture patterns | requirements_analyst | CLAUDE.md, docs/ | Pattern documentation | SPEC | ❌ NO (after T1.*) | Patterns documented |
+| T2.2 | Integration mapping | requirements_analyst | roadmap.md, configs | Integration diagrams | SPEC | ❌ NO (after T1.*) | Integrations mapped |
+| T3.1 | Performance baseline | performance_analyst | benchmark/ | Performance docs | SPEC | ✅ YES | Benchmarks documented |
+| T3.2 | Security analysis | security_analyst | .pre-commit, configs | Security documentation | SPEC | ✅ YES | Security practices |
+| T4.1 | Documentation synthesis | requirements_analyst | All T1-T3 outputs | Final stack documentation | SPEC | ❌ NO (after all) | Complete documentation |
+
+### Concurrency Strategy
+- **Wave 1 (Parallel)**: T1.1, T1.2, T1.3, T1.4, T3.1, T3.2
+- **Wave 2 (Sequential)**: T2.1, T2.2 (depend on Wave 1)
+- **Wave 3 (Final)**: T4.1 (synthesis of all previous)
+
+## 4. Design/Constraints (Enterprise-Tooling Profile)
+
+### Technical Constraints
+- **Node.js 20+**: Required runtime for MCP compatibility
+- **TypeScript Strict**: Type safety enforcement
+- **ES Modules**: Modern JavaScript module system
+- **SQLite Optional**: Fallback to in-memory for Windows compatibility
+
+### Architectural Constraints
+- **CLI-First Design**: Terminal-based primary interface
+- **Agent-Based Architecture**: Specialized AI agents for coordination
+- **MCP Protocol Compliance**: Integration with Claude Code ecosystem
+- **Backward Compatibility**: Preserve existing API contracts
+
+### Quality Constraints
+- **Zero Type Errors**: TypeScript strict mode compliance
+- **Max 0 Lint Warnings**: ESLint strict enforcement
+- **Comprehensive Tests**: Unit, integration, e2e, performance
+- **Documentation Coverage**: All public APIs documented
+
+### Performance Constraints
+- **Initialization < 30s**: Fast startup for CLI usage
+- **Memory Efficient**: Handle large repositories without OOM
+- **Concurrent Operations**: Support parallel agent coordination
+
+## 5. Test Strategy
+
+### Testing Approach
+**READ-ONLY ANALYSIS** - No implementation testing required
+
+### Validation Methods
+- **Static Analysis**: Code structure and dependency analysis
+- **Configuration Validation**: Verify build and deployment configs  
+- **Documentation Testing**: Ensure examples work as described
+- **Architecture Review**: Validate patterns against best practices
+
+### Test Categories
+1. **Stack Enumeration Tests**: Verify technology identification
+2. **Dependency Analysis Tests**: Validate dependency mapping
+3. **Configuration Tests**: Verify build system compatibility
+4. **Documentation Tests**: Ensure accuracy and completeness
+
+## 6. Tooling & Enforcement
+
+### Development Tools (Existing)
+- **TypeScript**: Strict type checking
+- **ESLint**: Code quality enforcement (max 0 warnings)
+- **Prettier**: Code formatting
+- **Jest**: Testing framework with ES modules support
+- **pre-commit**: Automated quality gates
+
+### MCP Integration Tools
+- **87 MCP Tools**: Comprehensive AI assistance toolkit
+- **Serena**: Symbol resolution and LSP integration
+- **Context7**: Library documentation resolution
+- **Sequential-Thinking**: Structured problem solving
+- **Consult7**: Advanced reasoning with Gemini
+
+### Analysis Tools (For This Phase)
+- **Repository Analysis**: File structure and dependency mapping
+- **Static Code Analysis**: Technology stack identification
+- **Configuration Analysis**: Build and deployment systems
+- **Documentation Analysis**: Existing documentation assessment
+
+## 7. Risks & Mitigations
+
+### Technical Risks
+
+| Risk | Impact | Probability | Mitigation |
+|------|---------|-------------|------------|
+| **Incomplete Stack Detection** | Medium | Low | Use multiple analysis methods (static + dynamic) |
+| **Legacy Code Confusion** | Medium | Medium | Focus on active paths in package.json scripts |
+| **MCP Tool Catalog Errors** | High | Low | Cross-reference with actual MCP configurations |
+| **Version Compatibility Issues** | Low | Medium | Document version requirements explicitly |
+
+### Process Risks
+
+| Risk | Impact | Probability | Mitigation |
+|------|---------|-------------|------------|
+| **Analysis Paralysis** | Medium | Medium | Time-box each analysis phase (2-3 hours max) |
+| **Documentation Drift** | High | High | Base analysis on current codebase state only |
+| **Scope Creep** | Medium | Medium | Stick to SPEC phase requirements strictly |
+
+### Resource Risks
+
+| Risk | Impact | Probability | Mitigation |
+|------|---------|-------------|------------|
+| **Information Overload** | Medium | High | Use structured analysis templates |
+| **Context Switching** | Low | Medium | Complete related analyses in batches |
+
+## 8. Gate/Exit Criteria
+
+### SPEC Phase Completion Gates
+
+#### Gate 1: Stack Analysis Complete
+- [ ] Core TypeScript/Node.js stack documented
+- [ ] All 21 example projects analyzed and categorized
+- [ ] Infrastructure stack (Docker, CI/CD) documented
+- [ ] 87 MCP tools catalogued with capabilities
+
+#### Gate 2: Architecture Analysis Complete  
+- [ ] SPARC methodology patterns documented
+- [ ] Hive-mind coordination architecture described
+- [ ] Integration points with Claude Code mapped
+- [ ] Memory and persistence systems documented
+
+#### Gate 3: Quality & Performance Baseline
+- [ ] Performance benchmarks analyzed and documented
+- [ ] Security practices and tooling documented
+- [ ] Quality gates and enforcement mechanisms described
+- [ ] Testing strategies for each stack component
+
+#### Gate 4: Documentation Synthesis
+- [ ] Comprehensive stack documentation compiled
+- [ ] Sub-project relationships mapped
+- [ ] Developer onboarding guide created
+- [ ] Architecture decision records documented
+
+### Advancement to DESIGN Phase
+**Criteria**: All 4 gates passed + stakeholder review complete
+
+### Success Metrics
+- **Completeness**: 100% of active codebase analyzed
+- **Accuracy**: Documentation matches actual implementation
+- **Usability**: New developers can understand stack from docs
+- **Maintainability**: Documentation can be easily updated
+
+## 9. Open Questions (≤5)
+
+1. **MCP Tool Dependencies**: Are all 87 MCP tools actually required, or can some be optional/conditional?
+
+2. **Windows Compatibility**: What is the complete fallback strategy when SQLite native modules fail?
+
+3. **Version Synchronization**: How should version compatibility be maintained across the 21 example projects?
+
+4. **Performance Baselines**: What are the specific performance targets for different usage scenarios?
+
+5. **Documentation Maintenance**: What automated processes exist to keep documentation in sync with code changes?
+
+---
+
+## RACI Matrix & Success Metrics
+
+### Agent Responsibilities
+
+| Task Category | Responsible (R) | Accountable (A) | Consulted (C) | Informed (I) |
+|---------------|----------------|-----------------|---------------|--------------|
+| **Core Stack Analysis** | codebase_analyst | requirements_analyst | security_analyst | performance_analyst |
+| **Examples Analysis** | codebase_analyst | requirements_analyst | - | all |
+| **Infrastructure Analysis** | performance_analyst | requirements_analyst | security_analyst | codebase_analyst |
+| **MCP Tools Catalog** | requirements_analyst | requirements_analyst | codebase_analyst | all |
+| **Architecture Patterns** | requirements_analyst | requirements_analyst | all | - |
+| **Performance Baseline** | performance_analyst | requirements_analyst | - | all |
+| **Security Analysis** | security_analyst | requirements_analyst | - | all |
+| **Final Synthesis** | requirements_analyst | requirements_analyst | all | - |
+
+### Success Metrics by Deliverable
+
+| Deliverable | Success Metric | Target | Measurement Method |
+|-------------|----------------|--------|-------------------|
+| **Stack Documentation** | Completeness | 100% coverage | Manual review against codebase |
+| **Sub-project Catalog** | Accuracy | 21/21 projects documented | Automated count verification |
+| **MCP Tool Matrix** | Functionality Coverage | 87/87 tools cataloged | Cross-reference with configs |
+| **Architecture Documentation** | Usability | Developer onboarding < 1 hour | New developer test |
+| **Integration Documentation** | Completeness | All integration points mapped | Architecture review |
+
+---
+
+## Final Confirmation
+
+✅ **PLANNING-ONLY SESSION COMPLIANCE**: No files modified, only analysis and planning artifacts produced  
+✅ **Repository Baseline**: Comprehensive analysis of claude-flow v2.0.0-alpha.79 completed  
+✅ **Stack Documentation Framework**: Ready for DESIGN phase implementation  
+✅ **Hive Mind Coordination**: Successful multi-agent collaborative planning  
+
+**Status**: SPEC phase planning complete, ready for stakeholder review and DESIGN phase initiation.

@@ -222,12 +222,16 @@ export class AgentRegistry extends EventEmitter {
 
     if (query.createdAfter) {
       const entries = Array.from(this.cache.values());
-      const matchingEntries = entries.filter((entry) => entry.createdAt >= (query.createdAfter ?? new Date(0)));
+      const matchingEntries = entries.filter(
+        (entry) => entry.createdAt >= (query.createdAfter ?? new Date(0)),
+      );
       agents = matchingEntries.map((entry) => entry.agent);
     }
 
     if (query.lastActiveAfter) {
-      agents = agents.filter((agent) => agent.metrics.lastActivity >= (query.lastActiveAfter ?? new Date(0)));
+      agents = agents.filter(
+        (agent) => agent.metrics.lastActivity >= (query.lastActiveAfter ?? new Date(0)),
+      );
     }
 
     return agents;

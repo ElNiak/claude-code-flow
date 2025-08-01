@@ -122,6 +122,7 @@ EOF
   read -r -d '' context <<EOF
 INPUTS & CONTEXT:
 - Read ./CLAUDE.md; summarize relevant parts for Phase <<<PHASE>>>.
+- If present, read code_style_conventions.md,codebase_structure.md,project_purpose.md,suggested_commands.md,task_completion_workflow.md,tech_stack.md in .serena/memory/. If not present, ask serena to generate them.
 - If present, read ./ROADMAP.md and summarize related goals.
 - Skim the last ~<<<GIT_HISTORY>>> commits (diff or summary) to detect changes that impact the objective.
 
@@ -165,12 +166,7 @@ SUB-AGENTS (define roles & least-privilege scopes):
 - Requirements_Analyst, Codebase_Analyst, Security_Analyst, Performance_Analyst,
   Tooling_Planner (pre-commit/VS Code/MCP), QA_Reviewer (gatekeeper), Integration_Planner.
 - Add/remove roles as needed, justify with scope and success metrics.
-EOF
-
-  read -r -d '' concurrency <<'EOF'
-SEQUENCING VS CONCURRENCY:
-- Build a dependency graph (DAG). Explicitly mark PARALLEL vs SEQUENTIAL tasks with rationale.
-- Allow parallel read/analyze/synthesis tasks, but keep phase gates (SPEC→DESIGN→IMPL→REVIEW) strictly sequential.
+- Read: .serena/memory/(code_style_conventions.md,codebase_structure.md,project_purpose.md,suggested_commands.md,task_completion_workflow.md,tech_stack.md) and CLAUDE.md, ROADMAP.md
 EOF
 
   read -r -d '' enforce <<'EOF'

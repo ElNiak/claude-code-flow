@@ -20,10 +20,25 @@ OBJECTIVE="OAuth login" PHASE=SPEC SAVE_STYLE=multi bash plan-and-persist.sh ACT
 OBJECTIVE="OAuth login" PHASE=SPEC ACTION=persist ROADMAP_SRC=/tmp/spec.txt bash plan-and-persist.sh
 
 # Plan only (no writes). Choose SAVE_STYLE=index or multi.
-OBJECTIVE="Baseline the repo; derive stack docs " PHASE="SPEC"  QUALITY_LEVEL=thorough PROFILE=auto PROJECT_KIND=auto STACK_HINTS="" SAVE_STYLE=index USE_SERENA=1 ROADMAP_PATH=roadmap/plan-output.txt bash plan-and-persist.sh ACTION=plan+persist
+OBJECTIVE="Baseline the repo; derive stack docs " PHASE="SPEC"  QUALITY_LEVEL=thorough PROFILE=auto PROJECT_KIND=auto STACK_HINTS="" SAVE_STYLE=index USE_SERENA=1 ROADMAP_PATH="ROADMAP.md" bash plan-and-persist.sh ACTION=plan+persist
+
+OBJECTIVE="Baseline the repo; derive stack docs " PHASE="REVIEW"  QUALITY_LEVEL=thorough PROFILE=auto PROJECT_KIND=auto STACK_HINTS="" SAVE_STYLE=index USE_SERENA=1 ROADMAP_PATH="ROADMAP.md" bash plan-and-persist.sh ACTION=plan+persist
+
+
 
 # 1) Plan (no writes)
-OBJECTIVE="Add OAuth login (PKCE) to Service X" PHASE="SPEC" bash plan-and-persist.sh
+OBJECTIVE="OAuth login" PHASE=SPEC bash wtctl.sh init
+eval "$(OBJECTIVE='OAuth login' PHASE=SPEC bash wtctl.sh cd)"
+
+OBJECTIVE="Add OAuth login (PKCE) to Service X"  QUALITY_LEVEL=thorough PROFILE=auto PROJECT_KIND=auto STACK_HINTS="" SAVE_STYLE=index USE_SERENA=1 PHASE="SPEC" bash plan-and-persist.sh
+
+OBJECTIVE="Add OAuth login (PKCE) to Service X"  QUALITY_LEVEL=thorough PROFILE=auto PROJECT_KIND=auto STACK_HINTS="" SAVE_STYLE=index USE_SERENA=1  PHASE="DESIGN" bash plan-and-persist.sh
+
+OBJECTIVE="Add OAuth login (PKCE) to Service X"  QUALITY_LEVEL=thorough PROFILE=auto PROJECT_KIND=auto STACK_HINTS="" SAVE_STYLE=index USE_SERENA=1  PHASE="REVIEW" bash plan-and-persist.sh
+
+OBJECTIVE="Add OAuth login (PKCE) to Service X"  QUALITY_LEVEL=thorough PROFILE=auto PROJECT_KIND=auto STACK_HINTS="" SAVE_STYLE=index USE_SERENA=1  PHASE="IMPL" bash plan-and-persist.sh
+
+OBJECTIVE="Add OAuth login (PKCE) to Service X"  QUALITY_LEVEL=thorough PROFILE=auto PROJECT_KIND=auto STACK_HINTS="" SAVE_STYLE=index USE_SERENA=1  PHASE="REVIEW" bash plan-and-persist.sh
 
 # 2) Persist from a saved output file
 OBJECTIVE="Add OAuth login (PKCE) to Service X" ACTION=persist ROADMAP_SRC=roadmap/plan-output.txt bash plan-and-persist.sh

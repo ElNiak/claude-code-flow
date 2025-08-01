@@ -131,7 +131,7 @@ class AgentLoader {
         }
         const categoryAgents = categoryMap.get(category);
         if (categoryAgents) {
-            categoryAgents.push(agent);
+          categoryAgents.push(agent);
         }
       }
     }
@@ -200,11 +200,11 @@ class AgentLoader {
     await this.ensureLoaded();
     const lowerQuery = query.toLowerCase();
 
-    return Array.from(this.agentCache.values()).filter(agent => {
+    return Array.from(this.agentCache.values()).filter((agent) => {
       return (
         agent.name.toLowerCase().includes(lowerQuery) ||
         agent.description.toLowerCase().includes(lowerQuery) ||
-        agent.capabilities?.some(cap => cap.toLowerCase().includes(lowerQuery)) ||
+        agent.capabilities?.some((cap) => cap.toLowerCase().includes(lowerQuery)) ||
         false
       );
     });
@@ -223,7 +223,7 @@ class AgentLoader {
    */
   async getAgentsByCategory(category: string): Promise<AgentDefinition[]> {
     const categories = await this.getAgentCategories();
-    const found = categories.find(cat => cat.name === category);
+    const found = categories.find((cat) => cat.name === category);
     return found?.agents || [];
   }
 
