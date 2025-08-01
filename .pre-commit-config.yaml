@@ -1,6 +1,6 @@
-# Pre-commit Configuration for Mortgage-nitor Project
+# Pre-commit Configuration for claude-flow Project
 # Optimized for 2025 best practices with modern tooling
-# Supports: Python FastAPI backend, Kotlin Android app, PostgreSQL/TimescaleDB
+# Supports: TypeScript/Node.js AI orchestration, Python FastAPI backend, Kotlin Android app, PostgreSQL/TimescaleDB
 
 repos:
   # =============================================================================
@@ -9,7 +9,7 @@ repos:
 
   # GitLeaks - Fast secrets detection (Golang-based, lightning fast)
   - repo: https://github.com/gitleaks/gitleaks
-    rev: v8.18.0
+    rev: v8.21.2
     hooks:
       - id: gitleaks
         name: Detect hardcoded secrets
@@ -40,12 +40,60 @@ repos:
   #         )$
 
   # =============================================================================
+  # 🚀 TYPESCRIPT & NODE.JS ECOSYSTEM (Priority 1)
+  # =============================================================================
+
+  # ESLint - TypeScript linting with auto-fix
+  - repo: https://github.com/pre-commit/mirrors-eslint
+    rev: v9.32.0
+    hooks:
+      - id: eslint
+        name: 🔧 ESLint TypeScript linter
+        files: \.(ts|tsx|js|mjs)$
+        types: [file]
+        args: [--fix, --max-warnings=0]
+        additional_dependencies:
+          - '@typescript-eslint/eslint-plugin@^6.21.0'
+          - '@typescript-eslint/parser@^6.21.0'
+          - 'typescript@^5.3.3'
+
+  # TypeScript type checking
+  - repo: local
+    hooks:
+      - id: typescript-check
+        name: 🔍 TypeScript type checking
+        entry: npm run typecheck
+        language: system
+        types: [ts, tsx]
+        pass_filenames: false
+        require_serial: true
+
+  # NPM audit for security vulnerabilities
+  - repo: local
+    hooks:
+      - id: npm-audit
+        name: 🛡️ NPM security audit
+        entry: npm audit --audit-level=moderate --only=prod
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
+
+  # Package.json validation
+  - repo: https://github.com/python-jsonschema/check-jsonschema
+    rev: 0.28.6
+    hooks:
+      - id: check-jsonschema
+        name: 📋 Validate package.json
+        files: ^package\.json$
+        args: [--schemafile, 'https://json.schemastore.org/package.json']
+
+  # =============================================================================
   # 🐍 PYTHON ECOSYSTEM (Ruff - 2025 Modern Approach)
   # =============================================================================
 
   # Ruff - Lightning-fast Python linter & formatter (replaces black, isort, flake8)
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.9
+    rev: v0.8.4
     hooks:
       # Ruff formatter (auto-fixes line length, quotes, etc.)
       - id: ruff-format
@@ -109,13 +157,13 @@ repos:
     hooks:
       - id: prettier
         name: Format YAML/JSON/Markdown files
-        types_or: [yaml, json, markdown]
-        args: [--tab-width, '2', --prose-wrap, 'always']
-        exclude: ^\.roo/|\.claude/|^node_modules/
+        types_or: [yaml, json, markdown, ts, tsx]
+        args: [--tab-width, '2', --prose-wrap, 'always', --config, .prettierrc.json]
+        exclude: ^\.roo/|\.claude/|^node_modules/|^dist/|^coverage/|^bin/
 
   # JSON Schema validation
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.27.3
+    rev: 0.28.6
     hooks:
       - id: check-jsonschema
         name: Validate JSON schemas
@@ -128,7 +176,7 @@ repos:
 
   # Markdownlint with auto-fix - Optimized for extensive architectural documentation
   - repo: https://github.com/DavidAnson/markdownlint-cli2
-    rev: v0.13.0
+    rev: v0.14.0
     hooks:
       - id: markdownlint-cli2
         name: Lint and fix markdown files
@@ -150,7 +198,7 @@ repos:
 
   # Pre-commit built-in hooks for file validation
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: v4.6.0
     hooks:
       # File content checks
       - id: check-yaml
@@ -204,6 +252,7 @@ repos:
 # Default language version (can be overridden per hook)
 default_language_version:
   python: python3.11
+  node: '20.0.0'
 
 # Install timeout for package managers
 default_install_hook_types: [pre-commit, pre-push]
