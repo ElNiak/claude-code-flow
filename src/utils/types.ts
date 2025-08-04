@@ -2,63 +2,7 @@
  * Core type definitions for Claude-Flow
  */
 
-// Configuration interface
-export interface Config {
-  env: 'development' | 'production' | 'test';
-  logLevel: 'debug' | 'info' | 'warn' | 'error';
-  enableMetrics?: boolean;
-  orchestrator?: {
-    dataDir?: string;
-    maxAgents?: number;
-    taskTimeout?: number;
-    persistSessions?: boolean;
-    shutdownTimeout?: number;
-    maxConcurrentAgents?: number;
-  };
-  logging?: LoggingConfig;
-  terminal?: {
-    shell?: string;
-    timeout?: number;
-    maxSessions?: number;
-  };
-  memory?: {
-    backend?: 'sqlite' | 'memory';
-    ttl?: number;
-    maxEntries?: number;
-  };
-  coordination?: {
-    enabled?: boolean;
-    maxConnections?: number;
-  };
-  mcp?: {
-    enabled?: boolean;
-    port?: number;
-  };
-  database?: {
-    url: string;
-    poolSize?: number;
-  };
-  redis?: {
-    url: string;
-    keyPrefix?: string;
-  };
-  api?: {
-    port: number;
-    host: string;
-    cors?: {
-      origin: string[];
-      credentials: boolean;
-    };
-  };
-  agents?: {
-    maxConcurrent: number;
-    timeout: number;
-  };
-  security?: {
-    jwtSecret: string;
-    encryptionKey: string;
-  };
-}
+// Legacy configuration interface - deprecated, use the main Config interface below
 
 // Logging configuration interface
 export interface LoggingConfig {
@@ -260,6 +204,9 @@ export interface Config {
   logging: LoggingConfig;
   credentials?: CredentialsConfig;
   security?: SecurityConfig;
+  env?: 'development' | 'production' | 'test';
+  logLevel?: string;
+  enableMetrics?: boolean;
 }
 
 export interface OrchestratorConfig {
@@ -315,6 +262,7 @@ export interface MCPConfig {
   enableMetrics?: boolean;
   corsEnabled?: boolean;
   corsOrigins?: string[];
+  debug?: MCPDebugConfig;
 }
 
 export interface LoggingConfig {
@@ -518,15 +466,33 @@ export interface MCPLoadBalancerConfig {
   circuitBreakerThreshold: number;
 }
 
+export interface MCPDebugConfig {
+  enableTracing?: boolean;
+  enableCrossSystemCorrelation?: boolean;
+  enableToolTracing?: boolean;
+  performanceThreshold?: number; // max 10% overhead
+  traceRetentionTime?: number; // ms
+  sanitizeSensitiveData?: boolean;
+}
+
 export interface MCPMetrics {
   totalRequests: number;
   successfulRequests: number;
   failedRequests: number;
   averageResponseTime: number;
   activeSessions: number;
-  toolInvocations: Record<string, number>;
-  errors: Record<string, number>;
+  toolInvocations: {
+    total: number;
+    successful: number;
+    failed: number;
+    averageTime: number;
+  };
+  errors: {
+    protocolViolations: number;
+    correlationFailures: number;
+  };
   lastReset: Date;
+  debug?: any; // Debug metrics from MCPDebugLogger
 }
 
 // Interface declarations for dependency injection
@@ -565,6 +531,7 @@ export interface MCPContext {
   sessionId: string;
   agentId?: string;
   logger: ILogger;
+  correlationId?: string;
 }
 
 // Additional configuration interfaces

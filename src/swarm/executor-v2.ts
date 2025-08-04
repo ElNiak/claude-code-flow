@@ -22,6 +22,13 @@ import {
   EventType,
   SWARM_CONSTANTS,
 } from './types.js';
+import { ClaudeCommand, ResourceUsage } from './executor.js';
+
+export interface ClaudeExecutionOptions {
+  timeout?: number;
+  verbose?: boolean;
+  workingDirectory?: string;
+}
 
 export interface ClaudeExecutionOptionsV2 extends ClaudeExecutionOptions {
   nonInteractive?: boolean;
@@ -29,6 +36,75 @@ export interface ClaudeExecutionOptionsV2 extends ClaudeExecutionOptions {
   promptDefaults?: Record<string, any>;
   environmentOverride?: Record<string, string>;
   retryOnInteractiveError?: boolean;
+  detached?: boolean;
+  useStdin?: boolean;
+  model?: string;
+  maxTokens?: number;
+  temperature?: number;
+  outputFormat?: string;
+  claudePath?: string;
+  dangerouslySkipPermissions?: boolean;
+}
+
+interface ExecutionConfig {
+  timeout?: number;
+  timeoutMs?: number;
+  verbose?: boolean;
+  workingDirectory?: string;
+  logger?: Logger;
+  killTimeout?: number;
+  streamOutput?: boolean;
+}
+
+interface ExecutionResult {
+  success: boolean;
+  output: any;
+  error?: string;
+  exitCode?: number;
+  duration?: number;
+  resourcesUsed?: ResourceUsage;
+  artifacts?: Record<string, any>;
+  metadata?: Record<string, any>;
+}
+
+interface ExecutionContext {
+  task: TaskDefinition;
+  agent: AgentState;
+  options: ClaudeExecutionOptionsV2;
+  startTime: Date;
+  environment?: Record<string, string>;
+  workingDirectory?: string;
+}
+
+class TaskExecutor extends EventEmitter {
+  protected logger: Logger;
+  protected config: ExecutionConfig;
+
+  constructor(config: Partial<ExecutionConfig> = {}) {
+    super();
+    this.config = config;
+    this.logger =
+      config.logger ||
+      new Logger(
+        { level: 'info', format: 'text', destination: 'console' },
+        { component: 'TaskExecutor' },
+      );
+  }
+
+  protected createExecutionContext(
+    task: TaskDefinition,
+    agent: AgentState,
+    options: ClaudeExecutionOptionsV2,
+  ): ExecutionContext {
+    return {
+      task,
+      agent,
+      options,
+      startTime: new Date(),
+      environment: options.environmentOverride || {},
+      workingDirectory: options.workingDirectory || this.config.workingDirectory || process.cwd(),
+    };
+  }
 }
 
 export class TaskExecutorV2 extends TaskExecutor {
@@ -66,14 +142,14 @@ export class TaskExecutorV2 extends TaskExecutor {
         generateId('claude-execution'),
         task,
         agent,
-        await this.createExecutionContext(task, agent),
+        this.createExecutionContext(task, agent, enhancedOptions),
         enhancedOptions,
       );
     } catch (error) {
       // Handle interactive errors with retry
       if (this.isInteractiveError(error) && enhancedOptions.retryOnInteractiveError) {
         this.logger.warn('Interactive error detected, retrying with non-interactive mode', {
-          error: error.message,
+          error: (error as Error).message,
         });
 
         // Force non-interactive mode and retry
@@ -84,7 +160,7 @@ export class TaskExecutorV2 extends TaskExecutor {
           generateId('claude-execution-retry'),
           task,
           agent,
-          await this.createExecutionContext(task, agent),
+          this.createExecutionContext(task, agent, enhancedOptions),
           enhancedOptions,
         );
       }
@@ -121,7 +197,7 @@ export class TaskExecutorV2 extends TaskExecutor {
 
     // Add prompt defaults if provided
     if (options.promptDefaults) {
-      env.CLAUDE_PROMPT_DEFAULTS = JSON.stringify(options.promptDefaults);
+      (env as any).CLAUDE_PROMPT_DEFAULTS = JSON.stringify(options.promptDefaults);
     }
 
     this.logger.debug('Executing Claude command v2', {
@@ -280,7 +356,7 @@ export class TaskExecutorV2 extends TaskExecutor {
           } catch (collectionError) {
             this.logger.error('Error collecting execution results', {
               sessionId,
-              error: collectionError.message,
+              error: (collectionError as Error).message,
             });
 
             // Still resolve with basic result
@@ -300,7 +376,7 @@ export class TaskExecutorV2 extends TaskExecutor {
         clearTimeout(timeoutHandle);
         this.logger.error('Failed to spawn process', {
           sessionId,
-          error: spawnError.message,
+          error: (spawnError as Error).message,
         });
         reject(spawnError);
       }
@@ -419,6 +495,21 @@ export class TaskExecutorV2 extends TaskExecutor {
       networkIO: 0,
       fileHandles: 0,
     };
+  }
+
+  private async collectResourceUsage(sessionId: string): Promise<ResourceUsage> {
+    // Basic resource usage collection
+    return this.getDefaultResourceUsage();
+  }
+
+  private async collectArtifacts(context: ExecutionContext): Promise<Record<string, any>> {
+    // Basic artifact collection
+    return {};
+  }
+
+  private buildClaudePrompt(task: TaskDefinition, agent: AgentState): string {
+    // Build Claude prompt from task and agent
+    return `Task: ${(task as any).title || task.name || task.description}\nDescription: ${task.description}\nAgent: ${agent.name}`;
   }
 }
 

@@ -215,7 +215,9 @@ export class ClaudeAPIClient extends EventEmitter {
    */
   private validateConfiguration(config: ClaudeAPIConfig): void {
     if (!config.apiKey) {
-      throw new ClaudeAuthenticationError('Claude API key is required. Set ANTHROPIC_API_KEY environment variable.');
+      throw new ClaudeAuthenticationError(
+        'Claude API key is required. Set ANTHROPIC_API_KEY environment variable.',
+      );
     }
 
     if (config.temperature !== undefined) {
@@ -305,16 +307,19 @@ export class ClaudeAPIClient extends EventEmitter {
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), this.config.timeout || 30000);
 
-        const response = await fetch(this.config.apiUrl || 'https://api.anthropic.com/v1/messages', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'anthropic-version': '2023-06-01',
-            'x-api-key': this.config.apiKey,
+        const response = await fetch(
+          this.config.apiUrl || 'https://api.anthropic.com/v1/messages',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'anthropic-version': '2023-06-01',
+              'x-api-key': this.config.apiKey,
+            },
+            body: JSON.stringify(request),
+            signal: controller.signal,
           },
-          body: JSON.stringify(request),
-          signal: controller.signal,
-        });
+        );
 
         clearTimeout(timeout);
 
@@ -438,10 +443,7 @@ export class ClaudeAPIClient extends EventEmitter {
 
       // Handle abort/timeout
       if (error instanceof Error && error.name === 'AbortError') {
-        throw new ClaudeTimeoutError(
-          'Request timed out',
-          this.config.timeout || 60000,
-        );
+        throw new ClaudeTimeoutError('Request timed out', this.config.timeout || 60000);
       }
 
       throw error;
@@ -655,9 +657,10 @@ export class ClaudeAPIClient extends EventEmitter {
       case 401:
       case 403:
         return new ClaudeAuthenticationError(message, errorData);
-      case 429:
+      case 429: {
         const retryAfter = errorData.error?.retry_after;
         return new ClaudeRateLimitError(message, retryAfter, errorData);
+      }
       case 500:
         return new ClaudeInternalServerError(message, errorData);
       case 503:

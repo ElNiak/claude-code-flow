@@ -176,8 +176,8 @@ class Dashboard {
     console.log(chalk.white.bold('System Overview'));
     console.log('─'.repeat(40));
 
-    const cpuBar = formatProgressBar(data.system.cpu, 100, 20, 'CPU');
-    const memoryBar = formatProgressBar(data.system.memory, 1024, 20, 'Memory');
+    const cpuBar = formatProgressBar(data.system.cpu, 20);
+    const memoryBar = formatProgressBar(data.system.memory, 20);
 
     console.log(`${cpuBar} ${data.system.cpu.toFixed(1)}%`);
     console.log(`${memoryBar} ${data.system.memory.toFixed(0)}MB`);
@@ -319,9 +319,7 @@ class Dashboard {
 
     const statusIcon = formatStatusIndicator(component.status);
     console.log(`${statusIcon} Status: ${component.status}`);
-    console.log(
-      `Load: ${formatProgressBar(component.load, 100, 30)} ${component.load.toFixed(1)}%`,
-    );
+    console.log(`Load: ${formatProgressBar(component.load, 30)} ${component.load.toFixed(1)}%`);
 
     // Add component-specific metrics here
     console.log();

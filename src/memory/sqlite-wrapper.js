@@ -7,7 +7,8 @@ import { createRequire } from 'module';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-const __filename = fileURLToPath(import.meta.url);
+// PKG compatible __filename and __dirname
+const __filename = process.argv[1] || require.main?.filename || '';
 const __dirname = path.dirname(__filename);
 
 let Database = null;
@@ -20,8 +21,8 @@ let loadError = null;
 async function tryLoadSQLite() {
   try {
     // Try CommonJS require first (more reliable in Node.js)
-    const require = createRequire(import.meta.url);
-    Database = require('better-sqlite3');
+    const requireMeta = createRequire(__filename);
+    Database = requireMeta('better-sqlite3');
     sqliteAvailable = true;
     return true;
   } catch (requireErr) {

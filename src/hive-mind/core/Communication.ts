@@ -18,7 +18,7 @@ import {
 
 export class Communication extends EventEmitter {
   private swarmId: string;
-  private db: DatabaseManager;
+  private db!: DatabaseManager;
   private agents: Map<string, Agent>;
   private channels: Map<string, CommunicationChannel>;
   private messageQueue: Map<MessagePriority, Message[]>;
@@ -41,7 +41,18 @@ export class Communication extends EventEmitter {
       totalMessages: 0,
       avgLatency: 0,
       activeChannels: 0,
-      messagesByType: {},
+      messagesByType: {
+        direct: 0,
+        broadcast: 0,
+        consensus: 0,
+        query: 0,
+        response: 0,
+        notification: 0,
+        task_assignment: 0,
+        progress_update: 0,
+        coordination: 0,
+        channel: 0,
+      },
       throughput: 0,
     };
   }

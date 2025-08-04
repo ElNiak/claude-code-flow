@@ -51,7 +51,7 @@ export class AsyncFileManager {
   async writeFile(path: string, data: string | Buffer): Promise<FileOperationResult> {
     const start = Date.now();
 
-    return await this.writeQueue.add(async () => {
+    const result = await this.writeQueue.add(async () => {
       try {
         // Ensure directory exists
         await this.ensureDirectory(dirname(path));
@@ -89,12 +89,18 @@ export class AsyncFileManager {
         };
       }
     });
+
+    if (!result) {
+      throw new Error('Queue operation returned void');
+    }
+
+    return result;
   }
 
   async readFile(path: string): Promise<FileOperationResult & { data?: string }> {
     const start = Date.now();
 
-    return await this.readQueue.add(async () => {
+    const result = await this.readQueue.add(async () => {
       try {
         const data = await fs.readFile(path, 'utf8');
         const duration = Date.now() - start;
@@ -123,6 +129,12 @@ export class AsyncFileManager {
         };
       }
     });
+
+    if (!result) {
+      throw new Error('Queue operation returned void');
+    }
+
+    return result;
   }
 
   async writeJSON(path: string, data: any, pretty = true): Promise<FileOperationResult> {
@@ -153,7 +165,7 @@ export class AsyncFileManager {
   async deleteFile(path: string): Promise<FileOperationResult> {
     const start = Date.now();
 
-    return this.writeQueue.add(async () => {
+    const result = await this.writeQueue.add(async () => {
       try {
         await fs.unlink(path);
 
@@ -161,7 +173,7 @@ export class AsyncFileManager {
 
         return {
           path,
-          operation: 'delete',
+          operation: 'delete' as const,
           success: true,
           duration: Date.now() - start,
         };
@@ -171,13 +183,19 @@ export class AsyncFileManager {
 
         return {
           path,
-          operation: 'delete',
+          operation: 'delete' as const,
           success: false,
           duration: Date.now() - start,
           error: error as Error,
         };
       }
     });
+
+    if (!result) {
+      throw new Error('Queue operation returned void');
+    }
+
+    return result;
   }
 
   async ensureDirectory(path: string): Promise<FileOperationResult> {
@@ -190,7 +208,7 @@ export class AsyncFileManager {
 
       return {
         path,
-        operation: 'mkdir',
+        operation: 'mkdir' as const,
         success: true,
         duration: Date.now() - start,
       };
@@ -200,7 +218,7 @@ export class AsyncFileManager {
 
       return {
         path,
-        operation: 'mkdir',
+        operation: 'mkdir' as const,
         success: false,
         duration: Date.now() - start,
         error: error as Error,
@@ -224,7 +242,7 @@ export class AsyncFileManager {
   async copyFile(source: string, destination: string): Promise<FileOperationResult> {
     const start = Date.now();
 
-    return this.writeQueue.add(async () => {
+    const result = await this.writeQueue.add(async () => {
       try {
         await this.ensureDirectory(dirname(destination));
         await fs.copyFile(source, destination);
@@ -234,7 +252,7 @@ export class AsyncFileManager {
 
         return {
           path: destination,
-          operation: 'write',
+          operation: 'write' as const,
           success: true,
           duration: Date.now() - start,
           size: stats.size,
@@ -245,13 +263,19 @@ export class AsyncFileManager {
 
         return {
           path: destination,
-          operation: 'write',
+          operation: 'write' as const,
           success: false,
           duration: Date.now() - start,
           error: error as Error,
         };
       }
     });
+
+    if (!result) {
+      throw new Error('Queue operation returned void');
+    }
+
+    return result;
   }
 
   async moveFile(source: string, destination: string): Promise<FileOperationResult> {

@@ -510,10 +510,10 @@ export class AuditManager extends EventEmitter {
         id: `req-${Date.now()}-${index}`,
         ...req,
         automatedCheck: {
+          ...req.automatedCheck,
           enabled: false,
           frequency: 'daily',
           query: '',
-          ...req.automatedCheck,
         },
       })),
       auditFrequency: frameworkData.auditFrequency,

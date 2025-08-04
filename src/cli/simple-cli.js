@@ -26,8 +26,9 @@ import { spawn } from 'child_process';
 import process from 'process';
 import readline from 'readline';
 import { getMainHelp, getCommandHelp, getStandardizedCommandHelp } from './help-text.js';
+import { getVersion } from '../utils/version.js';
 
-const VERSION = '2.0.0-alpha.73';
+const VERSION = getVersion();
 
 function printHelp(plain = false) {
   console.log(getMainHelp(plain));
@@ -3406,6 +3407,10 @@ For more information about SPARC methodology, see: https://github.com/ruvnet/cla
 `;
 }
 
-if (isMainModule(import.meta.url)) {
+// PKG compatible main module check
+const __filename = process.argv[1] || require.main?.filename || '';
+const moduleUrl = 'file://' + __filename;
+
+if (isMainModule(moduleUrl)) {
   await main();
 }

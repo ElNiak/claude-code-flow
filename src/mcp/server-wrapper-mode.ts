@@ -19,8 +19,19 @@ async function main() {
   } else {
     // Fall back to original server
     console.error('Starting Claude-Flow MCP in direct mode...');
-    const { runMCPServer } = await import('./server.js');
-    await runMCPServer();
+    const { MCPServer } = await import('./server.js');
+    const { EventBus } = await import('../core/event-bus.js');
+    const { Logger } = await import('../core/logger.js');
+
+    const eventBus = EventBus.getInstance();
+    const logger = Logger.getInstance();
+    const config = {
+      transport: 'stdio' as const,
+      debug: { enableTracing: true },
+    };
+
+    const server = new MCPServer(config, eventBus, logger);
+    await server.start();
   }
 }
 

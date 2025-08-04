@@ -24,7 +24,7 @@ export const workflowStartHook = {
   priority: 100,
   handler: async (
     payload: WorkflowHookPayload,
-    context: AgenticHookContext
+    context: AgenticHookContext,
   ): Promise<HookHandlerResult> => {
     const { workflowId, state } = payload;
 
@@ -35,12 +35,7 @@ export const workflowStartHook = {
     const learnings = await loadWorkflowLearnings(workflowId, context);
 
     // Select optimal provider based on history
-    const provider = await selectOptimalProvider(
-      workflowId,
-      state,
-      history,
-      context
-    );
+    const provider = await selectOptimalProvider(workflowId, state, history, context);
 
     // Initialize workflow state
     const enhancedState = {
@@ -89,7 +84,7 @@ export const workflowStepHook = {
   priority: 100,
   handler: async (
     payload: WorkflowHookPayload,
-    context: AgenticHookContext
+    context: AgenticHookContext,
   ): Promise<HookHandlerResult> => {
     const { workflowId, step, state } = payload;
 
@@ -103,18 +98,11 @@ export const workflowStepHook = {
     const stepStart = Date.now();
 
     // Check for step optimizations
-    const optimizations = await getStepOptimizations(
-      workflowId,
-      step,
-      context
-    );
+    const optimizations = await getStepOptimizations(workflowId, step, context);
 
     if (optimizations.length > 0) {
       // Apply step optimizations
-      const optimizedState = applyStepOptimizations(
-        state,
-        optimizations
-      );
+      const optimizedState = applyStepOptimizations(state, optimizations);
 
       sideEffects.push({
         type: 'log',
@@ -167,7 +155,7 @@ export const workflowDecisionHook = {
   priority: 90,
   handler: async (
     payload: WorkflowHookPayload,
-    context: AgenticHookContext
+    context: AgenticHookContext,
   ): Promise<HookHandlerResult> => {
     const { workflowId, decision, state } = payload;
 
@@ -178,30 +166,18 @@ export const workflowDecisionHook = {
     const sideEffects: SideEffect[] = [];
 
     // Enhance decision with historical data
-    const historicalOutcomes = await getDecisionOutcomes(
-      workflowId,
-      decision.point,
-      context
-    );
+    const historicalOutcomes = await getDecisionOutcomes(workflowId, decision.point, context);
 
     // Calculate confidence adjustments
-    const adjustedDecision = adjustDecisionConfidence(
-      decision,
-      historicalOutcomes
-    );
+    const adjustedDecision = adjustDecisionConfidence(decision, historicalOutcomes);
 
     // Generate alternative paths
-    const alternatives = await generateAlternativeDecisions(
-      workflowId,
-      decision,
-      state,
-      context
-    );
+    const alternatives = await generateAlternativeDecisions(workflowId, decision, state, context);
 
     if (alternatives.length > 0) {
       // Check if better alternative exists
-      const bestAlternative = alternatives.find(alt =>
-        alt.confidence > adjustedDecision.confidence * 1.2
+      const bestAlternative = alternatives.find(
+        (alt) => alt.confidence > adjustedDecision.confidence * 1.2,
       );
 
       if (bestAlternative) {
@@ -269,7 +245,7 @@ export const workflowCompleteHook = {
   priority: 100,
   handler: async (
     payload: WorkflowHookPayload,
-    context: AgenticHookContext
+    context: AgenticHookContext,
   ): Promise<HookHandlerResult> => {
     const { workflowId, state, metrics } = payload;
 
@@ -279,12 +255,7 @@ export const workflowCompleteHook = {
     const performance = calculateWorkflowPerformance(state, metrics);
 
     // Extract learnings from this execution
-    const learnings = await extractWorkflowLearnings(
-      workflowId,
-      state,
-      performance,
-      context
-    );
+    const learnings = await extractWorkflowLearnings(workflowId, state, performance, context);
 
     // Store learnings
     for (const learning of learnings) {
@@ -332,7 +303,7 @@ export const workflowCompleteHook = {
       state,
       performance,
       learnings,
-      context
+      context,
     );
 
     if (improvements.length > 0) {
@@ -367,7 +338,7 @@ export const workflowCompleteHook = {
           name: `workflow.performance.score.${workflowId}`,
           value: performance.score,
         },
-      }
+      },
     );
 
     return {
@@ -385,7 +356,7 @@ export const workflowErrorHook = {
   priority: 95,
   handler: async (
     payload: WorkflowHookPayload,
-    context: AgenticHookContext
+    context: AgenticHookContext,
   ): Promise<HookHandlerResult> => {
     const { workflowId, error, state } = payload;
 
@@ -396,12 +367,7 @@ export const workflowErrorHook = {
     const sideEffects: SideEffect[] = [];
 
     // Analyze error pattern
-    const errorPattern = await analyzeErrorPattern(
-      workflowId,
-      error,
-      state,
-      context
-    );
+    const errorPattern = await analyzeErrorPattern(workflowId, error, state, context);
 
     // Store error for learning
     sideEffects.push({
@@ -424,12 +390,7 @@ export const workflowErrorHook = {
     });
 
     // Check for recovery strategies
-    const recovery = await findRecoveryStrategy(
-      workflowId,
-      error,
-      errorPattern,
-      context
-    );
+    const recovery = await findRecoveryStrategy(workflowId, error, errorPattern, context);
 
     if (recovery) {
       sideEffects.push({
@@ -490,25 +451,25 @@ export const workflowErrorHook = {
 
 async function loadWorkflowHistory(
   workflowId: string,
-  context: AgenticHookContext
+  context: AgenticHookContext,
 ): Promise<any[]> {
   const historyKey = `workflow:history:${workflowId}`;
-  return await context.memory.cache.get(historyKey) || [];
+  return (await context.memory.cache.get(historyKey)) || [];
 }
 
 async function loadWorkflowLearnings(
   workflowId: string,
-  context: AgenticHookContext
+  context: AgenticHookContext,
 ): Promise<Learning[]> {
   const learningsKey = `workflow:learnings:${workflowId}`;
-  return await context.memory.cache.get(learningsKey) || [];
+  return (await context.memory.cache.get(learningsKey)) || [];
 }
 
 async function selectOptimalProvider(
   workflowId: string,
   state: any,
   history: any[],
-  context: AgenticHookContext
+  context: AgenticHookContext,
 ): Promise<string> {
   // Analyze historical performance by provider
   const providerStats = new Map<string, { success: number; total: number }>();
@@ -550,7 +511,7 @@ async function selectOptimalProvider(
 async function generateWorkflowPredictions(
   workflowId: string,
   state: any,
-  context: AgenticHookContext
+  context: AgenticHookContext,
 ): Promise<any> {
   // Generate predictions for workflow execution
   const predictions = {
@@ -563,16 +524,13 @@ async function generateWorkflowPredictions(
   // Load historical durations
   const history = await loadWorkflowHistory(workflowId, context);
   if (history.length > 0) {
-    const durations = history
-      .filter(h => h.duration)
-      .map(h => h.duration);
+    const durations = history.filter((h) => h.duration).map((h) => h.duration);
 
     if (durations.length > 0) {
-      predictions.estimatedDuration =
-        durations.reduce((a, b) => a + b, 0) / durations.length;
+      predictions.estimatedDuration = durations.reduce((a, b) => a + b, 0) / durations.length;
     }
 
-    const successes = history.filter(h => h.success).length;
+    const successes = history.filter((h) => h.success).length;
     predictions.successProbability = successes / history.length;
   }
 
@@ -582,43 +540,31 @@ async function generateWorkflowPredictions(
 async function getStepOptimizations(
   workflowId: string,
   step: string,
-  context: AgenticHookContext
+  context: AgenticHookContext,
 ): Promise<any[]> {
   // Get optimizations for specific step
   const optKey = `optimizations:${workflowId}:${step}`;
-  return await context.memory.cache.get(optKey) || [];
+  return (await context.memory.cache.get(optKey)) || [];
 }
 
-function applyStepOptimizations(
-  state: any,
-  optimizations: any[]
-): any {
+function applyStepOptimizations(state: any, optimizations: any[]): any {
   const optimizedState = { ...state };
 
   for (const opt of optimizations) {
     switch (opt.type) {
       case 'skip':
         if (opt.condition && opt.condition(state)) {
-          optimizedState.skipSteps = [
-            ...(optimizedState.skipSteps || []),
-            opt.target,
-          ];
+          optimizedState.skipSteps = [...(optimizedState.skipSteps || []), opt.target];
         }
         break;
 
       case 'parallel':
-        optimizedState.parallelSteps = [
-          ...(optimizedState.parallelSteps || []),
-          ...opt.steps,
-        ];
+        optimizedState.parallelSteps = [...(optimizedState.parallelSteps || []), ...opt.steps];
         break;
 
       case 'cache':
         optimizedState.useCache = true;
-        optimizedState.cacheKeys = [
-          ...(optimizedState.cacheKeys || []),
-          opt.key,
-        ];
+        optimizedState.cacheKeys = [...(optimizedState.cacheKeys || []), opt.key];
         break;
     }
   }
@@ -640,32 +586,29 @@ function summarizeState(state: any): any {
 async function getDecisionOutcomes(
   workflowId: string,
   decisionPoint: string,
-  context: AgenticHookContext
+  context: AgenticHookContext,
 ): Promise<any[]> {
   // Get historical outcomes for decision point
   const outcomeKey = `outcomes:${workflowId}:${decisionPoint}`;
-  return await context.memory.cache.get(outcomeKey) || [];
+  return (await context.memory.cache.get(outcomeKey)) || [];
 }
 
 function adjustDecisionConfidence(
   decision: WorkflowDecision,
-  historicalOutcomes: any[]
+  historicalOutcomes: any[],
 ): WorkflowDecision {
   if (historicalOutcomes.length === 0) {
     return decision;
   }
 
   // Calculate success rate for selected option
-  const relevantOutcomes = historicalOutcomes.filter(o =>
-    o.selected === decision.selected
-  );
+  const relevantOutcomes = historicalOutcomes.filter((o) => o.selected === decision.selected);
 
   if (relevantOutcomes.length === 0) {
     return decision;
   }
 
-  const successRate = relevantOutcomes.filter(o => o.success).length /
-    relevantOutcomes.length;
+  const successRate = relevantOutcomes.filter((o) => o.success).length / relevantOutcomes.length;
 
   // Adjust confidence based on historical success
   const adjustedConfidence = decision.confidence * 0.7 + successRate * 0.3;
@@ -689,7 +632,7 @@ async function generateAlternativeDecisions(
   workflowId: string,
   decision: WorkflowDecision,
   state: any,
-  context: AgenticHookContext
+  context: AgenticHookContext,
 ): Promise<WorkflowDecision[]> {
   // Generate alternative decision paths
   const alternatives: WorkflowDecision[] = [];
@@ -704,7 +647,7 @@ async function generateAlternativeDecisions(
       decision.point,
       option,
       state,
-      context
+      context,
     );
 
     if (altConfidence > 0.5) {
@@ -720,10 +663,7 @@ async function generateAlternativeDecisions(
   return alternatives;
 }
 
-function calculateWorkflowPerformance(
-  state: any,
-  metrics: any
-): any {
+function calculateWorkflowPerformance(state: any, metrics: any): any {
   const performance = {
     success: !state.error,
     score: 0,
@@ -757,7 +697,7 @@ async function extractWorkflowLearnings(
   workflowId: string,
   state: any,
   performance: any,
-  context: AgenticHookContext
+  context: AgenticHookContext,
 ): Promise<Learning[]> {
   const learnings: Learning[] = [];
 
@@ -800,7 +740,7 @@ async function generateImprovementSuggestions(
   state: any,
   performance: any,
   learnings: Learning[],
-  context: AgenticHookContext
+  context: AgenticHookContext,
 ): Promise<any[]> {
   const suggestions: any[] = [];
 
@@ -825,9 +765,7 @@ async function generateImprovementSuggestions(
   }
 
   // Suggest provider switch based on learnings
-  const providerLearnings = learnings.filter(l =>
-    l.type === 'success' && l.value.provider
-  );
+  const providerLearnings = learnings.filter((l) => l.type === 'success' && l.value.provider);
 
   if (providerLearnings.length > 0) {
     const providerScores = new Map<string, number>();
@@ -857,7 +795,7 @@ async function analyzeErrorPattern(
   workflowId: string,
   error: Error,
   state: any,
-  context: AgenticHookContext
+  context: AgenticHookContext,
 ): Promise<any> {
   // Analyze error to find patterns
   const pattern = {
@@ -867,13 +805,14 @@ async function analyzeErrorPattern(
       step: state.currentStep,
       provider: state.provider,
       errorMessage: error.message,
+      recurring: undefined as boolean | undefined,
+      occurrences: undefined as number | undefined,
     },
   };
 
   // Check for similar errors
-  const errorHistory = await context.memory.cache.get(
-    `errors:${workflowId}:${pattern.type}`
-  ) || [];
+  const errorHistory =
+    (await context.memory.cache.get(`errors:${workflowId}:${pattern.type}`)) || [];
 
   if (errorHistory.length > 5) {
     pattern.confidence = 0.9;
@@ -888,7 +827,7 @@ async function findRecoveryStrategy(
   workflowId: string,
   error: Error,
   errorPattern: any,
-  context: AgenticHookContext
+  context: AgenticHookContext,
 ): Promise<any | null> {
   // Find recovery strategy for error
   if (errorPattern.type === 'timeout') {
@@ -953,7 +892,7 @@ function applyRecoveryStrategy(state: any, recovery: any): any {
 
 function selectAlternativeProvider(
   currentProvider: string,
-  providerStats: Map<string, { success: number; total: number }>
+  providerStats: Map<string, { success: number; total: number }>,
 ): string {
   // Select alternative provider based on stats
   let bestAlternative = 'anthropic'; // Default fallback
@@ -977,23 +916,22 @@ async function calculateAlternativeConfidence(
   decisionPoint: string,
   option: string,
   state: any,
-  context: AgenticHookContext
+  context: AgenticHookContext,
 ): Promise<number> {
   // Calculate confidence for alternative option
   const outcomeKey = `outcomes:${workflowId}:${decisionPoint}:${option}`;
-  const outcomes = await context.memory.cache.get(outcomeKey) || [];
+  const outcomes = (await context.memory.cache.get(outcomeKey)) || [];
 
   if (outcomes.length === 0) {
     return 0.5; // Default confidence
   }
 
-  const successRate = outcomes.filter((o: any) => o.success).length /
-    outcomes.length;
+  const successRate = outcomes.filter((o: any) => o.success).length / outcomes.length;
 
   // Adjust for recency
   const recentOutcomes = outcomes.slice(-10);
-  const recentSuccessRate = recentOutcomes.filter((o: any) => o.success).length /
-    recentOutcomes.length;
+  const recentSuccessRate =
+    recentOutcomes.filter((o: any) => o.success).length / recentOutcomes.length;
 
   return successRate * 0.7 + recentSuccessRate * 0.3;
 }

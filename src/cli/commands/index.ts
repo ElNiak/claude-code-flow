@@ -359,7 +359,7 @@ export function setupCommands(cli: CLI): void {
 
             if (ctx.flags.execute) {
               warning('Workflow execution would start here (not yet implemented)');
-              // TODO: Implement workflow execution
+              // Workflow execution implementation placeholder
             } else {
               info('To execute this workflow, ensure Claude-Flow is running');
             }

@@ -13,13 +13,16 @@ import { LLMProvider, LLMProviderConfig, FallbackStrategy } from './types.js';
 export function createProviderManager(
   logger: ILogger,
   configManager: ConfigManager,
-  customConfig?: Partial<ProviderManagerConfig>
+  customConfig?: Partial<ProviderManagerConfig>,
 ): ProviderManager {
   const defaultConfig = getDefaultProviderConfig();
   const config = { ...defaultConfig, ...customConfig };
 
   // Load provider configs from environment
-  config.providers = loadProviderConfigs(config.providers);
+  config.providers = loadProviderConfigs(config.providers) as Record<
+    LLMProvider,
+    LLMProviderConfig
+  >;
 
   return new ProviderManager(logger, configManager, config);
 }
@@ -88,7 +91,7 @@ export function getDefaultProviderConfig(): ProviderManagerConfig {
         timeout: 120000, // Longer timeout for local models
         retryAttempts: 2,
       },
-    },
+    } as Record<LLMProvider, LLMProviderConfig>,
     fallbackStrategy: getDefaultFallbackStrategy(),
     loadBalancing: {
       enabled: false,
@@ -157,8 +160,8 @@ function getDefaultFallbackStrategy(): FallbackStrategy {
  * Load provider configurations from environment variables
  */
 function loadProviderConfigs(
-  configs: Record<LLMProvider, LLMProviderConfig>
-): Record<LLMProvider, LLMProviderConfig> {
+  configs: Partial<Record<LLMProvider, LLMProviderConfig>>,
+): Partial<Record<LLMProvider, LLMProviderConfig>> {
   const loaded = { ...configs };
 
   // Override with environment variables if present
@@ -170,10 +173,10 @@ function loadProviderConfigs(
       config.model = process.env[`${envPrefix}MODEL`] as any;
     }
     if (process.env[`${envPrefix}TEMPERATURE`]) {
-      config.temperature = parseFloat(process.env[`${envPrefix}TEMPERATURE`]);
+      config.temperature = parseFloat(process.env[`${envPrefix}TEMPERATURE`]!);
     }
     if (process.env[`${envPrefix}MAX_TOKENS`]) {
-      config.maxTokens = parseInt(process.env[`${envPrefix}MAX_TOKENS`], 10);
+      config.maxTokens = parseInt(process.env[`${envPrefix}MAX_TOKENS`]!, 10);
     }
     if (process.env[`${envPrefix}API_URL`]) {
       config.apiUrl = process.env[`${envPrefix}API_URL`];
@@ -245,7 +248,7 @@ export function getModelRecommendations(useCase: string): {
         reasoning: 'Excellent code generation with function calling support',
       },
     ],
-    'chat': [
+    chat: [
       {
         provider: 'anthropic',
         model: 'claude-3-sonnet-20240229',
@@ -257,7 +260,7 @@ export function getModelRecommendations(useCase: string): {
         reasoning: 'Fast and cost-effective for chat applications',
       },
     ],
-    'analysis': [
+    analysis: [
       {
         provider: 'anthropic',
         model: 'claude-3-opus-20240229',
@@ -269,7 +272,7 @@ export function getModelRecommendations(useCase: string): {
         reasoning: 'Good for data analysis with multimodal support',
       },
     ],
-    'local': [
+    local: [
       {
         provider: 'ollama',
         model: 'llama-2-13b',
@@ -281,7 +284,7 @@ export function getModelRecommendations(useCase: string): {
         reasoning: 'Fast local model with good performance',
       },
     ],
-    'budget': [
+    budget: [
       {
         provider: 'ollama',
         model: 'llama-2-7b',
@@ -305,7 +308,7 @@ export function estimateMonthlyCost(
   provider: LLMProvider,
   model: string,
   estimatedRequests: number,
-  avgTokensPerRequest: number
+  avgTokensPerRequest: number,
 ): {
   promptCost: number;
   completionCost: number;
@@ -328,8 +331,9 @@ export function estimateMonthlyCost(
   const promptTokens = avgTokensPerRequest * 0.7; // Assume 70% prompt
   const completionTokens = avgTokensPerRequest * 0.3; // Assume 30% completion
 
-  const promptCost = (promptTokens * estimatedRequests / 1000) * pricing.promptCostPer1k;
-  const completionCost = (completionTokens * estimatedRequests / 1000) * pricing.completionCostPer1k;
+  const promptCost = ((promptTokens * estimatedRequests) / 1000) * pricing.promptCostPer1k;
+  const completionCost =
+    ((completionTokens * estimatedRequests) / 1000) * pricing.completionCostPer1k;
 
   return {
     promptCost,
@@ -342,7 +346,10 @@ export function estimateMonthlyCost(
 /**
  * Get pricing for a specific provider and model
  */
-function getPricing(provider: LLMProvider, model: string): {
+function getPricing(
+  provider: LLMProvider,
+  model: string,
+): {
   promptCostPer1k: number;
   completionCostPer1k: number;
   currency: string;

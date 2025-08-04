@@ -4,7 +4,7 @@
 
 import type { MCPTool, MCPContext, AgentProfile, Task, MemoryEntry } from '../utils/types.js';
 import type { ILogger } from '../core/logger.js';
-import { getAvailableAgentTypes, getAgentTypeSchema } from '../constants/agent-types.js';
+import { getAllAgentTypes, getAgentTypeSchema } from '../constants/agent-types.js';
 import type { Permissions } from './auth.js';
 
 export interface ClaudeFlowToolContext extends MCPContext {
@@ -15,7 +15,7 @@ export interface ClaudeFlowToolContext extends MCPContext {
  * Enhance tool schema with dynamic agent types
  */
 async function enhanceToolWithAgentTypes(tool: MCPTool): Promise<MCPTool> {
-  const availableTypes = await getAvailableAgentTypes();
+  const availableTypes = await getAllAgentTypes();
 
   // Clone the tool to avoid modifying the original
   const enhancedTool = JSON.parse(JSON.stringify(tool));
@@ -29,7 +29,10 @@ async function enhanceToolWithAgentTypes(tool: MCPTool): Promise<MCPTool> {
         // Check if this is an agent type field
         if (key === 'type' || key === 'filterByType' || key === 'assignToAgentType') {
           const field = value as any;
-          if (field.type === 'string' && field.description?.includes('loaded dynamically from .claude/agents/')) {
+          if (
+            field.type === 'string' &&
+            field.description?.includes('loaded dynamically from .claude/agents/')
+          ) {
             field.enum = availableTypes;
           }
         }
@@ -89,9 +92,7 @@ export async function createClaudeFlowTools(logger: ILogger): Promise<MCPTool[]>
   ];
 
   // Enhance tools with dynamic agent types
-  const enhancedTools = await Promise.all(
-    tools.map(tool => enhanceToolWithAgentTypes(tool))
-  );
+  const enhancedTools = await Promise.all(tools.map((tool) => enhanceToolWithAgentTypes(tool)));
 
   return enhancedTools;
 }
@@ -106,7 +107,8 @@ function createSpawnAgentTool(logger: ILogger): MCPTool {
         type: {
           type: 'string',
           // Note: enum will be populated dynamically at runtime
-          description: 'Type of specialized agent to spawn (loaded dynamically from .claude/agents/)',
+          description:
+            'Type of specialized agent to spawn (loaded dynamically from .claude/agents/)',
         },
         name: {
           type: 'string',
@@ -333,7 +335,8 @@ function createCreateTaskTool(logger: ILogger): MCPTool {
         assignToAgentType: {
           type: 'string',
           // Note: enum will be populated dynamically at runtime
-          description: 'Type of specialized agent to assign the task to (loaded dynamically from .claude/agents/)',
+          description:
+            'Type of specialized agent to assign the task to (loaded dynamically from .claude/agents/)',
         },
         input: {
           type: 'object',

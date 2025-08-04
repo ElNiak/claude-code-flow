@@ -20,7 +20,7 @@ import {
   TaskSubmitOptions,
   AgentCapability,
   Task,
-  ConsensusProposal
+  ConsensusProposal,
 } from '../hive-mind/types.js';
 
 // Core infrastructure
@@ -29,11 +29,7 @@ import { ILogger } from '../core/logger.js';
 import { SystemError } from '../utils/errors.js';
 
 // Maestro types
-import {
-  MaestroWorkflowState,
-  WorkflowPhase,
-  MaestroSpec
-} from './maestro-types.js';
+import { MaestroWorkflowState, WorkflowPhase, MaestroSpec } from './maestro-types.js';
 
 export interface MaestroSwarmConfig {
   // Native hive mind configuration
@@ -54,7 +50,7 @@ export interface MaestroSwarmConfig {
  * Leverages specs-driven swarm topology for collective intelligence
  */
 export class MaestroSwarmCoordinator extends EventEmitter {
-  private hiveMind: HiveMind;
+  private hiveMind!: HiveMind;
   private maestroState: Map<string, MaestroWorkflowState> = new Map();
   private specsDirectory: string;
   private steeringDirectory: string;
@@ -62,12 +58,15 @@ export class MaestroSwarmCoordinator extends EventEmitter {
   constructor(
     private config: MaestroSwarmConfig,
     private eventBus: IEventBus,
-    private logger: ILogger
+    private logger: ILogger,
   ) {
     super();
 
-    this.specsDirectory = config.specsDirectory || join(process.cwd(), '.claude', 'claude-flow', 'maestro', 'specs');
-    this.steeringDirectory = config.steeringDirectory || join(process.cwd(), '.claude', 'claude-flow', 'maestro', 'steering');
+    this.specsDirectory =
+      config.specsDirectory || join(process.cwd(), '.claude', 'claude-flow', 'maestro', 'specs');
+    this.steeringDirectory =
+      config.steeringDirectory ||
+      join(process.cwd(), '.claude', 'claude-flow', 'maestro', 'steering');
 
     this.setupEventHandlers();
     this.logger.info('MaestroSwarmCoordinator initialized with native hive mind');
@@ -80,17 +79,17 @@ export class MaestroSwarmCoordinator extends EventEmitter {
     try {
       // Create specs-driven hive mind with native topology
       const hiveMindConfig: HiveMindConfig = {
+        ...this.config.hiveMindConfig,
         name: 'maestro-specs-driven-swarm',
         topology: 'specs-driven',
         queenMode: 'strategic',
         maxAgents: 8,
         consensusThreshold: 0.66,
         memoryTTL: 86400000, // 24 hours
-        autoSpawn: true,  // Automatically spawn topology agents
+        autoSpawn: true, // Automatically spawn topology agents
         enableConsensus: this.config.enableConsensusValidation,
         enableMemory: true,
         enableCommunication: true,
-        ...this.config.hiveMindConfig
       };
 
       // Initialize native hive mind
@@ -106,9 +105,10 @@ export class MaestroSwarmCoordinator extends EventEmitter {
       this.emit('initialized', { swarmId });
 
       return swarmId;
-
     } catch (error) {
-      this.logger.error(`Failed to initialize maestro swarm: ${error instanceof Error ? error.message : String(error)}`);
+      this.logger.error(
+        `Failed to initialize maestro swarm: ${error instanceof Error ? error.message : String(error)}`,
+      );
       throw error;
     }
   }
@@ -123,15 +123,17 @@ export class MaestroSwarmCoordinator extends EventEmitter {
     // Initialize workflow state
     const workflowState: MaestroWorkflowState = {
       featureName,
-      currentPhase: 'Requirements Clarification' as WorkflowPhase,
+      currentPhase: 'Requirements Clarification' as unknown as unknown as WorkflowPhase,
       currentTaskIndex: 0,
       status: 'running',
       lastActivity: new Date(),
-      history: [{
-        phase: 'Requirements Clarification' as WorkflowPhase,
-        status: 'in-progress',
-        timestamp: new Date()
-      }]
+      history: [
+        {
+          phase: 'Requirements Clarification' as unknown as unknown as WorkflowPhase,
+          status: 'in-progress',
+          timestamp: new Date(),
+        },
+      ],
     };
 
     this.maestroState.set(featureName, workflowState);
@@ -141,13 +143,17 @@ export class MaestroSwarmCoordinator extends EventEmitter {
       description: `Generate comprehensive requirements for feature: ${featureName}`,
       priority: 'high',
       strategy: 'sequential',
-      requiredCapabilities: ['requirements_analysis' as AgentCapability, 'user_story_creation' as AgentCapability, 'acceptance_criteria' as AgentCapability],
+      requiredCapabilities: [
+        'requirements_analysis' as AgentCapability,
+        'user_story_creation' as AgentCapability,
+        'acceptance_criteria' as AgentCapability,
+      ],
       metadata: {
         maestroFeature: featureName,
         maestroPhase: 'Requirements Clarification',
         initialRequest,
-        outputFile: join(featurePath, 'requirements.md')
-      }
+        outputFile: join(featurePath, 'requirements.md'),
+      },
     };
 
     // Use native SwarmOrchestrator through HiveMind
@@ -175,16 +181,20 @@ export class MaestroSwarmCoordinator extends EventEmitter {
     const designTask: TaskSubmitOptions = {
       description: `Generate comprehensive technical design for ${featureName}`,
       priority: 'high',
-      strategy: 'parallel',  // Multiple design_architect agents work in parallel
-      requiredCapabilities: ['system_design' as AgentCapability, 'architecture' as AgentCapability, 'specs_driven_design' as AgentCapability],
+      strategy: 'parallel', // Multiple design_architect agents work in parallel
+      requiredCapabilities: [
+        'system_design' as AgentCapability,
+        'architecture' as AgentCapability,
+        'specs_driven_design' as AgentCapability,
+      ],
       requireConsensus: this.config.enableConsensusValidation,
-      maxAgents: 2,  // Use both design_architect agents
+      maxAgents: 2, // Use both design_architect agents
       metadata: {
         maestroFeature: featureName,
         maestroPhase: 'Research & Design',
         requirements: requirementsContent,
-        outputFile: join(featurePath, 'design.md')
-      }
+        outputFile: join(featurePath, 'design.md'),
+      },
     };
 
     // Native SwarmOrchestrator handles parallel execution and consensus
@@ -192,12 +202,12 @@ export class MaestroSwarmCoordinator extends EventEmitter {
     await this.waitForTaskCompletion(task.id, 300000); // 5 minutes
 
     // Update workflow state
-    state.currentPhase = 'Research & Design' as WorkflowPhase;
+    state.currentPhase = 'Research & Design' as unknown as WorkflowPhase;
     state.lastActivity = new Date();
     state.history.push({
-      phase: 'Research & Design' as WorkflowPhase,
+      phase: 'Research & Design' as unknown as WorkflowPhase,
       status: 'completed',
-      timestamp: new Date()
+      timestamp: new Date(),
     });
 
     this.logger.info(`Generated design for '${featureName}' using native swarm consensus`);
@@ -222,25 +232,28 @@ export class MaestroSwarmCoordinator extends EventEmitter {
       description: `Generate implementation task breakdown for ${featureName}`,
       priority: 'high',
       strategy: 'sequential',
-      requiredCapabilities: ['task_management' as AgentCapability, 'workflow_orchestration' as AgentCapability],
+      requiredCapabilities: [
+        'task_management' as AgentCapability,
+        'workflow_orchestration' as AgentCapability,
+      ],
       metadata: {
         maestroFeature: featureName,
         maestroPhase: 'Implementation Planning',
         designContent,
-        outputFile: join(featurePath, 'tasks.md')
-      }
+        outputFile: join(featurePath, 'tasks.md'),
+      },
     };
 
     const task = await this.hiveMind.submitTask(taskPlanningTask);
     await this.waitForTaskCompletion(task.id, 180000); // 3 minutes
 
     // Update workflow state
-    state.currentPhase = 'Implementation Planning' as WorkflowPhase;
+    state.currentPhase = 'Implementation Planning' as unknown as WorkflowPhase;
     state.lastActivity = new Date();
     state.history.push({
-      phase: 'Implementation Planning' as WorkflowPhase,
+      phase: 'Implementation Planning' as unknown as WorkflowPhase,
       status: 'completed',
-      timestamp: new Date()
+      timestamp: new Date(),
     });
 
     this.logger.info(`Generated tasks for '${featureName}' using native swarm planner`);
@@ -261,27 +274,34 @@ export class MaestroSwarmCoordinator extends EventEmitter {
     const tasksContent = await readFile(tasksPath, 'utf8');
 
     // Parse task description
-    const taskLines = tasksContent.split('\n').filter(line => line.startsWith('- [ ]') || line.startsWith('- [x]'));
+    const taskLines = tasksContent
+      .split('\n')
+      .filter((line) => line.startsWith('- [ ]') || line.startsWith('- [x]'));
     if (taskId < 1 || taskId > taskLines.length) {
       throw new SystemError(`Invalid task ID ${taskId} for feature '${featureName}'`);
     }
 
-    const taskDescription = taskLines[taskId - 1].substring(taskLines[taskId - 1].indexOf(']') + 2).trim();
+    const taskDescription = taskLines[taskId - 1]
+      .substring(taskLines[taskId - 1].indexOf(']') + 2)
+      .trim();
 
     // Submit implementation task to native coders
     const implementationTask: TaskSubmitOptions = {
       description: `Implement task: ${taskDescription}`,
       priority: 'high',
-      strategy: 'parallel',  // Multiple implementation_coder agents can work
-      requiredCapabilities: ['code_generation' as AgentCapability, 'implementation' as AgentCapability],
+      strategy: 'parallel', // Multiple implementation_coder agents can work
+      requiredCapabilities: [
+        'code_generation' as AgentCapability,
+        'implementation' as AgentCapability,
+      ],
       maxAgents: 2,
       metadata: {
         maestroFeature: featureName,
         maestroPhase: 'Task Execution',
         taskId,
         taskDescription,
-        steeringContext: await this.getSteeringContext()
-      }
+        steeringContext: await this.getSteeringContext(),
+      },
     };
 
     const task = await this.hiveMind.submitTask(implementationTask);
@@ -290,12 +310,12 @@ export class MaestroSwarmCoordinator extends EventEmitter {
     // Mark task as completed in tasks.md
     const updatedTasksContent = tasksContent.replace(
       taskLines[taskId - 1],
-      taskLines[taskId - 1].replace('- [ ]', '- [x]')
+      taskLines[taskId - 1].replace('- [ ]', '- [x]'),
     );
     await writeFile(tasksPath, updatedTasksContent, 'utf8');
 
     // Update workflow state
-    state.currentPhase = 'Task Execution' as WorkflowPhase;
+    state.currentPhase = 'Task Execution' as unknown as WorkflowPhase;
     state.currentTaskIndex = taskId;
     state.lastActivity = new Date();
 
@@ -320,26 +340,30 @@ export class MaestroSwarmCoordinator extends EventEmitter {
     const reviewTask: TaskSubmitOptions = {
       description: `Review implementation quality for ${featureName}`,
       priority: 'high',
-      strategy: 'sequential',  // Sequential validation for consistency
-      requiredCapabilities: ['code_review' as AgentCapability, 'quality_assurance' as AgentCapability, 'testing' as AgentCapability],
+      strategy: 'sequential', // Sequential validation for consistency
+      requiredCapabilities: [
+        'code_review' as AgentCapability,
+        'quality_assurance' as AgentCapability,
+        'testing' as AgentCapability,
+      ],
       metadata: {
         maestroFeature: featureName,
         maestroPhase: 'Quality Gates',
         tasksContent,
-        steeringContext: await this.getSteeringContext()
-      }
+        steeringContext: await this.getSteeringContext(),
+      },
     };
 
     const task = await this.hiveMind.submitTask(reviewTask);
     await this.waitForTaskCompletion(task.id, 300000); // 5 minutes
 
     // Update workflow state
-    state.currentPhase = 'Quality Gates' as WorkflowPhase;
+    state.currentPhase = 'Quality Gates' as unknown as WorkflowPhase;
     state.lastActivity = new Date();
     state.history.push({
-      phase: 'Quality Gates' as WorkflowPhase,
+      phase: 'Quality Gates' as unknown as WorkflowPhase,
       status: 'completed',
-      timestamp: new Date()
+      timestamp: new Date(),
     });
 
     this.logger.info(`Completed quality review for '${featureName}' using native quality_reviewer`);
@@ -364,7 +388,7 @@ export class MaestroSwarmCoordinator extends EventEmitter {
           action: 'approve_phase',
           featureName,
           currentPhase: state.currentPhase,
-          details: `Approve completion of ${state.currentPhase} phase for ${featureName}`
+          details: `Approve completion of ${state.currentPhase} phase for ${featureName}`,
         },
         requiredThreshold: 0.66,
         deadline: new Date(Date.now() + 300000), // 5 minutes
@@ -372,8 +396,8 @@ export class MaestroSwarmCoordinator extends EventEmitter {
         metadata: {
           type: 'phase_approval',
           featureName,
-          phase: state.currentPhase
-        }
+          phase: state.currentPhase,
+        },
       };
 
       // Submit for consensus validation
@@ -391,21 +415,23 @@ export class MaestroSwarmCoordinator extends EventEmitter {
       'Requirements Clarification': 'Research & Design',
       'Research & Design': 'Implementation Planning',
       'Implementation Planning': 'Task Execution',
-      'Task Execution': 'Completed'
+      'Task Execution': 'Completed',
     };
 
-    const nextPhase = phaseProgression[state.currentPhase];
+    const nextPhase = phaseProgression[state.currentPhase as string];
     if (nextPhase) {
-      state.currentPhase = nextPhase as WorkflowPhase;
+      state.currentPhase = nextPhase as unknown as WorkflowPhase;
       state.lastActivity = new Date();
       state.history.push({
-        phase: nextPhase as WorkflowPhase,
+        phase: nextPhase as unknown as WorkflowPhase,
         status: 'approved',
-        timestamp: new Date()
+        timestamp: new Date(),
       });
     }
 
-    this.logger.info(`Approved phase transition for '${featureName}': ${state.currentPhase} -> ${nextPhase}`);
+    this.logger.info(
+      `Approved phase transition for '${featureName}': ${state.currentPhase} -> ${nextPhase}`,
+    );
     this.eventBus.emit('maestro:phase_approved', { featureName, nextPhase });
   }
 
@@ -424,19 +450,19 @@ export class MaestroSwarmCoordinator extends EventEmitter {
       throw new SystemError('Steering integration is disabled');
     }
 
-    // Store in native hive mind memory instead of files
-    await this.hiveMind.memory.store(`steering/${domain}`, {
+    // Store in native hive mind memory instead of files (using type casting for private access)
+    await (this.hiveMind as any).memory.store(`steering/${domain}`, {
       content,
       domain,
       lastUpdated: new Date(),
-      maintainer: 'steering_documenter'
+      maintainer: 'steering_documenter',
     });
 
-    // Notify all agents through native communication
-    await this.hiveMind.communication.broadcast({
+    // Notify all agents through native communication (using type casting for private access)
+    await (this.hiveMind as any).communication.broadcast({
       type: 'steering_update',
       domain,
-      content: content.substring(0, 200) + '...' // Summary for notification
+      content: content.substring(0, 200) + '...', // Summary for notification
     });
 
     this.logger.info(`Created steering document for '${domain}' in swarm memory`);
@@ -451,19 +477,20 @@ export class MaestroSwarmCoordinator extends EventEmitter {
     }
 
     try {
-      // Retrieve all steering documents from swarm memory
-      const steeringKeys = await this.hiveMind.memory.search('steering/*');
+      // Retrieve all steering documents from swarm memory (using type casting for private access)
+      const steeringKeys = await (this.hiveMind as any).memory.search('steering/*');
       const steeringDocs = await Promise.all(
-        steeringKeys.map(key => this.hiveMind.memory.retrieve(key))
+        steeringKeys.map((key: string) => (this.hiveMind as any).memory.retrieve(key)),
       );
 
       return steeringDocs
-        .filter(doc => doc)
-        .map(doc => `## ${doc.domain}\n${doc.content}`)
+        .filter((doc) => doc)
+        .map((doc) => `## ${doc.domain}\n${doc.content}`)
         .join('\n\n---\n\n');
-
     } catch (error) {
-      this.logger.warn(`Failed to retrieve steering context: ${error instanceof Error ? error.message : String(error)}`);
+      this.logger.warn(
+        `Failed to retrieve steering context: ${error instanceof Error ? error.message : String(error)}`,
+      );
       return 'Steering context temporarily unavailable.';
     }
   }
@@ -474,17 +501,17 @@ export class MaestroSwarmCoordinator extends EventEmitter {
   private async initializeSteeringMemory(): Promise<void> {
     // Initialize default steering documents in memory
     const defaultSteering = {
-      'product': 'Focus on user value and clear requirements specification.',
-      'tech': 'Follow clean architecture patterns and maintainable code practices.',
-      'workflow': 'Use specs-driven development with clear phase progression.'
+      product: 'Focus on user value and clear requirements specification.',
+      tech: 'Follow clean architecture patterns and maintainable code practices.',
+      workflow: 'Use specs-driven development with clear phase progression.',
     };
 
     for (const [domain, content] of Object.entries(defaultSteering)) {
-      await this.hiveMind.memory.store(`steering/${domain}`, {
+      await (this.hiveMind as any).memory.store(`steering/${domain}`, {
         content,
         domain,
         lastUpdated: new Date(),
-        maintainer: 'system'
+        maintainer: 'system',
       });
     }
 
@@ -542,7 +569,7 @@ export class MaestroSwarmCoordinator extends EventEmitter {
             resolve({
               achieved: true,
               finalRatio: status.currentRatio,
-              reason: 'Consensus achieved'
+              reason: 'Consensus achieved',
             });
           } else if (status.status === 'failed') {
             clearTimeout(timeout);
@@ -550,7 +577,7 @@ export class MaestroSwarmCoordinator extends EventEmitter {
             resolve({
               achieved: false,
               finalRatio: status.currentRatio,
-              reason: 'Consensus failed'
+              reason: 'Consensus failed',
             });
           }
         } catch (error) {

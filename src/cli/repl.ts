@@ -686,14 +686,16 @@ async function handleAgentSpawn(args: string[]): Promise<void> {
   const type = args[0];
   const name =
     args[1] ||
-    (await inquirer.prompt([
-      {
-        type: 'input',
-        name: 'name',
-        message: 'Agent name:',
-        default: `${type}-agent`,
-      },
-    ])).name;
+    (
+      await inquirer.prompt([
+        {
+          type: 'input',
+          name: 'name',
+          message: 'Agent name:',
+          default: `${type}-agent`,
+        },
+      ])
+    ).name;
 
   console.log(chalk.yellow('Spawning agent...'));
 
@@ -851,7 +853,7 @@ async function showTaskStatus(taskId: string): Promise<void> {
   console.log(`${chalk.white('ID:')} ${taskId}`);
   console.log(`${chalk.white('Type:')} research`);
   console.log(`${chalk.white('Status:')} ${formatStatusIndicator('running')} running`);
-  console.log(`${chalk.white('Progress:')} ${formatProgressBar(65, 100, 20)} 65%`);
+  console.log(`${chalk.white('Progress:')} ${formatProgressBar(65, 20)} 65%`);
   console.log(`${chalk.white('Agent:')} agent-002`);
   console.log(`${chalk.white('Started:')} ${new Date().toLocaleTimeString()}`);
 }
@@ -969,14 +971,16 @@ async function handleSessionSave(args: string[]): Promise<void> {
   const name =
     args.length > 0
       ? args.join(' ')
-      : (await inquirer.prompt([
-          {
-            type: 'input',
-            name: 'name',
-            message: 'Session name:',
-            default: `session-${new Date().toISOString().split('T')[0]}`,
-          },
-        ])).name;
+      : (
+          await inquirer.prompt([
+            {
+              type: 'input',
+              name: 'name',
+              message: 'Session name:',
+              default: `session-${new Date().toISOString().split('T')[0]}`,
+            },
+          ])
+        ).name;
 
   console.log(chalk.yellow('Saving session...'));
   await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -1058,7 +1062,7 @@ async function showWorkflowList(): Promise<void> {
 
   for (const workflow of workflows) {
     const statusIcon = formatStatusIndicator(workflow.status);
-    const progressBar = formatProgressBar(workflow.progress, 100, 15);
+    const progressBar = formatProgressBar(workflow.progress, 15);
 
     table.push([
       chalk.gray(workflow.id),
@@ -1091,7 +1095,7 @@ async function showWorkflowStatus(workflowId: string): Promise<void> {
   console.log(`${chalk.white('ID:')} ${workflowId}`);
   console.log(`${chalk.white('Name:')} Research Pipeline`);
   console.log(`${chalk.white('Status:')} ${formatStatusIndicator('running')} running`);
-  console.log(`${chalk.white('Progress:')} ${formatProgressBar(75, 100, 20)} 75%`);
+  console.log(`${chalk.white('Progress:')} ${formatProgressBar(75, 20)} 75%`);
   console.log(`${chalk.white('Tasks:')} 6/8 completed`);
   console.log(`${chalk.white('Started:')} ${new Date().toLocaleTimeString()}`);
 }

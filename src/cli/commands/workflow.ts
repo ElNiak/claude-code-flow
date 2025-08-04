@@ -215,11 +215,8 @@ async function listWorkflows(options: any): Promise<void> {
     for (const workflow of workflows) {
       const statusIcon = formatStatusIndicator(workflow.status);
       const progress = `${workflow.progress.completed}/${workflow.progress.total}`;
-      const progressBar = formatProgressBar(
-        workflow.progress.completed,
-        workflow.progress.total,
-        10,
-      );
+      const progressPercentage = (workflow.progress.completed / workflow.progress.total) * 100;
+      const progressBar = formatProgressBar(progressPercentage, 10);
       const duration = workflow.completedAt
         ? formatDuration(workflow.completedAt.getTime() - workflow.startedAt.getTime())
         : formatDuration(Date.now() - workflow.startedAt.getTime());
@@ -668,12 +665,8 @@ function displayWorkflowStatus(execution: WorkflowExecution): void {
   console.log(`${chalk.white('Started:')} ${execution.startedAt.toLocaleString()}`);
   console.log(`${chalk.white('Duration:')} ${duration}`);
 
-  const progressBar = formatProgressBar(
-    execution.progress.completed,
-    execution.progress.total,
-    40,
-    'Progress',
-  );
+  const progressPercent = (execution.progress.completed / execution.progress.total) * 100;
+  const progressBar = formatProgressBar(progressPercent, 40);
   console.log(`${progressBar} ${execution.progress.completed}/${execution.progress.total}`);
 
   if (execution.progress.failed > 0) {
@@ -713,7 +706,8 @@ function displayWorkflowStatus(execution: WorkflowExecution): void {
 
 function displayWorkflowProgress(execution: WorkflowExecution): void {
   const progress = `${execution.progress.completed}/${execution.progress.total}`;
-  const progressBar = formatProgressBar(execution.progress.completed, execution.progress.total, 30);
+  const progressPercentage = (execution.progress.completed / execution.progress.total) * 100;
+  const progressBar = formatProgressBar(progressPercentage, 30);
 
   console.log(`\r${progressBar} ${progress} tasks completed`);
 }

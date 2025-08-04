@@ -2,7 +2,9 @@ import { dirname, join, resolve } from 'path';
 import { fileURLToPath } from 'url';
 import { existsSync, readFileSync } from 'fs';
 
-const __filename = fileURLToPath(import.meta.url);
+// CJS/ESM compatibility for __filename and __dirname
+// PKG-compatible version without import.meta evaluation
+const __filename = process.argv[1] || require.main?.filename || '';
 const __dirname = dirname(__filename);
 
 export function getClaudeFlowRoot(): string {

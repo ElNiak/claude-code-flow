@@ -18,11 +18,10 @@ export const psCommand = new Command('ps')
     const sessionManager = new HiveMindSessionManager();
 
     try {
+      const allSessions = await sessionManager.getActiveSessionsWithProcessInfo();
       const sessions = options.all
-        ? sessionManager.getActiveSessionsWithProcessInfo()
-        : sessionManager
-            .getActiveSessionsWithProcessInfo()
-            .filter((s: any) => s.status === 'active' || s.status === 'paused');
+        ? allSessions
+        : allSessions.filter((s: any) => s.status === 'active' || s.status === 'paused');
 
       if (sessions.length === 0) {
         console.log(chalk.yellow('No sessions found'));

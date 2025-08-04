@@ -207,9 +207,9 @@ export class HealthCheckManager {
       }
 
       // Try to call health check method if available
-      if (typeof component.healthCheck === 'function') {
+      if (component && typeof (component as any).healthCheck === 'function') {
         const result = await Promise.race([
-          component.healthCheck(),
+          (component as any).healthCheck(),
           new Promise((_, reject) =>
             setTimeout(() => reject(new Error('Health check timeout')), this.config.timeout),
           ),
@@ -256,13 +256,13 @@ export class HealthCheckManager {
       let queuedTasks = 0;
       let completedTasks = 0;
 
-      if (agentManager && typeof agentManager.getMetrics === 'function') {
-        const agentMetrics = await agentManager.getMetrics();
+      if (agentManager && typeof (agentManager as any).getMetrics === 'function') {
+        const agentMetrics = await (agentManager as any).getMetrics();
         activeAgents = agentMetrics.activeAgents || 0;
       }
 
-      if (taskEngine && typeof taskEngine.getMetrics === 'function') {
-        const taskMetrics = await taskEngine.getMetrics();
+      if (taskEngine && typeof (taskEngine as any).getMetrics === 'function') {
+        const taskMetrics = await (taskEngine as any).getMetrics();
         activeTasks = taskMetrics.activeTasks || 0;
         queuedTasks = taskMetrics.queuedTasks || 0;
         completedTasks = taskMetrics.completedTasks || 0;
@@ -433,7 +433,8 @@ export class HealthCheckManager {
    */
   private setupEventHandlers(): void {
     // Listen for component status changes
-    this.eventBus.on('component:status:updated', (status: ComponentStatus) => {
+    this.eventBus.on('component:status:updated', (data: unknown) => {
+      const status = data as ComponentStatus;
       if (status.status === 'unhealthy') {
         this.logger.warn(`Component ${status.component} became unhealthy: ${status.message}`);
       }

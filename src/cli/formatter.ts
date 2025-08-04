@@ -1,156 +1,219 @@
 /**
- * Output formatting utilities for CLI
+ * CLI output formatting utilities
  */
 
-import chalk from 'chalk';
 import Table from 'cli-table3';
-// Using cli-table3 instead of @cliffy/table for Node.js compatibility
-import type { AgentProfile, Task, MemoryEntry, HealthStatus } from '../utils/types.js';
-import * as process from 'process';
+import chalk from 'chalk';
 
-/**
- * Formats an error for display
- */
-export function formatError(error: unknown): string {
-  if (error instanceof Error) {
-    let message = error instanceof Error ? error.message : String(error);
+export interface Agent {
+  id: string;
+  name: string;
+  type: string;
+  priority?: number; // Make priority optional
+  maxConcurrentTasks: number;
+  status?: string;
+  lastActivity?: Date;
+  capabilities?: string[];
+  metadata?: Record<string, unknown>;
+}
 
-    if ('code' in error) {
-      message = `[${(error as any).code}] ${message}`;
-    }
+export interface Task {
+  id: string;
+  name: string;
+  type: string;
+  status: string;
+  priority: number;
+  assignedAgent?: string;
+  createdAt: Date;
+  startedAt?: Date;
+  completedAt?: Date;
+  error?: string;
+}
 
-    if ('details' in error && (error as any).details) {
-      message += '\n' + chalk.gray('Details: ' + JSON.stringify((error as any).details, null, 2));
-    }
-
-    return message;
-  }
-
-  return String(error);
+export interface SwarmMetrics {
+  totalAgents: number;
+  activeAgents: number;
+  totalTasks: number;
+  completedTasks: number;
+  failedTasks: number;
+  averageTaskDuration: number;
+  systemLoad: number;
 }
 
 /**
- * Formats an agent profile for display
+ * Format agent list as a table
  */
-export function formatAgent(agent: AgentProfile): string {
-  const lines = [
-    chalk.cyan.bold(`Agent: ${agent.name}`),
-    chalk.gray(`ID: ${agent.id}`),
-    chalk.gray(`Type: ${agent.type}`),
-    chalk.gray(`Priority: ${agent.priority}`),
-    chalk.gray(`Max Tasks: ${agent.maxConcurrentTasks}`),
-    chalk.gray(`Capabilities: ${agent.capabilities.join(', ')}`),
-  ];
-
-  return lines.join('\n');
-}
-
-/**
- * Formats a task for display
- */
-export function formatTask(task: Task): string {
-  const statusColor =
-    {
-      pending: chalk.gray,
-      queued: chalk.yellow,
-      assigned: chalk.blue,
-      running: chalk.cyan,
-      completed: chalk.green,
-      failed: chalk.red,
-      cancelled: chalk.magenta,
-    }[task.status] || chalk.white;
-
-  const lines = [
-    chalk.yellow.bold(`Task: ${task.description}`),
-    chalk.gray(`ID: ${task.id}`),
-    chalk.gray(`Type: ${task.type}`),
-    statusColor(`Status: ${task.status}`),
-    chalk.gray(`Priority: ${task.priority}`),
-  ];
-
-  if (task.assignedAgent) {
-    lines.push(chalk.gray(`Assigned to: ${task.assignedAgent}`));
-  }
-
-  if (task.dependencies.length > 0) {
-    lines.push(chalk.gray(`Dependencies: ${task.dependencies.join(', ')}`));
-  }
-
-  if (task.error) {
-    lines.push(chalk.red(`Error: ${task.error}`));
-  }
-
-  return lines.join('\n');
-}
-
-/**
- * Formats a memory entry for display
- */
-export function formatMemoryEntry(entry: MemoryEntry): string {
-  const lines = [
-    chalk.magenta.bold(`Memory Entry: ${entry.type}`),
-    chalk.gray(`ID: ${entry.id}`),
-    chalk.gray(`Agent: ${entry.agentId}`),
-    chalk.gray(`Session: ${entry.sessionId}`),
-    chalk.gray(`Timestamp: ${entry.timestamp.toISOString()}`),
-    chalk.gray(`Version: ${entry.version}`),
-  ];
-
-  if (entry.tags.length > 0) {
-    lines.push(chalk.gray(`Tags: ${entry.tags.join(', ')}`));
-  }
-
-  lines.push('', chalk.white('Content:'), entry.content);
-
-  return lines.join('\n');
-}
-
-/**
- * Formats health status for display
- */
-export function formatHealthStatus(health: HealthStatus): string {
-  const statusColor = {
-    healthy: chalk.green,
-    degraded: chalk.yellow,
-    unhealthy: chalk.red,
-  }[health.status];
-
-  const lines = [
-    statusColor.bold(`System Status: ${health.status.toUpperCase()}`),
-    chalk.gray(`Checked at: ${health.timestamp.toISOString()}`),
-    '',
-    chalk.cyan.bold('Components:'),
-  ];
-
-  for (const [name, component] of Object.entries(health.components)) {
-    const compColor = {
-      healthy: chalk.green,
-      degraded: chalk.yellow,
-      unhealthy: chalk.red,
-    }[component.status];
-
-    lines.push(compColor(`  ${name}: ${component.status}`));
-
-    if (component.error) {
-      lines.push(chalk.red(`    Error: ${component.error}`));
-    }
-
-    if (component.metrics) {
-      for (const [metric, value] of Object.entries(component.metrics)) {
-        lines.push(chalk.gray(`    ${metric}: ${value}`));
-      }
-    }
-  }
-
-  return lines.join('\n');
-}
-
-/**
- * Creates a table for agent listing
- */
-export function createAgentTable(agents: AgentProfile[]): any {
+export function formatAgentTable(agents: Agent[]): string {
   const table = new Table({
-    head: ['ID', 'Name', 'Type', 'Priority', 'Max Tasks'],
+    head: [
+      chalk.cyan('ID'),
+      chalk.cyan('Name'),
+      chalk.cyan('Type'),
+      chalk.cyan('Priority'),
+      chalk.cyan('Max Tasks'),
+      chalk.cyan('Status'),
+      chalk.cyan('Last Activity'),
+    ],
+    colWidths: [15, 20, 15, 10, 10, 12, 15],
+  });
+
+  for (const agent of agents) {
+    const status = agent.status || 'unknown';
+    const statusColor = getStatusColor(status);
+    const lastActivity = agent.lastActivity ? formatRelativeTime(agent.lastActivity) : 'never';
+
+    table.push([
+      agent.id.substring(0, 12) + '...',
+      agent.name,
+      agent.type,
+      (agent.priority || 5).toString(), // Provide default value if undefined
+      agent.maxConcurrentTasks.toString(),
+      statusColor(status),
+      lastActivity,
+    ]);
+  }
+
+  return table.toString();
+}
+
+/**
+ * Format task list as a table
+ */
+export function formatTaskTable(tasks: Task[]): string {
+  const table = new Table({
+    head: [
+      chalk.cyan('ID'),
+      chalk.cyan('Name'),
+      chalk.cyan('Type'),
+      chalk.cyan('Status'),
+      chalk.cyan('Priority'),
+      chalk.cyan('Assigned To'),
+      chalk.cyan('Created'),
+      chalk.cyan('Duration'),
+    ],
+    colWidths: [15, 20, 15, 12, 10, 15, 12, 10],
+  });
+
+  for (const task of tasks) {
+    const statusColor = getStatusColor(task.status);
+    const duration = calculateTaskDuration(task);
+    const assignedAgent = task.assignedAgent
+      ? task.assignedAgent.substring(0, 12) + '...'
+      : 'unassigned';
+
+    table.push([
+      task.id.substring(0, 12) + '...',
+      task.name,
+      task.type,
+      statusColor(task.status),
+      task.priority.toString(),
+      assignedAgent,
+      formatRelativeTime(task.createdAt),
+      duration,
+    ]);
+  }
+
+  return table.toString();
+}
+
+/**
+ * Format swarm metrics
+ */
+export function formatSwarmMetrics(metrics: SwarmMetrics): string {
+  const completionRate =
+    metrics.totalTasks > 0
+      ? ((metrics.completedTasks / metrics.totalTasks) * 100).toFixed(1)
+      : '0.0';
+
+  const failureRate =
+    metrics.totalTasks > 0 ? ((metrics.failedTasks / metrics.totalTasks) * 100).toFixed(1) : '0.0';
+
+  const systemLoadColor =
+    metrics.systemLoad > 80 ? chalk.red : metrics.systemLoad > 60 ? chalk.yellow : chalk.green;
+
+  return `
+${chalk.bold('📊 Swarm Metrics')}
+${chalk.gray('─'.repeat(50))}
+
+${chalk.cyan('Agents:')}
+  • Total: ${chalk.white(metrics.totalAgents)}
+  • Active: ${chalk.green(metrics.activeAgents)}
+  • Idle: ${chalk.yellow(metrics.totalAgents - metrics.activeAgents)}
+
+${chalk.cyan('Tasks:')}
+  • Total: ${chalk.white(metrics.totalTasks)}
+  • Completed: ${chalk.green(metrics.completedTasks)} (${chalk.green(completionRate + '%')})
+  • Failed: ${chalk.red(metrics.failedTasks)} (${chalk.red(failureRate + '%')})
+  • Avg Duration: ${chalk.white(formatDuration(metrics.averageTaskDuration))}
+
+${chalk.cyan('System:')}
+  • Load: ${systemLoadColor(metrics.systemLoad.toFixed(1) + '%')}
+  • Status: ${getSystemStatusDisplay(metrics)}
+`;
+}
+
+/**
+ * Format agent capabilities
+ */
+export function formatAgentCapabilities(agent: Agent): string {
+  if (!agent.capabilities || agent.capabilities.length === 0) {
+    return chalk.gray('No capabilities defined');
+  }
+
+  const capabilityGroups = groupCapabilities(agent.capabilities);
+  let output = `\n${chalk.bold('🔧 Agent Capabilities')}\n`;
+  output += chalk.gray('─'.repeat(30)) + '\n\n';
+
+  for (const [group, caps] of Object.entries(capabilityGroups)) {
+    output += `${chalk.cyan(group + ':')}\n`;
+    caps.forEach((cap) => {
+      output += `  • ${cap}\n`;
+    });
+    output += '\n';
+  }
+
+  return output;
+}
+
+/**
+ * Format agent summary card
+ */
+export function formatAgentSummary(agent: Agent): string {
+  const status = agent.status || 'unknown';
+  const statusColor = getStatusColor(status);
+  const lastActivity = agent.lastActivity ? formatRelativeTime(agent.lastActivity) : 'never';
+
+  return `
+${chalk.bold('🤖 Agent Summary')}
+${chalk.gray('─'.repeat(30))}
+
+${chalk.cyan('Identity:')}
+  • ID: ${agent.id}
+  • Name: ${agent.name}
+  • Type: ${agent.type}
+
+${chalk.cyan('Configuration:')}
+  • Priority: ${agent.priority || 5}
+  • Max Concurrent Tasks: ${agent.maxConcurrentTasks}
+  • Status: ${statusColor(status)}
+  • Last Activity: ${lastActivity}
+
+${agent.capabilities ? formatAgentCapabilities(agent) : ''}
+`;
+}
+
+/**
+ * Format simple agent list for commands
+ */
+export function formatSimpleAgentTable(agents: Agent[]): string {
+  const table = new Table({
+    head: [
+      chalk.cyan('ID'),
+      chalk.cyan('Name'),
+      chalk.cyan('Type'),
+      chalk.cyan('Priority'),
+      chalk.cyan('Max Tasks'),
+    ],
   });
 
   for (const agent of agents) {
@@ -158,177 +221,216 @@ export function createAgentTable(agents: AgentProfile[]): any {
       agent.id,
       agent.name,
       agent.type,
-      agent.priority.toString(),
+      (agent.priority || 5).toString(), // Provide default value if undefined
       agent.maxConcurrentTasks.toString(),
     ]);
   }
 
-  return table;
+  return table.toString();
 }
 
-/**
- * Creates a table for task listing
- */
-export function createTaskTable(tasks: Task[]): any {
-  const table = new Table({
-    head: ['ID', 'Type', 'Description', 'Status', 'Agent'],
-  });
-
-  for (const task of tasks) {
-    const statusCell =
-      {
-        pending: chalk.gray(task.status),
-        queued: chalk.yellow(task.status),
-        assigned: chalk.blue(task.status),
-        running: chalk.cyan(task.status),
-        completed: chalk.green(task.status),
-        failed: chalk.red(task.status),
-        cancelled: chalk.magenta(task.status),
-      }[task.status] || task.status;
-
-    table.push([
-      task.id,
-      task.type,
-      task.description.substring(0, 40) + (task.description.length > 40 ? '...' : ''),
-      statusCell,
-      task.assignedAgent || '-',
-    ]);
-  }
-
-  return table;
+// Success/Error/Info/Warning formatters for CLI commands
+export function formatSuccess(message: string): string {
+  return chalk.green('✅ ' + message);
 }
 
-/**
- * Formats duration in human-readable form
- */
-export function formatDuration(ms: number): string {
-  if (ms < 1000) {
-    return `${ms}ms`;
-  }
+export function formatError(message: string): string {
+  return chalk.red('❌ ' + message);
+}
 
-  const seconds = Math.floor(ms / 1000);
+export function formatInfo(message: string): string {
+  return chalk.blue('ℹ️  ' + message);
+}
+
+export function formatWarning(message: string): string {
+  return chalk.yellow('⚠️  ' + message);
+}
+
+// Helper functions
+function getStatusColor(status: string): (text: string) => string {
+  switch (status.toLowerCase()) {
+    case 'active':
+    case 'idle':
+    case 'running':
+    case 'completed':
+      return chalk.green;
+    case 'busy':
+    case 'assigned':
+    case 'pending':
+      return chalk.yellow;
+    case 'error':
+    case 'failed':
+    case 'offline':
+    case 'terminated':
+      return chalk.red;
+    case 'paused':
+    case 'cancelled':
+      return chalk.gray;
+    default:
+      return chalk.white;
+  }
+}
+
+function formatRelativeTime(date: Date): string {
+  const now = new Date();
+  const diff = now.getTime() - date.getTime();
+  const seconds = Math.floor(diff / 1000);
   const minutes = Math.floor(seconds / 60);
   const hours = Math.floor(minutes / 60);
   const days = Math.floor(hours / 24);
 
-  if (days > 0) {
-    return `${days}d ${hours % 24}h`;
-  }
-  if (hours > 0) {
-    return `${hours}h ${minutes % 60}m`;
-  }
-  if (minutes > 0) {
-    return `${minutes}m ${seconds % 60}s`;
+  if (days > 0) return `${days}d ago`;
+  if (hours > 0) return `${hours}h ago`;
+  if (minutes > 0) return `${minutes}m ago`;
+  return `${seconds}s ago`;
+}
+
+function calculateTaskDuration(task: Task): string {
+  if (task.completedAt && task.startedAt) {
+    const duration = task.completedAt.getTime() - task.startedAt.getTime();
+    return formatDuration(duration);
   }
 
+  if (task.startedAt) {
+    const duration = new Date().getTime() - task.startedAt.getTime();
+    return formatDuration(duration) + ' (running)';
+  }
+
+  return 'not started';
+}
+
+export function formatDuration(milliseconds: number): string {
+  const seconds = Math.floor(milliseconds / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+
+  if (hours > 0) return `${hours}h ${minutes % 60}m`;
+  if (minutes > 0) return `${minutes}m ${seconds % 60}s`;
   return `${seconds}s`;
 }
 
-/**
- * Displays the Claude-Flow banner
- */
-export function displayBanner(version: string): void {
-  const banner = `
-${chalk.cyan.bold('╔══════════════════════════════════════════════════════════════╗')}
-${chalk.cyan.bold('║')}             ${chalk.white.bold('🧠 Claude-Flow')} ${chalk.gray('v' + version)}                        ${chalk.cyan.bold('║')}
-${chalk.cyan.bold('║')}          ${chalk.gray('Advanced AI Agent Orchestration')}               ${chalk.cyan.bold('║')}
-${chalk.cyan.bold('╚══════════════════════════════════════════════════════════════╝')}
-`;
-  console.log(banner);
-}
-
-/**
- * Displays detailed version information
- */
-export function displayVersion(version: string, buildDate: string): void {
-  const info = [
-    chalk.cyan.bold('Claude-Flow Version Information'),
-    '',
-    chalk.white('Version:    ') + chalk.yellow(version),
-    chalk.white('Build Date: ') + chalk.yellow(buildDate),
-    chalk.white('Runtime:    ') + chalk.yellow('Node.js ' + process.version),
-    chalk.white('Platform:   ') + chalk.yellow(process.platform),
-    chalk.white('Arch:       ') + chalk.yellow(process.arch),
-    '',
-    chalk.gray('Components:'),
-    chalk.white('  • Multi-Agent Orchestration'),
-    chalk.white('  • Memory Management'),
-    chalk.white('  • Terminal Integration'),
-    chalk.white('  • MCP Server'),
-    chalk.white('  • Task Coordination'),
-    '',
-    chalk.blue('Homepage: ') + chalk.underline('https://github.com/ruvnet/claude-flow'),
-  ];
-
-  console.log(info.join('\n'));
-}
-
-/**
- * Formats a progress bar
- */
-export function formatProgressBar(
-  current: number,
-  total: number,
-  width: number = 40,
-  label?: string,
-): string {
-  const percentage = Math.min(100, (current / total) * 100);
-  const filled = Math.floor((percentage / 100) * width);
-  const empty = width - filled;
-
-  const bar = chalk.green('█'.repeat(filled)) + chalk.gray('░'.repeat(empty));
-  const percent = percentage.toFixed(1).padStart(5) + '%';
-
-  let result = `[${bar}] ${percent}`;
-  if (label) {
-    result = `${label}: ${result}`;
-  }
-
-  return result;
-}
-
-/**
- * Creates a status indicator
- */
-export function formatStatusIndicator(status: string): string {
-  const indicators = {
-    success: chalk.green('✓'),
-    error: chalk.red('✗'),
-    warning: chalk.yellow('⚠'),
-    info: chalk.blue('ℹ'),
-    running: chalk.cyan('⟳'),
-    pending: chalk.gray('○'),
+function groupCapabilities(capabilities: string[]): Record<string, string[]> {
+  const groups: Record<string, string[]> = {
+    Core: [],
+    Development: [],
+    Analysis: [],
+    Communication: [],
+    Other: [],
   };
 
-  return indicators[status as keyof typeof indicators] || status;
+  capabilities.forEach((cap) => {
+    if (cap.includes('code') || cap.includes('development') || cap.includes('implementation')) {
+      groups['Development'].push(cap);
+    } else if (cap.includes('analysis') || cap.includes('metrics') || cap.includes('performance')) {
+      groups['Analysis'].push(cap);
+    } else if (
+      cap.includes('communication') ||
+      cap.includes('messaging') ||
+      cap.includes('coordination')
+    ) {
+      groups['Communication'].push(cap);
+    } else if (cap.includes('task') || cap.includes('resource') || cap.includes('management')) {
+      groups['Core'].push(cap);
+    } else {
+      groups['Other'].push(cap);
+    }
+  });
+
+  // Remove empty groups
+  Object.keys(groups).forEach((key) => {
+    if (groups[key].length === 0) {
+      delete groups[key];
+    }
+  });
+
+  return groups;
 }
 
-/**
- * Formats a success message
- */
-export function formatSuccess(message: string): string {
-  return chalk.green('✓') + ' ' + chalk.white(message);
+export function getSystemStatusDisplay(metrics: SwarmMetrics): string {
+  const activeRatio = metrics.totalAgents > 0 ? metrics.activeAgents / metrics.totalAgents : 0;
+
+  const completionRatio = metrics.totalTasks > 0 ? metrics.completedTasks / metrics.totalTasks : 0;
+
+  if (metrics.systemLoad > 90 || metrics.failedTasks > metrics.completedTasks) {
+    return chalk.red('Critical');
+  } else if (metrics.systemLoad > 70 || activeRatio < 0.5) {
+    return chalk.yellow('Warning');
+  } else if (completionRatio > 0.8 && activeRatio > 0.7) {
+    return chalk.green('Optimal');
+  } else {
+    return chalk.cyan('Normal');
+  }
 }
 
-/**
- * Formats an info message
- */
-export function formatInfo(message: string): string {
-  return chalk.blue('ℹ') + ' ' + chalk.white(message);
+// Additional missing formatter functions
+export function formatProgressBar(progress: number, width: number = 20): string {
+  const filled = Math.floor((progress / 100) * width);
+  const empty = width - filled;
+  return (
+    chalk.green('█'.repeat(filled)) + chalk.gray('░'.repeat(empty)) + ` ${progress.toFixed(1)}%`
+  );
 }
 
-/**
- * Formats a warning message
- */
-export function formatWarning(message: string): string {
-  return chalk.yellow('⚠') + ' ' + chalk.white(message);
+export function formatStatusIndicator(status: string): string {
+  const statusColor = getStatusColor(status);
+  const indicators = {
+    active: '●',
+    idle: '○',
+    busy: '◐',
+    error: '✗',
+    offline: '◌',
+    running: '▶',
+    completed: '✓',
+    failed: '✗',
+    pending: '⏳',
+  };
+  const indicator = indicators[status.toLowerCase() as keyof typeof indicators] || '?';
+  return statusColor(indicator + ' ' + status);
 }
 
-/**
- * Formats a spinner with message
- */
-export function formatSpinner(message: string, frame: number = 0): string {
-  const frames = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
-  const spinner = chalk.cyan(frames[frame % frames.length]);
-  return `${spinner} ${message}`;
+export function formatHealthStatus(health: string): string {
+  const healthColors = {
+    healthy: chalk.green,
+    degraded: chalk.yellow,
+    critical: chalk.red,
+    unknown: chalk.gray,
+  };
+  const color = healthColors[health.toLowerCase() as keyof typeof healthColors] || chalk.white;
+  return color(health.toUpperCase());
 }
+
+export function displayBanner(version: string): string {
+  return (
+    chalk.cyan(`
+ ████████ ██    ██  █████  ██    ██ ██████  ███████      ███████ ██       ██████  ██     ██
+██        ██    ██ ██   ██ ██    ██ ██   ██ ██           ██      ██      ██    ██ ██     ██
+██        ██    ██ ███████ ██    ██ ██   ██ █████        █████   ██      ██    ██ ██  █  ██
+██        ██    ██ ██   ██ ██    ██ ██   ██ ██           ██      ██      ██    ██ ██ ███ ██
+ ████████ ████████ ██   ██  ██████  ██████  ███████      ██      ███████  ██████   ███ ███
+  `) + chalk.gray(`v${version}\n`)
+  );
+}
+
+export function displayVersion(version: string): string {
+  return chalk.green(`Claude Flow v${version}`);
+}
+
+export default {
+  formatAgentTable,
+  formatTaskTable,
+  formatSwarmMetrics,
+  formatAgentCapabilities,
+  formatAgentSummary,
+  formatSimpleAgentTable,
+  formatSuccess,
+  formatError,
+  formatInfo,
+  formatWarning,
+  formatDuration,
+  formatProgressBar,
+  formatStatusIndicator,
+  formatHealthStatus,
+  displayBanner,
+  displayVersion,
+  getSystemStatusDisplay,
+};

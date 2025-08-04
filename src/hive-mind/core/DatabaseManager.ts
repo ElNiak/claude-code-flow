@@ -10,8 +10,9 @@ import fs from 'fs/promises';
 import { EventEmitter } from 'events';
 import { fileURLToPath } from 'url';
 
-// ES module compatibility - define __dirname
-const __filename = fileURLToPath(import.meta.url);
+// CJS/ESM compatibility for __filename and __dirname
+// PKG-compatible version without import.meta evaluation
+const __filename = process.argv[1] || require.main?.filename || '';
 const __dirname = path.dirname(__filename);
 
 // Dynamic import for SQLite wrapper
@@ -30,7 +31,7 @@ export class DatabaseManager extends EventEmitter {
   private static instance: DatabaseManager;
   private db: any; // Database instance or in-memory fallback
   private statements: Map<string, any>;
-  private dbPath: string;
+  private dbPath!: string;
   private isInMemory: boolean = false;
   private memoryStore: any = null;
 
@@ -106,7 +107,7 @@ export class DatabaseManager extends EventEmitter {
       memory: new Map(),
       communications: new Map(),
       performance_metrics: new Map(),
-      consensus: new Map()
+      consensus: new Map(),
     };
 
     // Create mock statement methods
@@ -343,8 +344,8 @@ For persistent storage options, see: https://github.com/ruvnet/claude-code-flow/
     const values: any[] = [];
 
     for (const [key, value] of Object.entries(updates)) {
-      if (value && typeof value === 'object' && value._raw) {
-        setClauses.push(`${key} = ${value._raw}`);
+      if (value && typeof value === 'object' && (value as any)._raw) {
+        setClauses.push(`${key} = ${(value as any)._raw}`);
       } else {
         setClauses.push(`${key} = ?`);
         values.push(value);
@@ -844,6 +845,28 @@ For persistent storage options, see: https://github.com/ruvnet/claude-code-flow/
         fragmentation: 0,
         tableCount: 0,
         schemaVersion: 'unknown',
+      };
+    }
+  }
+
+  /**
+   * Perform database health check
+   */
+  async healthCheck(): Promise<{ status: string; connections: number; performance: string }> {
+    try {
+      // Test basic database connectivity
+      const testQuery = this.db.prepare('SELECT 1 as test').get();
+
+      return {
+        status: testQuery ? 'healthy' : 'degraded',
+        connections: 1, // SQLite uses single connection
+        performance: 'normal',
+      };
+    } catch (error) {
+      return {
+        status: 'unhealthy',
+        connections: 0,
+        performance: 'error',
       };
     }
   }

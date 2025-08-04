@@ -15,6 +15,7 @@ import type {
   SwarmMetrics,
   AgentId,
 } from '../swarm/types.js';
+import type { EventMap } from '../utils/types.js';
 import type { DistributedMemorySystem } from '../memory/distributed-memory.js';
 
 export interface MonitorConfig {
@@ -196,44 +197,58 @@ export class RealTimeMonitor extends EventEmitter {
 
   private setupEventHandlers(): void {
     // Agent events
-    this.eventBus.on('agent:metrics-update', (data) => {
-      this.updateAgentMetrics(data.agentId, data.metrics);
+    this.eventBus.on('agent:metrics-update', (data: unknown) => {
+      const eventData = data as { agentId: string; metrics: AgentMetrics };
+      this.updateAgentMetrics(eventData.agentId, eventData.metrics);
     });
 
-    this.eventBus.on('agent:status-changed', (data) => {
+    this.eventBus.on('agent:status-changed', (data: unknown) => {
+      const eventData = data as { agentId: string; from: string; to: string };
       this.recordMetric('agent.status.change', 1, {
-        agentId: data.agentId,
-        from: data.from,
-        to: data.to,
+        agentId: eventData.agentId,
+        from: eventData.from,
+        to: eventData.to,
       });
     });
 
     // Task events
-    this.eventBus.on('task:started', (data) => {
-      this.recordMetric('task.started', 1, { taskId: data.taskId, agentId: data.agentId });
+    this.eventBus.on('task:started', (data: unknown) => {
+      const eventData = data as EventMap['task:started'];
+      this.recordMetric('task.started', 1, {
+        taskId: eventData.taskId,
+        agentId: eventData.agentId,
+      });
     });
 
-    this.eventBus.on('task:completed', (data) => {
-      this.recordMetric('task.completed', 1, { taskId: data.taskId });
-      this.recordMetric('task.duration', data.duration, { taskId: data.taskId });
+    this.eventBus.on('task:completed', (data: unknown) => {
+      const eventData = data as EventMap['task:completed'] & { duration?: number };
+      this.recordMetric('task.completed', 1, { taskId: eventData.taskId });
+      if (eventData.duration) {
+        this.recordMetric('task.duration', eventData.duration, { taskId: eventData.taskId });
+      }
     });
 
-    this.eventBus.on('task:failed', (data) => {
-      this.recordMetric('task.failed', 1, { taskId: data.taskId, error: data.error });
+    this.eventBus.on('task:failed', (data: unknown) => {
+      const eventData = data as EventMap['task:failed'];
+      this.recordMetric('task.failed', 1, {
+        taskId: eventData.taskId,
+        error: eventData.error.message,
+      });
     });
 
     // System events
-    this.eventBus.on('system:resource-update', (data) => {
-      this.updateSystemMetrics(data);
+    this.eventBus.on('system:resource-update', (data: unknown) => {
+      this.updateSystemMetrics(data as Partial<SystemMetrics>);
     });
 
-    this.eventBus.on('swarm:metrics-update', (data) => {
-      this.updateSwarmMetrics(data.metrics);
+    this.eventBus.on('swarm:metrics-update', (data: unknown) => {
+      const eventData = data as { metrics: SwarmMetrics };
+      this.updateSwarmMetrics(eventData.metrics);
     });
 
     // Error events
-    this.eventBus.on('error', (data) => {
-      this.handleError(data);
+    this.eventBus.on('error', (data: unknown) => {
+      this.handleError(data as Error);
     });
   }
 

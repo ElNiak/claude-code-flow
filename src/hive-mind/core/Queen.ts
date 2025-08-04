@@ -32,8 +32,8 @@ export class Queen extends EventEmitter {
   private agents: Map<string, Agent>;
   private taskQueue: Map<string, Task>;
   private strategies: Map<string, CoordinationStrategy>;
-  private db: DatabaseManager;
-  private mcpWrapper: MCPToolWrapper;
+  private db!: DatabaseManager;
+  private mcpWrapper!: MCPToolWrapper;
   private isActive: boolean = false;
 
   constructor(config: QueenConfig) {
@@ -226,7 +226,7 @@ export class Queen extends EventEmitter {
 
     // Capability match
     const capabilityMatches = requiredCapabilities.filter((cap) =>
-      agent.capabilities.includes(cap),
+      agent.capabilities.includes(cap as any),
     ).length;
     score += capabilityMatches * 10;
 
@@ -256,14 +256,14 @@ export class Queen extends EventEmitter {
    * Get type suitability score for a task
    */
   private getTypeSuitabilityForTask(agentType: AgentType, task: Task): number {
-    const suitabilityMap: Record<string, Record<AgentType, number>> = {
+    const suitabilityMap: Record<string, Record<string, number>> = {
       research: {
         researcher: 10,
         analyst: 8,
         specialist: 6,
         coder: 4,
         coordinator: 5,
-        architect: 5,
+        architecture: 5,
         tester: 3,
         reviewer: 4,
         optimizer: 4,
@@ -272,7 +272,7 @@ export class Queen extends EventEmitter {
       },
       development: {
         coder: 10,
-        architect: 8,
+        architecture: 8,
         tester: 7,
         reviewer: 6,
         coordinator: 5,
@@ -289,7 +289,7 @@ export class Queen extends EventEmitter {
         specialist: 6,
         reviewer: 5,
         coordinator: 5,
-        architect: 4,
+        architecture: 4,
         coder: 4,
         tester: 3,
         optimizer: 5,
@@ -304,7 +304,7 @@ export class Queen extends EventEmitter {
         coordinator: 4,
         specialist: 5,
         researcher: 3,
-        architect: 4,
+        architecture: 4,
         optimizer: 4,
         documenter: 3,
         monitor: 4,
@@ -313,7 +313,7 @@ export class Queen extends EventEmitter {
         optimizer: 10,
         analyst: 8,
         coder: 7,
-        architect: 6,
+        architecture: 6,
         coordinator: 5,
         specialist: 6,
         researcher: 4,
@@ -587,12 +587,12 @@ export class Queen extends EventEmitter {
 
   private determineAgentRole(agent: Agent, task: Task): string {
     // Determine specific role based on agent type and task
-    const roleMap: Record<AgentType, string> = {
+    const roleMap: Record<string, string> = {
       coordinator: 'lead',
       researcher: 'investigator',
       coder: 'implementer',
       analyst: 'evaluator',
-      architect: 'designer',
+      architecture: 'designer',
       tester: 'validator',
       reviewer: 'auditor',
       optimizer: 'enhancer',
@@ -606,12 +606,12 @@ export class Queen extends EventEmitter {
 
   private getAgentResponsibilities(agent: Agent, task: Task): string[] {
     // Define specific responsibilities based on role
-    const responsibilityMap: Record<AgentType, string[]> = {
+    const responsibilityMap: Record<string, string[]> = {
       coordinator: ['coordinate team', 'track progress', 'resolve conflicts'],
       researcher: ['gather information', 'identify patterns', 'provide insights'],
       coder: ['implement solution', 'write tests', 'debug issues'],
       analyst: ['analyze data', 'identify bottlenecks', 'suggest improvements'],
-      architect: ['design system', 'define interfaces', 'ensure scalability'],
+      architecture: ['design system', 'define interfaces', 'ensure scalability'],
       tester: ['write tests', 'find bugs', 'validate functionality'],
       reviewer: ['review code', 'ensure quality', 'suggest improvements'],
       optimizer: ['improve performance', 'reduce complexity', 'optimize resources'],
@@ -690,7 +690,7 @@ export class Queen extends EventEmitter {
     const strategyPerformance = await this.db.getStrategyPerformance(this.config.swarmId);
 
     for (const [strategyName, performance] of Object.entries(strategyPerformance)) {
-      if (performance.successRate < 0.7) {
+      if ((performance as any).successRate < 0.7) {
         await this.adjustStrategy(strategyName, performance);
       }
     }

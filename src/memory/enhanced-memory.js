@@ -17,8 +17,12 @@ export class EnhancedMemory extends FallbackMemoryStore {
     if (!this.isUsingFallback() && this.primaryStore?.db) {
       try {
         const { readFileSync } = await import('fs');
-        const schemaPath = new URL('./enhanced-schema.sql', import.meta.url);
-        const schema = readFileSync(schemaPath, 'utf-8');
+        // PKG compatible schema path
+        const path = await import('path');
+        const __filename = process.argv[1] || require.main?.filename || '';
+        const __dirname = path.dirname(__filename);
+        const schemaUrl = path.join(__dirname, 'enhanced-schema.sql');
+        const schema = readFileSync(schemaUrl, 'utf-8');
         this.primaryStore.db.exec(schema);
         console.error(
           `[${new Date().toISOString()}] INFO [enhanced-memory] Applied enhanced schema to SQLite`,

@@ -337,8 +337,10 @@ Begin execution now. Create all necessary GitHub workflow files and configuratio
   }
 }
 
-// Allow direct execution for testing
-if (import.meta.main) {
+// Allow direct execution for testing - PKG compatible
+const __filename = process.argv[1] || require.main?.filename || '';
+const isMainModule = __filename.endsWith('/github.js');
+if (isMainModule) {
   const args = [];
   const flags = {};
 

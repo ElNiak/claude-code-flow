@@ -18,6 +18,10 @@ export interface SwarmMemoryEntry {
     tags?: string[];
     priority?: number;
     shareLevel?: 'private' | 'team' | 'public';
+    originalId?: string;
+    sharedFrom?: string;
+    sharedTo?: string;
+    sharedAt?: Date;
   };
 }
 
@@ -70,7 +74,11 @@ export class SwarmMemoryManager extends EventEmitter {
 
   constructor(config: Partial<SwarmMemoryConfig> = {}) {
     super();
-    this.logger = new Logger('SwarmMemoryManager');
+    this.logger = Logger.getInstance({
+      level: 'info',
+      format: 'json',
+      destination: 'console',
+    }).child({ module: 'SwarmMemoryManager' });
     this.config = {
       namespace: 'swarm',
       enableDistribution: true,
@@ -92,11 +100,10 @@ export class SwarmMemoryManager extends EventEmitter {
     this.baseMemory = new MemoryManager(
       {
         backend: 'sqlite',
-        namespace: this.config.namespace,
         cacheSizeMB: 50,
-        syncOnExit: true,
-        maxEntries: this.config.maxEntries,
-        ttlMinutes: 60,
+        syncInterval: 10000,
+        conflictResolution: 'last-write',
+        retentionDays: 30,
       },
       eventBus,
       this.logger,
@@ -175,10 +182,20 @@ export class SwarmMemoryManager extends EventEmitter {
     this.agentMemories.get(agentId)!.add(entryId);
 
     // Store in base memory for persistence
-    await this.baseMemory.remember({
-      namespace: this.config.namespace,
-      key: `entry:${entryId}`,
+    await this.baseMemory.store({
+      id: `entry:${entryId}`,
+      agentId,
+      sessionId: `swarm-session-${Date.now()}`,
+      type: 'artifact',
       content: JSON.stringify(entry),
+      context: {
+        namespace: this.config.namespace,
+        entryType: type,
+        shareLevel: entry.metadata.shareLevel,
+      },
+      timestamp: entry.timestamp,
+      tags: entry.metadata.tags || [],
+      version: 1,
       metadata: {
         type: 'swarm-memory',
         agentId,

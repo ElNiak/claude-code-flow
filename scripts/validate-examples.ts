@@ -5,7 +5,7 @@
  * Validates all example configuration files for correctness
  */
 
-import { walk } from "https://deno.land/std@0.220.0/fs/mod.ts";
+import { walk } from 'https://deno.land/std@0.220.0/fs/mod.ts';
 
 interface ValidationResult {
   file: string;
@@ -283,6 +283,9 @@ async function main(): Promise<void> {
   }
 }
 
-if (import.meta.main) {
+// CLI interface - PKG-compatible main module detection
+const __filename = process.argv[1] || require.main?.filename || '';
+const isMainModule = process.argv[1] && process.argv[1].endsWith('/validate-examples.ts');
+if (isMainModule) {
   await main();
 }

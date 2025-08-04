@@ -9,6 +9,9 @@ import { open } from 'fs/promises';
 import process from 'process';
 import path from 'path';
 
+// PKG-compatible __filename declaration (used throughout the file)
+const __filename = process.argv[1] || require.main?.filename || '';
+
 function showSwarmHelp() {
   console.log(`
 🐝 Claude Flow Advanced Swarm System
@@ -622,7 +625,9 @@ The swarm should be self-documenting - use memory_store to save all important in
       console.log(`📁 Results: ${swarmRunDir}`);
 
       // Build command args without background flag (to prevent infinite loop)
-      const commandArgs = ['run', '--allow-all', import.meta.url, objective];
+      // PKG compatible meta URL
+      const metaUrl = 'file://' + __filename;
+      const commandArgs = ['run', '--allow-all', metaUrl, objective];
       const newFlags = { ...flags };
       delete newFlags.background; // Remove background flag
 
@@ -639,7 +644,7 @@ The swarm should be self-documenting - use memory_store to save all important in
 
       // Create a script to run the swarm without background flag
       const scriptContent = `#!/usr/bin/env -S deno run --allow-all
-import { swarmCommand } from "${import.meta.url}";
+import { swarmCommand } from "${metaUrl}";
 import { Deno, cwd, exit, existsSync } from '../node-compat.js';
 import process from 'process';
 
@@ -677,7 +682,10 @@ await swarmCommand(args, flags);
       logHandle.close();
 
       // Use the bash script for true background execution
-      const binDir = new URL('../../../bin/', import.meta.url).pathname;
+      // PKG compatible bin directory
+      const path = await import('path');
+      const __dirname = path.dirname(__filename);
+      const binDir = path.join(__dirname, '../../../bin/');
       const bgScriptPath = `${binDir}claude-flow-swarm-bg`;
 
       try {
@@ -750,8 +758,10 @@ exit 0
     const objective = (args || []).join(' ').trim();
 
     // Get the claude-flow-swarm-bg script path
+    // PKG compatible current dirname
+    const currentDirname = path.dirname(__filename);
     const bgScriptPath = path.join(
-      path.dirname(new URL(import.meta.url).pathname),
+      currentDirname,
       '../../../bin/claude-flow-swarm-bg',
     );
 
@@ -798,7 +808,12 @@ exit 0
     let swarmAction;
     try {
       // Try the compiled version first (for production/npm packages)
-      const distPath = new URL('../../../dist/cli/commands/swarm-new.js', import.meta.url);
+      // PKG compatible dist path
+      const path = await import('path');
+      const { pathToFileURL } = await import('url');
+      const __dirname = path.dirname(__filename);
+      const basePath = path.join(__dirname, '../../../dist/cli/commands/swarm-new.js');
+      const distPath = pathToFileURL(basePath);
       const module = await import(distPath);
       swarmAction = module.swarmAction;
     } catch (distError) {
@@ -894,7 +909,7 @@ exit 0
         const fs = await import('fs');
         const { spawn } = await import('child_process');
 
-        const __filename = fileURLToPath(import.meta.url);
+        // PKG compatible __filename and __dirname
         const __dirname = path.dirname(__filename);
 
         // Look for swarm-demo.ts in the package
@@ -1850,8 +1865,10 @@ function getAgentRecommendations(strategy, maxAgents, objective) {
   return recommendations[strategy] || recommendations['auto'];
 }
 
-// Allow direct execution
-if (import.meta.main) {
+// Allow direct execution - PKG compatible
+const isMainModule = process.argv[1] && process.argv[1].endsWith('/swarm.js');
+
+if (isMainModule) {
   // When called directly as a script, parse all arguments
   const args = [];
   const flags = {};

@@ -201,7 +201,7 @@ export class MarkdownBackend implements IMemoryBackend {
 
       this.logger.info('Loaded memory index', { entries: this.entries.size });
     } catch (error) {
-      if (error.code !== 'ENOENT') {
+      if (error instanceof Error && 'code' in error && error.code !== 'ENOENT') {
         this.logger.warn('Failed to load index', { error });
       }
       // Start with empty index if file doesn't exist

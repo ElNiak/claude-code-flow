@@ -431,6 +431,9 @@ Remember: The swarm system is specifically designed to handle complexity and dur
 // Export mode configuration
 export default SWARM_MODE;
 
-if (import.meta.main) {
+// PKG compatible main module check
+const __filename = process.argv[1] || require.main?.filename || '';
+const isMainModule = process.argv[1] && process.argv[1].endsWith('/swarm.js');
+if (isMainModule) {
   console.log(prompt);
 }

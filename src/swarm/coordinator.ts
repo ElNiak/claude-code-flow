@@ -200,7 +200,7 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
     // Pause all agents
     for (const agent of this.agents.values()) {
       if (agent.status === 'busy') {
-        await this.pauseAgent(agent.id);
+        await this.pauseAgent(agent.id.id);
       }
     }
 
@@ -226,7 +226,7 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
     // Resume all paused agents
     for (const agent of this.agents.values()) {
       if (agent.status === 'paused') {
-        await this.resumeAgent(agent.id);
+        await this.resumeAgent(agent.id.id);
       }
     }
 
@@ -275,6 +275,12 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
         allowedFailures: Math.floor(this.config.maxAgents * 0.1),
         recoveryTime: 5 * 60 * 1000, // 5 minutes
         milestones: [],
+        resourceLimits: {
+          cpu: 1.0,
+          memory: 1024 * 1024 * 1024, // 1GB
+          disk: 5 * 1024 * 1024 * 1024, // 5GB
+          network: 1000, // 1000 Mbps
+        },
       },
       tasks: [],
       dependencies: [],
@@ -531,7 +537,7 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
         timestamp: new Date(),
         type: 'startup_error',
         message: error instanceof Error ? error.message : String(error),
-        stack: error.stack,
+        stack: error instanceof Error ? error.stack : undefined,
         context: { agentId },
         severity: 'high',
         resolved: false,
@@ -688,7 +694,8 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
 
     // Select agent if not specified
     if (!agentId) {
-      agentId = await this.selectAgentForTask(task);
+      const selectedAgent = await this.selectAgentForTask(task);
+      agentId = selectedAgent || undefined;
       if (!agentId) {
         throw new Error('No suitable agent available for task');
       }
@@ -1600,7 +1607,7 @@ export class SwarmCoordinator extends EventEmitter implements SwarmEventEmitter 
     const requestsParallelAgents = eachAgentPattern.test(objective.description);
 
     // Create tasks with specific prompts for Claude
-    if (requestsParallelAgents && this.config.mode === 'parallel') {
+    if (requestsParallelAgents && this.config.mode === 'distributed') {
       // Create parallel tasks for each agent type
       const agentTypes = this.determineRequiredAgentTypes(objective.strategy);
       this.logger.info('Creating parallel tasks for each agent type', {
@@ -1725,7 +1732,7 @@ Make sure the documentation is clear, complete, and helps users understand and u
     } else {
       // For other strategies, create a comprehensive single task
       tasks.push(
-        this.createTaskForObjective('execute-objective', 'generic', {
+        this.createTaskForObjective('execute-objective', 'custom', {
           title: 'Execute Objective',
           description: objective.description,
           instructions: `Please complete the following request:
@@ -1893,11 +1900,11 @@ Ensure your implementation is complete, well-structured, and follows best practi
         triggeredBy: 'system',
       });
 
-      // Emit task queued event
+      // Emit task created event
       this.emitSwarmEvent({
         id: generateId('event'),
         timestamp: new Date(),
-        type: 'task.queued',
+        type: 'task.created',
         source: this.swarmId.id,
         data: { task },
         broadcast: false,
@@ -1991,7 +1998,7 @@ Ensure your implementation is complete, well-structured, and follows best practi
           this.emitSwarmEvent({
             id: generateId('event'),
             timestamp: new Date(),
-            type: 'task.queued',
+            type: 'task.created',
             source: this.swarmId.id,
             data: { task },
             broadcast: false,
@@ -2086,7 +2093,7 @@ Ensure your implementation is complete, well-structured, and follows best practi
           this.emitSwarmEvent({
             id: generateId('event'),
             timestamp: new Date(),
-            type: objective.status === 'completed' ? 'objective.completed' : 'objective.failed',
+            type: objective.status === 'completed' ? 'swarm.completed' : 'swarm.failed',
             source: this.swarmId.id,
             data: { objective },
             broadcast: true,
@@ -2249,17 +2256,17 @@ Ensure your implementation is complete, well-structured, and follows best practi
       agentName: agent.name,
     });
 
-    // Extract target directory from task
-    const targetDir = this.extractTargetDirectory(task);
+    // Extract target directory from task (convert null to undefined)
+    const targetDir = this.extractTargetDirectory(task) || undefined;
 
     try {
       // Use Claude Flow executor for full SPARC system in non-interactive mode
-      const { ClaudeFlowExecutor } = await import('./claude-flow-executor.ts');
+      const { ClaudeFlowExecutor } = await import('./claude-flow-executor.js');
       const executor = new ClaudeFlowExecutor({
         logger: this.logger,
         claudeFlowPath: getClaudeFlowBin(),
         enableSparc: true,
-        verbose: this.config.logging?.level === 'debug',
+        verbose: false, // logging property not available on SwarmConfig
         timeoutMinutes: this.config.taskTimeoutMinutes,
       });
 
@@ -2607,10 +2614,10 @@ Ensure your implementation is complete, well-structured, and follows best practi
 
     if (isGradio) {
       // Create a Gradio application
-      return await this.createGradioApp(task, workDir);
+      throw new Error('Gradio app creation not implemented yet');
     } else if (isPython && isRestAPI) {
       // Create a Python REST API (FastAPI)
-      return await this.createPythonRestAPI(task, workDir);
+      throw new Error('Python REST API creation not implemented yet');
     } else if (isRestAPI) {
       // Create a REST API application
       const projectName = 'rest-api';

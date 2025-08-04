@@ -392,7 +392,7 @@ export class AgentManager extends EventEmitter {
     // Requirements Engineer Agent Template
     this.templates.set('requirements-engineer', {
       name: 'Requirements Engineer Agent',
-      type: 'requirements-engineer',
+      type: 'analyst',
       capabilities: {
         codeGeneration: false,
         codeReview: false,
@@ -446,7 +446,7 @@ export class AgentManager extends EventEmitter {
     // Design Architect Agent Template
     this.templates.set('design-architect', {
       name: 'Design Architect Agent',
-      type: 'design-architect',
+      type: 'system-architect',
       capabilities: {
         codeGeneration: false,
         codeReview: true,
@@ -500,7 +500,7 @@ export class AgentManager extends EventEmitter {
     // Task Planner Agent Template
     this.templates.set('task-planner', {
       name: 'Task Planner Agent',
-      type: 'task-planner',
+      type: 'planner',
       capabilities: {
         codeGeneration: false,
         codeReview: false,
@@ -554,7 +554,7 @@ export class AgentManager extends EventEmitter {
     // Developer Agent Template (already exists, but ensure it's aligned)
     this.templates.set('developer', {
       name: 'Developer Agent',
-      type: 'developer',
+      type: 'ml-developer',
       capabilities: {
         codeGeneration: true,
         codeReview: true,
@@ -770,7 +770,7 @@ export class AgentManager extends EventEmitter {
     // Steering Author Agent Template
     this.templates.set('steering-author', {
       name: 'Steering Author Agent',
-      type: 'steering-author',
+      type: 'api-docs',
       capabilities: {
         codeGeneration: false,
         codeReview: true,

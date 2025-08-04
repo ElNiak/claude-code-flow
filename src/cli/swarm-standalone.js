@@ -9,7 +9,8 @@ import { dirname, join } from 'node:path';
 import { existsSync } from 'node:fs';
 import { Deno, cwd, exit } from './node-compat.js';
 
-const __filename = fileURLToPath(import.meta.url);
+// PKG compatible __filename and __dirname
+const __filename = process.argv[1] || require.main?.filename || '';
 const __dirname = dirname(__filename);
 
 // Parse arguments

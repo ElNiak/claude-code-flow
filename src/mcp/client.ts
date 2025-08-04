@@ -33,9 +33,15 @@ export class MCPClient extends EventEmitter {
 
     // Initialize recovery manager if enabled
     if (config.enableRecovery) {
+      // Provide default MCPConfig with required transport field
+      const defaultMcpConfig: MCPConfig = {
+        transport: 'stdio',
+        enableMetrics: true,
+      };
+
       this.recoveryManager = new RecoveryManager(
         this,
-        config.mcpConfig || {},
+        config.mcpConfig || defaultMcpConfig,
         logger,
         config.recoveryConfig,
       );
@@ -103,34 +109,34 @@ export class MCPClient extends EventEmitter {
     // Create promise for tracking the request
     const requestPromise = new Promise((resolve, reject) => {
       const timer = setTimeout(() => {
-        this.pendingRequests.delete(request.id!);
+        this.pendingRequests.delete(request.id!.toString());
         reject(new Error(`Request timeout: ${method}`));
       }, this.timeout);
 
-      this.pendingRequests.set(request.id!, { resolve, reject, timer });
+      this.pendingRequests.set(request.id!.toString(), { resolve, reject, timer });
     });
 
     try {
       const response = await this.transport.sendRequest(request);
 
       // Clear pending request
-      const pending = this.pendingRequests.get(request.id!);
+      const pending = this.pendingRequests.get(request.id!.toString());
       if (pending) {
         clearTimeout(pending.timer);
-        this.pendingRequests.delete(request.id!);
+        this.pendingRequests.delete(request.id!.toString());
       }
 
       if ('error' in response) {
-        throw new Error(response.error);
+        throw new Error(response.error?.message || 'Unknown MCP error');
       }
 
       return response.result;
     } catch (error) {
       // Clear pending request on error
-      const pending = this.pendingRequests.get(request.id!);
+      const pending = this.pendingRequests.get(request.id!.toString());
       if (pending) {
         clearTimeout(pending.timer);
-        this.pendingRequests.delete(request.id!);
+        this.pendingRequests.delete(request.id!.toString());
       }
 
       throw error;

@@ -59,7 +59,7 @@ export abstract class BaseProvider extends EventEmitter implements ILLMProvider 
     this.config = options.config;
 
     // Initialize circuit breaker
-    this.circuitBreaker = circuitBreaker(`llm-${this.name}`, {
+    this.circuitBreaker = circuitBreaker(`llm-provider`, {
       threshold: options.circuitBreakerOptions?.threshold || 5,
       timeout: options.circuitBreakerOptions?.timeout || 60000,
       resetTimeout: options.circuitBreakerOptions?.resetTimeout || 300000,
@@ -186,7 +186,7 @@ export abstract class BaseProvider extends EventEmitter implements ILLMProvider 
           'STREAMING_NOT_SUPPORTED',
           this.name,
           undefined,
-          false
+          false,
         );
       }
 
@@ -210,7 +210,6 @@ export abstract class BaseProvider extends EventEmitter implements ILLMProvider 
       // Track metrics
       const latency = Date.now() - startTime;
       this.trackStreamRequest(request, totalTokens, totalCost, latency);
-
     } catch (error) {
       this.errorCount++;
 
@@ -267,7 +266,6 @@ export abstract class BaseProvider extends EventEmitter implements ILLMProvider 
 
       this.emit('health_check', this.lastHealthCheck);
       return this.lastHealthCheck;
-
     } catch (error) {
       this.lastHealthCheck = {
         healthy: false,
@@ -392,7 +390,7 @@ export abstract class BaseProvider extends EventEmitter implements ILLMProvider 
       },
       errors: this.errorCount,
       averageLatency: this.calculateAverageLatency(),
-      modelBreakdown: {}, // Would need to track per model
+      modelBreakdown: {} as Record<LLMModel, { requests: number; tokens: number; cost: number }>, // Would need to track per model
     };
   }
 
@@ -464,7 +462,9 @@ export abstract class BaseProvider extends EventEmitter implements ILLMProvider 
     // Clean up old metrics (keep last 1000)
     if (this.requestMetrics.size > 1000) {
       const oldestKey = this.requestMetrics.keys().next().value;
-      this.requestMetrics.delete(oldestKey);
+      if (oldestKey) {
+        this.requestMetrics.delete(oldestKey);
+      }
     }
   }
 
@@ -475,7 +475,7 @@ export abstract class BaseProvider extends EventEmitter implements ILLMProvider 
     request: LLMRequest,
     totalTokens: number,
     totalCost: number,
-    latency: number
+    latency: number,
   ): void {
     this.requestCount++;
     this.totalTokens += totalTokens;
@@ -508,13 +508,7 @@ export abstract class BaseProvider extends EventEmitter implements ILLMProvider 
       }
 
       if (error.message.includes('timeout') || error.message.includes('ETIMEDOUT')) {
-        return new LLMProviderError(
-          'Request timed out',
-          'TIMEOUT',
-          this.name,
-          undefined,
-          true
-        );
+        return new LLMProviderError('Request timed out', 'TIMEOUT', this.name, undefined, true);
       }
 
       if (error.message.includes('ECONNREFUSED') || error.message.includes('fetch failed')) {
@@ -527,7 +521,7 @@ export abstract class BaseProvider extends EventEmitter implements ILLMProvider 
       'UNKNOWN',
       this.name,
       undefined,
-      true
+      true,
     );
   }
 

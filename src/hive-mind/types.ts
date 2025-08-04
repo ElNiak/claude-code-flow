@@ -1,8 +1,17 @@
 /**
- * Hive Mind Type Definitions
+ * Hive Mind Type Definitions - UPDATED to use unified AgentType system
  *
  * Core types and interfaces for the Hive Mind system
+ * Now imports AgentType from single source of truth to prevent fragmentation
  */
+
+// Import unified AgentType system from single source of truth
+import {
+  AgentType,
+  resolveLegacyAgentType,
+  isValidAgentType,
+  normalizeAgentType,
+} from '../swarm/agent-types-unified.js';
 
 // Swarm types
 export type SwarmTopology = 'mesh' | 'hierarchical' | 'ring' | 'star' | 'specs-driven';
@@ -23,26 +32,65 @@ export interface HiveMindConfig {
   createdAt?: Date;
 }
 
-// Agent types
-export type AgentType =
-  | 'coordinator'
-  | 'researcher'
-  | 'coder'
-  | 'analyst'
-  | 'architect'
-  | 'tester'
-  | 'reviewer'
-  | 'optimizer'
-  | 'documenter'
-  | 'monitor'
-  | 'specialist'
-  // Maestro specs-driven agent types
-  | 'requirements_analyst'
-  | 'design_architect'
-  | 'task_planner'
-  | 'implementation_coder'
-  | 'quality_reviewer'
-  | 'steering_documenter';
+/**
+ * Legacy agent type resolution for hive-mind compatibility
+ * Maps old underscore format to unified hyphen format
+ */
+export function resolveHiveMindAgentType(legacyType: string): AgentType {
+  return resolveLegacyAgentType(legacyType);
+}
+
+/**
+ * Validate agent type for hive-mind usage
+ */
+export function isValidHiveMindAgentType(type: string): type is AgentType {
+  return isValidAgentType(type);
+}
+
+/**
+ * Normalize agent type for hive-mind usage
+ */
+export function normalizeHiveMindAgentType(type: string): string {
+  return normalizeAgentType(type);
+}
+
+/**
+ * Get default capabilities for an agent type
+ */
+export function getCapabilitiesForAgentType(type: AgentType): AgentCapability[] {
+  // Basic capabilities mapping based on agent type
+  const capabilityMap: Partial<Record<AgentType, AgentCapability[]>> = {
+    coder: ['code_generation', 'refactoring', 'debugging', 'implementation'],
+    reviewer: ['code_review', 'standards_enforcement', 'best_practices', 'quality_assurance'],
+    tester: ['test_generation', 'quality_assurance', 'edge_case_detection', 'testing'],
+    planner: ['task_management', 'resource_allocation', 'workflow_orchestration'],
+    researcher: ['information_gathering', 'pattern_recognition', 'knowledge_synthesis'],
+    architecture: [
+      'system_design',
+      'architecture',
+      'architecture_patterns',
+      'integration_planning',
+    ],
+    'system-architect': [
+      'system_design',
+      'architecture',
+      'architecture_patterns',
+      'integration_planning',
+    ],
+    'ml-developer': ['code_generation', 'data_analysis', 'algorithm_improvement', 'implementation'],
+    'api-docs': ['documentation_generation', 'api_docs', 'technical_writing'],
+    specification: [
+      'requirements_analysis',
+      'user_story_creation',
+      'acceptance_criteria',
+      'specs_driven_design',
+    ],
+    pseudocode: ['algorithm_improvement', 'system_design', 'pattern_recognition'],
+    refinement: ['code_review', 'performance_optimization', 'quality_assurance'],
+  };
+
+  return capabilityMap[type] || ['problem_solving', 'custom_capabilities'];
+}
 
 export type AgentStatus = 'idle' | 'busy' | 'active' | 'error' | 'offline';
 
@@ -88,18 +136,21 @@ export type AgentCapability =
   | 'acceptance_criteria'
   | 'specs_driven_design'
   | 'workflow_orchestration'
-  | 'governance';
+  | 'governance'
+  // Add missing capabilities that are being used
+  | 'implementation'
+  | 'testing';
 
 export interface AgentConfig {
   id?: string;
   name: string;
-  type: AgentType;
+  type: AgentType; // Now uses unified AgentType
   swarmId: string;
   capabilities: AgentCapability[];
 }
 
 export interface AgentSpawnOptions {
-  type: AgentType;
+  type: AgentType; // Now uses unified AgentType
   name?: string;
   capabilities?: AgentCapability[];
   autoAssign?: boolean;
@@ -383,13 +434,13 @@ export interface SwarmStatus {
   agents: Array<{
     id: string;
     name: string;
-    type: AgentType;
+    type: AgentType; // Now uses unified AgentType
     status: AgentStatus;
     currentTask: string | null;
     messageCount: number;
     createdAt: number;
   }>;
-  agentsByType: Record<AgentType, number>;
+  agentsByType: Record<string, number>; // Using string instead of AgentType for compatibility
   tasks: Array<{
     id: string;
     description: string;
@@ -439,3 +490,48 @@ export interface PerformanceMetric {
   timestamp: Date;
   metadata?: any;
 }
+
+/**
+ * Migration helper functions for legacy code
+ */
+
+/**
+ * Convert legacy underscore agent types to unified format
+ */
+export function migrateLegacyAgentTypes<T extends { type?: string }>(
+  objects: T[],
+): Array<T & { type: AgentType }> {
+  return objects.map((obj) => ({
+    ...obj,
+    type: obj.type ? resolveLegacyAgentType(obj.type) : ('coder' as AgentType),
+  }));
+}
+
+/**
+ * Validate and normalize agent type for hive-mind operations
+ */
+export function validateHiveMindAgentType(type: string): AgentType {
+  const normalized = normalizeAgentType(type);
+  const resolved = resolveLegacyAgentType(normalized);
+
+  if (!isValidAgentType(resolved)) {
+    throw new Error(`Invalid agent type: ${type}. Resolved to: ${resolved}`);
+  }
+
+  return resolved;
+}
+
+/**
+ * Get all valid agent types for hive-mind
+ * This provides backward compatibility while using the unified system
+ */
+export function getHiveMindAgentTypes(): AgentType[] {
+  // Import here to avoid circular dependencies
+  const { getAllAgentTypes } = require('../swarm/agent-types-unified');
+  return getAllAgentTypes();
+}
+
+// Export the unified AgentType and utility functions for external use
+export type { AgentType };
+
+export { normalizeAgentType, isValidAgentType };

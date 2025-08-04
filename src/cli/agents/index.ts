@@ -1,229 +1,196 @@
 /**
- * Agent System Index - Central exports and agent factory
+ * Agent management and factory for Claude-Flow
  */
 
-// Agent Classes
-export { BaseAgent } from './base-agent.js';
-export { ResearcherAgent, createResearcherAgent } from './researcher.js';
-export { CoderAgent, createCoderAgent } from './coder.js';
-export { AnalystAgent, createAnalystAgent } from './analyst.js';
-export { ArchitectAgent, createArchitectAgent } from './architect.js';
-export { TesterAgent, createTesterAgent } from './tester.js';
-export { CoordinatorAgent, createCoordinatorAgent } from './coordinator.js';
+import { logger } from '../../core/logger.js';
+import {
+  AgentType,
+  AgentCapability,
+  normalizeAgentType,
+  getCapabilitiesForAgentType,
+  isValidAgentType as validateAgentType,
+} from '../../hive-mind/types.js';
 
-// Systems
-export { AgentCapabilitySystem } from './capabilities.js';
-export { AgentManager } from '../../agents/agent-manager.js';
-export { AgentRegistry } from '../../agents/agent-registry.js';
+// Agent factory counter for unique IDs
+const agentCounter = 0;
 
-// Types
-export type { AgentState } from './base-agent.js';
-export type { CapabilityMatch, TaskRequirements, CapabilityRegistry } from './capabilities.js';
+// Runtime validation and error handling
+export interface RuntimeValidationError {
+  type: 'validation_error';
+  field: string;
+  value: unknown;
+  expected: string;
+  message: string;
+}
 
-// Agent Factory
-import type { AgentType, AgentConfig, AgentEnvironment } from '../../swarm/types.js';
-import type { ILogger } from '../../core/logger.js';
-import type { IEventBus } from '../../core/event-bus.js';
-import type { DistributedMemorySystem } from '../../memory/distributed-memory.js';
-import { BaseAgent } from './base-agent.js';
-import { createResearcherAgent } from './researcher.js';
-import { createCoderAgent } from './coder.js';
-import { createAnalystAgent } from './analyst.js';
-import { createArchitectAgent } from './architect.js';
-import { createTesterAgent } from './tester.js';
-import { createCoordinatorAgent } from './coordinator.js';
-import { generateId } from '../../utils/helpers.js';
+export interface AgentSpawnOptions {
+  name?: string;
+  capabilities?: AgentCapability[];
+  priority?: number;
+  environment?: Record<string, string>;
+  workingDirectory?: string;
+  shell?: string;
+  metadata?: Record<string, unknown>;
+}
 
-export interface AgentFactoryConfig {
-  logger: ILogger;
-  eventBus: IEventBus;
-  memory: DistributedMemorySystem;
+export interface SpawnedAgent {
+  id: string;
+  type: AgentType;
+  name: string;
+  capabilities: AgentCapability[];
+  status: 'initializing' | 'idle' | 'busy' | 'error' | 'offline';
+  priority: number;
+  environment: Record<string, string>;
+  workingDirectory: string;
+  shell: string;
+  metadata: Record<string, unknown>;
+  createdAt: Date;
+  lastActivity?: Date;
 }
 
 /**
- * Agent Factory - Creates specialized agents based on type
+ * Agent Factory Class - handles creation and management of agents
  */
 export class AgentFactory {
-  private logger: ILogger;
-  private eventBus: IEventBus;
-  private memory: DistributedMemorySystem;
   private agentCounter = 0;
 
-  constructor(config: AgentFactoryConfig) {
-    this.logger = config.logger;
-    this.eventBus = config.eventBus;
-    this.memory = config.memory;
-  }
-
   /**
-   * Create an agent of the specified type
+   * Spawn a new agent with given type and options
    */
-  createAgent(
-    type: AgentType,
-    config: Partial<AgentConfig> = {},
-    environment: Partial<AgentEnvironment> = {},
-    customId?: string,
-  ): BaseAgent {
-    const id = customId || this.generateAgentId(type);
+  async spawnAgent(type: string, options: AgentSpawnOptions = {}): Promise<SpawnedAgent> {
+    try {
+      // Normalize and validate agent type
+      const normalizedType = normalizeAgentType(type) as AgentType;
+      logger.debug('Creating agent', { type: normalizedType, originalType: type });
 
-    this.logger.info('Creating agent', {
-      id,
-      type,
-      factory: 'AgentFactory',
-    });
+      // Get default capabilities for the agent type
+      const defaultCapabilities = getCapabilitiesForAgentType(normalizedType);
+      const allCapabilities = [...defaultCapabilities, ...(options.capabilities || [])];
 
-    switch (type) {
-      case 'researcher':
-        return createResearcherAgent(
-          id,
-          config,
-          environment,
-          this.logger,
-          this.eventBus,
-          this.memory,
-        );
+      // Remove duplicates
+      const uniqueCapabilities = [...new Set(allCapabilities)];
 
-      case 'coder':
-        return createCoderAgent(id, config, environment, this.logger, this.eventBus, this.memory);
+      const agent: SpawnedAgent = {
+        id: this.generateAgentId(normalizedType),
+        type: normalizedType,
+        name: options.name || `${normalizedType}-${Date.now()}`,
+        capabilities: uniqueCapabilities,
+        status: 'initializing',
+        priority: options.priority || 5,
+        environment: options.environment || {},
+        workingDirectory: options.workingDirectory || process.cwd(),
+        shell: options.shell || '/bin/bash',
+        metadata: options.metadata || {},
+        createdAt: new Date(),
+      };
 
-      case 'analyst':
-        return createAnalystAgent(id, config, environment, this.logger, this.eventBus, this.memory);
+      logger.info('Agent spawned successfully', {
+        id: agent.id,
+        type: agent.type,
+        capabilities: agent.capabilities.length,
+      });
 
-      case 'architect':
-        return createArchitectAgent(
-          id,
-          config,
-          environment,
-          this.logger,
-          this.eventBus,
-          this.memory,
-        );
-
-      case 'tester':
-        return createTesterAgent(id, config, environment, this.logger, this.eventBus, this.memory);
-
-      case 'coordinator':
-        return createCoordinatorAgent(
-          id,
-          config,
-          environment,
-          this.logger,
-          this.eventBus,
-          this.memory,
-        );
-
-      default:
-        throw new Error(`Unknown agent type: ${type}`);
+      return agent;
+    } catch (error) {
+      logger.error('Failed to spawn agent', {
+        type,
+        error: error instanceof Error ? error.message : String(error),
+      });
+      throw error;
     }
   }
 
   /**
-   * Create multiple agents of different types
+   * Validate agent configuration
    */
-  createAgents(
-    specs: Array<{
-      type: AgentType;
-      count?: number;
-      config?: Partial<AgentConfig>;
-      environment?: Partial<AgentEnvironment>;
-    }>,
-  ): BaseAgent[] {
-    const agents: BaseAgent[] = [];
+  validateAgentConfig(config: Partial<SpawnedAgent & { type: string }>): RuntimeValidationError[] {
+    const errors: RuntimeValidationError[] = [];
 
-    for (const spec of specs) {
-      const count = spec.count || 1;
-      for (let i = 0; i < count; i++) {
-        const agent = this.createAgent(spec.type, spec.config, spec.environment);
-        agents.push(agent);
+    if (config.type && typeof config.type === 'string') {
+      try {
+        normalizeAgentType(config.type);
+      } catch (error) {
+        errors.push({
+          type: 'validation_error',
+          field: 'type',
+          value: config.type,
+          expected: 'valid AgentType',
+          message: error instanceof Error ? error.message : 'Invalid agent type',
+        });
       }
     }
 
-    this.logger.info('Created multiple agents', {
-      totalAgents: agents.length,
-      specs: specs.map((s) => ({ type: s.type, count: s.count || 1 })),
-    });
+    if (config.capabilities) {
+      config.capabilities.forEach((capability, index) => {
+        // Note: We'll add capability validation here when isValidAgentCapability is available
+        if (typeof capability !== 'string') {
+          errors.push({
+            type: 'validation_error',
+            field: `capabilities[${index}]`,
+            value: capability,
+            expected: 'string',
+            message: 'Agent capability must be a string',
+          });
+        }
+      });
+    }
 
-    return agents;
+    if (
+      config.priority !== undefined &&
+      (typeof config.priority !== 'number' || config.priority < 1 || config.priority > 10)
+    ) {
+      errors.push({
+        type: 'validation_error',
+        field: 'priority',
+        value: config.priority,
+        expected: 'number between 1 and 10',
+        message: 'Priority must be a number between 1 and 10',
+      });
+    }
+
+    return errors;
   }
 
   /**
-   * Create a balanced swarm of agents
+   * Get all supported agent types - UNIFIED to support both formats
    */
-  createBalancedSwarm(
-    size: number = 5,
-    strategy: 'research' | 'development' | 'analysis' | 'balanced' = 'balanced',
-  ): BaseAgent[] {
-    const compositions = {
-      research: {
-        researcher: 0.4,
-        analyst: 0.3,
-        coordinator: 0.2,
-        architect: 0.1,
-      },
-      development: {
-        coder: 0.4,
-        tester: 0.25,
-        architect: 0.2,
-        coordinator: 0.15,
-      },
-      analysis: {
-        analyst: 0.4,
-        researcher: 0.3,
-        coordinator: 0.2,
-        architect: 0.1,
-      },
-      balanced: {
-        coder: 0.25,
-        researcher: 0.2,
-        analyst: 0.2,
-        tester: 0.15,
-        architect: 0.1,
-        coordinator: 0.1,
-      },
-    };
-
-    const composition = compositions[strategy];
-    const specs: Array<{ type: AgentType; count: number }> = [];
-
-    for (const [type, ratio] of Object.entries(composition)) {
-      const count = Math.max(1, Math.round(size * ratio));
-      specs.push({ type: type as AgentType, count });
-    }
-
-    // Adjust if we have too many agents
-    const totalCount = specs.reduce((sum, spec) => sum + spec.count, 0);
-    if (totalCount > size) {
-      // Remove from largest groups first
-      specs.sort((a, b) => b.count - a.count);
-      let excess = totalCount - size;
-      for (const spec of specs) {
-        if (excess <= 0) break;
-        const reduction = Math.min(excess, spec.count - 1);
-        spec.count -= reduction;
-        excess -= reduction;
-      }
-    }
-
-    return this.createAgents(specs.map((spec) => ({ type: spec.type, count: spec.count })));
-  }
-
-  /**
-   * Get supported agent types
-   */
-  getSupportedTypes(): AgentType[] {
+  getSupportedTypes(): string[] {
     return [
-      'researcher', 'coder', 'analyst', 'architect', 'tester', 'coordinator',
-      'reviewer', 'optimizer', 'documenter', 'monitor', 'specialist',
-      'requirements_analyst', 'design_architect', 'task_planner',
-      'implementation_coder', 'quality_reviewer', 'steering_documenter'
+      // Base agent types
+      'researcher',
+      'coder',
+      'analyst',
+      'architect',
+      'tester',
+      'coordinator',
+      'reviewer',
+      'optimizer',
+      'documenter',
+      'monitor',
+      'specialist',
+      // Maestro specs-driven agent types (underscore format)
+      'requirements_analyst',
+      'design_architect',
+      'task_planner',
+      'implementation_coder',
+      'quality_reviewer',
+      'steering_documenter',
+      // Maestro specs-driven agent types (hyphen format - backward compatibility)
+      'design-architect',
+      'system-architect',
+      'task-planner',
+      'developer',
+      'requirements-engineer',
+      'steering-author',
     ];
   }
 
   /**
-   * Get agent type descriptions
+   * Get agent type descriptions - UNIFIED to support both formats
    */
-  getAgentTypeDescriptions(): Record<AgentType, string> {
+  getAgentTypeDescriptions(): Record<string, string> {
     return {
+      // Base agent types
       researcher: 'Specialized in information gathering, web research, and data collection',
       coder: 'Expert in software development, code generation, and implementation',
       analyst: 'Focused on data analysis, performance optimization, and insights',
@@ -235,15 +202,21 @@ export class AgentFactory {
       documenter: 'Creates and maintains comprehensive documentation',
       monitor: 'Monitors system health and performance metrics',
       specialist: 'Provides domain-specific expertise and specialized knowledge',
-      requirements_analyst: 'Analyzes requirements and creates user stories with acceptance criteria',
+      // Maestro specs-driven agent types (underscore format)
+      requirements_analyst:
+        'Analyzes requirements and creates user stories with acceptance criteria',
       design_architect: 'Creates technical designs and system architecture for features',
-      'system-architect': 'High-level system architecture and design patterns',
       task_planner: 'Plans implementation tasks and orchestrates workflow execution',
-      'task-planner': 'Plans implementation tasks and orchestrates workflow execution',
       implementation_coder: 'Implements code based on designs with quality focus',
-      developer: 'General purpose software development and implementation',
       quality_reviewer: 'Reviews code quality and ensures standards compliance',
-      steering_documenter: 'Maintains governance documentation and project steering'
+      steering_documenter: 'Maintains governance documentation and project steering',
+      // Maestro specs-driven agent types (hyphen format - backward compatibility)
+      'design-architect': 'Creates technical designs and system architecture for features',
+      'system-architect': 'High-level system architecture and design patterns',
+      'task-planner': 'Plans implementation tasks and orchestrates workflow execution',
+      developer: 'General purpose software development and implementation',
+      'requirements-engineer': 'Requirements analysis and technical documentation',
+      'steering-author': 'Governance and steering documentation authoring',
     };
   }
 
@@ -256,144 +229,103 @@ export class AgentFactory {
     const counter = this.agentCounter.toString(36).padStart(2, '0');
     return `${type}-${timestamp}-${counter}`;
   }
-}
 
-/**
- * Create default agent factory instance
- */
-export function createAgentFactory(
-  logger: ILogger,
-  eventBus: IEventBus,
-  memory: DistributedMemorySystem,
-): AgentFactory {
-  return new AgentFactory({ logger, eventBus, memory });
-}
+  /**
+   * Create agent with runtime validation
+   */
+  createAgentWithValidation(type: string, options: AgentSpawnOptions = {}): Promise<SpawnedAgent> {
+    // Validate inputs before creating
+    const tempConfig = { type: type as AgentType, ...options };
+    const validationErrors = this.validateAgentConfig(tempConfig);
 
-/**
- * Agent lifecycle management utilities
- */
-export class AgentLifecycle {
-  private agents = new Map<string, BaseAgent>();
-  private logger: ILogger;
+    if (validationErrors.length > 0) {
+      logger.error('Agent configuration validation failed', { errors: validationErrors });
+      throw new Error(
+        `Agent configuration validation failed: ${validationErrors.map((e) => e.message).join(', ')}`,
+      );
+    }
 
-  constructor(logger: ILogger) {
-    this.logger = logger;
+    return this.spawnAgent(type, options);
   }
 
   /**
-   * Register an agent for lifecycle management
+   * Batch spawn multiple agents
    */
-  register(agent: BaseAgent): void {
-    const info = agent.getAgentInfo();
-    this.agents.set(info.id.id, agent);
-    this.logger.info('Agent registered for lifecycle management', {
-      agentId: info.id.id,
-      type: info.type,
-    });
-  }
+  async batchSpawnAgents(
+    requests: Array<{ type: string; options?: AgentSpawnOptions }>,
+  ): Promise<SpawnedAgent[]> {
+    const results: SpawnedAgent[] = [];
+    const errors: Error[] = [];
 
-  /**
-   * Initialize all registered agents
-   */
-  async initializeAll(): Promise<void> {
-    const initPromises = Array.from(this.agents.values()).map((agent) =>
-      agent.initialize().catch((error) => {
-        const info = agent.getAgentInfo();
-        this.logger.error('Agent initialization failed', {
-          agentId: info.id.id,
-          error: error instanceof Error ? error.message : String(error),
-        });
-        throw error;
-      }),
-    );
-
-    await Promise.all(initPromises);
-    this.logger.info('All agents initialized', {
-      count: this.agents.size,
-    });
-  }
-
-  /**
-   * Shutdown all registered agents
-   */
-  async shutdownAll(): Promise<void> {
-    const shutdownPromises = Array.from(this.agents.values()).map((agent) =>
-      agent.shutdown().catch((error) => {
-        const info = agent.getAgentInfo();
-        this.logger.error('Agent shutdown failed', {
-          agentId: info.id.id,
-          error: error instanceof Error ? error.message : String(error),
-        });
-      }),
-    );
-
-    await Promise.all(shutdownPromises);
-    this.agents.clear();
-    this.logger.info('All agents shutdown');
-  }
-
-  /**
-   * Get agent by ID
-   */
-  getAgent(agentId: string): BaseAgent | undefined {
-    return this.agents.get(agentId);
-  }
-
-  /**
-   * Get all registered agents
-   */
-  getAllAgents(): BaseAgent[] {
-    return Array.from(this.agents.values());
-  }
-
-  /**
-   * Get agents by type
-   */
-  getAgentsByType(type: AgentType): BaseAgent[] {
-    return Array.from(this.agents.values()).filter((agent) => {
-      const info = agent.getAgentInfo();
-      return info.type === type;
-    });
-  }
-
-  /**
-   * Get agent statistics
-   */
-  getStatistics(): {
-    total: number;
-    byType: Record<AgentType, number>;
-    byStatus: Record<string, number>;
-    healthy: number;
-    active: number;
-  } {
-    const stats = {
-      total: this.agents.size,
-      byType: {} as Record<AgentType, number>,
-      byStatus: {} as Record<string, number>,
-      healthy: 0,
-      active: 0,
-    };
-
-    for (const agent of this.agents.values()) {
-      const info = agent.getAgentInfo();
-
-      // Count by type
-      stats.byType[info.type] = (stats.byType[info.type] || 0) + 1;
-
-      // Count by status
-      stats.byStatus[info.status] = (stats.byStatus[info.status] || 0) + 1;
-
-      // Count healthy agents (health > 0.7)
-      if (info.health > 0.7) {
-        stats.healthy++;
-      }
-
-      // Count active agents
-      if (info.status === 'idle' || info.status === 'busy') {
-        stats.active++;
+    for (const request of requests) {
+      try {
+        const agent = await this.spawnAgent(request.type, request.options);
+        results.push(agent);
+      } catch (error) {
+        errors.push(error instanceof Error ? error : new Error(String(error)));
       }
     }
 
-    return stats;
+    if (errors.length > 0) {
+      logger.warn('Some agents failed to spawn in batch operation', {
+        successful: results.length,
+        failed: errors.length,
+        errors: errors.map((e) => e.message),
+      });
+    }
+
+    return results;
+  }
+
+  /**
+   * Get agent capabilities by type
+   */
+  getAgentCapabilities(type: string): AgentCapability[] {
+    try {
+      const normalizedType = normalizeAgentType(type) as AgentType;
+      return getCapabilitiesForAgentType(normalizedType);
+    } catch (error) {
+      logger.error('Failed to get agent capabilities', {
+        type,
+        error: error instanceof Error ? error.message : String(error),
+      });
+      return [];
+    }
   }
 }
+
+// Export singleton instance
+export const agentFactory = new AgentFactory();
+
+// Legacy exports for backward compatibility - use 'export type' for types
+export type { AgentType, AgentCapability } from '../../hive-mind/types.js';
+
+// Helper functions
+export function isValidAgentType(type: string): boolean {
+  try {
+    return validateAgentType(type);
+  } catch {
+    return false;
+  }
+}
+
+export function getAllAgentTypes(): string[] {
+  return agentFactory.getSupportedTypes();
+}
+
+export function getAgentTypeDescription(type: string): string {
+  try {
+    const normalizedType = normalizeAgentType(type);
+    const descriptions = agentFactory.getAgentTypeDescriptions();
+    return descriptions[normalizedType] || 'Unknown agent type';
+  } catch {
+    return 'Invalid agent type';
+  }
+}
+
+export function createAgent(type: string, options: AgentSpawnOptions = {}): Promise<SpawnedAgent> {
+  return agentFactory.createAgentWithValidation(type, options);
+}
+
+// Default export
+export default agentFactory;

@@ -9,6 +9,7 @@ import type { ITransport, RequestHandler, NotificationHandler } from './base.js'
 import type { MCPRequest, MCPResponse, MCPNotification } from '../../utils/types.js';
 import type { ILogger } from '../../core/logger.js';
 import { MCPTransportError } from '../../utils/errors.js';
+import { getMCPDebugLogger } from '../debug-logger.js';
 
 /**
  * Stdio transport implementation
@@ -20,6 +21,7 @@ export class StdioTransport implements ITransport {
   private messageCount = 0;
   private notificationCount = 0;
   private running = false;
+  private mcpDebugLogger = getMCPDebugLogger();
 
   constructor(private logger: ILogger) {}
 
@@ -197,9 +199,36 @@ export class StdioTransport implements ITransport {
   private async sendResponse(response: MCPResponse): Promise<void> {
     try {
       const json = JSON.stringify(response);
+
+      // Trace outbound response
+      this.mcpDebugLogger.traceProtocolMessage(
+        'outbound',
+        'error' in response ? 'error' : 'response',
+        response,
+        undefined, // No session context in transport layer
+        {
+          transport: 'stdio',
+          outputStream: 'stdout',
+          protocolCompliant: true,
+        },
+      );
+
       stdout.write(json + '\n');
     } catch (error) {
       this.logger.error('Failed to send response', { response, error });
+
+      // Log error to stderr for MCP compliance
+      console.error(
+        JSON.stringify({
+          timestamp: new Date().toISOString(),
+          level: 'ERROR',
+          component: 'MCP-Transport',
+          message: 'Failed to send response',
+          error: error instanceof Error ? error.message : String(error),
+          mcpCompliant: true,
+          outputStream: 'stderr',
+        }),
+      );
     }
   }
 
@@ -228,10 +257,38 @@ export class StdioTransport implements ITransport {
   async sendNotification(notification: MCPNotification): Promise<void> {
     try {
       const json = JSON.stringify(notification);
+
+      // Trace outbound notification
+      this.mcpDebugLogger.traceProtocolMessage(
+        'outbound',
+        'notification',
+        notification,
+        undefined, // No session context in transport layer
+        {
+          transport: 'stdio',
+          outputStream: 'stdout',
+          protocolCompliant: true,
+        },
+      );
+
       stdout.write(json + '\n');
       this.notificationCount++;
     } catch (error) {
       this.logger.error('Failed to send notification', { notification, error });
+
+      // Log error to stderr for MCP compliance
+      console.error(
+        JSON.stringify({
+          timestamp: new Date().toISOString(),
+          level: 'ERROR',
+          component: 'MCP-Transport',
+          message: 'Failed to send notification',
+          error: error instanceof Error ? error.message : String(error),
+          mcpCompliant: true,
+          outputStream: 'stderr',
+        }),
+      );
+
       throw error;
     }
   }

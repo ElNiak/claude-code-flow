@@ -9,19 +9,20 @@ import { agenticHookManager } from './hook-manager.js';
 import type {
   AgenticHookContext,
   HookHandlerResult,
+  HookRegistration,
   MemoryHookPayload,
   SideEffect,
 } from './types.js';
 
 // ===== Pre-Memory Store Hook =====
 
-export const preMemoryStoreHook = {
+export const preMemoryStoreHook: HookRegistration<MemoryHookPayload> = {
   id: 'agentic-pre-memory-store',
   type: 'pre-memory-store' as const,
   priority: 100,
   handler: async (
     payload: MemoryHookPayload,
-    context: AgenticHookContext
+    context: AgenticHookContext,
   ): Promise<HookHandlerResult> => {
     const { namespace, key, value, ttl, provider } = payload;
 
@@ -93,13 +94,13 @@ export const preMemoryStoreHook = {
 
 // ===== Post-Memory Store Hook =====
 
-export const postMemoryStoreHook = {
+export const postMemoryStoreHook: HookRegistration<MemoryHookPayload> = {
   id: 'agentic-post-memory-store',
   type: 'post-memory-store' as const,
   priority: 100,
   handler: async (
     payload: MemoryHookPayload,
-    context: AgenticHookContext
+    context: AgenticHookContext,
   ): Promise<HookHandlerResult> => {
     const { namespace, key, value, crossProvider, syncTargets } = payload;
 
@@ -123,19 +124,23 @@ export const postMemoryStoreHook = {
     }
 
     // Update memory index for search
-    await updateMemoryIndex(namespace, key, value, context);
+    if (key) {
+      await updateMemoryIndex(namespace, key, value, context);
+    }
 
     // Neural pattern detection
-    const patterns = await detectMemoryPatterns(namespace, key, value, context);
-    if (patterns.length > 0) {
-      sideEffects.push({
-        type: 'neural',
-        action: 'analyze',
-        data: {
-          patterns,
-          context: { namespace, key },
-        },
-      });
+    if (key) {
+      const patterns = await detectMemoryPatterns(namespace, key, value, context);
+      if (patterns.length > 0) {
+        sideEffects.push({
+          type: 'neural',
+          action: 'analyze',
+          data: {
+            patterns,
+            context: { namespace, key, value },
+          },
+        });
+      }
     }
 
     // Emit memory change event
@@ -157,13 +162,13 @@ export const postMemoryStoreHook = {
 
 // ===== Pre-Memory Retrieve Hook =====
 
-export const preMemoryRetrieveHook = {
+export const preMemoryRetrieveHook: HookRegistration<MemoryHookPayload> = {
   id: 'agentic-pre-memory-retrieve',
   type: 'pre-memory-retrieve' as const,
   priority: 100,
   handler: async (
     payload: MemoryHookPayload,
-    context: AgenticHookContext
+    context: AgenticHookContext,
   ): Promise<HookHandlerResult> => {
     const { namespace, key } = payload;
 
@@ -209,13 +214,13 @@ export const preMemoryRetrieveHook = {
 
 // ===== Post-Memory Retrieve Hook =====
 
-export const postMemoryRetrieveHook = {
+export const postMemoryRetrieveHook: HookRegistration<MemoryHookPayload> = {
   id: 'agentic-post-memory-retrieve',
   type: 'post-memory-retrieve' as const,
   priority: 100,
   handler: async (
     payload: MemoryHookPayload,
-    context: AgenticHookContext
+    context: AgenticHookContext,
   ): Promise<HookHandlerResult> => {
     const { namespace, key, value } = payload;
 
@@ -267,13 +272,13 @@ export const postMemoryRetrieveHook = {
 
 // ===== Memory Sync Hook =====
 
-export const memorySyncHook = {
+export const memorySyncHook: HookRegistration<MemoryHookPayload> = {
   id: 'agentic-memory-sync',
   type: 'memory-sync' as const,
   priority: 100,
   handler: async (
     payload: MemoryHookPayload,
-    context: AgenticHookContext
+    context: AgenticHookContext,
   ): Promise<HookHandlerResult> => {
     const { operation, namespace, provider, syncTargets } = payload;
 
@@ -365,13 +370,13 @@ export const memorySyncHook = {
 
 // ===== Memory Persist Hook =====
 
-export const memoryPersistHook = {
+export const memoryPersistHook: HookRegistration<MemoryHookPayload> = {
   id: 'agentic-memory-persist',
   type: 'memory-persist' as const,
   priority: 90,
   handler: async (
     payload: MemoryHookPayload,
-    context: AgenticHookContext
+    context: AgenticHookContext,
   ): Promise<HookHandlerResult> => {
     const { namespace } = payload;
 
@@ -423,7 +428,7 @@ async function validateMemoryStore(
   namespace: string,
   key: string | undefined,
   value: any,
-  context: AgenticHookContext
+  context: AgenticHookContext,
 ): Promise<{ valid: boolean; reason?: string }> {
   // Check size limits
   const size = getValueSize(value);
@@ -488,7 +493,7 @@ async function updateMemoryIndex(
   namespace: string,
   key: string,
   value: any,
-  context: AgenticHookContext
+  context: AgenticHookContext,
 ): Promise<void> {
   // Update search index (placeholder)
   // In real implementation, update inverted index for search
@@ -498,7 +503,7 @@ async function detectMemoryPatterns(
   namespace: string,
   key: string,
   value: any,
-  context: AgenticHookContext
+  context: AgenticHookContext,
 ): Promise<any[]> {
   // Detect patterns in memory usage
   const patterns = [];
@@ -528,7 +533,7 @@ async function detectMemoryPatterns(
 async function checkLocalCache(
   namespace: string,
   key: string,
-  context: AgenticHookContext
+  context: AgenticHookContext,
 ): Promise<any | null> {
   const cacheKey = `${namespace}:${key}`;
   return context.memory.cache.get(cacheKey);
@@ -537,7 +542,7 @@ async function checkLocalCache(
 async function findRelatedKeys(
   namespace: string,
   key: string,
-  context: AgenticHookContext
+  context: AgenticHookContext,
 ): Promise<string[]> {
   // Find related keys based on patterns
   // Placeholder implementation
@@ -547,7 +552,7 @@ async function findRelatedKeys(
 async function prefetchKeys(
   namespace: string,
   keys: string[],
-  context: AgenticHookContext
+  context: AgenticHookContext,
 ): Promise<void> {
   // Trigger background prefetch
   // Placeholder implementation
@@ -556,11 +561,11 @@ async function prefetchKeys(
 async function updateAccessPattern(
   namespace: string,
   key: string,
-  context: AgenticHookContext
+  context: AgenticHookContext,
 ): Promise<void> {
   // Track access patterns for optimization
   const patternKey = `pattern:${namespace}:${key}`;
-  const pattern = await context.memory.cache.get(patternKey) || {
+  const pattern = (await context.memory.cache.get(patternKey)) || {
     accesses: [],
     lastAccess: 0,
   };
@@ -580,7 +585,7 @@ async function cacheLocally(
   namespace: string,
   key: string,
   value: any,
-  context: AgenticHookContext
+  context: AgenticHookContext,
 ): Promise<void> {
   const cacheKey = `${namespace}:${key}`;
   context.memory.cache.set(cacheKey, value);
@@ -589,7 +594,7 @@ async function cacheLocally(
 async function detectMemoryChanges(
   namespace: string,
   provider: string,
-  context: AgenticHookContext
+  context: AgenticHookContext,
 ): Promise<any[]> {
   // Detect changes for sync
   // Placeholder implementation
@@ -599,16 +604,13 @@ async function detectMemoryChanges(
 async function applyMemoryChange(
   change: any,
   targets: string[],
-  context: AgenticHookContext
+  context: AgenticHookContext,
 ): Promise<void> {
   // Apply memory change to targets
   // Placeholder implementation
 }
 
-async function createMemorySnapshot(
-  namespace: string,
-  context: AgenticHookContext
-): Promise<any> {
+async function createMemorySnapshot(namespace: string, context: AgenticHookContext): Promise<any> {
   // Create snapshot of namespace
   // Placeholder implementation
   return {
@@ -621,7 +623,7 @@ async function createMemorySnapshot(
 
 async function findExpiredEntries(
   namespace: string,
-  context: AgenticHookContext
+  context: AgenticHookContext,
 ): Promise<string[]> {
   // Find expired entries
   // Placeholder implementation
@@ -631,16 +633,13 @@ async function findExpiredEntries(
 async function removeMemoryEntry(
   namespace: string,
   key: string,
-  context: AgenticHookContext
+  context: AgenticHookContext,
 ): Promise<void> {
   // Remove memory entry
   // Placeholder implementation
 }
 
-async function createFullBackup(
-  namespace: string,
-  context: AgenticHookContext
-): Promise<any> {
+async function createFullBackup(namespace: string, context: AgenticHookContext): Promise<any> {
   // Create full backup
   // Placeholder implementation
   return {
@@ -655,18 +654,12 @@ function calculateChecksum(data: any): string {
   return 'checksum';
 }
 
-async function getNamespaceQuota(
-  namespace: string,
-  context: AgenticHookContext
-): Promise<number> {
+async function getNamespaceQuota(namespace: string, context: AgenticHookContext): Promise<number> {
   // Get namespace quota
   return 100 * 1024 * 1024; // 100MB default
 }
 
-async function getNamespaceUsage(
-  namespace: string,
-  context: AgenticHookContext
-): Promise<number> {
+async function getNamespaceUsage(namespace: string, context: AgenticHookContext): Promise<number> {
   // Get current usage
   // Placeholder implementation
   return 0;
@@ -677,10 +670,7 @@ function isValidKey(key: string): boolean {
   return /^[a-zA-Z0-9:_\-./]+$/.test(key);
 }
 
-async function getAccessHistory(
-  namespace: string,
-  context: AgenticHookContext
-): Promise<any[]> {
+async function getAccessHistory(namespace: string, context: AgenticHookContext): Promise<any[]> {
   // Get access history
   // Placeholder implementation
   return [];

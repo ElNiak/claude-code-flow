@@ -1115,7 +1115,7 @@ export class CloudManager extends EventEmitter {
           name: providerData.name,
           type: providerData.type,
           credentials: {},
-          configuration: providerData.configuration,
+          configuration: providerData.configuration as any,
           status: 'inactive',
           quotas: {
             computeInstances: 20,

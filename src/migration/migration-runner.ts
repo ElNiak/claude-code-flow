@@ -1,12 +1,10 @@
-import { dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
-const __dirname = dirname(fileURLToPath(import.meta.url));
+import * as fs from 'fs-extra';
+import * as path from 'path';
+// Get directory of current module for CommonJS compatibility
+const __dirname = path.dirname(require.resolve('./migration-runner.js'));
 /**
  * Migration Runner - Executes migration strategies
  */
-
-import * as fs from 'fs-extra';
-import * as path from 'path';
 import * as crypto from 'crypto';
 import type {
   MigrationOptions,
@@ -22,7 +20,7 @@ import { logger } from './logger.js';
 import { ProgressReporter } from './progress-reporter.js';
 import { MigrationValidator } from './migration-validator.js';
 import { glob } from 'glob';
-import * as inquirer from 'inquirer';
+import inquirer from 'inquirer';
 import * as chalk from 'chalk';
 
 export class MigrationRunner {
@@ -109,7 +107,7 @@ export class MigrationRunner {
     } catch (error) {
       result.errors.push({
         error: error instanceof Error ? error.message : String(error),
-        stack: error.stack,
+        stack: error instanceof Error ? error.stack : undefined,
       });
       this.progress.error('Migration failed');
 

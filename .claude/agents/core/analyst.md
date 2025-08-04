@@ -2,6 +2,7 @@
 name: analyst
 type: analyst
 color: "#9B59B6"
+model: sonnet
 description: Deep research and information gathering specialist & strategic planning
 tools: Read, Grep, WebSearch, mcp__perplexity-ask__search, mcp__context7__resolve-library-id, mcp__context7__get-library-docs, mcp__sequential-thinking__sequentialthinking, mcp__consult7__consultation
 capabilities:

@@ -5,7 +5,11 @@
 
 import { colors } from 'https://deno.land/x/cliffy@v1.0.0-rc.3/ansi/colors.ts';
 
-async function runTest(name: string, command: string[], expectedPatterns: string[]): Promise<boolean> {
+async function runTest(
+  name: string,
+  command: string[],
+  expectedPatterns: string[],
+): Promise<boolean> {
   console.log(colors.blue(`\nTesting: ${name}`));
   console.log(colors.gray(`Command: ${command.join(' ')}`));
 
@@ -20,7 +24,7 @@ async function runTest(name: string, command: string[], expectedPatterns: string
     const output = new TextDecoder().decode(stdout);
     const errorOutput = new TextDecoder().decode(stderr);
 
-    if (code !== 0 && !name.includes("dry-run")) {
+    if (code !== 0 && !name.includes('dry-run')) {
       console.log(colors.red(`❌ Command failed with code ${code}`));
       if (errorOutput) {
         console.log(colors.red(`Error: ${errorOutput}`));
@@ -45,7 +49,6 @@ async function runTest(name: string, command: string[], expectedPatterns: string
       console.log(colors.gray(`Output: ${output.substring(0, 200)}...`));
       return false;
     }
-
   } catch (error) {
     console.log(colors.red(`❌ Error running test: ${(error as Error).message}`));
     return false;
@@ -58,45 +61,55 @@ async function main() {
 
   const tests = [
     {
-      name: "Swarm demo dry-run",
-      command: ["./swarm-demo.ts", "Build a REST API", "--dry-run"],
-      patterns: ["DRY RUN", "Swarm ID:", "Objective: Build a REST API"],
+      name: 'Swarm demo dry-run',
+      command: ['./swarm-demo.ts', 'Build a REST API', '--dry-run'],
+      patterns: ['DRY RUN', 'Swarm ID:', 'Objective: Build a REST API'],
     },
     {
-      name: "CLI swarm command dry-run",
-      command: ["deno", "run", "--allow-all", "./src/cli/main.ts", "swarm", "Test objective", "--dry-run"],
-      patterns: ["DRY RUN", "Swarm ID:", "Objective: Test objective"],
-    },
-    {
-      name: "CLI swarm help",
-      command: ["deno", "run", "--allow-all", "./src/cli/main.ts", "help", "swarm"],
-      patterns: ["Claude Swarm Mode", "self-orchestrating Claude agent swarms"],
-    },
-    {
-      name: "Swarm with research strategy",
-      command: ["./swarm-demo.ts", "Research test", "--strategy", "research", "--dry-run"],
-      patterns: ["Strategy: research", "DRY RUN"],
-    },
-    {
-      name: "Swarm with all options",
+      name: 'CLI swarm command dry-run',
       command: [
-        "./swarm-demo.ts",
-        "Complex task",
-        "--max-agents", "10",
-        "--max-depth", "4",
-        "--research",
-        "--parallel",
-        "--review",
-        "--coordinator",
-        "--dry-run"
+        'deno',
+        'run',
+        '--allow-all',
+        './src/cli/main.ts',
+        'swarm',
+        'Test objective',
+        '--dry-run',
+      ],
+      patterns: ['DRY RUN', 'Swarm ID:', 'Objective: Test objective'],
+    },
+    {
+      name: 'CLI swarm help',
+      command: ['deno', 'run', '--allow-all', './src/cli/main.ts', 'help', 'swarm'],
+      patterns: ['Claude Swarm Mode', 'self-orchestrating Claude agent swarms'],
+    },
+    {
+      name: 'Swarm with research strategy',
+      command: ['./swarm-demo.ts', 'Research test', '--strategy', 'research', '--dry-run'],
+      patterns: ['Strategy: research', 'DRY RUN'],
+    },
+    {
+      name: 'Swarm with all options',
+      command: [
+        './swarm-demo.ts',
+        'Complex task',
+        '--max-agents',
+        '10',
+        '--max-depth',
+        '4',
+        '--research',
+        '--parallel',
+        '--review',
+        '--coordinator',
+        '--dry-run',
       ],
       patterns: [
-        "Max Agents: 10",
-        "Max Depth: 4",
-        "Research: true",
-        "Parallel: true",
-        "Review Mode: true",
-        "Coordinator: true"
+        'Max Agents: 10',
+        'Max Depth: 4',
+        'Research: true',
+        'Parallel: true',
+        'Review Mode: true',
+        'Coordinator: true',
       ],
     },
   ];
@@ -137,6 +150,9 @@ async function main() {
   console.log('   ./swarm-demo.ts "Migrate to microservices" --coordinator --review --parallel');
 }
 
-if (import.meta.main) {
+// CLI interface - PKG-compatible main module detection
+const __filename = process.argv[1] || require.main?.filename || '';
+const isMainModule = process.argv[1] && process.argv[1].endsWith('/test-swarm.ts');
+if (isMainModule) {
   await main();
 }

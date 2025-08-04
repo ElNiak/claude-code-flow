@@ -141,7 +141,9 @@ function getArgValue(args, flag) {
   return null;
 }
 
-// Run if called directly
-if (import.meta.main) {
+// Run if called directly - PKG compatible
+const __filename = process.argv[1] || require.main?.filename || '';
+const isMainModule = __filename.endsWith('/start-ui.js');
+if (isMainModule) {
   await launchUI();
 }

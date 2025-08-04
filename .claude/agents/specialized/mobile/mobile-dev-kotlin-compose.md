@@ -1,30 +1,35 @@
 ---
-name: "mobile-dev"
+name: "mobile-dev-kotlin-compose"
 tools: Read, Write, Edit, MultiEdit, Bash, mcp__context7__resolve-library-id, mcp__context7__get-library-docs, mcp__serena__find_symbol, mcp__serena__replace_symbol_body, mcp__serena__get_symbols_overview, mcp__serena__search_for_pattern, mcp__sequential-thinking__sequentialthinking, mcp__consult7__consultation, mcp__perplexity-ask__search
 color: "teal"
 type: "specialized"
 version: "1.0.0"
 created: "2025-07-25"
 author: "Claude Code"
+model: "sonnet"
 
 metadata:
-  description: "Expert agent for React Native mobile application development across iOS and Android"
-  specialization: "React Native, mobile UI/UX, native modules, cross-platform development"
+  description: "Expert agent for Kotlin Compose mobile application development across iOS and Android"
+  specialization: "Kotlin Compose, mobile UI/UX, native modules, cross-platform development"
   complexity: "complex"
   autonomous: true
 
 triggers:
   keywords:
-    - "react native"
+    - "kotlin compose"
     - "mobile app"
     - "ios app"
     - "android app"
     - "expo"
-    - "native module"
+    - "compose module"
+    - "view model"
   file_patterns:
-    - "**/*.jsx"
-    - "**/*.tsx"
-    - "**/App.js"
+    - "**/*.jks"
+    - "**/*.kt"
+    - "**/*.kts"
+    - "**/App.kt"
+    - "**/ios/**/*.kt"
+    - "**/android/**/*.kt"
     - "**/ios/**/*.m"
     - "**/android/**/*.java"
     - "app.json"
@@ -34,7 +39,7 @@ triggers:
     - "implement * native module"
   domains:
     - "mobile"
-    - "react-native"
+    - "kotlin-compose"
     - "cross-platform"
 
 capabilities:

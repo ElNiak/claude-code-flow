@@ -48,7 +48,11 @@ export class EnhancedClaudeAPIClient extends EventEmitter {
   private lastHealthCheck?: HealthCheckResult;
   private healthCheckTimer?: NodeJS.Timeout;
 
-  constructor(logger: ILogger, configManager: ConfigManager, config?: Partial<EnhancedClaudeAPIConfig>) {
+  constructor(
+    logger: ILogger,
+    configManager: ConfigManager,
+    config?: Partial<EnhancedClaudeAPIConfig>,
+  ) {
     super();
     this.logger = logger;
     this.configManager = configManager;
@@ -120,7 +124,9 @@ export class EnhancedClaudeAPIClient extends EventEmitter {
    */
   private validateConfiguration(config: EnhancedClaudeAPIConfig): void {
     if (!config.apiKey) {
-      throw new ClaudeAuthenticationError('Claude API key is required. Set ANTHROPIC_API_KEY environment variable.');
+      throw new ClaudeAuthenticationError(
+        'Claude API key is required. Set ANTHROPIC_API_KEY environment variable.',
+      );
     }
 
     if (config.temperature !== undefined && (config.temperature < 0 || config.temperature > 1)) {
@@ -285,14 +291,11 @@ export class EnhancedClaudeAPIClient extends EventEmitter {
           throw lastError;
         }
 
-        this.logger.warn(
-          `Claude API request failed (attempt ${attempt + 1}/${maxRetries})`,
-          {
-            error: lastError.message,
-            statusCode: lastError.statusCode,
-            retryable: lastError.retryable,
-          },
-        );
+        this.logger.warn(`Claude API request failed (attempt ${attempt + 1}/${maxRetries})`, {
+          error: lastError.message,
+          statusCode: lastError.statusCode,
+          retryable: lastError.retryable,
+        });
 
         // Don't retry on the last attempt
         if (attempt < maxRetries - 1) {
@@ -358,10 +361,7 @@ export class EnhancedClaudeAPIClient extends EventEmitter {
 
       // Handle abort/timeout
       if (error instanceof Error && error.name === 'AbortError') {
-        throw new ClaudeTimeoutError(
-          'Request timed out',
-          this.config.timeout || 60000,
-        );
+        throw new ClaudeTimeoutError('Request timed out', this.config.timeout || 60000);
       }
 
       throw error;
@@ -483,9 +483,10 @@ export class EnhancedClaudeAPIClient extends EventEmitter {
       case 401:
       case 403:
         return new ClaudeAuthenticationError(message, errorData);
-      case 429:
+      case 429: {
         const retryAfter = errorData.error?.retry_after;
         return new ClaudeRateLimitError(message, retryAfter, errorData);
+      }
       case 500:
         return new ClaudeInternalServerError(message, errorData);
       case 503:

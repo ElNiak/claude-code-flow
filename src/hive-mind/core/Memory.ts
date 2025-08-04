@@ -20,8 +20,19 @@ import {
 /**
  * High-performance LRU Cache with memory management
  */
+interface CacheEntry<T> {
+  data: T;
+  timestamp: number;
+  size: number;
+  ttl?: number;
+  createdAt?: Date;
+  lastAccessedAt?: Date;
+  key?: string;
+  namespace?: string;
+}
+
 class HighPerformanceCache<T> {
-  private cache = new Map<string, { data: T; timestamp: number; size: number }>();
+  private cache = new Map<string, CacheEntry<T>>();
   private maxSize: number;
   private maxMemory: number;
   private currentMemory = 0;
@@ -60,7 +71,14 @@ class HighPerformanceCache<T> {
       this.evictLRU();
     }
 
-    this.cache.set(key, { data, timestamp: Date.now(), size });
+    const now = new Date();
+    this.cache.set(key, {
+      data,
+      timestamp: Date.now(),
+      size,
+      createdAt: now,
+      lastAccessedAt: now,
+    });
     this.currentMemory += size;
   }
 
@@ -113,6 +131,18 @@ class HighPerformanceCache<T> {
     }
     return false;
   }
+
+  get size(): number {
+    return this.cache.size;
+  }
+
+  entries(): IterableIterator<[string, CacheEntry<T>]> {
+    return this.cache.entries();
+  }
+
+  [Symbol.iterator](): IterableIterator<[string, CacheEntry<T>]> {
+    return this.cache.entries();
+  }
 }
 
 /**
@@ -160,8 +190,8 @@ class ObjectPool<T> {
 
 export class Memory extends EventEmitter {
   private swarmId: string;
-  private db: DatabaseManager;
-  private mcpWrapper: MCPToolWrapper;
+  private db!: DatabaseManager;
+  private mcpWrapper!: MCPToolWrapper;
   private cache: HighPerformanceCache<any>;
   private namespaces: Map<string, MemoryNamespace>;
   private accessPatterns: Map<string, number>;
@@ -270,10 +300,10 @@ export class Memory extends EventEmitter {
     this.objectPools.set(
       'searchResult',
       new ObjectPool(
-        () => ({ results: [], metadata: {} }),
+        () => ({ results: [], metadata: {} as Record<string, any> }),
         (obj) => {
           obj.results.length = 0;
-          Object.keys(obj.metadata).forEach((k) => delete obj.metadata[k]);
+          Object.keys(obj.metadata).forEach((k) => delete (obj.metadata as any)[k]);
         },
       ),
     );
@@ -1267,14 +1297,14 @@ export class Memory extends EventEmitter {
     const toEvict: string[] = [];
 
     for (const [cacheKey, entry] of this.cache) {
-      if (entry.ttl && entry.createdAt.getTime() + entry.ttl * 1000 < now) {
+      if (entry.ttl && entry.createdAt && entry.createdAt.getTime() + entry.ttl * 1000 < now) {
         toEvict.push(cacheKey);
       }
     }
 
     for (const key of toEvict) {
       const entry = this.cache.get(key)!;
-      await this.delete(entry.key, entry.namespace);
+      await this.delete(entry.key || key, entry.namespace || 'default');
     }
   }
 
@@ -1284,7 +1314,7 @@ export class Memory extends EventEmitter {
     if (this.cache.size > maxCacheSize) {
       // Evict least recently used entries
       const entries = Array.from(this.cache.entries()).sort(
-        (a, b) => a[1].lastAccessedAt.getTime() - b[1].lastAccessedAt.getTime(),
+        (a, b) => (a[1].lastAccessedAt?.getTime() || 0) - (b[1].lastAccessedAt?.getTime() || 0),
       );
 
       const toEvict = entries.slice(0, entries.length - maxCacheSize);

@@ -4,7 +4,39 @@
  * This version can be run directly from GitHub
  */
 
-const VERSION = '1.0.71';
+// For remote execution, we'll use a simplified version reader
+import { readFileSync } from 'fs';
+import { join, dirname } from 'path';
+
+function getVersion(): string {
+  try {
+    // Get current directory using CommonJS-compatible approach
+    const currentDir = dirname(process.argv[1] || require.main?.filename || '');
+
+    const possiblePaths = [
+      join(currentDir, '../../package.json'),
+      join(currentDir, '../../../package.json'),
+      join(process.cwd(), 'package.json'),
+    ];
+
+    for (const packagePath of possiblePaths) {
+      try {
+        const packageJson = JSON.parse(readFileSync(packagePath, 'utf8'));
+        if (packageJson.version && typeof packageJson.version === 'string') {
+          return packageJson.version;
+        }
+      } catch {
+        continue;
+      }
+    }
+
+    return '2.0.0-alpha.79'; // Fallback
+  } catch {
+    return '2.0.0-alpha.79'; // Fallback
+  }
+}
+
+const VERSION = getVersion();
 
 // Simple color functions
 const chalk = {
@@ -133,7 +165,21 @@ async function main() {
   }
 }
 
-if (import.meta.url === `file://${Deno.execPath()}`) {
+// CJS/ESM compatibility for main module detection
+// PKG-compatible version without import.meta evaluation
+const isMainModule = (() => {
+  try {
+    // Check if this script is the main module being executed
+    return (
+      process.argv[1] &&
+      (process.argv[1].endsWith('/index-remote.ts') || process.argv[1].endsWith('/index-remote.js'))
+    );
+  } catch {
+    return false;
+  }
+})();
+
+if (isMainModule) {
   main().catch((error) => {
     printError(`Error: ${error instanceof Error ? error.message : String(error)}`);
     process.exit(1);

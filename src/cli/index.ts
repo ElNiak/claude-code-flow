@@ -27,7 +27,8 @@ import { startREPL } from './repl.js';
 import { CompletionGenerator } from './completion.js';
 
 // Version information
-const VERSION = '1.0.71';
+import { getVersion } from '../utils/version.js';
+const VERSION = getVersion();
 const BUILD_DATE = new Date().toISOString().split('T')[0];
 
 // Main CLI command
@@ -94,7 +95,7 @@ const versionCommand = new Command('version')
     if (options.short) {
       console.log(VERSION);
     } else {
-      displayVersion(VERSION, BUILD_DATE);
+      displayVersion(VERSION);
     }
   });
 cli.addCommand(versionCommand);
@@ -112,7 +113,7 @@ cli.addCommand(completionCommand);
 
 // Global error handler
 async function handleError(error: unknown, options?: any): Promise<void> {
-  const formatted = formatError(error);
+  const formatted = formatError(error instanceof Error ? error.message : String(error));
 
   if (options?.json) {
     console.error(
@@ -191,30 +192,47 @@ function setupSignalHandlers(): void {
 }
 
 // Main entry point
-if (false) {
-  // import.meta.main not available
-  let globalOptions: any = {};
+// PKG-compatible main module detection (avoids import.meta entirely)
+const isMainModule = (() => {
+  // Use process.argv[1] which works in both ESM, CJS, and PKG contexts
+  const currentFile = process.argv[1];
+  if (!currentFile) return false;
 
-  try {
-    // Setup signal handlers
-    setupSignalHandlers();
+  // Check if running this specific file
+  return (
+    currentFile.endsWith('/index.ts') ||
+    currentFile.endsWith('/index.js') ||
+    currentFile.includes('claude-flow') ||
+    currentFile.includes('index')
+  );
+})();
 
-    // Pre-parse global options for error handling
-    const args = Deno.args;
-    globalOptions = {
-      verbose: args.includes('-v') || args.includes('--verbose'),
-      quiet: args.includes('-q') || args.includes('--quiet'),
-      json: args.includes('--json'),
-      noColor: args.includes('--no-color'),
-    };
+if (isMainModule) {
+  // Wrap top-level await in async IIFE for CJS compatibility
+  (async () => {
+    let globalOptions: any = {};
 
-    // Configure colors based on options
-    if (globalOptions.noColor) {
-      // colors.setColorEnabled(false);
+    try {
+      // Setup signal handlers
+      setupSignalHandlers();
+
+      // Pre-parse global options for error handling
+      const args = Deno.args;
+      globalOptions = {
+        verbose: args.includes('-v') || args.includes('--verbose'),
+        quiet: args.includes('-q') || args.includes('--quiet'),
+        json: args.includes('--json'),
+        noColor: args.includes('--no-color'),
+      };
+
+      // Configure colors based on options
+      if (globalOptions.noColor) {
+        // colors.setColorEnabled(false);
+      }
+
+      await cli.parse(args);
+    } catch (error) {
+      await handleError(error, globalOptions);
     }
-
-    await cli.parse(args);
-  } catch (error) {
-    await handleError(error, globalOptions);
-  }
+  })().catch(console.error);
 }

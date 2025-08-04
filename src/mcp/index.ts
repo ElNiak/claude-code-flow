@@ -35,11 +35,8 @@ export {
 export {
   AuthManager,
   type IAuthManager,
-  type AuthContext,
   type AuthResult,
-  type TokenInfo,
-  type TokenGenerationOptions,
-  type AuthSession,
+  type TokenValidation,
   Permissions,
 } from './auth.js';
 
@@ -89,12 +86,13 @@ export class MCPIntegrationFactory {
    */
   static async createIntegration(config: {
     mcpConfig: import('../utils/types.js').MCPConfig;
-    orchestrationConfig?: Partial<MCPOrchestrationConfig>;
-    components?: Partial<OrchestrationComponents>;
+    orchestrationConfig?: Partial<import('./orchestration-integration.js').MCPOrchestrationConfig>;
+    components?: Partial<import('./orchestration-integration.js').OrchestrationComponents>;
     logger: import('../core/logger.js').ILogger;
-  }): Promise<MCPOrchestrationIntegration> {
+  }): Promise<import('./orchestration-integration.js').MCPOrchestrationIntegration> {
     const { mcpConfig, orchestrationConfig = {}, components = {}, logger } = config;
 
+    const { MCPOrchestrationIntegration } = await import('./orchestration-integration.js');
     const integration = new MCPOrchestrationIntegration(
       mcpConfig,
       {
@@ -131,9 +129,9 @@ export class MCPIntegrationFactory {
     enableLifecycleManagement?: boolean;
     enablePerformanceMonitoring?: boolean;
   }): Promise<{
-    server: MCPServer;
-    lifecycleManager?: MCPLifecycleManager;
-    performanceMonitor?: MCPPerformanceMonitor;
+    server: import('./server.js').MCPServer;
+    lifecycleManager?: import('./lifecycle-manager.js').MCPLifecycleManager;
+    performanceMonitor?: import('./performance-monitor.js').MCPPerformanceMonitor;
   }> {
     const {
       mcpConfig,
@@ -142,11 +140,15 @@ export class MCPIntegrationFactory {
       enablePerformanceMonitoring = true,
     } = config;
 
+    const { MCPServer } = await import('./server.js');
+    const { MCPLifecycleManager } = await import('./lifecycle-manager.js');
+    const { MCPPerformanceMonitor } = await import('./performance-monitor.js');
+
     const eventBus = new (await import('node:events')).EventEmitter();
     const server = new MCPServer(mcpConfig, eventBus, logger);
 
-    let lifecycleManager: MCPLifecycleManager | undefined;
-    let performanceMonitor: MCPPerformanceMonitor | undefined;
+    let lifecycleManager: import('./lifecycle-manager.js').MCPLifecycleManager | undefined;
+    let performanceMonitor: import('./performance-monitor.js').MCPPerformanceMonitor | undefined;
 
     if (enableLifecycleManagement) {
       lifecycleManager = new MCPLifecycleManager(mcpConfig, logger, () => server);
@@ -167,10 +169,10 @@ export class MCPIntegrationFactory {
    * Create a development/testing MCP setup
    */
   static async createDevelopmentSetup(logger: import('../core/logger.js').ILogger): Promise<{
-    server: MCPServer;
-    lifecycleManager: MCPLifecycleManager;
-    performanceMonitor: MCPPerformanceMonitor;
-    protocolManager: MCPProtocolManager;
+    server: import('./server.js').MCPServer;
+    lifecycleManager: import('./lifecycle-manager.js').MCPLifecycleManager;
+    performanceMonitor: import('./performance-monitor.js').MCPPerformanceMonitor;
+    protocolManager: import('./protocol-manager.js').MCPProtocolManager;
   }> {
     const mcpConfig: import('../utils/types.js').MCPConfig = {
       transport: 'stdio',
@@ -188,6 +190,7 @@ export class MCPIntegrationFactory {
       enablePerformanceMonitoring: true,
     });
 
+    const { MCPProtocolManager } = await import('./protocol-manager.js');
     const protocolManager = new MCPProtocolManager(logger);
 
     return {

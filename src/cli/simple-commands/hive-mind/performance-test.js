@@ -366,8 +366,10 @@ export class PerformanceTest {
 // Export for use in tests
 export default PerformanceTest;
 
-// Run tests if executed directly
-if (import.meta.url === `file://${process.argv[1]}`) {
+// Run tests if executed directly - PKG compatible
+const __filename = process.argv[1] || require.main?.filename || '';
+const isMainModule = process.argv[1] && process.argv[1].endsWith('/performance-test.js');
+if (isMainModule) {
   const testRunner = new PerformanceTest();
   testRunner.runTestSuite().catch(console.error);
 }

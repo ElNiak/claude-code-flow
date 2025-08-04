@@ -156,8 +156,8 @@ export class OpenAIProvider extends BaseProvider {
     },
   };
 
-  private baseUrl: string;
-  private headers: Record<string, string>;
+  private baseUrl!: string;
+  private headers!: Record<string, string>;
 
   protected async doInitialize(): Promise<void> {
     if (!this.config.apiKey) {
@@ -166,7 +166,7 @@ export class OpenAIProvider extends BaseProvider {
 
     this.baseUrl = this.config.apiUrl || 'https://api.openai.com/v1';
     this.headers = {
-      'Authorization': `Bearer ${this.config.apiKey}`,
+      Authorization: `Bearer ${this.config.apiKey}`,
       'Content-Type': 'application/json',
     };
 
@@ -217,7 +217,7 @@ export class OpenAIProvider extends BaseProvider {
         await this.handleErrorResponse(response);
       }
 
-      const data: OpenAIResponse = await response.json();
+      const data = (await response.json()) as OpenAIResponse;
       const choice = data.choices[0];
 
       // Calculate cost
@@ -458,7 +458,7 @@ export class OpenAIProvider extends BaseProvider {
           message,
           'openai',
           retryAfter ? parseInt(retryAfter) : undefined,
-          errorData
+          errorData,
         );
       case 404:
         throw new ModelNotFoundError(this.config.model, 'openai', errorData);
@@ -469,7 +469,7 @@ export class OpenAIProvider extends BaseProvider {
           'openai',
           response.status,
           response.status >= 500,
-          errorData
+          errorData,
         );
     }
   }

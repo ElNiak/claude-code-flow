@@ -1,6 +1,10 @@
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-const __dirname = dirname(fileURLToPath(import.meta.url));
+
+// CJS/ESM compatibility for __dirname
+// PKG-compatible version without import.meta evaluation
+const __filename = process.argv[1] || require.main?.filename || '';
+const __dirname = dirname(__filename);
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { Worker } from 'worker_threads';
@@ -22,7 +26,7 @@ export class EnhancedPromptCopier extends PromptCopier {
     super(options);
   }
 
-  public async copyFilesParallel(): Promise<void> {
+  private async copyFilesParallelEnhanced(): Promise<void> {
     const workerCount = Math.min((this as any).options.maxWorkers, (this as any).fileQueue.length);
 
     // Initialize worker pool
@@ -194,7 +198,7 @@ export class EnhancedPromptCopier extends PromptCopier {
   }
 
   // Override verification to use worker results
-  protected override async verifyFiles(): Promise<void> {
+  private async verifyFilesEnhanced(): Promise<void> {
     logger.info('Verifying copied files...');
 
     for (const file of (this as any).fileQueue) {

@@ -20,8 +20,8 @@ import {
 
 export class SwarmOrchestrator extends EventEmitter {
   private hiveMind: HiveMind;
-  private db: DatabaseManager;
-  private mcpWrapper: MCPToolWrapper;
+  private db!: DatabaseManager;
+  private mcpWrapper!: MCPToolWrapper;
   private executionPlans: Map<string, ExecutionPlan>;
   private taskAssignments: Map<string, TaskAssignment[]>;
   private activeExecutions: Map<string, any>;
@@ -90,7 +90,7 @@ export class SwarmOrchestrator extends EventEmitter {
 
     // Create assignments for each phase
     const phaseAssignments = await Promise.all(
-      phases.map((phase) => this.createPhaseAssignments(task, phase, analysis)),
+      phases.map((phase: any) => this.createPhaseAssignments(task, phase, analysis)),
     );
 
     return {
@@ -134,7 +134,7 @@ export class SwarmOrchestrator extends EventEmitter {
       await this.completeTask(task, execution);
     } catch (error) {
       execution.status = 'failed';
-      execution.error = error;
+      (execution as any).error = error;
       await this.handleTaskFailure(task, execution, error);
     } finally {
       this.activeExecutions.delete(task.id);
@@ -502,7 +502,7 @@ export class SwarmOrchestrator extends EventEmitter {
     const suitableAgents = agents.filter(
       (agent) =>
         agent.status === 'idle' &&
-        requiredCapabilities.every((cap) => agent.capabilities.includes(cap)),
+        requiredCapabilities.every((cap) => agent.capabilities.includes(cap as any)),
     );
 
     if (suitableAgents.length === 0) {
@@ -672,7 +672,7 @@ export class SwarmOrchestrator extends EventEmitter {
   private createExecutionSummary(execution: any): any {
     const phaseCount = execution.phaseResults.length;
     const successfulPhases = execution.phaseResults.filter(
-      (r) => r.summary?.successRate > 0.5,
+      (r: any) => r.summary?.successRate > 0.5,
     ).length;
 
     return {
@@ -691,7 +691,7 @@ export class SwarmOrchestrator extends EventEmitter {
     await this.db.createCommunication({
       from_agent_id: 'orchestrator',
       to_agent_id: agentId,
-      swarm_id: this.hiveMind.id,
+      swarm_id: (this.hiveMind as any).id,
       message_type: 'task_cancellation',
       content: JSON.stringify({ taskId, reason: 'User cancelled' }),
       priority: 'urgent',
@@ -703,7 +703,7 @@ export class SwarmOrchestrator extends EventEmitter {
    */
   private async analyzeLoadDistribution(): Promise<any> {
     const agents = await this.hiveMind.getAgents();
-    const tasks = await this.db.getActiveTasks(this.hiveMind.id);
+    const tasks = await this.db.getActiveTasks((this.hiveMind as any).id);
 
     const busyAgents = agents.filter((a) => a.status === 'busy');
     const idleAgents = agents.filter((a) => a.status === 'idle');
@@ -772,7 +772,7 @@ export class SwarmOrchestrator extends EventEmitter {
     await this.db.createCommunication({
       from_agent_id: 'orchestrator',
       to_agent_id: fromAgentId,
-      swarm_id: this.hiveMind.id,
+      swarm_id: (this.hiveMind as any).id,
       message_type: 'task_reassignment',
       content: JSON.stringify({ taskId, reassignedTo: toAgentId }),
       priority: 'high',
@@ -785,7 +785,7 @@ export class SwarmOrchestrator extends EventEmitter {
     await this.db.createCommunication({
       from_agent_id: 'orchestrator',
       to_agent_id: toAgentId,
-      swarm_id: this.hiveMind.id,
+      swarm_id: (this.hiveMind as any).id,
       message_type: 'task_assignment',
       content: JSON.stringify({
         taskId,

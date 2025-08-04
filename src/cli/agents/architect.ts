@@ -74,7 +74,7 @@ export class ArchitectAgent extends BaseAgent {
     eventBus: IEventBus,
     memory: DistributedMemorySystem,
   ) {
-    super(id, 'architect', config, environment, logger, eventBus, memory);
+    super(id, 'architecture', config, environment, logger, eventBus, memory);
   }
 
   protected getDefaultCapabilities(): AgentCapabilities {

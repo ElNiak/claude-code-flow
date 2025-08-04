@@ -145,10 +145,11 @@ export const errors = {
   },
 };
 
-// import.meta compatibility
+// PKG compatible import.meta URL
 export const getImportMetaUrl = () => {
-  // This will be replaced by the actual import.meta.url in each file
-  return import.meta.url;
+  // PKG compatible import.meta.url equivalent
+  const __filename = process.argv[1] || require.main?.filename || '';
+  return 'file://' + __filename;
 };
 
 export const getDirname = (importMetaUrl) => {

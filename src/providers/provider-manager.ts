@@ -105,7 +105,10 @@ export class ProviderManager extends EventEmitter {
   /**
    * Create a provider instance
    */
-  private async createProvider(name: LLMProvider, config: LLMProviderConfig): Promise<ILLMProvider | null> {
+  private async createProvider(
+    name: LLMProvider,
+    config: LLMProviderConfig,
+  ): Promise<ILLMProvider | null> {
     const providerOptions = {
       logger: this.logger,
       config,
@@ -268,9 +271,11 @@ export class ProviderManager extends EventEmitter {
       try {
         const estimate = await provider.estimateCost(request);
 
-        if (estimate.estimatedCost.total < bestCost &&
-            (!request.costConstraints?.maxCostPerRequest ||
-             estimate.estimatedCost.total <= request.costConstraints.maxCostPerRequest)) {
+        if (
+          estimate.estimatedCost.total < bestCost &&
+          (!request.costConstraints?.maxCostPerRequest ||
+            estimate.estimatedCost.total <= request.costConstraints.maxCostPerRequest)
+        ) {
           bestCost = estimate.estimatedCost.total;
           bestProvider = provider;
         }
@@ -286,8 +291,8 @@ export class ProviderManager extends EventEmitter {
    * Select provider using load balancing
    */
   private selectLoadBalancedProvider(): ILLMProvider {
-    const availableProviders = Array.from(this.providers.values()).filter(p =>
-      this.isProviderAvailable(p)
+    const availableProviders = Array.from(this.providers.values()).filter((p) =>
+      this.isProviderAvailable(p),
     );
 
     if (availableProviders.length === 0) {
@@ -395,7 +400,7 @@ export class ProviderManager extends EventEmitter {
   private async handleRequestError(
     error: unknown,
     request: LLMRequest,
-    failedProvider: ILLMProvider
+    failedProvider: ILLMProvider,
   ): Promise<LLMResponse> {
     this.logger.error(`Provider ${failedProvider.name} failed`, error);
 
@@ -421,15 +426,15 @@ export class ProviderManager extends EventEmitter {
    */
   private async getFallbackProvider(
     error: unknown,
-    failedProvider: ILLMProvider
+    failedProvider: ILLMProvider,
   ): Promise<ILLMProvider | null> {
     if (!this.config.fallbackStrategy?.enabled) {
       return null;
     }
 
     const errorCondition = this.getErrorCondition(error);
-    const fallbackRule = this.config.fallbackStrategy.rules.find(rule =>
-      rule.condition === errorCondition
+    const fallbackRule = this.config.fallbackStrategy.rules.find(
+      (rule) => rule.condition === errorCondition,
     );
 
     if (!fallbackRule) {
@@ -496,7 +501,9 @@ export class ProviderManager extends EventEmitter {
     // Cleanup old cache entries
     if (this.cache.size > 1000) {
       const oldestKey = this.cache.keys().next().value;
-      this.cache.delete(oldestKey);
+      if (oldestKey) {
+        this.cache.delete(oldestKey);
+      }
     }
   }
 
@@ -514,7 +521,7 @@ export class ProviderManager extends EventEmitter {
    */
   private updateProviderMetrics(
     provider: LLMProvider,
-    metrics: { success: boolean; latency: number; cost: number }
+    metrics: { success: boolean; latency: number; cost: number },
   ): void {
     const count = this.requestCount.get(provider) || 0;
     this.requestCount.set(provider, count + 1);
@@ -580,9 +587,10 @@ export class ProviderManager extends EventEmitter {
 
     for (const [provider, count] of this.requestCount.entries()) {
       const providerMetricsList = this.providerMetrics.get(provider) || [];
-      const avgLatency = providerMetricsList.length > 0
-        ? providerMetricsList.reduce((sum, m) => sum + m.latency, 0) / providerMetricsList.length
-        : 0;
+      const avgLatency =
+        providerMetricsList.length > 0
+          ? providerMetricsList.reduce((sum, m) => sum + m.latency, 0) / providerMetricsList.length
+          : 0;
       const totalCost = providerMetricsList.reduce((sum, m) => sum + m.cost, 0);
 
       metrics.providers[provider] = {
@@ -618,7 +626,7 @@ export class ProviderManager extends EventEmitter {
    * Get available providers
    */
   getAvailableProviders(): LLMProvider[] {
-    return Array.from(this.providers.keys()).filter(name => {
+    return Array.from(this.providers.keys()).filter((name) => {
       const provider = this.providers.get(name);
       return provider && this.isProviderAvailable(provider);
     });

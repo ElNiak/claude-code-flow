@@ -12,7 +12,8 @@ import { EnhancedMemory } from '../memory/enhanced-memory.js';
 // Use the same memory system that npx commands use - singleton instance
 import { memoryStore } from '../memory/fallback-store.js';
 
-const __filename = fileURLToPath(import.meta.url);
+// PKG compatible __filename and __dirname
+const __filename = process.argv[1] || require.main?.filename || '';
 const __dirname = path.dirname(__filename);
 
 class ClaudeFlowMCPServer {
@@ -1967,8 +1968,9 @@ async function startMCPServer() {
   });
 }
 
-// Start the server if this file is run directly
-if (import.meta.url === `file://${process.argv[1]}`) {
+// Start the server if this file is run directly - PKG compatible
+const isMainModule = process.argv[1] && process.argv[1].endsWith('/mcp-server.js');
+if (isMainModule) {
   startMCPServer().catch(console.error);
 }
 

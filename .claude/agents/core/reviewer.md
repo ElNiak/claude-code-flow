@@ -3,7 +3,7 @@ name: reviewer
 type: validator
 color: "#E74C3C"
 description: Code review and quality assurance specialist
-tools: Read, Grep, WebSearch, mcp__serena__get_symbols_overview, mcp__serena__find_symbol, mcp__serena__find_referencing_symbols, mcp__consult7__consultation, mcp__sequential-thinking__sequentialthinking
+model: sonnet
 capabilities:
   - code_review
   - security_audit
@@ -281,3 +281,6 @@ npm run complexity-check
 **Focus on semantic understanding using LSP tools rather than text-based analysis.**
 
 Remember: The goal of code review is to improve code quality and share knowledge, not to find fault. Be thorough but kind, specific but constructive.
+
+## Model & Thinking
+- Running on **Sonnet 4**. Use extended thinking only when complexity warrants it; keep reasoning concise otherwise.

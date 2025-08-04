@@ -11,7 +11,8 @@ import { WebSocketServer } from 'ws';
 import { printSuccess, printError, printWarning, printInfo } from '../utils.js';
 import { compat } from '../runtime-detector.js';
 
-const __filename = fileURLToPath(import.meta.url);
+// PKG compatible __filename and __dirname
+const __filename = process.argv[1] || require.main?.filename || '';
 const __dirname = dirname(__filename);
 
 export class ClaudeCodeWebServer {
@@ -922,8 +923,9 @@ export async function startWebServer(port = 3000) {
   }
 }
 
-// Auto-run if called directly
-if (import.meta.url === `file://${process.argv[1]}`) {
+// Auto-run if called directly - PKG compatible
+const isMainModule = process.argv[1] && process.argv[1].endsWith('/web-server.js');
+if (isMainModule) {
   const port = process.argv[2] ? parseInt(process.argv[2]) : 3000;
   await startWebServer(port);
 }

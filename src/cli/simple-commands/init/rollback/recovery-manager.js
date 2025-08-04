@@ -733,10 +733,14 @@ export class RecoveryManager {
       success: true,
     };
 
+    // PKG compatible path generation
+    const __filename = process.argv[1] || require.main?.filename || '';
+    const mainJsPath = __filename.replace(/[^/]*$/, '../../../main.js');
+
     const executableContent = `#!/usr/bin/env bash
 # Claude Flow Local Executable Wrapper
 exec deno run --allow-all --unstable-kv --unstable-cron \\
-  "${import.meta.url.replace('file://', '').replace(/[^/]*$/, '../../../main.js')}" "$@"
+  "${mainJsPath}" "$@"
 `;
 
     try {

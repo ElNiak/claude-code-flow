@@ -44,12 +44,7 @@ async function runTests(config: TestConfig): Promise<void> {
   console.log();
 
   // Build Deno test command
-  const args = [
-    'test',
-    '--allow-all',
-    '--unstable',
-    ...testFiles,
-  ];
+  const args = ['test', '--allow-all', '--unstable', ...testFiles];
 
   if (config.coverage) {
     args.push('--coverage=coverage');
@@ -102,10 +97,7 @@ async function discoverTests(baseDir: string, filter?: string): Promise<string[]
   try {
     for await (const entry of Deno.readDir(baseDir)) {
       if (entry.isDirectory) {
-        const subDirTests = await discoverTests(
-          join(baseDir, entry.name),
-          filter
-        );
+        const subDirTests = await discoverTests(join(baseDir, entry.name), filter);
         testFiles.push(...subDirTests);
       } else if (entry.name.endsWith('.test.ts')) {
         const filePath = join(baseDir, entry.name);
@@ -192,19 +184,8 @@ Examples:
 
 async function main(): Promise<void> {
   const args = parseArgs(Deno.args, {
-    boolean: [
-      'unit',
-      'integration',
-      'all',
-      'coverage',
-      'watch',
-      'verbose',
-      'help',
-      'h',
-    ],
-    string: [
-      'filter',
-    ],
+    boolean: ['unit', 'integration', 'all', 'coverage', 'watch', 'verbose', 'help', 'h'],
+    string: ['filter'],
     alias: {
       h: 'help',
     },
@@ -246,6 +227,9 @@ process.on?.('exit', () => {
   console.log(`\n⏱️  Total execution time: ${(duration / 1000).toFixed(2)}s`);
 });
 
-if (import.meta.main) {
+// CLI interface - PKG-compatible main module detection
+const __filename = process.argv[1] || require.main?.filename || '';
+const isMainModule = process.argv[1] && process.argv[1].endsWith('/test-mcp.ts');
+if (isMainModule) {
   await main();
 }

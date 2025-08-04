@@ -5,72 +5,72 @@
  * Runs all unit, integration, and performance tests for the init command
  */
 
-import { parseArgs } from "https://deno.land/std@0.224.0/cli/parse_args.ts";
-import { join } from "@std/path/mod.ts";
-import { exists } from "@std/fs/mod.ts";
+import { parseArgs } from 'https://deno.land/std@0.224.0/cli/parse_args.ts';
+import { join } from '@std/path/mod.ts';
+import { exists } from '@std/fs/mod.ts';
 
 interface TestSuite {
   name: string;
   path: string;
-  type: "unit" | "integration" | "performance";
+  type: 'unit' | 'integration' | 'performance';
   description: string;
 }
 
 const TEST_SUITES: TestSuite[] = [
   {
-    name: "init-command",
-    path: "tests/unit/cli/commands/init/init-command.test.ts",
-    type: "unit",
-    description: "Core init command functionality"
+    name: 'init-command',
+    path: 'tests/unit/cli/commands/init/init-command.test.ts',
+    type: 'unit',
+    description: 'Core init command functionality',
   },
   {
-    name: "templates",
-    path: "tests/unit/cli/commands/init/templates.test.ts",
-    type: "unit",
-    description: "Template generation and content validation"
+    name: 'templates',
+    path: 'tests/unit/cli/commands/init/templates.test.ts',
+    type: 'unit',
+    description: 'Template generation and content validation',
   },
   {
-    name: "sparc-structure",
-    path: "tests/unit/cli/commands/init/sparc-structure.test.ts",
-    type: "unit",
-    description: "SPARC structure creation and validation"
+    name: 'sparc-structure',
+    path: 'tests/unit/cli/commands/init/sparc-structure.test.ts',
+    type: 'unit',
+    description: 'SPARC structure creation and validation',
   },
   {
-    name: "validation",
-    path: "tests/unit/cli/commands/init/validation.test.ts",
-    type: "unit",
-    description: "File integrity and configuration validation"
+    name: 'validation',
+    path: 'tests/unit/cli/commands/init/validation.test.ts',
+    type: 'unit',
+    description: 'File integrity and configuration validation',
   },
   {
-    name: "rollback",
-    path: "tests/unit/cli/commands/init/rollback.test.ts",
-    type: "unit",
-    description: "Error handling and rollback functionality"
+    name: 'rollback',
+    path: 'tests/unit/cli/commands/init/rollback.test.ts',
+    type: 'unit',
+    description: 'Error handling and rollback functionality',
   },
   {
-    name: "full-init-flow",
-    path: "tests/integration/cli/init/full-init-flow.test.ts",
-    type: "integration",
-    description: "Complete initialization flow integration"
+    name: 'full-init-flow',
+    path: 'tests/integration/cli/init/full-init-flow.test.ts',
+    type: 'integration',
+    description: 'Complete initialization flow integration',
   },
   {
-    name: "selective-modes",
-    path: "tests/integration/cli/init/selective-modes.test.ts",
-    type: "integration",
-    description: "Selective mode initialization (minimal, SPARC, etc.)"
+    name: 'selective-modes',
+    path: 'tests/integration/cli/init/selective-modes.test.ts',
+    type: 'integration',
+    description: 'Selective mode initialization (minimal, SPARC, etc.)',
   },
   {
-    name: "e2e-workflow",
-    path: "tests/integration/cli/init/e2e-workflow.test.ts",
-    type: "integration",
-    description: "End-to-end workflow and real-world scenarios"
+    name: 'e2e-workflow',
+    path: 'tests/integration/cli/init/e2e-workflow.test.ts',
+    type: 'integration',
+    description: 'End-to-end workflow and real-world scenarios',
   },
   {
-    name: "init-performance",
-    path: "tests/performance/cli/init/init-performance.test.ts",
-    type: "performance",
-    description: "Performance and resource usage validation"
-  }
+    name: 'init-performance',
+    path: 'tests/performance/cli/init/init-performance.test.ts',
+    type: 'performance',
+    description: 'Performance and resource usage validation',
+  },
 ];
 
 async function runTests(
@@ -80,44 +80,40 @@ async function runTests(
     coverage?: boolean;
     failFast?: boolean;
     parallel?: boolean;
-  } = {}
+  } = {},
 ): Promise<boolean> {
   console.log(`🧪 Running ${suites.length} test suite(s) for init command\n`);
 
-  const results: Array<{ suite: TestSuite; success: boolean; duration: number; output: string }> = [];
+  const results: Array<{ suite: TestSuite; success: boolean; duration: number; output: string }> =
+    [];
 
   for (const suite of suites) {
     console.log(`📋 Running ${suite.name} (${suite.type}): ${suite.description}`);
 
     // Check if test file exists
-    if (!await exists(suite.path)) {
+    if (!(await exists(suite.path))) {
       console.log(`   ❌ Test file not found: ${suite.path}`);
-      results.push({ suite, success: false, duration: 0, output: "Test file not found" });
+      results.push({ suite, success: false, duration: 0, output: 'Test file not found' });
       if (options.failFast) break;
       continue;
     }
 
     const startTime = performance.now();
 
-    const denoArgs = [
-      "test",
-      "--allow-all",
-      "--no-check",
-      suite.path
-    ];
+    const denoArgs = ['test', '--allow-all', '--no-check', suite.path];
 
     if (options.coverage) {
-      denoArgs.push("--coverage=coverage");
+      denoArgs.push('--coverage=coverage');
     }
 
     if (options.failFast) {
-      denoArgs.push("--fail-fast");
+      denoArgs.push('--fail-fast');
     }
 
-    const command = new Deno.Command("deno", {
+    const command = new Deno.Command('deno', {
       args: denoArgs,
-      stdout: options.verbose ? "inherit" : "piped",
-      stderr: options.verbose ? "inherit" : "piped"
+      stdout: options.verbose ? 'inherit' : 'piped',
+      stderr: options.verbose ? 'inherit' : 'piped',
     });
 
     try {
@@ -125,8 +121,9 @@ async function runTests(
       const endTime = performance.now();
       const duration = endTime - startTime;
 
-      const output = options.verbose ? "" :
-        new TextDecoder().decode(result.stdout) + new TextDecoder().decode(result.stderr);
+      const output = options.verbose
+        ? ''
+        : new TextDecoder().decode(result.stdout) + new TextDecoder().decode(result.stderr);
 
       if (result.success) {
         console.log(`   ✅ Passed in ${duration.toFixed(2)}ms`);
@@ -151,7 +148,7 @@ async function runTests(
         suite,
         success: false,
         duration,
-        output: `Error: ${error.message}`
+        output: `Error: ${error.message}`,
       });
 
       if (options.failFast) {
@@ -161,11 +158,11 @@ async function runTests(
   }
 
   // Summary
-  console.log("\n📊 Test Results Summary:");
-  console.log("=" .repeat(60));
+  console.log('\n📊 Test Results Summary:');
+  console.log('='.repeat(60));
 
-  const passed = results.filter(r => r.success).length;
-  const failed = results.filter(r => r.success === false).length;
+  const passed = results.filter((r) => r.success).length;
+  const failed = results.filter((r) => r.success === false).length;
   const totalDuration = results.reduce((sum, r) => sum + r.duration, 0);
 
   console.log(`Total suites: ${results.length}`);
@@ -174,7 +171,7 @@ async function runTests(
   console.log(`Total time: ${(totalDuration / 1000).toFixed(2)}s`);
 
   if (failed > 0) {
-    console.log("\n❌ Failed test suites:");
+    console.log('\n❌ Failed test suites:');
     for (const result of results) {
       if (!result.success) {
         console.log(`   - ${result.suite.name}: ${result.suite.description}`);
@@ -184,15 +181,15 @@ async function runTests(
 
   // Generate coverage report if requested
   if (options.coverage && passed > 0) {
-    console.log("\n📈 Generating coverage report...");
+    console.log('\n📈 Generating coverage report...');
     try {
-      const coverageCommand = new Deno.Command("deno", {
-        args: ["coverage", "coverage", "--html"],
-        stdout: "inherit",
-        stderr: "inherit"
+      const coverageCommand = new Deno.Command('deno', {
+        args: ['coverage', 'coverage', '--html'],
+        stdout: 'inherit',
+        stderr: 'inherit',
       });
       await coverageCommand.output();
-      console.log("Coverage report generated in coverage/ directory");
+      console.log('Coverage report generated in coverage/ directory');
     } catch (error) {
       console.log(`Error generating coverage: ${error.message}`);
     }
@@ -203,16 +200,25 @@ async function runTests(
 
 async function main() {
   const args = parseArgs(Deno.args, {
-    boolean: ["help", "verbose", "coverage", "fail-fast", "unit", "integration", "performance", "list"],
-    string: ["suite"],
+    boolean: [
+      'help',
+      'verbose',
+      'coverage',
+      'fail-fast',
+      'unit',
+      'integration',
+      'performance',
+      'list',
+    ],
+    string: ['suite'],
     alias: {
-      h: "help",
-      v: "verbose",
-      c: "coverage",
-      f: "fail-fast",
-      s: "suite",
-      l: "list"
-    }
+      h: 'help',
+      v: 'verbose',
+      c: 'coverage',
+      f: 'fail-fast',
+      s: 'suite',
+      l: 'list',
+    },
   });
 
   if (args.help) {
@@ -242,7 +248,7 @@ Examples:
   }
 
   if (args.list) {
-    console.log("📋 Available test suites:\n");
+    console.log('📋 Available test suites:\n');
     for (const suite of TEST_SUITES) {
       console.log(`  ${suite.name.padEnd(20)} (${suite.type.padEnd(11)}) - ${suite.description}`);
     }
@@ -253,19 +259,19 @@ Examples:
 
   // Filter by type
   if (args.unit) {
-    suitesToRun = suitesToRun.filter(suite => suite.type === "unit");
+    suitesToRun = suitesToRun.filter((suite) => suite.type === 'unit');
   } else if (args.integration) {
-    suitesToRun = suitesToRun.filter(suite => suite.type === "integration");
+    suitesToRun = suitesToRun.filter((suite) => suite.type === 'integration');
   } else if (args.performance) {
-    suitesToRun = suitesToRun.filter(suite => suite.type === "performance");
+    suitesToRun = suitesToRun.filter((suite) => suite.type === 'performance');
   }
 
   // Filter by specific suite
   if (args.suite) {
-    const requestedSuite = suitesToRun.find(suite => suite.name === args.suite);
+    const requestedSuite = suitesToRun.find((suite) => suite.name === args.suite);
     if (!requestedSuite) {
       console.error(`❌ Test suite '${args.suite}' not found.`);
-      console.log("\nAvailable suites:");
+      console.log('\nAvailable suites:');
       for (const suite of TEST_SUITES) {
         console.log(`  - ${suite.name}`);
       }
@@ -275,7 +281,7 @@ Examples:
   }
 
   if (suitesToRun.length === 0) {
-    console.error("❌ No test suites to run");
+    console.error('❌ No test suites to run');
     Deno.exit(1);
   }
 
@@ -285,18 +291,21 @@ Examples:
   const success = await runTests(suitesToRun, {
     verbose: args.verbose,
     coverage: args.coverage,
-    failFast: args["fail-fast"]
+    failFast: args['fail-fast'],
   });
 
   if (success) {
-    console.log("\n✅ All tests passed!");
+    console.log('\n✅ All tests passed!');
     Deno.exit(0);
   } else {
-    console.log("\n❌ Some tests failed!");
+    console.log('\n❌ Some tests failed!');
     Deno.exit(1);
   }
 }
 
-if (import.meta.main) {
+// CLI interface - PKG-compatible main module detection
+const __filename = process.argv[1] || require.main?.filename || '';
+const isMainModule = process.argv[1] && process.argv[1].endsWith('/test-init-command.ts');
+if (isMainModule) {
   await main();
 }

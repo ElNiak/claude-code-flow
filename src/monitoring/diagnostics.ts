@@ -7,6 +7,8 @@ import { Logger } from '../core/logger.js';
 import { SystemIntegration } from '../integration/system-integration.js';
 import { HealthCheckManager } from './health-check.js';
 import type { SystemHealth, SystemMetrics, ComponentStatus } from '../integration/types.js';
+import type { EventMap } from '../utils/types.js';
+import type { PerformanceMetric } from '../services/agentic-flow-hooks/types.js';
 import { getErrorMessage } from '../utils/error-handler.js';
 import { promises as fs } from 'fs';
 import path from 'path';
@@ -221,8 +223,8 @@ export class DiagnosticManager {
 
       // Get component metrics
       let componentMetrics: Record<string, any> = {};
-      if (typeof component.getMetrics === 'function') {
-        componentMetrics = await component.getMetrics();
+      if (component && typeof (component as any).getMetrics === 'function') {
+        componentMetrics = await (component as any).getMetrics();
       }
 
       // Get last error
@@ -662,7 +664,8 @@ RECOMMENDATIONS
 
   private setupEventHandlers(): void {
     // Track performance metrics
-    this.eventBus.on('performance:metric', (metric) => {
+    this.eventBus.on('performance:metric', (data: unknown) => {
+      const metric = data as PerformanceMetric;
       if (!this.performanceHistory.has(metric.name)) {
         this.performanceHistory.set(metric.name, []);
       }
@@ -677,8 +680,9 @@ RECOMMENDATIONS
     });
 
     // Track errors
-    this.eventBus.on('system:error', (error) => {
-      const component = error.component || 'system';
+    this.eventBus.on('system:error', (data: unknown) => {
+      const errorEvent = data as EventMap['system:error'];
+      const component = errorEvent.component || 'system';
 
       if (!this.errorHistory.has(component)) {
         this.errorHistory.set(component, []);
@@ -686,9 +690,9 @@ RECOMMENDATIONS
 
       const history = this.errorHistory.get(component)!;
       history.push({
-        message: error.message || error.error,
+        message: errorEvent.error.message,
         timestamp: Date.now(),
-        stack: error.stack,
+        stack: errorEvent.error.stack,
       });
 
       // Keep only last 50 errors per component

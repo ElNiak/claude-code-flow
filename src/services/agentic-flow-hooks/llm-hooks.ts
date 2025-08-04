@@ -9,6 +9,7 @@ import { agenticHookManager } from './hook-manager.js';
 import type {
   AgenticHookContext,
   HookHandlerResult,
+  HookRegistration,
   LLMHookPayload,
   LLMMetrics,
   Pattern,
@@ -17,13 +18,13 @@ import type {
 
 // ===== Pre-LLM Call Hook =====
 
-export const preLLMCallHook = {
+export const preLLMCallHook: HookRegistration<LLMHookPayload> = {
   id: 'agentic-pre-llm-call',
   type: 'pre-llm-call' as const,
   priority: 100,
   handler: async (
     payload: LLMHookPayload,
-    context: AgenticHookContext
+    context: AgenticHookContext,
   ): Promise<HookHandlerResult> => {
     const { provider, model, operation, request } = payload;
 
@@ -57,11 +58,7 @@ export const preLLMCallHook = {
     const optimizations = await loadProviderOptimizations(provider, context);
 
     // Apply request optimizations
-    const optimizedRequest = applyRequestOptimizations(
-      request,
-      optimizations,
-      context
-    );
+    const optimizedRequest = applyRequestOptimizations(request, optimizations, context);
 
     // Track pre-call metrics
     const sideEffects: SideEffect[] = [
@@ -101,15 +98,15 @@ export const preLLMCallHook = {
 
 // ===== Post-LLM Call Hook =====
 
-export const postLLMCallHook = {
+export const postLLMCallHook: HookRegistration<LLMHookPayload> = {
   id: 'agentic-post-llm-call',
   type: 'post-llm-call' as const,
   priority: 100,
   handler: async (
     payload: LLMHookPayload,
-    context: AgenticHookContext
+    context: AgenticHookContext,
   ): Promise<HookHandlerResult> => {
-    const { provider, model, request, response, metrics } = payload;
+    const { provider, model, operation, request, response, metrics } = payload;
 
     if (!response || !metrics) {
       return { continue: true };
@@ -171,7 +168,7 @@ export const postLLMCallHook = {
           name: `llm.cost.${provider}.${model}`,
           value: metrics.costEstimate,
         },
-      }
+      },
     );
 
     // Check for performance issues
@@ -198,13 +195,13 @@ export const postLLMCallHook = {
 
 // ===== LLM Error Hook =====
 
-export const llmErrorHook = {
+export const llmErrorHook: HookRegistration<LLMHookPayload> = {
   id: 'agentic-llm-error',
   type: 'llm-error' as const,
   priority: 100,
   handler: async (
     payload: LLMHookPayload,
-    context: AgenticHookContext
+    context: AgenticHookContext,
   ): Promise<HookHandlerResult> => {
     const { provider, model, error } = payload;
 
@@ -237,12 +234,7 @@ export const llmErrorHook = {
     });
 
     // Check if we should fallback
-    const fallbackProvider = await selectFallbackProvider(
-      provider,
-      model,
-      error,
-      context
-    );
+    const fallbackProvider = await selectFallbackProvider(provider, model, error, context);
 
     if (fallbackProvider) {
       return {
@@ -277,22 +269,19 @@ export const llmErrorHook = {
 
 // ===== LLM Retry Hook =====
 
-export const llmRetryHook = {
+export const llmRetryHook: HookRegistration<LLMHookPayload> = {
   id: 'agentic-llm-retry',
   type: 'llm-retry' as const,
   priority: 90,
   handler: async (
     payload: LLMHookPayload,
-    context: AgenticHookContext
+    context: AgenticHookContext,
   ): Promise<HookHandlerResult> => {
     const { provider, model, metrics } = payload;
     const retryCount = metrics?.retryCount || 0;
 
     // Adjust request parameters for retry
-    const adjustedRequest = adjustRequestForRetry(
-      payload.request,
-      retryCount
-    );
+    const adjustedRequest = adjustRequestForRetry(payload.request, retryCount);
 
     const sideEffects: SideEffect[] = [
       {
@@ -304,7 +293,7 @@ export const llmRetryHook = {
 
     // Apply exponential backoff
     const backoffMs = Math.min(1000 * Math.pow(2, retryCount), 10000);
-    await new Promise(resolve => setTimeout(resolve, backoffMs));
+    await new Promise((resolve) => setTimeout(resolve, backoffMs));
 
     return {
       continue: true,
@@ -327,12 +316,12 @@ export const llmRetryHook = {
 function generateCacheKey(
   provider: string,
   model: string,
-  request: LLMHookPayload['request']
+  request: LLMHookPayload['request'],
 ): string {
   const normalized = {
     provider,
     model,
-    messages: request.messages?.map(m => ({
+    messages: request.messages?.map((m) => ({
       role: m.role,
       content: m.content.substring(0, 100), // First 100 chars
     })),
@@ -345,7 +334,7 @@ function generateCacheKey(
 
 async function checkMemoryCache(
   cacheKey: string,
-  context: AgenticHookContext
+  context: AgenticHookContext,
 ): Promise<any | null> {
   // Implementation would integrate with memory service
   // This is a placeholder
@@ -354,7 +343,7 @@ async function checkMemoryCache(
 
 async function loadProviderOptimizations(
   provider: string,
-  context: AgenticHookContext
+  context: AgenticHookContext,
 ): Promise<any> {
   // Load provider-specific optimizations from memory
   // This is a placeholder
@@ -368,7 +357,7 @@ async function loadProviderOptimizations(
 function applyRequestOptimizations(
   request: LLMHookPayload['request'],
   optimizations: any,
-  context: AgenticHookContext
+  context: AgenticHookContext,
 ): LLMHookPayload['request'] {
   // Apply various optimizations
   const optimized = { ...request };
@@ -391,10 +380,7 @@ function applyRequestOptimizations(
   return optimized;
 }
 
-function determineCacheTTL(
-  operation: string,
-  response: LLMHookPayload['response']
-): number {
+function determineCacheTTL(operation: string, response: LLMHookPayload['response']): number {
   // Determine cache TTL based on operation and response
   switch (operation) {
     case 'embedding':
@@ -412,7 +398,7 @@ function determineCacheTTL(
 function extractResponsePatterns(
   request: LLMHookPayload['request'],
   response: LLMHookPayload['response'],
-  metrics: LLMMetrics
+  metrics: LLMMetrics,
 ): Pattern[] {
   const patterns: Pattern[] = [];
 
@@ -465,11 +451,11 @@ function getLatencyThreshold(provider: string, model: string): number {
 async function updateProviderHealth(
   provider: string,
   health: number,
-  context: AgenticHookContext
+  context: AgenticHookContext,
 ): Promise<void> {
   // Update provider health in memory
   const healthKey = `provider:health:${provider}`;
-  const currentHealth = await context.memory.cache.get(healthKey) || [];
+  const currentHealth = (await context.memory.cache.get(healthKey)) || [];
 
   currentHealth.push({
     timestamp: Date.now(),
@@ -488,15 +474,15 @@ async function selectFallbackProvider(
   provider: string,
   model: string,
   error: Error,
-  context: AgenticHookContext
+  context: AgenticHookContext,
 ): Promise<{ provider: string; model: string } | null> {
   // Implement intelligent fallback selection
   const fallbacks: Record<string, { provider: string; model: string }[]> = {
-    'openai': [
+    openai: [
       { provider: 'anthropic', model: 'claude-3' },
       { provider: 'cohere', model: 'command' },
     ],
-    'anthropic': [
+    anthropic: [
       { provider: 'openai', model: 'gpt-4' },
       { provider: 'cohere', model: 'command' },
     ],
@@ -507,12 +493,11 @@ async function selectFallbackProvider(
   // Select based on health scores
   for (const candidate of candidates) {
     const healthKey = `provider:health:${candidate.provider}`;
-    const healthData = await context.memory.cache.get(healthKey) || [];
+    const healthData = (await context.memory.cache.get(healthKey)) || [];
 
     if (healthData.length > 0) {
-      const avgHealth = healthData.reduce((sum: number, h: any) =>
-        sum + h.health, 0
-      ) / healthData.length;
+      const avgHealth =
+        healthData.reduce((sum: number, h: any) => sum + h.health, 0) / healthData.length;
 
       if (avgHealth > 0.7) {
         return candidate;
@@ -525,23 +510,18 @@ async function selectFallbackProvider(
 
 function adjustRequestForRetry(
   request: LLMHookPayload['request'],
-  retryCount: number
+  retryCount: number,
 ): LLMHookPayload['request'] {
   const adjusted = { ...request };
 
   // Increase temperature slightly for variety
   if (adjusted.temperature !== undefined) {
-    adjusted.temperature = Math.min(
-      adjusted.temperature + (0.1 * retryCount),
-      1.0
-    );
+    adjusted.temperature = Math.min(adjusted.temperature + 0.1 * retryCount, 1.0);
   }
 
   // Reduce max tokens to improve success rate
   if (adjusted.maxTokens !== undefined) {
-    adjusted.maxTokens = Math.floor(
-      adjusted.maxTokens * Math.pow(0.9, retryCount)
-    );
+    adjusted.maxTokens = Math.floor(adjusted.maxTokens * Math.pow(0.9, retryCount));
   }
 
   return adjusted;

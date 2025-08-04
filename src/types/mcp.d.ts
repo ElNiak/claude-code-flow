@@ -33,10 +33,10 @@ declare module '@modelcontextprotocol/sdk/types.js' {
 
 declare module '@modelcontextprotocol/sdk/server/index.js' {
   import {
-    Tool,
-    CallToolRequest,
-    CallToolResult,
-    ListToolsResult,
+    Tool, // eslint-disable-line @typescript-eslint/no-unused-vars
+    CallToolRequest, // eslint-disable-line @typescript-eslint/no-unused-vars
+    CallToolResult, // eslint-disable-line @typescript-eslint/no-unused-vars
+    ListToolsResult, // eslint-disable-line @typescript-eslint/no-unused-vars
   } from '@modelcontextprotocol/sdk/types.js';
 
   export class Server {

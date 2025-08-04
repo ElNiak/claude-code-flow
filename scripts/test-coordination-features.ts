@@ -108,11 +108,13 @@ async function testCoordinationFeatures() {
 
     // Agent 3 holds B, wants A
     await coordinator.acquireResource('resource-B', 'agent-3');
-    const agent3WantsA = coordinator.acquireResource('resource-A', 'agent-3')
+    const agent3WantsA = coordinator
+      .acquireResource('resource-A', 'agent-3')
       .catch(() => console.log('✅ Deadlock detected and resolved'));
 
     // Agent 2 holds A, wants B (creates cycle)
-    const agent2WantsB = coordinator.acquireResource('resource-B', 'agent-2')
+    const agent2WantsB = coordinator
+      .acquireResource('resource-B', 'agent-2')
       .catch(() => console.log('✅ Agent 2 resource request failed'));
 
     // Wait for deadlock detection
@@ -192,12 +194,12 @@ async function testCoordinationFeatures() {
     // Send messages
     await coordinator.sendMessage('agent-1', 'agent-2', {
       type: 'status',
-      content: 'Task completed'
+      content: 'Task completed',
     });
 
     await coordinator.sendMessage('agent-1', 'agent-2', {
       type: 'data',
-      content: 'Results available'
+      content: 'Results available',
     });
 
     await delay(100);
@@ -225,14 +227,15 @@ async function testCoordinationFeatures() {
     console.log('  ✓ Health monitoring and metrics');
     console.log('  ✓ Inter-agent messaging');
     console.log('  ✓ System maintenance');
-
   } catch (error) {
     console.error('❌ Test failed:', error);
     throw error;
   }
 }
 
-// Run the test
-if (import.meta.main) {
+// CLI interface - PKG-compatible main module detection
+const __filename = process.argv[1] || require.main?.filename || '';
+const isMainModule = process.argv[1] && process.argv[1].endsWith('/test-coordination-features.ts');
+if (isMainModule) {
   testCoordinationFeatures().catch(console.error);
 }

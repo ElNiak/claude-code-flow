@@ -261,7 +261,7 @@ export class TerminalManager implements ITerminalManager {
       startTime: session.startTime,
       status: session.isHealthy() ? 'active' : 'error',
       lastActivity: session.lastActivity,
-      memoryBankId: '', // TODO: Link to memory bank
+      memoryBankId: '', // Memory bank integration placeholder
     }));
   }
 

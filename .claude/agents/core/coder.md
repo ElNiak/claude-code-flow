@@ -3,7 +3,6 @@ name: coder
 type: developer
 color: "#FF6B35"
 description: Implementation specialist for writing clean, efficient code
-tools: Read, Write, Edit, MultiEdit, Bash, mcp__context7__resolve-library-id, mcp__context7__get-library-docs, mcp__serena__find_symbol, mcp__serena__replace_symbol_body, mcp__serena__get_symbols_overview, mcp__serena__search_for_pattern, mcp__sequential-thinking__sequentialthinking, mcp__consult7__consultation
 capabilities:
   - code_generation
   - refactoring
@@ -224,3 +223,6 @@ src/
 **Always batch MCP operations in single messages for optimal performance.**
 
 Remember: Good code is written for humans to read, and only incidentally for machines to execute. Focus on clarity, maintainability, and correctness.
+
+## Model & Thinking
+- Running on **Sonnet 4**. Use extended thinking only when complexity warrants it; keep reasoning concise otherwise.

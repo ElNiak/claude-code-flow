@@ -478,7 +478,7 @@ export class ArchitectAgent extends BaseAgent {
     eventBus: any,
     memory: any,
   ) {
-    super(id, 'architect', config, environment, logger, eventBus, memory);
+    super(id, 'architecture', config, environment, logger, eventBus, memory);
   }
 
   protected getDefaultCapabilities(): AgentCapabilities {

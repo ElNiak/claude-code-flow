@@ -16,13 +16,7 @@ import { TerminalManager } from '../../src/terminal/manager.ts';
 import { MemoryManager } from '../../src/memory/manager.ts';
 import { CoordinationManager } from '../../src/coordination/manager.ts';
 import { MCPServer } from '../../src/mcp/server.ts';
-import {
-  Config,
-  AgentProfile,
-  Task,
-  SystemEvents,
-  TaskStatus
-} from '../../src/utils/types.ts';
+import { Config, AgentProfile, Task, SystemEvents, TaskStatus } from '../../src/utils/types.ts';
 import { delay } from '../../src/utils/helpers.ts';
 
 // Test configuration
@@ -266,8 +260,8 @@ export async function runBatchTaskTest() {
 
     // Group tasks by batch for parallel submission
     const taskBatches = new Map<number, Task[]>();
-    tasks.forEach(task => {
-      const batchId = task.metadata?.batchId as number || 0;
+    tasks.forEach((task) => {
+      const batchId = (task.metadata?.batchId as number) || 0;
       if (!taskBatches.has(batchId)) {
         taskBatches.set(batchId, []);
       }
@@ -310,7 +304,7 @@ export async function runBatchTaskTest() {
         // Simulate task lifecycle
         eventBus.emit(SystemEvents.TASK_STARTED, {
           taskId: task.id,
-          agentId: task.assignedAgent || 'unknown'
+          agentId: task.assignedAgent || 'unknown',
         });
 
         // Simulate success or failure
@@ -421,7 +415,6 @@ export async function runBatchTaskTest() {
     console.log('✅ Tracked task completion and system metrics');
     console.log('✅ Verified coordination system functionality');
     console.log('✅ Performed graceful system shutdown');
-
   } catch (error) {
     console.error('\n❌ Test failed:', error);
 
@@ -436,7 +429,9 @@ export async function runBatchTaskTest() {
   }
 }
 
-// Run the test if this file is executed directly
-if (import.meta.main) {
+// CLI interface - PKG-compatible main module detection
+const __filename = process.argv[1] || require.main?.filename || '';
+const isMainModule = process.argv[1] && process.argv[1].endsWith('/batch-task-test.ts');
+if (isMainModule) {
   runBatchTaskTest().catch(console.error);
 }

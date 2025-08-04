@@ -11,7 +11,7 @@ import type { MemoryConfig } from '../utils/types.js';
 import { AgentManager } from '../agents/agent-manager.js';
 import { TaskEngine } from '../task/engine.js';
 import { RealTimeMonitor } from '../monitoring/real-time-monitor.js';
-import { McpServer } from '../mcp/server.js';
+import { MCPServer } from '../mcp/server.js';
 import { getErrorMessage } from '../utils/error-handler.js';
 import type { IntegrationConfig, SystemHealth, ComponentStatus } from './types.js';
 
@@ -194,7 +194,7 @@ export class SystemIntegration {
       // Initialize agent manager
       try {
         const { AgentManager } = await import('../agents/agent-manager.js');
-        this.agentManager = new AgentManager(this.eventBus, this.logger);
+        this.agentManager = new (AgentManager as any)(this.eventBus, this.logger);
         if (typeof this.agentManager.initialize === 'function') {
           await this.agentManager.initialize();
         }
@@ -210,7 +210,7 @@ export class SystemIntegration {
       // Initialize swarm coordinator
       try {
         const { SwarmCoordinator } = await import('../coordination/swarm-coordinator.js');
-        this.swarmCoordinator = new SwarmCoordinator(
+        this.swarmCoordinator = new (SwarmCoordinator as any)(
           this.eventBus,
           this.logger,
           this.memoryManager!,
@@ -248,7 +248,7 @@ export class SystemIntegration {
       // Initialize task engine
       try {
         const { TaskEngine } = await import('../task/engine.js');
-        this.taskEngine = new TaskEngine(this.eventBus, this.logger, this.memoryManager!);
+        this.taskEngine = new (TaskEngine as any)(this.eventBus, this.logger, this.memoryManager!);
         if (typeof this.taskEngine.initialize === 'function') {
           await this.taskEngine.initialize();
         }
@@ -278,7 +278,22 @@ export class SystemIntegration {
       // Initialize real-time monitor
       try {
         const { RealTimeMonitor } = await import('../monitoring/real-time-monitor.js');
-        this.monitor = new RealTimeMonitor(this.eventBus, this.logger);
+        const { DistributedMemorySystem } = await import('../memory/distributed-memory.js');
+
+        // Create distributed memory for monitor
+        const distributedMemory = new DistributedMemorySystem(
+          {
+            namespace: 'system-integration',
+            replicationFactor: 1,
+            consistency: 'eventual',
+            distributed: true,
+          },
+          this.logger,
+          this.eventBus,
+        );
+        await distributedMemory.initialize();
+
+        this.monitor = new RealTimeMonitor({}, this.logger, this.eventBus, distributedMemory);
         if (typeof this.monitor.initialize === 'function') {
           await this.monitor.initialize();
         }
@@ -293,8 +308,25 @@ export class SystemIntegration {
 
       // Initialize MCP server
       try {
-        const { McpServer } = await import('../mcp/server.js');
-        this.mcpServer = new McpServer(this.eventBus, this.logger);
+        const { MCPServer } = await import('../mcp/server.js');
+
+        // Create default MCP config
+        const mcpConfig = {
+          transport: 'stdio' as const,
+          sessionTimeout: 30000,
+          maxSessions: 10,
+          enableMetrics: true,
+          debug: {
+            enableTracing: true,
+            enableCrossSystemCorrelation: true,
+            enableToolTracing: true,
+            performanceThreshold: 10,
+            traceRetentionTime: 300000,
+            sanitizeSensitiveData: true,
+          },
+        };
+
+        this.mcpServer = new MCPServer(mcpConfig, this.eventBus, this.logger);
         if (typeof this.mcpServer.initialize === 'function') {
           await this.mcpServer.initialize();
         }
@@ -358,18 +390,18 @@ export class SystemIntegration {
    */
   private setupEventHandlers(): void {
     // System health monitoring
-    this.eventBus.on('component:status', (event) => {
+    this.eventBus.on('component:status', (event: any) => {
       this.updateComponentStatus(event.component, event.status, event.message);
     });
 
     // Error handling
-    this.eventBus.on('system:error', (event) => {
+    this.eventBus.on('system:error', (event: any) => {
       this.logger.error(`System Error in ${event.component}:`, event.error);
       this.updateComponentStatus(event.component, 'unhealthy', event.error.message);
     });
 
     // Performance monitoring
-    this.eventBus.on('performance:metric', (event) => {
+    this.eventBus.on('performance:metric', (event: any) => {
       this.logger.debug(`Performance Metric: ${event.metric} = ${event.value}`);
     });
   }

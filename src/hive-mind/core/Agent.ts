@@ -15,6 +15,7 @@ import {
   AgentCapability,
   Task,
   Message,
+  MessageType,
   AgentConfig,
   ExecutionResult,
 } from '../types.js';
@@ -31,8 +32,8 @@ export class Agent extends EventEmitter {
   public currentTask: string | null = null;
   public messageCount: number = 0;
 
-  private db: DatabaseManager;
-  private mcpWrapper: MCPToolWrapper;
+  private db!: DatabaseManager;
+  private mcpWrapper!: MCPToolWrapper;
   private memory: Map<string, any>;
   private communicationBuffer: Message[];
   private lastHeartbeat: number;
@@ -258,7 +259,7 @@ export class Agent extends EventEmitter {
     // Validate execution results
     const validation = {
       phase: 'validation',
-      checks: [],
+      checks: [] as { name: string; passed: boolean }[],
       passed: true,
     };
 
@@ -290,7 +291,11 @@ export class Agent extends EventEmitter {
   /**
    * Send a message to another agent or broadcast
    */
-  async sendMessage(toAgentId: string | null, messageType: string, content: any): Promise<void> {
+  async sendMessage(
+    toAgentId: string | null,
+    messageType: MessageType,
+    content: any,
+  ): Promise<void> {
     const message: Message = {
       id: uuidv4(),
       fromAgentId: this.id,
@@ -437,9 +442,10 @@ export class Agent extends EventEmitter {
     this.status = 'idle';
 
     // Notify swarm of failure
-    await this.sendMessage(null, 'task_failed', {
+    await this.sendMessage(null, 'notification', {
       taskId,
       agentId: this.id,
+      type: 'task_failed',
       error: error.message,
       timestamp: new Date(),
     });
@@ -609,7 +615,7 @@ export class Agent extends EventEmitter {
     if (patterns.suggestedCapabilities) {
       // Update capabilities based on learning
       const newCapabilities = patterns.suggestedCapabilities.filter(
-        (cap: string) => !this.capabilities.includes(cap),
+        (cap: AgentCapability) => !this.capabilities.includes(cap),
       );
 
       if (newCapabilities.length > 0) {

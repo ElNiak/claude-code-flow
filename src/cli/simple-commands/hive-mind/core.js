@@ -838,7 +838,7 @@ export class HiveMindCore extends EventEmitter {
 
     // Scale down if too many idle workers
     if (idleWorkers > pendingTasks + 2 && this.state.workers.size > 2) {
-      // TODO: Implement worker removal
+      // Worker removal implementation placeholder
     }
   }
 

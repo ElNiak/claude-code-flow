@@ -1,3 +1,4 @@
+import { ConsoleMigration } from '../utils/console-migration.js';
 /**
  * Enterprise Configuration Management for Claude-Flow
  * Features: Security masking, change tracking, multi-format support, credential management
@@ -223,8 +224,23 @@ const DEFAULT_CONFIG: Config = {
   },
   mcp: {
     transport: 'stdio',
+    host: 'localhost',
     port: 3000,
     tlsEnabled: false,
+    auth: {
+      enabled: false,
+      method: 'token',
+    },
+    enableMetrics: true,
+    corsEnabled: false,
+    debug: {
+      enableTracing: true,
+      enableCrossSystemCorrelation: true,
+      enableToolTracing: true,
+      performanceThreshold: 0.1, // 10% max overhead
+      traceRetentionTime: 3600000, // 1 hour in ms
+      sanitizeSensitiveData: true,
+    },
   },
   logging: {
     level: 'info',
@@ -297,7 +313,7 @@ export class ConfigManager {
         // Store key securely (in production, use proper key management)
       }
     } catch (error) {
-      console.warn('Failed to initialize encryption:', (error as Error).message);
+      ConsoleMigration.warn('Core', 'Failed to initialize encryption:', (error as Error).message);
     }
   }
 
@@ -560,7 +576,10 @@ export class ConfigManager {
               this.profiles.set(profileName, profileConfig);
             }
           } catch (error) {
-            console.warn(`Failed to load profile ${profileName}: ${(error as Error).message}`);
+            ConsoleMigration.warn(
+              'Core',
+              `Failed to load profile ${profileName}: ${(error as Error).message}`,
+            );
           }
         }
       }
@@ -707,7 +726,11 @@ export class ConfigManager {
       try {
         return this.decryptValue(current);
       } catch (error) {
-        console.warn(`Failed to decrypt value at path ${path}:`, (error as Error).message);
+        ConsoleMigration.warn(
+          'Core',
+          `Failed to decrypt value at path ${path}:`,
+          (error as Error).message,
+        );
         return current;
       }
     }
@@ -1038,7 +1061,7 @@ export class ConfigManager {
 
     // Log warnings
     if (warnings.length > 0 && config.logging?.level === 'debug') {
-      console.warn('Configuration warnings:', warnings);
+      ConsoleMigration.warn('Core', 'Configuration warnings:', warnings);
     }
 
     // Throw errors
@@ -1219,7 +1242,7 @@ export class ConfigManager {
       encrypted += cipher.final('hex');
       return `encrypted:${iv.toString('hex')}:${encrypted}`;
     } catch (error) {
-      console.warn('Failed to encrypt value:', (error as Error).message);
+      ConsoleMigration.warn('Core', 'Failed to encrypt value:', (error as Error).message);
       return value;
     }
   }
@@ -1243,7 +1266,7 @@ export class ConfigManager {
       decrypted += decipher.final('utf8');
       return JSON.parse(decrypted);
     } catch (error) {
-      console.warn('Failed to decrypt value:', (error as Error).message);
+      ConsoleMigration.warn('Core', 'Failed to decrypt value:', (error as Error).message);
       return encryptedValue;
     }
   }

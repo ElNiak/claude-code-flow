@@ -43,12 +43,12 @@ export interface ExecutionContext {
   circuitBreaker?: CircuitBreaker;
 }
 
-export interface ResourceUsage {
+export interface ResourceUsage extends Record<string, number> {
   memory: number;
   cpu: number;
   disk: number;
   network: number;
-  lastUpdated: Date;
+  lastUpdated: number; // Changed to number (timestamp) to maintain Record<string, number> compatibility
 }
 
 export interface TaskExecutionResult {
@@ -502,7 +502,7 @@ export class AdvancedTaskExecutor extends EventEmitter {
           const usage = await this.getProcessResourceUsage(context.process.pid);
           context.resources = {
             ...usage,
-            lastUpdated: new Date(),
+            lastUpdated: Date.now(),
           };
 
           // Check resource limits
@@ -528,7 +528,7 @@ export class AdvancedTaskExecutor extends EventEmitter {
       cpu: Math.random() * 100,
       disk: Math.random() * this.config.resourceLimits.disk,
       network: Math.random() * 1024 * 1024,
-      lastUpdated: new Date(),
+      lastUpdated: Date.now(),
     };
   }
 
@@ -562,7 +562,7 @@ export class AdvancedTaskExecutor extends EventEmitter {
       cpu: 0,
       disk: 0,
       network: 0,
-      lastUpdated: new Date(),
+      lastUpdated: Date.now(),
     };
   }
 
@@ -617,7 +617,7 @@ export class AdvancedTaskExecutor extends EventEmitter {
     queuedTasks: number;
     maxConcurrentTasks: number;
     totalCapacity: number;
-    resourceLimits: typeof this.config.resourceLimits;
+    resourceLimits: TaskExecutorConfig['resourceLimits'];
     circuitBreakers: Record<string, any>;
   } {
     return {

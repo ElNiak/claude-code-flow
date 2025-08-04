@@ -7,6 +7,7 @@
 
 import type { MCPTool, MCPContext } from '../utils/types.js';
 import type { ILogger } from '../core/logger.js';
+import { logger as defaultLogger } from '../core/logger.js';
 import { execAsync } from '../utils/helpers.js';
 import { existsSync } from 'fs';
 import { join } from 'path';
@@ -14,7 +15,6 @@ import { join } from 'path';
 export interface RuvSwarmToolContext extends MCPContext {
   workingDirectory?: string;
   swarmId?: string;
-  sessionId?: string;
 }
 
 /**
@@ -591,6 +591,7 @@ export async function initializeRuvSwarmIntegration(
   const context: RuvSwarmToolContext = {
     workingDirectory,
     sessionId: `claude-flow-${Date.now()}`,
+    logger: logger || defaultLogger,
   };
 
   logger?.info('Initializing ruv-swarm integration', { workingDirectory });

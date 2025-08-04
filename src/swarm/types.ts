@@ -1,8 +1,35 @@
 /**
  * Comprehensive types and interfaces for the swarm system
+ *
+ * UPDATED: Now uses unified AgentType system from agent-types-unified.ts
  */
 
 import { EventEmitter } from 'node:events';
+
+// Forward declare types to avoid circular imports
+import type { MemoryManager } from '../memory/manager.js';
+import type TaskExecutor from './executor.js';
+
+// Import unified AgentType system
+export type { AgentType, AgentTypeInfo, AgentTypeValidationResult } from './agent-types-unified.js';
+
+export {
+  AGENT_TYPE_REGISTRY,
+  LEGACY_AGENT_MAPPING,
+  ALL_AGENT_TYPES,
+  getAllAgentTypes,
+  isValidAgentType,
+  validateAgentTypeStrict,
+  resolveLegacyAgentType,
+  normalizeAgentType,
+  getAgentTypeInfo,
+  assertValidAgentType,
+  isValidAgentTypeCached,
+  AGENT_TYPE_REGISTRY_INSTANCE,
+  isAgentTypeArray,
+} from './agent-types-unified.js';
+
+import type { AgentType } from './agent-types-unified.js';
 
 // ===== CORE SWARM TYPES =====
 
@@ -26,27 +53,7 @@ export interface TaskId {
   priority: number;
 }
 
-// ===== AGENT TYPES =====
-
-export type AgentType =
-  | 'coordinator' // Orchestrates and manages other agents
-  | 'researcher' // Performs research and data gathering
-  | 'coder' // Writes and maintains code
-  | 'analyst' // Analyzes data and generates insights
-  | 'architect' // Designs system architecture and solutions
-  | 'tester' // Tests and validates functionality
-  | 'reviewer' // Reviews and validates work
-  | 'optimizer' // Optimizes performance and efficiency
-  | 'documenter' // Creates and maintains documentation
-  | 'monitor' // Monitors system health and performance
-  | 'specialist' // Domain-specific specialized agent
-  // Maestro-specific agent types
-  | 'design-architect' // UI/UX and component design
-  | 'system-architect' // System-level architecture design
-  | 'task-planner' // Project management and task breakdown
-  | 'developer' // Full-stack development and implementation
-  | 'requirements-engineer' // Requirements analysis and documentation
-  | 'steering-author'; // Governance and steering documentation
+// ===== AGENT STATUS AND CAPABILITIES =====
 
 export type AgentStatus =
   | 'initializing' // Agent is starting up
@@ -327,6 +334,9 @@ export interface TaskConstraints {
 }
 
 export interface TaskResult {
+  // Task identification
+  taskId?: string; // Added for optimization executor compatibility
+
   // Result data
   output: any;
   artifacts: Record<string, any>;
@@ -344,6 +354,9 @@ export interface TaskResult {
   // Validation
   validated: boolean;
   validationResults?: any;
+
+  // Error handling
+  error?: string;
 
   // Follow-up
   recommendations?: string[];
@@ -367,8 +380,10 @@ export interface TaskDefinition {
 
   // Execution details
   instructions: string;
+  objective?: string; // Added for optimization executor compatibility
   context: Record<string, any>;
   parameters?: Record<string, any>;
+  metadata?: Record<string, any>; // Added for optimization executor compatibility
   examples?: any[];
 
   // Tracking
@@ -1131,6 +1146,36 @@ export const SWARM_CONSTANTS = {
   DEFAULT_CPU_LIMIT: 1.0, // 1 CPU core
   DEFAULT_DISK_LIMIT: 1024 * 1024 * 1024, // 1GB
 } as const;
+
+// ===== COMPATIBILITY TYPE ALIASES =====
+
+/**
+ * Type aliases for backward compatibility and cleaner imports
+ */
+export type SwarmAgent = AgentState;
+export type SwarmTask = TaskDefinition;
+
+/**
+ * Swarm execution context interface for orchestration
+ */
+export interface SwarmExecutionContext {
+  swarmId: SwarmId;
+  objective: SwarmObjective;
+  agents: Map<string, SwarmAgent>;
+  tasks: Map<string, SwarmTask>;
+  scheduler?: any;
+  monitor?: any;
+  status?: string;
+  startedAt?: Date;
+  completedAt?: Date;
+
+  // Advanced orchestrator properties
+  memoryManager?: MemoryManager;
+  taskExecutor?: TaskExecutor;
+  startTime?: Date;
+  endTime?: Date;
+  metrics?: SwarmMetrics;
+}
 
 // ===== EXPORTS =====
 

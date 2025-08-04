@@ -1,11 +1,12 @@
 ---
 name: "code-analyzer"
-tools: Read, Grep, WebSearch, mcp__perplexity-ask__search, mcp__sequential-thinking__sequentialthinking, mcp__consult7__consultation, mcp__serena__get_symbols_overview, mcp__serena__search_for_pattern, mcp__serena__find_symbol, mcp__context7__resolve-library-id, mcp__context7__get-library-docs
+tools: Read, Grep, WebSearch, mcp__perplexity-ask__search, mcp__sequential-thinking__sequentialthinking, mcp__consult7__consultation, mcp__serena__get_symbols_overview, mcp__serena__search_for_pattern, mcp__serena__find_symbol, mcp__context7__resolve-library-id, mcp__context7__get-library-docs, Bash
 color: "purple"
 type: "analysis"
 version: "1.0.0"
 created: "2025-07-25"
 author: "Claude Code"
+description: "Advanced code quality analysis agent for comprehensive code reviews and improvements"
 
 metadata:
   description: "Advanced code quality analysis agent for comprehensive code reviews and improvements"

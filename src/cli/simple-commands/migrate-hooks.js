@@ -9,7 +9,9 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { promises as fs } from 'fs';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+// PKG compatible __dirname
+const __filename = process.argv[1] || require.main?.filename || '';
+const __dirname = path.dirname(__filename);
 
 export async function migrateHooksCommand(flags, args) {
   console.log('🔄 Claude Flow Hooks Migration\n');

@@ -54,14 +54,17 @@ function calculateRegression(baseline: number, current: number): number {
   return ((current - baseline) / baseline) * 100;
 }
 
-function checkRegressions(baseline: PerformanceReport, current: PerformanceReport): {
+function checkRegressions(
+  baseline: PerformanceReport,
+  current: PerformanceReport,
+): {
   regressions: Array<{ metric: string; regression: number; threshold: number }>;
   hasRegressions: boolean;
 } {
   const regressions: Array<{ metric: string; regression: number; threshold: number }> = [];
 
   for (const currentMetric of current.metrics) {
-    const baselineMetric = baseline.metrics.find(m => m.name === currentMetric.name);
+    const baselineMetric = baseline.metrics.find((m) => m.name === currentMetric.name);
 
     if (!baselineMetric) {
       console.log(`New metric detected: ${currentMetric.name}`);
@@ -89,7 +92,7 @@ function checkRegressions(baseline: PerformanceReport, current: PerformanceRepor
 function generateReport(
   baseline: PerformanceReport,
   current: PerformanceReport,
-  regressions: Array<{ metric: string; regression: number; threshold: number }>
+  regressions: Array<{ metric: string; regression: number; threshold: number }>,
 ): void {
   console.log('\n=== Performance Regression Report ===\n');
 
@@ -102,13 +105,15 @@ function generateReport(
     console.log('❌ Performance regressions detected:\n');
 
     for (const regression of regressions) {
-      const baselineMetric = baseline.metrics.find(m => m.name === regression.metric)!;
-      const currentMetric = current.metrics.find(m => m.name === regression.metric)!;
+      const baselineMetric = baseline.metrics.find((m) => m.name === regression.metric)!;
+      const currentMetric = current.metrics.find((m) => m.name === regression.metric)!;
 
       console.log(`  ${regression.metric}:`);
       console.log(`    Baseline: ${baselineMetric.value} ${baselineMetric.unit}`);
       console.log(`    Current:  ${currentMetric.value} ${currentMetric.unit}`);
-      console.log(`    Regression: ${regression.regression.toFixed(2)}% (threshold: ${regression.threshold}%)`);
+      console.log(
+        `    Regression: ${regression.regression.toFixed(2)}% (threshold: ${regression.threshold}%)`,
+      );
       console.log('');
     }
   }
@@ -117,15 +122,19 @@ function generateReport(
   console.log('📊 All Performance Metrics:\n');
 
   for (const currentMetric of current.metrics) {
-    const baselineMetric = baseline.metrics.find(m => m.name === currentMetric.name);
+    const baselineMetric = baseline.metrics.find((m) => m.name === currentMetric.name);
 
     if (baselineMetric) {
       const regression = calculateRegression(baselineMetric.value, currentMetric.value);
       const status = regression > (currentMetric.threshold || REGRESSION_THRESHOLD) ? '❌' : '✅';
 
-      console.log(`  ${status} ${currentMetric.name}: ${currentMetric.value} ${currentMetric.unit} (${regression > 0 ? '+' : ''}${regression.toFixed(2)}%)`);
+      console.log(
+        `  ${status} ${currentMetric.name}: ${currentMetric.value} ${currentMetric.unit} (${regression > 0 ? '+' : ''}${regression.toFixed(2)}%)`,
+      );
     } else {
-      console.log(`  🆕 ${currentMetric.name}: ${currentMetric.value} ${currentMetric.unit} (new metric)`);
+      console.log(
+        `  🆕 ${currentMetric.name}: ${currentMetric.value} ${currentMetric.unit} (new metric)`,
+      );
     }
   }
 
@@ -163,6 +172,10 @@ async function main(): Promise<void> {
   }
 }
 
-if (import.meta.main) {
+// CLI interface - PKG-compatible main module detection
+const __filename = process.argv[1] || require.main?.filename || '';
+const isMainModule =
+  process.argv[1] && process.argv[1].endsWith('/check-performance-regression.ts');
+if (isMainModule) {
   await main();
 }

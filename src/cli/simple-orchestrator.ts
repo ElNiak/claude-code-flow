@@ -11,7 +11,9 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import cors from 'cors';
 
-const __filename = fileURLToPath(import.meta.url);
+// CJS/ESM compatibility for __filename and __dirname
+// PKG-compatible version without import.meta evaluation
+const __filename = process.argv[1] || require.main?.filename || '';
 const __dirname = path.dirname(__filename);
 
 // Simple in-memory stores

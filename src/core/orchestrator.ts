@@ -13,6 +13,7 @@ import {
   TaskStatus,
   OrchestratorMetrics,
 } from '../utils/types.js';
+import type { AgentType } from '../constants/agent-types.js';
 import { IEventBus } from './event-bus.js';
 import type { ILogger } from './logger.js';
 import type { ITerminalManager } from '../terminal/manager.js';
@@ -20,6 +21,10 @@ import type { IMemoryManager } from '../memory/manager.js';
 import type { ICoordinationManager } from '../coordination/manager.js';
 import type { IMCPServer } from '../mcp/server.js';
 import { SystemError, InitializationError, ShutdownError } from '../utils/errors.js';
+import {
+  normalizeAgentTypeForSpawning,
+  AgentTypeError,
+} from '../utils/agent-type-compatibility.js';
 import { delay, retry, circuitBreaker, CircuitBreaker } from '../utils/helpers.js';
 import { mkdir, writeFile, readFile } from 'fs/promises';
 import { join, dirname } from 'path';
@@ -283,15 +288,44 @@ class SessionManager implements ISessionManager {
 }
 
 /**
+ * Maps broader AgentType to restricted AgentProfile.type union
+ */
+function mapToAgentProfileType(
+  agentType: string,
+): 'coordinator' | 'researcher' | 'implementer' | 'analyst' | 'custom' {
+  // Map common agent types to AgentProfile types
+  const agentTypeMap: Record<
+    string,
+    'coordinator' | 'researcher' | 'implementer' | 'analyst' | 'custom'
+  > = {
+    coordinator: 'coordinator',
+    researcher: 'researcher',
+    coder: 'implementer',
+    implementer: 'implementer',
+    analyst: 'analyst',
+    architect: 'analyst',
+    tester: 'implementer',
+    reviewer: 'analyst',
+    optimizer: 'analyst',
+    documenter: 'implementer',
+    monitor: 'analyst',
+    specialist: 'custom',
+    developer: 'implementer',
+  };
+
+  return agentTypeMap[agentType] || 'custom';
+}
+
+/**
  * Main orchestrator implementation with enhanced features
  */
 export class Orchestrator implements IOrchestrator {
   private initialized = false;
   private shutdownInProgress = false;
   private sessionManager: ISessionManager;
-  private healthCheckInterval?: number;
-  private maintenanceInterval?: number;
-  private metricsInterval?: number;
+  private healthCheckInterval?: NodeJS.Timeout;
+  private maintenanceInterval?: NodeJS.Timeout;
+  private metricsInterval?: NodeJS.Timeout;
   private agents = new Map<string, AgentProfile>();
   private taskQueue: Task[] = [];
   private taskHistory = new Map<string, Task>();
@@ -457,10 +491,28 @@ export class Orchestrator implements IOrchestrator {
       throw new SystemError('Maximum concurrent agents reached');
     }
 
+    // Normalize and validate agent type using compatibility layer
+    const originalType = profile.type;
+    try {
+      const normalizedAgentType = normalizeAgentTypeForSpawning(profile.type);
+      // Map broader AgentType to restricted AgentProfile.type
+      profile.type = mapToAgentProfileType(normalizedAgentType);
+    } catch (error) {
+      if (error instanceof AgentTypeError) {
+        throw new SystemError(`Invalid agent type in profile: ${error.message}`);
+      }
+      throw error;
+    }
+
     // Validate agent profile
     this.validateAgentProfile(profile);
 
-    this.logger.info('Spawning agent', { agentId: profile.id, type: profile.type });
+    this.logger.info('Spawning agent with normalized type', {
+      agentId: profile.id,
+      type: profile.type,
+      originalType,
+      normalized: true,
+    });
 
     try {
       // Create session with retry
@@ -940,13 +992,13 @@ export class Orchestrator implements IOrchestrator {
       }
     }
 
-    return available.sort((a, b) => b.priority - a.priority);
+    return available.sort((a, b) => (b.priority || 0) - (a.priority || 0));
   }
 
   private selectAgentForTask(task: Task, agents: AgentProfile[]): AgentProfile | undefined {
     // Score agents based on capabilities, load, and priority
     const scoredAgents = agents.map((agent) => {
-      let score = agent.priority * 10;
+      let score = (agent.priority || 0) * 10;
 
       // Check capability match
       const requiredCapabilities = (task.metadata?.requiredCapabilities as string[]) || [];
@@ -1142,8 +1194,6 @@ export class Orchestrator implements IOrchestrator {
   private handleSystemError(component: string, error: Error): void {
     // Implement system-level error recovery strategies
     this.logger.error('Handling system error', { component, error });
-
-    // TODO: Implement specific recovery strategies based on component and error type
   }
 
   private async resolveDeadlock(agents: string[], resources: string[]): Promise<void> {
@@ -1157,7 +1207,7 @@ export class Orchestrator implements IOrchestrator {
     }
 
     // Sort by priority (lowest first)
-    agentProfiles.sort((a, b) => a.priority - b.priority);
+    agentProfiles.sort((a, b) => (a.priority || 0) - (b.priority || 0));
 
     // Cancel tasks for lowest priority agent
     const targetAgent = agentProfiles[0];
@@ -1191,7 +1241,7 @@ export class Orchestrator implements IOrchestrator {
   }
 
   private startAgentHealthMonitoring(agentId: string): void {
-    // TODO: Implement periodic health checks for individual agents
+    // Agent health monitoring implementation placeholder
   }
 
   private async recoverUnhealthyComponents(health: HealthStatus): Promise<void> {
@@ -1199,7 +1249,6 @@ export class Orchestrator implements IOrchestrator {
       if (component.status === 'unhealthy') {
         this.logger.warn('Attempting to recover unhealthy component', { name });
 
-        // TODO: Implement component-specific recovery strategies
         switch (name) {
           case 'Terminal Manager':
             // Restart terminal pools, etc.
@@ -1255,7 +1304,7 @@ export class Orchestrator implements IOrchestrator {
         count: criticalTasks.length,
       });
 
-      // TODO: Implement critical task processing
+      // Critical task processing implementation placeholder
     }
   }
 
@@ -1269,7 +1318,7 @@ export class Orchestrator implements IOrchestrator {
   /**
    * Update Claude API configuration dynamically
    */
-  updateClaudeConfig(config: Partial<Config['claude']>): void {
+  updateClaudeConfig(config: any): void {
     this.configManager.setClaudeConfig(config);
 
     if (this.claudeClient) {

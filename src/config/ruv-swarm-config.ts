@@ -14,6 +14,7 @@ import { deepMerge } from '../utils/helpers.js';
  * ruv-swarm integration configuration
  */
 export interface RuvSwarmConfig {
+  [key: string]: unknown;
   // Core swarm settings
   swarm: {
     defaultTopology: 'mesh' | 'hierarchical' | 'ring' | 'star';

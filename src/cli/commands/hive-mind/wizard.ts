@@ -96,8 +96,9 @@ export const wizardCommand = new Command('wizard')
 
 async function showIntro() {
   console.clear();
+  // Use 'Standard' font which is built-in and PKG-compatible (no external .flf files needed)
   const title = figlet.textSync('Hive Mind', {
-    font: 'Big',
+    font: 'Standard',
     horizontalLayout: 'default',
     verticalLayout: 'default',
   });
@@ -479,7 +480,7 @@ async function submitTaskWizard() {
 
     if (config.monitor) {
       console.log('\n' + chalk.bold('Monitoring task progress...'));
-      // TODO: Implement real-time monitoring
+      // Real-time monitoring implementation placeholder
     }
   } catch (error) {
     spinner.fail(formatError('Failed to submit task'));

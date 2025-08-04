@@ -861,7 +861,7 @@ export class SwarmMemoryManager extends EventEmitter {
     let expiringEntries = 0;
 
     for (const entry of validEntries) {
-      entriesByType[entry.type]++;
+      entriesByType[entry.type as MemoryType]++;
       entriesByAccess[entry.accessLevel]++;
 
       const entrySize = this.calculateEntrySize(entry);
@@ -1334,7 +1334,9 @@ class MemoryCache {
     // Evict if at capacity
     if (this.cache.size >= this.maxSize) {
       const oldestKey = this.cache.keys().next().value;
-      this.cache.delete(oldestKey);
+      if (oldestKey !== undefined) {
+        this.cache.delete(oldestKey);
+      }
     }
 
     this.cache.set(key, {

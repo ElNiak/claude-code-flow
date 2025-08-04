@@ -21,7 +21,7 @@ export const stopCommand = new Command('stop')
     try {
       if (options.all) {
         // Stop all active sessions
-        const sessions = sessionManager.getActiveSessionsWithProcessInfo();
+        const sessions = await sessionManager.getActiveSessionsWithProcessInfo();
 
         if (sessions.length === 0) {
           console.log(chalk.yellow('No active sessions found'));
@@ -54,7 +54,7 @@ export const stopCommand = new Command('stop')
       } else if (options.session) {
         // Stop specific session
         const sessionId = options.session;
-        const session = sessionManager.getSession(sessionId);
+        const session = await sessionManager.getSession(sessionId);
 
         if (!session) {
           console.log(chalk.red(`Session ${sessionId} not found`));
@@ -87,7 +87,7 @@ export const stopCommand = new Command('stop')
         console.log(chalk.green(`✓ Session ${sessionId} stopped successfully`));
       } else {
         // Interactive selection
-        const sessions = sessionManager.getActiveSessionsWithProcessInfo();
+        const sessions = await sessionManager.getActiveSessionsWithProcessInfo();
 
         if (sessions.length === 0) {
           console.log(chalk.yellow('No active sessions found'));

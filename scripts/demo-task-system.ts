@@ -23,7 +23,7 @@ class SimpleTaskExecutor {
 
   constructor(
     private eventBus: EventBus,
-    private logger: Logger
+    private logger: Logger,
   ) {
     this.setupHandlers();
   }
@@ -133,9 +133,9 @@ class SimpleTaskExecutor {
     const tasks = Array.from(this.tasks.values());
     return {
       total: tasks.length,
-      completed: tasks.filter(t => t.status === 'completed').length,
-      running: tasks.filter(t => t.status === 'running').length,
-      pending: tasks.filter(t => t.status === 'pending').length,
+      completed: tasks.filter((t) => t.status === 'completed').length,
+      running: tasks.filter((t) => t.status === 'running').length,
+      pending: tasks.filter((t) => t.status === 'pending').length,
     };
   }
 
@@ -153,7 +153,7 @@ async function runDemo() {
   const eventBus = new EventBus();
   const logger = new Logger(
     { level: 'info', format: 'pretty', destination: 'console' },
-    { component: 'demo' }
+    { component: 'demo' },
   );
 
   const executor = new SimpleTaskExecutor(eventBus, logger);
@@ -175,7 +175,9 @@ async function runDemo() {
   const tasks = [
     await executor.createTask('code', 'Implement user authentication', { feature: 'auth' }),
     await executor.createTask('analyze', 'Analyze user behavior data', { dataset: 'users' }),
-    await executor.createTask('research', 'Research best practices for API design', { topic: 'REST' }),
+    await executor.createTask('research', 'Research best practices for API design', {
+      topic: 'REST',
+    }),
     await executor.createTask('code', 'Add unit tests for payment module', { module: 'payments' }),
     await executor.createTask('analyze', 'Generate performance report', { period: 'Q4' }),
   ];
@@ -183,11 +185,11 @@ async function runDemo() {
   console.log('\n📋 Step 3: Assigning Tasks to Agents\n');
 
   // Assign tasks based on capabilities
-  await executor.assignTask(tasks[0], coder);     // auth implementation
-  await executor.assignTask(tasks[1], analyst);   // behavior analysis
+  await executor.assignTask(tasks[0], coder); // auth implementation
+  await executor.assignTask(tasks[1], analyst); // behavior analysis
   await executor.assignTask(tasks[2], researcher); // API research
-  await executor.assignTask(tasks[3], coder);     // unit tests
-  await executor.assignTask(tasks[4], analyst);   // performance report
+  await executor.assignTask(tasks[3], coder); // unit tests
+  await executor.assignTask(tasks[4], analyst); // performance report
 
   console.log('\n⏳ Step 4: Waiting for Completion...\n');
 
@@ -195,7 +197,9 @@ async function runDemo() {
   while (tasksCompleted < tasks.length) {
     await delay(500);
     const stats = executor.getStats();
-    console.log(`📊 Progress: ${stats.completed}/${stats.total} completed, ${stats.running} running`);
+    console.log(
+      `📊 Progress: ${stats.completed}/${stats.total} completed, ${stats.running} running`,
+    );
   }
 
   console.log('\n📋 Step 5: Results Summary\n');
@@ -218,7 +222,9 @@ async function runDemo() {
   console.log('\n✨ Claude-Flow task system is working perfectly!');
 }
 
-// Run the demo
-if (import.meta.main) {
+// CLI interface - PKG-compatible main module detection
+const __filename = process.argv[1] || require.main?.filename || '';
+const isMainModule = process.argv[1] && process.argv[1].endsWith('/demo-task-system.ts');
+if (isMainModule) {
   runDemo().catch(console.error);
 }

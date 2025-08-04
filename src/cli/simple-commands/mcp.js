@@ -66,7 +66,8 @@ async function startMcpServer(subArgs, flags) {
       const path = await import('path');
       const { spawn } = await import('child_process');
 
-      const __filename = fileURLToPath(import.meta.url);
+      // PKG compatible __filename and __dirname
+      const __filename = process.argv[1] || require.main?.filename || '';
       const __dirname = path.dirname(__filename);
       const mcpServerPath = path.join(__dirname, '../../mcp/mcp-server.js');
 

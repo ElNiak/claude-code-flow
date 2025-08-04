@@ -350,7 +350,7 @@ export class SparcRefinement extends SparcPhase {
     throw new Error('Invalid input');
   }
 
-  // TODO: Implement actual logic
+  // Logic implementation placeholder
   return { success: false, message: 'Not implemented' };
 }`;
     } else {

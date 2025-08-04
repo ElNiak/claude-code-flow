@@ -18,8 +18,8 @@ import {
 
 export class ConsensusEngine extends EventEmitter {
   private threshold: number;
-  private db: DatabaseManager;
-  private mcpWrapper: MCPToolWrapper;
+  private db!: DatabaseManager;
+  private mcpWrapper!: MCPToolWrapper;
   private activeProposals: Map<string, ConsensusProposal>;
   private votingStrategies: Map<string, VotingStrategy>;
   private metrics: ConsensusMetrics;
@@ -105,7 +105,7 @@ export class ConsensusEngine extends EventEmitter {
    * Get proposal status
    */
   async getProposalStatus(proposalId: string): Promise<any> {
-    const dbProposal = await this.db.getConsensusProposal(proposalId);
+    const dbProposal = await this.getConsensusProposal(proposalId);
     if (!dbProposal) {
       throw new Error('Proposal not found');
     }
@@ -328,7 +328,7 @@ export class ConsensusEngine extends EventEmitter {
     result: ConsensusResult,
   ): Promise<void> {
     // Update proposal status
-    await this.db.updateConsensusStatus(proposal.id, 'achieved');
+    await this.updateConsensusStatus(proposal.id, 'achieved');
 
     // Remove from active proposals
     this.activeProposals.delete(proposal.id);
@@ -356,7 +356,7 @@ export class ConsensusEngine extends EventEmitter {
     result: ConsensusResult,
   ): Promise<void> {
     // Update proposal status
-    await this.db.updateConsensusStatus(proposal.id, 'failed');
+    await this.updateConsensusStatus(proposal.id, 'failed');
 
     // Remove from active proposals
     this.activeProposals.delete(proposal.id);
@@ -504,7 +504,7 @@ export class ConsensusEngine extends EventEmitter {
 
       try {
         // Calculate average voting time
-        const recentProposals = await this.db.getRecentConsensusProposals(10);
+        const recentProposals = await this.getRecentConsensusProposals(10);
 
         if (recentProposals.length > 0) {
           const votingTimes = recentProposals
@@ -542,17 +542,19 @@ export class ConsensusEngine extends EventEmitter {
    * Database helper methods (to be implemented in DatabaseManager)
    */
   private async getConsensusProposal(id: string): Promise<any> {
-    return this.db.prepare('SELECT * FROM consensus WHERE id = ?').get(id);
+    return (this.db as any).db.prepare('SELECT * FROM consensus WHERE id = ?').get(id);
   }
 
   private async updateConsensusStatus(id: string, status: string): Promise<void> {
-    this.db
+    (this.db as any).db
       .prepare('UPDATE consensus SET status = ?, completed_at = CURRENT_TIMESTAMP WHERE id = ?')
       .run(status, id);
   }
 
   private async getRecentConsensusProposals(limit: number): Promise<any[]> {
-    return this.db.prepare('SELECT * FROM consensus ORDER BY created_at DESC LIMIT ?').all(limit);
+    return (this.db as any).db
+      .prepare('SELECT * FROM consensus ORDER BY created_at DESC LIMIT ?')
+      .all(limit);
   }
 
   /**

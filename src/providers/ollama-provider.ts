@@ -128,7 +128,7 @@ export class OllamaProvider extends BaseProvider {
     },
   };
 
-  private baseUrl: string;
+  private baseUrl!: string;
   private availableModels: Set<string> = new Set();
 
   protected async doInitialize(): Promise<void> {
@@ -149,7 +149,7 @@ export class OllamaProvider extends BaseProvider {
         throw new Error(`Failed to fetch models: ${response.status}`);
       }
 
-      const data = await response.json();
+      const data = (await response.json()) as { models?: OllamaModelInfo[] };
       this.availableModels.clear();
 
       if (data.models && Array.isArray(data.models)) {
@@ -181,7 +181,7 @@ export class OllamaProvider extends BaseProvider {
     // Use chat endpoint for multi-turn conversations
     const ollamaRequest: OllamaChatRequest = {
       model: this.mapToOllamaModel(request.model || this.config.model),
-      messages: request.messages.map(msg => ({
+      messages: request.messages.map((msg) => ({
         role: msg.role === 'system' ? 'system' : msg.role === 'assistant' ? 'assistant' : 'user',
         content: msg.content,
       })),
@@ -214,10 +214,11 @@ export class OllamaProvider extends BaseProvider {
         await this.handleErrorResponse(response);
       }
 
-      const data: OllamaResponse = await response.json();
+      const data = (await response.json()) as OllamaResponse;
 
       // Calculate metrics
-      const promptTokens = data.prompt_eval_count || this.estimateTokens(JSON.stringify(request.messages));
+      const promptTokens =
+        data.prompt_eval_count || this.estimateTokens(JSON.stringify(request.messages));
       const completionTokens = data.eval_count || this.estimateTokens(data.message?.content || '');
       const totalDuration = data.total_duration ? data.total_duration / 1000000 : 0; // Convert nanoseconds to milliseconds
 
@@ -262,7 +263,7 @@ export class OllamaProvider extends BaseProvider {
   protected async *doStreamComplete(request: LLMRequest): AsyncIterable<LLMStreamEvent> {
     const ollamaRequest: OllamaChatRequest = {
       model: this.mapToOllamaModel(request.model || this.config.model),
-      messages: request.messages.map(msg => ({
+      messages: request.messages.map((msg) => ({
         role: msg.role === 'system' ? 'system' : msg.role === 'assistant' ? 'assistant' : 'user',
         content: msg.content,
       })),
@@ -323,7 +324,8 @@ export class OllamaProvider extends BaseProvider {
             }
 
             if (data.done) {
-              promptTokens = data.prompt_eval_count || this.estimateTokens(JSON.stringify(request.messages));
+              promptTokens =
+                data.prompt_eval_count || this.estimateTokens(JSON.stringify(request.messages));
               completionTokens = data.eval_count || this.estimateTokens(totalContent);
 
               yield {
@@ -366,8 +368,8 @@ export class OllamaProvider extends BaseProvider {
     await this.fetchAvailableModels();
 
     // Return intersection of supported models and available models
-    return this.capabilities.supportedModels.filter(model =>
-      this.availableModels.has(this.mapToOllamaModel(model))
+    return this.capabilities.supportedModels.filter((model) =>
+      this.availableModels.has(this.mapToOllamaModel(model)),
     );
   }
 
@@ -387,7 +389,15 @@ export class OllamaProvider extends BaseProvider {
         throw new Error('Model not found');
       }
 
-      const data = await response.json();
+      const data = (await response.json()) as {
+        name?: string;
+        description?: string;
+        details?: {
+          parameter_size?: string;
+          quantization_level?: string;
+          format?: string;
+        };
+      };
 
       return {
         model,
@@ -483,7 +493,7 @@ export class OllamaProvider extends BaseProvider {
       'ollama',
       response.status,
       response.status >= 500,
-      errorData
+      errorData,
     );
   }
 }

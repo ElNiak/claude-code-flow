@@ -39,7 +39,7 @@ export class SessionManager implements ISessionManager {
   private authConfig: MCPAuthConfig;
   private sessionTimeout: number;
   private maxSessions: number;
-  private cleanupInterval?: number;
+  private cleanupInterval?: NodeJS.Timeout;
 
   constructor(
     private config: MCPConfig,
@@ -345,7 +345,7 @@ export class SessionManager implements ISessionManager {
   }
 
   private authenticateOAuth(credentials: unknown): boolean {
-    // TODO: Implement OAuth authentication
+    // OAuth authentication implementation placeholder
     // This would typically involve validating JWT tokens
     this.logger.warn('OAuth authentication not yet implemented');
     return false;

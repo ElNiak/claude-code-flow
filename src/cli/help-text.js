@@ -4,8 +4,9 @@
  */
 
 import { HelpFormatter } from './help-formatter.js';
+import { getVersion } from '../utils/version.js';
 
-export const VERSION = '2.0.0-alpha.78';
+export const VERSION = getVersion();
 
 export const MAIN_HELP = `
 🌊 Claude-Flow v${VERSION} - Enterprise-Grade AI Agent Orchestration Platform

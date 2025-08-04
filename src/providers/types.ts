@@ -115,10 +115,7 @@ export interface LLMRequest {
   providerOptions?: Record<string, any>;
 
   // Cost optimization
-  costConstraints?: {
-    maxCost?: number;
-    preferredModels?: LLMModel[];
-  };
+  costConstraints?: CostConstraints;
 }
 
 export interface LLMFunction {
@@ -228,7 +225,7 @@ export class LLMProviderError extends Error {
     public provider: LLMProvider,
     public statusCode?: number,
     public retryable: boolean = true,
-    public details?: any
+    public details?: any,
   ) {
     super(message);
     this.name = 'LLMProviderError';
@@ -240,7 +237,7 @@ export class RateLimitError extends LLMProviderError {
     message: string,
     provider: LLMProvider,
     public retryAfter?: number,
-    details?: any
+    details?: any,
   ) {
     super(message, 'RATE_LIMIT', provider, 429, true, details);
     this.name = 'RateLimitError';
@@ -263,7 +260,14 @@ export class ModelNotFoundError extends LLMProviderError {
 
 export class ProviderUnavailableError extends LLMProviderError {
   constructor(provider: LLMProvider, details?: any) {
-    super(`Provider ${provider} is unavailable`, 'PROVIDER_UNAVAILABLE', provider, 503, true, details);
+    super(
+      `Provider ${provider} is unavailable`,
+      'PROVIDER_UNAVAILABLE',
+      provider,
+      503,
+      true,
+      details,
+    );
     this.name = 'ProviderUnavailableError';
   }
 }
@@ -313,6 +317,7 @@ export interface ModelInfo {
   deprecated?: boolean;
   deprecationDate?: Date;
   recommendedReplacement?: LLMModel;
+  metadata?: Record<string, any>;
 }
 
 export interface HealthCheckResult {
@@ -364,11 +369,14 @@ export interface UsageStats {
   };
   errors: number;
   averageLatency: number;
-  modelBreakdown: Record<LLMModel, {
-    requests: number;
-    tokens: number;
-    cost: number;
-  }>;
+  modelBreakdown: Record<
+    LLMModel,
+    {
+      requests: number;
+      tokens: number;
+      cost: number;
+    }
+  >;
 }
 
 export type UsagePeriod = 'hour' | 'day' | 'week' | 'month' | 'all';
@@ -471,7 +479,10 @@ export interface Alert {
 // ===== COST OPTIMIZATION =====
 
 export interface CostOptimizer {
-  selectOptimalModel(request: LLMRequest, constraints: CostConstraints): Promise<OptimizationResult>;
+  selectOptimalModel(
+    request: LLMRequest,
+    constraints: CostConstraints,
+  ): Promise<OptimizationResult>;
   analyzeCostTrends(period: UsagePeriod): Promise<CostAnalysis>;
   suggestOptimizations(): Promise<OptimizationSuggestion[]>;
 }

@@ -27,6 +27,7 @@ import { RequestRouter } from './router.js';
 import { SessionManager, ISessionManager } from './session-manager.js';
 import { AuthManager, IAuthManager } from './auth.js';
 import { LoadBalancer, ILoadBalancer, RequestQueue } from './load-balancer.js';
+import { MCPDebugLogger, getMCPDebugLogger } from './debug-logger.js';
 import { createClaudeFlowTools, ClaudeFlowToolContext } from './claude-flow-tools.js';
 import { createSwarmTools, SwarmToolContext } from './swarm-tools.js';
 import {
@@ -66,6 +67,7 @@ export class MCPServer implements IMCPServer {
   private requestQueue?: RequestQueue;
   private running = false;
   private currentSession?: MCPSession | undefined;
+  private mcpDebugLogger: MCPDebugLogger;
 
   private readonly serverInfo = {
     name: 'Claude-Flow MCP Server',
@@ -125,6 +127,16 @@ export class MCPServer implements IMCPServer {
 
     // Initialize request router
     this.router = new RequestRouter(this.toolRegistry, logger);
+
+    // Initialize MCP debug logger
+    this.mcpDebugLogger = getMCPDebugLogger({
+      enableTracing: config.debug?.enableTracing !== false,
+      enableCrossSystemCorrelation: config.debug?.enableCrossSystemCorrelation !== false,
+      enableToolTracing: config.debug?.enableToolTracing !== false,
+      performanceThreshold: config.debug?.performanceThreshold || 0.1,
+      traceRetentionTime: config.debug?.traceRetentionTime || 3600000,
+      sanitizeSensitiveData: config.debug?.sanitizeSensitiveData !== false,
+    });
   }
 
   async start(): Promise<void> {
@@ -144,7 +156,7 @@ export class MCPServer implements IMCPServer {
       await this.transport.start();
 
       // Register built-in tools
-      this.registerBuiltInTools();
+      await this.registerBuiltInTools();
 
       this.running = true;
       this.logger.info('MCP server started successfully');
@@ -174,6 +186,9 @@ export class MCPServer implements IMCPServer {
       for (const session of this.sessionManager.getActiveSessions()) {
         this.sessionManager.removeSession(session.id);
       }
+
+      // Shutdown debug logger
+      this.mcpDebugLogger.shutdown();
 
       this.running = false;
       this.currentSession = undefined;
@@ -240,6 +255,7 @@ export class MCPServer implements IMCPServer {
     const routerMetrics = this.router.getMetrics();
     const sessionMetrics = this.sessionManager.getSessionMetrics();
     const lbMetrics = this.loadBalancer?.getMetrics();
+    const debugMetrics = this.mcpDebugLogger.getMetrics();
 
     return {
       totalRequests: routerMetrics.totalRequests,
@@ -247,9 +263,18 @@ export class MCPServer implements IMCPServer {
       failedRequests: routerMetrics.failedRequests,
       averageResponseTime: lbMetrics?.averageResponseTime || 0,
       activeSessions: sessionMetrics.active,
-      toolInvocations: {}, // TODO: Implement tool-specific metrics
-      errors: {}, // TODO: Implement error categorization
+      toolInvocations: {
+        total: debugMetrics.toolInvocations.total,
+        successful: debugMetrics.toolInvocations.successful,
+        failed: debugMetrics.toolInvocations.failed,
+        averageTime: debugMetrics.toolInvocations.avgExecutionTime,
+      },
+      errors: {
+        protocolViolations: debugMetrics.protocolCompliance.violations,
+        correlationFailures: debugMetrics.correlation.orphanedRequests,
+      },
       lastReset: lbMetrics?.lastReset || new Date(),
+      debug: debugMetrics, // Include full debug metrics
     };
   }
 
@@ -269,9 +294,25 @@ export class MCPServer implements IMCPServer {
   }
 
   private async handleRequest(request: MCPRequest): Promise<MCPResponse> {
+    // Trace incoming request
+    const correlationId = this.mcpDebugLogger.traceProtocolMessage(
+      'inbound',
+      'request',
+      request,
+      this.currentSession,
+      {
+        claudeCodeSessionId: process.env.CLAUDE_CODE_SESSION_ID,
+        requestMetadata: {
+          transport: this.config.transport,
+          authenticated: this.currentSession?.authenticated,
+        },
+      },
+    );
+
     this.logger.debug('Handling MCP request', {
       id: request.id,
       method: request.method,
+      correlationId,
     });
 
     try {
@@ -326,6 +367,19 @@ export class MCPServer implements IMCPServer {
           result,
         };
 
+        // Trace outbound response
+        this.mcpDebugLogger.traceProtocolMessage(
+          'outbound',
+          'response',
+          response,
+          this.currentSession,
+          {
+            correlationId,
+            requestMethod: request.method,
+            success: true,
+          },
+        );
+
         // Record success
         if (requestMetrics) {
           this.loadBalancer?.recordRequestEnd(requestMetrics, response);
@@ -343,14 +397,31 @@ export class MCPServer implements IMCPServer {
       this.logger.error('Error handling MCP request', {
         id: request.id,
         method: request.method,
+        correlationId,
         error,
       });
 
-      return {
+      const errorResponse: MCPResponse = {
         jsonrpc: '2.0',
         id: request.id,
         error: this.errorToMCPError(error),
       };
+
+      // Trace error response
+      this.mcpDebugLogger.traceProtocolMessage(
+        'outbound',
+        'error',
+        errorResponse,
+        this.currentSession,
+        {
+          correlationId,
+          requestMethod: request.method,
+          originalError: error,
+          success: false,
+        },
+      );
+
+      return errorResponse;
     }
   }
 
@@ -434,7 +505,7 @@ export class MCPServer implements IMCPServer {
     }
   }
 
-  private registerBuiltInTools(): void {
+  private async registerBuiltInTools(): Promise<void> {
     // System information tool
     this.registerTool({
       name: 'system/info',
@@ -506,7 +577,7 @@ export class MCPServer implements IMCPServer {
 
     // Register Claude-Flow specific tools if orchestrator is available
     if (this.orchestrator) {
-      const claudeFlowTools = createClaudeFlowTools(this.logger);
+      const claudeFlowTools = await createClaudeFlowTools(this.logger);
 
       for (const tool of claudeFlowTools) {
         // Wrap the handler to inject orchestrator context
@@ -592,9 +663,10 @@ export class MCPServer implements IMCPServer {
         const originalHandler = tool.handler;
         tool.handler = async (input: unknown, context?: MCPContext) => {
           const ruvSwarmContext: RuvSwarmToolContext = {
-            ...context,
+            sessionId: context?.sessionId || `mcp-session-${Date.now()}`,
+            logger: context?.logger || this.logger,
+            agentId: context?.agentId,
             workingDirectory,
-            sessionId: `mcp-session-${Date.now()}`,
             swarmId: process.env.CLAUDE_SWARM_ID || `mcp-swarm-${Date.now()}`,
           };
 
@@ -613,7 +685,7 @@ export class MCPServer implements IMCPServer {
     }
   }
 
-  private errorToMCPError(error): MCPError {
+  private errorToMCPError(error: unknown): MCPError {
     if (error instanceof MCPMethodNotFoundError) {
       return {
         code: -32601,

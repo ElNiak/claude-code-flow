@@ -121,7 +121,7 @@ export class LoadBalancer extends EventEmitter {
     this.eventBus = eventBus;
 
     this.config = {
-      strategy: 'hybrid',
+      strategy: 'distributed',
       enableWorkStealing: true,
       stealThreshold: 3,
       maxStealBatch: 5,
@@ -155,30 +155,30 @@ export class LoadBalancer extends EventEmitter {
   private setupEventHandlers(): void {
     this.eventBus.on('agent:load-update', (data) => {
       if (hasAgentLoad(data)) {
-        this.updateAgentLoad(data.agentId, data.load);
+        this.updateAgentLoad(data.agentId.id, { utilization: data.load as number });
       }
     });
 
     this.eventBus.on('task:queued', (data) => {
       if (hasAgentTask(data)) {
-        this.updateTaskQueue(data.agentId, data.task, 'add');
+        this.updateTaskQueue(data.agentId.id, data.task as TaskDefinition, 'add');
       }
     });
 
     this.eventBus.on('task:started', (data) => {
       if (hasAgentTask(data)) {
-        this.updateTaskQueue(data.agentId, data.task, 'remove');
+        this.updateTaskQueue(data.agentId.id, data.task as TaskDefinition, 'remove');
       }
     });
 
     this.eventBus.on('workstealing:request', (data) => {
       if (hasWorkStealingData(data)) {
-        this.executeWorkStealing(data.sourceAgent, data.targetAgent, data.taskCount);
+        this.executeWorkStealing(data.sourceAgent.id, data.targetAgent.id, data.taskCount);
       }
     });
 
     this.eventBus.on('agent:performance-update', (data) => {
-      this.updatePerformanceBaseline(data.agentId, data.metrics);
+      this.updatePerformanceBaseline((data as any).agentId, (data as any).metrics);
     });
   }
 
@@ -327,32 +327,27 @@ export class LoadBalancer extends EventEmitter {
       const scoreComponents: string[] = [];
 
       switch (this.config.strategy) {
-        case 'load-based':
+        case 'work-stealing':
           score = this.calculateLoadScore(agent, load);
           scoreComponents.push(`load:${score.toFixed(2)}`);
           break;
 
-        case 'performance-based':
+        case 'work-sharing':
           score = this.calculatePerformanceScore(agent, load);
           scoreComponents.push(`perf:${score.toFixed(2)}`);
           break;
 
-        case 'capability-based':
+        case 'centralized':
           score = this.calculateCapabilityScore(agent, task);
           scoreComponents.push(`cap:${score.toFixed(2)}`);
           break;
 
-        case 'affinity-based':
+        case 'distributed':
           score = this.calculateAffinityScore(agent, task);
           scoreComponents.push(`affinity:${score.toFixed(2)}`);
           break;
 
-        case 'cost-based':
-          score = this.calculateCostScore(agent, task);
-          scoreComponents.push(`cost:${score.toFixed(2)}`);
-          break;
-
-        case 'hybrid':
+        case 'predictive':
           score = this.calculateHybridScore(agent, task, load);
           scoreComponents.push(`hybrid:${score.toFixed(2)}`);
           break;

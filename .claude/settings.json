@@ -106,5 +106,5 @@
     ]
   },
   "includeCoAuthoredBy": false,
-  "enabledMcpjsonServers": ["claude-flow", "ruv-swarm", "context7", "serena", "sequential-thinking", "gemini", "perplexity-ask"]
+  "enabledMcpjsonServers": ["claude-flow", "ruv-swarm", "context7", "serena", "sequential-thinking", "consult7", "perplexity-ask", "task-master-ai"]
 }

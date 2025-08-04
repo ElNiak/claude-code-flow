@@ -9,7 +9,8 @@ import { fileURLToPath } from 'url';
 import os from 'os';
 import { createDatabase } from './sqlite-wrapper.js';
 
-const __filename = fileURLToPath(import.meta.url);
+// PKG compatible __filename and __dirname
+const __filename = process.argv[1] || require.main?.filename || '';
 const __dirname = path.dirname(__filename);
 
 class SqliteMemoryStore {

@@ -28,15 +28,10 @@ export class MCPIntegration {
         args: ['-y', '@anthropic/claude-code', 'mcp'],
       });
 
-      this.claudeCodeClient = new Client(
-        {
-          name: 'claude-flow-wrapper-client',
-          version: '1.0.0',
-        },
-        {
-          capabilities: {},
-        },
-      );
+      this.claudeCodeClient = new Client({
+        name: 'claude-flow-wrapper-client',
+        version: '1.0.0',
+      });
 
       await this.claudeCodeClient.connect(transport);
 
@@ -64,7 +59,11 @@ export function injectClaudeCodeClient(wrapper: ClaudeCodeMCPWrapper, client: Cl
   // Override the forwardToClaudeCode method
   (wrapper as any).forwardToClaudeCode = async function (toolName: string, args: any) {
     try {
-      const result = await client.callTool(toolName, args);
+      // Use the standard MCP request method to call tools
+      const result = await client.request('tools/call', {
+        name: toolName,
+        arguments: args,
+      });
       return result;
     } catch (error) {
       return {
@@ -81,7 +80,21 @@ export function injectClaudeCodeClient(wrapper: ClaudeCodeMCPWrapper, client: Cl
 }
 
 // Main execution
-if (import.meta.url === `file://${process.argv[1]}`) {
+// CJS/ESM compatibility for main module detection
+// PKG-compatible version without import.meta evaluation
+const isMainModule = (() => {
+  try {
+    // Check if this script is the main module being executed
+    return (
+      (process.argv[1] && process.argv[1].endsWith('/integrate-wrapper.ts')) ||
+      process.argv[1].endsWith('/integrate-wrapper.js')
+    );
+  } catch {
+    return false;
+  }
+})();
+
+if (isMainModule) {
   const integration = new MCPIntegration();
   integration.start().catch(console.error);
 }

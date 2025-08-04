@@ -3,7 +3,9 @@ import { readFileSync } from 'fs';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+// PKG compatible __dirname
+const __filename = process.argv[1] || require.main?.filename || '';
+const __dirname = dirname(__filename);
 
 // Load template files
 const loadTemplate = (filename) => {
@@ -1224,8 +1226,8 @@ function createWrapperScriptFallback(type) {
   const { fileURLToPath } = await import('url');
 
   try {
-    // Try to use import.meta.url (ES modules)
-    const __filename = fileURLToPath(import.meta.url);
+    // PKG compatible filename and dirname
+    const __filename = process.argv[1] || require.main?.filename || '';
     const __dirname = resolve(__filename, '..');
   } catch {
     // Fallback for CommonJS

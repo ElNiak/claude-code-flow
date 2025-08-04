@@ -13,8 +13,9 @@ import {
   listCommands,
 } from './command-registry.js';
 import { parseFlags } from './utils.js';
+import { getVersion } from '../utils/version.js';
 
-const VERSION = '2.0.0';
+const VERSION = getVersion();
 
 function printHelp() {
   console.log(`
@@ -3290,6 +3291,24 @@ For more information about SPARC methodology, see: https://github.com/ruvnet/cla
 }
 
 // Run main if executed directly
-if (import.meta.url === `file://${process.argv[1]}`) {
-  await main();
+// PKG-compatible main module detection (avoids import.meta entirely)
+const isMainModule = (() => {
+  // Use process.argv[1] which works in both ESM, CJS, and PKG contexts
+  const currentFile = process.argv[1];
+  if (!currentFile) return false;
+
+  // Check if running this specific file
+  return (
+    currentFile.endsWith('/simple-cli.ts') ||
+    currentFile.endsWith('/simple-cli.js') ||
+    currentFile.includes('claude-flow') ||
+    currentFile.includes('simple-cli')
+  );
+})();
+
+if (isMainModule) {
+  // Wrap top-level await in async IIFE for CJS compatibility
+  (async () => {
+    await main();
+  })().catch(console.error);
 }

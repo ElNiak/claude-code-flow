@@ -5,7 +5,7 @@
  * Scans documentation files for broken links
  */
 
-import { walk } from "https://deno.land/std@0.220.0/fs/mod.ts";
+import { walk } from 'https://deno.land/std@0.220.0/fs/mod.ts';
 
 interface LinkCheckResult {
   file: string;
@@ -118,7 +118,7 @@ async function scanFile(filePath: string): Promise<LinkCheckResult[]> {
     const links = extractLinks(content);
 
     // Remove duplicates and filter
-    const uniqueLinks = [...new Set(links)].filter(url => !shouldSkipUrl(url));
+    const uniqueLinks = [...new Set(links)].filter((url) => !shouldSkipUrl(url));
 
     // Check links with concurrency control
     const semaphore = new Array(MAX_CONCURRENT).fill(0);
@@ -126,7 +126,7 @@ async function scanFile(filePath: string): Promise<LinkCheckResult[]> {
       // Wait for available slot
       await new Promise<void>((resolve) => {
         const checkSlot = () => {
-          const index = semaphore.findIndex(slot => slot === 0);
+          const index = semaphore.findIndex((slot) => slot === 0);
           if (index !== -1) {
             semaphore[index] = 1;
             resolve();
@@ -160,14 +160,14 @@ async function scanFile(filePath: string): Promise<LinkCheckResult[]> {
         };
       } finally {
         // Release slot
-        const index = semaphore.findIndex(slot => slot === 1);
+        const index = semaphore.findIndex((slot) => slot === 1);
         if (index !== -1) {
           semaphore[index] = 0;
         }
       }
     });
 
-    results.push(...await Promise.all(promises));
+    results.push(...(await Promise.all(promises)));
   } catch (error) {
     console.warn(`Failed to scan ${filePath}: ${error.message}`);
   }
@@ -214,9 +214,9 @@ async function main(): Promise<void> {
   const scanResult: ScanResult = {
     totalFiles: fileCount,
     totalLinks: results.length,
-    brokenLinks: results.filter(r => r.status === 'broken'),
-    timeouts: results.filter(r => r.status === 'timeout'),
-    errors: results.filter(r => r.status === 'error'),
+    brokenLinks: results.filter((r) => r.status === 'broken'),
+    timeouts: results.filter((r) => r.status === 'timeout'),
+    errors: results.filter((r) => r.status === 'error'),
   };
 
   // Report results
@@ -255,7 +255,8 @@ async function main(): Promise<void> {
   }
 
   // Summary
-  const totalIssues = scanResult.brokenLinks.length + scanResult.timeouts.length + scanResult.errors.length;
+  const totalIssues =
+    scanResult.brokenLinks.length + scanResult.timeouts.length + scanResult.errors.length;
 
   if (totalIssues === 0) {
     console.log('✅ All links are working!');
@@ -269,6 +270,9 @@ async function main(): Promise<void> {
   }
 }
 
-if (import.meta.main) {
+// CLI interface - PKG-compatible main module detection
+const __filename = process.argv[1] || require.main?.filename || '';
+const isMainModule = process.argv[1] && process.argv[1].endsWith('/check-links.ts');
+if (isMainModule) {
   await main();
 }

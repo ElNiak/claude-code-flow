@@ -17,7 +17,8 @@ import os from 'os';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 
-const __filename = fileURLToPath(import.meta.url);
+// PKG compatible __filename and __dirname
+const __filename = process.argv[1] || require.main?.filename || '';
 const __dirname = dirname(__filename);
 
 // Track cache directories for cleanup
@@ -136,8 +137,9 @@ export async function cleanupAllCaches() {
   await cleanupCaches();
 }
 
-// For direct CLI usage
-if (import.meta.url === `file://${process.argv[1]}`) {
+// For direct CLI usage - PKG compatible
+const isMainModule = process.argv[1] && process.argv[1].endsWith('/npx-isolated-cache.js');
+if (isMainModule) {
   const command = process.argv[2];
 
   if (command === 'test') {

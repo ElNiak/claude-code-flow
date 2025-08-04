@@ -165,12 +165,11 @@ export class HttpTransport implements ITransport {
 
   private setupRoutes(): void {
     // Get current file directory for static files
-    const __filename =
-      typeof import.meta?.url !== 'undefined'
-        ? fileURLToPath(import.meta.url)
-        : __filename || __dirname + '/http.ts';
-    const __dirname = dirname(__filename);
-    const consoleDir = join(__dirname, '../../ui/console');
+    // PKG-compatible version without import.meta evaluation
+    const currentFilename =
+      process.argv[1] || require.main?.filename || require.resolve('./http.ts');
+    const currentDirname = dirname(currentFilename);
+    const consoleDir = join(currentDirname, '../../ui/console');
 
     // Serve static files for the web console
     this.app.use('/console', express.static(consoleDir));

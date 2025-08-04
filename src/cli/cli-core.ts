@@ -6,8 +6,14 @@
 import chalk from 'chalk';
 import fs from 'fs-extra';
 import path from 'path';
+import {
+  ComponentLoggerFactory,
+  generateCorrelationId,
+  type IDebugLogger,
+} from '../core/logger.js';
+import { getVersion } from '../utils/version.js';
 
-export const VERSION = '1.0.45';
+export const VERSION = getVersion();
 
 interface CommandContext {
   args: string[];
@@ -35,6 +41,8 @@ interface Option {
 
 class CLI {
   private commands: Map<string, Command> = new Map();
+  private logger: IDebugLogger;
+  private correlationId: string;
   private globalOptions: Option[] = [
     {
       name: 'help',
@@ -70,7 +78,15 @@ class CLI {
   constructor(
     private name: string,
     private description: string,
-  ) {}
+  ) {
+    this.correlationId = generateCorrelationId();
+    this.logger = ComponentLoggerFactory.getCLILogger(this.correlationId);
+    this.logger.debug('CLI core instance created', {
+      name: this.name,
+      description: this.description,
+      correlationId: this.correlationId,
+    });
+  }
 
   command(cmd: Command): this {
     // Handle both our Command interface and Commander.js Command objects
@@ -86,27 +102,39 @@ class CLI {
   }
 
   async run(args = process.argv.slice(2)): Promise<void> {
+    this.logger.debug('CLI run started', { args, correlationId: this.correlationId });
+    this.logger.timeStart('cli-run-parse-args');
+
     // Parse arguments manually since we're replacing the Deno parse function
     const flags = this.parseArgs(args);
+    this.logger.timeEnd('cli-run-parse-args', 'Arguments parsed successfully', { flags });
 
     if (flags.version || flags.v) {
-      console.log(`${this.name} v${VERSION}`);
+      this.logger.info(`${this.name} v${VERSION}`, { version: VERSION, name: this.name });
       return;
     }
 
     const commandName = flags._[0]?.toString() || '';
+    this.logger.debug('Command identified', { commandName, hasHelp: !!(flags.help || flags.h) });
 
     if (!commandName || flags.help || flags.h) {
+      this.logger.debug('Showing help - no command specified or help requested');
       this.showHelp();
       return;
     }
 
     const command = this.commands.get(commandName);
     if (!command) {
-      console.error(chalk.red(`Unknown command: ${commandName}`));
-      console.log(`Run "${this.name} help" for available commands`);
+      this.logger.error(`Unknown command: ${commandName}`, {
+        availableCommands: Array.from(this.commands.keys()),
+        commandName,
+      });
+      this.logger.info(`Run "${this.name} help" for available commands`);
       process.exit(1);
     }
+
+    this.logger.debug('Command found, creating context', { commandName });
+    this.logger.timeStart('cli-load-config');
 
     const ctx: CommandContext = {
       args: flags._.slice(1).map(String),
@@ -114,19 +142,29 @@ class CLI {
       config: await this.loadConfig(flags.config as string),
     };
 
+    this.logger.timeEnd('cli-load-config', 'Configuration loaded', {
+      hasConfig: !!ctx.config,
+      argsCount: ctx.args.length,
+    });
+
     try {
       if (command.action) {
+        this.logger.debug('Executing command action', { commandName });
+        this.logger.timeStart(`command-${commandName}`);
         await command.action(ctx);
+        this.logger.timeEnd(
+          `command-${commandName}`,
+          `Command '${commandName}' completed successfully`,
+        );
       } else {
-        console.log(chalk.yellow(`Command '${commandName}' has no action defined`));
+        this.logger.warn(`Command '${commandName}' has no action defined`, { commandName });
       }
     } catch (error) {
-      console.error(
-        chalk.red(`Error executing command '${commandName}':`),
-        (error as Error).message,
-      );
+      this.logger.timeEnd(`command-${commandName}`, `Command '${commandName}' failed`, { error });
+      this.logger.error(`Error executing command '${commandName}':`, error);
+
       if (flags.verbose) {
-        console.error(error);
+        this.logger.error('Verbose error details:', error);
       }
       process.exit(1);
     }
@@ -229,7 +267,9 @@ class CLI {
   }
 
   private showHelp(): void {
-    console.log(`
+    this.logger.debug('Displaying help information');
+
+    const helpText = `
 ${chalk.bold(chalk.blue(`🧠 ${this.name} v${VERSION}`))} - ${this.description}
 
 ${chalk.bold('USAGE:')}
@@ -255,7 +295,9 @@ Documentation: https://github.com/ruvnet/claude-code-flow
 Issues: https://github.com/ruvnet/claude-code-flow/issues
 
 Created by rUv - Built with ❤️ for the Claude community
-`);
+`;
+
+    this.logger.info(helpText, { commandCount: this.commands.size });
   }
 
   private formatCommands(): string {
@@ -276,21 +318,29 @@ Created by rUv - Built with ❤️ for the Claude community
   }
 }
 
-// Helper functions
+// Helper functions with debug logging integration
 function success(message: string): void {
-  console.log(chalk.green(`✅ ${message}`));
+  const logger = ComponentLoggerFactory.getCLILogger();
+  const formattedMessage = chalk.green(`✅ ${message}`);
+  logger.info(formattedMessage, { type: 'success', originalMessage: message });
 }
 
 function error(message: string): void {
-  console.error(chalk.red(`❌ ${message}`));
+  const logger = ComponentLoggerFactory.getCLILogger();
+  const formattedMessage = chalk.red(`❌ ${message}`);
+  logger.error(formattedMessage, { type: 'error', originalMessage: message });
 }
 
 function warning(message: string): void {
-  console.warn(chalk.yellow(`⚠️  ${message}`));
+  const logger = ComponentLoggerFactory.getCLILogger();
+  const formattedMessage = chalk.yellow(`⚠️  ${message}`);
+  logger.warn(formattedMessage, { type: 'warning', originalMessage: message });
 }
 
 function info(message: string): void {
-  console.log(chalk.blue(`ℹ️  ${message}`));
+  const logger = ComponentLoggerFactory.getCLILogger();
+  const formattedMessage = chalk.blue(`ℹ️  ${message}`);
+  logger.info(formattedMessage, { type: 'info', originalMessage: message });
 }
 
 // Export for use in other modules
@@ -303,6 +353,12 @@ async function main() {
     process.argv[1] &&
     (process.argv[1].endsWith('cli-core.js') || process.argv[1].endsWith('cli-core.ts'))
   ) {
+    const correlationId = generateCorrelationId();
+    const logger = ComponentLoggerFactory.getCLILogger(correlationId);
+
+    logger.debug('CLI core direct execution started', { correlationId });
+    logger.timeStart('cli-core-main');
+
     const cli = new CLI('claude-flow', 'Advanced AI Agent Orchestration System');
 
     // Import and register all commands
@@ -310,9 +366,18 @@ async function main() {
     setupCommands(cli);
 
     // Run the CLI
-    await cli.run();
+    try {
+      await cli.run();
+      logger.timeEnd('cli-core-main', 'CLI core execution completed successfully');
+    } catch (error) {
+      logger.timeEnd('cli-core-main', 'CLI core execution failed', { error });
+      throw error;
+    }
   }
 }
 
 // Execute main if this is the entry point
-main().catch(console.error);
+main().catch((error) => {
+  const logger = ComponentLoggerFactory.getCLILogger();
+  logger.error('CLI core main function failed', error);
+});

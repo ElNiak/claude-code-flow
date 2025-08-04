@@ -1,3 +1,4 @@
+import { ConsoleMigration } from '../utils/console-migration.js';
 import * as process from 'node:process';
 /**
  * Migration Logger - Structured logging for migration operations
@@ -25,31 +26,34 @@ export class MigrationLogger {
 
   info(message: string, context?: any): void {
     this.log('info', message, context);
-    console.log(chalk.blue(`ℹ️  ${message}`));
+    ConsoleMigration.log('Migration', chalk.blue(`ℹ️  ${message}`));
   }
 
   warn(message: string, context?: any): void {
     this.log('warn', message, context);
-    console.log(chalk.yellow(`⚠️  ${message}`));
+    ConsoleMigration.log('Migration', chalk.yellow(`⚠️  ${message}`));
   }
 
   error(message: string, error?: Error | any, context?: any): void {
     this.log('error', message, context, error?.stack);
-    console.log(chalk.red(`❌ ${message}`));
+    ConsoleMigration.log('Migration', chalk.red(`❌ ${message}`));
     if (error && (error instanceof Error ? error.message : String(error)) !== message) {
-      console.log(chalk.red(`   ${error instanceof Error ? error.message : String(error)}`));
+      ConsoleMigration.log(
+        'Migration',
+        chalk.red(`   ${error instanceof Error ? error.message : String(error)}`),
+      );
     }
   }
 
   success(message: string, context?: any): void {
     this.log('success', message, context);
-    console.log(chalk.green(`✅ ${message}`));
+    ConsoleMigration.log('Migration', chalk.green(`✅ ${message}`));
   }
 
   debug(message: string, context?: any): void {
     if (process.env.DEBUG === 'true' || process.env.NODE_ENV === 'development') {
       this.log('debug', message, context);
-      console.log(chalk.gray(`🔍 ${message}`));
+      ConsoleMigration.log('Migration', chalk.gray(`🔍 ${message}`));
     }
   }
 
@@ -80,7 +84,8 @@ export class MigrationLogger {
       await fs.appendFile(this.logFile, logLine);
     } catch (error) {
       // Prevent recursive logging
-      console.error(
+      ConsoleMigration.error(
+        'Migration',
         'Failed to write to log file:',
         error instanceof Error ? error.message : String(error),
       );
@@ -114,17 +119,17 @@ export class MigrationLogger {
       debug: this.getEntriesByLevel('debug').length,
     };
 
-    console.log(chalk.bold('\n📊 Migration Log Summary'));
-    console.log(chalk.gray('─'.repeat(30)));
-    console.log(`Total entries: ${summary.total}`);
-    console.log(`${chalk.blue('Info:')} ${summary.info}`);
-    console.log(`${chalk.green('Success:')} ${summary.success}`);
-    console.log(`${chalk.yellow('Warnings:')} ${summary.warn}`);
-    console.log(`${chalk.red('Errors:')} ${summary.error}`);
+    ConsoleMigration.log('Migration', chalk.bold('\n📊 Migration Log Summary'));
+    ConsoleMigration.log('Migration', chalk.gray('─'.repeat(30)));
+    ConsoleMigration.log('Migration', `Total entries: ${summary.total}`);
+    ConsoleMigration.log('Migration', `${chalk.blue('Info:')} ${summary.info}`);
+    ConsoleMigration.log('Migration', `${chalk.green('Success:')} ${summary.success}`);
+    ConsoleMigration.log('Migration', `${chalk.yellow('Warnings:')} ${summary.warn}`);
+    ConsoleMigration.log('Migration', `${chalk.red('Errors:')} ${summary.error}`);
     if (summary.debug > 0) {
-      console.log(`${chalk.gray('Debug:')} ${summary.debug}`);
+      ConsoleMigration.log('Migration', `${chalk.gray('Debug:')} ${summary.debug}`);
     }
-    console.log(chalk.gray('─'.repeat(30)));
+    ConsoleMigration.log('Migration', chalk.gray('─'.repeat(30)));
   }
 }
 

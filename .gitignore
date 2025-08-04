@@ -131,3 +131,4 @@ hive-mind-prompt-*.txt
 *-implementation-verification.js
 *-enhancement.js
 plan_dir
+dist-cjs

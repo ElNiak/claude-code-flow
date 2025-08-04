@@ -18,24 +18,26 @@ import {
   HiveMindConfig,
   SwarmTopology,
   AgentType,
+  AgentCapability,
   Task,
   TaskPriority,
   TaskStrategy,
   SwarmStatus,
   AgentSpawnOptions,
   TaskSubmitOptions,
+  getCapabilitiesForAgentType,
 } from '../types.js';
 
 export class HiveMind extends EventEmitter {
   private id: string;
   private config: HiveMindConfig;
-  private queen: Queen;
+  private queen!: Queen;
   private agents: Map<string, Agent>;
-  private memory: Memory;
-  private communication: Communication;
-  private orchestrator: SwarmOrchestrator;
-  private consensus: ConsensusEngine;
-  private db: DatabaseManager;
+  private memory!: Memory;
+  private communication!: Communication;
+  private orchestrator!: SwarmOrchestrator;
+  private consensus!: ConsensusEngine;
+  private db!: DatabaseManager;
   private started: boolean = false;
   private startTime: number;
 
@@ -456,29 +458,8 @@ export class HiveMind extends EventEmitter {
 
   // Private helper methods
 
-  private getDefaultCapabilities(type: AgentType): string[] {
-    const capabilityMap: Record<AgentType, string[]> = {
-      coordinator: ['task_management', 'resource_allocation', 'consensus_building'],
-      researcher: ['information_gathering', 'pattern_recognition', 'knowledge_synthesis'],
-      coder: ['code_generation', 'refactoring', 'debugging'],
-      analyst: ['data_analysis', 'performance_metrics', 'bottleneck_detection'],
-      architect: ['system_design', 'architecture_patterns', 'integration_planning'],
-      tester: ['test_generation', 'quality_assurance', 'edge_case_detection'],
-      reviewer: ['code_review', 'standards_enforcement', 'best_practices'],
-      optimizer: ['performance_optimization', 'resource_optimization', 'algorithm_improvement'],
-      documenter: ['documentation_generation', 'api_docs', 'user_guides'],
-      monitor: ['system_monitoring', 'health_checks', 'alerting'],
-      specialist: ['domain_expertise', 'custom_capabilities', 'problem_solving'],
-      // Maestro specs-driven agent capabilities
-      requirements_analyst: ['requirements_analysis', 'user_story_creation', 'acceptance_criteria'],
-      design_architect: ['system_design', 'architecture', 'technical_writing', 'specs_driven_design'],
-      task_planner: ['task_management', 'workflow_orchestration', 'project_management'],
-      implementation_coder: ['code_generation', 'implementation', 'debugging', 'refactoring'],
-      quality_reviewer: ['code_review', 'quality_assurance', 'testing', 'standards_enforcement'],
-      steering_documenter: ['documentation_generation', 'governance', 'technical_writing'],
-    };
-
-    return capabilityMap[type] || [];
+  private getDefaultCapabilities(type: AgentType): AgentCapability[] {
+    return getCapabilitiesForAgentType(type);
   }
 
   private async assignPendingTasksToAgent(agent: Agent): Promise<void> {
@@ -488,7 +469,11 @@ export class HiveMind extends EventEmitter {
       const requiredCapabilities = JSON.parse(task.required_capabilities || '[]');
 
       // Check if agent has required capabilities
-      if (requiredCapabilities.every((cap: string) => agent.capabilities.includes(cap))) {
+      if (
+        requiredCapabilities.every((cap: string) =>
+          agent.capabilities.includes(cap as AgentCapability),
+        )
+      ) {
         await this.orchestrator.assignTaskToAgent(task.id, agent.id);
         break; // Only assign one task at a time
       }
@@ -506,7 +491,11 @@ export class HiveMind extends EventEmitter {
     };
   }
 
-  private determineHealth(agents: Agent[], tasks: any[], performance: any): string {
+  private determineHealth(
+    agents: Agent[],
+    tasks: any[],
+    performance: any,
+  ): 'critical' | 'healthy' | 'degraded' | 'unknown' {
     if (agents.length === 0) return 'critical';
 
     const busyAgents = agents.filter((a) => a.status === 'busy').length;

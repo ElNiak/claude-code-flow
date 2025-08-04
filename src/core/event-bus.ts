@@ -1,3 +1,4 @@
+import { ConsoleMigration } from '../utils/console-migration.js';
 /**
  * Event bus implementation for Claude-Flow
  */
@@ -31,7 +32,7 @@ class TypedEventBus extends TypedEventEmitter<EventMap> {
    */
   override emit<K extends keyof EventMap>(event: K, data: EventMap[K]): void {
     if (this.debug) {
-      console.debug(`[EventBus] Emitting event: ${String(event)}`, data);
+      ConsoleMigration.debug('Core', `[EventBus] Emitting event: ${String(event)}`, data);
     }
 
     // Track event metrics
@@ -134,7 +135,7 @@ export class EventBus implements IEventBus {
         resolve(data);
       };
 
-      let timer: number | undefined;
+      let timer: NodeJS.Timeout | undefined;
       if (timeoutMs) {
         timer = setTimeout(() => {
           this.off(event, handler);

@@ -83,7 +83,7 @@ export class SwarmMonitor extends EventEmitter {
 
   constructor(config?: Partial<MonitoringConfig>) {
     super();
-    this.logger = new Logger('SwarmMonitor');
+    this.logger = new Logger({ level: 'info', format: 'json', destination: 'console' });
     this.config = {
       updateInterval: 1000, // 1 second
       metricsRetention: 24, // 24 hours
@@ -382,7 +382,11 @@ export class SwarmMonitor extends EventEmitter {
 
     this.alerts.push(alert);
     this.emit('alert', alert);
-    this.logger[level](message);
+    if (level === 'critical') {
+      this.logger.error(`CRITICAL: ${message}`);
+    } else {
+      (this.logger as any)[level](message);
+    }
   }
 
   private cleanOldMetrics(): void {

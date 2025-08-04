@@ -70,9 +70,7 @@ class MockTaskProcessor {
 
     for (const [agentId, profile] of this.agents) {
       // Check capabilities
-      const hasRequiredCaps = requiredCaps.every(cap =>
-        profile.capabilities.includes(cap)
-      );
+      const hasRequiredCaps = requiredCaps.every((cap) => profile.capabilities.includes(cap));
 
       if (!hasRequiredCaps) continue;
 
@@ -104,9 +102,7 @@ class MockTaskProcessor {
       const tasksToProcess = queue.splice(0, profile.maxConcurrentTasks);
 
       // Process tasks in parallel
-      await Promise.all(tasksToProcess.map(task =>
-        this.processTask(task, agentId)
-      ));
+      await Promise.all(tasksToProcess.map((task) => this.processTask(task, agentId)));
     }
   }
 
@@ -152,7 +148,6 @@ class MockTaskProcessor {
         taskId: task.id,
         result: task.output,
       });
-
     } catch (error) {
       task.status = 'failed';
       task.completedAt = new Date();
@@ -176,8 +171,10 @@ class MockTaskProcessor {
   }
 
   getMetrics() {
-    const totalQueued = Array.from(this.taskQueues.values())
-      .reduce((sum, queue) => sum + queue.length, 0);
+    const totalQueued = Array.from(this.taskQueues.values()).reduce(
+      (sum, queue) => sum + queue.length,
+      0,
+    );
 
     return {
       activeAgents: this.agents.size,
@@ -192,7 +189,10 @@ export async function runMockBatchTest() {
   console.log('🧪 Running Mock Batch Task Test\n');
 
   const eventBus = new EventBus();
-  const logger = new Logger({ level: 'info', format: 'json', destination: 'console' }, { component: 'mock-test' });
+  const logger = new Logger(
+    { level: 'info', format: 'json', destination: 'console' },
+    { component: 'mock-test' },
+  );
   const processor = new MockTaskProcessor(eventBus, logger);
 
   // Track metrics
@@ -262,7 +262,7 @@ export async function runMockBatchTest() {
     ];
 
     // Spawn agents in parallel
-    await Promise.all(agents.map(agent => processor.spawnAgent(agent)));
+    await Promise.all(agents.map((agent) => processor.spawnAgent(agent)));
     console.log(`✅ Spawned ${agents.length} agents\n`);
 
     // Phase 2: Create test tasks
@@ -369,18 +369,22 @@ export async function runMockBatchTest() {
       console.log(`\n🚀 Submitting batch ${i + 1} (${batch.length} tasks)...`);
 
       // Submit all tasks in batch in parallel
-      await Promise.all(batch.map(async task => {
-        try {
-          await processor.assignTask(task);
-          console.log(`  ✅ Assigned: ${task.id} - ${task.description}`);
-        } catch (error) {
-          console.error(`  ❌ Failed to assign ${task.id}:`, error);
-        }
-      }));
+      await Promise.all(
+        batch.map(async (task) => {
+          try {
+            await processor.assignTask(task);
+            console.log(`  ✅ Assigned: ${task.id} - ${task.description}`);
+          } catch (error) {
+            console.error(`  ❌ Failed to assign ${task.id}:`, error);
+          }
+        }),
+      );
 
       // Show current metrics
       const currentMetrics = processor.getMetrics();
-      console.log(`  📊 Current state: ${currentMetrics.activeTasks} active, ${currentMetrics.queuedTasks} queued`);
+      console.log(
+        `  📊 Current state: ${currentMetrics.activeTasks} active, ${currentMetrics.queuedTasks} queued`,
+      );
     }
 
     console.log('\n⏳ Waiting for all tasks to complete...');
@@ -388,7 +392,9 @@ export async function runMockBatchTest() {
     // Monitor progress
     const progressInterval = setInterval(() => {
       const current = processor.getMetrics();
-      console.log(`📊 Progress: ${metrics.tasksCompleted}/${metrics.tasksCreated} completed, ${current.activeTasks} active`);
+      console.log(
+        `📊 Progress: ${metrics.tasksCompleted}/${metrics.tasksCreated} completed, ${current.activeTasks} active`,
+      );
     }, 1000);
 
     // Wait for all tasks to complete (with timeout)
@@ -396,7 +402,10 @@ export async function runMockBatchTest() {
     const checkInterval = 100;
     let elapsed = 0;
 
-    while (metrics.tasksCompleted + metrics.tasksFailed < metrics.tasksCreated && elapsed < timeout) {
+    while (
+      metrics.tasksCompleted + metrics.tasksFailed < metrics.tasksCreated &&
+      elapsed < timeout
+    ) {
       await delay(checkInterval);
       elapsed += checkInterval;
     }
@@ -413,8 +422,12 @@ export async function runMockBatchTest() {
     console.log(`📋 Tasks created: ${metrics.tasksCreated}`);
     console.log(`✅ Tasks completed: ${metrics.tasksCompleted}`);
     console.log(`❌ Tasks failed: ${metrics.tasksFailed}`);
-    console.log(`⚡ Average task time: ${(metrics.totalProcessingTime / metrics.tasksCompleted).toFixed(0)}ms`);
-    console.log(`🚀 Throughput: ${(metrics.tasksCompleted / (totalTime / 1000)).toFixed(2)} tasks/second`);
+    console.log(
+      `⚡ Average task time: ${(metrics.totalProcessingTime / metrics.tasksCompleted).toFixed(0)}ms`,
+    );
+    console.log(
+      `🚀 Throughput: ${(metrics.tasksCompleted / (totalTime / 1000)).toFixed(2)} tasks/second`,
+    );
 
     // Agent utilization
     console.log('\n👥 Agent Performance:');
@@ -423,14 +436,15 @@ export async function runMockBatchTest() {
     console.log(`  Tasks per agent: ${(metrics.tasksCreated / agents.length).toFixed(1)}`);
 
     console.log('\n✅ Mock batch test completed successfully!');
-
   } catch (error) {
     console.error('❌ Test failed:', error);
     throw error;
   }
 }
 
-// Run if main
-if (import.meta.main) {
+// CLI interface - PKG-compatible main module detection
+const __filename = process.argv[1] || require.main?.filename || '';
+const isMainModule = process.argv[1] && process.argv[1].endsWith('/batch-task-mock-test.ts');
+if (isMainModule) {
   runMockBatchTest().catch(console.error);
 }

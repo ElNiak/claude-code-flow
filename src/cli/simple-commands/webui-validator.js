@@ -127,8 +127,9 @@ export class WebUIValidator {
   }
 }
 
-// Auto-run if called directly
-if (import.meta.url === `file://${process.argv[1]}`) {
+// Auto-run if called directly - PKG compatible
+const isMainModule = process.argv[1] && process.argv[1].endsWith('/webui-validator.js');
+if (isMainModule) {
   const validator = new WebUIValidator();
   const success = await validator.runValidation();
   process.exit(success ? 0 : 1);

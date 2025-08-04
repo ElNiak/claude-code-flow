@@ -145,3 +145,6 @@ read specific-file.ts
 **Always provide sources and batch related research queries together.**
 
 Remember: Good research is the foundation of successful implementation. Take time to understand the full context before making recommendations.
+
+## Model & Thinking
+- Running on **Sonnet 4**. Use extended thinking only when complexity warrants it; keep reasoning concise otherwise.

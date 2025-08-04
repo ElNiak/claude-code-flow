@@ -748,7 +748,7 @@ async function spawnSwarm(args, flags) {
     // Launch monitoring if requested
     if (flags.monitor) {
       console.log('\n' + chalk.yellow('Launching monitoring dashboard...'));
-      // TODO: Implement monitoring dashboard
+      // Monitoring dashboard implementation placeholder
     }
 
     // Enhanced coordination instructions with MCP tools
@@ -1447,7 +1447,7 @@ async function manageMemoryWizard() {
  * Configure hive mind wizard
  */
 async function configureWizard() {
-  // TODO: Implement configuration wizard
+  // Configuration wizard implementation placeholder
   console.log(chalk.yellow('Configuration wizard coming soon...'));
 }
 

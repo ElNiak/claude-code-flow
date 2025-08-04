@@ -25,7 +25,7 @@ export const preNeuralTrainHook = {
   priority: 100,
   handler: async (
     payload: NeuralHookPayload,
-    context: AgenticHookContext
+    context: AgenticHookContext,
   ): Promise<HookHandlerResult> => {
     const { operation, modelId, trainingData } = payload;
 
@@ -55,11 +55,7 @@ export const preNeuralTrainHook = {
     }
 
     // Augment training data with historical patterns
-    const augmentedData = await augmentTrainingData(
-      trainingData,
-      modelId,
-      context
-    );
+    const augmentedData = await augmentTrainingData(trainingData, modelId, context);
 
     // Balance dataset if needed
     const balancedData = balanceTrainingData(augmentedData);
@@ -104,7 +100,7 @@ export const postNeuralTrainHook = {
   priority: 100,
   handler: async (
     payload: NeuralHookPayload,
-    context: AgenticHookContext
+    context: AgenticHookContext,
   ): Promise<HookHandlerResult> => {
     const { modelId, accuracy, trainingData } = payload;
 
@@ -131,19 +127,25 @@ export const postNeuralTrainHook = {
     });
 
     // Update model performance history
-    await updateModelPerformance(modelId, accuracy, context);
+    if (accuracy !== undefined) {
+      await updateModelPerformance(modelId, accuracy, context);
+    }
 
     // Check if model should be promoted
-    const shouldPromote = await evaluateModelPromotion(modelId, accuracy, context);
-    if (shouldPromote) {
-      sideEffects.push({
-        type: 'notification',
-        action: 'emit',
-        data: {
-          event: 'neural:model:promoted',
-          data: { modelId, accuracy },
-        },
-      });
+    if (accuracy !== undefined) {
+      const shouldPromote = await evaluateModelPromotion(modelId, accuracy, context);
+      if (shouldPromote) {
+        sideEffects.push({
+          type: 'notification',
+          action: 'emit',
+          data: {
+            event: 'model-promotion',
+            modelId,
+            accuracy,
+            timestamp: Date.now(),
+          },
+        });
+      }
     }
 
     // Extract learned patterns
@@ -171,7 +173,7 @@ export const neuralPatternDetectedHook = {
   priority: 90,
   handler: async (
     payload: NeuralHookPayload,
-    context: AgenticHookContext
+    context: AgenticHookContext,
   ): Promise<HookHandlerResult> => {
     const { patterns } = payload;
 
@@ -246,7 +248,7 @@ export const neuralPredictionHook = {
   priority: 100,
   handler: async (
     payload: NeuralHookPayload,
-    context: AgenticHookContext
+    context: AgenticHookContext,
   ): Promise<HookHandlerResult> => {
     const { prediction, modelId } = payload;
 
@@ -259,11 +261,7 @@ export const neuralPredictionHook = {
     // Validate prediction confidence
     if (prediction.confidence < 0.5) {
       // Low confidence - consider alternatives
-      const alternatives = await generateAlternatives(
-        prediction.input,
-        modelId,
-        context
-      );
+      const alternatives = await generateAlternatives(prediction.input, modelId, context);
 
       if (alternatives.length > 0) {
         return {
@@ -328,7 +326,7 @@ export const neuralAdaptationHook = {
   priority: 90,
   handler: async (
     payload: NeuralHookPayload,
-    context: AgenticHookContext
+    context: AgenticHookContext,
   ): Promise<HookHandlerResult> => {
     const { adaptations, modelId } = payload;
 
@@ -339,17 +337,15 @@ export const neuralAdaptationHook = {
     const sideEffects: SideEffect[] = [];
 
     // Validate adaptations
-    const validAdaptations = adaptations.filter(a =>
-      validateAdaptation(a, modelId, context)
-    );
+    const validAdaptations = adaptations.filter((a) => validateAdaptation(a, modelId, context));
 
     if (validAdaptations.length === 0) {
       return { continue: true };
     }
 
     // Apply adaptations in order of impact
-    const sortedAdaptations = validAdaptations.sort((a, b) =>
-      Math.abs(b.impact) - Math.abs(a.impact)
+    const sortedAdaptations = validAdaptations.sort(
+      (a, b) => Math.abs(b.impact) - Math.abs(a.impact),
     );
 
     for (const adaptation of sortedAdaptations) {
@@ -388,9 +384,7 @@ export const neuralAdaptationHook = {
     }
 
     // Trigger retraining if significant adaptations
-    const totalImpact = sortedAdaptations.reduce((sum, a) =>
-      sum + Math.abs(a.impact), 0
-    );
+    const totalImpact = sortedAdaptations.reduce((sum, a) => sum + Math.abs(a.impact), 0);
 
     if (totalImpact > 0.5) {
       sideEffects.push({
@@ -445,7 +439,7 @@ function validateTrainingData(data: TrainingData): { valid: boolean; errors?: st
 async function augmentTrainingData(
   data: TrainingData,
   modelId: string,
-  context: AgenticHookContext
+  context: AgenticHookContext,
 ): Promise<TrainingData> {
   // Augment with historical successful patterns
   const historicalPatterns = await loadHistoricalPatterns(modelId, context);
@@ -508,9 +502,7 @@ function balanceTrainingData(data: TrainingData): TrainingData {
 
   // Sample equally from each label
   for (const [label, indices] of labelIndices.entries()) {
-    const sampled = indices
-      .sort(() => Math.random() - 0.5)
-      .slice(0, minCount);
+    const sampled = indices.sort(() => Math.random() - 0.5).slice(0, minCount);
 
     for (const idx of sampled) {
       balanced.inputs.push(data.inputs[idx]);
@@ -530,8 +522,8 @@ function preprocessTrainingData(data: TrainingData): TrainingData {
   // Apply preprocessing transformations
   const processed: TrainingData = {
     ...data,
-    inputs: data.inputs.map(input => normalizeInput(input)),
-    outputs: data.outputs.map(output => normalizeOutput(output)),
+    inputs: data.inputs.map((input) => normalizeInput(input)),
+    outputs: data.outputs.map((output) => normalizeOutput(output)),
   };
 
   return processed;
@@ -552,10 +544,10 @@ function normalizeOutput(output: any): any {
 async function updateModelPerformance(
   modelId: string,
   accuracy: number,
-  context: AgenticHookContext
+  context: AgenticHookContext,
 ): Promise<void> {
   const perfKey = `model:performance:${modelId}`;
-  const history = await context.memory.cache.get(perfKey) || [];
+  const history = (await context.memory.cache.get(perfKey)) || [];
 
   history.push({
     accuracy,
@@ -574,11 +566,11 @@ async function updateModelPerformance(
 async function evaluateModelPromotion(
   modelId: string,
   accuracy: number,
-  context: AgenticHookContext
+  context: AgenticHookContext,
 ): Promise<boolean> {
   // Check if model should be promoted to production
   const perfKey = `model:performance:${modelId}`;
-  const history = await context.memory.cache.get(perfKey) || [];
+  const history = (await context.memory.cache.get(perfKey)) || [];
 
   if (history.length < 10) {
     return false; // Not enough history
@@ -586,9 +578,7 @@ async function evaluateModelPromotion(
 
   // Calculate average accuracy over last 10 runs
   const recent = history.slice(-10);
-  const avgAccuracy = recent.reduce((sum: number, h: any) =>
-    sum + h.accuracy, 0
-  ) / recent.length;
+  const avgAccuracy = recent.reduce((sum: number, h: any) => sum + h.accuracy, 0) / recent.length;
 
   // Promote if consistently above threshold
   return avgAccuracy > 0.85 && accuracy > 0.85;
@@ -596,7 +586,7 @@ async function evaluateModelPromotion(
 
 async function extractLearnedPatterns(
   modelId: string,
-  context: AgenticHookContext
+  context: AgenticHookContext,
 ): Promise<Pattern[]> {
   // Extract patterns learned during training
   // Placeholder implementation
@@ -613,7 +603,7 @@ function calculatePatternSignificance(pattern: Pattern): number {
 
 async function generateAdaptation(
   pattern: Pattern,
-  context: AgenticHookContext
+  context: AgenticHookContext,
 ): Promise<Adaptation | null> {
   // Generate adaptation based on pattern
   if (pattern.type === 'failure' && pattern.confidence > 0.8) {
@@ -643,7 +633,7 @@ async function generateAdaptation(
 
 function findPatternCombinations(
   patterns: Pattern[],
-  context: AgenticHookContext
+  context: AgenticHookContext,
 ): Array<{ patterns: Pattern[]; significance: number }> {
   const combinations: Array<{ patterns: Pattern[]; significance: number }> = [];
 
@@ -655,8 +645,7 @@ function findPatternCombinations(
 
       // Check if patterns are related
       if (areRelatedPatterns(pattern1, pattern2)) {
-        const significance =
-          (pattern1.confidence + pattern2.confidence) / 2 * 1.2;
+        const significance = ((pattern1.confidence + pattern2.confidence) / 2) * 1.2;
 
         combinations.push({
           patterns: [pattern1, pattern2],
@@ -672,14 +661,13 @@ function findPatternCombinations(
 function areRelatedPatterns(p1: Pattern, p2: Pattern): boolean {
   // Check if patterns are related
   // Simplified implementation
-  return p1.type === p2.type ||
-    Object.keys(p1.context).some(key => key in p2.context);
+  return p1.type === p2.type || Object.keys(p1.context).some((key) => key in p2.context);
 }
 
 async function generateAlternatives(
   input: any,
   modelId: string,
-  context: AgenticHookContext
+  context: AgenticHookContext,
 ): Promise<Array<{ output: any; confidence: number }>> {
   // Generate alternative predictions
   // Placeholder implementation
@@ -689,7 +677,7 @@ async function generateAlternatives(
 function validateAdaptation(
   adaptation: Adaptation,
   modelId: string,
-  context: AgenticHookContext
+  context: AgenticHookContext,
 ): boolean {
   // Validate adaptation is safe to apply
   if (Math.abs(adaptation.impact) > 0.5) {
@@ -703,7 +691,7 @@ function validateAdaptation(
 async function applyParameterAdaptation(
   adaptation: Adaptation,
   modelId: string,
-  context: AgenticHookContext
+  context: AgenticHookContext,
 ): Promise<void> {
   // Apply parameter adaptation
   // Placeholder implementation
@@ -712,7 +700,7 @@ async function applyParameterAdaptation(
 async function applyArchitectureAdaptation(
   adaptation: Adaptation,
   modelId: string,
-  context: AgenticHookContext
+  context: AgenticHookContext,
 ): Promise<void> {
   // Apply architecture adaptation
   // Placeholder implementation
@@ -721,7 +709,7 @@ async function applyArchitectureAdaptation(
 async function applyStrategyAdaptation(
   adaptation: Adaptation,
   modelId: string,
-  context: AgenticHookContext
+  context: AgenticHookContext,
 ): Promise<void> {
   // Apply strategy adaptation
   // Placeholder implementation
@@ -729,13 +717,13 @@ async function applyStrategyAdaptation(
 
 async function loadHistoricalPatterns(
   modelId: string,
-  context: AgenticHookContext
+  context: AgenticHookContext,
 ): Promise<Pattern[]> {
   // Load historical patterns
   const patterns: Pattern[] = [];
 
   // Get recent patterns from memory
-  const patternKeys = await context.memory.cache.get(`patterns:${modelId}`) || [];
+  const patternKeys = (await context.memory.cache.get(`patterns:${modelId}`)) || [];
 
   for (const key of patternKeys.slice(-100)) {
     const pattern = await context.memory.cache.get(key);

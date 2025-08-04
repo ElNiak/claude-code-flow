@@ -629,7 +629,7 @@ export class AgentCapabilitySystem {
           tools: ['data-processor', 'chart-generator', 'statistical-analyzer'],
         };
 
-      case 'architect':
+      case 'architecture':
         return {
           ...baseCapabilities,
           analysis: true,

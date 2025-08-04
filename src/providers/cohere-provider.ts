@@ -81,14 +81,14 @@ export class CohereProvider extends BaseProvider {
       'generate-medium',
     ],
     maxContextLength: {
-      'command': 4096,
+      command: 4096,
       'command-light': 4096,
       'command-nightly': 8192,
       'generate-xlarge': 2048,
       'generate-medium': 2048,
     } as Record<LLMModel, number>,
     maxOutputTokens: {
-      'command': 4096,
+      command: 4096,
       'command-light': 4096,
       'command-nightly': 4096,
       'generate-xlarge': 2048,
@@ -110,7 +110,7 @@ export class CohereProvider extends BaseProvider {
       concurrentRequests: 20,
     },
     pricing: {
-      'command': {
+      command: {
         promptCostPer1k: 0.0015,
         completionCostPer1k: 0.0015,
         currency: 'USD',
@@ -147,9 +147,9 @@ export class CohereProvider extends BaseProvider {
     }
 
     this.headers = {
-      'Authorization': `Bearer ${this.config.apiKey}`,
+      Authorization: `Bearer ${this.config.apiKey}`,
       'Content-Type': 'application/json',
-      'Accept': 'application/json',
+      Accept: 'application/json',
     };
   }
 
@@ -166,7 +166,7 @@ export class CohereProvider extends BaseProvider {
 
   private async doChatComplete(request: LLMRequest): Promise<LLMResponse> {
     const messages = this.convertMessages(request.messages);
-    const systemMessage = request.messages.find(m => m.role === 'system');
+    const systemMessage = request.messages.find((m) => m.role === 'system');
 
     const cohereRequest = {
       model: this.mapToCohereModel(request.model || this.config.model),
@@ -199,12 +199,13 @@ export class CohereProvider extends BaseProvider {
         await this.handleErrorResponse(response);
       }
 
-      const data: CohereChatResponse = await response.json();
+      const data = (await response.json()) as CohereChatResponse;
 
       // Calculate cost
       const pricing = this.capabilities.pricing![request.model || this.config.model];
       const promptCost = (data.meta.billed_units.input_tokens / 1000) * pricing.promptCostPer1k;
-      const completionCost = (data.meta.billed_units.output_tokens / 1000) * pricing.completionCostPer1k;
+      const completionCost =
+        (data.meta.billed_units.output_tokens / 1000) * pricing.completionCostPer1k;
 
       return {
         id: data.generation_id,
@@ -232,7 +233,7 @@ export class CohereProvider extends BaseProvider {
 
   private async doGenerateComplete(request: LLMRequest): Promise<LLMResponse> {
     // For generate endpoint, concatenate messages into a prompt
-    const prompt = request.messages.map(m => m.content).join('\n\n');
+    const prompt = request.messages.map((m) => m.content).join('\n\n');
 
     const cohereRequest: CohereGenerateRequest = {
       model: this.mapToCohereModel(request.model || this.config.model),
@@ -264,13 +265,14 @@ export class CohereProvider extends BaseProvider {
         await this.handleErrorResponse(response);
       }
 
-      const data: CohereGenerateResponse = await response.json();
+      const data = (await response.json()) as CohereGenerateResponse;
       const generation = data.generations[0];
 
       // Calculate cost
       const pricing = this.capabilities.pricing![request.model || this.config.model];
       const promptCost = (data.meta.billed_units.input_tokens / 1000) * pricing.promptCostPer1k;
-      const completionCost = (data.meta.billed_units.output_tokens / 1000) * pricing.completionCostPer1k;
+      const completionCost =
+        (data.meta.billed_units.output_tokens / 1000) * pricing.completionCostPer1k;
 
       return {
         id: generation.id,
@@ -309,7 +311,7 @@ export class CohereProvider extends BaseProvider {
 
   private async *streamChatComplete(request: LLMRequest): AsyncIterable<LLMStreamEvent> {
     const messages = this.convertMessages(request.messages);
-    const systemMessage = request.messages.find(m => m.role === 'system');
+    const systemMessage = request.messages.find((m) => m.role === 'system');
 
     const cohereRequest = {
       model: this.mapToCohereModel(request.model || this.config.model),
@@ -457,16 +459,16 @@ export class CohereProvider extends BaseProvider {
 
   private convertMessages(messages: LLMRequest['messages']) {
     return messages
-      .filter(m => m.role !== 'system')
-      .map(m => ({
-        role: m.role === 'assistant' ? 'CHATBOT' as const : 'USER' as const,
+      .filter((m) => m.role !== 'system')
+      .map((m) => ({
+        role: m.role === 'assistant' ? ('CHATBOT' as const) : ('USER' as const),
         message: m.content,
       }));
   }
 
   private mapToCohereModel(model: LLMModel): string {
     const modelMap: Record<string, string> = {
-      'command': 'command',
+      command: 'command',
       'command-light': 'command-light',
       'command-nightly': 'command-nightly',
       'generate-xlarge': 'xlarge',
@@ -481,7 +483,7 @@ export class CohereProvider extends BaseProvider {
 
   private getModelDescription(model: LLMModel): string {
     const descriptions: Record<string, string> = {
-      'command': 'Powerful model for complex tasks',
+      command: 'Powerful model for complex tasks',
       'command-light': 'Faster, lightweight version of Command',
       'command-nightly': 'Latest experimental Command model',
       'generate-xlarge': 'Large generation model',
@@ -514,7 +516,7 @@ export class CohereProvider extends BaseProvider {
           'cohere',
           response.status,
           response.status >= 500,
-          errorData
+          errorData,
         );
     }
   }

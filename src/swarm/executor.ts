@@ -80,7 +80,11 @@ export class TaskExecutor extends EventEmitter {
 
     this.config = this.mergeWithDefaults(config);
     this.logger = new Logger(
-      { level: this.config.logLevel || 'info', format: 'text', destination: 'console' },
+      {
+        level: (this.config.logLevel as 'debug' | 'info' | 'warn' | 'error') || 'info',
+        format: 'text',
+        destination: 'console',
+      },
       { component: 'TaskExecutor' },
     );
     this.resourceMonitor = new ResourceMonitor();
@@ -154,8 +158,8 @@ export class TaskExecutor extends EventEmitter {
     } catch (error) {
       this.logger.error('Task execution failed', {
         sessionId,
-        error: error instanceof Error ? error.message : String(error),
-        stack: error.stack,
+        error: (error as Error).message || String(error),
+        stack: (error as Error).stack,
       });
 
       await this.cleanupExecution(session);

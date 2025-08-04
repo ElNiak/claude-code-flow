@@ -2,10 +2,11 @@
  * Enhanced Tool registry for MCP with capability negotiation and discovery
  */
 
-import type { MCPTool, MCPCapabilities, MCPProtocolVersion } from '../utils/types.js';
+import type { MCPTool, MCPCapabilities, MCPProtocolVersion, MCPContext } from '../utils/types.js';
 import type { ILogger } from '../core/logger.js';
 import { MCPError } from '../utils/errors.js';
 import { EventEmitter } from 'node:events';
+import { getMCPDebugLogger } from './debug-logger.js';
 
 export interface ToolCapability {
   name: string;
@@ -136,7 +137,7 @@ export class ToolRegistry extends EventEmitter {
   /**
    * Executes a tool with metrics tracking
    */
-  async executeTool(name: string, input: unknown, context?: any): Promise<unknown> {
+  async executeTool(name: string, input: unknown, context?: MCPContext): Promise<unknown> {
     const tool = this.tools.get(name);
     if (!tool) {
       throw new MCPError(`Tool not found: ${name}`);
@@ -145,7 +146,16 @@ export class ToolRegistry extends EventEmitter {
     const startTime = Date.now();
     const metrics = this.metrics.get(name);
 
-    this.logger.debug('Executing tool', { name, input });
+    // Start tool invocation tracing
+    const mcpDebugLogger = getMCPDebugLogger();
+    const invocationId = mcpDebugLogger.traceToolInvocation(
+      name,
+      input,
+      context,
+      context?.correlationId,
+    );
+
+    this.logger.debug('Executing tool', { name, input, invocationId });
 
     try {
       // Validate input against schema
@@ -154,8 +164,20 @@ export class ToolRegistry extends EventEmitter {
       // Check tool capabilities and permissions
       await this.checkToolCapabilities(name, context);
 
-      // Execute tool handler
-      const result = await tool.handler(input, context);
+      // Execute tool handler with enhanced context
+      const enhancedContext: MCPContext & { invocationId: string; debugTracing: boolean } = {
+        sessionId: context?.sessionId || `tool-session-${Date.now()}`,
+        agentId: context?.agentId,
+        logger: context?.logger || this.logger,
+        correlationId: context?.correlationId,
+        invocationId,
+        debugTracing: true,
+      };
+
+      const result = await tool.handler(input, enhancedContext);
+
+      // Complete tool invocation trace with success
+      mcpDebugLogger.completeToolInvocation(invocationId, result);
 
       // Update success metrics
       if (metrics) {
@@ -169,12 +191,21 @@ export class ToolRegistry extends EventEmitter {
 
       this.logger.debug('Tool executed successfully', {
         name,
+        invocationId,
         executionTime: Date.now() - startTime,
       });
-      this.emit('toolExecuted', { name, success: true, executionTime: Date.now() - startTime });
+      this.emit('toolExecuted', {
+        name,
+        success: true,
+        executionTime: Date.now() - startTime,
+        invocationId,
+      });
 
       return result;
     } catch (error) {
+      // Complete tool invocation trace with error
+      mcpDebugLogger.completeToolInvocation(invocationId, undefined, error as Error);
+
       // Update failure metrics
       if (metrics) {
         const executionTime = Date.now() - startTime;
@@ -187,6 +218,7 @@ export class ToolRegistry extends EventEmitter {
 
       this.logger.error('Tool execution failed', {
         name,
+        invocationId,
         error,
         executionTime: Date.now() - startTime,
       });
@@ -195,6 +227,7 @@ export class ToolRegistry extends EventEmitter {
         success: false,
         error,
         executionTime: Date.now() - startTime,
+        invocationId,
       });
       throw error;
     }

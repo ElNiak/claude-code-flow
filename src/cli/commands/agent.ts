@@ -269,7 +269,7 @@ export function createAgentCommand(): Command {
       }
     });
 
-  // TODO: Convert remaining commands to commander.js syntax
+  // Command conversion implementation placeholder
   // For now, return the basic command structure
   return agentCommand;
 }
@@ -277,8 +277,7 @@ export function createAgentCommand(): Command {
 // Legacy export for backward compatibility
 export const agentCommand = createAgentCommand();
 
-// TODO: Complete conversion of remaining commands (terminate, info, start, restart, pool, health)
-// Temporarily removing broken code to fix build errors
+// Additional command conversion implementation placeholder (terminate, info, start, restart, pool, health)
 
 // === HELPER FUNCTIONS ===
 

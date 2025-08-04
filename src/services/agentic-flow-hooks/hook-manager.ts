@@ -23,11 +23,14 @@ import type {
   SideEffect,
 } from './types.js';
 
-const logger = new Logger({
-  level: 'info',
-  format: 'text',
-  destination: 'console'
-}, { prefix: 'AgenticHookManager' });
+const logger = new Logger(
+  {
+    level: 'info',
+    format: 'text',
+    destination: 'console',
+  },
+  { prefix: 'AgenticHookManager' },
+);
 
 export class AgenticHookManager extends EventEmitter implements HookRegistry {
   private hooks: Map<AgenticHookType, HookRegistration[]> = new Map();
@@ -43,7 +46,7 @@ export class AgenticHookManager extends EventEmitter implements HookRegistry {
   /**
    * Register a new hook
    */
-  register(registration: HookRegistration): void {
+  register<T extends HookPayload = HookPayload>(registration: HookRegistration<T>): void {
     const { type, id } = registration;
 
     // Validate registration
@@ -57,19 +60,21 @@ export class AgenticHookManager extends EventEmitter implements HookRegistry {
     const hookList = this.hooks.get(type)!;
 
     // Check for duplicate ID
-    if (hookList.some(h => h.id === id)) {
+    if (hookList.some((h) => h.id === id)) {
       throw new Error(`Hook with ID '${id}' already registered for type '${type}'`);
     }
 
     // Insert hook sorted by priority (higher priority first)
-    const insertIndex = hookList.findIndex(h => h.priority < registration.priority);
+    const insertIndex = hookList.findIndex((h) => h.priority < registration.priority);
     if (insertIndex === -1) {
-      hookList.push(registration);
+      hookList.push(registration as HookRegistration);
     } else {
-      hookList.splice(insertIndex, 0, registration);
+      hookList.splice(insertIndex, 0, registration as HookRegistration);
     }
 
-    logger.info(`Registered hook '${id}' for type '${type}' with priority ${registration.priority}`);
+    logger.info(
+      `Registered hook '${id}' for type '${type}' with priority ${registration.priority}`,
+    );
     this.emit('hook:registered', { type, registration });
 
     // Update metrics
@@ -83,7 +88,7 @@ export class AgenticHookManager extends EventEmitter implements HookRegistry {
     let found = false;
 
     for (const [type, hookList] of this.hooks.entries()) {
-      const index = hookList.findIndex(h => h.id === id);
+      const index = hookList.findIndex((h) => h.id === id);
       if (index !== -1) {
         hookList.splice(index, 1);
         found = true;
@@ -117,7 +122,7 @@ export class AgenticHookManager extends EventEmitter implements HookRegistry {
       return [...hookList];
     }
 
-    return hookList.filter(hook => this.matchesFilter(hook, filter));
+    return hookList.filter((hook) => this.matchesFilter(hook, filter));
   }
 
   /**
@@ -126,7 +131,7 @@ export class AgenticHookManager extends EventEmitter implements HookRegistry {
   async executeHooks(
     type: AgenticHookType,
     payload: HookPayload,
-    context: AgenticHookContext
+    context: AgenticHookContext,
   ): Promise<HookHandlerResult[]> {
     const executionId = this.generateExecutionId();
     this.activeExecutions.add(executionId);
@@ -186,7 +191,7 @@ export class AgenticHookManager extends EventEmitter implements HookRegistry {
         type,
         results,
         duration,
-        executionId
+        executionId,
       });
 
       return results;
@@ -224,7 +229,7 @@ export class AgenticHookManager extends EventEmitter implements HookRegistry {
   async executePipeline(
     pipelineId: string,
     initialPayload: HookPayload,
-    context: AgenticHookContext
+    context: AgenticHookContext,
   ): Promise<HookHandlerResult[]> {
     const pipeline = this.pipelines.get(pipelineId);
     if (!pipeline) {
@@ -244,11 +249,7 @@ export class AgenticHookManager extends EventEmitter implements HookRegistry {
         }
 
         // Execute stage hooks
-        const stageResults = await this.executeStage(
-          stage,
-          currentPayload,
-          context
-        );
+        const stageResults = await this.executeStage(stage, currentPayload, context);
 
         // Apply stage transform if provided
         if (stage.transform) {
@@ -260,9 +261,7 @@ export class AgenticHookManager extends EventEmitter implements HookRegistry {
         results.push(...stageResults);
 
         // Update payload for next stage
-        const lastModified = stageResults
-          .reverse()
-          .find(r => r.modified && r.payload);
+        const lastModified = stageResults.reverse().find((r) => r.modified && r.payload);
         if (lastModified) {
           currentPayload = lastModified.payload;
         }
@@ -306,7 +305,9 @@ export class AgenticHookManager extends EventEmitter implements HookRegistry {
 
   // ===== Private Methods =====
 
-  private validateRegistration(registration: HookRegistration): void {
+  private validateRegistration<T extends HookPayload = HookPayload>(
+    registration: HookRegistration<T>,
+  ): void {
     if (!registration.id) {
       throw new Error('Hook registration must have an ID');
     }
@@ -331,17 +332,13 @@ export class AgenticHookManager extends EventEmitter implements HookRegistry {
 
     // Check providers
     if (filter.providers && hook.filter.providers) {
-      const hasProvider = filter.providers.some(p =>
-        hook.filter!.providers!.includes(p)
-      );
+      const hasProvider = filter.providers.some((p) => hook.filter!.providers!.includes(p));
       if (!hasProvider) return false;
     }
 
     // Check models
     if (filter.models && hook.filter.models) {
-      const hasModel = filter.models.some(m =>
-        hook.filter!.models!.includes(m)
-      );
+      const hasModel = filter.models.some((m) => hook.filter!.models!.includes(m));
       if (!hasModel) return false;
     }
 
@@ -388,7 +385,7 @@ export class AgenticHookManager extends EventEmitter implements HookRegistry {
   private async executeHook(
     hook: HookRegistration,
     payload: HookPayload,
-    context: AgenticHookContext
+    context: AgenticHookContext,
   ): Promise<HookHandlerResult> {
     const startTime = Date.now();
 
@@ -410,7 +407,7 @@ export class AgenticHookManager extends EventEmitter implements HookRegistry {
         resultPromise = this.withTimeout(
           resultPromise,
           hook.options.timeout,
-          `Hook '${hook.id}' timed out`
+          `Hook '${hook.id}' timed out`,
         );
       }
 
@@ -449,7 +446,7 @@ export class AgenticHookManager extends EventEmitter implements HookRegistry {
     hook: HookRegistration,
     payload: HookPayload,
     context: AgenticHookContext,
-    retriesLeft: number
+    retriesLeft: number,
   ): Promise<HookHandlerResult> {
     for (let i = 0; i < retriesLeft; i++) {
       try {
@@ -468,7 +465,7 @@ export class AgenticHookManager extends EventEmitter implements HookRegistry {
 
   private async processSideEffects(
     sideEffects: SideEffect[],
-    context: AgenticHookContext
+    context: AgenticHookContext,
   ): Promise<void> {
     for (const effect of sideEffects) {
       try {
@@ -480,10 +477,7 @@ export class AgenticHookManager extends EventEmitter implements HookRegistry {
     }
   }
 
-  private async processSideEffect(
-    effect: SideEffect,
-    context: AgenticHookContext
-  ): Promise<void> {
+  private async processSideEffect(effect: SideEffect, context: AgenticHookContext): Promise<void> {
     switch (effect.type) {
       case 'memory':
         await this.processMemorySideEffect(effect, context);
@@ -509,7 +503,7 @@ export class AgenticHookManager extends EventEmitter implements HookRegistry {
 
   private async processMemorySideEffect(
     effect: SideEffect,
-    context: AgenticHookContext
+    context: AgenticHookContext,
   ): Promise<void> {
     // Implement memory side effect processing
     // This would integrate with the memory service
@@ -518,7 +512,7 @@ export class AgenticHookManager extends EventEmitter implements HookRegistry {
 
   private async processNeuralSideEffect(
     effect: SideEffect,
-    context: AgenticHookContext
+    context: AgenticHookContext,
   ): Promise<void> {
     // Implement neural side effect processing
     // This would integrate with the neural service
@@ -539,13 +533,17 @@ export class AgenticHookManager extends EventEmitter implements HookRegistry {
 
   private processLogSideEffect(effect: SideEffect): void {
     const { level = 'info', message, data } = effect.data;
-    logger[level as keyof Logger](message, data);
+    const logMethod = logger[level as 'debug' | 'info' | 'warn' | 'error'] as (
+      message: string,
+      meta?: unknown,
+    ) => void;
+    logMethod(message, data);
   }
 
   private async handleHookError(
     hook: HookRegistration,
     error: Error,
-    context: AgenticHookContext
+    context: AgenticHookContext,
   ): Promise<void> {
     logger.error(`Hook '${hook.id}' error:`, error);
 
@@ -563,13 +561,11 @@ export class AgenticHookManager extends EventEmitter implements HookRegistry {
   private async executeStage(
     stage: PipelineStage,
     payload: HookPayload,
-    context: AgenticHookContext
+    context: AgenticHookContext,
   ): Promise<HookHandlerResult[]> {
     if (stage.parallel) {
       // Execute hooks in parallel
-      const promises = stage.hooks.map(hook =>
-        this.executeHook(hook, payload, context)
-      );
+      const promises = stage.hooks.map((hook) => this.executeHook(hook, payload, context));
       return Promise.all(promises);
     } else {
       // Execute hooks sequentially
@@ -593,26 +589,17 @@ export class AgenticHookManager extends EventEmitter implements HookRegistry {
     }
   }
 
-  private updatePipelineMetrics(
-    pipeline: HookPipeline,
-    duration: number,
-    hasError: boolean
-  ): void {
+  private updatePipelineMetrics(pipeline: HookPipeline, duration: number, hasError: boolean): void {
     const metrics = pipeline.metrics;
 
     metrics.executions++;
     metrics.avgDuration =
-      (metrics.avgDuration * (metrics.executions - 1) + duration) /
-      metrics.executions;
+      (metrics.avgDuration * (metrics.executions - 1) + duration) / metrics.executions;
 
     if (hasError) {
-      metrics.errorRate =
-        (metrics.errorRate * (metrics.executions - 1) + 1) /
-        metrics.executions;
+      metrics.errorRate = (metrics.errorRate * (metrics.executions - 1) + 1) / metrics.executions;
     } else {
-      metrics.errorRate =
-        (metrics.errorRate * (metrics.executions - 1)) /
-        metrics.executions;
+      metrics.errorRate = (metrics.errorRate * (metrics.executions - 1)) / metrics.executions;
     }
 
     // Calculate throughput (executions per minute)
@@ -623,7 +610,7 @@ export class AgenticHookManager extends EventEmitter implements HookRegistry {
   private async rollbackPipeline(
     pipeline: HookPipeline,
     results: HookHandlerResult[],
-    context: AgenticHookContext
+    context: AgenticHookContext,
   ): Promise<void> {
     logger.warn(`Rolling back pipeline '${pipeline.name}'`);
     // Implement rollback logic based on side effects in results
@@ -660,10 +647,7 @@ export class AgenticHookManager extends EventEmitter implements HookRegistry {
     return `pipe_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
 
-  private getCachedResult(
-    hookId: string,
-    cacheKey: string
-  ): HookHandlerResult | null {
+  private getCachedResult(hookId: string, cacheKey: string): HookHandlerResult | null {
     // Implement cache retrieval
     // This is a placeholder
     return null;
@@ -673,27 +657,21 @@ export class AgenticHookManager extends EventEmitter implements HookRegistry {
     hookId: string,
     cacheKey: string,
     result: HookHandlerResult,
-    ttl: number
+    ttl: number,
   ): void {
     // Implement cache storage
     // This is a placeholder
   }
 
-  private async withTimeout<T>(
-    promise: Promise<T>,
-    timeout: number,
-    message: string
-  ): Promise<T> {
+  private async withTimeout<T>(promise: Promise<T>, timeout: number, message: string): Promise<T> {
     return Promise.race([
       promise,
-      new Promise<T>((_, reject) =>
-        setTimeout(() => reject(new Error(message)), timeout)
-      ),
+      new Promise<T>((_, reject) => setTimeout(() => reject(new Error(message)), timeout)),
     ]);
   }
 
   private delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 }
 

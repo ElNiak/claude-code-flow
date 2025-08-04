@@ -73,23 +73,18 @@ interface GoogleAIResponse {
 export class GoogleProvider extends BaseProvider {
   readonly name: LLMProvider = 'google';
   readonly capabilities: ProviderCapabilities = {
-    supportedModels: [
-      'gemini-pro',
-      'gemini-pro-vision',
-      'palm-2',
-      'bison',
-    ],
+    supportedModels: ['gemini-pro', 'gemini-pro-vision', 'palm-2', 'bison'],
     maxContextLength: {
       'gemini-pro': 32768,
       'gemini-pro-vision': 16384,
       'palm-2': 8192,
-      'bison': 4096,
+      bison: 4096,
     } as Record<LLMModel, number>,
     maxOutputTokens: {
       'gemini-pro': 2048,
       'gemini-pro-vision': 2048,
       'palm-2': 1024,
-      'bison': 1024,
+      bison: 1024,
     } as Record<LLMModel, number>,
     supportsStreaming: true,
     supportsFunctionCalling: true,
@@ -122,7 +117,7 @@ export class GoogleProvider extends BaseProvider {
         completionCostPer1k: 0.001,
         currency: 'USD',
       },
-      'bison': {
+      bison: {
         promptCostPer1k: 0.0005,
         completionCostPer1k: 0.001,
         currency: 'USD',
@@ -130,7 +125,7 @@ export class GoogleProvider extends BaseProvider {
     },
   };
 
-  private baseUrl: string;
+  private baseUrl!: string;
 
   protected async doInitialize(): Promise<void> {
     if (!this.config.apiKey) {
@@ -171,7 +166,7 @@ export class GoogleProvider extends BaseProvider {
         await this.handleErrorResponse(response);
       }
 
-      const data: GoogleAIResponse = await response.json();
+      const data = (await response.json()) as GoogleAIResponse;
 
       if (!data.candidates || data.candidates.length === 0) {
         throw new LLMProviderError(
@@ -179,12 +174,12 @@ export class GoogleProvider extends BaseProvider {
           'NO_RESPONSE',
           'google',
           undefined,
-          false
+          false,
         );
       }
 
       const candidate = data.candidates[0];
-      const content = candidate.content.parts.map(part => part.text).join('');
+      const content = candidate.content.parts.map((part) => part.text).join('');
 
       // Calculate cost
       const usageData = data.usageMetadata || {
@@ -268,7 +263,7 @@ export class GoogleProvider extends BaseProvider {
 
             if (data.candidates && data.candidates.length > 0) {
               const candidate = data.candidates[0];
-              const content = candidate.content.parts.map(part => part.text).join('');
+              const content = candidate.content.parts.map((part) => part.text).join('');
 
               if (content) {
                 totalContent += content;
@@ -416,7 +411,7 @@ export class GoogleProvider extends BaseProvider {
       'gemini-pro': 'gemini-pro',
       'gemini-pro-vision': 'gemini-pro-vision',
       'palm-2': 'text-bison-001',
-      'bison': 'text-bison-001',
+      bison: 'text-bison-001',
     };
     return modelMap[model] || model;
   }
@@ -437,10 +432,10 @@ export class GoogleProvider extends BaseProvider {
 
   private getModelDescription(model: LLMModel): string {
     const descriptions: Record<string, string> = {
-      'gemini-pro': 'Google\'s most capable text model',
+      'gemini-pro': "Google's most capable text model",
       'gemini-pro-vision': 'Gemini Pro with vision capabilities',
       'palm-2': 'Previous generation large language model',
-      'bison': 'Efficient model for various tasks',
+      bison: 'Efficient model for various tasks',
     };
     return descriptions[model] || 'Google AI language model';
   }
@@ -470,7 +465,7 @@ export class GoogleProvider extends BaseProvider {
           'google',
           response.status,
           response.status >= 500,
-          errorData
+          errorData,
         );
     }
   }

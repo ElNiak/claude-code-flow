@@ -1,6 +1,10 @@
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-const __dirname = dirname(fileURLToPath(import.meta.url));
+
+// CJS/ESM compatibility for __dirname
+// PKG-compatible version without import.meta evaluation
+const __filename = process.argv[1] || require.main?.filename || '';
+const __dirname = dirname(__filename);
 import { getErrorMessage } from '../utils/error-handler.js';
 /**
  * Direct Task Executor for Swarm
@@ -112,16 +116,17 @@ export class DirectTaskExecutor {
         return this.executeAnalyzerTask(task, targetDir);
 
       case 'coder':
-        if (isRestAPI) return this.createRestAPI(targetDir, task);
-        if (isTodo) return this.createTodoApp(targetDir, task);
-        if (isChat) return this.createChatApp(targetDir, task);
-        if (isAuth) return this.createAuthService(targetDir, task);
-        if (isHelloWorld) return this.createHelloWorld(targetDir, task);
-        if (isCalculator) return this.createCalculator(targetDir, task);
-        return this.createGenericApp(targetDir, task);
+        const workingDir = targetDir || process.cwd();
+        if (isRestAPI) return this.createRestAPI(workingDir, task);
+        if (isTodo) return this.createTodoApp(workingDir, task);
+        if (isChat) return this.createChatApp(workingDir, task);
+        if (isAuth) return this.createAuthService(workingDir, task);
+        if (isHelloWorld) return this.createHelloWorld(workingDir, task);
+        if (isCalculator) return this.createCalculator(workingDir, task);
+        return this.createGenericApp(workingDir, task);
 
       case 'tester':
-        return this.executeTestingTask(task, targetDir);
+        return this.executeTestingTask(task, targetDir || process.cwd());
 
       case 'reviewer':
         if (

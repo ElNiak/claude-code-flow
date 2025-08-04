@@ -130,8 +130,10 @@ async function runTests() {
   console.log('=== All tests completed ===');
 }
 
-// Only run if executed directly
-if (import.meta.url === `file://${process.argv[1]}`) {
+// Only run if executed directly - PKG compatible
+const __filename = process.argv[1] || require.main?.filename || '';
+const isMainModule = __filename.endsWith('/test-example.js');
+if (isMainModule) {
   runTests().catch(console.error);
 }
 

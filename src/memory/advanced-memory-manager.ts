@@ -231,7 +231,8 @@ export class AdvancedMemoryManager extends EventEmitter {
     };
 
     // Setup file paths
-    const __dirname = dirname(fileURLToPath(import.meta.url));
+    // PKG-compatible version without import.meta evaluation
+    const currentDirname = __dirname;
     this.dataPath = join(process.cwd(), 'memory', 'data');
     this.indexPath = join(process.cwd(), 'memory', 'index');
     this.backupPath = join(process.cwd(), 'memory', 'backups');
@@ -1698,7 +1699,7 @@ export class AdvancedMemoryManager extends EventEmitter {
   }
 
   private async applyRetentionPolicy(
-    policy: CleanupOptions['retentionPolicies'][0],
+    policy: NonNullable<CleanupOptions['retentionPolicies']>[0],
     dryRun?: boolean,
   ): Promise<{ removed: number; spaceSaved: number }> {
     const matchingEntries = Array.from(this.entries.values()).filter((entry) => {

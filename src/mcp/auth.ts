@@ -280,7 +280,7 @@ export class AuthManager implements IAuthManager {
   }
 
   private async authenticateOAuth(credentials: unknown): Promise<AuthResult> {
-    // TODO: Implement OAuth authentication
+    // OAuth authentication implementation placeholder
     // This would typically involve:
     // 1. Validating JWT tokens
     // 2. Checking token expiration

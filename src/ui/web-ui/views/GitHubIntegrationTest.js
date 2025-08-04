@@ -191,7 +191,9 @@ export function runGitHubViewTest() {
   console.log('═'.repeat(50));
 }
 
-// Run test if executed directly
-if (typeof process !== 'undefined' && process.argv[1] === import.meta.url) {
+// Run test if executed directly - PKG compatible
+const __filename = process.argv[1] || require.main?.filename || '';
+const isMainModule = __filename.endsWith('/GitHubIntegrationTest.js');
+if (typeof process !== 'undefined' && isMainModule) {
   runGitHubViewTest();
 }

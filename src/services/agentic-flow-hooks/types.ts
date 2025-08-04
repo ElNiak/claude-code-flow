@@ -293,10 +293,10 @@ export interface WorkflowMetrics {
 
 // ===== Hook Registration & Management =====
 
-export interface HookRegistration {
+export interface HookRegistration<T extends HookPayload = HookPayload> {
   id: string;
   type: AgenticHookType;
-  handler: HookHandler;
+  handler: HookHandler<T>;
   priority: number;
   filter?: HookFilter;
   options?: HookOptions;
@@ -310,9 +310,9 @@ export type AgenticHookType =
   | WorkflowHookType
   | HookType; // Include existing Claude Flow hooks
 
-export type HookHandler = (
-  payload: HookPayload,
-  context: AgenticHookContext
+export type HookHandler<T extends HookPayload = HookPayload> = (
+  payload: T,
+  context: AgenticHookContext,
 ) => Promise<HookHandlerResult>;
 
 export type HookPayload =
@@ -464,7 +464,7 @@ export interface HookRegistry {
   executeHooks(
     type: AgenticHookType,
     payload: HookPayload,
-    context: AgenticHookContext
+    context: AgenticHookContext,
   ): Promise<HookHandlerResult[]>;
   createPipeline(config: Partial<HookPipeline>): HookPipeline;
   getMetrics(): Record<string, any>;

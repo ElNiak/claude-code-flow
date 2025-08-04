@@ -3,7 +3,7 @@
  * Implements the full SPARC methodology with TDD
  */
 
-import type { TaskDefinition, AgentState, TaskResult } from './types.js';
+import type { TaskDefinition, AgentState, TaskResult, AgentType } from './types.js';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import { Logger } from '../core/logger.js';
@@ -163,7 +163,7 @@ export class SparcTaskExecutor {
       case 'researcher':
         return this.executePseudocodePhase(task, targetDir);
 
-      case 'architect':
+      case 'architect' as AgentType:
       case 'coordinator':
         if (task.name.includes('Architecture') || objective.includes('design')) {
           return this.executeArchitecturePhase(task, targetDir);
@@ -625,7 +625,7 @@ export class SparcTaskExecutor {
   // Utility methods for language-specific details
 
   private getTestFramework(language: string): string {
-    const frameworks = {
+    const frameworks: { [key: string]: string } = {
       python: 'pytest',
       javascript: 'jest',
       typescript: 'jest',
@@ -635,7 +635,7 @@ export class SparcTaskExecutor {
   }
 
   private getProjectStructure(appType: string, language: string): any {
-    const structures = {
+    const structures: { [key: string]: any } = {
       'python-rest-api': {
         directories: ['src', 'tests', 'docs', 'config', 'migrations', 'scripts'],
         files: ['requirements.txt', 'setup.py', 'pytest.ini', '.gitignore', 'Dockerfile'],

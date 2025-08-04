@@ -262,7 +262,7 @@ export class SwarmJsonOutputAggregator extends EventEmitter {
     // Finalize agent data
     this.agents.forEach((agent) => {
       if (!agent.endTime) {
-        agent.endTime = this.endTime.toISOString();
+        agent.endTime = this.endTime?.toISOString() || new Date().toISOString();
         agent.duration = Date.now() - new Date(agent.startTime).getTime();
       }
     });

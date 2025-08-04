@@ -3,10 +3,10 @@ export interface MaestroSpec {
   description: string;
   version: string;
   goals: string[];
-  workflow: WorkflowPhase[];
+  workflow: WorkflowPhaseConfig[];
 }
 
-export interface WorkflowPhase {
+export interface WorkflowPhaseConfig {
   step: string;
   agent: string; // Name of the sub-agent
   input?: string;
@@ -58,7 +58,13 @@ export interface MaestroWorkflowState {
   currentTaskIndex: number;
   status: 'idle' | 'running' | 'paused' | 'completed' | 'failed';
   lastActivity: Date;
-  history: Array<{ phase: WorkflowPhase; status: 'completed' | 'failed' | 'in-progress' | 'approved'; timestamp: Date; output?: any; error?: string }>;
+  history: Array<{
+    phase: WorkflowPhase;
+    status: 'completed' | 'failed' | 'in-progress' | 'approved';
+    timestamp: Date;
+    output?: any;
+    error?: string;
+  }>;
   // Add more state as needed, e.g., for human-in-the-loop gates
 }
 
@@ -96,7 +102,13 @@ export interface AgentHookConfig {
 }
 
 export interface HookTrigger {
-  event: 'file-modified' | 'file-created' | 'file-deleted' | 'git-commit' | 'test-failed' | 'build-failed';
+  event:
+    | 'file-modified'
+    | 'file-created'
+    | 'file-deleted'
+    | 'git-commit'
+    | 'test-failed'
+    | 'build-failed';
   patterns: string[]; // File patterns or other patterns
   debounceMs: number; // Debounce multiple triggers
   batchingEnabled: boolean;
@@ -170,7 +182,8 @@ export interface SpecMetadata {
 
 // ===== ENHANCED WORKFLOW TYPES =====
 
-export interface EnhancedWorkflowPhase extends WorkflowPhase {
+export interface EnhancedWorkflowPhase {
+  phase: WorkflowPhase;
   hooks: AgentHookConfig[];
   consensusRequired: boolean;
   livingDocSync: boolean;

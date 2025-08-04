@@ -50,7 +50,7 @@ export class MemoryManager implements IMemoryManager {
   private indexer: MemoryIndexer;
   private banks = new Map<string, MemoryBank>();
   private initialized = false;
-  private syncInterval?: number;
+  private syncInterval?: NodeJS.Timeout;
 
   constructor(
     private config: MemoryConfig,

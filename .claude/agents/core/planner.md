@@ -128,3 +128,6 @@ plan:
 - Consult large documentation sets when planning complex integrations
 
 Remember: A good plan executed now is better than a perfect plan executed never. Focus on creating actionable, practical plans that drive progress.
+
+## Model & Thinking
+- Running on **Sonnet 4**. Use extended thinking only when complexity warrants it; keep reasoning concise otherwise.

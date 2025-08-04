@@ -12,16 +12,20 @@ const useLegacy =
 async function main() {
   if (useLegacy) {
     console.error('Starting Claude-Flow MCP in legacy mode...');
-    // Dynamically import the old server to avoid circular dependencies
-    const module = await import('./server.js');
-    if (module.runMCPServer) {
-      await module.runMCPServer();
-    } else if (module.default) {
-      await module.default();
-    } else {
-      console.error('Could not find runMCPServer function in legacy server');
-      process.exit(1);
-    }
+    // Dynamically import and start MCPServer
+    const { MCPServer } = await import('./server.js');
+    const { EventBus } = await import('../core/event-bus.js');
+    const { Logger } = await import('../core/logger.js');
+
+    const eventBus = EventBus.getInstance();
+    const logger = Logger.getInstance();
+    const config = {
+      transport: 'stdio' as const,
+      debug: { enableTracing: true },
+    };
+
+    const server = new MCPServer(config, eventBus, logger);
+    await server.start();
   } else {
     console.error('Starting Claude-Flow MCP with Claude Code wrapper...');
     const wrapper = new ClaudeCodeMCPWrapper();
