@@ -149,7 +149,7 @@ export class ArchitectAgent extends BaseAgent {
     };
   }
 
-  override async executeTask(task: TaskDefinition): Promise<any> {
+  override async executeTask(task: TaskDefinition): Promise<unknown> {
     this.logger.info('Architect executing task', {
       agentId: this.id,
       taskType: task.type,
@@ -187,7 +187,7 @@ export class ArchitectAgent extends BaseAgent {
     }
   }
 
-  private async designSystem(task: TaskDefinition): Promise<any> {
+  private async designSystem(task: TaskDefinition): Promise<{ architecture: unknown; implementation: unknown; testing: unknown; deployment: unknown; monitoring: unknown }> {
     const requirements = task.input?.requirements;
     const scale = task.input?.scale || 'medium';
     const constraints = task.input?.constraints || [];
@@ -204,11 +204,11 @@ export class ArchitectAgent extends BaseAgent {
       scale,
       style,
       architecture: {
-        components: [] as any[],
-        services: [] as any[],
-        databases: [] as any[],
-        queues: [] as any[],
-        caches: [] as any[],
+        components: [],
+        services: [],
+        databases: [],
+        queues: [],
+        caches: [],
       },
       patterns: [] as string[],
       technologies: {
@@ -270,7 +270,7 @@ export class ArchitectAgent extends BaseAgent {
         purpose: 'Data processing and analytics',
         technology: 'Python/FastAPI',
       },
-    ] as any[];
+    ] as ArchitectureRecommendation[];
 
     design.patterns = [
       'Microservices Architecture',
@@ -299,7 +299,7 @@ export class ArchitectAgent extends BaseAgent {
     return design;
   }
 
-  private async reviewArchitecture(task: TaskDefinition): Promise<any> {
+  private async reviewArchitecture(task: TaskDefinition): Promise<{ validation: unknown; issues: unknown; improvements: unknown; risks: unknown }> {
     const architecture = task.parameters?.architecture;
     const focus = task.parameters?.focus || ['scalability', 'security', 'maintainability'];
     const standards = task.parameters?.standards || 'enterprise';
@@ -317,20 +317,20 @@ export class ArchitectAgent extends BaseAgent {
       issues: [] as ArchitectureIssue[],
       recommendations: [] as ArchitectureRecommendation[],
       compliance: {
-        passed: [] as any[],
-        failed: [] as any[],
-        warnings: [] as any[],
+        passed: [],
+        failed: [],
+        warnings: [],
       },
       patterns: {
-        identified: [] as any[],
-        missing: [] as any[],
-        antipatterns: [] as any[],
+        identified: [],
+        missing: [],
+        antipatterns: [],
       },
-      improvements: [] as any[],
+      improvements: [],
       riskAssessment: {
-        technical: [] as any[],
-        security: [] as any[],
-        operational: [] as any[],
+        technical: [],
+        security: [],
+        operational: [],
       },
       timestamp: new Date(),
     };
