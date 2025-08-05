@@ -21,18 +21,20 @@ function jsonToCSV(json: any): string {
 
   const flattened = flatten(json);
   const headers = Object.keys(flattened);
-  const valueRow = headers.map(header => {
-    const value = flattened[header];
-    if (value === null || value === undefined) {
-      return '';
-    }
-    let strValue = String(value);
-    // Escape CSV values that contain commas, quotes, or newlines
-    if (strValue.includes(',') || strValue.includes('"') || strValue.includes('\n')) {
-      strValue = '"' + strValue.replace(/"/g, '""') + '"';
-    }
-    return strValue;
-  }).join(',');
+  const valueRow = headers
+    .map((header) => {
+      const value = flattened[header];
+      if (value === null || value === undefined) {
+        return '';
+      }
+      let strValue = String(value);
+      // Escape CSV values that contain commas, quotes, or newlines
+      if (strValue.includes(',') || strValue.includes('"') || strValue.includes('\n')) {
+        strValue = '"' + strValue.replace(/"/g, '""') + '"';
+      }
+      return strValue;
+    })
+    .join(',');
 
   return [headers.join(','), valueRow].join('\n');
 }
@@ -42,7 +44,7 @@ describe('CSV Export Functionality', () => {
     const data = {
       name: 'Agent A',
       status: 'active',
-      score: 95
+      score: 95,
     };
 
     const csv = jsonToCSV(data);
@@ -67,12 +69,12 @@ describe('CSV Export Functionality', () => {
     const data = {
       agent: {
         id: '123',
-        type: 'coder'
+        type: 'coder',
       },
       metrics: {
         cpu: 45.5,
-        memory: 256
-      }
+        memory: 256,
+      },
     };
 
     const csv = jsonToCSV(data);
@@ -105,7 +107,7 @@ describe('CSV Export Functionality', () => {
       name: null,
       value: undefined,
       status: 'active',
-      count: 0
+      count: 0,
     };
 
     const csv = jsonToCSV(data);
@@ -118,7 +120,7 @@ describe('CSV Export Functionality', () => {
     const valueIndex = headers.indexOf('value');
     const countIndex = headers.indexOf('count');
 
-    expect(values[nameIndex]).toBe('');  // null becomes empty
+    expect(values[nameIndex]).toBe(''); // null becomes empty
     expect(values[valueIndex]).toBe(''); // undefined becomes empty
     expect(values[countIndex]).toBe('0'); // 0 should remain as '0'
   });
@@ -127,7 +129,7 @@ describe('CSV Export Functionality', () => {
     const data = {
       z_last: 'end',
       a_first: 'start',
-      m_middle: 'center'
+      m_middle: 'center',
     };
 
     const csv = jsonToCSV(data);
@@ -147,7 +149,7 @@ describe('CSV Export Functionality', () => {
       id: 'array-test',
       tags: ['tag1', 'tag2', 'tag3'],
       numbers: [1, 2, 3],
-      empty: []
+      empty: [],
     };
 
     const csv = jsonToCSV(data);
@@ -172,10 +174,10 @@ describe('CSV Export Functionality', () => {
       level1: {
         level2: {
           level3: {
-            value: 'deep'
-          }
-        }
-      }
+            value: 'deep',
+          },
+        },
+      },
     };
 
     const csv = jsonToCSV(data);

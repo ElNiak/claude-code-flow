@@ -1,7 +1,7 @@
-import { exec } from "child_process";
-import { promisify } from "util";
-import * as fs from "fs/promises";
-import * as path from "path";
+import { exec } from 'child_process';
+import { promisify } from 'util';
+import * as fs from 'fs/promises';
+import * as path from 'path';
 
 const execAsync = promisify(exec);
 
@@ -25,15 +25,15 @@ class ParallelCoordinator {
   private startTime: number = 0;
 
   async runParallelAgents(tasks: AgentTask[]): Promise<void> {
-    console.log("🚀 Starting parallel agent execution...\n");
+    console.log('🚀 Starting parallel agent execution...\n');
     this.startTime = Date.now();
 
-    const promises = tasks.map(task => this.executeAgent(task));
+    const promises = tasks.map((task) => this.executeAgent(task));
 
     try {
       await Promise.all(promises);
     } catch (error) {
-      console.error("Error during parallel execution:", error);
+      console.error('Error during parallel execution:', error);
     }
 
     await this.generateReport();
@@ -47,7 +47,7 @@ class ParallelCoordinator {
       const command = `npx claude-flow sparc run ${task.mode} "${task.task}"`;
       const { stdout, stderr } = await execAsync(command, {
         cwd: process.cwd(),
-        timeout: 300000 // 5 minute timeout
+        timeout: 300000, // 5 minute timeout
       });
 
       const duration = Date.now() - startTime;
@@ -56,7 +56,7 @@ class ParallelCoordinator {
         agent: task.name,
         success: true,
         output: stdout,
-        duration
+        duration,
       });
 
       console.log(`✅ ${task.name} completed in ${duration}ms`);
@@ -67,7 +67,7 @@ class ParallelCoordinator {
         agent: task.name,
         success: false,
         error: error.message || String(error),
-        duration
+        duration,
       });
 
       console.error(`❌ ${task.name} failed after ${duration}ms:`, error.message);
@@ -76,7 +76,7 @@ class ParallelCoordinator {
 
   private async generateReport(): Promise<void> {
     const totalDuration = Date.now() - this.startTime;
-    const successCount = this.results.filter(r => r.success).length;
+    const successCount = this.results.filter((r) => r.success).length;
 
     const report = {
       summary: {
@@ -84,24 +84,21 @@ class ParallelCoordinator {
         successfulAgents: successCount,
         failedAgents: this.results.length - successCount,
         totalDuration: totalDuration,
-        averageDuration: totalDuration / this.results.length
+        averageDuration: totalDuration / this.results.length,
       },
       results: this.results,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
 
-    await fs.writeFile(
-      path.join(__dirname, "results.json"),
-      JSON.stringify(report, null, 2)
-    );
+    await fs.writeFile(path.join(__dirname, 'results.json'), JSON.stringify(report, null, 2));
 
-    console.log("\n📊 Execution Summary:");
+    console.log('\n📊 Execution Summary:');
     console.log(`Total agents: ${report.summary.totalAgents}`);
     console.log(`Successful: ${report.summary.successfulAgents}`);
     console.log(`Failed: ${report.summary.failedAgents}`);
     console.log(`Total duration: ${report.summary.totalDuration}ms`);
     console.log(`Average duration: ${Math.round(report.summary.averageDuration)}ms`);
-    console.log("\nDetailed results saved to results.json");
+    console.log('\nDetailed results saved to results.json');
   }
 }
 

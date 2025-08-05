@@ -24,7 +24,7 @@ export async function configIntegrationAction(ctx: CommandContext) {
   }
 
   const subcommand = ctx.args[0];
-  const subArgs = ctx.args.slice(1);
+  const _subArgs = ctx.args.slice(1);
 
   try {
     switch (subcommand) {

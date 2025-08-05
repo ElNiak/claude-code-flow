@@ -74,7 +74,7 @@ describe('Orchestrator', () => {
       await assertRejects(
         () => orchestrator.initialize(),
         InitializationError,
-        'Orchestrator already initialized'
+        'Orchestrator already initialized',
       );
     });
 
@@ -83,18 +83,14 @@ describe('Orchestrator', () => {
         throw new Error('Terminal init failed');
       });
 
-      await assertRejects(
-        () => orchestrator.initialize(),
-        InitializationError,
-        'Orchestrator'
-      );
+      await assertRejects(() => orchestrator.initialize(), InitializationError, 'Orchestrator');
     });
 
     it('should emit system ready event', async () => {
       await orchestrator.initialize();
 
       const events = (mocks.eventBus as MockEventBus).getEvents();
-      const readyEvent = events.find(e => e.event === SystemEvents.SYSTEM_READY);
+      const readyEvent = events.find((e) => e.event === SystemEvents.SYSTEM_READY);
       expect(readyEvent).toBeDefined();
       expect(readyEvent!.data.timestamp).toBeDefined();
     });
@@ -138,7 +134,7 @@ describe('Orchestrator', () => {
       await assertRejects(
         () => orchestrator.shutdown(),
         ShutdownError,
-        'Failed to shutdown gracefully'
+        'Failed to shutdown gracefully',
       );
     });
 
@@ -161,7 +157,7 @@ describe('Orchestrator', () => {
       await orchestrator.shutdown();
 
       const events = (mocks.eventBus as MockEventBus).getEvents();
-      const shutdownEvent = events.find(e => e.event === SystemEvents.SYSTEM_SHUTDOWN);
+      const shutdownEvent = events.find((e) => e.event === SystemEvents.SYSTEM_SHUTDOWN);
       expect(shutdownEvent).toBeDefined();
       expect(shutdownEvent!.data.reason).toBe('Graceful shutdown');
     });
@@ -190,7 +186,7 @@ describe('Orchestrator', () => {
       await assertRejects(
         () => orchestrator.spawnAgent(invalidProfile),
         Error,
-        'Invalid agent profile'
+        'Invalid agent profile',
       );
     });
 
@@ -203,7 +199,7 @@ describe('Orchestrator', () => {
       await assertRejects(
         () => orchestrator.spawnAgent(TestDataBuilder.agentProfile({ id: 'agent-3' })),
         SystemError,
-        'Maximum concurrent agents reached'
+        'Maximum concurrent agents reached',
       );
     });
 
@@ -212,7 +208,7 @@ describe('Orchestrator', () => {
       const sessionId = await orchestrator.spawnAgent(profile);
 
       const events = (mocks.eventBus as MockEventBus).getEvents();
-      const spawnEvent = events.find(e => e.event === SystemEvents.AGENT_SPAWNED);
+      const spawnEvent = events.find((e) => e.event === SystemEvents.AGENT_SPAWNED);
       expect(spawnEvent).toBeDefined();
       expect(spawnEvent!.data.agentId).toBe(profile.id);
       expect(spawnEvent!.data.sessionId).toBe(sessionId);
@@ -250,7 +246,7 @@ describe('Orchestrator', () => {
       await orchestrator.terminateAgent(profile.id);
 
       const events = (mocks.eventBus as MockEventBus).getEvents();
-      const terminateEvent = events.find(e => e.event === SystemEvents.AGENT_TERMINATED);
+      const terminateEvent = events.find((e) => e.event === SystemEvents.AGENT_TERMINATED);
       expect(terminateEvent).toBeDefined();
       expect(terminateEvent!.data.agentId).toBe(profile.id);
     });
@@ -259,7 +255,7 @@ describe('Orchestrator', () => {
       await assertRejects(
         () => orchestrator.terminateAgent('non-existent'),
         SystemError,
-        'Agent not found: non-existent'
+        'Agent not found: non-existent',
       );
     });
   });
@@ -286,7 +282,7 @@ describe('Orchestrator', () => {
       await orchestrator.assignTask(task);
 
       const events = (mocks.eventBus as MockEventBus).getEvents();
-      const createEvent = events.find(e => e.event === SystemEvents.TASK_CREATED);
+      const createEvent = events.find((e) => e.event === SystemEvents.TASK_CREATED);
       expect(createEvent).toBeDefined();
       expect(createEvent!.data.task).toBe(task);
     });
@@ -297,11 +293,7 @@ describe('Orchestrator', () => {
         priority: 150, // Invalid (> 100)
       });
 
-      await assertRejects(
-        () => orchestrator.assignTask(invalidTask),
-        Error,
-        'Invalid task'
-      );
+      await assertRejects(() => orchestrator.assignTask(invalidTask), Error, 'Invalid task');
     });
 
     it('should enforce task queue size', async () => {
@@ -313,7 +305,7 @@ describe('Orchestrator', () => {
       await assertRejects(
         () => orchestrator.assignTask(TestDataBuilder.task({ id: 'task-3' })),
         SystemError,
-        'Task queue is full'
+        'Task queue is full',
       );
     });
 
@@ -333,7 +325,7 @@ describe('Orchestrator', () => {
       mocks.eventBus.emit(SystemEvents.AGENT_IDLE, { agentId: profile.id });
 
       // Wait for async processing
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       assertSpyCalls(mocks.coordinationManager.assignTask, 1);
     });
@@ -348,7 +340,7 @@ describe('Orchestrator', () => {
         result: { success: true },
       });
 
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       const metrics = await orchestrator.getMetrics();
       expect(metrics.completedTasks).toBe(1);
@@ -364,7 +356,7 @@ describe('Orchestrator', () => {
         error: new Error('Task failed'),
       });
 
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       const metrics = await orchestrator.getMetrics();
       expect(metrics.failedTasks).toBe(1);
@@ -401,7 +393,7 @@ describe('Orchestrator', () => {
 
       // Process queue
       mocks.eventBus.emit(SystemEvents.AGENT_IDLE, { agentId: agent2.id });
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       // Should assign to agent2
       assertSpyCalls(mocks.coordinationManager.assignTask, 1);
@@ -518,7 +510,7 @@ describe('Orchestrator', () => {
         result: {},
       });
 
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       const metrics = await orchestrator.getMetrics();
       expect(metrics.totalTasks).toBe(1);
@@ -609,7 +601,7 @@ describe('Orchestrator', () => {
         resources: ['resource-1'],
       });
 
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       // Should cancel tasks for lowest priority agent
       assertSpyCalls(mocks.coordinationManager.cancelTask, 1);
@@ -644,7 +636,7 @@ describe('Orchestrator', () => {
 
       // Process queue
       mocks.eventBus.emit(SystemEvents.AGENT_IDLE, { agentId: agent.id });
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       // Should assign highest priority task
       assertSpyCalls(mocks.coordinationManager.assignTask, 1);
@@ -666,7 +658,7 @@ describe('Orchestrator', () => {
 
       // Try to process queue
       mocks.eventBus.emit(SystemEvents.AGENT_IDLE, { agentId: agent.id });
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
 
       // Task should remain in queue
       const metrics = await orchestrator.getMetrics();

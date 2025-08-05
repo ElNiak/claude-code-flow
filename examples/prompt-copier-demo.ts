@@ -13,7 +13,11 @@
 
 import { copyPrompts, copyPromptsEnhanced } from '../src/swarm/prompt-copier-enhanced.ts';
 import { PromptManager } from '../src/swarm/prompt-manager.ts';
-import { PromptConfigManager, PromptValidator, createProgressBar } from '../src/swarm/prompt-utils.ts';
+import {
+  PromptConfigManager,
+  PromptValidator,
+  createProgressBar,
+} from '../src/swarm/prompt-utils.ts';
 import * as path from 'https://deno.land/std@0.208.0/path/mod.ts';
 import { ensureDir } from 'https://deno.land/std@0.208.0/fs/mod.ts';
 
@@ -46,7 +50,7 @@ You are an expert system architect focused on designing robust, scalable systems
 - Consider both current and future requirements
 - Document architectural decisions and trade-offs
 - Plan for testing and deployment strategies
-`
+`,
     },
     {
       path: 'sparc/tdd.md',
@@ -65,7 +69,7 @@ You are a TDD expert focused on writing tests first and implementing clean, test
 - Test edge cases and error conditions
 - Keep tests isolated and independent
 - Maintain high test coverage
-`
+`,
     },
     {
       path: 'sparc/code.md',
@@ -84,7 +88,7 @@ You are a senior developer focused on writing clean, maintainable, and efficient
 - Use appropriate data structures and algorithms
 - Add comments for complex logic
 - Consider security implications
-`
+`,
     },
     {
       path: 'templates/api-template.md',
@@ -109,7 +113,7 @@ You are a senior developer focused on writing clean, maintainable, and efficient
 - 401: Unauthorized
 - 404: Not Found
 - 500: Internal Server Error
-`
+`,
     },
     {
       path: 'rules/general-rules.md',
@@ -132,16 +136,16 @@ You are a senior developer focused on writing clean, maintainable, and efficient
 - Cache expensive operations
 - Use appropriate data structures
 - Monitor resource usage
-`
+`,
     },
     {
       path: 'large-prompt.md',
-      content: '# Large Prompt\n' + 'This is a large prompt file.\n'.repeat(1000)
+      content: '# Large Prompt\n' + 'This is a large prompt file.\n'.repeat(1000),
     },
     {
       path: 'empty.md',
-      content: ''
-    }
+      content: '',
+    },
   ];
 
   for (const prompt of prompts) {
@@ -169,7 +173,7 @@ async function demonstrateBasicCopying(sourceDir: string, destDir: string) {
       destination: basicDestDir,
       backup: true,
       verify: true,
-      conflictResolution: 'backup'
+      conflictResolution: 'backup',
     });
 
     console.log(`✅ Basic copy completed`);
@@ -179,11 +183,10 @@ async function demonstrateBasicCopying(sourceDir: string, destDir: string) {
 
     if (result.errors.length > 0) {
       console.log('   Errors:');
-      result.errors.forEach(error => {
+      result.errors.forEach((error) => {
         console.log(`     - ${error.file}: ${error.error}`);
       });
     }
-
   } catch (error) {
     console.error('❌ Basic copying failed:', error.message);
   }
@@ -215,7 +218,7 @@ async function demonstrateEnhancedCopying(sourceDir: string, destDir: string) {
         if (prog.completed === prog.total) {
           progress.complete();
         }
-      }
+      },
     });
 
     console.log(`✅ Enhanced copy completed`);
@@ -223,7 +226,6 @@ async function demonstrateEnhancedCopying(sourceDir: string, destDir: string) {
     console.log(`   Duration: ${result.duration}ms`);
     console.log(`   Workers used: 4`);
     console.log(`   Success: ${result.success}`);
-
   } catch (error) {
     console.error('❌ Enhanced copying failed:', error.message);
   }
@@ -265,7 +267,7 @@ async function demonstrateValidation(sourceDir: string) {
       } else {
         invalidFiles++;
         console.log(`❌ ${path.basename(file)}`);
-        result.issues.forEach(issue => {
+        result.issues.forEach((issue) => {
           console.log(`   - ${issue}`);
         });
       }
@@ -279,7 +281,6 @@ async function demonstrateValidation(sourceDir: string) {
     console.log(`   Valid: ${validFiles}`);
     console.log(`   Invalid: ${invalidFiles}`);
     console.log(`   Total: ${files.length}`);
-
   } catch (error) {
     console.error('❌ Validation failed:', error.message);
   }
@@ -301,15 +302,15 @@ async function demonstrateConfigManagement(demoDir: string) {
         verify: true,
         parallel: true,
         maxWorkers: 6,
-        conflictResolution: 'backup'
+        conflictResolution: 'backup',
       },
       profiles: {
         demo: {
           includePatterns: ['*.md'],
           excludePatterns: ['**/temp/**'],
-          maxWorkers: 2
-        }
-      }
+          maxWorkers: 2,
+        },
+      },
     });
 
     console.log('✅ Configuration saved');
@@ -327,7 +328,6 @@ async function demonstrateConfigManagement(demoDir: string) {
     const demoProfile = manager.getProfile('demo');
     console.log('\nDemo profile settings:');
     console.log(JSON.stringify(demoProfile, null, 2));
-
   } catch (error) {
     console.error('❌ Configuration management failed:', error.message);
   }
@@ -344,7 +344,7 @@ async function demonstratePromptManager(sourceDir: string, destDir: string, demo
     const manager = new PromptManager({
       basePath: demoDir,
       defaultProfile: 'sparc',
-      autoDiscovery: true
+      autoDiscovery: true,
     });
 
     // Initialize manager
@@ -354,7 +354,7 @@ async function demonstratePromptManager(sourceDir: string, destDir: string, demo
     // Update config to use our demo directories
     await manager.updateConfig({
       sourceDirectories: [path.relative(demoDir, sourceDir)],
-      destinationDirectory: path.relative(demoDir, managerDestDir)
+      destinationDirectory: path.relative(demoDir, managerDestDir),
     });
 
     // Copy prompts using manager
@@ -362,9 +362,11 @@ async function demonstratePromptManager(sourceDir: string, destDir: string, demo
       verify: true,
       progressCallback: (progress) => {
         if (progress.percentage % 25 === 0 || progress.completed === progress.total) {
-          console.log(`   Progress: ${progress.percentage}% (${progress.completed}/${progress.total})`);
+          console.log(
+            `   Progress: ${progress.percentage}% (${progress.completed}/${progress.total})`,
+          );
         }
-      }
+      },
     });
 
     console.log('✅ Manager copy completed');
@@ -382,13 +384,14 @@ async function demonstratePromptManager(sourceDir: string, destDir: string, demo
     const report = await manager.generateReport();
     console.log('\nSystem Report:');
     console.log(`   Source directories: ${report.sources.length}`);
-    report.sources.forEach(source => {
+    report.sources.forEach((source) => {
       console.log(`     - ${source.path}: ${source.exists ? 'exists' : 'missing'}`);
       if (source.fileCount !== undefined) {
-        console.log(`       Files: ${source.fileCount}, Size: ${Math.round(source.totalSize! / 1024)}KB`);
+        console.log(
+          `       Files: ${source.fileCount}, Size: ${Math.round(source.totalSize! / 1024)}KB`,
+        );
       }
     });
-
   } catch (error) {
     console.error('❌ Prompt manager demo failed:', error.message);
   }
@@ -406,7 +409,7 @@ async function demonstrateConflictResolution(sourceDir: string, destDir: string)
     await copyPrompts({
       source: sourceDir,
       destination: conflictDestDir,
-      conflictResolution: 'overwrite'
+      conflictResolution: 'overwrite',
     });
 
     // Modify a file to create conflict
@@ -430,7 +433,7 @@ async function demonstrateConflictResolution(sourceDir: string, destDir: string)
       const result = await copyPrompts({
         source: path.join(sourceDir, 'sparc'),
         destination: strategyDestDir,
-        conflictResolution: strategy
+        conflictResolution: strategy,
       });
 
       console.log(`   Result: ${result.success ? 'Success' : 'Failed'}`);
@@ -457,7 +460,6 @@ async function demonstrateConflictResolution(sourceDir: string, destDir: string)
         console.log('   Content: File not found');
       }
     }
-
   } catch (error) {
     console.error('❌ Conflict resolution demo failed:', error.message);
   }
@@ -507,7 +509,6 @@ async function main() {
     } else {
       console.log(`Demo files preserved in: ${demoDir}`);
     }
-
   } catch (error) {
     console.error('\n❌ Demo failed:', error.message);
     console.error(error.stack);

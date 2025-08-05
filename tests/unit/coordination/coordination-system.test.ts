@@ -3,10 +3,10 @@
  * Tests deadlock detection, task scheduling, and resource management
  */
 
-import { describe, it, beforeEach, afterEach  } from "../../../test.utils";
-import { expect } from "@jest/globals";
+import { describe, it, beforeEach, afterEach } from '../../../test.utils';
+import { expect } from '@jest/globals';
 // FakeTime equivalent available in test.utils.ts
-import { spy, stub  } from "../../../test.utils";
+import { spy, stub } from '../../../test.utils';
 
 import { CoordinationManager } from '../../../src/coordination/manager.ts';
 import { TaskScheduler } from '../../../src/coordination/scheduler.ts';
@@ -21,7 +21,7 @@ import {
   MemoryTestUtils,
   PerformanceTestUtils,
   TestAssertions,
-  MockFactory
+  MockFactory,
 } from '../../utils/test-utils.ts';
 import { generateCoordinationTasks, generateErrorScenarios } from '../../fixtures/generators.ts';
 import { setupTestEnv, cleanupTestEnv, TEST_CONFIG } from '../../test.config';
@@ -81,15 +81,13 @@ describe('Coordination System - Comprehensive Tests', () => {
       ];
 
       // Submit all tasks
-      const promises = tasks.map(task =>
-        coordinationManager.submitTask(task.id, task)
-      );
+      const promises = tasks.map((task) => coordinationManager.submitTask(task.id, task));
 
       const results = await Promise.all(promises);
 
       // Verify all tasks completed
       expect(results.length).toBe(4);
-      tasks.forEach(task => {
+      tasks.forEach((task) => {
         expect(task.execute.calls.length).toBe(1);
       });
     });
@@ -150,13 +148,11 @@ describe('Coordination System - Comprehensive Tests', () => {
       ];
 
       // Submit tasks with circular dependencies
-      const promises = tasks.map(task =>
-        coordinationManager.submitTask(task.id, task)
-      );
+      const promises = tasks.map((task) => coordinationManager.submitTask(task.id, task));
 
       // Should detect circular dependency and reject
       const results = await Promise.allSettled(promises);
-      const failures = results.filter(r => r.status === 'rejected');
+      const failures = results.filter((r) => r.status === 'rejected');
 
       expect(failures.length >= 1).toBe(true);
 
@@ -178,18 +174,18 @@ describe('Coordination System - Comprehensive Tests', () => {
       await TestAssertions.assertThrowsAsync(
         () => coordinationManager.submitTask('long-task', longRunningTask),
         Error,
-        'timeout'
+        'timeout',
       );
     });
 
     it('should handle concurrent task submission', async () => {
       const tasks = generateCoordinationTasks(20);
 
-      const promises = tasks.map(task =>
+      const promises = tasks.map((task) =>
         coordinationManager.submitTask(task.id, {
           execute: spy(async () => `result-${task.id}`),
           priority: task.priority,
-        })
+        }),
       );
 
       const results = await Promise.all(promises);
@@ -228,9 +224,7 @@ describe('Coordination System - Comprehensive Tests', () => {
         }),
       }));
 
-      const promises = tasks.map(task =>
-        limitedManager.submitTask(task.id, task)
-      );
+      const promises = tasks.map((task) => limitedManager.submitTask(task.id, task));
 
       await Promise.all(promises);
 
@@ -278,8 +272,8 @@ describe('Coordination System - Comprehensive Tests', () => {
       const results = await Promise.allSettled(promises);
 
       // At least one should be prevented/resolved
-      const successes = results.filter(r => r.status === 'fulfilled');
-      const failures = results.filter(r => r.status === 'rejected');
+      const successes = results.filter((r) => r.status === 'fulfilled');
+      const failures = results.filter((r) => r.status === 'rejected');
 
       // Deadlock detection should prevent both from hanging
       expect(successes.length + failures.length).toBe(2);
@@ -310,14 +304,14 @@ describe('Coordination System - Comprehensive Tests', () => {
       const lowPromise = coordinationManager.submitTask('low-priority', lowPriorityTask);
 
       // Then submit high priority tasks
-      const highPromises = highPriorityTasks.map(task =>
-        coordinationManager.submitTask(task.id, task)
+      const highPromises = highPriorityTasks.map((task) =>
+        coordinationManager.submitTask(task.id, task),
       );
 
       await AsyncTestUtils.delay(20); // Let low priority task get a chance
 
       const allResults = await Promise.allSettled([lowPromise, ...highPromises]);
-      const successes = allResults.filter(r => r.status === 'fulfilled');
+      const successes = allResults.filter((r) => r.status === 'fulfilled');
 
       // Low priority task should eventually complete (no starvation)
       expect(successes.length).toBe(6);
@@ -330,20 +324,22 @@ describe('Coordination System - Comprehensive Tests', () => {
         { id: 'root', dependencies: [], execute: spy(async () => 'root') },
         { id: 'branch-1', dependencies: ['root'], execute: spy(async () => 'branch-1') },
         { id: 'branch-2', dependencies: ['root'], execute: spy(async () => 'branch-2') },
-        { id: 'merge-1', dependencies: ['branch-1', 'branch-2'], execute: spy(async () => 'merge-1') },
+        {
+          id: 'merge-1',
+          dependencies: ['branch-1', 'branch-2'],
+          execute: spy(async () => 'merge-1'),
+        },
         { id: 'leaf-1', dependencies: ['merge-1'], execute: spy(async () => 'leaf-1') },
         { id: 'leaf-2', dependencies: ['merge-1'], execute: spy(async () => 'leaf-2') },
         { id: 'final', dependencies: ['leaf-1', 'leaf-2'], execute: spy(async () => 'final') },
       ];
 
-      const promises = tasks.map(task =>
-        coordinationManager.submitTask(task.id, task)
-      );
+      const promises = tasks.map((task) => coordinationManager.submitTask(task.id, task));
 
       const results = await Promise.all(promises);
 
       expect(results.length).toBe(7);
-      tasks.forEach(task => {
+      tasks.forEach((task) => {
         expect(task.execute.calls.length).toBe(1);
       });
     });
@@ -378,8 +374,8 @@ describe('Coordination System - Comprehensive Tests', () => {
       const results = await Promise.allSettled(promises);
 
       // First task should timeout, second should complete
-      const successes = results.filter(r => r.status === 'fulfilled');
-      const failures = results.filter(r => r.status === 'rejected');
+      const successes = results.filter((r) => r.status === 'fulfilled');
+      const failures = results.filter((r) => r.status === 'rejected');
 
       expect(successes.length >= 1).toBe(true);
       expect(failures.length >= 1).toBe(true);
@@ -402,9 +398,7 @@ describe('Coordination System - Comprehensive Tests', () => {
         }),
       }));
 
-      const promises = tasks.map(task =>
-        coordinationManager.submitTask(task.id, task)
-      );
+      const promises = tasks.map((task) => coordinationManager.submitTask(task.id, task));
 
       // Check resource usage during execution
       await AsyncTestUtils.delay(50);
@@ -442,7 +436,7 @@ describe('Coordination System - Comprehensive Tests', () => {
       await TestAssertions.assertThrowsAsync(
         () => limitedManager.submitTask('memory-heavy', memoryHeavyTask),
         Error,
-        'memory'
+        'memory',
       );
     });
 
@@ -459,15 +453,13 @@ describe('Coordination System - Comprehensive Tests', () => {
         }),
       }));
 
-      const promises = tasks.map(task =>
-        coordinationManager.submitTask(task.id, task)
-      );
+      const promises = tasks.map((task) => coordinationManager.submitTask(task.id, task));
 
       const results = await Promise.all(promises);
 
       // All tasks should complete, but serialized due to exclusive resource
       expect(results.length).toBe(3);
-      tasks.forEach(task => {
+      tasks.forEach((task) => {
         expect(task.execute.calls.length).toBe(1);
       });
     });
@@ -487,9 +479,7 @@ describe('Coordination System - Comprehensive Tests', () => {
 
       const startTime = Date.now();
 
-      const promises = tasks.map(task =>
-        coordinationManager.submitTask(task.id, task)
-      );
+      const promises = tasks.map((task) => coordinationManager.submitTask(task.id, task));
 
       await Promise.all(promises);
 
@@ -522,7 +512,7 @@ describe('Coordination System - Comprehensive Tests', () => {
       await TestAssertions.assertThrowsAsync(
         () => coordinationManager.submitTask('failing-task', failingTask),
         Error,
-        'Task failed'
+        'Task failed',
       );
 
       // Resource should be cleaned up and available for next task
@@ -558,8 +548,8 @@ describe('Coordination System - Comprehensive Tests', () => {
         },
       ];
 
-      const promises = conflictingTasks.map(task =>
-        coordinationManager.submitTask(task.id, task)
+      const promises = conflictingTasks.map((task) =>
+        coordinationManager.submitTask(task.id, task),
       );
 
       const results = await Promise.all(promises);
@@ -623,7 +613,7 @@ describe('Coordination System - Comprehensive Tests', () => {
       const promises = escalationTasks.map((task, i) => {
         // Stagger submissions to create queue
         return AsyncTestUtils.delay(i * 10).then(() =>
-          coordinationManager.submitTask(task.id, task)
+          coordinationManager.submitTask(task.id, task),
         );
       });
 
@@ -631,7 +621,7 @@ describe('Coordination System - Comprehensive Tests', () => {
 
       // All tasks should complete despite conflicts
       expect(results.length).toBe(5);
-      escalationTasks.forEach(task => {
+      escalationTasks.forEach((task) => {
         expect(task.execute.calls.length).toBe(1);
       });
     });
@@ -664,15 +654,15 @@ describe('Coordination System - Comprehensive Tests', () => {
         },
       ];
 
-      const promises = nestedConflictTasks.map(task =>
-        coordinationManager.submitTask(task.id, task)
+      const promises = nestedConflictTasks.map((task) =>
+        coordinationManager.submitTask(task.id, task),
       );
 
       const results = await Promise.all(promises);
 
       // Should resolve conflicts and complete all tasks
       expect(results.length).toBe(3);
-      nestedConflictTasks.forEach(task => {
+      nestedConflictTasks.forEach((task) => {
         expect(task.execute.calls.length).toBe(1);
       });
     });
@@ -732,8 +722,8 @@ describe('Coordination System - Comprehensive Tests', () => {
       expect(results.length).toBe(12);
 
       // Work stealing should have balanced the load
-      const agent1Results = results.filter(r => r.startsWith('agent1'));
-      const agent2Results = results.filter(r => r.startsWith('agent2'));
+      const agent1Results = results.filter((r) => r.startsWith('agent1'));
+      const agent2Results = results.filter((r) => r.startsWith('agent2'));
 
       expect(agent1Results.length).toBe(10);
       expect(agent2Results.length).toBe(2);
@@ -794,11 +784,15 @@ describe('Coordination System - Comprehensive Tests', () => {
     });
 
     it('should handle load balancing across multiple schedulers', async () => {
-      const schedulers = Array.from({ length: 3 }, () => new AdvancedScheduler({
-        enableLoadBalancing: true,
-      }));
+      const schedulers = Array.from(
+        { length: 3 },
+        () =>
+          new AdvancedScheduler({
+            enableLoadBalancing: true,
+          }),
+      );
 
-      await Promise.all(schedulers.map(s => s.initialize()));
+      await Promise.all(schedulers.map((s) => s.initialize()));
 
       // Create uneven task distribution
       const tasks = Array.from({ length: 30 }, (_, i) => ({
@@ -810,15 +804,13 @@ describe('Coordination System - Comprehensive Tests', () => {
       }));
 
       // Submit all tasks to first scheduler
-      const promises = tasks.map(task =>
-        schedulers[0].submitTask(task.id, task)
-      );
+      const promises = tasks.map((task) => schedulers[0].submitTask(task.id, task));
 
       const results = await Promise.all(promises);
 
       // Load balancing should distribute tasks across schedulers
       expect(results.length).toBe(30);
-      tasks.forEach(task => {
+      tasks.forEach((task) => {
         expect(task.execute.calls.length).toBe(1);
       });
     });
@@ -837,7 +829,7 @@ describe('Coordination System - Comprehensive Tests', () => {
             execute: async () => 'quick-task',
           });
         },
-        { iterations: 200, concurrency: 10 }
+        { iterations: 200, concurrency: 10 },
       );
 
       TestAssertions.assertInRange(stats.mean, 0, 50); // Should be fast
@@ -852,9 +844,7 @@ describe('Coordination System - Comprehensive Tests', () => {
 
       const startTime = Date.now();
 
-      const promises = largeBatch.map(task =>
-        coordinationManager.submitTask(task.id, task)
-      );
+      const promises = largeBatch.map((task) => coordinationManager.submitTask(task.id, task));
 
       const results = await Promise.all(promises);
 
@@ -880,9 +870,7 @@ describe('Coordination System - Comprehensive Tests', () => {
           }),
         }));
 
-        const promises = tasks.map(task =>
-          coordinationManager.submitTask(task.id, task)
-        );
+        const promises = tasks.map((task) => coordinationManager.submitTask(task.id, task));
 
         await Promise.all(promises);
       });
@@ -902,7 +890,7 @@ describe('Coordination System - Comprehensive Tests', () => {
           duration: 5000, // 5 seconds
           maxConcurrency: 20,
           requestsPerSecond: 50,
-        }
+        },
       );
 
       TestAssertions.assertInRange(results.successfulRequests / results.totalRequests, 0.95, 1.0);
@@ -941,7 +929,7 @@ describe('Coordination System - Comprehensive Tests', () => {
           await TestAssertions.assertThrowsAsync(
             () => coordinationManager.submitTask(`error-task-${scenario.name}`, failingTask),
             Error,
-            scenario.error.message
+            scenario.error.message,
           );
         }
       }
@@ -1008,13 +996,11 @@ describe('Coordination System - Comprehensive Tests', () => {
       }));
 
       const results = await Promise.allSettled(
-        partiallyFailingTasks.map(task =>
-          coordinationManager.submitTask(task.id, task)
-        )
+        partiallyFailingTasks.map((task) => coordinationManager.submitTask(task.id, task)),
       );
 
-      const successes = results.filter(r => r.status === 'fulfilled');
-      const failures = results.filter(r => r.status === 'rejected');
+      const successes = results.filter((r) => r.status === 'fulfilled');
+      const failures = results.filter((r) => r.status === 'rejected');
 
       // Should have partial success
       expect(successes.length).toBe(7); // 7 out of 10 should succeed
@@ -1057,7 +1043,7 @@ describe('Coordination System - Comprehensive Tests', () => {
       await TestAssertions.assertThrowsAsync(
         () => circuitBreaker.execute(flakyService),
         Error,
-        'Circuit breaker test-circuit is open'
+        'Circuit breaker test-circuit is open',
       );
 
       // Wait for reset timeout
@@ -1083,9 +1069,7 @@ describe('Coordination System - Comprehensive Tests', () => {
         }),
       }));
 
-      await Promise.all(
-        tasks.map(task => coordinationManager.submitTask(task.id, task))
-      );
+      await Promise.all(tasks.map((task) => coordinationManager.submitTask(task.id, task)));
 
       const metrics = await coordinationManager.getMetrics();
 
@@ -1111,9 +1095,7 @@ describe('Coordination System - Comprehensive Tests', () => {
       }));
 
       await Promise.all(
-        resourceIntensiveTasks.map(task =>
-          coordinationManager.submitTask(task.id, task)
-        )
+        resourceIntensiveTasks.map((task) => coordinationManager.submitTask(task.id, task)),
       );
 
       const resourceMetrics = await resourceManager.getMetrics();
@@ -1149,9 +1131,7 @@ describe('Coordination System - Comprehensive Tests', () => {
 
       const startTime = Date.now();
 
-      await Promise.all(
-        slowTasks.map(task => coordinationManager.submitTask(task.id, task))
-      );
+      await Promise.all(slowTasks.map((task) => coordinationManager.submitTask(task.id, task)));
 
       const endTime = Date.now();
       const totalDuration = endTime - startTime;

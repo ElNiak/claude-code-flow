@@ -280,9 +280,9 @@ class BenchmarkRunner:
         )
 
         # Run performance benchmarks
-        self.results["test_suites"][
-            "performance_benchmarks"
-        ] = self.run_performance_benchmarks()
+        self.results["test_suites"]["performance_benchmarks"] = (
+            self.run_performance_benchmarks()
+        )
 
         # Generate consolidated report
         self.generate_consolidated_report()

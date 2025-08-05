@@ -288,7 +288,6 @@ export class CoderAgent extends BaseAgent {
   }
 
   private async reviewCode(task: TaskDefinition): Promise<any> {
-    const code = task.input?.code;
     const files = task.input?.files || [];
     const focus = task.input?.focus || ['quality', 'security', 'performance'];
 
@@ -349,7 +348,6 @@ export class CoderAgent extends BaseAgent {
   }
 
   private async refactorCode(task: TaskDefinition): Promise<any> {
-    const code = task.input?.code;
     const goals = task.input?.goals || ['maintainability', 'performance'];
     const preserveAPI = task.input?.preserveAPI || true;
 
@@ -399,7 +397,6 @@ export class CoderAgent extends BaseAgent {
   }
 
   private async writeTests(task: TaskDefinition): Promise<any> {
-    const code = task.input?.code;
     const testType = task.input?.type || 'unit';
     const coverage = task.input?.coverage || 80;
     const framework = task.input?.framework || 'jest';
@@ -466,7 +463,6 @@ export class CoderAgent extends BaseAgent {
   }
 
   private async debugCode(task: TaskDefinition): Promise<any> {
-    const code = task.input?.code;
     const error = task.input?.error;
     const symptoms = task.input?.symptoms || [];
     const environment = task.input?.environment || 'development';
@@ -509,7 +505,6 @@ export class CoderAgent extends BaseAgent {
   }
 
   private async developAPI(task: TaskDefinition): Promise<any> {
-    const spec = task.input?.spec;
     const framework = task.input?.framework || 'express';
     const database = task.input?.database || 'postgresql';
     const auth = task.input?.auth || 'jwt';
@@ -563,7 +558,6 @@ export class CoderAgent extends BaseAgent {
   }
 
   private async designDatabase(task: TaskDefinition): Promise<any> {
-    const requirements = task.input?.requirements;
     const dbType = task.input?.type || 'relational';
     const engine = task.input?.engine || 'postgresql';
 
@@ -602,8 +596,6 @@ export class CoderAgent extends BaseAgent {
   }
 
   private async optimizePerformance(task: TaskDefinition): Promise<any> {
-    const code = task.input?.code;
-    const metrics = task.input?.metrics;
     const targets = task.input?.targets || ['speed', 'memory'];
 
     this.logger.info('Optimizing performance', {
@@ -835,7 +827,7 @@ npm test
     return deps;
   }
 
-  private generateBuildInstructions(language: string, framework?: string): string[] {
+  private generateBuildInstructions(language: string, _framework?: string): string[] {
     const instructions = {
       typescript: ['npm install', 'npm run build', 'npm start'],
       javascript: ['npm install', 'npm start'],

@@ -24,20 +24,20 @@ export class ResearcherAgent {
         { title: 'RESTful Web Services', relevance: 0.95, year: 2023 },
         { title: 'API Design Patterns', relevance: 0.88, year: 2023 },
         { title: 'Microservices Architecture', relevance: 0.82, year: 2022 },
-        { title: 'HTTP/2 Best Practices', relevance: 0.75, year: 2023 }
+        { title: 'HTTP/2 Best Practices', relevance: 0.75, year: 2023 },
       ],
       keyFindings: [
         'Use versioning in API endpoints',
         'Implement proper error handling with status codes',
         'Follow REST principles for resource naming',
-        'Implement rate limiting and authentication'
+        'Implement rate limiting and authentication',
       ],
       recommendations: [
         'Adopt OpenAPI specification',
         'Use JSON:API or GraphQL for complex queries',
-        'Implement HATEOAS for discoverability'
+        'Implement HATEOAS for discoverability',
       ],
-      confidence: 0.87
+      confidence: 0.87,
     };
 
     console.log(`[${this.agentId}] Research completed`);
@@ -45,7 +45,7 @@ export class ResearcherAgent {
       agentId: this.agentId,
       duration: Date.now() - this.startTime,
       topic,
-      research
+      research,
     };
   }
 
@@ -63,8 +63,8 @@ export class ResearcherAgent {
       insights: [
         'Data shows normal distribution',
         'Slight upward trend detected',
-        'One significant outlier identified'
-      ]
+        'One significant outlier identified',
+      ],
     };
 
     console.log(`[${this.agentId}] Data analysis completed`);
@@ -72,7 +72,7 @@ export class ResearcherAgent {
       agentId: this.agentId,
       duration: Date.now() - this.startTime,
       dataPoints: data.length,
-      analysis
+      analysis,
     };
   }
 
@@ -87,22 +87,22 @@ export class ResearcherAgent {
         'Profile management',
         'Password reset functionality',
         'Two-factor authentication',
-        'Session management'
+        'Session management',
       ],
       nonFunctional: [
         'Response time < 200ms',
         '99.9% uptime',
         'Support 10,000 concurrent users',
         'GDPR compliance',
-        'AES-256 encryption'
+        'AES-256 encryption',
       ],
       constraints: [
         'Must integrate with existing user database',
         'Support OAuth2 providers',
-        'Mobile-first design'
+        'Mobile-first design',
       ],
       stakeholders: ['Product Team', 'Security Team', 'DevOps', 'QA Team'],
-      priority: 'High'
+      priority: 'High',
     };
 
     console.log(`[${this.agentId}] Requirements gathering completed`);
@@ -110,7 +110,7 @@ export class ResearcherAgent {
       agentId: this.agentId,
       duration: Date.now() - this.startTime,
       project,
-      requirements
+      requirements,
     };
   }
 
@@ -129,15 +129,11 @@ export class ResearcherAgent {
         'Large community and ecosystem',
         'Excellent documentation',
         'Strong typing support',
-        'Great tooling'
+        'Great tooling',
       ],
-      cons: [
-        'Compilation step required',
-        'Configuration complexity',
-        'Larger bundle sizes'
-      ],
+      cons: ['Compilation step required', 'Configuration complexity', 'Larger bundle sizes'],
       alternatives: ['JavaScript', 'Flow', 'ReasonML'],
-      recommendation: 'Highly recommended for large-scale applications'
+      recommendation: 'Highly recommended for large-scale applications',
     };
 
     console.log(`[${this.agentId}] Technology analysis completed`);
@@ -145,7 +141,7 @@ export class ResearcherAgent {
       agentId: this.agentId,
       duration: Date.now() - this.startTime,
       technology: tech,
-      analysis: techAnalysis
+      analysis: techAnalysis,
     };
   }
 
@@ -161,14 +157,14 @@ export class ResearcherAgent {
 
   private calculateStdDev(data: number[]): number {
     const mean = this.calculateMean(data);
-    const squaredDiffs = data.map(x => Math.pow(x - mean, 2));
+    const squaredDiffs = data.map((x) => Math.pow(x - mean, 2));
     return Math.sqrt(this.calculateMean(squaredDiffs));
   }
 
   private findOutliers(data: number[]): number[] {
     const mean = this.calculateMean(data);
     const stdDev = this.calculateStdDev(data);
-    return data.filter(x => Math.abs(x - mean) > 2 * stdDev);
+    return data.filter((x) => Math.abs(x - mean) > 2 * stdDev);
   }
 
   private detectTrend(data: number[]): string {
@@ -178,7 +174,7 @@ export class ResearcherAgent {
   }
 
   private async simulateWork(ms: number): Promise<void> {
-    await new Promise(resolve => setTimeout(resolve, ms));
+    await new Promise((resolve) => setTimeout(resolve, ms));
   }
 }
 
@@ -190,8 +186,8 @@ if (require.main === module) {
     researcher.conductResearch('REST API best practices'),
     researcher.analyzeData([42, 38, 51, 47, 39, 52, 48, 45, 98, 41]),
     researcher.gatherRequirements('User Authentication System'),
-    researcher.analyzeTechnology('TypeScript')
-  ]).then(results => {
+    researcher.analyzeTechnology('TypeScript'),
+  ]).then((results) => {
     console.log('\nResearcher Agent Results:', JSON.stringify(results, null, 2));
   });
 }

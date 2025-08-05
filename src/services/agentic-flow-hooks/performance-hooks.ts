@@ -24,7 +24,7 @@ export const performanceMetricHook = {
   priority: 100,
   handler: async (
     payload: PerformanceHookPayload,
-    context: AgenticHookContext
+    context: AgenticHookContext,
   ): Promise<HookHandlerResult> => {
     const { metric, value, unit, threshold } = payload;
 
@@ -61,12 +61,7 @@ export const performanceMetricHook = {
         });
 
         // Generate optimization suggestion
-        const suggestion = await generateOptimizationSuggestion(
-          metric,
-          value,
-          threshold,
-          context
-        );
+        const suggestion = await generateOptimizationSuggestion(metric, value, threshold, context);
 
         if (suggestion) {
           context.performance.optimizations.push(suggestion);
@@ -114,7 +109,7 @@ export const performanceBottleneckHook = {
   priority: 90,
   handler: async (
     payload: PerformanceHookPayload,
-    context: AgenticHookContext
+    context: AgenticHookContext,
   ): Promise<HookHandlerResult> => {
     const { bottleneck } = payload;
 
@@ -146,10 +141,7 @@ export const performanceBottleneckHook = {
     });
 
     // Check for recurring bottlenecks
-    const recurrence = await checkBottleneckRecurrence(
-      analysis.component,
-      context
-    );
+    const recurrence = await checkBottleneckRecurrence(analysis.component, context);
 
     if (recurrence.count > 3) {
       // Recurring bottleneck - escalate
@@ -167,11 +159,7 @@ export const performanceBottleneckHook = {
       });
 
       // Generate advanced optimization
-      const optimization = await generateAdvancedOptimization(
-        analysis,
-        recurrence,
-        context
-      );
+      const optimization = await generateAdvancedOptimization(analysis, recurrence, context);
 
       if (optimization) {
         context.performance.optimizations.push(optimization);
@@ -179,10 +167,7 @@ export const performanceBottleneckHook = {
     }
 
     // Correlate with other metrics
-    const correlations = await findMetricCorrelations(
-      analysis.component,
-      context
-    );
+    const correlations = await findMetricCorrelations(analysis.component, context);
 
     if (correlations.length > 0) {
       sideEffects.push({
@@ -211,7 +196,7 @@ export const performanceOptimizationHook = {
   priority: 80,
   handler: async (
     payload: PerformanceHookPayload,
-    context: AgenticHookContext
+    context: AgenticHookContext,
   ): Promise<HookHandlerResult> => {
     const { optimization } = payload;
 
@@ -301,7 +286,7 @@ export const performanceThresholdHook = {
   priority: 95,
   handler: async (
     payload: PerformanceHookPayload,
-    context: AgenticHookContext
+    context: AgenticHookContext,
   ): Promise<HookHandlerResult> => {
     const { metric, value, threshold } = payload;
 
@@ -313,10 +298,7 @@ export const performanceThresholdHook = {
 
     // Dynamic threshold adjustment
     const historicalData = await getMetricHistory(metric, context);
-    const adjustedThreshold = calculateDynamicThreshold(
-      threshold,
-      historicalData
-    );
+    const adjustedThreshold = calculateDynamicThreshold(threshold, historicalData);
 
     if (adjustedThreshold !== threshold) {
       sideEffects.push({
@@ -339,7 +321,7 @@ export const performanceThresholdHook = {
       metric,
       value,
       adjustedThreshold,
-      historicalData
+      historicalData,
     );
 
     if (prediction.willViolate && prediction.confidence > 0.7) {
@@ -359,11 +341,7 @@ export const performanceThresholdHook = {
       });
 
       // Proactive optimization
-      const proactiveOpt = await generateProactiveOptimization(
-        metric,
-        prediction,
-        context
-      );
+      const proactiveOpt = await generateProactiveOptimization(metric, prediction, context);
 
       if (proactiveOpt) {
         context.performance.optimizations.push(proactiveOpt);
@@ -390,22 +368,25 @@ function extractTags(context: Record<string, any>): string[] {
   return tags;
 }
 
-function checkThreshold(
-  value: number,
-  threshold: number,
-  context: Record<string, any>
-): boolean {
+function checkThreshold(value: number, threshold: number, context: Record<string, any>): boolean {
   // Check if threshold is violated based on context
   const operator = context.thresholdOperator || 'gt';
 
   switch (operator) {
-    case 'gt': return value > threshold;
-    case 'gte': return value >= threshold;
-    case 'lt': return value < threshold;
-    case 'lte': return value <= threshold;
-    case 'eq': return value === threshold;
-    case 'ne': return value !== threshold;
-    default: return value > threshold;
+    case 'gt':
+      return value > threshold;
+    case 'gte':
+      return value >= threshold;
+    case 'lt':
+      return value < threshold;
+    case 'lte':
+      return value <= threshold;
+    case 'eq':
+      return value === threshold;
+    case 'ne':
+      return value !== threshold;
+    default:
+      return value > threshold;
   }
 }
 
@@ -413,7 +394,7 @@ async function generateOptimizationSuggestion(
   metric: string,
   value: number,
   threshold: number,
-  context: AgenticHookContext
+  context: AgenticHookContext,
 ): Promise<OptimizationSuggestion | null> {
   // Generate optimization based on metric type
   const metricType = getMetricType(metric);
@@ -470,10 +451,10 @@ async function generateOptimizationSuggestion(
 async function updateRollingAverages(
   metric: string,
   value: number,
-  context: AgenticHookContext
+  context: AgenticHookContext,
 ): Promise<void> {
   const avgKey = `avg:${metric}`;
-  const history = await context.memory.cache.get(avgKey) || [];
+  const history = (await context.memory.cache.get(avgKey)) || [];
 
   history.push({ value, timestamp: Date.now() });
 
@@ -488,10 +469,10 @@ async function updateRollingAverages(
 async function detectAnomaly(
   metric: string,
   value: number,
-  context: AgenticHookContext
+  context: AgenticHookContext,
 ): Promise<any | null> {
   const avgKey = `avg:${metric}`;
-  const history = await context.memory.cache.get(avgKey) || [];
+  const history = (await context.memory.cache.get(avgKey)) || [];
 
   if (history.length < 100) {
     return null; // Not enough data
@@ -500,9 +481,8 @@ async function detectAnomaly(
   // Calculate statistics
   const values = history.map((h: any) => h.value);
   const mean = values.reduce((a: number, b: number) => a + b, 0) / values.length;
-  const variance = values.reduce((a: number, b: number) =>
-    a + Math.pow(b - mean, 2), 0
-  ) / values.length;
+  const variance =
+    values.reduce((a: number, b: number) => a + Math.pow(b - mean, 2), 0) / values.length;
   const stdDev = Math.sqrt(variance);
 
   // Check if value is anomalous (> 3 standard deviations)
@@ -530,18 +510,16 @@ function mapSeverity(severity: number): BottleneckAnalysis['severity'] {
 
 async function checkBottleneckRecurrence(
   component: string,
-  context: AgenticHookContext
+  context: AgenticHookContext,
 ): Promise<{ count: number; timespan: number }> {
   const historyKey = `bottleneck:history:${component}`;
-  const history = await context.memory.cache.get(historyKey) || [];
+  const history = (await context.memory.cache.get(historyKey)) || [];
 
   const now = Date.now();
   const dayAgo = now - 86400000;
 
   // Count occurrences in last 24 hours
-  const recentOccurrences = history.filter((h: any) =>
-    h.timestamp > dayAgo
-  );
+  const recentOccurrences = history.filter((h: any) => h.timestamp > dayAgo);
 
   return {
     count: recentOccurrences.length,
@@ -552,7 +530,7 @@ async function checkBottleneckRecurrence(
 async function generateAdvancedOptimization(
   bottleneck: BottleneckAnalysis,
   recurrence: { count: number; timespan: number },
-  context: AgenticHookContext
+  context: AgenticHookContext,
 ): Promise<OptimizationSuggestion | null> {
   // Generate advanced optimization for recurring bottlenecks
   if (bottleneck.severity === 'critical' && recurrence.count > 5) {
@@ -580,7 +558,7 @@ async function generateAdvancedOptimization(
 
 async function findMetricCorrelations(
   component: string,
-  context: AgenticHookContext
+  context: AgenticHookContext,
 ): Promise<Array<{ metric: string; correlation: number }>> {
   const correlations: Array<{ metric: string; correlation: number }> = [];
 
@@ -600,7 +578,7 @@ async function findMetricCorrelations(
 
 async function validateOptimization(
   optimization: any,
-  context: AgenticHookContext
+  context: AgenticHookContext,
 ): Promise<{ valid: boolean; reason?: string }> {
   // Validate optimization is safe to apply
   if (!optimization.type || !optimization.details) {
@@ -621,10 +599,7 @@ async function validateOptimization(
   return { valid: true };
 }
 
-async function simulateOptimization(
-  optimization: any,
-  context: AgenticHookContext
-): Promise<any> {
+async function simulateOptimization(optimization: any, context: AgenticHookContext): Promise<any> {
   // Simulate optimization impact
   const baseline = await getBaselineMetrics(optimization.type, context);
 
@@ -638,45 +613,31 @@ async function simulateOptimization(
   return simulation;
 }
 
-async function applyOptimization(
-  optimization: any,
-  context: AgenticHookContext
-): Promise<void> {
+async function applyOptimization(optimization: any, context: AgenticHookContext): Promise<void> {
   // Apply optimization
   // Placeholder implementation
   const timestamp = Date.now();
 
   // Store optimization application
-  await context.memory.cache.set(
-    `applied:${optimization.type}:${timestamp}`,
-    {
-      optimization,
-      appliedAt: timestamp,
-      appliedBy: 'automatic',
-    }
-  );
+  await context.memory.cache.set(`applied:${optimization.type}:${timestamp}`, {
+    optimization,
+    appliedAt: timestamp,
+    appliedBy: 'automatic',
+  });
 }
 
-async function getMetricHistory(
-  metric: string,
-  context: AgenticHookContext
-): Promise<any[]> {
+async function getMetricHistory(metric: string, context: AgenticHookContext): Promise<any[]> {
   const historyKey = `history:${metric}`;
-  return await context.memory.cache.get(historyKey) || [];
+  return (await context.memory.cache.get(historyKey)) || [];
 }
 
-function calculateDynamicThreshold(
-  baseThreshold: number,
-  historicalData: any[]
-): number {
+function calculateDynamicThreshold(baseThreshold: number, historicalData: any[]): number {
   if (historicalData.length < 50) {
     return baseThreshold; // Not enough data
   }
 
   // Calculate percentile-based threshold
-  const values = historicalData
-    .map(d => d.value)
-    .sort((a, b) => a - b);
+  const values = historicalData.map((d) => d.value).sort((a, b) => a - b);
 
   const p95 = values[Math.floor(values.length * 0.95)];
 
@@ -688,7 +649,7 @@ async function predictThresholdViolation(
   metric: string,
   currentValue: number,
   threshold: number,
-  historicalData: any[]
+  historicalData: any[],
 ): Promise<any> {
   if (historicalData.length < 10) {
     return {
@@ -698,7 +659,7 @@ async function predictThresholdViolation(
   }
 
   // Simple linear trend prediction
-  const recentValues = historicalData.slice(-10).map(d => d.value);
+  const recentValues = historicalData.slice(-10).map((d) => d.value);
   const trend = calculateTrend(recentValues);
 
   if (trend > 0 && currentValue > threshold * 0.8) {
@@ -720,7 +681,7 @@ async function predictThresholdViolation(
 async function generateProactiveOptimization(
   metric: string,
   prediction: any,
-  context: AgenticHookContext
+  context: AgenticHookContext,
 ): Promise<OptimizationSuggestion | null> {
   // Generate proactive optimization to prevent violation
   const metricType = getMetricType(metric);
@@ -746,10 +707,7 @@ function getMetricType(metric: string): string {
   return 'unknown';
 }
 
-async function getBaselineMetrics(
-  type: string,
-  context: AgenticHookContext
-): Promise<any> {
+async function getBaselineMetrics(type: string, context: AgenticHookContext): Promise<any> {
   // Get baseline metrics for comparison
   // Placeholder implementation
   return {};

@@ -21,11 +21,14 @@ export * from './neural-hooks.js';
 export * from './performance-hooks.js';
 export * from './workflow-hooks.js';
 
-const logger = new Logger({
-  level: 'info',
-  format: 'text',
-  destination: 'console'
-}, { prefix: 'AgenticFlowHooks' });
+const logger = new Logger(
+  {
+    level: 'info',
+    format: 'text',
+    destination: 'console',
+  },
+  { prefix: 'AgenticFlowHooks' },
+);
 
 /**
  * Initialize the agentic-flow hook system
@@ -181,7 +184,7 @@ export async function shutdownAgenticFlowHooks(): Promise<void> {
         logger.warn('Timeout waiting for active executions to complete');
         break;
       }
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
     }
 
     // Remove all listeners
@@ -208,11 +211,7 @@ export function getHookSystemStatus(): {
   return {
     initialized: metrics['hooks.count'] > 0,
     metrics,
-    pipelines: [
-      'llm-call-pipeline',
-      'memory-operation-pipeline',
-      'workflow-execution-pipeline',
-    ],
+    pipelines: ['llm-call-pipeline', 'memory-operation-pipeline', 'workflow-execution-pipeline'],
     activeExecutions: metrics['executions.active'] || 0,
   };
 }
@@ -260,7 +259,7 @@ export function createHookContext(): HookContextBuilder {
 
     withPerformance(metrics: PerformanceMetric[]): HookContextBuilder {
       const metricsMap = new Map<string, PerformanceMetric>();
-      metrics.forEach(m => metricsMap.set(m.name, m));
+      metrics.forEach((m) => metricsMap.set(m.name, m));
 
       this.context.performance = {
         metrics: metricsMap,
@@ -348,7 +347,7 @@ export function createHookContext(): HookContextBuilder {
         },
 
         getByType(type: Pattern['type']): Pattern[] {
-          return Array.from(patterns.values()).filter(p => p.type === type);
+          return Array.from(patterns.values()).filter((p) => p.type === type);
         },
 
         prune(maxAge: number): void {

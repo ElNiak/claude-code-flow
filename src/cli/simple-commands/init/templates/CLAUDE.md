@@ -2,6 +2,13 @@
 
 ## Core Principles
 
+- ALWAYS use swarm_init to set up the coordination topology.
+- ALWAYS spawn:
+  - "memory-coordinator" first in the batch to ensure memory operations are handled before any coding tasks.
+  - "objective-analyst" to analyze objectives and determine the best approach for concurrent execution.
+  - "task-orchestrator" to break down and coordinate complex tasks.
+  - "collective-intelligence-coordinator" for decision-making.- ALWAYS spawn the subagents at the end of the message (other tools must be
+  ordered first in the batch).
 - NEVER RESET or CLEAN the repository or workspace except when explicitly
   requested by the User.
 - Do what has been asked; nothing more, nothing less.
@@ -34,6 +41,7 @@
 1. mcp__sequential-thinking__sequentialthinking --thought="Plan implementation approach"
 2. mcp__serena__replace_symbol_body "function-name" --body="new-implementation"
 3. mcp__serena__find_referencing_symbols "updated-function"
+ALWAYS update the tasks at each step to reflect the current state.
 
 # AFTER coding (Validation)
 1. mcp__consult7__consultation --query="Review implementation quality" --pattern="**/*.ts"
@@ -60,8 +68,11 @@ to review the code changes.
 
 ### Concurrency Policy (Safety-First)
 
-**Rule**: Use batching/parallelism **only** for operations that are independent
-and idempotent (e.g., multiple reads).  
+**Rule**: Use batching/parallelism **only** for operations that are independent and idempotent (e.g., multiple reads, research).
+ALWAYS spawn agents in a single message with full instructions.
+ALWAYS spawn the subagents at the end of the message (other tools must be
+ordered first in the batch).
+
 Use **sequential/pipelined** steps when any of the following are true:
 
 - Ordering/causal dependencies exist.
@@ -140,6 +151,24 @@ Before sending ANY message, ask yourself:
 - ✅ Are ALL memory operations concurrent?
 
 If ANY answer is "No", you MUST combine operations into a single message!
+
+### 🎯 AGENT PROMPT TEMPLATE
+
+When spawning agents, ALWAYS include these coordination instructions:
+
+```
+You are the [Agent Type] agent in a coordinated swarm.
+
+MANDATORY COORDINATION:
+1. START: Run `npx claude-flow@alpha hooks pre-task --description "[your task]"`
+2. DURING: After EVERY file operation, run `npx claude-flow@alpha hooks post-edit --file "[file]" --memory-key "agent/[step]"`
+3. MEMORY: Store ALL decisions using `npx claude-flow@alpha hooks notify --message "[decision]"`
+4. END: Run `npx claude-flow@alpha hooks post-task --task-id "[task]" --analyze-performance true`
+
+Your specific task: [detailed task description]
+
+REMEMBER: Coordinate with other agents by checking memory BEFORE making decisions!
+```
 
 ## Project Overview
 

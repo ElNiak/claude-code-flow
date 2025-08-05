@@ -6,7 +6,7 @@ import { getErrorMessage } from '../../utils/error-handler.js';
  */
 
 import { promises as fs } from 'node:fs';
-import { join, extname, basename } from 'node:path';
+import { extname } from 'node:path';
 import {
   AdvancedMemoryManager,
   type QueryOptions,
@@ -913,7 +913,7 @@ async function listCommand(args: string[], flags: Record<string, any>): Promise<
   }
 }
 
-async function namespacesCommand(args: string[], flags: Record<string, any>): Promise<void> {
+async function namespacesCommand(_args: string[], _flags: Record<string, any>): Promise<void> {
   try {
     const manager = await ensureMemoryManager();
     const namespaces = await manager.listNamespaces();
@@ -934,7 +934,7 @@ async function namespacesCommand(args: string[], flags: Record<string, any>): Pr
   }
 }
 
-async function typesCommand(args: string[], flags: Record<string, any>): Promise<void> {
+async function typesCommand(_args: string[], _flags: Record<string, any>): Promise<void> {
   try {
     const manager = await ensureMemoryManager();
     const types = await manager.listTypes();
@@ -953,7 +953,7 @@ async function typesCommand(args: string[], flags: Record<string, any>): Promise
   }
 }
 
-async function tagsCommand(args: string[], flags: Record<string, any>): Promise<void> {
+async function tagsCommand(_args: string[], _flags: Record<string, any>): Promise<void> {
   try {
     const manager = await ensureMemoryManager();
     const tags = await manager.listTags();

@@ -5,7 +5,7 @@ export function generateCoordinationTasks(count: number) {
     id: `task-${i}`,
     priority: ['low', 'medium', 'high', 'critical'][Math.floor(Math.random() * 4)],
     requiredResources: [`resource-${i % 3}`],
-    estimatedDuration: Math.random() * 1000
+    estimatedDuration: Math.random() * 1000,
   }));
 }
 
@@ -22,10 +22,10 @@ export function generateMemoryEntries(count: number) {
       metadata: {
         created: new Date().toISOString(),
         source: 'generator',
-        index: i
-      }
+        index: i,
+      },
     },
-    tags: tags.filter(() => Math.random() > 0.5)
+    tags: tags.filter(() => Math.random() > 0.5),
   }));
 }
 
@@ -34,23 +34,23 @@ export function generateErrorScenarios() {
     {
       name: 'network-timeout',
       error: new Error('Network timeout'),
-      recoverable: true
+      recoverable: true,
     },
     {
       name: 'invalid-input',
       error: new TypeError('Invalid input type'),
-      recoverable: false
+      recoverable: false,
     },
     {
       name: 'resource-exhausted',
       error: new Error('Resource exhausted'),
-      recoverable: true
+      recoverable: true,
     },
     {
       name: 'permission-denied',
       error: new Error('Permission denied'),
-      recoverable: false
-    }
+      recoverable: false,
+    },
   ];
 }
 
@@ -61,7 +61,7 @@ export function generateEdgeCaseData() {
       veryLong: 'x'.repeat(10000),
       unicode: '🚀🎭🌍',
       specialChars: '!@#$%^&*()_+-=[]{}|;:\'",.<>?/\\',
-      whitespace: '   \t\n\r   '
+      whitespace: '   \t\n\r   ',
     },
     numbers: {
       zero: 0,
@@ -70,7 +70,7 @@ export function generateEdgeCaseData() {
       negativeInfinity: -Infinity,
       nan: NaN,
       maxSafeInt: Number.MAX_SAFE_INTEGER,
-      minSafeInt: Number.MIN_SAFE_INTEGER
+      minSafeInt: Number.MIN_SAFE_INTEGER,
     },
     objects: {
       null: null,
@@ -81,13 +81,13 @@ export function generateEdgeCaseData() {
         const obj: any = { a: 1 };
         obj.self = obj;
         return obj;
-      })()
+      })(),
     },
     arrays: {
       empty: [],
       sparse: [1, , , 4],
       mixed: [1, 'two', { three: 3 }, [4]],
-      large: Array(1000).fill(0)
-    }
+      large: Array(1000).fill(0),
+    },
   };
 }

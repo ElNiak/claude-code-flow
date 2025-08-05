@@ -2,7 +2,7 @@
  * Test suite for ProcessUI
  */
 
-import { describe, it, beforeEach, afterEach, expect } from "../../../../test.utils";
+import { describe, it, beforeEach, afterEach, expect } from '../../../../test.utils';
 import { ProcessUI } from '../../../../src/cli/commands/start/process-ui.ts';
 import { ProcessManager } from '../../../../src/cli/commands/start/process-manager.ts';
 import { ProcessStatus } from '../../../../src/cli/commands/start/types.ts';
@@ -25,7 +25,7 @@ describe('ProcessUI', () => {
       // UI should react to process manager events
       let renderCalled = false;
       const originalRender = ProcessUI.prototype['render'];
-      ProcessUI.prototype['render'] = function() {
+      ProcessUI.prototype['render'] = function () {
         renderCalled = true;
       };
 
@@ -169,7 +169,7 @@ describe('ProcessUI', () => {
       await processManager.startProcess('event-bus');
       const firstStartTime = processManager.getProcess('event-bus')?.startTime;
 
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
       await restartProcess('event-bus');
 
       const process = processManager.getProcess('event-bus');
@@ -239,7 +239,7 @@ describe('ProcessUI', () => {
         cpu: 25.5,
         memory: 128,
         restarts: 2,
-        lastError: 'Test error'
+        lastError: 'Test error',
       };
 
       showProcessDetails(mockProcess);

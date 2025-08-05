@@ -45,7 +45,8 @@
     "tests/**/*",
     "deno_modules",
     "bin",
-    "src/terminal/vscode-bridge.ts"
+    "src/terminal/vscode-bridge.ts",
+    "src/cli/simple-cli.ts"
   ],
   "ts-node": {
     "esm": true,

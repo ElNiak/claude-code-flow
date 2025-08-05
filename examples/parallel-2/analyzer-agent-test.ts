@@ -28,15 +28,15 @@ export class AnalyzerAgent {
       recommendations: [
         'Optimize database queries',
         'Implement caching strategy',
-        'Scale horizontally during peak hours'
-      ]
+        'Scale horizontally during peak hours',
+      ],
     };
 
     console.log(`[${this.agentId}] Performance analysis completed`);
     return {
       agentId: this.agentId,
       duration: Date.now() - this.startTime,
-      analysis
+      analysis,
     };
   }
 
@@ -53,8 +53,8 @@ export class AnalyzerAgent {
       issues: {
         critical: Math.floor(Math.random() * 3),
         major: Math.floor(Math.random() * 10),
-        minor: Math.floor(Math.random() * 20)
-      }
+        minor: Math.floor(Math.random() * 20),
+      },
     };
 
     console.log(`[${this.agentId}] Code quality analysis completed`);
@@ -62,7 +62,7 @@ export class AnalyzerAgent {
       agentId: this.agentId,
       duration: Date.now() - this.startTime,
       path,
-      metrics: qualityMetrics
+      metrics: qualityMetrics,
     };
   }
 
@@ -74,7 +74,7 @@ export class AnalyzerAgent {
     const vulnerabilities = [
       { severity: 'high', type: 'SQL Injection', location: 'UserController.ts:45' },
       { severity: 'medium', type: 'Weak Password Policy', location: 'auth/config.ts:12' },
-      { severity: 'low', type: 'Missing HTTPS redirect', location: 'server.ts:8' }
+      { severity: 'low', type: 'Missing HTTPS redirect', location: 'server.ts:8' },
     ];
 
     console.log(`[${this.agentId}] Security analysis completed`);
@@ -82,7 +82,7 @@ export class AnalyzerAgent {
       agentId: this.agentId,
       duration: Date.now() - this.startTime,
       vulnerabilities,
-      riskScore: 6.5
+      riskScore: 6.5,
     };
   }
 
@@ -97,7 +97,7 @@ export class AnalyzerAgent {
   }
 
   private async simulateWork(ms: number): Promise<void> {
-    await new Promise(resolve => setTimeout(resolve, ms));
+    await new Promise((resolve) => setTimeout(resolve, ms));
   }
 }
 
@@ -108,14 +108,14 @@ if (require.main === module) {
     response_times: [245, 312, 198, 580, 225],
     error_counts: { '4xx': 12, '5xx': 3 },
     cpu_usage: [45.2, 52.1, 48.7, 61.3],
-    memory_usage: [1024, 1156, 1298, 1402]
+    memory_usage: [1024, 1156, 1298, 1402],
   };
 
   Promise.all([
     analyzer.analyzePerformanceMetrics(testMetrics),
     analyzer.analyzeCodeQuality('/src/modules/authentication'),
-    analyzer.analyzeSecurityVulnerabilities()
-  ]).then(results => {
+    analyzer.analyzeSecurityVulnerabilities(),
+  ]).then((results) => {
     console.log('\nAnalyzer Agent Results:', JSON.stringify(results, null, 2));
   });
 }

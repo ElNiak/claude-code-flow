@@ -569,7 +569,6 @@ export class AnalystAgent extends BaseAgent {
   }
 
   private async performStatisticalAnalysis(task: TaskDefinition): Promise<StatisticalAnalysis> {
-    const _data = task.context?.data;
     const tests = task.context?.tests || ['normality', 'correlation', 'significance'];
     const alpha = task.context?.alpha || 0.05;
     const hypothesis = task.context?.hypothesis;
@@ -629,7 +628,6 @@ export class AnalystAgent extends BaseAgent {
   }
 
   private async createVisualization(task: TaskDefinition): Promise<VisualizationResult> {
-    const _data = task.context?.data;
     const chartType = task.context?.type || 'auto';
     const style = task.context?.style || 'professional';
     const interactive = task.context?.interactive || false;
@@ -687,7 +685,6 @@ export class AnalystAgent extends BaseAgent {
   }
 
   private async buildPredictiveModel(task: TaskDefinition): Promise<PredictiveModelResult> {
-    const _data = task.context?.data;
     const target = task.context?.target;
     const algorithm = task.context?.algorithm || 'auto';
     const validation = task.context?.validation || 'k-fold';
@@ -758,7 +755,6 @@ export class AnalystAgent extends BaseAgent {
   }
 
   private async detectAnomalies(task: TaskDefinition): Promise<AnomalyDetectionResult> {
-    const _data = task.context?.data;
     const method = task.context?.method || 'isolation_forest';
     const sensitivity = task.context?.sensitivity || 0.1;
     const threshold = task.context?.threshold;
@@ -827,7 +823,6 @@ export class AnalystAgent extends BaseAgent {
   }
 
   private async analyzeTrends(task: TaskDefinition): Promise<TrendAnalysisResult> {
-    const data = task.context?.data;
     const timeframe = task.context?.timeframe || '3-months';
     const granularity = task.context?.granularity || 'daily';
     const forecast = task.context?.forecast || false;
@@ -958,7 +953,6 @@ export class AnalystAgent extends BaseAgent {
     const subject = task.context?.subject;
     const criteria = task.context?.criteria || ['accuracy', 'completeness', 'consistency'];
     const standards = task.context?.standards || 'industry';
-    const benchmark = task.context?.benchmark;
 
     this.logger.info('Analyzing quality', {
       subject,

@@ -2,10 +2,10 @@
  * Enhanced comprehensive unit tests for Orchestrator
  */
 
-import { describe, it, beforeEach, afterEach  } from "../../../test.utils";
-import { expect } from "@jest/globals";
+import { describe, it, beforeEach, afterEach } from '../../../test.utils';
+import { expect } from '@jest/globals';
 // FakeTime equivalent available in test.utils.ts
-import { stub, spy  } from "../../../test.utils";
+import { stub, spy } from '../../../test.utils';
 
 import { Orchestrator } from '../../../src/core/orchestrator.ts';
 import {
@@ -15,13 +15,13 @@ import {
   MockMemoryManager,
   MockCoordinationManager,
   MockMCPServer,
-  createMocks
+  createMocks,
 } from '../../mocks/index.ts';
 import {
   AsyncTestUtils,
   MemoryTestUtils,
   PerformanceTestUtils,
-  TestAssertions
+  TestAssertions,
 } from '../../utils/test-utils.ts';
 import { generateCoordinationTasks, generateErrorScenarios } from '../../fixtures/generators.ts';
 import { setupTestEnv, cleanupTestEnv, TEST_CONFIG } from '../../test.config';
@@ -52,9 +52,9 @@ describe('Orchestrator - Enhanced Tests', () => {
     await cleanupTestEnv();
 
     // Reset all mock spies
-    Object.values(mocks).forEach(mock => {
+    Object.values(mocks).forEach((mock) => {
       if (typeof mock === 'object' && mock !== null) {
-        Object.values(mock).forEach(method => {
+        Object.values(mock).forEach((method) => {
           if (typeof method === 'function' && 'calls' in method) {
             method.calls = [];
           }
@@ -76,7 +76,7 @@ describe('Orchestrator - Enhanced Tests', () => {
 
       // Check that events were emitted
       const events = mocks.eventBus.getEvents();
-      const initEvent = events.find(e => e.event === 'orchestrator.initialized');
+      const initEvent = events.find((e) => e.event === 'orchestrator.initialized');
       expect(initEvent).toBeDefined();
     });
 
@@ -86,11 +86,7 @@ describe('Orchestrator - Enhanced Tests', () => {
         throw new Error('Memory initialization failed');
       });
 
-      await assertRejects(
-        () => orchestrator.initialize(),
-        Error,
-        'Memory initialization failed'
-      );
+      await assertRejects(() => orchestrator.initialize(), Error, 'Memory initialization failed');
 
       // Verify cleanup was attempted
       expect(mocks.terminalManager.shutdown.calls.length).toBe(1);
@@ -99,13 +95,13 @@ describe('Orchestrator - Enhanced Tests', () => {
     it('should timeout initialization after configured time', async () => {
       // Make terminal manager hang
       mocks.terminalManager.initialize = spy(async () => {
-        await new Promise(resolve => setTimeout(resolve, 60000)); // 1 minute
+        await new Promise((resolve) => setTimeout(resolve, 60000)); // 1 minute
       });
 
       await TestAssertions.assertThrowsAsync(
         () => AsyncTestUtils.withTimeout(orchestrator.initialize(), 5000),
         Error,
-        'timeout'
+        'timeout',
       );
     });
 
@@ -115,8 +111,8 @@ describe('Orchestrator - Enhanced Tests', () => {
       // Only first should succeed, others should be rejected
       const results = await Promise.allSettled(promises);
 
-      const successful = results.filter(r => r.status === 'fulfilled');
-      const failed = results.filter(r => r.status === 'rejected');
+      const successful = results.filter((r) => r.status === 'fulfilled');
+      const failed = results.filter((r) => r.status === 'rejected');
 
       expect(successful.length).toBe(1);
       expect(failed.length).toBe(4);
@@ -167,9 +163,7 @@ describe('Orchestrator - Enhanced Tests', () => {
         priority: 'medium' as const,
       }));
 
-      const promises = tasks.map(task =>
-        orchestrator.createAndExecuteTask(agentProfile, task)
-      );
+      const promises = tasks.map((task) => orchestrator.createAndExecuteTask(agentProfile, task));
 
       const results = await Promise.all(promises);
       expect(results.length).toBe(10);
@@ -181,7 +175,7 @@ describe('Orchestrator - Enhanced Tests', () => {
     it('should handle task timeouts properly', async () => {
       // Mock a task that hangs
       mocks.terminalManager.sendCommand = spy(async () => {
-        await new Promise(resolve => setTimeout(resolve, 60000)); // 1 minute
+        await new Promise((resolve) => setTimeout(resolve, 60000)); // 1 minute
         return 'Never reached';
       });
 
@@ -197,7 +191,7 @@ describe('Orchestrator - Enhanced Tests', () => {
       await TestAssertions.assertThrowsAsync(
         () => orchestrator.createAndExecuteTask(agentProfile, task),
         Error,
-        'timeout'
+        'timeout',
       );
     });
 
@@ -239,7 +233,7 @@ describe('Orchestrator - Enhanced Tests', () => {
       expect(Object.keys(health.components).length).toBe(5); // 5 components
 
       // All components should be healthy in this test
-      Object.values(health.components).forEach(componentHealth => {
+      Object.values(health.components).forEach((componentHealth) => {
         expect(componentHealth.healthy).toBe(true);
       });
     });
@@ -355,20 +349,23 @@ describe('Orchestrator - Enhanced Tests', () => {
       const agentProfile = { id: 'perf-agent', name: 'Performance Agent' };
 
       const { stats } = await PerformanceTestUtils.benchmark(
-        () => orchestrator.createAndExecuteTask(agentProfile, {
-          id: `perf-task-${Date.now()}-${Math.random()}`,
-          type: 'shell',
-          command: 'echo "performance test"',
-          priority: 'medium' as const,
-        }),
-        { iterations: 50, concurrency: 5 }
+        () =>
+          orchestrator.createAndExecuteTask(agentProfile, {
+            id: `perf-task-${Date.now()}-${Math.random()}`,
+            type: 'shell',
+            command: 'echo "performance test"',
+            priority: 'medium' as const,
+          }),
+        { iterations: 50, concurrency: 5 },
       );
 
       // Performance assertions
       TestAssertions.assertInRange(stats.mean, 0, 1000); // Should complete within 1s on average
       TestAssertions.assertInRange(stats.p95, 0, 2000); // 95th percentile under 2s
 
-      console.log(`Performance stats: mean=${stats.mean.toFixed(2)}ms, p95=${stats.p95.toFixed(2)}ms`);
+      console.log(
+        `Performance stats: mean=${stats.mean.toFixed(2)}ms, p95=${stats.p95.toFixed(2)}ms`,
+      );
     });
 
     it('should maintain performance under memory pressure', async () => {
@@ -387,13 +384,14 @@ describe('Orchestrator - Enhanced Tests', () => {
       const agentProfile = { id: 'pressure-agent', name: 'Pressure Agent' };
 
       const { stats } = await PerformanceTestUtils.benchmark(
-        () => orchestrator.createAndExecuteTask(agentProfile, {
-          id: `pressure-task-${Date.now()}-${Math.random()}`,
-          type: 'shell',
-          command: 'echo "under pressure"',
-          priority: 'medium' as const,
-        }),
-        { iterations: 10 }
+        () =>
+          orchestrator.createAndExecuteTask(agentProfile, {
+            id: `pressure-task-${Date.now()}-${Math.random()}`,
+            type: 'shell',
+            command: 'echo "under pressure"',
+            priority: 'medium' as const,
+          }),
+        { iterations: 10 },
       );
 
       // Should still maintain reasonable performance
@@ -404,17 +402,18 @@ describe('Orchestrator - Enhanced Tests', () => {
       const agentProfile = { id: 'load-agent', name: 'Load Agent' };
 
       const results = await PerformanceTestUtils.loadTest(
-        () => orchestrator.createAndExecuteTask(agentProfile, {
-          id: `load-task-${Date.now()}-${Math.random()}`,
-          type: 'shell',
-          command: 'echo "load test"',
-          priority: 'medium' as const,
-        }),
+        () =>
+          orchestrator.createAndExecuteTask(agentProfile, {
+            id: `load-task-${Date.now()}-${Math.random()}`,
+            type: 'shell',
+            command: 'echo "load test"',
+            priority: 'medium' as const,
+          }),
         {
           duration: 5000, // 5 seconds
           maxConcurrency: 10,
           requestsPerSecond: 20,
-        }
+        },
       );
 
       // Load test assertions
@@ -422,7 +421,9 @@ describe('Orchestrator - Enhanced Tests', () => {
       expect(results.failedRequests).toBe(0);
       TestAssertions.assertInRange(results.averageResponseTime, 0, 1000);
 
-      console.log(`Load test results: ${results.successfulRequests}/${results.totalRequests} successful, avg=${results.averageResponseTime.toFixed(2)}ms`);
+      console.log(
+        `Load test results: ${results.successfulRequests}/${results.totalRequests} successful, avg=${results.averageResponseTime.toFixed(2)}ms`,
+      );
     });
   });
 
@@ -453,14 +454,14 @@ describe('Orchestrator - Enhanced Tests', () => {
           await TestAssertions.assertThrowsAsync(
             () => orchestrator.createAndExecuteTask(agentProfile, task),
             Error,
-            scenario.error.message
+            scenario.error.message,
           );
         } else {
           // Should fail fast
           await TestAssertions.assertThrowsAsync(
             () => orchestrator.createAndExecuteTask(agentProfile, task),
             Error,
-            scenario.error.message
+            scenario.error.message,
           );
         }
       }
@@ -480,7 +481,7 @@ describe('Orchestrator - Enhanced Tests', () => {
       for (const task of malformedTasks) {
         await TestAssertions.assertThrowsAsync(
           () => orchestrator.createAndExecuteTask(agentProfile, task as any),
-          Error
+          Error,
         );
       }
     });
@@ -498,12 +499,12 @@ describe('Orchestrator - Enhanced Tests', () => {
 
       // Should handle gracefully without crashing
       const results = await Promise.allSettled(
-        tasks.map(task => orchestrator.createAndExecuteTask(agentProfile, task))
+        tasks.map((task) => orchestrator.createAndExecuteTask(agentProfile, task)),
       );
 
       // Some may fail due to resource limits, but shouldn't crash system
-      const successful = results.filter(r => r.status === 'fulfilled');
-      const failed = results.filter(r => r.status === 'rejected');
+      const successful = results.filter((r) => r.status === 'fulfilled');
+      const failed = results.filter((r) => r.status === 'rejected');
 
       console.log(`Resource test: ${successful.length} successful, ${failed.length} failed`);
 
@@ -557,7 +558,7 @@ describe('Orchestrator - Enhanced Tests', () => {
 
       // Check shutdown event was emitted
       const events = mocks.eventBus.getEvents();
-      const shutdownEvent = events.find(e => e.event === 'orchestrator.shutdown');
+      const shutdownEvent = events.find((e) => e.event === 'orchestrator.shutdown');
       expect(shutdownEvent).toBeDefined();
     });
 
@@ -589,12 +590,12 @@ describe('Orchestrator - Enhanced Tests', () => {
 
       // Make terminal manager hang during shutdown
       mocks.terminalManager.shutdown = spy(async () => {
-        await new Promise(resolve => setTimeout(resolve, 60000)); // 1 minute
+        await new Promise((resolve) => setTimeout(resolve, 60000)); // 1 minute
       });
 
       await TestAssertions.assertCompletesWithin(
         () => orchestrator.shutdown(),
-        10000 // Should timeout shutdown after 10 seconds
+        10000, // Should timeout shutdown after 10 seconds
       );
     });
   });

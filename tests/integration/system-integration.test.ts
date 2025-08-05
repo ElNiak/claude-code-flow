@@ -43,7 +43,7 @@ describe('SystemIntegration', () => {
     it('should initialize all components in correct order', async () => {
       const config: IntegrationConfig = {
         logLevel: 'info',
-        environment: 'testing'
+        environment: 'testing',
       };
 
       await systemIntegration.initialize(config);
@@ -66,7 +66,7 @@ describe('SystemIntegration', () => {
     it('should handle initialization errors gracefully', async () => {
       // Mock a component to fail initialization
       const mockOrchestrator = {
-        initialize: jest.fn().mockRejectedValue(new Error('Orchestrator init failed'))
+        initialize: jest.fn().mockRejectedValue(new Error('Orchestrator init failed')),
       };
 
       await expect(systemIntegration.initialize()).rejects.toThrow('Orchestrator init failed');
@@ -121,7 +121,7 @@ describe('SystemIntegration', () => {
       mockEventBus.emit('component:status', {
         component: 'test-component',
         status: 'unhealthy',
-        message: 'Component failed'
+        message: 'Component failed',
       });
 
       const health = await systemIntegration.getSystemHealth();
@@ -134,7 +134,7 @@ describe('SystemIntegration', () => {
       mockEventBus.emit('component:status', {
         component: 'test-component',
         status: 'warning',
-        message: 'Component warning'
+        message: 'Component warning',
       });
 
       const health = await systemIntegration.getSystemHealth();
@@ -147,8 +147,8 @@ describe('SystemIntegration', () => {
 
       expect(health.metrics.totalComponents).toBe(
         health.metrics.healthyComponents +
-        health.metrics.unhealthyComponents +
-        health.metrics.warningComponents
+          health.metrics.unhealthyComponents +
+          health.metrics.warningComponents,
       );
 
       expect(health.timestamp).toBeLessThanOrEqual(Date.now());
@@ -168,11 +168,14 @@ describe('SystemIntegration', () => {
       await systemIntegration.shutdown();
       await systemIntegration.initialize();
 
-      expect(eventSpy).toHaveBeenCalledWith('system:ready', expect.objectContaining({
-        timestamp: expect.any(Number),
-        components: expect.any(Array),
-        health: expect.any(Object)
-      }));
+      expect(eventSpy).toHaveBeenCalledWith(
+        'system:ready',
+        expect.objectContaining({
+          timestamp: expect.any(Number),
+          components: expect.any(Array),
+          health: expect.any(Object),
+        }),
+      );
     });
 
     it('should handle component status updates', () => {
@@ -182,14 +185,17 @@ describe('SystemIntegration', () => {
       mockEventBus.emit('component:status', {
         component: 'test-component',
         status: 'healthy',
-        message: 'All good'
+        message: 'All good',
       });
 
-      expect(eventSpy).toHaveBeenCalledWith('component:status:updated', expect.objectContaining({
-        component: 'test-component',
-        status: 'healthy',
-        message: 'All good'
-      }));
+      expect(eventSpy).toHaveBeenCalledWith(
+        'component:status:updated',
+        expect.objectContaining({
+          component: 'test-component',
+          status: 'healthy',
+          message: 'All good',
+        }),
+      );
     });
 
     it('should handle system errors', () => {
@@ -198,7 +204,7 @@ describe('SystemIntegration', () => {
       // Simulate system error
       mockEventBus.emit('system:error', {
         component: 'test-component',
-        error: new Error('Test error')
+        error: new Error('Test error'),
       });
 
       expect(consoleSpy).toHaveBeenCalled();
@@ -221,7 +227,9 @@ describe('SystemIntegration', () => {
       // Mock a component to fail shutdown
       const mockOrchestrator = systemIntegration.getComponent('orchestrator');
       if (mockOrchestrator) {
-        (mockOrchestrator as any).shutdown = jest.fn().mockRejectedValue(new Error('Shutdown failed'));
+        (mockOrchestrator as any).shutdown = jest
+          .fn()
+          .mockRejectedValue(new Error('Shutdown failed'));
       }
 
       // Should not throw
@@ -236,32 +244,32 @@ describe('SystemIntegration', () => {
         environment: 'development',
         orchestrator: {
           maxConcurrency: 10,
-          timeout: 5000
+          timeout: 5000,
         },
         agents: {
           maxAgents: 20,
-          defaultStrategy: 'research'
+          defaultStrategy: 'research',
         },
         swarm: {
           topology: 'mesh',
           maxDepth: 5,
-          enablePersistence: true
+          enablePersistence: true,
         },
         memory: {
           backend: 'memory',
           ttl: 3600,
-          maxSize: 1000
+          maxSize: 1000,
         },
         monitoring: {
           enabled: true,
           metrics: true,
-          realTime: true
+          realTime: true,
         },
         mcp: {
           port: 8080,
           host: 'localhost',
-          enableAuth: true
-        }
+          enableAuth: true,
+        },
       };
 
       await systemIntegration.initialize(config);

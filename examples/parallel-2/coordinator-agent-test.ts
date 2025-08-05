@@ -31,7 +31,7 @@ export class CoordinatorAgent {
         id: agentId,
         type: this.selectAgentType(i),
         status: 'active',
-        task: this.assignTask(taskDescription, i)
+        task: this.assignTask(taskDescription, i),
       });
     }
 
@@ -40,7 +40,7 @@ export class CoordinatorAgent {
       agentId: this.agentId,
       duration: Date.now() - this.startTime,
       swarmSize: agents.length,
-      agents
+      agents,
     };
   }
 
@@ -55,14 +55,14 @@ export class CoordinatorAgent {
       completedTasks: Math.floor(Math.random() * 10) + 5,
       pendingTasks: Math.floor(Math.random() * 5),
       avgCompletionTime: Math.floor(Math.random() * 1000) + 500,
-      healthStatus: 'optimal'
+      healthStatus: 'optimal',
     };
 
     console.log(`[${this.agentId}] Progress update generated`);
     return {
       agentId: this.agentId,
       duration: Date.now() - this.startTime,
-      progress
+      progress,
     };
   }
 
@@ -75,17 +75,17 @@ export class CoordinatorAgent {
       agentsRebalanced: Math.floor(this.managedAgents.size / 2),
       tasksRedistributed: Math.floor(Math.random() * 10) + 3,
       efficiencyGain: `${Math.floor(Math.random() * 20) + 10}%`,
-      newDistribution: Array.from(this.managedAgents).map(id => ({
+      newDistribution: Array.from(this.managedAgents).map((id) => ({
         agentId: id,
-        workload: Math.floor(Math.random() * 100)
-      }))
+        workload: Math.floor(Math.random() * 100),
+      })),
     };
 
     console.log(`[${this.agentId}] Workload rebalancing completed`);
     return {
       agentId: this.agentId,
       duration: Date.now() - this.startTime,
-      rebalancing
+      rebalancing,
     };
   }
 
@@ -100,13 +100,13 @@ export class CoordinatorAgent {
       `Implement ${description}`,
       `Analyze ${description}`,
       `Review ${description}`,
-      `Test ${description}`
+      `Test ${description}`,
     ];
     return tasks[index % tasks.length];
   }
 
   private async simulateWork(ms: number): Promise<void> {
-    await new Promise(resolve => setTimeout(resolve, ms));
+    await new Promise((resolve) => setTimeout(resolve, ms));
   }
 }
 
@@ -117,8 +117,8 @@ if (require.main === module) {
   Promise.all([
     coordinator.orchestrateSwarmTask('Build authentication system', 5),
     coordinator.monitorProgress(),
-    coordinator.rebalanceWorkload()
-  ]).then(results => {
+    coordinator.rebalanceWorkload(),
+  ]).then((results) => {
     console.log('\nCoordinator Agent Results:', JSON.stringify(results, null, 2));
   });
 }

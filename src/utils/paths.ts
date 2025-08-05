@@ -1,5 +1,4 @@
 import { dirname, join, resolve } from 'path';
-import { fileURLToPath } from 'url';
 import { existsSync, readFileSync } from 'fs';
 
 // CJS/ESM compatibility for __filename and __dirname

@@ -12,7 +12,7 @@ export interface AgentRegistryEntry {
   createdAt: Date;
   lastUpdated: Date;
   tags: string[];
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
 }
 
 export interface AgentQuery {
@@ -382,7 +382,7 @@ export class AgentRegistry extends EventEmitter {
   /**
    * Store agent coordination data
    */
-  async storeCoordinationData(agentId: string, data: any): Promise<void> {
+  async storeCoordinationData(agentId: string, data: unknown): Promise<void> {
     const key = `coordination:${agentId}`;
     await this.memory.store(
       key,
@@ -402,7 +402,7 @@ export class AgentRegistry extends EventEmitter {
   /**
    * Retrieve agent coordination data
    */
-  async getCoordinationData(agentId: string): Promise<any> {
+  async getCoordinationData(agentId: string): Promise<unknown> {
     const key = `coordination:${agentId}`;
     const result = await this.memory.retrieve(key);
     return result?.value || null;

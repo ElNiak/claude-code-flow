@@ -18,7 +18,7 @@ console.log('  • System coordination\n');
 console.log('Starting test in 3 seconds...\n');
 
 // Give user time to read
-await new Promise(resolve => setTimeout(resolve, 3000));
+await new Promise((resolve) => setTimeout(resolve, 3000));
 
 try {
   await runBatchTaskTest();

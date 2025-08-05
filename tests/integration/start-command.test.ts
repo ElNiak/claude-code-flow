@@ -2,7 +2,7 @@
  * Integration tests for the start command
  */
 
-import { describe, it, beforeEach, afterEach, expect } from "../test.utils";
+import { describe, it, beforeEach, afterEach, expect } from '../test.utils';
 import { startCommand } from '../../src/cli/commands/start/start-command.ts';
 import { Command } from '@cliffy/command';
 
@@ -22,21 +22,21 @@ describe('Start Command Integration', () => {
     const config = {
       memory: {
         backend: 'json',
-        path: './memory/claude-flow-data.json'
+        path: './memory/claude-flow-data.json',
       },
       terminal: {
-        poolSize: 2
+        poolSize: 2,
       },
       coordination: {
-        maxConcurrentTasks: 5
+        maxConcurrentTasks: 5,
       },
       mcp: {
         port: 3000,
-        transport: 'stdio'
+        transport: 'stdio',
       },
       orchestrator: {
-        maxConcurrentTasks: 10
-      }
+        maxConcurrentTasks: 10,
+      },
     };
 
     await Deno.writeTextFile('claude-flow.config.json', JSON.stringify(config, null, 2));
@@ -58,8 +58,8 @@ describe('Start Command Integration', () => {
     });
 
     it('should have correct description', () => {
-      const desc = (startCommand as any)._globalParent?._description ||
-                   (startCommand as any).getDescription();
+      const desc =
+        (startCommand as any)._globalParent?._description || (startCommand as any).getDescription();
       expect(typeof desc).toBe('string');
       expect(desc.includes('orchestration')).toBe(true);
     });
@@ -79,8 +79,7 @@ describe('Start Command Integration', () => {
   describe('initialization', () => {
     it('should initialize process manager without errors', async () => {
       // Test that the command can be parsed without executing
-      const command = new Command()
-        .command('start', startCommand);
+      const command = new Command().command('start', startCommand);
 
       const help = await command.getHelp();
       expect(help).toBeDefined();

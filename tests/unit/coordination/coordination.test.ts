@@ -40,11 +40,7 @@ describe('CoordinationManager', () => {
     config = TestDataBuilder.config().coordination;
     mocks = createMocks();
 
-    manager = new CoordinationManager(
-      config,
-      mocks.eventBus,
-      mocks.logger,
-    );
+    manager = new CoordinationManager(config, mocks.eventBus, mocks.logger);
   });
 
   afterEach(async () => {
@@ -143,11 +139,7 @@ describe('CoordinationManager', () => {
       await manager.acquireResource(resourceId, agent1);
 
       // Second agent should wait/timeout
-      await assertRejects(
-        () => manager.acquireResource(resourceId, agent2),
-        Error,
-        'timeout'
-      );
+      await assertRejects(() => manager.acquireResource(resourceId, agent2), Error, 'timeout');
     });
   });
 
@@ -165,7 +157,7 @@ describe('CoordinationManager', () => {
 
       // Verify message was sent via event
       const events = mocks.eventBus.getEvents();
-      const messageEvent = events.find(e => e.event === SystemEvents.MESSAGE_SENT);
+      const messageEvent = events.find((e) => e.event === SystemEvents.MESSAGE_SENT);
       expect(messageEvent).toBeDefined();
     });
   });
@@ -220,7 +212,10 @@ describe('CoordinationManager', () => {
       await manager.performMaintenance();
 
       // Verify maintenance was performed
-      expect(mocks.logger.hasLog('debug').toBe('Performing coordination manager maintenance'), true);
+      expect(
+        mocks.logger.hasLog('debug').toBe('Performing coordination manager maintenance'),
+        true,
+      );
     });
   });
 });
@@ -504,7 +499,9 @@ describe('CircuitBreaker', () => {
   });
 
   it('should open after failure threshold', async () => {
-    const failingFn = async () => { throw new Error('failure'); };
+    const failingFn = async () => {
+      throw new Error('failure');
+    };
 
     // Cause failures
     for (let i = 0; i < config.failureThreshold; i++) {
@@ -523,7 +520,7 @@ describe('CircuitBreaker', () => {
     await assertRejects(
       () => breaker.execute(async () => 'success'),
       Error,
-      'Circuit breaker \'test-breaker\' is OPEN'
+      "Circuit breaker 'test-breaker' is OPEN",
     );
   });
 
@@ -532,7 +529,7 @@ describe('CircuitBreaker', () => {
     breaker.forceState(CircuitState.OPEN);
 
     // Wait for timeout
-    await new Promise(resolve => setTimeout(resolve, config.timeout + 100));
+    await new Promise((resolve) => setTimeout(resolve, config.timeout + 100));
 
     // Next execution should move to half-open
     try {
@@ -579,7 +576,7 @@ describe('ConflictResolver', () => {
     const conflict = await resolver.reportTaskConflict(
       'task-1',
       ['agent-1', 'agent-2'],
-      'assignment'
+      'assignment',
     );
 
     expect(conflict.id).toBeDefined();

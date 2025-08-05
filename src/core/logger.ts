@@ -54,6 +54,46 @@ export interface UsageReport {
   avgResponseTime: number;
 }
 
+// Output Manager specific interfaces for dual-stream CLI logging
+export interface UserDisplayMeta {
+  sessionId?: string;
+  operationId?: string;
+  emoji?: string;
+  duration?: number;
+  timestamp?: number;
+}
+
+export interface ProgressInfo {
+  current: number;
+  total: number;
+  message?: string;
+  percentage?: number;
+  operationId?: string;
+}
+
+export interface OperationResult {
+  success: boolean;
+  message?: string;
+  duration?: number;
+  data?: unknown;
+  error?: Error;
+}
+
+export interface SessionConfig {
+  sessionId: string;
+  command: string;
+  sessionPath: string;
+  batchSize: number;
+  flushInterval: number;
+}
+
+export interface EmergencyTier {
+  threshold: number;
+  batchSize: number;
+  flushInterval: number;
+  features: string[];
+}
+
 export interface IDebugLogger extends ILogger {
   // Component-specific debug with memory-aware filtering
   debugComponent(component: ComponentType, message: string, meta?: DebugMeta): void;
@@ -79,6 +119,32 @@ export interface IDebugLogger extends ILogger {
   // Performance tracking
   timeStart(operationId: string): void;
   timeEnd(operationId: string, message?: string, meta?: DebugMeta): void;
+}
+
+// Dual-stream output manager for human-readable CLI with session logging
+export interface IOutputManager extends IDebugLogger {
+  // Human-readable stdout (user-facing) - Zero memory allocation
+  userInfo(message: string, meta?: UserDisplayMeta): void;
+  userSuccess(message: string, meta?: UserDisplayMeta): void;
+  userWarning(message: string, meta?: UserDisplayMeta): void;
+  userError(message: string, error?: Error, meta?: UserDisplayMeta): void;
+
+  // Progress tracking - Minimal memory footprint
+  startOperation(operation: string, sessionId?: string): string;
+  updateProgress(progress: ProgressInfo): void;
+  completeOperation(operationId: string, result?: OperationResult): void;
+
+  // Session logging - Aggressive batching
+  debugSession(level: LogLevel, message: string, meta: DebugMeta): Promise<void>;
+
+  // Memory management - Multi-tier emergency
+  activateEmergencyMode(threshold: number, reason: string): void;
+  isInEmergencyMode(): boolean;
+  criticalMemoryShutdown(): void;
+
+  // Session management
+  getSessionPath(): string;
+  flushSession(): Promise<void>;
 }
 
 export enum LogLevel {
@@ -670,6 +736,302 @@ export class DebugLogger implements IDebugLogger {
 }
 
 /**
+ * Extreme Memory-Aware Output Manager for dual-stream CLI logging
+ * Implements multi-tier emergency response system for 99%+ memory pressure
+ */
+export class ExtremeMemoryOutputManager extends DebugLogger implements IOutputManager {
+  private emergencyLevel = 0; // 0=normal, 1=95%, 2=99%, 3=99.5%
+  private messageBuffer: string[] = []; // Minimal buffer
+  private lastFlush = Date.now();
+  private sessionConfig: SessionConfig;
+  private static readonly EMERGENCY_TIERS: EmergencyTier[] = [
+    {
+      threshold: 0.9, // Normal operations
+      batchSize: 50,
+      flushInterval: 200,
+      features: ['full_logging', 'session_files', 'correlation', 'pii_detection'],
+    },
+    {
+      threshold: 0.95, // Standard emergency
+      batchSize: 25,
+      flushInterval: 100,
+      features: ['basic_logging', 'session_files', 'correlation'],
+    },
+    {
+      threshold: 0.99, // Extreme emergency (current system level)
+      batchSize: 5,
+      flushInterval: 50,
+      features: ['minimal_logging', 'stdout_only'],
+    },
+    {
+      threshold: 0.995, // Critical shutdown
+      batchSize: 0,
+      flushInterval: 0,
+      features: ['console_only'],
+    },
+  ];
+
+  constructor(
+    config: LoggingConfig,
+    sessionConfig: SessionConfig,
+    context: Record<string, unknown> = {},
+  ) {
+    super(config, context, 1000); // Smaller buffer for memory constraints
+    this.sessionConfig = sessionConfig;
+    this.ensureSessionDirectory();
+  }
+
+  // Human-readable stdout methods - Zero memory allocation
+  userInfo(message: string, meta?: UserDisplayMeta): void {
+    const emoji = meta?.emoji || '✅';
+    const sessionRef = meta?.sessionId ? ` [sess:${meta.sessionId.slice(-6)}]` : '';
+    const output = `${emoji} ${message}${sessionRef}\n`;
+
+    // Immediate stdout - no memory allocation
+    process.stdout.write(output);
+
+    // Conditional session logging based on emergency level
+    if (this.emergencyLevel < 2) {
+      // Only if memory < 99%
+      this.queueForSession(message, 'INFO', meta);
+    }
+  }
+
+  userSuccess(message: string, meta?: UserDisplayMeta): void {
+    const emoji = meta?.emoji || '🎯';
+    const sessionRef = meta?.sessionId ? ` [sess:${meta.sessionId.slice(-6)}]` : '';
+    const output = `${emoji} ${message}${sessionRef}\n`;
+
+    process.stdout.write(output);
+
+    if (this.emergencyLevel < 2) {
+      this.queueForSession(message, 'SUCCESS', meta);
+    }
+  }
+
+  userWarning(message: string, meta?: UserDisplayMeta): void {
+    const emoji = meta?.emoji || '⚠️';
+    const sessionRef = meta?.sessionId ? ` [sess:${meta.sessionId.slice(-6)}]` : '';
+    const output = `${emoji} ${message}${sessionRef}\n`;
+
+    process.stdout.write(output);
+
+    if (this.emergencyLevel < 1) {
+      // Only in normal mode
+      this.queueForSession(message, 'WARNING', meta);
+    }
+  }
+
+  userError(message: string, error?: Error, meta?: UserDisplayMeta): void {
+    const emoji = meta?.emoji || '🚨';
+    const sessionRef = meta?.sessionId ? ` [sess:${meta.sessionId.slice(-6)}]` : '';
+    const errorStr = error ? ` - ${error.message}` : '';
+    const output = `${emoji} ${message}${errorStr}${sessionRef}\n`;
+
+    process.stdout.write(output);
+
+    // Always log errors, even in emergency mode
+    this.queueForSession(`${message}${errorStr}`, 'ERROR', { ...meta, error });
+  }
+
+  // Progress tracking methods
+  startOperation(operation: string, sessionId?: string): string {
+    const operationId = `op-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+    this.timeStart(operationId);
+
+    this.userInfo(`Starting ${operation}...`, {
+      sessionId,
+      operationId,
+      emoji: '🔄',
+    });
+
+    return operationId;
+  }
+
+  updateProgress(progress: ProgressInfo): void {
+    if (this.emergencyLevel >= 2) return; // Skip in extreme mode
+
+    const percentage = progress.percentage || Math.round((progress.current / progress.total) * 100);
+    const message = progress.message || `Progress: ${progress.current}/${progress.total}`;
+
+    this.userInfo(`${message} (${percentage}%)`, {
+      operationId: progress.operationId,
+      emoji: '⏳',
+    });
+  }
+
+  completeOperation(operationId: string, result?: OperationResult): void {
+    // Use the inherited timeEnd method for completion timing
+    if (result?.success !== false) {
+      this.timeEnd(operationId, 'Operation completed');
+      this.userSuccess(result?.message || 'Operation completed', {
+        operationId,
+        duration: result?.duration,
+        emoji: '✅',
+      });
+    } else {
+      this.timeEnd(operationId, 'Operation failed');
+      this.userError(result?.message || 'Operation failed', result?.error, {
+        operationId,
+        duration: result?.duration,
+        emoji: '❌',
+      });
+    }
+  }
+
+  // Session logging with aggressive batching
+  async debugSession(level: LogLevel, message: string, meta: DebugMeta): Promise<void> {
+    if (this.emergencyLevel >= 3) return; // Skip in critical mode
+
+    const entry = {
+      timestamp: new Date().toISOString(),
+      level: LogLevel[level],
+      message,
+      ...meta,
+    };
+
+    this.queueForSession(JSON.stringify(entry), LogLevel[level], meta);
+  }
+
+  // Memory management methods
+  activateEmergencyMode(threshold: number, reason: string): void {
+    const newLevel = ExtremeMemoryOutputManager.EMERGENCY_TIERS.findIndex(
+      (tier) => threshold >= tier.threshold,
+    );
+
+    if (newLevel !== this.emergencyLevel) {
+      this.emergencyLevel = newLevel;
+      this.transitionToTier(newLevel, threshold, reason);
+    }
+  }
+
+  isInEmergencyMode(): boolean {
+    return this.emergencyLevel > 0;
+  }
+
+  criticalMemoryShutdown(): void {
+    // Immediate memory cleanup
+    this.messageBuffer = [];
+
+    // Console-only fallback
+    process.stdout.write('🚨 Critical memory - console-only mode activated\n');
+
+    // Disable all async operations
+    this.debugSession = () => Promise.resolve();
+    this.queueForSession = () => {};
+  }
+
+  // Session management
+  getSessionPath(): string {
+    return this.sessionConfig.sessionPath;
+  }
+
+  async flushSession(): Promise<void> {
+    if (this.messageBuffer.length === 0 || this.emergencyLevel >= 3) return;
+
+    try {
+      const content = this.messageBuffer.join('\n') + '\n';
+      this.messageBuffer = []; // Clear immediately
+
+      await fs.appendFile(this.sessionConfig.sessionPath, content);
+      this.lastFlush = Date.now();
+    } catch (error) {
+      // Fail silently in emergency mode
+      if (this.emergencyLevel === 0) {
+        console.error('Session flush failed:', error);
+      }
+    }
+  }
+
+  // Private methods
+  private queueForSession(message: string, level: string, meta?: any): void {
+    if (this.emergencyLevel >= 3) return; // Critical mode
+
+    // Very small buffer for memory constraints
+    if (this.messageBuffer.length > 5) {
+      this.flushImmediately();
+    }
+
+    const entry = `${new Date().toISOString()}|${level}|${message}`;
+    this.messageBuffer.push(entry);
+
+    // Aggressive flushing based on emergency level
+    const flushInterval =
+      ExtremeMemoryOutputManager.EMERGENCY_TIERS[this.emergencyLevel].flushInterval;
+    if (Date.now() - this.lastFlush > flushInterval) {
+      this.flushImmediately();
+    }
+  }
+
+  private flushImmediately(): void {
+    if (this.messageBuffer.length === 0) return;
+
+    const content = this.messageBuffer.join('\n') + '\n';
+    this.messageBuffer = []; // Clear immediately
+
+    // Async write without await to prevent blocking
+    fs.appendFile(this.sessionConfig.sessionPath, content).catch(() => {
+      // Fail silently in emergency mode
+    });
+
+    this.lastFlush = Date.now();
+  }
+
+  private transitionToTier(tierIndex: number, pressure: number, reason: string): void {
+    const tier = ExtremeMemoryOutputManager.EMERGENCY_TIERS[tierIndex];
+
+    // Immediate reconfiguration
+    this.sessionConfig.batchSize = tier.batchSize;
+    this.sessionConfig.flushInterval = tier.flushInterval;
+
+    // Flush any pending messages
+    this.flushImmediately();
+
+    // User notification
+    const severityEmojis = ['✅', '⚠️', '🚨', '💀'];
+    const emoji = severityEmojis[tierIndex] || '🚨';
+    process.stdout.write(
+      `${emoji} Memory tier ${tierIndex}: ${(pressure * 100).toFixed(1)}% - ${reason}\n`,
+    );
+
+    // Critical shutdown if needed
+    if (tierIndex >= 3) {
+      this.criticalMemoryShutdown();
+    }
+  }
+
+  private ensureSessionDirectory(): void {
+    try {
+      const sessionDir = path.dirname(this.sessionConfig.sessionPath);
+      if (!fs.access) return; // Skip in test environments
+
+      fs.mkdir(sessionDir, { recursive: true }).catch(() => {
+        // Directory creation failed - use console fallback
+        this.activateEmergencyMode(0.99, 'Session directory creation failed');
+      });
+    } catch {
+      // Fail silently - emergency mode will handle
+    }
+  }
+
+  // Override memory pressure monitoring to include automatic tier switching
+  override getMemoryPressure(): number {
+    const pressure = super.getMemoryPressure();
+
+    // Automatic tier switching based on memory pressure
+    if (pressure >= 0.995 && this.emergencyLevel < 3) {
+      this.activateEmergencyMode(pressure, 'Critical memory pressure detected');
+    } else if (pressure >= 0.99 && this.emergencyLevel < 2) {
+      this.activateEmergencyMode(pressure, 'Extreme memory pressure detected');
+    } else if (pressure >= 0.95 && this.emergencyLevel < 1) {
+      this.activateEmergencyMode(pressure, 'High memory pressure detected');
+    }
+
+    return pressure;
+  }
+}
+
+/**
  * Logger implementation with context support (legacy compatibility)
  */
 export class Logger implements ILogger {
@@ -1024,6 +1386,162 @@ export class ComponentLoggerFactory {
 
   static disableEmergencyMode(): void {
     ComponentLoggerFactory.debugLogger?.disableEmergencyMode();
+  }
+
+  // IOutputManager factory methods - NEW dual-stream logging capability
+  static createOutputManager(
+    component: ComponentType,
+    command: string,
+    correlationId?: string,
+    sessionId?: string,
+  ): IOutputManager {
+    if (!ComponentLoggerFactory.debugLogger) {
+      ComponentLoggerFactory.initializeDebugLogger();
+    }
+
+    // Generate session configuration
+    const actualSessionId = sessionId || generateSessionId();
+    const sessionConfig: SessionConfig = {
+      sessionId: actualSessionId,
+      command,
+      sessionPath: this.generateSessionPath(command, actualSessionId),
+      batchSize: 50, // Will be adjusted by emergency mode
+      flushInterval: 200, // Will be adjusted by emergency mode
+    };
+
+    // Create logging configuration optimized for dual-stream
+    const outputConfig: LoggingConfig = {
+      level: 'debug',
+      format: 'json',
+      destination: 'both', // Enable both console and file
+      filePath: sessionConfig.sessionPath,
+      maxFileSize: 10 * 1024 * 1024, // 10MB per session
+      maxFiles: 5,
+    };
+
+    const outputManager = new ExtremeMemoryOutputManager(outputConfig, sessionConfig, {
+      component,
+    });
+
+    // Apply correlation and session context
+    if (correlationId) {
+      outputManager.withCorrelationId(correlationId);
+    }
+
+    return outputManager;
+  }
+
+  static getOutputManager(
+    component: ComponentType,
+    command?: string,
+    correlationId?: string,
+    sessionId?: string,
+  ): IOutputManager {
+    return this.createOutputManager(component, command || 'default', correlationId, sessionId);
+  }
+
+  // Component-specific output manager factory methods
+  static getCLIOutputManager(
+    command?: string,
+    correlationId?: string,
+    sessionId?: string,
+  ): IOutputManager {
+    return this.getOutputManager('CLI', command || 'cli', correlationId, sessionId);
+  }
+
+  static getMCPOutputManager(
+    command?: string,
+    correlationId?: string,
+    sessionId?: string,
+  ): IOutputManager {
+    return this.getOutputManager('MCP', command || 'mcp', correlationId, sessionId);
+  }
+
+  static getSwarmOutputManager(
+    command?: string,
+    correlationId?: string,
+    sessionId?: string,
+  ): IOutputManager {
+    return this.getOutputManager('Swarm', command || 'swarm', correlationId, sessionId);
+  }
+
+  static getCoreOutputManager(
+    command?: string,
+    correlationId?: string,
+    sessionId?: string,
+  ): IOutputManager {
+    return this.getOutputManager('Core', command || 'core', correlationId, sessionId);
+  }
+
+  static getHooksOutputManager(
+    command?: string,
+    correlationId?: string,
+    sessionId?: string,
+  ): IOutputManager {
+    return this.getOutputManager('Hooks', command || 'hooks', correlationId, sessionId);
+  }
+
+  // Session management utilities
+  private static generateSessionPath(command: string, sessionId: string): string {
+    const date = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    const sessionName = `${date}_${command}-session_${sessionId.slice(-6)}`;
+    return path.join('.claude', 'sessions', command, `${sessionName}.log`);
+  }
+
+  static cleanupOldSessions(maxAge: number = 7 * 24 * 60 * 60 * 1000): Promise<void> {
+    return new Promise((resolve) => {
+      const sessionsDir = path.join('.claude', 'sessions');
+
+      fs.readdir(sessionsDir, { withFileTypes: true })
+        .then((entries) => {
+          const now = Date.now();
+          const promises: Promise<void>[] = [];
+
+          for (const entry of entries) {
+            if (entry.isDirectory()) {
+              const dirPath = path.join(sessionsDir, entry.name);
+              promises.push(
+                fs
+                  .readdir(dirPath)
+                  .then((files) => {
+                    const cleanupPromises = files.map(async (file) => {
+                      const filePath = path.join(dirPath, file);
+                      try {
+                        const stat = await fs.stat(filePath);
+                        if (now - stat.mtime.getTime() > maxAge) {
+                          await fs.unlink(filePath);
+                        }
+                      } catch {
+                        // File may have been deleted - ignore
+                      }
+                    });
+                    return Promise.all(cleanupPromises);
+                  })
+                  .then(() => {}),
+              );
+            }
+          }
+
+          Promise.all(promises)
+            .then(() => resolve())
+            .catch(() => resolve());
+        })
+        .catch(() => resolve());
+    });
+  }
+
+  // Memory monitoring with automatic emergency mode activation
+  static monitorMemoryPressure(): void {
+    if (!ComponentLoggerFactory.debugLogger) return;
+
+    const pressure = ComponentLoggerFactory.debugLogger.getMemoryPressure();
+
+    // Automatic emergency mode activation based on memory pressure
+    if (pressure >= 0.95) {
+      ComponentLoggerFactory.debugLogger.enableEmergencyMode();
+    } else if (pressure < 0.9) {
+      ComponentLoggerFactory.debugLogger.disableEmergencyMode();
+    }
   }
 }
 

@@ -2,7 +2,7 @@
  * Comprehensive test suite for ProcessManager
  */
 
-import { describe, it, beforeEach, afterEach, expect } from "../../../../test.utils";
+import { describe, it, beforeEach, afterEach, expect } from '../../../../test.utils';
 import { ProcessManager } from '../../../../src/cli/commands/start/process-manager.ts';
 import { ProcessStatus, ProcessType } from '../../../../src/cli/commands/start/types.ts';
 
@@ -18,7 +18,7 @@ describe('ProcessManager', () => {
       const processes = processManager.getAllProcesses();
       expect(processes.length).toBe(6);
 
-      const processIds = processes.map(p => p.id);
+      const processIds = processes.map((p) => p.id);
       expect(processIds.includes('event-bus')).toBe(true);
       expect(processIds.includes('orchestrator')).toBe(true);
       expect(processIds.includes('memory-manager')).toBe(true);
@@ -29,7 +29,7 @@ describe('ProcessManager', () => {
 
     it('should initialize all processes with STOPPED status', () => {
       const processes = processManager.getAllProcesses();
-      processes.forEach(process => {
+      processes.forEach((process) => {
         expect(process.status).toBe(ProcessStatus.STOPPED);
       });
     });
@@ -79,7 +79,7 @@ describe('ProcessManager', () => {
       await assertRejects(
         () => processManager.startProcess('unknown'),
         Error,
-        'Unknown process: unknown'
+        'Unknown process: unknown',
       );
     });
 
@@ -119,7 +119,7 @@ describe('ProcessManager', () => {
       await assertRejects(
         () => processManager.startProcess(processId),
         Error,
-        'Process event-bus is already running'
+        'Process event-bus is already running',
       );
     });
 
@@ -153,7 +153,7 @@ describe('ProcessManager', () => {
       await assertRejects(
         () => processManager.startProcess(processId),
         Error,
-        'Required components not initialized'
+        'Required components not initialized',
       );
 
       expect(errorEvent).toBeDefined();
@@ -166,7 +166,7 @@ describe('ProcessManager', () => {
       await assertRejects(
         () => processManager.stopProcess('unknown'),
         Error,
-        'Process unknown is not running'
+        'Process unknown is not running',
       );
     });
 
@@ -174,7 +174,7 @@ describe('ProcessManager', () => {
       await assertRejects(
         () => processManager.stopProcess('event-bus'),
         Error,
-        'Process event-bus is not running'
+        'Process event-bus is not running',
       );
     });
 
@@ -215,7 +215,7 @@ describe('ProcessManager', () => {
       const firstStartTime = processManager.getProcess(processId)?.startTime;
 
       // Wait a bit to ensure different start times
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       await processManager.restartProcess(processId);
 
@@ -245,7 +245,7 @@ describe('ProcessManager', () => {
         'terminal-pool',
         'coordinator',
         'mcp-server',
-        'orchestrator'
+        'orchestrator',
       ];
 
       expect(startedProcesses.slice(0).toBe(5), expectedOrder.slice(0, 5));

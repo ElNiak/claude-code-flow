@@ -2,7 +2,7 @@ import { jest } from '@jest/globals';
 
 // Async test utilities
 export const AsyncTestUtils = {
-  delay: (ms: number) => new Promise(resolve => setTimeout(resolve, ms)),
+  delay: (ms: number) => new Promise((resolve) => setTimeout(resolve, ms)),
   waitFor: async (condition: () => boolean, timeout = 5000, interval = 100) => {
     const startTime = Date.now();
     while (!condition()) {
@@ -11,7 +11,7 @@ export const AsyncTestUtils = {
       }
       await AsyncTestUtils.delay(interval);
     }
-  }
+  },
 };
 
 // Memory test utilities
@@ -23,18 +23,23 @@ export const MemoryTestUtils = {
     const finalMemory = process.memoryUsage().heapUsed;
     const leaked = finalMemory > initialMemory * 1.5;
     return { leaked, initialMemory, finalMemory };
-  }
+  },
 };
 
 // Performance test utilities
 export const PerformanceTestUtils = {
-  benchmark: async (fn: () => any | Promise<any>, options = { iterations: 100, concurrency: 1 }) => {
+  benchmark: async (
+    fn: () => any | Promise<any>,
+    options = { iterations: 100, concurrency: 1 },
+  ) => {
     const times: number[] = [];
 
     for (let i = 0; i < options.iterations; i++) {
       const start = performance.now();
       if (options.concurrency > 1) {
-        const promises = Array(options.concurrency).fill(null).map(() => fn());
+        const promises = Array(options.concurrency)
+          .fill(null)
+          .map(() => fn());
         await Promise.all(promises);
       } else {
         await fn();
@@ -61,10 +66,12 @@ export const PerformanceTestUtils = {
       for (let i = 0; i < options.maxConcurrency; i++) {
         const reqStart = performance.now();
         promises.push(
-          fn().then(() => {
-            successfulRequests++;
-            responseTimes.push(performance.now() - reqStart);
-          }).catch(() => {})
+          fn()
+            .then(() => {
+              successfulRequests++;
+              responseTimes.push(performance.now() - reqStart);
+            })
+            .catch(() => {}),
         );
         totalRequests++;
       }
@@ -77,9 +84,9 @@ export const PerformanceTestUtils = {
     return {
       totalRequests,
       successfulRequests,
-      averageResponseTime
+      averageResponseTime,
     };
-  }
+  },
 };
 
 // Test assertions
@@ -95,13 +102,17 @@ export const TestAssertions = {
       throw new Error('Expected function to throw');
     } catch (error: any) {
       if (errorType && !(error instanceof errorType)) {
-        throw new Error(`Expected error to be instance of ${errorType.name}, got ${error.constructor.name}`);
+        throw new Error(
+          `Expected error to be instance of ${errorType.name}, got ${error.constructor.name}`,
+        );
       }
       if (messageIncludes && !error.message.includes(messageIncludes)) {
-        throw new Error(`Expected error message to include "${messageIncludes}", got "${error.message}"`);
+        throw new Error(
+          `Expected error message to include "${messageIncludes}", got "${error.message}"`,
+        );
       }
     }
-  }
+  },
 };
 
 // Mock factory
@@ -112,7 +123,7 @@ export const MockFactory = {
     capabilities: ['test'],
     status: 'idle',
     execute: jest.fn(),
-    ...overrides
+    ...overrides,
   }),
 
   createMockTask: (overrides?: any) => ({
@@ -121,8 +132,8 @@ export const MockFactory = {
     status: 'pending',
     priority: 'medium',
     createdAt: new Date(),
-    ...overrides
-  })
+    ...overrides,
+  }),
 };
 
 // File system test utilities
@@ -146,7 +157,7 @@ export const FileSystemTestUtils = {
         // Ignore errors
       }
     }
-  }
+  },
 };
 
 // Test data generator
@@ -164,7 +175,7 @@ export const TestDataGenerator = {
     return Array.from({ length: size }, (_, i) => ({
       id: `item-${i}`,
       data: TestDataGenerator.randomString(100),
-      timestamp: Date.now() - Math.random() * 1000000
+      timestamp: Date.now() - Math.random() * 1000000,
     }));
-  }
+  },
 };

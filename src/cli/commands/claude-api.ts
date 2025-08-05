@@ -6,7 +6,7 @@ import chalk from 'chalk';
 import inquirer from 'inquirer';
 import { Command } from 'commander';
 import { ConfigManager } from '../../config/config-manager.js';
-import { ClaudeAPIClient, ClaudeModel } from '../../api/claude-client.js';
+import { ClaudeAPIClient } from '../../api/claude-client.js';
 import { Logger } from '../../core/logger.js';
 import { getErrorMessage } from '../../utils/error-handler.js';
 

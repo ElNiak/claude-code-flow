@@ -79,7 +79,7 @@ describe('Component Unit Tests', () => {
       const customLogger = new Logger({
         level: 'debug',
         format: 'json',
-        destination: 'file'
+        destination: 'file',
       });
       expect(customLogger).toBeDefined();
     });
@@ -197,7 +197,7 @@ describe('Component Unit Tests', () => {
     it('should spawn agents', async () => {
       const agentId = await agentManager.spawnAgent('researcher', {
         name: 'Test Researcher',
-        capabilities: ['research', 'analysis']
+        capabilities: ['research', 'analysis'],
       });
 
       expect(agentId).toBeDefined();
@@ -237,7 +237,7 @@ describe('Component Unit Tests', () => {
         from: agentId1,
         to: agentId2,
         type: 'request',
-        data: { task: 'analyze data' }
+        data: { task: 'analyze data' },
       };
 
       const response = await agentManager.sendMessage(message);
@@ -270,7 +270,7 @@ describe('Component Unit Tests', () => {
         id: 'test-task',
         type: 'research',
         objective: 'Test objective',
-        priority: 'high'
+        priority: 'high',
       };
 
       const result = await orchestrator.submitTask(task);
@@ -290,14 +290,14 @@ describe('Component Unit Tests', () => {
       const tasks = [
         { id: 'task1', type: 'research', objective: 'Objective 1' },
         { id: 'task2', type: 'analysis', objective: 'Objective 2' },
-        { id: 'task3', type: 'coding', objective: 'Objective 3' }
+        { id: 'task3', type: 'coding', objective: 'Objective 3' },
       ];
 
-      const promises = tasks.map(task => orchestrator.submitTask(task));
+      const promises = tasks.map((task) => orchestrator.submitTask(task));
       const results = await Promise.all(promises);
 
       expect(results).toHaveLength(3);
-      results.forEach(result => {
+      results.forEach((result) => {
         expect(result).toBeDefined();
       });
     });
@@ -307,7 +307,7 @@ describe('Component Unit Tests', () => {
     it('should handle initialization errors', async () => {
       // Mock a component to throw during initialization
       const mockComponent = {
-        initialize: jest.fn().mockRejectedValue(new Error('Init failed'))
+        initialize: jest.fn().mockRejectedValue(new Error('Init failed')),
       };
 
       await expect(mockComponent.initialize()).rejects.toThrow('Init failed');

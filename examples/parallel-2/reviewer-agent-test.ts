@@ -23,23 +23,29 @@ export class ReviewerAgent {
       overallRating: 'Approved with suggestions',
       score: 7.5,
       issues: [
-        { severity: 'high', file: pullRequest.files[0], line: 45, issue: 'Potential SQL injection' },
-        { severity: 'medium', file: pullRequest.files[1], line: 23, issue: 'Missing error handling' },
-        { severity: 'low', file: pullRequest.files[2], line: 67, issue: 'Unused variable' }
+        {
+          severity: 'high',
+          file: pullRequest.files[0],
+          line: 45,
+          issue: 'Potential SQL injection',
+        },
+        {
+          severity: 'medium',
+          file: pullRequest.files[1],
+          line: 23,
+          issue: 'Missing error handling',
+        },
+        { severity: 'low', file: pullRequest.files[2], line: 67, issue: 'Unused variable' },
       ],
       suggestions: [
         'Add input validation for user data',
         'Implement proper logging for debugging',
         'Consider using prepared statements',
-        'Add more comprehensive test cases'
+        'Add more comprehensive test cases',
       ],
-      positives: [
-        'Good code organization',
-        'Clear variable naming',
-        'Comprehensive documentation'
-      ],
+      positives: ['Good code organization', 'Clear variable naming', 'Comprehensive documentation'],
       testCoverage: '82%',
-      complexityScore: 'Medium'
+      complexityScore: 'Medium',
     };
 
     console.log(`[${this.agentId}] Code review completed`);
@@ -47,7 +53,7 @@ export class ReviewerAgent {
       agentId: this.agentId,
       duration: Date.now() - this.startTime,
       pullRequest: pullRequest.title,
-      review
+      review,
     };
   }
 
@@ -63,20 +69,20 @@ export class ReviewerAgent {
       issues: [
         'Missing examples for edge cases',
         'Some API parameters not documented',
-        'Installation steps need more detail'
+        'Installation steps need more detail',
       ],
       suggestions: [
         'Add troubleshooting section',
         'Include more code examples',
         'Add links to related documentation',
-        'Include performance considerations'
+        'Include performance considerations',
       ],
       sections: {
         introduction: 'Excellent',
         apiReference: 'Good',
         examples: 'Needs improvement',
-        troubleshooting: 'Missing'
-      }
+        troubleshooting: 'Missing',
+      },
     };
 
     console.log(`[${this.agentId}] Documentation review completed`);
@@ -84,7 +90,7 @@ export class ReviewerAgent {
       agentId: this.agentId,
       duration: Date.now() - this.startTime,
       document: docPath,
-      review: docReview
+      review: docReview,
     };
   }
 
@@ -99,18 +105,15 @@ export class ReviewerAgent {
         'Naming conventions',
         'Security best practices',
         'Performance benchmarks',
-        'Accessibility standards'
+        'Accessibility standards',
       ],
       failedStandards: [
         'Test coverage minimum (requires 90%, has 82%)',
-        'Documentation completeness'
+        'Documentation completeness',
       ],
-      warnings: [
-        'Approaching complexity threshold',
-        'Some dependencies are outdated'
-      ],
+      warnings: ['Approaching complexity threshold', 'Some dependencies are outdated'],
       overallCompliance: '87%',
-      recommendation: 'Address failed standards before production release'
+      recommendation: 'Address failed standards before production release',
     };
 
     console.log(`[${this.agentId}] Quality validation completed`);
@@ -118,7 +121,7 @@ export class ReviewerAgent {
       agentId: this.agentId,
       duration: Date.now() - this.startTime,
       component,
-      validation
+      validation,
     };
   }
 
@@ -135,19 +138,19 @@ export class ReviewerAgent {
       concerns: [
         'Single point of failure in auth service',
         'Database might become bottleneck at scale',
-        'Consider caching strategy for frequently accessed data'
+        'Consider caching strategy for frequently accessed data',
       ],
       strengths: [
         'Clear separation of concerns',
         'Good use of microservices pattern',
-        'Proper API gateway implementation'
+        'Proper API gateway implementation',
       ],
       recommendations: [
         'Implement circuit breakers',
         'Add service mesh for better observability',
-        'Consider event-driven architecture for some components'
+        'Consider event-driven architecture for some components',
       ],
-      score: 8.2
+      score: 8.2,
     };
 
     console.log(`[${this.agentId}] Architecture review completed`);
@@ -155,12 +158,12 @@ export class ReviewerAgent {
       agentId: this.agentId,
       duration: Date.now() - this.startTime,
       design,
-      review: architectureReview
+      review: architectureReview,
     };
   }
 
   private async simulateWork(ms: number): Promise<void> {
-    await new Promise(resolve => setTimeout(resolve, ms));
+    await new Promise((resolve) => setTimeout(resolve, ms));
   }
 }
 
@@ -170,15 +173,15 @@ if (require.main === module) {
   const samplePR = {
     title: 'Feature: Add user authentication',
     author: 'developer123',
-    files: ['src/auth/login.ts', 'src/auth/logout.ts', 'tests/auth.test.ts']
+    files: ['src/auth/login.ts', 'src/auth/logout.ts', 'tests/auth.test.ts'],
   };
 
   Promise.all([
     reviewer.performCodeReview(samplePR),
     reviewer.reviewDocumentation('/docs/api-reference.md'),
     reviewer.validateQualityStandards('AuthenticationModule'),
-    reviewer.reviewArchitecture('Microservices Design v2.0')
-  ]).then(results => {
+    reviewer.reviewArchitecture('Microservices Design v2.0'),
+  ]).then((results) => {
     console.log('\nReviewer Agent Results:', JSON.stringify(results, null, 2));
   });
 }

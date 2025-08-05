@@ -104,7 +104,7 @@ describe('EventBus', () => {
       eventBus.emit(SystemEvents.SYSTEM_READY as any, { timestamp: new Date() });
     }, 100);
 
-    const result = await promise as any;
+    const result = (await promise) as any;
     expect(result.timestamp instanceof Date).toBe(true);
   });
 
@@ -112,7 +112,7 @@ describe('EventBus', () => {
     await assertRejects(
       () => eventBus.waitFor('non-existent-event', 100),
       Error,
-      'Timeout waiting for event: non-existent-event'
+      'Timeout waiting for event: non-existent-event',
     );
   });
 
@@ -122,7 +122,7 @@ describe('EventBus', () => {
     eventBus.onFiltered(
       SystemEvents.TASK_COMPLETED,
       (data: any) => data.taskId === 'task-1',
-      handler
+      handler,
     );
 
     eventBus.emit(SystemEvents.TASK_COMPLETED as any, { taskId: 'task-1', result: 'success' });
@@ -168,8 +168,8 @@ describe('EventBus', () => {
     debugBus.emit(SystemEvents.TASK_COMPLETED as any, { taskId: 'test' });
 
     const stats = debugBus.getEventStats();
-    const taskCreatedStat = stats.find(s => s.event === SystemEvents.TASK_CREATED);
-    const taskCompletedStat = stats.find(s => s.event === SystemEvents.TASK_COMPLETED);
+    const taskCreatedStat = stats.find((s) => s.event === SystemEvents.TASK_CREATED);
+    const taskCompletedStat = stats.find((s) => s.event === SystemEvents.TASK_COMPLETED);
 
     expect(taskCreatedStat).toBeDefined();
     expect(taskCompletedStat).toBeDefined();
@@ -180,7 +180,10 @@ describe('EventBus', () => {
   it('should reset event statistics', () => {
     const debugBus = EventBus.getInstance(true);
 
-    debugBus.emit(SystemEvents.SYSTEM_ERROR as any, { error: new Error('test'), component: 'test' });
+    debugBus.emit(SystemEvents.SYSTEM_ERROR as any, {
+      error: new Error('test'),
+      component: 'test',
+    });
     let stats = debugBus.getEventStats();
     expect(stats.length > 0).toBe(true);
 

@@ -6,7 +6,7 @@ export const mockLogger = {
   error: jest.fn(),
   warn: jest.fn(),
   debug: jest.fn(),
-  trace: jest.fn()
+  trace: jest.fn(),
 };
 
 // Mock coordination system utilities
@@ -16,7 +16,7 @@ export const mockCoordinationSystem = {
   getStatus: jest.fn(),
   addAgent: jest.fn(),
   removeAgent: jest.fn(),
-  orchestrateTask: jest.fn()
+  orchestrateTask: jest.fn(),
 };
 
 // Mock memory backend utilities
@@ -25,7 +25,7 @@ export const mockMemoryBackend = {
   retrieve: jest.fn(),
   delete: jest.fn(),
   list: jest.fn(),
-  clear: jest.fn()
+  clear: jest.fn(),
 };
 
 // Mock orchestrator utilities
@@ -34,7 +34,7 @@ export const mockOrchestrator = {
   stop: jest.fn(),
   executeTask: jest.fn(),
   getAgents: jest.fn(),
-  getTaskStatus: jest.fn()
+  getTaskStatus: jest.fn(),
 };
 
 // Test helper functions
@@ -45,7 +45,7 @@ export const createMockAgent = (id: string, type: string = 'test') => ({
   status: 'idle',
   execute: jest.fn(),
   initialize: jest.fn(),
-  shutdown: jest.fn()
+  shutdown: jest.fn(),
 });
 
 export const createMockTask = (id: string, description: string) => ({
@@ -54,16 +54,16 @@ export const createMockTask = (id: string, description: string) => ({
   status: 'pending',
   priority: 'medium',
   createdAt: new Date(),
-  updatedAt: new Date()
+  updatedAt: new Date(),
 });
 
 // Async test utilities
-export const waitFor = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+export const waitFor = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const waitForCondition = async (
   condition: () => boolean,
   timeout: number = 5000,
-  interval: number = 100
+  interval: number = 100,
 ): Promise<void> => {
   const startTime = Date.now();
 
@@ -88,7 +88,7 @@ export const setupTestEnvironment = () => {
     logger: mockLogger,
     coordinationSystem: mockCoordinationSystem,
     memoryBackend: mockMemoryBackend,
-    orchestrator: mockOrchestrator
+    orchestrator: mockOrchestrator,
   };
 };
 
@@ -101,7 +101,16 @@ export const teardownTestEnvironment = () => {
 
 // Re-export commonly used test utilities
 export { jest } from '@jest/globals';
-export { describe, it, test, beforeEach, afterEach, beforeAll, afterAll, expect } from '@jest/globals';
+export {
+  describe,
+  it,
+  test,
+  beforeEach,
+  afterEach,
+  beforeAll,
+  afterAll,
+  expect,
+} from '@jest/globals';
 
 // Export assertion utilities
 export const assert = (condition: boolean, message?: string) => {
@@ -183,8 +192,12 @@ export const spy = (obj?: any, method?: string) => {
   // Return a standalone spy function
   const spyFn = jest.fn();
   (spyFn as any).calls = {
-    get length() { return spyFn.mock.calls.length; },
-    get count() { return spyFn.mock.calls.length; }
+    get length() {
+      return spyFn.mock.calls.length;
+    },
+    get count() {
+      return spyFn.mock.calls.length;
+    },
   };
   return spyFn;
 };
@@ -192,15 +205,19 @@ export const spy = (obj?: any, method?: string) => {
 export const stub = () => {
   const stubFn = jest.fn();
   (stubFn as any).calls = {
-    get length() { return stubFn.mock.calls.length; },
-    get count() { return stubFn.mock.calls.length; }
+    get length() {
+      return stubFn.mock.calls.length;
+    },
+    get count() {
+      return stubFn.mock.calls.length;
+    },
   };
   return stubFn;
 };
 
 // Additional testing utilities
 export function delay(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 // Test data builder utilities
@@ -211,7 +228,7 @@ export class TestDataBuilder {
       name: 'Test Agent',
       type: 'test',
       status: 'active',
-      ...overrides
+      ...overrides,
     };
   }
 
@@ -221,7 +238,7 @@ export class TestDataBuilder {
       description: 'Test task description',
       status: 'pending',
       priority: 'medium',
-      ...overrides
+      ...overrides,
     };
   }
 
@@ -232,9 +249,9 @@ export class TestDataBuilder {
       value: { data: 'test data' },
       metadata: {
         created: new Date().toISOString(),
-        updated: new Date().toISOString()
+        updated: new Date().toISOString(),
       },
-      ...overrides
+      ...overrides,
     };
   }
 
@@ -244,16 +261,16 @@ export class TestDataBuilder {
         maxConcurrentAgents: 10,
         taskQueueSize: 100,
         healthCheckInterval: 10000,
-        sessionRetentionMs: 3600000
+        sessionRetentionMs: 3600000,
       },
       coordination: {
         deadlockDetection: false,
-        maxTaskRetries: 3
+        maxTaskRetries: 3,
       },
       memory: {
         defaultBackend: 'memory',
-        maxCacheSize: 1000
-      }
+        maxCacheSize: 1000,
+      },
     };
   }
 
@@ -265,7 +282,7 @@ export class TestDataBuilder {
       capabilities: ['test'],
       maxConcurrentTasks: 5,
       priority: 5,
-      ...overrides
+      ...overrides,
     };
   }
 
@@ -278,7 +295,7 @@ export class TestDataBuilder {
       status: 'pending',
       dependencies: [],
       metadata: {},
-      ...overrides
+      ...overrides,
     };
   }
 }

@@ -45,7 +45,7 @@ async function main() {
   try {
     // This will work if you have a valid API key
     const response = await client.sendMessage([
-      { role: 'user', content: 'Hello! Can you briefly explain error handling?' }
+      { role: 'user', content: 'Hello! Can you briefly explain error handling?' },
     ]);
 
     console.log('✅ Success! Response:', response.content[0].text);

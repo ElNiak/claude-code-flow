@@ -20,11 +20,11 @@ describe('JSON Output Functionality', () => {
     tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'claude-flow-json-test-'));
 
     // Initialize aggregator
-    aggregator = new SwarmJsonOutputAggregator(
-      'test-swarm-123',
-      'Test objective for JSON output',
-      { strategy: 'auto', mode: 'centralized', maxAgents: 3 }
-    );
+    aggregator = new SwarmJsonOutputAggregator('test-swarm-123', 'Test objective for JSON output', {
+      strategy: 'auto',
+      mode: 'centralized',
+      maxAgents: 3,
+    });
 
     // Initialize coordinator with JSON output enabled
     coordinator = new SwarmCoordinator({
@@ -32,7 +32,7 @@ describe('JSON Output Functionality', () => {
       description: 'Test swarm for JSON output',
       mode: 'centralized',
       strategy: 'auto',
-      maxAgents: 3
+      maxAgents: 3,
     });
 
     await coordinator.initialize();
@@ -62,14 +62,14 @@ describe('JSON Output Functionality', () => {
         id: 'agent-1',
         name: 'Test Agent 1',
         type: 'researcher' as any,
-        status: 'active' as any
+        status: 'active' as any,
       };
 
       const agent2 = {
         id: 'agent-2',
         name: 'Test Agent 2',
         type: 'coder' as any,
-        status: 'active' as any
+        status: 'active' as any,
       };
 
       aggregator.addAgent(agent1);
@@ -92,7 +92,7 @@ describe('JSON Output Functionality', () => {
         name: 'Test Task 1',
         type: 'research' as any,
         status: 'completed' as any,
-        priority: 'high'
+        priority: 'high',
       };
 
       const task2 = {
@@ -100,7 +100,7 @@ describe('JSON Output Functionality', () => {
         name: 'Test Task 2',
         type: 'coding' as any,
         status: 'failed' as any,
-        priority: 'medium'
+        priority: 'medium',
       };
 
       aggregator.addTask(task1);
@@ -122,7 +122,7 @@ describe('JSON Output Functionality', () => {
         id: 'agent-1',
         name: 'Test Agent',
         type: 'researcher' as any,
-        status: 'active' as any
+        status: 'active' as any,
       };
 
       aggregator.addAgent(agent);
@@ -144,21 +144,39 @@ describe('JSON Output Functionality', () => {
     it('should calculate summary statistics correctly', () => {
       // Add agents
       aggregator.addAgent({
-        id: 'agent-1', name: 'Agent 1', type: 'researcher' as any, status: 'active' as any
+        id: 'agent-1',
+        name: 'Agent 1',
+        type: 'researcher' as any,
+        status: 'active' as any,
       });
       aggregator.addAgent({
-        id: 'agent-2', name: 'Agent 2', type: 'coder' as any, status: 'active' as any
+        id: 'agent-2',
+        name: 'Agent 2',
+        type: 'coder' as any,
+        status: 'active' as any,
       });
 
       // Add tasks
       aggregator.addTask({
-        id: 'task-1', name: 'Task 1', type: 'research' as any, status: 'completed' as any, priority: 'high'
+        id: 'task-1',
+        name: 'Task 1',
+        type: 'research' as any,
+        status: 'completed' as any,
+        priority: 'high',
       });
       aggregator.addTask({
-        id: 'task-2', name: 'Task 2', type: 'coding' as any, status: 'completed' as any, priority: 'medium'
+        id: 'task-2',
+        name: 'Task 2',
+        type: 'coding' as any,
+        status: 'completed' as any,
+        priority: 'medium',
       });
       aggregator.addTask({
-        id: 'task-3', name: 'Task 3', type: 'testing' as any, status: 'failed' as any, priority: 'low'
+        id: 'task-3',
+        name: 'Task 3',
+        type: 'testing' as any,
+        status: 'failed' as any,
+        priority: 'low',
       });
 
       const output = aggregator.getJsonOutput('completed');
@@ -236,7 +254,7 @@ describe('JSON Output Functionality', () => {
       const flags = {
         'output-format': 'json',
         'output-file': 'results.json',
-        'no-interactive': true
+        'no-interactive': true,
       };
 
       // Mock the parseSwarmOptions function behavior

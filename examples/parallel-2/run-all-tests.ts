@@ -42,21 +42,25 @@ class AgentTestRunner {
     // Analyzer test
     console.log('4️⃣  Testing Analyzer Agent...');
     const analyzer = new AnalyzerAgent('analyzer-seq-001');
-    results.push(await analyzer.analyzePerformanceMetrics({
-      response_times: [245, 312, 198, 580, 225],
-      error_counts: { '4xx': 12, '5xx': 3 },
-      cpu_usage: [45.2, 52.1, 48.7, 61.3],
-      memory_usage: [1024, 1156, 1298, 1402]
-    }));
+    results.push(
+      await analyzer.analyzePerformanceMetrics({
+        response_times: [245, 312, 198, 580, 225],
+        error_counts: { '4xx': 12, '5xx': 3 },
+        cpu_usage: [45.2, 52.1, 48.7, 61.3],
+        memory_usage: [1024, 1156, 1298, 1402],
+      }),
+    );
 
     // Reviewer test
     console.log('5️⃣  Testing Reviewer Agent...');
     const reviewer = new ReviewerAgent('reviewer-seq-001');
-    results.push(await reviewer.performCodeReview({
-      title: 'Feature: Add user authentication',
-      author: 'developer123',
-      files: ['src/auth/login.ts', 'src/auth/logout.ts', 'tests/auth.test.ts']
-    }));
+    results.push(
+      await reviewer.performCodeReview({
+        title: 'Feature: Add user authentication',
+        author: 'developer123',
+        files: ['src/auth/login.ts', 'src/auth/logout.ts', 'tests/auth.test.ts'],
+      }),
+    );
 
     // Tester test
     console.log('6️⃣  Testing Tester Agent...');
@@ -66,11 +70,13 @@ class AgentTestRunner {
     // Documenter test
     console.log('7️⃣  Testing Documenter Agent...');
     const documenter = new DocumenterAgent('documenter-seq-001');
-    results.push(await documenter.generateAPIDocumentation({
-      name: 'User Authentication API',
-      version: '1.0',
-      endpoints: ['/auth/login', '/auth/validate', '/auth/refresh', '/auth/logout']
-    }));
+    results.push(
+      await documenter.generateAPIDocumentation({
+        name: 'User Authentication API',
+        version: '1.0',
+        endpoints: ['/auth/login', '/auth/validate', '/auth/refresh', '/auth/logout'],
+      }),
+    );
 
     // Monitor test
     console.log('8️⃣  Testing Monitor Agent...');
@@ -108,7 +114,7 @@ class AgentTestRunner {
       tester: new TesterAgent('tester-par-001'),
       documenter: new DocumenterAgent('documenter-par-001'),
       monitor: new MonitorAgent('monitor-par-001'),
-      specialist: new SpecialistAgent('specialist-par-001')
+      specialist: new SpecialistAgent('specialist-par-001'),
     };
 
     // Execute all tasks in parallel
@@ -120,21 +126,21 @@ class AgentTestRunner {
         response_times: [245, 312, 198, 580, 225],
         error_counts: { '4xx': 12, '5xx': 3 },
         cpu_usage: [45.2, 52.1, 48.7, 61.3],
-        memory_usage: [1024, 1156, 1298, 1402]
+        memory_usage: [1024, 1156, 1298, 1402],
       }),
       agents.reviewer.performCodeReview({
         title: 'Feature: Add user authentication',
         author: 'developer123',
-        files: ['src/auth/login.ts', 'src/auth/logout.ts', 'tests/auth.test.ts']
+        files: ['src/auth/login.ts', 'src/auth/logout.ts', 'tests/auth.test.ts'],
       }),
       agents.tester.writeUnitTests('UserAuthentication'),
       agents.documenter.generateAPIDocumentation({
         name: 'User Authentication API',
         version: '1.0',
-        endpoints: ['/auth/login', '/auth/validate', '/auth/refresh', '/auth/logout']
+        endpoints: ['/auth/login', '/auth/validate', '/auth/refresh', '/auth/logout'],
       }),
       agents.monitor.monitorSystemHealth(),
-      agents.specialist.provideMachineLearningExpertise('Customer churn prediction')
+      agents.specialist.provideMachineLearningExpertise('Customer churn prediction'),
     ];
 
     console.log('🚀 Launching all agents simultaneously...');
@@ -158,7 +164,7 @@ class AgentTestRunner {
     const sequentialResult = await this.runSequentialTests();
 
     // Add a small delay between tests
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     // Run parallel tests
     const parallelResult = await this.runParallelTests();
@@ -170,8 +176,12 @@ class AgentTestRunner {
     console.log(`\nSequential Execution: ${sequentialResult.totalTime}ms`);
     console.log(`Parallel Execution: ${parallelResult.totalTime}ms`);
     console.log(`\nTime Saved: ${sequentialResult.totalTime - parallelResult.totalTime}ms`);
-    console.log(`Speed Improvement: ${((sequentialResult.totalTime / parallelResult.totalTime) * 100).toFixed(1)}%`);
-    console.log(`\nEfficiency Factor: ${(sequentialResult.totalTime / parallelResult.totalTime).toFixed(2)}x faster`);
+    console.log(
+      `Speed Improvement: ${((sequentialResult.totalTime / parallelResult.totalTime) * 100).toFixed(1)}%`,
+    );
+    console.log(
+      `\nEfficiency Factor: ${(sequentialResult.totalTime / parallelResult.totalTime).toFixed(2)}x faster`,
+    );
 
     console.log('\n💡 KEY INSIGHTS:');
     console.log('- Parallel execution dramatically reduces total execution time');
@@ -209,7 +219,7 @@ class AgentTestRunner {
           response_times: [245, 312, 198, 580, 225],
           error_counts: { '4xx': 12, '5xx': 3 },
           cpu_usage: [45.2, 52.1, 48.7, 61.3],
-          memory_usage: [1024, 1156, 1298, 1402]
+          memory_usage: [1024, 1156, 1298, 1402],
         });
         break;
 
@@ -218,7 +228,7 @@ class AgentTestRunner {
         await reviewer.performCodeReview({
           title: 'Feature: Add user authentication',
           author: 'developer123',
-          files: ['src/auth/login.ts', 'src/auth/logout.ts', 'tests/auth.test.ts']
+          files: ['src/auth/login.ts', 'src/auth/logout.ts', 'tests/auth.test.ts'],
         });
         break;
 
@@ -233,7 +243,7 @@ class AgentTestRunner {
         await documenter.generateAPIDocumentation({
           name: 'User Authentication API',
           version: '1.0',
-          endpoints: ['/auth/login', '/auth/validate', '/auth/refresh', '/auth/logout']
+          endpoints: ['/auth/login', '/auth/validate', '/auth/refresh', '/auth/logout'],
         });
         break;
 

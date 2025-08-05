@@ -17,8 +17,8 @@ const PERFORMANCE_CONFIG: IntegrationConfig = {
   monitoring: {
     enabled: false, // Disable monitoring to reduce overhead
     metrics: false,
-    realTime: false
-  }
+    realTime: false,
+  },
 };
 
 describe('Performance Benchmark Tests', () => {
@@ -94,8 +94,8 @@ describe('Performance Benchmark Tests', () => {
       const spawnPromises = Array.from({ length: agentCount }, (_, i) =>
         agentManager.spawnAgent('researcher', {
           name: `Agent-${i}`,
-          capabilities: ['research', 'analysis']
-        })
+          capabilities: ['research', 'analysis'],
+        }),
       );
 
       const spawnedAgents = await Promise.all(spawnPromises);
@@ -108,7 +108,9 @@ describe('Performance Benchmark Tests', () => {
       expect(spawnTime).toBeLessThan(10000); // Should complete in under 10 seconds
       expect(agentsPerSecond).toBeGreaterThan(10); // At least 10 agents per second
 
-      console.log(`Spawned ${agentCount} agents in ${spawnTime.toFixed(2)}ms (${agentsPerSecond.toFixed(2)} agents/sec)`);
+      console.log(
+        `Spawned ${agentCount} agents in ${spawnTime.toFixed(2)}ms (${agentsPerSecond.toFixed(2)} agents/sec)`,
+      );
 
       agents.push(...spawnedAgents);
     });
@@ -127,8 +129,8 @@ describe('Performance Benchmark Tests', () => {
           from: agent1,
           to: agent2,
           type: 'request',
-          data: { index: i, task: 'benchmark test' }
-        })
+          data: { index: i, task: 'benchmark test' },
+        }),
       );
 
       await Promise.all(messagePromises);
@@ -140,14 +142,16 @@ describe('Performance Benchmark Tests', () => {
       expect(messageTime).toBeLessThan(5000); // Should complete in under 5 seconds
       expect(messagesPerSecond).toBeGreaterThan(200); // At least 200 messages per second
 
-      console.log(`Sent ${messageCount} messages in ${messageTime.toFixed(2)}ms (${messagesPerSecond.toFixed(2)} msg/sec)`);
+      console.log(
+        `Sent ${messageCount} messages in ${messageTime.toFixed(2)}ms (${messagesPerSecond.toFixed(2)} msg/sec)`,
+      );
     });
 
     it('should scale agent listing efficiently', async () => {
       // Spawn many agents
       const agentCount = 500;
       const spawnPromises = Array.from({ length: agentCount }, (_, i) =>
-        agentManager.spawnAgent('coder', { name: `Coder-${i}` })
+        agentManager.spawnAgent('coder', { name: `Coder-${i}` }),
       );
 
       await Promise.all(spawnPromises);
@@ -185,8 +189,8 @@ describe('Performance Benchmark Tests', () => {
           objective: `Benchmark swarm ${i}`,
           strategy: 'auto',
           topology: 'mesh',
-          maxAgents: 5
-        })
+          maxAgents: 5,
+        }),
       );
 
       const swarms = await Promise.all(swarmPromises);
@@ -199,7 +203,9 @@ describe('Performance Benchmark Tests', () => {
       expect(creationTime).toBeLessThan(15000); // Should complete in under 15 seconds
       expect(swarmsPerSecond).toBeGreaterThan(3); // At least 3 swarms per second
 
-      console.log(`Created ${swarmCount} swarms in ${creationTime.toFixed(2)}ms (${swarmsPerSecond.toFixed(2)} swarms/sec)`);
+      console.log(
+        `Created ${swarmCount} swarms in ${creationTime.toFixed(2)}ms (${swarmsPerSecond.toFixed(2)} swarms/sec)`,
+      );
     });
 
     it('should handle large swarm coordination', async () => {
@@ -207,7 +213,7 @@ describe('Performance Benchmark Tests', () => {
         objective: 'Large swarm performance test',
         strategy: 'development',
         topology: 'distributed',
-        maxAgents: 100
+        maxAgents: 100,
       });
 
       const agentCount = 80;
@@ -218,8 +224,8 @@ describe('Performance Benchmark Tests', () => {
         swarmCoordinator.spawnAgentInSwarm(swarmId, {
           type: ['researcher', 'coder', 'analyst', 'tester'][i % 4],
           name: `SwarmAgent-${i}`,
-          capabilities: ['general']
-        })
+          capabilities: ['general'],
+        }),
       );
 
       const agents = await Promise.all(agentPromises);
@@ -240,7 +246,9 @@ describe('Performance Benchmark Tests', () => {
       expect(swarmStatus.agents).toHaveLength(agentCount);
       expect(statusTime).toBeLessThan(500); // Status retrieval should be fast
 
-      console.log(`Large swarm (${agentCount} agents): spawn ${spawnTime.toFixed(2)}ms, status ${statusTime.toFixed(2)}ms`);
+      console.log(
+        `Large swarm (${agentCount} agents): spawn ${spawnTime.toFixed(2)}ms, status ${statusTime.toFixed(2)}ms`,
+      );
     });
   });
 
@@ -250,7 +258,7 @@ describe('Performance Benchmark Tests', () => {
         objective: 'Task throughput test',
         strategy: 'development',
         topology: 'mesh',
-        maxAgents: 20
+        maxAgents: 20,
       });
 
       // Spawn agents for task execution
@@ -258,9 +266,9 @@ describe('Performance Benchmark Tests', () => {
         Array.from({ length: 10 }, (_, i) =>
           swarmCoordinator.spawnAgentInSwarm(swarmId, {
             type: 'coder',
-            name: `TaskAgent-${i}`
-          })
-        )
+            name: `TaskAgent-${i}`,
+          }),
+        ),
       );
 
       const taskCount = 1000;
@@ -273,8 +281,8 @@ describe('Performance Benchmark Tests', () => {
           type: 'development',
           objective: `Task ${i}`,
           assignedAgents: [agents[i % agents.length]],
-          priority: 'medium'
-        })
+          priority: 'medium',
+        }),
       );
 
       const tasks = await Promise.all(taskPromises);
@@ -287,7 +295,9 @@ describe('Performance Benchmark Tests', () => {
       expect(creationTime).toBeLessThan(30000); // Should complete in under 30 seconds
       expect(tasksPerSecond).toBeGreaterThan(30); // At least 30 tasks per second
 
-      console.log(`Created ${taskCount} tasks in ${creationTime.toFixed(2)}ms (${tasksPerSecond.toFixed(2)} tasks/sec)`);
+      console.log(
+        `Created ${taskCount} tasks in ${creationTime.toFixed(2)}ms (${tasksPerSecond.toFixed(2)} tasks/sec)`,
+      );
     });
 
     it('should efficiently query task status', async () => {
@@ -295,12 +305,12 @@ describe('Performance Benchmark Tests', () => {
         objective: 'Task query performance test',
         strategy: 'auto',
         topology: 'centralized',
-        maxAgents: 5
+        maxAgents: 5,
       });
 
       const agent = await swarmCoordinator.spawnAgentInSwarm(swarmId, {
         type: 'coder',
-        name: 'QueryTestAgent'
+        name: 'QueryTestAgent',
       });
 
       // Create many tasks
@@ -312,9 +322,9 @@ describe('Performance Benchmark Tests', () => {
             type: 'development',
             objective: `Query test task ${i}`,
             assignedAgents: [agent],
-            priority: 'low'
-          })
-        )
+            priority: 'low',
+          }),
+        ),
       );
 
       // Benchmark task status queries
@@ -338,7 +348,9 @@ describe('Performance Benchmark Tests', () => {
       expect(averageQueryTime).toBeLessThan(20); // Average under 20ms
       expect(maxQueryTime).toBeLessThan(100); // Max under 100ms
 
-      console.log(`Task queries: avg ${averageQueryTime.toFixed(2)}ms, max ${maxQueryTime.toFixed(2)}ms`);
+      console.log(
+        `Task queries: avg ${averageQueryTime.toFixed(2)}ms, max ${maxQueryTime.toFixed(2)}ms`,
+      );
     });
   });
 
@@ -346,13 +358,11 @@ describe('Performance Benchmark Tests', () => {
     it('should handle high-frequency memory operations', async () => {
       const operationCount = 10000;
       const keys = Array.from({ length: operationCount }, (_, i) => `perf-test-${i}`);
-      const values = keys.map(key => ({ key, data: `value-${key}`, timestamp: Date.now() }));
+      const values = keys.map((key) => ({ key, data: `value-${key}`, timestamp: Date.now() }));
 
       // Benchmark SET operations
       const setStartTime = performance.now();
-      await Promise.all(
-        keys.map((key, i) => memoryManager.set(key, values[i]))
-      );
+      await Promise.all(keys.map((key, i) => memoryManager.set(key, values[i])));
       const setEndTime = performance.now();
 
       const setTime = setEndTime - setStartTime;
@@ -363,9 +373,7 @@ describe('Performance Benchmark Tests', () => {
 
       // Benchmark GET operations
       const getStartTime = performance.now();
-      const retrievedValues = await Promise.all(
-        keys.map(key => memoryManager.get(key))
-      );
+      const retrievedValues = await Promise.all(keys.map((key) => memoryManager.get(key)));
       const getEndTime = performance.now();
 
       const getTime = getEndTime - getStartTime;
@@ -375,7 +383,9 @@ describe('Performance Benchmark Tests', () => {
       expect(getTime).toBeLessThan(5000); // Should complete in under 5 seconds
       expect(getsPerSecond).toBeGreaterThan(2000); // At least 2000 gets per second
 
-      console.log(`Memory ops: ${setsPerSecond.toFixed(0)} sets/sec, ${getsPerSecond.toFixed(0)} gets/sec`);
+      console.log(
+        `Memory ops: ${setsPerSecond.toFixed(0)} sets/sec, ${getsPerSecond.toFixed(0)} gets/sec`,
+      );
     });
 
     it('should efficiently handle pattern queries', async () => {
@@ -385,7 +395,7 @@ describe('Performance Benchmark Tests', () => {
 
       for (const pattern of patterns) {
         const promises = Array.from({ length: itemsPerPattern }, (_, i) =>
-          memoryManager.set(`${pattern}${i}`, { pattern, index: i, data: `test-data-${i}` })
+          memoryManager.set(`${pattern}${i}`, { pattern, index: i, data: `test-data-${i}` }),
         );
         await Promise.all(promises);
       }
@@ -411,7 +421,9 @@ describe('Performance Benchmark Tests', () => {
       expect(averageQueryTime).toBeLessThan(100); // Average under 100ms
       expect(maxQueryTime).toBeLessThan(500); // Max under 500ms
 
-      console.log(`Pattern queries: avg ${averageQueryTime.toFixed(2)}ms, max ${maxQueryTime.toFixed(2)}ms`);
+      console.log(
+        `Pattern queries: avg ${averageQueryTime.toFixed(2)}ms, max ${maxQueryTime.toFixed(2)}ms`,
+      );
     });
   });
 
@@ -424,7 +436,7 @@ describe('Performance Benchmark Tests', () => {
         objective: 'End-to-end performance test',
         strategy: 'development',
         topology: 'hierarchical',
-        maxAgents: 15
+        maxAgents: 15,
       });
 
       // Spawn coordinated agents
@@ -434,7 +446,7 @@ describe('Performance Benchmark Tests', () => {
         swarmCoordinator.spawnAgentInSwarm(swarmId, { type: 'coder', name: 'Developer-1' }),
         swarmCoordinator.spawnAgentInSwarm(swarmId, { type: 'coder', name: 'Developer-2' }),
         swarmCoordinator.spawnAgentInSwarm(swarmId, { type: 'tester', name: 'Tester' }),
-        swarmCoordinator.spawnAgentInSwarm(swarmId, { type: 'reviewer', name: 'Reviewer' })
+        swarmCoordinator.spawnAgentInSwarm(swarmId, { type: 'reviewer', name: 'Reviewer' }),
       ]);
 
       // Create workflow tasks
@@ -443,7 +455,7 @@ describe('Performance Benchmark Tests', () => {
         type: 'research',
         objective: 'Research requirements',
         assignedAgents: [agents[1]],
-        priority: 'high'
+        priority: 'high',
       });
 
       const developmentTasks = await Promise.all([
@@ -453,7 +465,7 @@ describe('Performance Benchmark Tests', () => {
           objective: 'Develop module A',
           dependencies: [researchTask],
           assignedAgents: [agents[2]],
-          priority: 'high'
+          priority: 'high',
         }),
         taskEngine.createTask({
           swarmId,
@@ -461,8 +473,8 @@ describe('Performance Benchmark Tests', () => {
           objective: 'Develop module B',
           dependencies: [researchTask],
           assignedAgents: [agents[3]],
-          priority: 'high'
-        })
+          priority: 'high',
+        }),
       ]);
 
       const testingTask = await taskEngine.createTask({
@@ -471,7 +483,7 @@ describe('Performance Benchmark Tests', () => {
         objective: 'Test integrated modules',
         dependencies: developmentTasks,
         assignedAgents: [agents[4]],
-        priority: 'medium'
+        priority: 'medium',
       });
 
       const reviewTask = await taskEngine.createTask({
@@ -480,14 +492,14 @@ describe('Performance Benchmark Tests', () => {
         objective: 'Review final implementation',
         dependencies: [testingTask],
         assignedAgents: [agents[5]],
-        priority: 'medium'
+        priority: 'medium',
       });
 
       // Store shared memory
       await memoryManager.set(`swarm:${swarmId}:workflow`, {
         tasks: [researchTask, ...developmentTasks, testingTask, reviewTask],
         agents: agents,
-        status: 'active'
+        status: 'active',
       });
 
       // Get final status
@@ -517,21 +529,21 @@ describe('Performance Benchmark Tests', () => {
           objective: `Load test swarm ${i}`,
           strategy: 'auto',
           topology: 'mesh',
-          maxAgents: agentsPerSwarm
-        })
+          maxAgents: agentsPerSwarm,
+        }),
       );
 
       const swarms = await Promise.all(swarmPromises);
 
       // Spawn agents in all swarms
-      const allAgentPromises = swarms.flatMap(swarmId =>
+      const allAgentPromises = swarms.flatMap((swarmId) =>
         Array.from({ length: agentsPerSwarm }, (_, i) =>
           swarmCoordinator.spawnAgentInSwarm(swarmId, {
             type: ['researcher', 'coder', 'analyst', 'tester'][i % 4],
             name: `LoadAgent-${i}`,
-            capabilities: ['general']
-          })
-        )
+            capabilities: ['general'],
+          }),
+        ),
       );
 
       const allAgents = await Promise.all(allAgentPromises);
@@ -540,7 +552,7 @@ describe('Performance Benchmark Tests', () => {
       const allTaskPromises = swarms.flatMap((swarmId, swarmIndex) => {
         const swarmAgents = allAgents.slice(
           swarmIndex * agentsPerSwarm,
-          (swarmIndex + 1) * agentsPerSwarm
+          (swarmIndex + 1) * agentsPerSwarm,
         );
 
         return Array.from({ length: tasksPerSwarm }, (_, i) =>
@@ -549,8 +561,8 @@ describe('Performance Benchmark Tests', () => {
             type: 'development',
             objective: `Load test task ${i}`,
             assignedAgents: [swarmAgents[i % swarmAgents.length]],
-            priority: 'medium'
-          })
+            priority: 'medium',
+          }),
         );
       });
 
@@ -566,7 +578,9 @@ describe('Performance Benchmark Tests', () => {
       expect(allTasks).toHaveLength(totalTasks);
       expect(totalTime).toBeLessThan(60000); // Should complete in under 60 seconds
 
-      console.log(`Load test: ${concurrentSwarms} swarms, ${totalAgents} agents, ${totalTasks} tasks in ${totalTime.toFixed(2)}ms`);
+      console.log(
+        `Load test: ${concurrentSwarms} swarms, ${totalAgents} agents, ${totalTasks} tasks in ${totalTime.toFixed(2)}ms`,
+      );
     });
   });
 });

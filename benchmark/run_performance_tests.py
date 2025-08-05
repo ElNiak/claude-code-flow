@@ -108,9 +108,9 @@ class PerformanceTestOrchestrator:
             if test_modes.get("continuous_monitoring", True):
                 print("\n📈 Running Continuous Performance Monitoring...")
                 monitoring_results = await self._run_continuous_monitoring(output_dir)
-                test_results["test_results"][
-                    "continuous_monitoring"
-                ] = monitoring_results
+                test_results["test_results"]["continuous_monitoring"] = (
+                    monitoring_results
+                )
 
             # 3. Memory Leak Detection
             if test_modes.get("memory_leak_detection", True):

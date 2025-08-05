@@ -34,7 +34,7 @@ async function basicMigration() {
     projectPath,
     strategy: 'selective',
     preserveCustom: true,
-    dryRun: true // Safe mode for example
+    dryRun: true, // Safe mode for example
   });
 
   const result = await runner.run();
@@ -43,7 +43,7 @@ async function basicMigration() {
     console.log(chalk.green('   ✓ Migration completed successfully'));
   } else {
     console.log(chalk.red('   ✗ Migration failed'));
-    result.errors.forEach(error => console.log(`     ${error.error}`));
+    result.errors.forEach((error) => console.log(`     ${error.error}`));
   }
 }
 
@@ -69,7 +69,7 @@ async function complexProjectMigration() {
   const rollbackManager = new RollbackManager(projectPath);
   const backup = await rollbackManager.createBackup({
     type: 'pre-migration',
-    scenario: 'complex-project-example'
+    scenario: 'complex-project-example',
   });
 
   console.log(`   ✓ Backup created: ${backup.metadata.backupId}`);
@@ -79,7 +79,7 @@ async function complexProjectMigration() {
     projectPath,
     strategy: 'merge',
     preserveCustom: true,
-    dryRun: true
+    dryRun: true,
   });
 
   await runner.run();
@@ -119,7 +119,7 @@ async function validationExample() {
   console.log('\n1. Running post-migration validation...');
   const runner = new MigrationRunner({
     projectPath,
-    strategy: 'selective'
+    strategy: 'selective',
   });
 
   const isValid = await runner.validate(true);
@@ -139,7 +139,7 @@ async function batchMigrationExample() {
   const projects = [
     path.join(__dirname, '../examples/project-1'),
     path.join(__dirname, '../examples/project-2'),
-    path.join(__dirname, '../examples/project-3')
+    path.join(__dirname, '../examples/project-3'),
   ];
 
   console.log(`\n1. Migrating ${projects.length} projects...`);
@@ -161,7 +161,7 @@ async function batchMigrationExample() {
         strategy,
         preserveCustom: true,
         force: true, // Non-interactive for batch
-        dryRun: true
+        dryRun: true,
       });
 
       const result = await runner.run();
@@ -171,7 +171,6 @@ async function batchMigrationExample() {
       } else {
         console.log(chalk.red(`     ✗ Migration failed`));
       }
-
     } catch (error) {
       console.log(chalk.red(`     ✗ Error: ${error.message}`));
     }
@@ -191,7 +190,7 @@ async function conflictResolutionExample() {
 
   if (analysis.conflictingFiles.length > 0) {
     console.log(chalk.yellow(`   Found ${analysis.conflictingFiles.length} conflicting files:`));
-    analysis.conflictingFiles.forEach(file => {
+    analysis.conflictingFiles.forEach((file) => {
       console.log(`     • ${file}`);
     });
 
@@ -202,7 +201,6 @@ async function conflictResolutionExample() {
 
     console.log('\n3. Recommended approach:');
     console.log(chalk.cyan('     Use merge strategy with manual review'));
-
   } else {
     console.log(chalk.green('   ✓ No conflicts detected'));
   }
@@ -217,33 +215,33 @@ function printUsageScenarios() {
     {
       title: 'New Project Setup',
       command: 'claude-flow migrate --strategy full',
-      description: 'Clean installation of optimized prompts'
+      description: 'Clean installation of optimized prompts',
     },
     {
       title: 'Existing Project with Custom Commands',
       command: 'claude-flow migrate --strategy merge --preserve-custom',
-      description: 'Preserve customizations while upgrading'
+      description: 'Preserve customizations while upgrading',
     },
     {
       title: 'Safe Migration with Preview',
       command: 'claude-flow migrate --dry-run --verbose',
-      description: 'See what would change before migrating'
+      description: 'See what would change before migrating',
     },
     {
       title: 'Analysis Only',
       command: 'claude-flow migrate analyze --detailed',
-      description: 'Understand project state before migration'
+      description: 'Understand project state before migration',
     },
     {
       title: 'Rollback After Issues',
       command: 'claude-flow migrate rollback',
-      description: 'Restore previous configuration'
+      description: 'Restore previous configuration',
     },
     {
       title: 'Batch Operation',
       command: 'find . -name ".claude" -exec claude-flow migrate {} \\;',
-      description: 'Migrate multiple projects at once'
-    }
+      description: 'Migrate multiple projects at once',
+    },
   ];
 
   scenarios.forEach((scenario, index) => {
@@ -268,7 +266,7 @@ function printBestPractices() {
     'Validate migrations after completion',
     'Keep backups for rollback scenarios',
     'Test functionality after migration',
-    'Document custom modifications for future reference'
+    'Document custom modifications for future reference',
   ];
 
   practices.forEach((practice, index) => {
@@ -296,7 +294,6 @@ async function main() {
     printBestPractices();
 
     console.log(chalk.bold.green('\n✅ All examples completed successfully!\n'));
-
   } catch (error) {
     console.error(chalk.red(`\n❌ Example failed: ${error.message}\n`));
     process.exit(1);
@@ -314,5 +311,5 @@ export {
   rollbackExample,
   validationExample,
   batchMigrationExample,
-  conflictResolutionExample
+  conflictResolutionExample,
 };

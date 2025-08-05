@@ -3,10 +3,10 @@
  * Tests stdio and HTTP transports, protocol compliance, and error handling
  */
 
-import { describe, it, beforeEach, afterEach  } from "../../../test.utils";
-import { expect } from "@jest/globals";
+import { describe, it, beforeEach, afterEach } from '../../../test.utils';
+import { expect } from '@jest/globals';
 // FakeTime equivalent available in test.utils.ts
-import { spy, stub  } from "../../../test.utils";
+import { spy, stub } from '../../../test.utils';
 
 import { MCPServer } from '../../../src/mcp/server.ts';
 import { MCPClient } from '../../../src/mcp/client.ts';
@@ -22,7 +22,7 @@ import {
   PerformanceTestUtils,
   TestAssertions,
   MockFactory,
-  FileSystemTestUtils
+  FileSystemTestUtils,
 } from '../../utils/test-utils.ts';
 import { generateMCPMessages, generateErrorScenarios } from '../../fixtures/generators.ts';
 import { setupTestEnv, cleanupTestEnv, TEST_CONFIG } from '../../test.config';
@@ -237,7 +237,7 @@ describe('MCP Interface - Comprehensive Tests', () => {
         mockServer.port,
         false, // tlsEnabled
         mockLogger,
-        undefined // config
+        undefined, // config
       );
 
       await mockServer.start();
@@ -342,11 +342,12 @@ describe('MCP Interface - Comprehensive Tests', () => {
       mockTransport = {
         connect: () => Promise.resolve(),
         disconnect: () => Promise.resolve(),
-        sendRequest: () => Promise.resolve({
-          jsonrpc: '2.0' as const,
-          id: '123',
-          result: { success: true },
-        }),
+        sendRequest: () =>
+          Promise.resolve({
+            jsonrpc: '2.0' as const,
+            id: '123',
+            result: { success: true },
+          }),
         sendNotification: () => Promise.resolve(),
         start: () => Promise.resolve(),
         stop: () => Promise.resolve(),
@@ -493,10 +494,7 @@ describe('MCP Interface - Comprehensive Tests', () => {
         transport: faultyTransport,
       });
 
-      await TestAssertions.assertThrowsAsync(
-        () => clientWithFaultyTransport.connect(),
-        Error
-      );
+      await TestAssertions.assertThrowsAsync(() => clientWithFaultyTransport.connect(), Error);
     });
 
     it('should handle malformed messages correctly', async () => {

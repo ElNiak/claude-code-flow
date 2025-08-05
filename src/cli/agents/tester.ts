@@ -189,7 +189,7 @@ export class TesterAgent extends BaseAgent {
   }
 
   private async createUnitTests(task: TaskDefinition): Promise<any> {
-    const code = task.input?.code;
+    const _code = task.input?.code;
     const framework = task.input?.framework || 'jest';
     const coverage = task.input?.coverage || 80;
     const style = task.input?.style || 'arrange-act-assert';
@@ -558,8 +558,8 @@ export class TesterAgent extends BaseAgent {
   }
 
   private async analyzeTests(task: TaskDefinition): Promise<any> {
-    const testResults = task.input?.results;
-    const coverage = task.input?.coverage;
+    const _testResults = task.input?.results;
+    const _coverage = task.input?.coverage;
     const timeframe = task.input?.timeframe || '7d';
 
     this.logger.info('Analyzing tests', {

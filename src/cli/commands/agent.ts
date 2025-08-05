@@ -7,14 +7,11 @@ import { Command } from 'commander';
 import Table from 'cli-table3';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
-const { colors } = { colors: chalk }; // Compatibility shim
-import type { AgentProfile } from '../../utils/types.js';
 import { AgentManager } from '../../agents/agent-manager.js';
-import type { MemoryManager } from '../../memory/manager.js';
 import { EventBus } from '../../core/event-bus.js';
 import { Logger } from '../../core/logger.js';
 import { DistributedMemorySystem } from '../../memory/distributed-memory.js';
-import { formatDuration, formatBytes, formatPercentage } from '../../utils/formatters.js';
+import { formatBytes, formatPercentage } from '../../utils/formatters.js';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 

@@ -2,7 +2,7 @@
  * Integration tests for MCP (Model Context Protocol) implementation
  */
 
-import { describe, it, beforeEach, afterEach, expect } from "../test.utils";
+import { describe, it, beforeEach, afterEach, expect } from '../test.utils';
 
 import { MCPServer } from '../../src/mcp/server.ts';
 import { StdioTransport } from '../../src/mcp/transports/stdio.ts';
@@ -61,13 +61,13 @@ class MockOrchestrator {
     let tasks = Array.from(this.tasks.values());
 
     if (filters.status) {
-      tasks = tasks.filter(task => task.status === filters.status);
+      tasks = tasks.filter((task) => task.status === filters.status);
     }
     if (filters.agentId) {
-      tasks = tasks.filter(task => task.assignedAgent === filters.agentId);
+      tasks = tasks.filter((task) => task.assignedAgent === filters.agentId);
     }
     if (filters.type) {
-      tasks = tasks.filter(task => task.type === filters.type);
+      tasks = tasks.filter((task) => task.type === filters.type);
     }
 
     return tasks.slice(filters.offset || 0, (filters.offset || 0) + (filters.limit || 50));
@@ -97,14 +97,14 @@ class MockOrchestrator {
     let entries = Array.from(this.memory.values());
 
     if (query.agentId) {
-      entries = entries.filter(entry => entry.agentId === query.agentId);
+      entries = entries.filter((entry) => entry.agentId === query.agentId);
     }
     if (query.type) {
-      entries = entries.filter(entry => entry.type === query.type);
+      entries = entries.filter((entry) => entry.type === query.type);
     }
     if (query.search) {
-      entries = entries.filter(entry =>
-        entry.content.toLowerCase().includes(query.search.toLowerCase())
+      entries = entries.filter((entry) =>
+        entry.content.toLowerCase().includes(query.search.toLowerCase()),
       );
     }
 
@@ -336,9 +336,7 @@ describe('MCP Integration Tests', () => {
       const authConfig = {
         enabled: true,
         method: 'basic' as const,
-        users: [
-          { username: 'testuser', password: 'testpass', permissions: ['*'] },
-        ],
+        users: [{ username: 'testuser', password: 'testpass', permissions: ['*'] }],
       };
 
       const authManager = new AuthManager(authConfig, logger);
@@ -575,5 +573,5 @@ function createTestResponse(result?: any, error?: any, id: string | number = 1):
 
 // Helper function to delay execution
 async function sleep(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }

@@ -13,17 +13,18 @@ describe('UI Display Fixes Integration', () => {
       swarmId: 'development-swarm-456',
       task: {
         type: 'implementation',
-        description: 'Implement user authentication system\nInclude JWT tokens\nAdd password hashing\nCreate login/logout endpoints',
+        description:
+          'Implement user authentication system\nInclude JWT tokens\nAdd password hashing\nCreate login/logout endpoints',
         dependencies: ['database-schema', 'security-middleware'],
-        priority: 'high'
+        priority: 'high',
       },
       status: 'in_progress',
       startTime: '2025-07-15T14:30:00Z',
       progress: {
         completed: ['password-hashing', 'user-model'],
         inProgress: ['jwt-implementation'],
-        pending: ['login-endpoint', 'logout-endpoint']
-      }
+        pending: ['login-endpoint', 'logout-endpoint'],
+      },
     };
 
     const formatTaskDetails = (task: any): string => {
@@ -36,7 +37,7 @@ describe('UI Display Fixes Integration', () => {
         `Start Time: ${task.startTime || 'Not started'}`,
         '',
         'Task Data:',
-        JSON.stringify(task.task, null, 2)
+        JSON.stringify(task.task, null, 2),
       ].join('\n');
 
       return details;
@@ -57,7 +58,7 @@ describe('UI Display Fixes Integration', () => {
     expect(lines[6]).toBe('Create login/logout endpoints');
 
     // Verify JSON formatting
-    const jsonStart = lines.findIndex(line => line.includes('{'));
+    const jsonStart = lines.findIndex((line) => line.includes('{'));
     expect(jsonStart).toBeGreaterThan(0);
     expect(lines[jsonStart]).toContain('{');
     expect(result).toContain('"type": "implementation"');
@@ -71,30 +72,30 @@ describe('UI Display Fixes Integration', () => {
         agents: {
           active: 8,
           idle: 2,
-          failed: 0
+          failed: 0,
         },
         tasks: {
           completed: 45,
           inProgress: 12,
           failed: 3,
-          pending: 8
-        }
+          pending: 8,
+        },
       },
       performance: {
         responseTime: 250.5,
         throughput: 1850,
         errorRate: 0.02,
-        memoryUsage: 78.9
+        memoryUsage: 78.9,
       },
       resources: {
         cpu: [65.2, 70.1, 68.9, 72.3],
         memory: [76.5, 78.9, 80.1, 79.2],
-        disk: [45.6, 47.2, 46.8, 48.1]
+        disk: [45.6, 47.2, 46.8, 48.1],
       },
       errors: [
         { type: 'timeout', count: 2, severity: 'medium' },
-        { type: 'connection', count: 1, severity: 'high' }
-      ]
+        { type: 'connection', count: 1, severity: 'high' },
+      ],
     };
 
     // Function that matches the fixed implementation
@@ -114,18 +115,20 @@ describe('UI Display Fixes Integration', () => {
 
       const flattened = flatten(json);
       const headers = Object.keys(flattened);
-      const valueRow = headers.map(header => {
-        const value = flattened[header];
-        if (value === null || value === undefined) {
-          return '';
-        }
-        let strValue = String(value);
-        // Escape CSV values that contain commas, quotes, or newlines
-        if (strValue.includes(',') || strValue.includes('"') || strValue.includes('\n')) {
-          strValue = '"' + strValue.replace(/"/g, '""') + '"';
-        }
-        return strValue;
-      }).join(',');
+      const valueRow = headers
+        .map((header) => {
+          const value = flattened[header];
+          if (value === null || value === undefined) {
+            return '';
+          }
+          let strValue = String(value);
+          // Escape CSV values that contain commas, quotes, or newlines
+          if (strValue.includes(',') || strValue.includes('"') || strValue.includes('\n')) {
+            strValue = '"' + strValue.replace(/"/g, '""') + '"';
+          }
+          return strValue;
+        })
+        .join(',');
 
       return [headers.join(','), valueRow].join('\n');
     };
@@ -167,12 +170,12 @@ describe('UI Display Fixes Integration', () => {
       unicodeText: 'Text with émojis 🚀 and ñandú',
       nestedEmpty: {
         empty: {},
-        nullNested: null
+        nullNested: null,
       },
       complexArray: [
         { id: 1, name: 'Item 1' },
-        { id: 2, name: 'Item "quoted"' }
-      ]
+        { id: 2, name: 'Item "quoted"' },
+      ],
     };
 
     // Test CSV export
@@ -191,17 +194,19 @@ describe('UI Display Fixes Integration', () => {
 
       const flattened = flatten(json);
       const headers = Object.keys(flattened);
-      const valueRow = headers.map(header => {
-        const value = flattened[header];
-        if (value === null || value === undefined) {
-          return '';
-        }
-        let strValue = String(value);
-        if (strValue.includes(',') || strValue.includes('"') || strValue.includes('\n')) {
-          strValue = '"' + strValue.replace(/"/g, '""') + '"';
-        }
-        return strValue;
-      }).join(',');
+      const valueRow = headers
+        .map((header) => {
+          const value = flattened[header];
+          if (value === null || value === undefined) {
+            return '';
+          }
+          let strValue = String(value);
+          if (strValue.includes(',') || strValue.includes('"') || strValue.includes('\n')) {
+            strValue = '"' + strValue.replace(/"/g, '""') + '"';
+          }
+          return strValue;
+        })
+        .join(',');
 
       return [headers.join(','), valueRow].join('\n');
     };
@@ -223,8 +228,8 @@ describe('UI Display Fixes Integration', () => {
       task: {
         type: 'edge-case',
         description: 'Task with "quotes" and\nmultiple\nlines',
-        special: edgeCaseData
-      }
+        special: edgeCaseData,
+      },
     };
 
     const formatTaskDetails = (task: any): string => {
@@ -237,7 +242,7 @@ describe('UI Display Fixes Integration', () => {
         `Start Time: ${task.startTime || 'Not started'}`,
         '',
         'Task Data:',
-        JSON.stringify(task.task, null, 2)
+        JSON.stringify(task.task, null, 2),
       ].join('\n');
 
       return details;

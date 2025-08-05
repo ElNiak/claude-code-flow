@@ -2,19 +2,19 @@
  * Comprehensive unit tests for Terminal Manager
  */
 
-import { describe, it, beforeEach, afterEach, spy, stub, FakeTime } from "../../../test.utils";
-import { expect } from "@jest/globals";
+import { describe, it, beforeEach, afterEach, spy, stub, FakeTime } from '../../../test.utils';
+import { expect } from '@jest/globals';
 
 import { TerminalManager } from '../../../src/terminal/manager.ts';
 import { TerminalPool } from '../../../src/terminal/pool.ts';
 import { NativeTerminalAdapter } from '../../../src/terminal/adapters/native.ts';
 // Mock factories and utilities (inline for now)
 const AsyncTestUtils = {
-  waitFor: (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+  waitFor: (ms: number) => new Promise((resolve) => setTimeout(resolve, ms)),
 };
 
 const MemoryTestUtils = {
-  measureMemory: () => process.memoryUsage()
+  measureMemory: () => process.memoryUsage(),
 };
 
 const PerformanceTestUtils = {
@@ -22,22 +22,22 @@ const PerformanceTestUtils = {
     const start = performance.now();
     fn();
     return performance.now() - start;
-  }
+  },
 };
 
 const TestAssertions = {
-  assertDeepEqual: (a: any, b: any) => expect(a).toEqual(b)
+  assertDeepEqual: (a: any, b: any) => expect(a).toEqual(b),
 };
 
 const MockFactory = {
-  createMock: (obj: any) => obj
+  createMock: (obj: any) => obj,
 };
 // Test data generators (inline for now)
 const generateTerminalSessions = (count: number) => {
   return Array.from({ length: count }, (_, i) => ({
     id: `session-${i}`,
     status: 'active',
-    created: new Date()
+    created: new Date(),
   }));
 };
 
@@ -45,12 +45,12 @@ const generateEdgeCaseData = () => ({
   emptyCommand: '',
   longCommand: 'x'.repeat(10000),
   specialChars: '!@#$%^&*()_+{}[]|\\:";<>?,./~`',
-  unicode: '🚀💻🔥'
+  unicode: '🚀💻🔥',
 });
 // Test configuration
 const TEST_CONFIG = {
   timeout: 10000,
-  maxRetries: 3
+  maxRetries: 3,
 };
 
 const setupTestEnv = () => {
@@ -110,25 +110,27 @@ describe('Terminal Manager - Comprehensive Tests', () => {
 
     it('should validate configuration parameters', () => {
       assertThrows(
-        () => new TerminalManager({
-          pool: mockPool,
-          maxConcurrentSessions: 0, // Invalid
-          sessionTimeout: 30000,
-          commandTimeout: 10000,
-        }),
+        () =>
+          new TerminalManager({
+            pool: mockPool,
+            maxConcurrentSessions: 0, // Invalid
+            sessionTimeout: 30000,
+            commandTimeout: 10000,
+          }),
         Error,
-        'maxConcurrentSessions must be greater than 0'
+        'maxConcurrentSessions must be greater than 0',
       );
 
       assertThrows(
-        () => new TerminalManager({
-          pool: mockPool,
-          maxConcurrentSessions: 10,
-          sessionTimeout: 0, // Invalid
-          commandTimeout: 10000,
-        }),
+        () =>
+          new TerminalManager({
+            pool: mockPool,
+            maxConcurrentSessions: 10,
+            sessionTimeout: 0, // Invalid
+            commandTimeout: 10000,
+          }),
         Error,
-        'sessionTimeout must be greater than 0'
+        'sessionTimeout must be greater than 0',
       );
     });
 
@@ -137,11 +139,7 @@ describe('Terminal Manager - Comprehensive Tests', () => {
         throw new Error('Pool initialization failed');
       });
 
-      await assertRejects(
-        () => terminalManager.initialize(),
-        Error,
-        'Pool initialization failed'
-      );
+      await assertRejects(() => terminalManager.initialize(), Error, 'Pool initialization failed');
 
       expect(terminalManager.isInitialized()).toBe(false);
     });
@@ -152,7 +150,7 @@ describe('Terminal Manager - Comprehensive Tests', () => {
       await assertRejects(
         () => terminalManager.initialize(),
         Error,
-        'Terminal manager already initialized'
+        'Terminal manager already initialized',
       );
     });
 
@@ -218,7 +216,7 @@ describe('Terminal Manager - Comprehensive Tests', () => {
       await assertRejects(
         () => terminalManager.terminateTerminal('non-existent'),
         Error,
-        'Session not found: non-existent'
+        'Session not found: non-existent',
       );
     });
 
@@ -238,7 +236,7 @@ describe('Terminal Manager - Comprehensive Tests', () => {
       await assertRejects(
         () => limitedManager.spawnTerminal(),
         Error,
-        'Maximum concurrent sessions reached'
+        'Maximum concurrent sessions reached',
       );
     });
 
@@ -248,9 +246,7 @@ describe('Terminal Manager - Comprehensive Tests', () => {
         name: `Agent ${i}`,
       }));
 
-      const promises = profiles.map(profile =>
-        terminalManager.spawnTerminal(profile)
-      );
+      const promises = profiles.map((profile) => terminalManager.spawnTerminal(profile));
 
       const sessionIds = await Promise.all(promises);
 
@@ -266,10 +262,12 @@ describe('Terminal Manager - Comprehensive Tests', () => {
       const sessionData = generateTerminalSessions(10);
 
       // Mock expired sessions
-      mockPool.listSessions = spy(() => sessionData.map(session => ({
-        ...session,
-        lastActivity: new Date(Date.now() - 60000), // 1 minute ago
-      })));
+      mockPool.listSessions = spy(() =>
+        sessionData.map((session) => ({
+          ...session,
+          lastActivity: new Date(Date.now() - 60000), // 1 minute ago
+        })),
+      );
 
       await terminalManager.performMaintenance();
 
@@ -312,23 +310,21 @@ describe('Terminal Manager - Comprehensive Tests', () => {
 
     it('should handle command timeout', async () => {
       mockPool.executeCommand = spy(async () => {
-        await new Promise(resolve => setTimeout(resolve, 15000)); // 15 seconds
+        await new Promise((resolve) => setTimeout(resolve, 15000)); // 15 seconds
         return 'Too late';
       });
 
       await TestAssertions.assertThrowsAsync(
         () => terminalManager.sendCommand(sessionId, 'slow-command'),
         Error,
-        'timeout'
+        'timeout',
       );
     });
 
     it('should handle concurrent command execution', async () => {
       const commands = Array.from({ length: 10 }, (_, i) => `echo "Command ${i}"`);
 
-      const promises = commands.map(command =>
-        terminalManager.sendCommand(sessionId, command)
-      );
+      const promises = commands.map((command) => terminalManager.sendCommand(sessionId, command));
 
       const results = await Promise.all(promises);
 
@@ -344,7 +340,7 @@ describe('Terminal Manager - Comprehensive Tests', () => {
       ]);
 
       const promises = sessionIds.map((sessionId, i) =>
-        terminalManager.sendCommand(sessionId, `echo "Session ${i}"`)
+        terminalManager.sendCommand(sessionId, `echo "Session ${i}"`),
       );
 
       const results = await Promise.all(promises);
@@ -361,7 +357,7 @@ describe('Terminal Manager - Comprehensive Tests', () => {
       await assertRejects(
         () => terminalManager.sendCommand(sessionId, 'failing-command'),
         Error,
-        'Command execution failed'
+        'Command execution failed',
       );
     });
 
@@ -378,7 +374,7 @@ describe('Terminal Manager - Comprehensive Tests', () => {
       for (const command of malformedCommands) {
         await TestAssertions.assertThrowsAsync(
           () => terminalManager.sendCommand(sessionId, command as any),
-          Error
+          Error,
         );
       }
     });
@@ -391,11 +387,12 @@ describe('Terminal Manager - Comprehensive Tests', () => {
 
     it('should handle high session creation throughput', async () => {
       const { stats } = await PerformanceTestUtils.benchmark(
-        () => terminalManager.spawnTerminal({
-          id: `perf-agent-${Date.now()}-${Math.random()}`,
-          name: 'Performance Agent',
-        }),
-        { iterations: 100, concurrency: 5 }
+        () =>
+          terminalManager.spawnTerminal({
+            id: `perf-agent-${Date.now()}-${Math.random()}`,
+            name: 'Performance Agent',
+          }),
+        { iterations: 100, concurrency: 5 },
       );
 
       TestAssertions.assertInRange(stats.mean, 0, 100); // Should be fast
@@ -409,7 +406,7 @@ describe('Terminal Manager - Comprehensive Tests', () => {
 
       const { stats } = await PerformanceTestUtils.benchmark(
         () => terminalManager.sendCommand(sessionId, `echo "Test ${Date.now()}"`),
-        { iterations: 50, concurrency: 3 }
+        { iterations: 50, concurrency: 3 },
       );
 
       TestAssertions.assertInRange(stats.mean, 0, 50); // Should be fast
@@ -422,19 +419,19 @@ describe('Terminal Manager - Comprehensive Tests', () => {
       const { leaked } = await MemoryTestUtils.checkMemoryLeak(async () => {
         // Create many sessions
         const sessionIds = await Promise.all(
-          Array.from({ length: 100 }, () => terminalManager.spawnTerminal())
+          Array.from({ length: 100 }, () => terminalManager.spawnTerminal()),
         );
 
         // Execute commands on all sessions
         await Promise.all(
-          sessionIds.map(sessionId =>
-            terminalManager.sendCommand(sessionId, 'echo "Memory test"')
-          )
+          sessionIds.map((sessionId) =>
+            terminalManager.sendCommand(sessionId, 'echo "Memory test"'),
+          ),
         );
 
         // Clean up sessions
         await Promise.all(
-          sessionIds.map(sessionId => terminalManager.terminateTerminal(sessionId))
+          sessionIds.map((sessionId) => terminalManager.terminateTerminal(sessionId)),
         );
       });
 
@@ -444,7 +441,7 @@ describe('Terminal Manager - Comprehensive Tests', () => {
     it('should maintain performance under resource pressure', async () => {
       // Simulate resource pressure by creating many sessions
       const sessionIds = await Promise.all(
-        Array.from({ length: 50 }, () => terminalManager.spawnTerminal())
+        Array.from({ length: 50 }, () => terminalManager.spawnTerminal()),
       );
 
       const { stats } = await PerformanceTestUtils.benchmark(
@@ -452,7 +449,7 @@ describe('Terminal Manager - Comprehensive Tests', () => {
           const randomSessionId = sessionIds[Math.floor(Math.random() * sessionIds.length)];
           return terminalManager.sendCommand(randomSessionId, 'echo "Under pressure"');
         },
-        { iterations: 20 }
+        { iterations: 20 },
       );
 
       // Performance should still be reasonable under pressure
@@ -470,7 +467,7 @@ describe('Terminal Manager - Comprehensive Tests', () => {
           duration: 3000, // 3 seconds
           maxConcurrency: 5,
           requestsPerSecond: 10,
-        }
+        },
       );
 
       TestAssertions.assertInRange(results.successfulRequests / results.totalRequests, 0.9, 1.0);
@@ -532,9 +529,9 @@ describe('Terminal Manager - Comprehensive Tests', () => {
 
       // Execute some commands
       await Promise.all(
-        sessionIds.map(sessionId =>
-          terminalManager.sendCommand(sessionId, 'echo "Metrics test"')
-        )
+        sessionIds.map((sessionId) =>
+          terminalManager.sendCommand(sessionId, 'echo "Metrics test"'),
+        ),
       );
 
       const health = await terminalManager.getHealthStatus();
@@ -555,11 +552,7 @@ describe('Terminal Manager - Comprehensive Tests', () => {
         throw new Error('Pool failure');
       });
 
-      await assertRejects(
-        () => terminalManager.spawnTerminal(),
-        Error,
-        'Pool failure'
-      );
+      await assertRejects(() => terminalManager.spawnTerminal(), Error, 'Pool failure');
     });
 
     it('should handle invalid session IDs', async () => {
@@ -568,7 +561,7 @@ describe('Terminal Manager - Comprehensive Tests', () => {
       for (const sessionId of invalidSessionIds) {
         await TestAssertions.assertThrowsAsync(
           () => terminalManager.sendCommand(sessionId as any, 'echo test'),
-          Error
+          Error,
         );
       }
     });
@@ -605,14 +598,14 @@ describe('Terminal Manager - Comprehensive Tests', () => {
       });
 
       const promises = Array.from({ length: 5 }, () =>
-        terminalManager.spawnTerminal().catch(error => error)
+        terminalManager.spawnTerminal().catch((error) => error),
       );
 
       const results = await Promise.all(promises);
 
       // Some should succeed, some should fail
-      const successes = results.filter(r => typeof r === 'string');
-      const failures = results.filter(r => r instanceof Error);
+      const successes = results.filter((r) => typeof r === 'string');
+      const failures = results.filter((r) => r instanceof Error);
 
       expect(successes.length >= 1).toBe(true);
       expect(failures.length >= 1).toBe(true);
@@ -625,11 +618,7 @@ describe('Terminal Manager - Comprehensive Tests', () => {
         throw new Error('No available slots');
       });
 
-      await assertRejects(
-        () => terminalManager.spawnTerminal(),
-        Error,
-        'No available slots'
-      );
+      await assertRejects(() => terminalManager.spawnTerminal(), Error, 'No available slots');
     });
 
     it('should recover from temporary adapter failures', async () => {
@@ -662,10 +651,7 @@ describe('Terminal Manager - Comprehensive Tests', () => {
       await terminalManager.initialize();
 
       // Create some sessions
-      await Promise.all([
-        terminalManager.spawnTerminal(),
-        terminalManager.spawnTerminal(),
-      ]);
+      await Promise.all([terminalManager.spawnTerminal(), terminalManager.spawnTerminal()]);
 
       await terminalManager.shutdown();
 
@@ -694,12 +680,12 @@ describe('Terminal Manager - Comprehensive Tests', () => {
       await terminalManager.initialize();
 
       mockPool.shutdown = spy(async () => {
-        await new Promise(resolve => setTimeout(resolve, 30000)); // 30 seconds
+        await new Promise((resolve) => setTimeout(resolve, 30000)); // 30 seconds
       });
 
       await TestAssertions.assertCompletesWithin(
         () => terminalManager.shutdown(),
-        5000 // Should timeout shutdown after 5 seconds
+        5000, // Should timeout shutdown after 5 seconds
       );
     });
 
@@ -723,13 +709,13 @@ describe('Terminal Manager - Comprehensive Tests', () => {
       await assertRejects(
         () => terminalManager.spawnTerminal(),
         Error,
-        'Terminal manager not initialized'
+        'Terminal manager not initialized',
       );
 
       await assertRejects(
         () => terminalManager.sendCommand('session-id', 'echo test'),
         Error,
-        'Terminal manager not initialized'
+        'Terminal manager not initialized',
       );
     });
   });

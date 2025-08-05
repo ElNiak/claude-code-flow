@@ -18,7 +18,6 @@ import type {
 import type { ILogger } from '../../core/logger.js';
 import type { IEventBus } from '../../core/event-bus.js';
 import type { DistributedMemorySystem } from '../../memory/distributed-memory.js';
-import { generateId } from '../../utils/helpers.js';
 
 export interface AgentState {
   id: AgentId;

@@ -2,7 +2,7 @@
  * Test suite for SystemMonitor
  */
 
-import { describe, it, beforeEach, afterEach, expect } from "../../../../test.utils";
+import { describe, it, beforeEach, afterEach, expect } from '../../../../test.utils';
 import { SystemMonitor } from '../../../../src/cli/commands/start/system-monitor.ts';
 import { ProcessManager } from '../../../../src/cli/commands/start/process-manager.ts';
 import { eventBus } from '../../../../src/core/event-bus.ts';
@@ -27,7 +27,10 @@ describe('SystemMonitor', () => {
       const monitor = new SystemMonitor(processManager);
 
       // Emit some events
-      eventBus.emit(SystemEvents.AGENT_SPAWNED, { agentId: 'test-1', profile: { type: 'researcher' } });
+      eventBus.emit(SystemEvents.AGENT_SPAWNED, {
+        agentId: 'test-1',
+        profile: { type: 'researcher' },
+      });
       eventBus.emit(SystemEvents.TASK_COMPLETED, { taskId: 'task-1' });
 
       const events = monitor.getRecentEvents(10);
@@ -39,11 +42,11 @@ describe('SystemMonitor', () => {
     it('should track agent spawned events', () => {
       eventBus.emit(SystemEvents.AGENT_SPAWNED, {
         agentId: 'agent-123',
-        profile: { type: 'researcher' }
+        profile: { type: 'researcher' },
       });
 
       const events = systemMonitor.getRecentEvents(10);
-      const agentEvent = events.find(e => e.type === 'agent_spawned');
+      const agentEvent = events.find((e) => e.type === 'agent_spawned');
 
       expect(agentEvent).toBeDefined();
       expect(agentEvent?.data.agentId).toBe('agent-123');
@@ -53,11 +56,11 @@ describe('SystemMonitor', () => {
     it('should track agent terminated events', () => {
       eventBus.emit(SystemEvents.AGENT_TERMINATED, {
         agentId: 'agent-123',
-        reason: 'Task completed'
+        reason: 'Task completed',
       });
 
       const events = systemMonitor.getRecentEvents(10);
-      const event = events.find(e => e.type === 'agent_terminated');
+      const event = events.find((e) => e.type === 'agent_terminated');
 
       expect(event).toBeDefined();
       expect(event?.data.reason).toBe('Task completed');
@@ -67,23 +70,23 @@ describe('SystemMonitor', () => {
     it('should track task events', () => {
       eventBus.emit(SystemEvents.TASK_ASSIGNED, {
         taskId: 'task-1',
-        agentId: 'agent-1'
+        agentId: 'agent-1',
       });
 
       eventBus.emit(SystemEvents.TASK_COMPLETED, {
-        taskId: 'task-1'
+        taskId: 'task-1',
       });
 
       eventBus.emit(SystemEvents.TASK_FAILED, {
         taskId: 'task-2',
-        error: new Error('Test error')
+        error: new Error('Test error'),
       });
 
       const events = systemMonitor.getRecentEvents(10);
 
-      const assigned = events.find(e => e.type === 'task_assigned');
-      const completed = events.find(e => e.type === 'task_completed');
-      const failed = events.find(e => e.type === 'task_failed');
+      const assigned = events.find((e) => e.type === 'task_assigned');
+      const completed = events.find((e) => e.type === 'task_completed');
+      const failed = events.find((e) => e.type === 'task_failed');
 
       expect(assigned).toBeDefined();
       expect(completed).toBeDefined();
@@ -97,11 +100,11 @@ describe('SystemMonitor', () => {
     it('should track system errors', () => {
       eventBus.emit(SystemEvents.SYSTEM_ERROR, {
         component: 'TestComponent',
-        error: new Error('System failure')
+        error: new Error('System failure'),
       });
 
       const events = systemMonitor.getRecentEvents(10);
-      const errorEvent = events.find(e => e.type === 'system_error');
+      const errorEvent = events.find((e) => e.type === 'system_error');
 
       expect(errorEvent).toBeDefined();
       expect(errorEvent?.data.component).toBe('TestComponent');
@@ -111,23 +114,23 @@ describe('SystemMonitor', () => {
     it('should track process manager events', () => {
       processManager.emit('processStarted', {
         processId: 'test-process',
-        process: { name: 'Test Process' }
+        process: { name: 'Test Process' },
       });
 
       processManager.emit('processStopped', {
-        processId: 'test-process'
+        processId: 'test-process',
       });
 
       processManager.emit('processError', {
         processId: 'test-process',
-        error: new Error('Process error')
+        error: new Error('Process error'),
       });
 
       const events = systemMonitor.getRecentEvents(10);
 
-      const started = events.find(e => e.type === 'process_started');
-      const stopped = events.find(e => e.type === 'process_stopped');
-      const error = events.find(e => e.type === 'process_error');
+      const started = events.find((e) => e.type === 'process_started');
+      const stopped = events.find((e) => e.type === 'process_stopped');
+      const error = events.find((e) => e.type === 'process_error');
 
       expect(started).toBeDefined();
       expect(stopped).toBeDefined();
@@ -139,7 +142,7 @@ describe('SystemMonitor', () => {
       for (let i = 0; i < 150; i++) {
         eventBus.emit(SystemEvents.AGENT_SPAWNED, {
           agentId: `agent-${i}`,
-          profile: { type: 'test' }
+          profile: { type: 'test' },
         });
       }
 
@@ -154,7 +157,7 @@ describe('SystemMonitor', () => {
 
       const agentSpawnedMsg = formatMessage({
         type: 'agent_spawned',
-        data: { agentId: 'agent-1', profile: { type: 'researcher' } }
+        data: { agentId: 'agent-1', profile: { type: 'researcher' } },
       });
       expect(agentSpawnedMsg.includes('Agent spawned')).toBe(true);
       expect(agentSpawnedMsg.includes('agent-1')).toBe(true);
@@ -162,14 +165,14 @@ describe('SystemMonitor', () => {
 
       const taskCompletedMsg = formatMessage({
         type: 'task_completed',
-        data: { taskId: 'task-1' }
+        data: { taskId: 'task-1' },
       });
       expect(taskCompletedMsg.includes('Task completed')).toBe(true);
       expect(taskCompletedMsg.includes('task-1')).toBe(true);
 
       const systemErrorMsg = formatMessage({
         type: 'system_error',
-        data: { component: 'TestComp', error: { message: 'Error msg' } }
+        data: { component: 'TestComp', error: { message: 'Error msg' } },
       });
       expect(systemErrorMsg.includes('System error')).toBe(true);
       expect(systemErrorMsg.includes('TestComp')).toBe(true);
@@ -288,7 +291,7 @@ describe('SystemMonitor', () => {
       // Add an error event
       eventBus.emit(SystemEvents.SYSTEM_ERROR, {
         component: 'TestComponent',
-        error: new Error('Test error')
+        error: new Error('Test error'),
       });
 
       // Mock console output

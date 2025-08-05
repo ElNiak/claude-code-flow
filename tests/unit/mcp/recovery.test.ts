@@ -133,7 +133,7 @@ describe('MCP Recovery Mechanisms', () => {
       mockTransport.setFailHeartbeat(true);
 
       // Wait for heartbeat failures
-      await new Promise(resolve => setTimeout(resolve, 600));
+      await new Promise((resolve) => setTimeout(resolve, 600));
 
       expect(connectionLostEmitted).toBe(true);
       const health = monitor.getHealthStatus();
@@ -168,7 +168,7 @@ describe('MCP Recovery Mechanisms', () => {
       manager.startAutoReconnect();
 
       // Wait for attempts
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       expect(attempts).toBeGreaterThan(0);
       expect(attempts).toBeLessThanOrEqual(3);
@@ -247,7 +247,7 @@ describe('MCP Recovery Mechanisms', () => {
       coordinator.disableCLIFallback();
 
       // Process queue should be triggered
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       expect(processedCount).toBe(0); // No MCP client to replay
       expect(coordinator.getState().isFallbackActive).toBe(false);
@@ -263,9 +263,7 @@ describe('MCP Recovery Mechanisms', () => {
       const state = {
         sessionId: 'test-session',
         lastConnected: new Date(),
-        pendingRequests: [
-          { jsonrpc: '2.0' as const, id: '1', method: 'test', params: {} },
-        ],
+        pendingRequests: [{ jsonrpc: '2.0' as const, id: '1', method: 'test', params: {} }],
         configuration: {},
         metadata: { test: true },
       };
@@ -350,7 +348,7 @@ describe('MCP Recovery Mechanisms', () => {
       await client.forceRecovery();
 
       // Wait for recovery attempts
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
       expect(recoveryStarted).toBe(true);
       expect(fallbackActivated).toBe(true);
@@ -388,11 +386,11 @@ describe('MCP Recovery Mechanisms', () => {
       const recoveryPromise = client.forceRecovery();
 
       // Allow failure then fix
-      await new Promise(resolve => setTimeout(resolve, 200));
+      await new Promise((resolve) => setTimeout(resolve, 200));
       mockTransport.setFailConnect(false);
 
       // Wait for recovery
-      await new Promise(resolve => setTimeout(resolve, 300));
+      await new Promise((resolve) => setTimeout(resolve, 300));
 
       expect(recoverySuccess).toBe(true);
       expect(client.isConnected()).toBe(true);

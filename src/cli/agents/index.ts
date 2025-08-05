@@ -11,9 +11,6 @@ import {
   isValidAgentType as validateAgentType,
 } from '../../hive-mind/types.js';
 
-// Agent factory counter for unique IDs
-const agentCounter = 0;
-
 // Runtime validation and error handling
 export interface RuntimeValidationError {
   type: 'validation_error';

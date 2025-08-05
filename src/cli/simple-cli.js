@@ -27,11 +27,17 @@ import process from 'process';
 import readline from 'readline';
 import { getMainHelp, getCommandHelp, getStandardizedCommandHelp } from './help-text.js';
 import { getVersion } from '../utils/version.js';
+import { ComponentLoggerFactory, generateCorrelationId, generateSessionId } from '../core/logger.js';
 
 const VERSION = getVersion();
 
+// Initialize dual-stream logging with session tracking
+const correlationId = generateCorrelationId();
+const sessionId = generateSessionId();
+const outputManager = ComponentLoggerFactory.getCLIOutputManager('simple-cli', correlationId, sessionId);
+
 function printHelp(plain = false) {
-  console.log(getMainHelp(plain));
+  outputManager.userInfo(getMainHelp(plain));
 }
 
 function printCommandHelp(command) {
@@ -39,16 +45,16 @@ function printCommandHelp(command) {
   const standardCommands = ['agent', 'sparc', 'memory'];
   if (standardCommands.includes(command)) {
     const help = getStandardizedCommandHelp(command);
-    console.log(help);
+    outputManager.userInfo(help);
   } else {
     const help = getCommandHelp(command);
-    console.log(help);
+    outputManager.userInfo(help);
   }
 }
 
 // Legacy help function for backward compatibility
 function printLegacyHelp() {
-  console.log(`
+  outputManager.userInfo(`
 🌊 Claude-Flow v${VERSION} - Enterprise-Grade AI Agent Orchestration Platform
 
 🎯 ENTERPRISE FEATURES: Complete ruv-swarm integration with 27 MCP tools, neural networking, and production-ready infrastructure
@@ -175,29 +181,29 @@ COMMON OPTIONS:
 }
 
 function printVersion() {
-  console.log(`Claude-Flow v${VERSION}`);
+  outputManager.userInfo(`Claude-Flow v${VERSION}`, { emoji: '🌊' });
 }
 
 function printError(message) {
-  console.error(`❌ Error: ${message}`);
+  outputManager.userError(message, undefined, { sessionId });
 }
 
 function printSuccess(message) {
-  console.log(`✅ ${message}`);
+  outputManager.userSuccess(message, { sessionId });
 }
 
 function printWarning(message) {
-  console.warn(`⚠️  Warning: ${message}`);
+  outputManager.userWarning(message, { sessionId });
 }
 
 function showHelpWithCommands(plain = false) {
   printHelp(plain);
-  console.log('\nRegistered Commands:');
+  outputManager.userInfo('\nRegistered Commands:');
   const commands = listCommands();
   for (const command of commands) {
-    console.log(`  ${command.name.padEnd(12)} ${command.description}`);
+    outputManager.userInfo(`  ${command.name.padEnd(12)} ${command.description}`);
   }
-  console.log('\nUse "claude-flow help <command>" for detailed usage information');
+  outputManager.userInfo('\nUse "claude-flow help <command>" for detailed usage information');
 }
 
 async function main() {
@@ -243,7 +249,7 @@ async function main() {
       showCommandHelp(command);
     } else {
       printError(`Unknown command: ${command}`);
-      console.log('\nRun "claude-flow --help" to see available commands.');
+      outputManager.userInfo('\nRun "claude-flow --help" to see available commands.');
     }
     return;
   }
@@ -254,22 +260,22 @@ async function main() {
     case 'environment':
       if (enhancedFlags._environment) {
         const env = enhancedFlags._environment;
-        console.log(`\n🖥️  Environment Detection Results:`);
-        console.log(`   Terminal: ${env.terminalType}`);
-        console.log(`   Interactive: ${env.isInteractive ? 'Yes' : 'No'}`);
-        console.log(`   TTY Support: ${env.supportsRawMode ? 'Yes' : 'No'}`);
-        console.log(
+        outputManager.userInfo(`\n🖥️  Environment Detection Results:`);
+        outputManager.userInfo(`   Terminal: ${env.terminalType}`);
+        outputManager.userInfo(`   Interactive: ${env.isInteractive ? 'Yes' : 'No'}`);
+        outputManager.userInfo(`   TTY Support: ${env.supportsRawMode ? 'Yes' : 'No'}`);
+        outputManager.userInfo(
           `   Detected: ${env.isVSCode ? 'VS Code' : env.isCI ? 'CI/CD' : env.isDocker ? 'Docker' : env.isSSH ? 'SSH' : 'Standard Terminal'}`,
         );
         if (env.recommendedFlags.length > 0) {
-          console.log(`\n💡 Recommended flags:`);
-          console.log(`   ${env.recommendedFlags.join(' ')}`);
+          outputManager.userInfo(`\n💡 Recommended flags:`);
+          outputManager.userInfo(`   ${env.recommendedFlags.join(' ')}`);
         }
         if (enhancedFlags.appliedDefaults && enhancedFlags.appliedDefaults.length > 0) {
-          console.log(`\n✅ Auto-applied:`);
-          console.log(`   ${enhancedFlags.appliedDefaults.join(' ')}`);
+          outputManager.userSuccess(`\n✅ Auto-applied:`);
+          outputManager.userInfo(`   ${enhancedFlags.appliedDefaults.join(' ')}`);
         }
-        console.log();
+        outputManager.userInfo('');
       } else {
         console.log('Environment detection not available');
       }
@@ -2166,8 +2172,8 @@ ${flags.mode === 'full' || !flags.mode ? `Full-stack development covering all as
 
 // REPL Implementation
 async function startRepl() {
-  console.log('🧠 Claude-Flow Interactive Shell v' + VERSION);
-  console.log('Type "help" for available commands, "exit" to quit\n');
+  outputManager.userInfo('🧠 Claude-Flow Interactive Shell v' + VERSION);
+  outputManager.userInfo('Type "help" for available commands, "exit" to quit\n');
 
   const replState = {
     history: [],

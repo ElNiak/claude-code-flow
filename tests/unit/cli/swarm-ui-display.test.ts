@@ -15,7 +15,7 @@ function formatTaskDetails(task: any): string {
     `Start Time: ${task.startTime || 'Not started'}`,
     '',
     'Task Data:',
-    JSON.stringify(task.task, null, 2)
+    JSON.stringify(task.task, null, 2),
   ].join('\n');
 
   return details;
@@ -28,10 +28,10 @@ describe('SwarmUI Display Formatting', () => {
       swarmId: 'swarm-456',
       task: {
         type: 'research',
-        description: 'Test task'
+        description: 'Test task',
       },
       status: 'active',
-      startTime: '2025-07-15T10:00:00Z'
+      startTime: '2025-07-15T10:00:00Z',
     };
 
     const result = formatTaskDetails(task);
@@ -56,10 +56,10 @@ describe('SwarmUI Display Formatting', () => {
       swarmId: 'swarm-multi',
       task: {
         type: 'complex',
-        description: 'Line 1\nLine 2\nLine 3'
+        description: 'Line 1\nLine 2\nLine 3',
       },
       status: 'running',
-      startTime: '2025-07-15T12:00:00Z'
+      startTime: '2025-07-15T12:00:00Z',
     };
 
     const result = formatTaskDetails(task);
@@ -78,7 +78,7 @@ describe('SwarmUI Display Formatting', () => {
   it('should handle missing data gracefully', () => {
     const task = {
       agentId: 'agent-min',
-      swarmId: 'swarm-min'
+      swarmId: 'swarm-min',
     };
 
     const result = formatTaskDetails(task);
@@ -97,9 +97,9 @@ describe('SwarmUI Display Formatting', () => {
         type: 'test',
         nested: {
           value: 123,
-          array: [1, 2, 3]
-        }
-      }
+          array: [1, 2, 3],
+        },
+      },
     };
 
     const result = formatTaskDetails(task);

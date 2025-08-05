@@ -5,7 +5,16 @@
  * swarm topology to ensure proper integration with native hive mind.
  */
 
-import { describe, beforeAll, afterAll, beforeEach, afterEach, it, expect, jest } from '@jest/globals';
+import {
+  describe,
+  beforeAll,
+  afterAll,
+  beforeEach,
+  afterEach,
+  it,
+  expect,
+  jest,
+} from '@jest/globals';
 import { EventBus } from '../../core/event-bus.js';
 import { Logger } from '../../core/logger.js';
 import { MaestroSwarmCoordinator, MaestroSwarmConfig } from '../maestro-swarm-coordinator.js';
@@ -41,13 +50,13 @@ describe('Native Hive Mind Integration Tests', () => {
         autoSpawn: true,
         enableConsensus: true,
         enableMemory: true,
-        enableCommunication: true
+        enableCommunication: true,
       },
       enableConsensusValidation: true,
       enableLivingDocumentation: true,
       enableSteeringIntegration: true,
       specsDirectory: join(tempDir, 'specs'),
-      steeringDirectory: join(tempDir, 'steering')
+      steeringDirectory: join(tempDir, 'steering'),
     };
   });
 
@@ -98,12 +107,12 @@ describe('Native Hive Mind Integration Tests', () => {
       expect(agentTypes).toContain('steering_documenter');
 
       // Check agent counts
-      expect(agentTypes.filter(t => t === 'requirements_analyst')).toHaveLength(1);
-      expect(agentTypes.filter(t => t === 'design_architect')).toHaveLength(2);
-      expect(agentTypes.filter(t => t === 'task_planner')).toHaveLength(1);
-      expect(agentTypes.filter(t => t === 'implementation_coder')).toHaveLength(2);
-      expect(agentTypes.filter(t => t === 'quality_reviewer')).toHaveLength(1);
-      expect(agentTypes.filter(t => t === 'steering_documenter')).toHaveLength(1);
+      expect(agentTypes.filter((t) => t === 'requirements_analyst')).toHaveLength(1);
+      expect(agentTypes.filter((t) => t === 'design_architect')).toHaveLength(2);
+      expect(agentTypes.filter((t) => t === 'task_planner')).toHaveLength(1);
+      expect(agentTypes.filter((t) => t === 'implementation_coder')).toHaveLength(2);
+      expect(agentTypes.filter((t) => t === 'quality_reviewer')).toHaveLength(1);
+      expect(agentTypes.filter((t) => t === 'steering_documenter')).toHaveLength(1);
     });
 
     it('should initialize steering documents in swarm memory', async () => {
@@ -223,7 +232,7 @@ describe('Native Hive Mind Integration Tests', () => {
       jest.spyOn(consensusEngine, 'createProposal').mockResolvedValue('test-proposal-id');
       jest.spyOn(consensusEngine, 'getProposalStatus').mockResolvedValue({
         status: 'achieved',
-        currentRatio: 0.75
+        currentRatio: 0.75,
       });
 
       await swarmCoordinator.approvePhase(featureName);
@@ -244,11 +253,12 @@ describe('Native Hive Mind Integration Tests', () => {
       jest.spyOn(consensusEngine, 'createProposal').mockResolvedValue('test-proposal-id');
       jest.spyOn(consensusEngine, 'getProposalStatus').mockResolvedValue({
         status: 'failed',
-        currentRatio: 0.4
+        currentRatio: 0.4,
       });
 
-      await expect(swarmCoordinator.approvePhase(featureName))
-        .rejects.toThrow('Phase approval consensus failed');
+      await expect(swarmCoordinator.approvePhase(featureName)).rejects.toThrow(
+        'Phase approval consensus failed',
+      );
     });
   });
 
@@ -284,7 +294,7 @@ describe('Native Hive Mind Integration Tests', () => {
       expect(broadcastSpy).toHaveBeenCalledWith({
         type: 'steering_update',
         domain,
-        content: expect.stringContaining('Test broadcast content')
+        content: expect.stringContaining('Test broadcast content'),
       });
     });
 
@@ -309,8 +319,8 @@ describe('Native Hive Mind Integration Tests', () => {
         ...config,
         hiveMindConfig: {
           ...config.hiveMindConfig,
-          maxAgents: 4
-        }
+          maxAgents: 4,
+        },
       };
 
       const limitedCoordinator = new MaestroSwarmCoordinator(limitedConfig, eventBus, logger);
@@ -330,11 +340,11 @@ describe('Native Hive Mind Integration Tests', () => {
       jest.spyOn(hiveMind, 'getTask').mockResolvedValue({
         id: 'test-task',
         status: 'in_progress',
-        result: null
+        result: null,
       });
 
       await expect(
-        (swarmCoordinator as any).waitForTaskCompletion('test-task', 1000)
+        (swarmCoordinator as any).waitForTaskCompletion('test-task', 1000),
       ).rejects.toThrow('Task timeout');
     });
 
@@ -360,7 +370,7 @@ describe('Native Hive Mind Integration Tests', () => {
       await swarmCoordinator.createSpec('event-test', 'Test event emission');
 
       expect(specCreatedSpy).toHaveBeenCalledWith({
-        featureName: 'event-test'
+        featureName: 'event-test',
       });
     });
 
@@ -377,14 +387,14 @@ describe('Native Hive Mind Integration Tests', () => {
       jest.spyOn(consensusEngine, 'createProposal').mockResolvedValue('test-proposal');
       jest.spyOn(consensusEngine, 'getProposalStatus').mockResolvedValue({
         status: 'achieved',
-        currentRatio: 0.8
+        currentRatio: 0.8,
       });
 
       await swarmCoordinator.approvePhase(featureName);
 
       expect(phaseApprovedSpy).toHaveBeenCalledWith({
         featureName,
-        nextPhase: 'Research & Design'
+        nextPhase: 'Research & Design',
       });
     });
   });
@@ -417,13 +427,13 @@ describe('Performance Benchmarks', () => {
         autoSpawn: true,
         enableConsensus: false, // Disable for pure performance testing
         enableMemory: true,
-        enableCommunication: true
+        enableCommunication: true,
       },
       enableConsensusValidation: false,
       enableLivingDocumentation: true,
       enableSteeringIntegration: true,
       specsDirectory: join(tempDir, 'specs'),
-      steeringDirectory: join(tempDir, 'steering')
+      steeringDirectory: join(tempDir, 'steering'),
     };
 
     coordinator = new MaestroSwarmCoordinator(config, eventBus, logger);
@@ -441,7 +451,7 @@ describe('Performance Benchmarks', () => {
     const testCoordinator = new MaestroSwarmCoordinator(
       (coordinator as any).config,
       eventBus,
-      logger
+      logger,
     );
 
     await testCoordinator.initialize();
@@ -466,7 +476,7 @@ describe('Performance Benchmarks', () => {
     const concurrentSpecs = 3;
 
     const promises = Array.from({ length: concurrentSpecs }, (_, i) =>
-      coordinator.createSpec(`concurrent-spec-${i}`, `Concurrent test spec ${i}`)
+      coordinator.createSpec(`concurrent-spec-${i}`, `Concurrent test spec ${i}`),
     );
 
     await Promise.all(promises);

@@ -27,10 +27,10 @@ export class DeveloperAgent {
         `${feature.replace(/\s+/g, '')}.controller.ts`,
         `${feature.replace(/\s+/g, '')}.service.ts`,
         `${feature.replace(/\s+/g, '')}.model.ts`,
-        `${feature.replace(/\s+/g, '')}.test.ts`
+        `${feature.replace(/\s+/g, '')}.test.ts`,
       ],
       dependencies: ['express', 'jsonwebtoken', 'bcrypt'],
-      testCoverage: Math.floor(Math.random() * 30) + 70
+      testCoverage: Math.floor(Math.random() * 30) + 70,
     };
 
     console.log(`[${this.agentId}] Code generation completed`);
@@ -38,7 +38,7 @@ export class DeveloperAgent {
       agentId: this.agentId,
       duration: Date.now() - this.startTime,
       feature,
-      code
+      code,
     };
   }
 
@@ -54,13 +54,13 @@ export class DeveloperAgent {
         'Reduced cyclomatic complexity',
         'Improved error handling',
         'Added type safety',
-        'Optimized database queries'
+        'Optimized database queries',
       ],
       performanceGain: `${Math.floor(Math.random() * 30) + 10}%`,
       codeQualityScore: {
         before: Math.floor(Math.random() * 20) + 60,
-        after: Math.floor(Math.random() * 15) + 85
-      }
+        after: Math.floor(Math.random() * 15) + 85,
+      },
     };
 
     console.log(`[${this.agentId}] Refactoring completed`);
@@ -68,7 +68,7 @@ export class DeveloperAgent {
       agentId: this.agentId,
       duration: Date.now() - this.startTime,
       module,
-      refactoring
+      refactoring,
     };
   }
 
@@ -80,20 +80,17 @@ export class DeveloperAgent {
     const debugging = {
       issueIdentified: true,
       rootCause: 'Race condition in async token validation',
-      affectedFiles: [
-        'src/auth/tokenValidator.ts',
-        'src/middleware/authMiddleware.ts'
-      ],
+      affectedFiles: ['src/auth/tokenValidator.ts', 'src/middleware/authMiddleware.ts'],
       solution: {
         description: 'Implement proper mutex locks for token validation',
         estimatedTime: '2 hours',
-        risk: 'low'
+        risk: 'low',
       },
       preventionSteps: [
         'Add integration tests for concurrent requests',
         'Implement request queuing mechanism',
-        'Add monitoring for race conditions'
-      ]
+        'Add monitoring for race conditions',
+      ],
     };
 
     console.log(`[${this.agentId}] Debugging completed`);
@@ -101,7 +98,7 @@ export class DeveloperAgent {
       agentId: this.agentId,
       duration: Date.now() - this.startTime,
       issue,
-      debugging
+      debugging,
     };
   }
 
@@ -116,19 +113,19 @@ export class DeveloperAgent {
       documentationPages: Math.floor(Math.random() * 5) + 2,
       apiEndpoints: Math.floor(Math.random() * 8) + 4,
       estimatedComplexity: 'medium',
-      completionStatus: '100%'
+      completionStatus: '100%',
     };
 
     console.log(`[${this.agentId}] Feature implementation completed`);
     return {
       agentId: this.agentId,
       duration: Date.now() - this.startTime,
-      implementation
+      implementation,
     };
   }
 
   private async simulateWork(ms: number): Promise<void> {
-    await new Promise(resolve => setTimeout(resolve, ms));
+    await new Promise((resolve) => setTimeout(resolve, ms));
   }
 }
 
@@ -140,8 +137,8 @@ if (require.main === module) {
     developer.generateCode('user authentication'),
     developer.refactorCode('legacy payment module'),
     developer.debugIssue('Memory leak in websocket handler'),
-    developer.implementFeature({ name: 'Real-time notifications' })
-  ]).then(results => {
+    developer.implementFeature({ name: 'Real-time notifications' }),
+  ]).then((results) => {
     console.log('\nDeveloper Agent Results:', JSON.stringify(results, null, 2));
   });
 }

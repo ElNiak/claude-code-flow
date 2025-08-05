@@ -38,11 +38,6 @@ interface ApiEndpoint {
   rateLimit: string;
 }
 
-interface MicroserviceComponent {
-  service: string;
-  purpose: string;
-}
-
 interface ServiceComponent {
   name: string;
   responsibility: string;
@@ -56,13 +51,6 @@ interface DatabaseComponent {
   type: string;
   purpose: string;
   size: string;
-}
-
-interface InfrastructureComponent {
-  name: string;
-  type: string;
-  purpose: string;
-  specifications: any;
 }
 
 export class ArchitectAgent extends BaseAgent {
