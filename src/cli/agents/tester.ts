@@ -150,7 +150,7 @@ export class TesterAgent extends BaseAgent {
     };
   }
 
-  override async executeTask(task: TaskDefinition): Promise<any> {
+  override async executeTask(task: TaskDefinition): Promise<unknown> {
     this.logger.info('Tester executing task', {
       agentId: this.id,
       taskType: task.type,
@@ -188,8 +188,17 @@ export class TesterAgent extends BaseAgent {
     }
   }
 
-  private async createUnitTests(task: TaskDefinition): Promise<any> {
-    const _code = task.input?.code;
+  private async createUnitTests(
+    task: TaskDefinition,
+  ): Promise<{
+    framework: string;
+    testSuites: unknown[];
+    coverage: unknown;
+    mocks: unknown[];
+    assertions: unknown[];
+    setup: unknown;
+    timestamp: Date;
+  }> {
     const framework = task.input?.framework || 'jest';
     const coverage = task.input?.coverage || 80;
     const style = task.input?.style || 'arrange-act-assert';
@@ -205,19 +214,19 @@ export class TesterAgent extends BaseAgent {
       style,
       targetCoverage: coverage,
       testFiles: [] as TestCoverageItem[],
-      testSuites: [] as any[],
+      testSuites: [],
       coverage: {
         lines: 0,
         functions: 0,
         branches: 0,
         statements: 0,
       },
-      mocks: [] as any[],
-      assertions: [] as any[],
+      mocks: [],
+      assertions: [],
       setup: {
         beforeEach: true,
         afterEach: true,
-        fixtures: [] as any[],
+        fixtures: [],
       },
       timestamp: new Date(),
     };
@@ -248,7 +257,16 @@ export class TesterAgent extends BaseAgent {
     return testing;
   }
 
-  private async createIntegrationTests(task: TaskDefinition): Promise<any> {
+  private async createIntegrationTests(
+    task: TaskDefinition,
+  ): Promise<{
+    framework: string;
+    testSuites: unknown[];
+    dependencies: unknown;
+    dataFlow: unknown[];
+    assertions: unknown[];
+    timestamp: Date;
+  }> {
     const components = task.input?.components || [];
     const database = task.input?.database || false;
     const api = task.input?.api || false;
@@ -266,15 +284,15 @@ export class TesterAgent extends BaseAgent {
       components,
       database,
       api,
-      testSuites: [] as any[],
+      testSuites: [],
       environment: {
         setup: 'docker-compose',
         database: 'test-db',
-        services: [] as any[],
+        services: [],
       },
       scenarios: [] as TestCase[],
-      dataFlow: [] as any[],
-      assertions: [] as any[],
+      dataFlow: [],
+      assertions: [],
       timestamp: new Date(),
     };
 
@@ -297,7 +315,16 @@ export class TesterAgent extends BaseAgent {
     return integration;
   }
 
-  private async createE2ETests(task: TaskDefinition): Promise<any> {
+  private async createE2ETests(
+    task: TaskDefinition,
+  ): Promise<{
+    framework: string;
+    pageObjects: unknown[];
+    selectors: unknown[];
+    assertions: unknown[];
+    configuration: unknown;
+    timestamp: Date;
+  }> {
     const userJourneys = task.input?.userJourneys || [];
     const browser = task.input?.browser || 'chromium';
     const framework = task.input?.framework || 'playwright';
@@ -316,9 +343,9 @@ export class TesterAgent extends BaseAgent {
       viewport,
       userJourneys,
       testScenarios: [] as PerformanceTestCase[],
-      pageObjects: [] as any[],
-      selectors: [] as any[],
-      assertions: [] as any[],
+      pageObjects: [],
+      selectors: [],
+      assertions: [],
       configuration: {
         headless: true,
         screenshots: true,
@@ -352,7 +379,15 @@ export class TesterAgent extends BaseAgent {
     return e2e;
   }
 
-  private async performanceTest(task: TaskDefinition): Promise<any> {
+  private async performanceTest(
+    task: TaskDefinition,
+  ): Promise<{
+    metrics: unknown;
+    loadTests: unknown;
+    results: unknown;
+    recommendations: unknown;
+    timestamp: Date;
+  }> {
     const target = task.input?.target;
     const loadPattern = task.input?.loadPattern || 'ramp-up';
     const duration = task.input?.duration || '5m';
@@ -417,7 +452,15 @@ export class TesterAgent extends BaseAgent {
     return performance;
   }
 
-  private async securityTest(task: TaskDefinition): Promise<any> {
+  private async securityTest(
+    task: TaskDefinition,
+  ): Promise<{
+    scope: string;
+    compliance: unknown;
+    penetrationTests: unknown[];
+    recommendations: unknown[];
+    timestamp: Date;
+  }> {
     const target = task.input?.target;
     const testTypes = task.input?.types || ['authentication', 'authorization', 'injection'];
     const severity = task.input?.severity || 'all';
@@ -434,12 +477,12 @@ export class TesterAgent extends BaseAgent {
       severity,
       vulnerabilities: [] as SecurityIssue[],
       compliance: {
-        owasp: [] as any[],
-        gdpr: [] as any[],
-        pci: [] as any[],
+        owasp: [],
+        gdpr: [],
+        pci: [],
       },
-      penetrationTests: [] as any[],
-      recommendations: [] as any[],
+      penetrationTests: [],
+      recommendations: [],
       riskLevel: 'unknown',
       timestamp: new Date(),
     };
@@ -462,7 +505,15 @@ export class TesterAgent extends BaseAgent {
     return security;
   }
 
-  private async testAPI(task: TaskDefinition): Promise<any> {
+  private async testAPI(
+    task: TaskDefinition,
+  ): Promise<{
+    endpoints: ApiTestResult[];
+    schemas: unknown[];
+    errorHandling: unknown[];
+    performance: unknown;
+    timestamp: Date;
+  }> {
     const endpoints = task.input?.endpoints || [];
     const authentication = task.input?.auth || false;
     const environment = task.input?.environment || 'staging';
@@ -478,9 +529,9 @@ export class TesterAgent extends BaseAgent {
       authentication,
       endpoints,
       testResults: [] as ApiTestResult[],
-      schemas: [] as any[],
+      schemas: [],
       responseValidation: true,
-      errorHandling: [] as any[],
+      errorHandling: [],
       performance: {
         averageResponseTime: 0,
         slowestEndpoint: '',
@@ -488,7 +539,7 @@ export class TesterAgent extends BaseAgent {
       },
       coverage: {
         endpoints: 0,
-        statusCodes: [] as any[],
+        statusCodes: [],
         errorScenarios: 0,
       },
       timestamp: new Date(),
@@ -516,7 +567,15 @@ export class TesterAgent extends BaseAgent {
     return apiTest;
   }
 
-  private async automateTests(task: TaskDefinition): Promise<any> {
+  private async automateTests(
+    task: TaskDefinition,
+  ): Promise<{
+    pipeline: string;
+    triggers: unknown;
+    configuration: unknown;
+    reporting: unknown;
+    timestamp: Date;
+  }> {
     const testSuite = task.input?.testSuite;
     const pipeline = task.input?.pipeline || 'ci/cd';
     const triggers = task.input?.triggers || ['commit', 'pr'];
@@ -557,9 +616,15 @@ export class TesterAgent extends BaseAgent {
     return automation;
   }
 
-  private async analyzeTests(task: TaskDefinition): Promise<any> {
-    const _testResults = task.input?.results;
-    const _coverage = task.input?.coverage;
+  private async analyzeTests(
+    task: TaskDefinition,
+  ): Promise<{
+    metrics: unknown;
+    flakyTests: unknown[];
+    slowTests: unknown[];
+    recommendations: unknown[];
+    timestamp: Date;
+  }> {
     const timeframe = task.input?.timeframe || '7d';
 
     this.logger.info('Analyzing tests', {
@@ -576,13 +641,13 @@ export class TesterAgent extends BaseAgent {
         flaky: 0,
       },
       trends: {
-        passRate: [] as any[],
-        executionTime: [] as any[],
-        coverage: [] as any[],
+        passRate: [],
+        executionTime: [],
+        coverage: [],
       },
-      flakyTests: [] as any[],
-      slowTests: [] as any[],
-      recommendations: [] as any[],
+      flakyTests: [],
+      slowTests: [],
+      recommendations: [],
       insights: [] as string[],
       timestamp: new Date(),
     };
@@ -607,7 +672,7 @@ export class TesterAgent extends BaseAgent {
     return analysis;
   }
 
-  private async performGeneralTesting(task: TaskDefinition): Promise<any> {
+  private async performGeneralTesting(task: TaskDefinition): Promise<unknown> {
     this.logger.info('Performing general testing', {
       description: task.description,
     });
@@ -620,7 +685,7 @@ export class TesterAgent extends BaseAgent {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  override getAgentStatus(): any {
+  override getAgentStatus(): Record<string, unknown> {
     return {
       ...super.getAgentStatus(),
       specialization: 'Testing & Quality Assurance',

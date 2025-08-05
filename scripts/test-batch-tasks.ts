@@ -5,7 +5,7 @@
  * Run with: deno run --allow-all scripts/test-batch-tasks.ts
  */
 
-import { runBatchTaskTest } from '../tests/integration/batch-task-test.ts';
+import { runBatchTaskTest } from '../tests/integration/batch-task-test.js';
 
 console.log('🚀 Claude-Flow Batch Task System Test Runner\n');
 console.log('This test will demonstrate:');

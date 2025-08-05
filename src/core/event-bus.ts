@@ -77,7 +77,7 @@ export class EventBus implements IEventBus {
   private static instance: EventBus;
   private typedBus: TypedEventBus;
 
-  private constructor(debug = false) {
+  public constructor(debug = false) {
     this.typedBus = new TypedEventBus(debug);
   }
 

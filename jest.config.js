@@ -37,7 +37,8 @@ export default {
   modulePathIgnorePatterns: [
     '<rootDir>/dist/',
     '<rootDir>/bin/',
-    '<rootDir>/node_modules/'
+    '<rootDir>/node_modules/',
+    '<rootDir>/examples/'
   ],
   transformIgnorePatterns: [
     'node_modules/(?!(chalk|ora|inquirer|nanoid|fs-extra|ansi-styles|ruv-swarm|@modelcontextprotocol)/)'
@@ -96,23 +97,19 @@ export default {
   projects: [
     {
       displayName: 'unit-debug',
-      testMatch: ['<rootDir>/tests/unit/debug/**/*.test.ts'],
-      testTimeout: 15000
+      testMatch: ['<rootDir>/tests/unit/debug/**/*.test.ts']
     },
     {
       displayName: 'integration-debug',
-      testMatch: ['<rootDir>/tests/integration/debug/**/*.test.ts'],
-      testTimeout: 25000
+      testMatch: ['<rootDir>/tests/integration/debug/**/*.test.ts']
     },
     {
       displayName: 'validation',
-      testMatch: ['<rootDir>/tests/validation/**/*.test.ts'],
-      testTimeout: 30000
+      testMatch: ['<rootDir>/tests/validation/**/*.test.ts']
     },
     {
       displayName: 'london-school-helpers',
-      testMatch: ['<rootDir>/tests/utils/**/*.test.ts'],
-      testTimeout: 10000
+      testMatch: ['<rootDir>/tests/utils/**/*.test.ts']
     }
   ],
   // Memory leak detection

@@ -17,7 +17,7 @@ import { promises as fs } from 'node:fs';
 import * as path from 'node:path';
 import { glob } from 'glob';
 import { parse } from '@babel/parser';
-import traverse from '@babel/traverse';
+import traverse, { type NodePath } from '@babel/traverse';
 import generate from '@babel/generator';
 import * as t from '@babel/types';
 import { ComponentType } from '../src/core/logger.js';
@@ -228,8 +228,9 @@ export class AutomatedConsoleMigration {
       let needsImport = false;
 
       // Transform console calls
-      traverse(ast, {
-        MemberExpression(path) {
+      const traverseFunc = traverse.default || traverse;
+      traverseFunc(ast, {
+        MemberExpression(path: NodePath<t.MemberExpression>) {
           if (
             t.isIdentifier(path.node.object, { name: 'console' }) &&
             t.isIdentifier(path.node.property) &&
@@ -261,7 +262,9 @@ export class AutomatedConsoleMigration {
           t.stringLiteral(this.getRelativeImportPath(filePath)),
         );
 
-        ast.body.unshift(importDeclaration);
+        if ('body' in ast && Array.isArray(ast.body)) {
+          ast.body.unshift(importDeclaration);
+        }
       }
 
       // Generate transformed code
@@ -553,7 +556,6 @@ echo "✅ Rollback completed - ${rollbackData.length} files restored"
 }
 
 // CLI interface - PKG-compatible main module detection
-const __filename = process.argv[1] || require.main?.filename || '';
 const isMainModule = process.argv[1] && process.argv[1].endsWith('/automated-console-migration.ts');
 if (isMainModule) {
   const projectRoot = process.argv[2] || process.cwd();

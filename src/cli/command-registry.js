@@ -20,7 +20,7 @@ import { coordinationAction } from './simple-commands/coordination.js';
 import { hooksAction } from './simple-commands/hooks.js';
 import { hookSafetyCommand } from './simple-commands/hook-safety.js';
 import { hiveMindCommand } from './simple-commands/hive-mind.js';
-import { HelpFormatter } from './help-formatter.js';
+import { HelpFormatter } from './help-formatter.ts';
 import hiveMindOptimizeCommand from './simple-commands/hive-mind-optimize.js';
 import {
   showUnifiedMetrics,

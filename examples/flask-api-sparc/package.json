@@ -1,1 +1,13 @@
-Package configuration
+{
+  "name": "flask-api-sparc",
+  "version": "1.0.0",
+  "description": "Flask API SPARC example for Claude Flow",
+  "main": "src/app.py",
+  "scripts": {
+    "start": "python src/app.py",
+    "test": "pytest",
+    "build": "python setup.py build"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

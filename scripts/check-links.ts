@@ -1,11 +1,13 @@
-#!/usr/bin/env deno run --allow-net --allow-read
+#!/usr/bin/env tsx
 
 /**
  * Documentation Link Checker
  * Scans documentation files for broken links
  */
 
-import { walk } from 'https://deno.land/std@0.220.0/fs/mod.ts';
+import { readdir, stat, readFile } from 'node:fs/promises';
+import { join, extname } from 'node:path';
+import { existsSync } from 'node:fs';
 
 interface LinkCheckResult {
   file: string;
@@ -80,6 +82,24 @@ function shouldSkipUrl(url: string): boolean {
   return false;
 }
 
+async function walkDirectory(
+  dir: string,
+  extensions: string[],
+  callback: (filePath: string) => Promise<void>,
+): Promise<void> {
+  const entries = await readdir(dir, { withFileTypes: true });
+
+  for (const entry of entries) {
+    const fullPath = join(dir, entry.name);
+
+    if (entry.isDirectory()) {
+      await walkDirectory(fullPath, extensions, callback);
+    } else if (entry.isFile() && extensions.includes(extname(entry.name))) {
+      await callback(fullPath);
+    }
+  }
+}
+
 async function checkLink(url: string): Promise<{ status: number | null; error?: string }> {
   try {
     const controller = new AbortController();
@@ -105,7 +125,7 @@ async function checkLink(url: string): Promise<{ status: number | null; error?: 
 
     return {
       status: null,
-      error: error.message,
+      error: error instanceof Error ? error.message : String(error),
     };
   }
 }
@@ -114,7 +134,7 @@ async function scanFile(filePath: string): Promise<LinkCheckResult[]> {
   const results: LinkCheckResult[] = [];
 
   try {
-    const content = await Deno.readTextFile(filePath);
+    const content = await readFile(filePath, 'utf-8');
     const links = extractLinks(content);
 
     // Remove duplicates and filter
@@ -169,7 +189,9 @@ async function scanFile(filePath: string): Promise<LinkCheckResult[]> {
 
     results.push(...(await Promise.all(promises)));
   } catch (error) {
-    console.warn(`Failed to scan ${filePath}: ${error.message}`);
+    console.warn(
+      `Failed to scan ${filePath}: ${error instanceof Error ? error.message : String(error)}`,
+    );
   }
 
   return results;
@@ -187,26 +209,28 @@ async function main(): Promise<void> {
 
   for (const dir of directories) {
     try {
-      const stat = await Deno.stat(dir);
-      if (stat.isFile) {
+      if (!existsSync(dir)) {
+        continue;
+      }
+
+      const stats = await stat(dir);
+      if (stats.isFile()) {
         // Single file
         const fileResults = await scanFile(dir);
         results.push(...fileResults);
         fileCount++;
-      } else if (stat.isDirectory) {
+      } else if (stats.isDirectory()) {
         // Directory
-        for await (const entry of walk(dir, { exts: extensions })) {
-          if (entry.isFile) {
-            const fileResults = await scanFile(entry.path);
-            results.push(...fileResults);
-            fileCount++;
-          }
-        }
+        await walkDirectory(dir, extensions, async (filePath) => {
+          const fileResults = await scanFile(filePath);
+          results.push(...fileResults);
+          fileCount++;
+        });
       }
     } catch (error) {
-      if (!(error instanceof Deno.errors.NotFound)) {
-        console.warn(`Failed to process ${dir}: ${error.message}`);
-      }
+      console.warn(
+        `Failed to process ${dir}: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
@@ -265,7 +289,7 @@ async function main(): Promise<void> {
 
     // Don't fail CI for timeouts or minor errors, only broken links
     if (scanResult.brokenLinks.length > 0) {
-      Deno.exit(1);
+      process.exit(1);
     }
   }
 }

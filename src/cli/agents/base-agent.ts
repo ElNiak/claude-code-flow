@@ -82,7 +82,7 @@ export abstract class BaseAgent extends EventEmitter {
     this.memory = memory;
 
     // Merge with defaults
-    this.capabilities = { ...this.getDefaultCapabilities(), ...(config as any).capabilities };
+    this.capabilities = { ...this.getDefaultCapabilities(), ...config.capabilities };
     this.config = { ...this.getDefaultConfig(), ...config };
     this.environment = { ...this.getDefaultEnvironment(), ...environment };
     this.metrics = this.createDefaultMetrics();
@@ -93,7 +93,7 @@ export abstract class BaseAgent extends EventEmitter {
   // Abstract methods that specialized agents must implement
   protected abstract getDefaultCapabilities(): AgentCapabilities;
   protected abstract getDefaultConfig(): Partial<AgentConfig>;
-  public abstract executeTask(task: TaskDefinition): Promise<any>;
+  public abstract executeTask(task: TaskDefinition): Promise<unknown>;
 
   // Common agent lifecycle methods
   async initialize(): Promise<void> {
@@ -275,7 +275,7 @@ export abstract class BaseAgent extends EventEmitter {
     };
   }
 
-  getAgentStatus(): any {
+  getAgentStatus(): Record<string, unknown> {
     return {
       id: this.id,
       type: this.type,

@@ -9,24 +9,24 @@
  * - Circuit breakers and fault tolerance
  */
 
-import { EventBus } from '../src/core/event-bus.ts';
-import { ConsoleLogger } from '../src/core/logger.ts';
-import { CoordinationManager } from '../src/coordination/manager.ts';
-import { Task, SystemEvents } from '../src/utils/types.ts';
-import { delay } from '../src/utils/helpers.ts';
+import { EventBus } from '../src/core/event-bus.js';
+import { coreLogger } from '../src/core/logger.js';
+import { CoordinationManager } from '../src/coordination/manager.js';
+import { Task, SystemEvents } from '../src/utils/types.js';
+import { delay } from '../src/utils/helpers.js';
 
 async function testCoordinationFeatures() {
   console.log('🔄 Testing Claude-Flow Coordination Features\n');
 
-  const eventBus = new EventBus();
-  const logger = new ConsoleLogger('coord-test');
+  const eventBus = EventBus.getInstance();
+  const logger = coreLogger;
 
   const config = {
     maxRetries: 3,
     retryDelay: 1000,
     resourceTimeout: 5000,
     deadlockDetection: true,
-    priorityLevels: 5,
+    messageTimeout: 10000,
   };
 
   const coordinator = new CoordinationManager(config, eventBus, logger);

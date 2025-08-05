@@ -1,1 +1,16 @@
-Package configuration
+{
+  "name": "data-pipeline",
+  "version": "1.0.0",
+  "description": "Data pipeline example for Claude Flow",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "node src/main.js",
+    "test": "jest",
+    "build": "tsc"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "jest": "^29.0.0",
+    "typescript": "^5.0.0"
+  }
+}

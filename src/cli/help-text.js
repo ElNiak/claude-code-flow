@@ -3,7 +3,7 @@
  * Provides clear, actionable command documentation
  */
 
-import { HelpFormatter } from './help-formatter.js';
+import { HelpFormatter } from './help-formatter.ts';
 import { getVersion } from '../utils/version.js';
 
 export const VERSION = getVersion();

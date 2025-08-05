@@ -114,7 +114,7 @@ COMMUNICATION STYLE:
 - Focus on swarm objectives`;
   }
 
-  async analyzeObjective(objective: string): Promise<any> {
+  async analyzeObjective(_objective: string): Promise<any> {
     return {
       complexity: 'high',
       requiredAgents: ['architect', 'worker', 'scout', 'guardian'],
@@ -613,6 +613,8 @@ export class HiveAgentFactory {
         return new GuardianAgent(config.name, agentConfig, environment, logger, eventBus, memory);
 
       case 'architect':
+        // Import from dedicated architect.ts file
+        const { ArchitectAgent } = await import('./architect.js');
         return new ArchitectAgent(config.name, agentConfig, environment, logger, eventBus, memory);
 
       default:
@@ -647,7 +649,15 @@ export class HiveAgentFactory {
 
     if (needsDesign && agents.length < maxAgents) {
       agents.push(
-        new ArchitectAgent('Architect-Prime', agentConfig, environment, logger, eventBus, memory),
+        // Import from dedicated architect.ts file
+        new (await import('./architect.js')).ArchitectAgent(
+          'Architect-Prime',
+          agentConfig,
+          environment,
+          logger,
+          eventBus,
+          memory,
+        ),
       );
     }
 

@@ -89,6 +89,7 @@ __pycache__/
 # Test artifacts
 test-output/
 test-reports/
+reports/
 # SQLite Database Files
 .swarm/memory.db*
 .hive-mind/hive.db*

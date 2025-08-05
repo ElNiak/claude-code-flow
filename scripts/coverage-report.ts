@@ -1,12 +1,73 @@
-#!/usr/bin/env -S deno run --allow-all
+#!/usr/bin/env tsx
 /**
  * Advanced coverage analysis and reporting
  */
 
-import { parseArgs } from 'https://deno.land/std@0.220.0/cli/parse_args.ts';
-import { exists } from 'https://deno.land/std@0.220.0/fs/exists.ts';
-import { ensureDir } from 'https://deno.land/std@0.220.0/fs/ensure_dir.ts';
-import { walk } from 'https://deno.land/std@0.220.0/fs/walk.ts';
+import { readFile, writeFile, readdir, mkdir } from 'node:fs/promises';
+import { join, relative, extname } from 'node:path';
+import { existsSync } from 'node:fs';
+import { argv } from 'node:process';
+
+// Simple parseArgs implementation
+function parseArgs(
+  args: string[],
+  options: {
+    string?: string[];
+    boolean?: string[];
+    alias?: Record<string, string>;
+    default?: Record<string, any>;
+  } = {},
+) {
+  const result: Record<string, any> = { ...options.default };
+  const positional: string[] = [];
+
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    if (arg.startsWith('--')) {
+      const key = arg.slice(2);
+      if (options.boolean?.includes(key)) {
+        result[key] = true;
+      } else if (options.string?.includes(key) && i + 1 < args.length) {
+        result[key] = args[++i];
+      } else {
+        result[key] = true;
+      }
+    } else {
+      positional.push(arg);
+    }
+  }
+
+  result._ = positional;
+  return result;
+}
+
+// Helper functions to replace Deno std library
+async function ensureDir(dir: string): Promise<void> {
+  await mkdir(dir, { recursive: true });
+}
+
+async function exists(path: string): Promise<boolean> {
+  return existsSync(path);
+}
+
+async function* walk(
+  dir: string,
+  options: { exts?: string[] } = {},
+): AsyncGenerator<{ path: string; isFile: boolean }> {
+  const entries = await readdir(dir, { withFileTypes: true });
+
+  for (const entry of entries) {
+    const entryPath = join(dir, entry.name);
+
+    if (entry.isDirectory()) {
+      yield* walk(entryPath, options);
+    } else if (entry.isFile()) {
+      if (!options.exts || options.exts.includes(extname(entry.name))) {
+        yield { path: entryPath, isFile: true };
+      }
+    }
+  }
+}
 
 interface CoverageData {
   url: string;
@@ -126,7 +187,7 @@ class CoverageAnalyzer {
       exts: ['.json'],
       includeDirs: false,
     })) {
-      const content = await Deno.readTextFile(entry.path);
+      const content = await readFile(entry.path, 'utf-8');
       const data = JSON.parse(content);
 
       if (data.url && data.ranges) {
@@ -146,7 +207,7 @@ class CoverageAnalyzer {
       skip: [/\.test\.ts$/, /test\.ts$/, /tests?\//],
     })) {
       // Normalize path
-      const relativePath = entry.path.replace(Deno.cwd() + '/', '');
+      const relativePath = relative(process.cwd(), entry.path);
       files.push(relativePath);
     }
 
@@ -160,7 +221,7 @@ class CoverageAnalyzer {
     }
 
     // Remove leading slash and make relative to cwd
-    const cwd = Deno.cwd();
+    const cwd = process.cwd();
     if (url.startsWith(cwd)) {
       url = url.replace(cwd + '/', '');
     }
@@ -184,7 +245,7 @@ class CoverageAnalyzer {
   }
 
   private async analyzeFile(filePath: string, coverage?: CoverageData): Promise<FileCoverage> {
-    const content = await Deno.readTextFile(filePath);
+    const content = await readFile(filePath, 'utf-8');
     const lines = content.split('\n');
     const totalLines = lines.filter((line) => line.trim() && !line.trim().startsWith('//')).length;
 
@@ -516,14 +577,15 @@ class CoverageAnalyzer {
 </body>
 </html>`;
 
-    await Deno.writeTextFile(`${this.outputDir}/coverage-detailed.html`, html);
+    await writeFile(`${this.outputDir}/coverage-detailed.html`, html, 'utf-8');
     console.log('  ✅ Detailed HTML coverage report generated');
   }
 
   private async generateJSONReport(report: CoverageReport): Promise<void> {
-    await Deno.writeTextFile(
+    await writeFile(
       `${this.outputDir}/coverage-report.json`,
       JSON.stringify(report, null, 2),
+      'utf-8',
     );
     console.log('  ✅ JSON coverage report generated');
   }
@@ -610,7 +672,7 @@ class CoverageAnalyzer {
       lines.push('• Coverage needs improvement. Add tests for core functionality first.');
     }
 
-    await Deno.writeTextFile(`${this.outputDir}/coverage-report.txt`, lines.join('\n'));
+    await writeFile(`${this.outputDir}/coverage-report.txt`, lines.join('\n'), 'utf-8');
     console.log('  ✅ Text coverage report generated');
   }
 
@@ -641,9 +703,10 @@ class CoverageAnalyzer {
       status: report.summary.passed ? 'passed' : 'failed',
     };
 
-    await Deno.writeTextFile(
+    await writeFile(
       `${this.outputDir}/coverage-badges.json`,
       JSON.stringify(badges, null, 2),
+      'utf-8',
     );
 
     console.log('  ✅ Coverage badges generated');
@@ -651,7 +714,7 @@ class CoverageAnalyzer {
 }
 
 async function main(): Promise<void> {
-  const args = parseArgs(Deno.args, {
+  const args = parseArgs(argv.slice(2), {
     string: ['source-dir', 'coverage-dir', 'output-dir'],
     boolean: ['help'],
     default: {
@@ -723,15 +786,14 @@ EXAMPLES:
     console.log(`  - Text Summary: coverage-report.txt`);
     console.log(`  - Badges: coverage-badges.json`);
 
-    Deno.exit(report.summary.passed ? 0 : 1);
+    process.exit(report.summary.passed ? 0 : 1);
   } catch (error) {
     console.error('❌ Coverage analysis failed:', error.message);
-    Deno.exit(1);
+    process.exit(1);
   }
 }
 
 // CLI interface - PKG-compatible main module detection
-const __filename = process.argv[1] || require.main?.filename || '';
 const isMainModule = process.argv[1] && process.argv[1].endsWith('/coverage-report.ts');
 if (isMainModule) {
   main();

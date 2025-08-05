@@ -9,22 +9,21 @@
  * - System coordination
  */
 
-import { Orchestrator } from '../../src/core/orchestrator.ts';
-import { EventBus } from '../../src/core/event-bus.ts';
-import { ConsoleLogger } from '../../src/core/logger.ts';
-import { TerminalManager } from '../../src/terminal/manager.ts';
-import { MemoryManager } from '../../src/memory/manager.ts';
-import { CoordinationManager } from '../../src/coordination/manager.ts';
-import { MCPServer } from '../../src/mcp/server.ts';
-import { Config, AgentProfile, Task, SystemEvents, TaskStatus } from '../../src/utils/types.ts';
-import { delay } from '../../src/utils/helpers.ts';
+import { Orchestrator } from '../../src/core/orchestrator.js';
+import { EventBus } from '../../src/core/event-bus.js';
+import { coreLogger } from '../../src/core/logger.js';
+import { TerminalManager } from '../../src/terminal/manager.js';
+import { MemoryManager } from '../../src/memory/manager.js';
+import { CoordinationManager } from '../../src/coordination/manager.js';
+import { MCPServer } from '../../src/mcp/server.js';
+import { Config, AgentProfile, Task, SystemEvents, TaskStatus } from '../../src/utils/types.js';
+import { delay } from '../../src/utils/helpers.js';
 
 // Test configuration
 const testConfig: Config = {
   orchestrator: {
     maxConcurrentAgents: 10,
     taskQueueSize: 100,
-    sessionTimeout: 300000,
     shutdownTimeout: 30000,
     healthCheckInterval: 10000,
     persistSessions: false,
@@ -36,35 +35,33 @@ const testConfig: Config = {
     taskHistoryRetentionMs: 86400000,
   },
   memory: {
-    defaultBackend: 'sqlite',
-    backends: {
-      sqlite: {
-        type: 'sqlite',
-        path: ':memory:', // Use in-memory DB for tests
-      },
-    },
-    cacheSize: 1000,
-    cacheTTL: 300000,
+    backend: 'sqlite' as const,
+    cacheSizeMB: 100,
+    syncInterval: 30000,
+    conflictResolution: 'last-write' as const,
+    retentionDays: 30,
+    sqlitePath: ':memory:',
   },
   terminal: {
-    maxSessions: 20,
-    idleTimeout: 60000,
-    commandTimeout: 30000,
+    type: 'auto' as const,
     poolSize: 5,
-    defaultShell: '/bin/bash',
+    recycleAfter: 100,
+    healthCheckInterval: 30000,
+    commandTimeout: 30000,
   },
   coordination: {
     maxRetries: 3,
     retryDelay: 1000,
     resourceTimeout: 60000,
     deadlockDetection: true,
-    priorityLevels: 5,
+    messageTimeout: 10000,
   },
   mcp: {
-    serverPort: 0, // Use random port for test
-    maxConnections: 50,
-    authRequired: false,
-    enabledTransports: ['stdio'],
+    transport: 'stdio' as const,
+    port: 0, // Use random port for test
+    sessionTimeout: 30000,
+    maxSessions: 50,
+    enableMetrics: false,
   },
   agents: [],
 };
@@ -167,8 +164,8 @@ export async function runBatchTaskTest() {
   console.log('🚀 Starting Claude-Flow Batch Task System Test\n');
 
   // Initialize components
-  const eventBus = new EventBus();
-  const logger = new ConsoleLogger('test');
+  const eventBus = EventBus.getInstance();
+  const logger = coreLogger;
 
   // Set up event monitoring
   const taskMetrics = {

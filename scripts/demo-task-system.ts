@@ -1,4 +1,4 @@
-#!/usr/bin/env -S deno run --allow-all
+#!/usr/bin/env tsx
 
 /**
  * Simple demonstration of Claude-Flow task system
@@ -10,10 +10,10 @@
  * 5. Getting results
  */
 
-import { EventBus } from '../src/core/event-bus.ts';
-import { Logger } from '../src/core/logger.ts';
-import { SystemEvents, Task, AgentProfile } from '../src/utils/types.ts';
-import { delay } from '../src/utils/helpers.ts';
+import { EventBus } from '../src/core/event-bus.js';
+import { Logger } from '../src/core/logger.js';
+import { SystemEvents, Task, AgentProfile } from '../src/utils/types.js';
+import { delay } from '../src/utils/helpers.js';
 
 // Simple task executor
 class SimpleTaskExecutor {

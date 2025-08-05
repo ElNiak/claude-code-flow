@@ -604,18 +604,12 @@ export class AnalystAgent extends BaseAgent {
     await this.delay(2000);
 
     statistics.results = {
-      normalityTest: {
-        statistic: 0.923,
-        pValue: 0.041,
-        significant: true,
-        interpretation: 'Data deviates significantly from normal distribution',
-      },
-      correlationTest: {
-        coefficient: 0.756,
-        pValue: 0.002,
-        significant: true,
-        interpretation: 'Strong positive correlation detected',
-      },
+      normalityStatistic: 0.923,
+      normalityPValue: 0.041,
+      normalitySignificant: true,
+      correlationCoefficient: 0.756,
+      correlationPValue: 0.002,
+      correlationSignificant: true,
     };
 
     statistics.conclusions.push(
@@ -643,7 +637,7 @@ export class AnalystAgent extends BaseAgent {
       style,
       interactive,
       charts: [],
-      dashboard: null,
+      dashboard: { widgets: [] },
       insights: [] as string[],
       recommendations: [] as string[],
       exportFormats: ['png', 'svg', 'pdf', 'html'],
@@ -925,11 +919,11 @@ export class AnalystAgent extends BaseAgent {
     await this.delay(3500);
 
     intelligence.kpis = {
-      revenue_growth: 12.5,
-      customer_acquisition_cost: 45.3,
-      lifetime_value: 1250.0,
-      churn_rate: 5.2,
-      market_share: 15.7,
+      revenue_growth: { value: 12.5, target: 15.0, trend: 'up' },
+      customer_acquisition_cost: { value: 45.3, target: 40.0, trend: 'down' },
+      lifetime_value: { value: 1250.0, target: 1200.0, trend: 'up' },
+      churn_rate: { value: 5.2, target: 4.0, trend: 'down' },
+      market_share: { value: 15.7, target: 18.0, trend: 'up' },
     };
 
     intelligence.insights = [

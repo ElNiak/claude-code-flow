@@ -6,9 +6,9 @@
 
 import * as chalk from 'chalk';
 import * as path from 'path';
-import { MigrationRunner } from '../src/migration/migration-runner';
-import { MigrationAnalyzer } from '../src/migration/migration-analyzer';
-import { RollbackManager } from '../src/migration/rollback-manager';
+import { MigrationRunner } from '../src/migration/migration-runner.js';
+import { MigrationAnalyzer } from '../src/migration/migration-analyzer.js';
+import { RollbackManager } from '../src/migration/rollback-manager.js';
 
 // Example 1: Basic Project Migration
 async function basicMigration() {

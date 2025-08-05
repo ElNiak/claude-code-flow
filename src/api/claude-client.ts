@@ -372,8 +372,11 @@ export class ClaudeAPIClient extends EventEmitter {
       }
     }
 
-    this.handleError(lastError!);
-    throw lastError;
+    if (lastError) {
+      this.handleError(lastError);
+      throw lastError;
+    }
+    throw new Error('Request failed without specific error');
   }
 
   /**
